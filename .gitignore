@@ -1,0 +1,10 @@
+/.env
+env
+/.vscode
+/*.srt
+/*.debug
+/*.subtrans
+/*.substitutions
+__pycache__
+/Projects
+Example project format.txt
