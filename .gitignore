@@ -7,3 +7,4 @@ env
 /*.substitutions
 __pycache__
 /Projects
+/subtrans-env
