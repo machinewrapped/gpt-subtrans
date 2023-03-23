@@ -7,4 +7,4 @@ env
 /*.substitutions
 __pycache__
 /Projects
-Example project format.txt
+/subtrans-env
