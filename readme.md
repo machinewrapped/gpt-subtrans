@@ -51,6 +51,7 @@ For more control over the translation process it is recommended to use an IDE su
 
 Note: Remember to activate the virtual environment every time you work on the project.
 
+It is highly recommended to use Subtitle Edit's (https://www.nikse.dk/subtitleedit) "Fix Common Errors" on the results to clean them up (e.g. add line breaks).
 
 ## Advanced usage
 
@@ -77,9 +78,20 @@ There are a number of command-line arguments that offer more control over the tr
 - `-s`, `--substitution`:
   A pair of strings separated by `::`, to substitute in either source or translation.
 
+- `--scenethreshold`:
+  Number of seconds between lines to consider it a new scene.
+
+- `--batchthreshold`:
+  Number of seconds between lines to consider starting a new batch of subtitles to translate.
+  Smaller batches take longer and cost more, but introduce more sync points and reduce the scope for ChatGPT to drift.
+
 - `--minbatchsize`:
   Minimum number of lines to consider starting a new batch to send to ChatGPT. Higher values result in
   faster and cheaper translations but increase the risk of ChatGPT desyncing.
+
+- `--maxbatchsize`:
+  Maximum number of lines before starting a new batch is compulsory. Higher values make the translation
+  faster and cheaper, but increase the risk of ChatGPT getting confused or improvising.
 
 - `--maxbatchsize`:
   Maximum number of lines before starting a new batch is compulsory. Higher values make the translation
