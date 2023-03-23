@@ -21,7 +21,7 @@ To install GPT-Subtrans, you will need to have Python 3.x and pip installed on y
 
 4. Activate the virtual environment by running the following command:
 ```
-    subtrans-env/bin/activate
+    .\subtrans-env\Scripts\activate
 ```
 
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
