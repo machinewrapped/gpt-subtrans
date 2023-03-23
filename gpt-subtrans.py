@@ -30,6 +30,8 @@ parser.add_argument('--synopsis', type=str, default=None, help="A brief synopsis
 parser.add_argument('--characters', type=str, default=None, help="A list of character names")
 parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum number of lines to consider starting a new batch")
 parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
+parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
+parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
 parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
 
 args = parser.parse_args()
@@ -48,6 +50,8 @@ try:
         'instruction_args': args.instruction,
         'min_batch_size': args.minbatchsize,
         'max_batch_size': args.maxbatchsize,
+        'batch_threshold': args.batchthreshold,
+        'scene_threshold': args.scenethreshold,
         'project': args.project and args.project.lower()
     })
 
