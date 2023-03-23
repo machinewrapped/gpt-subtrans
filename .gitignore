@@ -1,3 +1,9 @@
-
-.env
-subtrans-env/Scripts/python.exe
+/.env
+env
+/.vscode
+/*.srt
+/*.debug
+/*.subtrans
+/*.substitutions
+__pycache__
+/Projects
