@@ -17,6 +17,7 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
 parser = argparse.ArgumentParser(description='Translates an SRT file using ChatGPT')
 parser.add_argument('input', help="Input SRT file path")
 parser.add_argument('-o', '--output', help="Output SRT file path")
+parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
 parser.add_argument('-m', '--moviename', type=str, default=None, help="Optionally specify the name of the movie to help the translator")
 parser.add_argument('-r', '--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
 parser.add_argument('-k', '--apikey', type=str, default=None, help="Your OpenAI API Key (https://platform.openai.com/account/api-keys)")
@@ -38,6 +39,7 @@ try:
         'api_key': args.apikey,
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,
+        'target_language': args.target_language,
         'movie_name': args.moviename or args.input,
         'synopsis': args.synopsis,
         'characters': args.characters,

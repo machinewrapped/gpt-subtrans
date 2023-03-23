@@ -2,7 +2,6 @@ import os
 import logging
 import pysrt
 from pysrt import SubRipFile
-from pysrt import SubRipItem
 from PySubtitleGPT.Helpers import UnbatchScenes
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
