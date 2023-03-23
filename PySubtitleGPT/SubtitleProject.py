@@ -21,6 +21,7 @@ class SubtitleProject:
         self.resume = project_mode in ["resume"]
         self.reparse = project_mode in ["reparse"]
         self.retranslate = project_mode in ["retranslate"]
+        self.stop_on_error = options.get('stop_on_error', False)
 
         options.add('write_project', self.write_project)
         options.add('preview', self.preview)
@@ -44,7 +45,7 @@ class SubtitleProject:
 
         filename = filename or self.filename
 
-        logging.info(f"Writing project data to {str(filename)}")
+        logging.debug(f"Writing project data to {str(filename)}")
 
         with open(filename, 'w', encoding=default_encoding) as f:
             project_json = json.dumps(subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)

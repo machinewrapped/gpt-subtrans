@@ -95,6 +95,9 @@ class SubtitleFile:
             self.SaveTranslation()
 
         except Exception as e:
+            if options.get('stop_on_error', False):
+                self.SaveTranslation()
+
             logging.error(f"Failed to translate subtitles")
             raise
 

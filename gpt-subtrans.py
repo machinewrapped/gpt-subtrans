@@ -84,8 +84,8 @@ try:
     subtitles.Translate(options, project)
 
     if project.write_project:
+        logging.info(f"Writing project data to {str(subtitles.filename)}")
         project.WriteProjectFile(subtitles)
-
 
 except Exception as e:
     print("Error:", e)
