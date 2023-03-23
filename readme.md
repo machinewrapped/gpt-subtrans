@@ -1,56 +1,139 @@
-# SubtitleGPT
-SubtitleGPT is an open source subtitle translator built with the OpenAI GPT-3 language model. It can translate subtitles between any language pairs supported by GPT-3.
+# GPT-Subtrans
+GPT-Subtrans is an open source subtitle translator built with OpenAI's ChatGPT. It can translate subtitles between any language pairs supported by the GPT language model.
 
 ## Installation
-To install SubtitleGPT, you will need to have Python 3.x and pip installed on your system. I recommend using Visual Studio Code (VS Code) to run the project.
+To install GPT-Subtrans, you will need to have Python 3.x and pip installed on your system.
 
-1. Clone the SubtitleGPT repository onto your local machine using the following command:
-
-git clone https://github.com/your_username/subtitlegpt.git
-Create a new file named .env in the root directory of the project.
-
-2. Add your OpenAI API key to the .env file like this:
-
+1. Clone the GPT-Subtrans repository onto your local machine using the following command:
 ```
-OPENAI_API_KEY=<your_api_key_here>
+    git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-Make sure to replace <your_api_key_here> with your actual API key.
-
-3. Create a virtual environment for the project by running the following command in your terminal:
-
+2. Create a new file named .env in the root directory of the project. Add your OpenAI API key to the .env file like this:
 ```
-python3 -m venv subtitlegpt-env
+    OPENAI_API_KEY=<your_api_key_here>
 ```
 
-This will create a new folder named env that contains a copy of the Python interpreter.
+3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
+```
+    python -m venv subtrans-env
+```
 
 4. Activate the virtual environment by running the following command:
+```
+    subtrans-env/bin/activate
+```
+
+5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
+```
+    pip install -r requirements.txt
+```
+
+Note that steps 3 and 4 are optional, but they can help prevent conflicts with other Python applications.
+
+
+## Usage
+
+The simplest way use GPT-Subtrans is with a console command. From the root directory of the project run:
+```
+gpt-subtrans <path_to_srt_file> --target_language <target_language>
+```
+
+This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified, the default is English.
+
+The program works by dividing the subtitles up into small batches and sending each one to Chat GPT in turn. It is likely to take a long time to complete, and can potentially make hundreds of API calls.
+
+Note: GPT-Subtrans requires an active internet connection to access the OpenAI API.
+
+By default The translated subtitles will be written to a new SRT file with the suffix -ChatGPT added to the original filename, in the same directory.
+
+For more control over the translation process it is recommended to use an IDE such as VS Code to configure launch parameters.
+
+Note: Remember to activate the virtual environment every time you work on the project.
+
+
+## Advanced usage
+
+There are a number of command-line arguments that offer more control over the translation process:
+
+- `-o`, `--output`:
+  Specify the filename for the translated subtitles.
+
+- `-p`, `--project`:
+  Read or Write a project file for the subtitles being translated. More on this below.
+
+- `-r`, `--ratelimit`:
+  Maximum number of batches per minute to process. If you're on the OpenAI free trial this to about 10.
+
+- `-m`, `--moviename`:
+  Optionally specify the name of the movie to give context to the translator.
+
+- `--characters`:
+  Optionally provide a list of character names to use in the translation.
+
+- `--synopsis`:
+  A brief synopsis of the film to give context. Less is more here, otherwise ChatGPT can start improvising.
+
+- `-s`, `--substitution`:
+  A pair of strings separated by `::`, to substitute in either source or translation.
+
+- `--minbatchsize`:
+  Minimum number of lines to consider starting a new batch to send to ChatGPT. Higher values result in
+  faster and cheaper translations but increase the risk of ChatGPT desyncing.
+
+- `--maxbatchsize`:
+  Maximum number of lines before starting a new batch is compulsory. Higher values make the translation
+  faster and cheaper, but increase the risk of ChatGPT getting confused or improvising.
+
+- `-k`, `--apikey`:
+  Your OpenAI API Key (https://platform.openai.com/account/api-keys). Not required if it is set in .env
+
+- `-t`, `--temperature`:
+  A higher temperature increases the random variance of translations. Default 0.
+
+- `-i`, `--instruction`:
+  An additional instruction for Chat GPT about how it should approach the translation.
+
+- `-f`, `--instructionfile`:
+  Name/path of a file to load GPT instructions from (otherwise the default instructions.text is used).
+
+- `--maxlines`:
+  Maximum number of batches to process. To end the translation after a certain number of lines, e.g. to check the results.
+
+To use any of these arguments, add them to the command-line after the path to the SRT file. For example:
 
 ```
-source env/bin/activate
+gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit 10 -s cat::dog
 ```
 
-5. Install the required libraries using pip by running the following command in your terminal:
+Many of these settings can be configured in the .env file too, using a similar name NAME_IN_CAPS with underscores, 
+along with some other less commonly useful options. See Options.py for the full list. Arguments specified on the command line always have priority.
 
-```
-pip install -r requirements.txt
-```
-This will install all the dependencies listed in the requirements.txt file.
 
-6. Once the installation is complete, open the project in VS Code or your preferred IDE to start using SubtitleGPT.
+## Project File
 
-Note: Remember to activate the virtual environment every time you work on the project by running the command in step 4. To deactivate the virtual environment, run the command deactivate.
+The `--project` argument or `PROJECT` .env setting can take a number of values, which control whether and when an intermediate file will be written to disc.
+
+The default setting is `None`, which means the project file is neither written nor read, the only output of the program is the final translation.
+
+If the argument is set to `True` then a JSON file will be created with the `.subtrans` extension, containing details of the translation process, 
+and it will be updated as the translation progresses.
+
+Writing a project file allows, amongst other things, resuming a translation that was interrupted. Set the argument to `resume` to enable this.
+
+Other valid options include `preview`, `reparse` and `retranslate`. These are probably only useful if you're modifying the code, in which case
+you should be able to see what they do.
+
 
 ## Contributing
-Contributions from the community are welcome! To contribute to SubtitleGPT, follow these steps:
+Contributions from the community are welcome! To contribute to GPT-Subtrans, follow these steps:
 
 Fork the repository onto your own GitHub account.
 
 Clone the repository onto your local machine using the following command:
 
 ```
-git clone https://github.com/your_username/subtitlegpt.git
+git clone https://github.com/your_username/GPT-Subtrans.git
 ```
 
 Create a new branch for your changes using the following command:
@@ -63,7 +146,10 @@ Make your changes to the code and commit them with a descriptive commit message.
 
 Push your changes to your forked repository.
 
-Submit a pull request to the main SubtitleGPT repository.
+Submit a pull request to the main GPT-Subtrans repository.
+
+## Acknowledgements
+This project uses the pysrt library (https://github.com/byroot/pysrt).
 
 ## License
-SubtitleGPT is licensed under the MIT License.
+GPT-Subtrans is licensed under the MIT License.
