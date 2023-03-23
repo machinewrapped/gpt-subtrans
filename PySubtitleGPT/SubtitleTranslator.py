@@ -133,7 +133,7 @@ class SubtitleTranslator:
 
         except Exception as e:
             if project.write_project:
-                project.WriteProjectFile(self.scenes)
+                project.UpdateProjectFile(self.scenes)
 
             if options.get('stop_on_error', False):
                 raise
@@ -208,8 +208,10 @@ class SubtitleTranslator:
                         if translation.reached_token_limit:
                             raise TranslationError(f"Too many tokens in translation", translation)
 
+                batch.translation = translation
+
                 # Process the response
-                self.ProcessTranslation(scene, translation, batch, context, client)
+                self.ProcessTranslation(scene, batch, context, client)
 
             except Exception as e:
                 if options.get('stop_on_error', False):
@@ -227,13 +229,15 @@ class SubtitleTranslator:
 
             context['previous_batch'] = batch
 
-    def ProcessTranslation(self, scene, translation, batch, context, client):
+    def ProcessTranslation(self, scene, batch, context, client):
         """
         Attempt to extract translation from the API response
         """
         options = self.options
         project = self.project
         substitutions = options.get('substitutions')
+
+        translation = batch.translation
 
         if not translation.has_translation:
             raise ValueError("Translation contains no translated text")

@@ -7,9 +7,9 @@ class SubtitleBatch:
         self.number = dict.get('number')
         self.summary = dict.get('summary')
         self.context = dict.get('context', {})
+        self.translation = dict.get('translation')
         self._subtitles = dict.get('subtitles', [])
         self._translated = dict.get('translated', [])
-        self._translation = dict.get('translation')
 
     @property
     def subtitles(self):
@@ -19,10 +19,6 @@ class SubtitleBatch:
     def size(self):
         return len(self._subtitles)
     
-    @property
-    def translation(self):
-        return self._translation
-
     @property
     def translated(self):
         return self._translated

@@ -58,7 +58,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "context": {
                     "summary": obj.context.get('summary')
                 },
-                "translation": obj._translation
+                "translation": obj.translation
             }
         elif isinstance(obj, Subtitle):
             return {
