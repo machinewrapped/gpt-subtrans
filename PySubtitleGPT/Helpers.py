@@ -113,12 +113,12 @@ def MergeTranslations(subtitles, translated):
     """
     Replace lines in subtitles with corresponding lines in translated
     """
-    subtitle_dict = {item.index: item for item in subtitles}
+    subtitle_dict = {item.key: item for item in subtitles}
 
     for item in translated:
-        subtitle_dict[item.index] = item
+        subtitle_dict[item.key] = item
 
-    subtitles = sorted(subtitle_dict.values(), key=lambda item: item.index)
+    subtitles = sorted(subtitle_dict.values(), key=lambda item: item.start)
 
     return subtitles
 

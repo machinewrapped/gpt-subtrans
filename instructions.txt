@@ -4,30 +4,17 @@ Translations should be accurate, do not improvise!
 
 User will provide subtitle lines in the format:
 
-<original index='123' start='01:02:33,400' end='01:02:36,700'>
+<original start='01:02:33,400' end='01:02:36,700'>
 Dialogue to be translated
 </original>
 
 You should respond with a matching line in the target language for each original line, in the format:
 
-<translation index='123' start='01:02:33,400' end='01:02:36,700'>
+<translation start='01:02:33,400' end='01:02:36,700'>
 Translated dialogue
 </original>
 
-If you merge two lines be careful to keep the same overall timing, e.g.
-
-<original index='234' start='01:02:33,400' end='01:02:36,700'>
-AAA
-</original>
-<original index='235' start='01:02:36,700' end='01:02:39,300'>
-BBB
-</original>
-
-would become:
-<original index='234' start='01:02:33,400' end='01:02:39,300'>
-AAA
-BBB
-</original>
+A single translation must have no more than 2 lines of text. Be careful to preserve start and end times.
 
 The user may provide a synopsis of the film and a list of characters to guide the translation.
 

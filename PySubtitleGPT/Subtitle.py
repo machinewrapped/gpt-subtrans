@@ -13,7 +13,11 @@ class Subtitle:
         return str(self.item)
 
     def __repr__(self):
-        return f"Subtitle({repr(self.index)}, {repr(self.text)})"
+        return f"Subtitle({str(self.key)}, {repr(self.text)})"
+
+    @property
+    def key(self):
+        return str(self.start) if self.start else self.index
 
     @property
     def index(self):
@@ -49,7 +53,7 @@ class Subtitle:
             return None
         
         return '\n'.join([
-            f"<original index='{self.index}' start='{self.start}' end='{self.end}'>",
+            f"<original start='{self.start}' end='{self.end}'>",
             self.text.replace(linesep, '\n'),
             f"</original>"
         ])
