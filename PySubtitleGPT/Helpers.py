@@ -1,7 +1,6 @@
 import logging
 import re
-
-from PySubtitleGPT.Subtitle import Subtitle
+import pysrt
 
 def Linearise(lines):
     if isinstance(lines, list):
@@ -9,28 +8,31 @@ def Linearise(lines):
     lines = [line.strip() for line in str(lines).split("\n")]
     return " | ".join(lines)
 
-def GetSubtitles(lines):
-    """
-    (re)parse the lines as subtitles, assuming SubRip format 
-    """
-    if all(isinstance(line, Subtitle) for line in lines):
-        return lines
-    else:
-        return [Subtitle(line) for line in lines]
+def FixTime(time):
+    try:
+        return str(pysrt.SubRipTime.coerce(time))
 
-def GetLineItems(lines, tag):
-    """
-    Generate a set of translation lines for the translator
-    """
-    items = GetSubtitles(lines)
-    return [GetLineItem(item, tag) for item in items]
+    except Exception as e:
+        time = str(time)
+        parts = re.split('[:,]', time)
 
-def GetLineItem(item, tag):
-    """
-    Generate the translation prompt line for a subtitle
-    """
-    line = f"<{tag} line={item.index}>{item.text}</{tag}>"
-    return line
+        if len(parts) == 3:
+            if len(parts[-1]) == 3:
+                logging.warn(f"Adding hour to time '{time}'")
+                return f"00:{parts[0]}:{parts[1]},{parts[2]}"
+            else:
+                logging.warn(f"Adding milliseconds to time '{time}'")
+                return f"{parts[0]}:{parts[1]}:{parts[2],000}"
+
+        if len(parts) >= 4:
+            if len(parts[-1]) == 3:
+                logging.warn(f"Using last four parts of '{time}' as time")
+                return f"{parts[-4]}:{parts[-3]}:{parts[-2]},{parts[-1]}"
+
+            logging.warn(f"Using first four parts of '{time}' as time")
+            return f"{parts[0]}:{parts[1]}:{parts[2]},{parts[3]}"
+
+    raise ValueError("Unable to interpret time string '{time}'")
 
 def GenerateBatchPrompt(prompt, lines, tag_lines=None):
     """

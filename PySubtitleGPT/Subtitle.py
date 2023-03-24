@@ -1,6 +1,8 @@
 from os import linesep
 from pysrt import SubRipItem
 
+from PySubtitleGPT.Helpers import FixTime
+
 class Subtitle:
     """
     Represents a single subtitle line, with an index and start and end times plus original text and translated text.
@@ -64,6 +66,8 @@ class Subtitle:
 
     @classmethod
     def construct(cls, index, start, end, text):
+        start = FixTime(start)
+        end = FixTime(end)
         item = SubRipItem(index, start, end, text)
         return Subtitle(item) 
     
@@ -105,4 +109,30 @@ class Subtitle:
     def end(self, time):
         if self._item:
             self._item.end = SubRipItem.coerce(time)
+
+    @classmethod
+    def GetSubtitles(lines):
+        """
+        (re)parse the lines as subtitles, assuming SubRip format 
+        """
+        if all(isinstance(line, Subtitle) for line in lines):
+            return lines
+        else:
+            return [Subtitle(line) for line in lines]
+
+    @classmethod
+    def GetLineItems(lines, tag):
+        """
+        Generate a set of translation lines for the translator
+        """
+        items = Subtitle.GetSubtitles(lines)
+        return [Subtitle.GetLineItem(item, tag) for item in items]
+
+    @classmethod
+    def GetLineItem(item, tag):
+        """
+        Generate the translation prompt line for a subtitle
+        """
+        line = f"<{tag} line={item.index}>{item.text}</{tag}>"
+        return line
 
