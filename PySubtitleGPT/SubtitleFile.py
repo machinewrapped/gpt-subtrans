@@ -39,10 +39,13 @@ class SubtitleFile:
         self._scenes = scenes
         self.subtitles, self.translations, _ = UnbatchScenes(scenes)
 
-    # Load subtitles from an SRT file
     def LoadSubtitles(self, filename):
+        """
+        Load subtitles from an SRT file
+        """
         if not self.filename:
-            self.filename = f"{os.path.basename(filename)}-ChatGPT.srt"
+            inputname, _ = os.path.splitext(os.path.basename(filename))
+            self.filename = f"{inputname}-ChatGPT.srt"
 
         try:
             srt = pysrt.open(filename)
@@ -61,45 +64,38 @@ class SubtitleFile:
         srtfile = SubRipFile(items=self.subtitles)
         srtfile.save(filename)
 
-    # Write translated subtitles to an SRT file
     def SaveTranslation(self, filename = None):
+        """
+        Write translated subtitles to an SRT file
+        """
         filename = filename or self.filename 
         if not filename:
             raise ValueError("No filename set")
+        
+        if not self.translations:
+            logging.error("No subtitles translated")
+            return
 
         logging.info(f"Saving translation to {str(filename)}")
 
         srtfile = SubRipFile(items=self.translations)
         srtfile.save(filename)
 
-    # Translate subtitles using the provided options
     def Translate(self, options, project):
+        """
+        Translate subtitles using the provided options
+        """
+        # Generate context for the project file
         self.context = {
             'synopsis': options.get('synopsis', ""),
             'characters': options.get('characters', ""),
             'instructions': options.get('instructions', ""),
+            'substitutions': options.get('substitutions')
         }
 
-        self.substitutions = options.get('substitutions')
+        translator = SubtitleTranslator(options, project)
 
-        # Prime new project files
-        if project.write_project:
-            project.WriteProjectFile(self)
-
-        try:
-            #Perform the translation
-            translator = SubtitleTranslator(options, project)
-    
-            self._scenes = translator.TranslateSubtitles(self.subtitles, self.context)
-
-            self.SaveTranslation()
-
-        except Exception as e:
-            if options.get('stop_on_error', False):
-                self.SaveTranslation()
-
-            logging.error(f"Failed to translate subtitles")
-            raise
+        self.scenes = translator.TranslateSubtitles(self.subtitles, self.context)
 
     def AddScene(self, scene):
         self.scenes.append(scene)

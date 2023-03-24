@@ -56,36 +56,17 @@ try:
     })
 
     # Process the project options
-    project = SubtitleProject(options, args.input)
+    project = SubtitleProject(options)
 
-    # Try to load the project file if required
-    if project.read_project:
-        subtitles = project.ReadProjectFile()
+    project.Initialise(args.input)
 
-        if subtitles:
-            logging.info(f"Project file loaded, saving backup copy")
-            project.WriteBackupFile(subtitles)
-        else:
-            logging.warning(f"Unable to read project file, starting afresh")
-            subtitles = SubtitleFile(args.output)
-            project.load_subtitles = True
-    else:
-        subtitles = SubtitleFile(args.output)
+    logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
 
-    # Try to load the subtitle file if required
-    if project.load_subtitles: 
-        subtitles.LoadSubtitles(args.input)
-
-    if subtitles.has_subtitles == False:
-        raise Exception(f"No subtitles to translate in {args.input}")
-
-    logging.info(f"Translating {subtitles.linecount} subtitles from {args.input}")
-
-    subtitles.Translate(options, project)
+    project.TranslateSubtitles()
 
     if project.write_project:
-        logging.info(f"Writing project data to {str(subtitles.filename)}")
-        project.WriteProjectFile(subtitles)
+        logging.info(f"Writing project data to {str(project.projectfile)}")
+        project.WriteProjectFile()
 
 except Exception as e:
     print("Error:", e)
