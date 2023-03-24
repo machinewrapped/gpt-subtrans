@@ -14,7 +14,7 @@ You should respond with a matching line in the target language for each original
 Translated dialogue
 </original>
 
-A single translation must have no more than 2 lines of text. Be careful to preserve start and end times.
+A single translation must have no more than 2 lines of text. Do not merge or combine separate lines. Be careful to preserve start and end times.
 
 The user may provide a synopsis of the film and a list of characters to guide the translation.
 
@@ -25,9 +25,4 @@ Some lines did not receive translations.
 Translate the subtitles again, making sure every line has a translation that matches the dialog.
 
 
-############
-
-It is permissable to combine lines if they form a single sentence, but it is not encouraged and must be indicated in the index field, and the end time should be updated, e.g.
-
-<translation index='123,124' start='123_start' end='124_end'>
 
