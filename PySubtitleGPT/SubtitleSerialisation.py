@@ -33,7 +33,6 @@ class SubtitleEncoder(json.JSONEncoder):
                 "filename": obj.filename,
                 "scenecount": len(obj.scenes),
                 "context": getattr(obj, 'context'),
-                "substitutions": getattr(obj, 'substitutions'),
                 "scenes": obj.scenes,
             }
         elif isinstance(obj, SubtitleScene):

@@ -45,7 +45,7 @@ class SubtitleProject:
 
             if subtitles:
                 logging.info(f"Project file loaded, saving backup copy")
-                self.WriteBackupFile(subtitles)
+                self.WriteBackupFile()
             else:
                 logging.warning(f"Unable to read project file, starting afresh")
                 self.load_subtitles = True
@@ -92,7 +92,7 @@ class SubtitleProject:
         self.subtitles.LoadSubtitles(filename)
         return self.subtitles
 
-    def WriteProjectFile(self, filename = None):
+    def WriteProjectFile(self, projectfile = None):
         """
         Write a set of subtitles to a project file
         """
@@ -102,29 +102,29 @@ class SubtitleProject:
         if not isinstance(self.subtitles, SubtitleFile):
             raise Exception("Asked to write a project file with the wrong content type")
 
-        filename = filename or self.filename
+        projectfile = projectfile or self.projectfile
 
-        logging.debug(f"Writing project data to {str(filename)}")
+        logging.debug(f"Writing project data to {str(projectfile)}")
 
-        with open(filename, 'w', encoding=default_encoding) as f:
+        with open(projectfile, 'w', encoding=default_encoding) as f:
             project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
             f.write(project_json)
 
-    def WriteBackupFile(self, subtitles):
+    def WriteBackupFile(self):
         """
         Save a backup copy of the project
         """
-        if self.filename:
-            self.WriteProjectFile(subtitles, f"{self.filename}-backup")
+        if self.subtitles and self.projectfile:
+            self.WriteProjectFile(f"{self.projectfile}-backup")
 
     def ReadProjectFile(self):
         """
         Load scenes, subtitles and context from a project file (really a project file)
         """
-        logging.info(f"Reading project data from {str(self.filename)}")
+        logging.info(f"Reading project data from {str(self.projectfile)}")
 
         try:
-            with open(self.filename, 'r', encoding=default_encoding) as f:
+            with open(self.projectfile, 'r', encoding=default_encoding) as f:
                 subtitles = json.load(f, cls=SubtitleDecoder)
 
             subtitles.project = self
@@ -132,7 +132,7 @@ class SubtitleProject:
             return subtitles
 
         except FileNotFoundError:
-            logging.error(f"Project file {self.filename} not found")
+            logging.error(f"Project file {self.projectfile} not found")
             return None
 
         except json.JSONDecodeError as e:
@@ -148,5 +148,5 @@ class SubtitleProject:
                 raise Exception("Unable to update project file, no subtitles")
             
             self.subtitles.scenes = scenes
-            self.WriteProjectFile(self.subtitles)
+            self.WriteProjectFile()
 
