@@ -66,6 +66,21 @@ class Subtitle:
     def construct(cls, index, start, end, text):
         item = SubRipItem(index, start, end, text)
         return Subtitle(item) 
+    
+    @classmethod
+    def from_match(cls, match):
+        """
+        Construct a Subtitle from a regex match.
+
+        Really should use named groups, but findall doesn't seem to preserve the names. 
+        """
+        if len(match) > 3:
+            index, start, end, body = match
+        else:
+            start, end, body = match
+            index = None
+            
+        return Subtitle.construct(index, start.strip(), end.strip(), body.strip())
 
     @item.setter
     def item(self, item):

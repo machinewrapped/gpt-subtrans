@@ -201,10 +201,14 @@ class SubtitleTranslator:
                         if translation.reached_token_limit:
                             raise TranslationError(f"Too many tokens in translation", translation)
 
-                batch.translation = translation
+                if translation:
+                    batch.translation = translation
 
-                # Process the response
-                self.ProcessTranslation(scene, batch, context, client)
+                    # Process the response
+                    self.ProcessTranslation(scene, batch, context, client)
+
+                else:
+                    logging.warning(f"No translation for scene {scene.number} batch {batch.number}")
 
             except Exception as e:
                 if project.stop_on_error:
@@ -234,6 +238,8 @@ class SubtitleTranslator:
 
         if not translation.has_translation:
             raise ValueError("Translation contains no translated text")
+        
+        logging.debug(f"Scene {scene.number} batch {batch.number} translation:\n{translation.text}\n")
 
         try:
             # Apply the translation to the subtitles
@@ -249,6 +255,7 @@ class SubtitleTranslator:
 
                 if unmatched:
                     logging.warning(f"Unable to match {len(unmatched)} subtitles with a source line")
+
             else:
                 if not options.get('allow_retranslations'):
                     raise TranslationError(f"Failed to extract any subtitles from {translation.text}", translation)

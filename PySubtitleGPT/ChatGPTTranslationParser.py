@@ -1,22 +1,21 @@
 import logging
 import re
 
-from pysrt import SubRipItem
 from PySubtitleGPT.Helpers import MergeTranslations
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 
-template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>\s*(?P<body>.*?)\s*<\/translation>")
+template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>")
 
 #TODO: update fallback patterns with start and end groups
 fallback_patterns = [
-    r"<translation\s+index='(?P<index>.+?)'\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>\s*(?P<body>.*?)\s*<\/translation>"
-    r'<translation\s*line=(\d+)\s*>(?:")?(.*?)(?:")?\s*(?:" /)?</translation>',
-    r'<original\s*line=(\d+)\s*>(?:")?(.*?)(?:")?\s*(?:" /)?</original>',
-    r'<line\s*number=(\d+).+?translation=(?:")?(.*?)(?:")?\s*(?:" /)?>',
-    r'<line number=(\d+)>(?:")?(.*?)(?:")?</line>',
-    r'(\d+)[:.]\s*"(.+?)"', 
-    r'(?:^|\n|\\n)(\d+)[:.]\s*(.+?)(?:$|\n|\\n)',
+    re.compile(r"<translation\s+index='(?P<index>.+?)'\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>\s*(?P<body>.*?)\s*<\/translation>", re.MULTILINE),
+    re.compile(r'<translation\s*line=(\d+)\s*>(?:")?(.*?)(?:")?\s*(?:" /)?</translation>', re.MULTILINE),
+    re.compile(r'<original\s*line=(\d+)\s*>(?:")?(.*?)(?:")?\s*(?:" /)?</original>', re.MULTILINE),
+    re.compile(r'<line\s*number=(\d+).+?translation=(?:")?(.*?)(?:")?\s*(?:" /)?>', re.MULTILINE),
+    re.compile(r'<line number=(\d+)>(?:")?(.*?)(?:")?</line>', re.MULTILINE),
+    re.compile(r'(\d+)[:.]\s*"(.+?)"',  re.MULTILINE),
+    re.compile(r'(?:^|\n|\\n)(\d+)[:.]\s*(.+?)(?:$|\n|\\n)', re.MULTILINE),
     ]
 
 
@@ -38,12 +37,13 @@ class ChatGPTTranslationParser:
         if not self.text:
             raise ValueError("No translated text provided")
         
-        logging.debug(f"Response:\n{self.text}")
+        matches = template.findall(self.text, re.DOTALL)
 
-        matches = template.findall(self.text)
+        logging.debug(f"Matches: {str(matches)}")
+
         self.translations = { 
             match[0]:
-                Subtitle.construct(None, match[0].strip(), match[1].strip(), match[2].strip())
+                Subtitle.from_match(match)
             for match in matches 
             }
         
