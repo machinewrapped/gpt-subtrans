@@ -25,13 +25,6 @@ class ChatGPTPrompt:
                 user_previous = linesep.join(previous_lines)
                 self.messages.append({'role': "assistant", 'content': user_previous})
 
-                # previous_translations = previous_batch.translations
-                # if previous_translations:
-                #     translation_lines = GetLineItems(previous_translations, 'translation')
-                #     if (previous_batch.summary):
-                #         translation_lines.append(f"{GenerateTag('summary', previous_batch.summary)}")
-                #     self.messages.append({'role': "assistant", 'content': linesep.join(translation_lines)})
-
             tag_lines = GenerateTagLines(context, ['summary'])
 
             self.user_prompt = GenerateBatchPrompt(prompt, lines, tag_lines)
