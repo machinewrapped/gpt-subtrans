@@ -142,7 +142,7 @@ class SubtitleTranslator:
         project = self.project
 
         context = context or {}
-        substitutions = options.get('substitutions')
+        substitutions = context.get('substitutions')
 
         # Initialise the ChatGPT client
         client = ChatGPTClient(options, context.get('instructions')) if not project.reparse else None

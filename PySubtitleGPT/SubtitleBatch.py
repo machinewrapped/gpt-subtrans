@@ -54,7 +54,7 @@ class SubtitleBatch:
         """
         Perform any word/phrase substitutions on source text
         """
-        if self.subtitles:
+        if substitutions and self.subtitles:
             lines = [item.text for item in self.subtitles]
 
             lines, replacements = PerformSubstitutions(substitutions, lines)
@@ -70,10 +70,10 @@ class SubtitleBatch:
         """
         Perform any word/phrase substitutions on translated text
         """
-        if self.translated:
+        if substitutions and self.translated:
             lines = [item.text for item in self.translated]
 
-            translated, replacements = PerformSubstitutions(substitutions, lines)
+            _, replacements = PerformSubstitutions(substitutions, lines)
 
             if replacements:
                 self.AddContext('output_replacements', replacements)

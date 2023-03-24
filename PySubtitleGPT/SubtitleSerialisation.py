@@ -96,7 +96,6 @@ class SubtitleDecoder(json.JSONDecoder):
             if class_name == classname(SubtitleFile):
                 obj = SubtitleFile(dct.get('filename'))
                 obj.context = dct.get('context')
-                obj.substitutions = dct.get('substitutions')
                 obj.scenes = dct.get('scenes', [])
                 return obj
             elif class_name == classname(SubtitleScene):
