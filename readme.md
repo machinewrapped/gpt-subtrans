@@ -1,5 +1,5 @@
 # GPT-Subtrans
-GPT-Subtrans is an open source subtitle translator built with OpenAI's ChatGPT. It can translate subtitles between any language pairs supported by the GPT language model.
+GPT-Subtrans is an open source subtitle translator built with OpenAI's ChatGPT. It can translate subtitles between any language pairs supported by the GPT language model. You will need an OpenAI API key from https://platform.openai.com/account/api-keys to use the translator. If you are on the free trial the speed will be severely restricted.
 
 ## Installation
 To install GPT-Subtrans, you will need to have Python 3.x and pip installed on your system.
