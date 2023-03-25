@@ -84,6 +84,7 @@ class ChatGPTTranslationParser:
                 translation.index = item.index
                 item.translation = translation.text
             else:
+                item.translation = None
                 unmatched.append(item)
 
         if unmatched:
