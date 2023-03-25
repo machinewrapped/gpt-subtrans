@@ -271,6 +271,7 @@ class SubtitleTranslator:
 
             # Consider retrying if there were errors
             if batch.errors and options.get('allow_retranslations'):
+                logging.info(f"Scene {scene.number} batch {batch.number} failed validation, requesting retranslation")
                 self.RequestRetranslations(client, batch, translation)
 
             if batch.untranslated:
@@ -322,6 +323,8 @@ class SubtitleTranslator:
 
         try:
             parser.ValidateTranslations()
+
+            logging.info("Retranslation passed validation")
 
         except TranslationError as e:
             # Let's assume the results were at least an improvement            
