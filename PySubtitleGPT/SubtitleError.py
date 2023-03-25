@@ -1,6 +1,36 @@
 
 class TranslationError(Exception):
-    def __init__(self, message, translation):
+    def __init__(self, message, error = None):
         super().__init__(message)
+        self.error = error
+
+    def __str__(self) -> str:
+        if self.error:
+            return str(self.error)
+        return super().__str__()
+
+class TranslationFailedError(TranslationError):
+    def __init__(self, message, translation, error = None):
+        super().__init__(message, error)
         self.translation = translation
+
+class NoTranslationError(TranslationError):
+    def __init__(self, message, response):
+        super().__init__(message)
+        self.response = response
+
+class UntranslatedLinesError(TranslationError):
+    def __init__(self, message, lines):
+        super().__init__(message, lines)
+        self.lines = lines
+
+class TooManyNewlinesError(TranslationError):
+    def __init__(self, message, lines):
+        super().__init__(message)
+        self.lines = lines
+
+class LineTooLongError(TranslationError):
+    def __init__(self, message, lines):
+        super().__init__(message)
+        self.lines = lines
 

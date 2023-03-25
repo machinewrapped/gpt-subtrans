@@ -3,6 +3,7 @@ import json
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
+from PySubtitleGPT.SubtitleError import TranslationError
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
@@ -16,6 +17,14 @@ def classname(obj):
 # Convert our custom types to JSON
 class SubtitleEncoder(json.JSONEncoder):
     def default(self, obj):
+        if isinstance(obj, TranslationError):
+            # Don't bother trying to serialise all the error types (why not?)
+            return {
+                "__class": classname(TranslationError),
+                "type": classname(obj),
+                "problem": str(obj)             
+            }
+
         _class = classname(obj)
         properties = self.serialize_object(obj)
         if isinstance(properties, dict):
@@ -51,6 +60,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "number": getattr(obj, 'number'),
                 "size": obj.size,
                 "all_translated": obj.all_translated,
+                "errors": obj.errors if obj.errors else None,
                 "summary": getattr(obj, 'summary'),
                 "subtitles": obj._subtitles,
                 "translated": obj._translated,
@@ -82,6 +92,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "instructions": obj.instructions,
                 "messages": obj.messages
             }
+
         return super().default(obj)
 
 # Reconstruct our custom types from JSON
@@ -127,5 +138,8 @@ class SubtitleDecoder(json.JSONDecoder):
                 obj.user_prompt = dct.get('user_prompt')
                 obj.messages = dct.get('messages')
                 return obj
+            elif class_name == classname(TranslationError):
+                return TranslationError(dct.get('message'))
+            
         return dct
 

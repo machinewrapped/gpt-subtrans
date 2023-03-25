@@ -8,6 +8,7 @@ class SubtitleBatch:
         self.summary = dict.get('summary')
         self.context = dict.get('context', {})
         self.translation = dict.get('translation')
+        self.errors = dict.get('errors', [])
         self._subtitles = dict.get('subtitles', [])
         self._translated = dict.get('translated', [])
 

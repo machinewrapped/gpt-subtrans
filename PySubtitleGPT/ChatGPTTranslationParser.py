@@ -4,8 +4,10 @@ import re
 from PySubtitleGPT.Helpers import MergeTranslations
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitleGPT.SubtitleError import LineTooLongError, NoTranslationError, TooManyNewlinesError, UntranslatedLinesError
 
-template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>")
+#template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
+template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>[\s\r\n]*(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
 
 #TODO: update fallback patterns with start and end groups
 fallback_patterns = [
@@ -23,28 +25,30 @@ class ChatGPTTranslationParser:
     """
     Extract translated subtitles from a ChatGPT completion 
     """
-    def __init__(self, translation):
-        self.text = translation.text if isinstance(translation, ChatGPTTranslation) else str(translation) 
-        self.translated = []
+    def __init__(self, options):
+        self.options = options
+        self.text = None
         self.translations = {}
+        self.translated = []
 
-    def ProcessTranslation(self):
+    def ProcessChatGPTResponse(self, translation):
         """
         Extract subtitle lines from a batched translation, using the
         pre-defined pattern to match each line, or a list of fallbacks
         if the match fails.
         """
+        self.text = translation.text if isinstance(translation, ChatGPTTranslation) else str(translation) 
+
         if not self.text:
             raise ValueError("No translated text provided")
-        
-        matches = template.findall(self.text, re.DOTALL)
+
+        matches = self.FindMatches(self.text)
 
         logging.debug(f"Matches: {str(matches)}")
 
+        subs = [Subtitle.from_dict(match) for match in matches]
         self.translations = { 
-            match[0]:
-                Subtitle.from_match(match)
-            for match in matches 
+            sub.key: sub for sub in subs 
             }
         
         if not self.translations:
@@ -53,6 +57,17 @@ class ChatGPTTranslationParser:
         self.translated = MergeTranslations(self.translated, self.translations.values())
         
         return self.translated
+
+    def FindMatches(self, text):
+        """
+        re.findall has some very unhelpful behaviour, so we use finditer instead.
+        """
+        return [{ 
+            'index': match.groupdict().get('index'),
+            'start': match.group('start'), 
+            'end': match.group('end'), 
+            'body': match.group('body')
+            } for match in template.finditer(text)]
 
     def MatchTranslations(self, subtitles):
         """
@@ -63,14 +78,61 @@ class ChatGPTTranslationParser:
         
         unmatched = []
 
-        #Try to match subtitles on start and end times instead
         for item in subtitles:
             translation = self.translations.get(item.key)
             if translation:
                 translation.index = item.index
                 item.translation = translation.text
             else:
+                item.translation = None
                 unmatched.append(item)
 
+        if unmatched:
+            self.TryFuzzyMatches(unmatched)
+
         return unmatched
+
+    def TryFuzzyMatches(self, unmatched):
+        """
+        Try to match translations to their source lines using heuristics
+        """
+        possible_matches = []
+        for item in unmatched:
+            for translation in self.translations.values():
+                # This is not very convincing logic but let's try it
+                if translation.start <= item.start and translation.end >= item.end:
+                    possible_matches.append((item, translation))
+
+        if possible_matches:
+            for item, translation in possible_matches:
+                logging.warn(f"Only found fuzzy match for line {item.index} in translations")
+                item.translation = f"#Fuzzy: {translation.text}"
+                unmatched.remove(item)
+
+    def ValidateTranslations(self):
+        """
+        Check if the translation seems at least plausible
+        """
+        if not self.translated:
+            raise NoTranslationError(f"Failed to extract any subtitles from {self.text}", self.text)
+        
+        max_characters = self.options.get('max_characters')
+        max_newlines = self.options.get('max_newlines')
+
+        too_long = []
+        too_many_newlines = []
+
+        for line in self.translated:
+            if len(line.text) > max_characters:
+                too_long.append(line)
+
+            if line.text.count('\n') > max_newlines:
+                too_many_newlines.append(line)
+
+        if too_long:
+            raise LineTooLongError(f"One or more lines exceeded {max_characters} characters", too_long)
+
+        if too_many_newlines:
+            raise TooManyNewlinesError(f"One or more lines contain more than {max_newlines} newlines", too_many_newlines)
+
 
