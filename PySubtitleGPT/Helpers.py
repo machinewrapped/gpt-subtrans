@@ -43,11 +43,11 @@ def GenerateBatchPrompt(prompt, lines, tag_lines=None):
     source_lines = [ line.prompt for line in lines ]
     source_text = '\n\n'.join(source_lines)
     if tag_lines:
-        return f"{tag_lines}\n----------\n{prompt}\n\n----------\n{source_text}\n"
+        return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
     elif prompt:
-        return f"{prompt}\n\n----------\n{source_text}\n"
+        return f"{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
     else:
-        return source_text
+        return f"<batch>\n{source_text}\n</batch>\n"
 
 def GenerateTagLines(context, tags):
     """

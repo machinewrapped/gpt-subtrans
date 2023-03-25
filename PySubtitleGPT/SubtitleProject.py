@@ -43,7 +43,7 @@ class SubtitleProject:
             # Try to load the project file
             subtitles = self.ReadProjectFile()
 
-            if subtitles:
+            if subtitles and subtitles.scenes:
                 logging.info(f"Project file loaded, saving backup copy")
                 self.WriteBackupFile()
             else:
