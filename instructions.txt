@@ -19,4 +19,5 @@ There was an issue with the previous translation.
 
 Please translate the subtitles again, paying careful attention to ensure that each line is properly translated, and that the start and end times match the original dialogue.
 
-Please ensure that subtitles are not merged inappropriately, as this can lead to incorrect timing and confusion.
+Do not merge multiple original lines into a single translation, it can lead to incorrect timing and confusion. Keep each translation line separate and corresponding to its original line.
+

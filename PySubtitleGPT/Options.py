@@ -12,8 +12,8 @@ default_retry_instructions = linesep.join([
     'Translate the subtitles again, making sure every line has a translation that matches the dialog.'
 ])
 
-def env_bool(key):
-    var = os.getenv(key)
+def env_bool(key, default=False):
+    var = os.getenv(key, default)
     return var and str(var).lower() in ('true', 'yes', '1')
 
 default_options = {
@@ -24,7 +24,7 @@ default_options = {
     'target_language' : os.getenv('TARGET_LANGUAGE', 'English'),
     'movie_name' : None,
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
-    'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS'),
+    'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
     'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 15.0)),
     'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 3.0)),
     'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 5)),
