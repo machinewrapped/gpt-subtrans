@@ -30,7 +30,7 @@ class SubtitleProject:
         options.add('preview', self.preview)
         options.add('resume', self.resume)
 
-    def Initialise(self, filename):
+    def Initialise(self, filename, outfilename = None):
         """
         Initialize the project by either loading an existing project file or creating a new one.
         Load the subtitles to be translated, either from the project file or the source file.
@@ -53,6 +53,9 @@ class SubtitleProject:
         if self.load_subtitles:
             # (re)load the source subtitle file if required
             subtitles = self.LoadSubtitleFile(filename)
+
+        if outfilename:
+            subtitles.filename = outfilename
 
         if not subtitles.has_subtitles:
             raise ValueError(f"No subtitles to translate in {filename}")

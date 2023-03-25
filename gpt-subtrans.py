@@ -58,7 +58,7 @@ try:
     # Process the project options
     project = SubtitleProject(options)
 
-    project.Initialise(args.input)
+    project.Initialise(args.input, args.output)
 
     logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
 
