@@ -21,7 +21,7 @@ class SubtitleProject:
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
         self.preview = project_mode in ["preview"]
-        self.resume = project_mode in ["resume"]
+        self.resume = project_mode in ["resume", "true"]
         self.reparse = project_mode in ["reparse"]
         self.retranslate = project_mode in ["retranslate"]
         self.stop_on_error = options.get('stop_on_error', False)
