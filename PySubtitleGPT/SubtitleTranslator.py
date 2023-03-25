@@ -4,7 +4,7 @@ from os import linesep
 
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.ChatGPTClient import ChatGPTClient
-from PySubtitleGPT.SubtitleError import TranslationError, UntranslatedLinesError
+from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, UntranslatedLinesError
 from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, UnbatchScenes
 from PySubtitleGPT.ChatGPTTranslationParser import ChatGPTTranslationParser
 
@@ -213,7 +213,7 @@ class SubtitleTranslator:
 
             except TranslationError as e:
                 if project.stop_on_error:
-                    raise TranslationError(f"Failed to translate a batch... terminating", batch.translation, e)
+                    raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
                 else:
                     logging.warning(f"Error translating subtitle batch: {str(e)}")
 
@@ -246,6 +246,9 @@ class SubtitleTranslator:
             # Apply the translation to the subtitles
             parser = ChatGPTTranslationParser(options)
             
+            # Reset error list, hopefully they're obsolete
+            batch.errors = []
+
             try:
                 batch.translated = parser.ProcessChatGPTResponse(translation)
 
@@ -304,7 +307,7 @@ class SubtitleTranslator:
         """
         Ask ChatGPT to retranslate any missing lines
         """
-        retranslation = client.RequestRetranslation(translation, batch.untranslated)
+        retranslation = client.RequestRetranslation(translation, batch.errors)
 
         parser = ChatGPTTranslationParser(self.options)
 

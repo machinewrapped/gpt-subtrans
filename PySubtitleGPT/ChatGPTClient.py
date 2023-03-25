@@ -44,15 +44,21 @@ class ChatGPTClient:
         return translation
 
     # Generate the messages to send to OpenAI to request a retranslation
-    def RequestRetranslation(self, translation, untranslated):
+    def RequestRetranslation(self, translation, errors):
         options = self.options
+        prompt = translation.prompt
+
         retry_instructions = options.get('retry_instructions')
 
-        translation.prompt.GenerateRetryPrompt(translation, retry_instructions, untranslated)
+        prompt.GenerateRetryPrompt(translation, retry_instructions, errors)
+
+        if len(prompt.messages) > 5:
+            # Skip previous retry messages, just the original attempt and the latest prompt
+            prompt.messages = prompt.messages[:3] + prompt.messages[-2:]
 
         # Let's raise the temperature a little bit
-        temperature = options.get('temperature', 0.0) + 0.1
-        retranslation = self.SendMessages(translation.prompt.messages, min(temperature, 1.0))
+        temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
+        retranslation = self.SendMessages(prompt.messages, temperature)
 
         return retranslation
 

@@ -34,15 +34,17 @@ class ChatGPTPrompt:
 
         self.messages.append({'role': "user", 'content': self.user_prompt})
 
-    def GenerateRetryPrompt(self, translation, retry_instructions, untranslated):
+    def GenerateRetryPrompt(self, translation, retry_instructions, errors):
         """
         Request retranslation of lines that were not translated originally
         """
-        #TODO: Will probably get a duplication - encourage ChatGPT to retranslate _all_ the lines?
-        #GenerateBatchPrompt('Please try again', untranslated)
-
-        # Maybe less is more?
-        retry_prompt = 'Please try again' 
+        if errors:
+            error_list = list(set([ f"- {str(e).strip()}" for e in errors ]))
+            error_message = '\n'.join(error_list)
+            retry_prompt = f"There were some problems with the translation:\n{error_message}\n\nPlease correct them."
+        else:
+            # Maybe less is more?
+            retry_prompt = 'Please try again'
 
         self.messages.extend([
             { 'role': "assistant", 'content': translation.text },
