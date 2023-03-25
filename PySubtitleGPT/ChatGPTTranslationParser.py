@@ -5,7 +5,8 @@ from PySubtitleGPT.Helpers import MergeTranslations
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 
-template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>")
+#template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
+template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>[\s\r\n]*(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
 
 #TODO: update fallback patterns with start and end groups
 fallback_patterns = [
@@ -23,16 +24,12 @@ class ChatGPTTranslationParser:
     """
     Extract translated subtitles from a ChatGPT completion 
     """
-    def __init__(self, translation):
-        self.text = translation.text if isinstance(translation, ChatGPTTranslation) else str(translation) 
-        self.translated = []
     def __init__(self, options):
         self.options = options
         self.text = None
         self.translations = {}
         self.translated = []
 
-    def ProcessTranslation(self):
     def ProcessChatGPTResponse(self, translation):
         """
         Extract subtitle lines from a batched translation, using the
@@ -43,15 +40,14 @@ class ChatGPTTranslationParser:
 
         if not self.text:
             raise ValueError("No translated text provided")
-        
-        matches = template.findall(self.text, re.DOTALL)
+
+        matches = self.FindMatches(self.text)
 
         logging.debug(f"Matches: {str(matches)}")
 
+        subs = [Subtitle.from_dict(match) for match in matches]
         self.translations = { 
-            match[0]:
-                Subtitle.from_match(match)
-            for match in matches 
+            sub.key: sub for sub in subs 
             }
         
         if not self.translations:
@@ -60,6 +56,17 @@ class ChatGPTTranslationParser:
         self.translated = MergeTranslations(self.translated, self.translations.values())
         
         return self.translated
+
+    def FindMatches(self, text):
+        """
+        re.findall has some very unhelpful behaviour, so we use finditer instead.
+        """
+        return [{ 
+            'index': match.groupdict().get('index'),
+            'start': match.group('start'), 
+            'end': match.group('end'), 
+            'body': match.group('body')
+            } for match in template.finditer(text)]
 
     def MatchTranslations(self, subtitles):
         """
@@ -70,7 +77,6 @@ class ChatGPTTranslationParser:
         
         unmatched = []
 
-        #Try to match subtitles on start and end times instead
         for item in subtitles:
             translation = self.translations.get(item.key)
             if translation:
