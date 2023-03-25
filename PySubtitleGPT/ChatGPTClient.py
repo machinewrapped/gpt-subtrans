@@ -52,10 +52,6 @@ class ChatGPTClient:
 
         prompt.GenerateRetryPrompt(translation, retry_instructions, errors)
 
-        if len(prompt.messages) > 5:
-            # Skip previous retry messages, just the original attempt and the latest prompt
-            prompt.messages = prompt.messages[:3] + prompt.messages[-2:]
-
         # Let's raise the temperature a little bit
         temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
         retranslation = self.SendMessages(prompt.messages, temperature)

@@ -271,7 +271,7 @@ class SubtitleTranslator:
 
             # Consider retrying if there were errors
             if batch.errors and options.get('allow_retranslations'):
-                logging.info(f"Scene {scene.number} batch {batch.number} failed validation, requesting retranslation")
+                logging.warn(f"Scene {scene.number} batch {batch.number} failed validation, requesting retranslation")
                 self.RequestRetranslations(client, batch, translation)
 
             if batch.untranslated:
@@ -326,13 +326,13 @@ class SubtitleTranslator:
 
             logging.info("Retranslation passed validation")
 
+            # Let's NOT assume the results were an improvement            
+            parser.MatchTranslations(batch.subtitles)
+
+            MergeTranslations(batch.translated, retranslated)
+
         except TranslationError as e:
-            # Let's assume the results were at least an improvement            
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.get('text')}\n")
-
-        parser.MatchTranslations(batch.subtitles)
-
-        MergeTranslations(batch.translated, retranslated)
 
 
     def UpdateContext(self, translation, batch, context):
