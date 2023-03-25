@@ -86,7 +86,27 @@ class ChatGPTTranslationParser:
             else:
                 unmatched.append(item)
 
+        if unmatched:
+            self.TryFuzzyMatches(unmatched)
+
         return unmatched
+
+    def TryFuzzyMatches(self, unmatched):
+        """
+        Try to match translations to their source lines using heuristics
+        """
+        possible_matches = []
+        for item in unmatched:
+            for translation in self.translations.values():
+                # This is not very convincing logic but let's try it
+                if translation.start <= item.start and translation.end >= item.end:
+                    possible_matches.append((item, translation))
+
+        if possible_matches:
+            for item, translation in possible_matches:
+                logging.warn(f"Only found fuzzy match for line {item.index} in translations")
+                item.translation = f"#Fuzzy: {translation.text}"
+                unmatched.remove(item)
 
     def ValidateTranslations(self):
         """
