@@ -14,15 +14,18 @@ You should respond with a matching line in the target language for each original
 Translated dialogue
 </original>
 
-A single translation must have no more than 2 lines of text. Do not merge or combine separate lines. Be careful to preserve start and end times.
+A single <translation/> must contain no more than [max_characters] characters and [max_newlines] lines of text.
+
+Do not merge or combine separate lines. Be careful to preserve start and end times.
 
 The user may provide a synopsis of the film and a list of characters to guide the translation.
 
 You should include a brief <summary/> of recent events at the end of your reply.
 
 #######################
-Some lines did not receive translations. 
-Translate the subtitles again, making sure every line has a translation that matches the dialog.
+There was a problem with the translation. 
 
+Translate the subtitles again, taking care that every line is translated and that start and end times match the original dialogue.
 
+Remember that a single <translation/> must contain no more than [max_characters] characters and [max_newlines] lines of text.
 

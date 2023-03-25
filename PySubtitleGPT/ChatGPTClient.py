@@ -5,7 +5,7 @@ from os import linesep
 
 import openai
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.SubtitleError import TranslationError
+from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError
 
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 
@@ -50,17 +50,19 @@ class ChatGPTClient:
 
         translation.prompt.GenerateRetryPrompt(translation, retry_instructions, untranslated)
 
-        retranslation = self.SendMessages(translation.prompt.messages)
+        # Let's raise the temperature a little bit
+        temperature = options.get('temperature', 0.0) + 0.1
+        retranslation = self.SendMessages(translation.prompt.messages, min(temperature, 1.0))
 
         return retranslation
 
     # Make a request to the OpenAI API to provide a translation
-    def SendMessages(self, messages):
+    def SendMessages(self, messages, temperature = None):
         options = self.options
         max_retries = options.get('max_retries', 3.0)
         backoff_time = options.get('backoff_time', 5.0)
         model = options.get('gpt_model')
-        temperature = options.get('temperature', 0.0)
+        temperature = temperature or options.get('temperature', 0.0)
 
         translation = {}
         retries = 0
@@ -88,7 +90,7 @@ class ChatGPTClient:
                     translation['finish_reason'] = getattr(choice, 'finish_reason', None)
                     translation['text'] = getattr(reply, 'content', None)
                 else:
-                    raise TranslationError("No choices returned in the response", response)
+                    raise NoTranslationError("No choices returned in the response", response)
 
                 # Return the response if the API call succeeds
                 return translation  
@@ -115,7 +117,7 @@ class ChatGPTClient:
                     continue
 
             except Exception as e:
-                raise TranslationError(f"Unexpected error getting response from OpenAI ({str(e)})", response)
+                raise TranslationError(f"Unexpected error getting response from OpenAI", e)
 
         return None
 

@@ -72,6 +72,13 @@ class Subtitle:
         return Subtitle(item) 
     
     @classmethod
+    def from_dict(cls, values):
+        """
+        Construct a Subtitle from a dictionary.
+        """
+        return Subtitle.construct(values.get('index'), values['start'].strip(), values['end'].strip(), values['body'].strip())
+
+    @classmethod
     def from_match(cls, match):
         """
         Construct a Subtitle from a regex match.

@@ -1,12 +1,14 @@
 import os
 
-default_instructions = os.linesep.join([
+linesep = '\n'
+
+default_instructions = linesep.join([
     "You are to translate subtitles to a target language",
     "Be concise but try to make the dialogue sound natural.",
     "Translations should be as accurate as possible, do not improvise!",
 ])
 
-default_retry_instructions = os.linesep.join([
+default_retry_instructions = linesep.join([
     'Translate the subtitles again, making sure every line has a translation that matches the dialog.'
 ])
 
@@ -27,11 +29,14 @@ default_options = {
     'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 3.0)),
     'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 5)),
     'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 20)),
+    'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
+    'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None, 
     'rate_limit': float(os.getenv('RATE_LIMIT')) if os.getenv('RATE_LIMIT') else None,
     'max_retries': int(os.getenv('MAX_RETRIES', 5)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
     'project' : os.getenv('PROJECT', None),
+    'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY'),
     'stop_on_error' : env_bool('STOP_ON_ERROR')
 }
 
@@ -58,6 +63,9 @@ class Options:
         if options.get('instruction_args'):
             instructions.extend(options['instruction_args'])
 
+        instructions = self.ReplaceTagsWithOptions(instructions)
+        retry_instructions = self.ReplaceTagsWithOptions(retry_instructions)
+
         options['instructions'] = instructions
         options['retry_instructions'] = retry_instructions
 
@@ -69,7 +77,16 @@ class Options:
 
     def api_key(self):
         return self.get('api_key')
-    
+
+    def ReplaceTagsWithOptions(self, text):
+        """
+        Replace option tags in a string with the value of the corresponding option.
+        """
+        for name, value in self.options.items():
+            if value:
+                text = text.replace(f"[{name}]", str(value))
+        return text
+
 def LoadInstructionsFile(filename):
     """
     Try to load instructions from a text file.
@@ -82,8 +99,9 @@ def LoadInstructionsFile(filename):
         if lines:
             for idx, item in enumerate(lines):
                 if len(item) >= 3 and all(c == '#' for c in item):
-                    return os.linesep.join(lines[:idx]), os.linesep.join(lines[idx + 1:])
+                    return linesep.join(lines[:idx]), linesep.join(lines[idx + 1:])
 
-            return os.linesep.join(lines), []
+            return linesep.join(lines), []
         
     return None, None
+

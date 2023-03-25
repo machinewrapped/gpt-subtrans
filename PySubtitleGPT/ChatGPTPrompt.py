@@ -32,13 +32,17 @@ class ChatGPTPrompt:
         else:
             self.user_prompt = GenerateBatchPrompt(prompt, lines)
 
-
-
         self.messages.append({'role': "user", 'content': self.user_prompt})
 
-    # Request retranslation of lines that were not translated originally
     def GenerateRetryPrompt(self, translation, retry_instructions, untranslated):
-        retry_prompt = GenerateBatchPrompt(retry_instructions, untranslated)
+        """
+        Request retranslation of lines that were not translated originally
+        """
+        #TODO: Will probably get a duplication - encourage ChatGPT to retranslate _all_ the lines?
+        #GenerateBatchPrompt('Please try again', untranslated)
+
+        # Maybe less is more?
+        retry_prompt = 'Please try again' 
 
         self.messages.extend([
             { 'role': "assistant", 'content': translation.text },

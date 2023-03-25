@@ -26,14 +26,21 @@ class ChatGPTTranslationParser:
     def __init__(self, translation):
         self.text = translation.text if isinstance(translation, ChatGPTTranslation) else str(translation) 
         self.translated = []
+    def __init__(self, options):
+        self.options = options
+        self.text = None
         self.translations = {}
+        self.translated = []
 
     def ProcessTranslation(self):
+    def ProcessChatGPTResponse(self, translation):
         """
         Extract subtitle lines from a batched translation, using the
         pre-defined pattern to match each line, or a list of fallbacks
         if the match fails.
         """
+        self.text = translation.text if isinstance(translation, ChatGPTTranslation) else str(translation) 
+
         if not self.text:
             raise ValueError("No translated text provided")
         
@@ -73,4 +80,31 @@ class ChatGPTTranslationParser:
                 unmatched.append(item)
 
         return unmatched
+
+    def ValidateTranslations(self):
+        """
+        Check if the translation seems at least plausible
+        """
+        if not self.translated:
+            raise NoTranslationError(f"Failed to extract any subtitles from {self.text}", self.text)
+        
+        max_characters = self.options.get('max_characters')
+        max_newlines = self.options.get('max_newlines')
+
+        too_long = []
+        too_many_newlines = []
+
+        for line in self.translated:
+            if len(line.text) > max_characters:
+                too_long.append(line)
+
+            if line.text.count('\n') > max_newlines:
+                too_many_newlines.append(line)
+
+        if too_long:
+            raise LineTooLongError(f"One or more lines exceeded {max_characters} characters", too_long)
+
+        if too_many_newlines:
+            raise TooManyNewlinesError(f"One or more lines contain more than {max_newlines} newlines", too_many_newlines)
+
 
