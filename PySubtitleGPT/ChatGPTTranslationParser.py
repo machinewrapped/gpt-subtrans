@@ -107,7 +107,7 @@ class ChatGPTTranslationParser:
             for item, translation in possible_matches:
                 logging.warn(f"Only found fuzzy match for line {item.index} in translations")
                 item.translation = f"#Fuzzy: {translation.text}"
-                unmatched.remove(item)
+                #unmatched.remove(item)
 
     def ValidateTranslations(self):
         """
