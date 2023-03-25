@@ -4,6 +4,7 @@ import re
 from PySubtitleGPT.Helpers import MergeTranslations
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitleGPT.SubtitleError import LineTooLongError, NoTranslationError, TooManyNewlinesError, UntranslatedLinesError
 
 #template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
 template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>[\s\r\n]*(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
