@@ -21,8 +21,11 @@ class NoTranslationError(TranslationError):
 
 class UntranslatedLinesError(TranslationError):
     def __init__(self, message, lines):
-        super().__init__(message, lines)
+        super().__init__(message)
         self.lines = lines
+
+    def __str__(self) -> str:
+        return str(self.args[0])
 
 class TooManyNewlinesError(TranslationError):
     def __init__(self, message, lines):
