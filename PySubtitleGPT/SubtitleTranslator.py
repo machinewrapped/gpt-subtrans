@@ -144,6 +144,8 @@ class SubtitleTranslator:
         context = context or {}
         substitutions = context.get('substitutions')
 
+        context['summaries'] = []
+
         # Initialise the ChatGPT client
         client = ChatGPTClient(options, context.get('instructions'))
 
@@ -152,7 +154,7 @@ class SubtitleTranslator:
 
             if project.resume and batch.all_translated:
                 logging.info(f"Scene {scene.number} batch {batch.number} already translated {batch.size} lines...")
-                context['previous_batch'] = batch
+                self.AddBatchToContext(context, batch)
                 continue
 
             # If it's a retranslation, restore the context
@@ -225,7 +227,23 @@ class SubtitleTranslator:
             # Write WIP translations
             project.UpdateProjectFile(self.scenes)
 
-            context['previous_batch'] = batch
+            self.AddBatchToContext(context, batch)
+
+    def AddBatchToContext(self, context, batch):
+        """
+        Update context from previous batch
+        """
+        context['previous_batch'] = batch
+
+        if batch.summary:
+            summaries = context.get('summaries')
+            if summaries is not None:
+                if not summaries or batch.summary != summaries[-1]:
+                    summaries.append(batch.summary)
+
+                    max_summaries = self.options.get('max_context_summaries')
+                    if max_summaries:
+                        summaries = summaries[-max_summaries:]
 
     def ProcessTranslation(self, scene, batch, context, client):
         """
