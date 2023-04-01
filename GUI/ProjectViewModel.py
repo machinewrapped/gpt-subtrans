@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 class ProjectViewModel(QStandardItemModel):
     def __init__(self):

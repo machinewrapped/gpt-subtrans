@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QRunnable, pyqtSlot
+from PySide6.QtCore import QRunnable, Slot
 
 class Command(QRunnable):
     def __init__(self):
@@ -12,7 +12,7 @@ class Command(QRunnable):
     def set_undo_callback(self, undo_callback):
         self.undo_callback = undo_callback
 
-    @pyqtSlot()
+    @Slot()
     def run(self):
         self.execute()
 

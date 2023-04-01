@@ -2,11 +2,11 @@ import logging
 import debugpy
 from queue import Queue
 
-from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot
+from PySide6.QtCore import QThread, QObject, Signal, Slot
 
 class CommandQueue(QObject):
-    command_added = pyqtSignal(object)
-    command_executed = pyqtSignal(object, bool)
+    command_added = Signal(object)
+    command_executed = Signal(object, bool)
 
     def __init__(self, datamodel):
         super().__init__()
@@ -33,7 +33,7 @@ class CommandQueue(QObject):
 
 
 class CommandQueueWorker(QThread):
-    command_executed = pyqtSignal(object, bool)
+    command_executed = Signal(object, bool)
 
     def __init__(self):
         super().__init__()
@@ -48,7 +48,7 @@ class CommandQueueWorker(QThread):
     def add_command(self, command, datamodel):
         self.queue.put((command, datamodel))
 
-    @pyqtSlot()
+    @Slot()
     def run(self):
         debugpy.debug_this_thread()
         while self.queue:
