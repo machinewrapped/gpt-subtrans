@@ -11,3 +11,4 @@ __pycache__
 /envsubtrans
 *.subtrans-backup
 /Designer
+*.code-workspace
