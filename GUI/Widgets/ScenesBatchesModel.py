@@ -40,7 +40,7 @@ class ScenesBatchesModel(QAbstractItemModel):
             return item
 
         if role == Qt.ItemDataRole.DisplayRole:
-            return item.text()
+            return None
 
         return None
 

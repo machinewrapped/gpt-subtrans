@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 from GUI.Widgets.ScenesBatchesModel import ScenesBatchesModel
 from GUI.Widgets.ScenesBatchesDelegate import ScenesBatchesDelegate
 
-class ScenesBatchesPanel(QTreeView):
+class ScenesView(QTreeView):
     def __init__(self, parent=None, viewmodel=None):
         super().__init__(parent)
 

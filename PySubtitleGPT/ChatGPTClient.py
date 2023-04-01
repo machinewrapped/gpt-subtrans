@@ -48,20 +48,12 @@ class ChatGPTClient:
         options = self.options
         prompt = translation.prompt
 
-        # Trim messages after the original translation to keep tokens down
-        messages = []
-        for message in prompt.messages:
-            messages.append(message)
-            if message['role'] == 'assistant':
-                break
-        prompt.messages = messages
-
         retry_instructions = options.get('retry_instructions')
 
         prompt.GenerateRetryPrompt(translation, retry_instructions, errors)
 
         # Let's raise the temperature a little bit
-        temperature = min(options.get('temperature', 0.0) + 0.2, 1.0)
+        temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
         retranslation = self.SendMessages(prompt.messages, temperature)
 
         return retranslation
