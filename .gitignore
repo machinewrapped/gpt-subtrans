@@ -8,3 +8,6 @@ env
 __pycache__
 /Projects
 /subtrans-env
+/envsubtrans
+*.subtrans-backup
+/Designer
