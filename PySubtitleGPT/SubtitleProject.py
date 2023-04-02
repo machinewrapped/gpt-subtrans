@@ -25,8 +25,10 @@ class SubtitleProject:
         self.reparse = project_mode in ["reparse"]
         self.retranslate = project_mode in ["retranslate"]
         self.stop_on_error = options.get('stop_on_error', False)
+        self.write_backup_file = options.get('write_backup_file', False)
 
         options.add('write_project', self.write_project)
+        options.add('write_backup_file', self.write_backup_file)
         options.add('preview', self.preview)
         options.add('resume', self.resume)
 
@@ -44,8 +46,9 @@ class SubtitleProject:
             subtitles = self.ReadProjectFile()
 
             if subtitles and subtitles.scenes:
-                logging.info(f"Project file loaded, saving backup copy")
-                self.WriteBackupFile()
+                logging.info("Project file loaded, saving backup copy" if self.write_backup_file else "Project file loaded")
+                if self.write_backup_file:
+                    self.WriteBackupFile()
             else:
                 logging.warning(f"Unable to read project file, starting afresh")
                 self.load_subtitles = True
