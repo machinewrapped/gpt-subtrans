@@ -7,6 +7,10 @@ QWidget {
     background-color: aliceblue;
 }
 
+.LogWindow {
+    background-color: black;
+}
+
 .ScenesView {
     background-color: lightyellow;
 }

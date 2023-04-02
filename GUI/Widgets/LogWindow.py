@@ -17,7 +17,7 @@ class QtLogHandler(logging.Handler):
 class LogWindow(QTextEdit):
     level_colors = {
         "DEBUG": QColor(135, 206, 250),  # Light blue
-        "INFO": QColor(0, 0, 0),         # Black
+        "INFO": QColor(255, 255, 255),   # White
         "WARNING": QColor(255, 255, 0),  # Yellow
         "ERROR": QColor(255, 0, 0)       # Red
     }
