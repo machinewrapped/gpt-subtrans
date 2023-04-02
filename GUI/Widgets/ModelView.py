@@ -26,8 +26,18 @@ class ModelView(QWidget):
         layout.addWidget(splitter)
         self.setLayout(layout)
 
+        self.scenesView.selectedLines.connect(self.show_subtitles)
+
     def populate(self, viewmodel):
+        self.contentView.clear()
         if viewmodel is None:
             self.scenesView.clear()
         else:
             self.scenesView.populate(viewmodel)
+
+    def show_subtitles(self, subtitles, translations):
+        if subtitles:
+            self.contentView.show_subtitles(subtitles)
+        
+        if translations:
+            self.contentView.show_translations(translations)

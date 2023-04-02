@@ -22,9 +22,8 @@ class ScenesBatchesDelegate(QStyledItemDelegate):
         if widget is None:
             return
 
-        painter.save()
-
         # Translating the painter instead of specifying the widget offset fixes the origin for the widget (why?)
+        painter.save()
         painter.translate(option.rect.topLeft())
         widget.setGeometry(option.rect)
         widget.render(painter, QPoint(0,0), renderFlags=self.render_flags)

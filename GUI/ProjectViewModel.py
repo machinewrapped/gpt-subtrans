@@ -1,3 +1,5 @@
+import logging
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 class ProjectViewModel(QStandardItemModel):
@@ -82,10 +84,9 @@ class SceneItem(QStandardItem):
 
 class BatchItem(QStandardItem):
     def __init__(self, index, batch_data):
-        super(BatchItem, self).__init__()
+        super(BatchItem, self).__init__(f"Batch {index}")
         self.index = index
         self.batch_data = batch_data
-        self.setText(f"Batch {index}")
 
     @property
     def start(self):
@@ -120,10 +121,9 @@ class BatchItem(QStandardItem):
 
 class SubtitleItem(QStandardItem):
     def __init__(self, index, subtitle_data):
-        super(SubtitleItem, self).__init__()
+        super(SubtitleItem, self).__init__(f"Subtitle {index}")
         self.index = index
         self.subtitle_data = subtitle_data
-        self.setText(f"Subtitle {index}")
 
     @property
     def start(self):
@@ -136,3 +136,4 @@ class SubtitleItem(QStandardItem):
     @property
     def text(self):
         return self.subtitle_data['text']
+        

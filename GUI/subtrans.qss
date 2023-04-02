@@ -42,3 +42,25 @@ QWidget {
     padding-left: 10;
 }
 
+.TreeViewItemWidget:selected {
+    background-color: lightblue;
+}
+
+.SubtitleItemView {
+    padding: 1;
+    margin: 0;
+    border-width: 1;
+    border-style: solid;
+    border-color: aliceblue;
+}
+
+.SubtitleHeader {
+    background-color: aliceblue;
+    font-weight: bold;
+    margin: 2;
+}
+
+.SubtitleBody {
+    margin: 2;
+    background-color: white;
+}

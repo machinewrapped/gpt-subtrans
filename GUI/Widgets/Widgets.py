@@ -1,4 +1,3 @@
-from PySide6.QtCore import QSize
 from PySide6.QtWidgets import (
     QWidget,
     QFrame,
@@ -7,13 +6,7 @@ from PySide6.QtWidgets import (
     QLabel
 )
 
-from PySide6.QtWidgets import (
-    QVBoxLayout, 
-    QWidget, 
-    QLabel, 
-    QTextEdit, 
-    QSizePolicy
-)
+from GUI.ProjectViewModel import SubtitleItem
 
 class TreeViewItemWidget(QFrame):
     def __init__(self, content, parent=None):
@@ -47,4 +40,25 @@ class WidgetBody(QLabel):
         # self.setReadOnly(True)
         # self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.setText(text)
+
+class SubtitleItemView(QFrame):
+    def __init__(self, subtitle, parent=None):
+        super(SubtitleItemView, self).__init__(parent)
+
+        layout = QVBoxLayout()
+        layout.addWidget(SubtitleHeader(subtitle, parent=self))
+        layout.addWidget(SubtitleBody(subtitle, parent=self))
+
+        self.setLayout(layout)
+
+class SubtitleHeader(QLabel):
+    def __init__(self, subtitle: SubtitleItem, parent=None):
+        super(SubtitleHeader, self).__init__(parent)
+        self.setText(f"{str(subtitle.index)}, {str(subtitle.start)} --> {str(subtitle.end)}")
+
+class SubtitleBody(QLabel):
+    def __init__(self, subtitle: SubtitleItem, parent=None):
+        super(SubtitleBody, self).__init__(parent)
+        self.setText(subtitle.text)
+        self.setWordWrap(True)
 
