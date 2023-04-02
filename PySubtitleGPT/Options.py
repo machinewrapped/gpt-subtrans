@@ -29,6 +29,7 @@ default_options = {
     'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 3.0)),
     'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 5)),
     'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 20)),
+    'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
     'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None, 

@@ -51,7 +51,8 @@ class SubtitleEncoder(json.JSONEncoder):
                 "linecount": obj.linecount,
                 "all_translated": obj.all_translated,
                 "context": {
-                    "summary": obj.context.get('summary')
+                    "summary": obj.context.get('summary'),
+                    "summaries": obj.context.get('summaries')
                 },
                 "batches": obj._batches,
             }
@@ -111,8 +112,8 @@ class SubtitleDecoder(json.JSONDecoder):
             elif class_name == classname(SubtitleScene):
                 obj = SubtitleScene()
                 obj.number = dct.get('number')
-                obj.context = dct.get('context')
-                obj._batches = dct.get('batches')
+                obj.context = dct.get('context') or {}
+                obj._batches = dct.get('batches') or []
                 obj._summary = dct.get('summary')
                 return obj
             elif class_name == classname(SubtitleBatch):

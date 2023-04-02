@@ -1,6 +1,7 @@
+import logging
 from os import linesep
 
-from PySubtitleGPT.Helpers import GenerateTagLines, GenerateBatchPrompt
+from PySubtitleGPT.Helpers import GenerateTag, GenerateTagLines, GenerateBatchPrompt
 
 class ChatGPTPrompt:
     def __init__(self, instructions):
@@ -18,12 +19,17 @@ class ChatGPTPrompt:
             if context_tags:
                 self.messages.append({'role': "user", 'content': context_tags})
 
-            previous_batch = context.get('previous_batch')
-            if previous_batch:
-                previous_subtitles = previous_batch.subtitles
-                previous_lines = [ line.prompt for line in previous_subtitles ]
-                user_previous = linesep.join(previous_lines)
-                self.messages.append({'role': "assistant", 'content': user_previous})
+            # previous_batch = context.get('previous_batch')
+            # if previous_batch:
+            #     previous_subtitles = previous_batch.subtitles
+            #     previous_lines = [ line.prompt for line in previous_subtitles ]
+            #     user_previous = linesep.join(previous_lines)
+            #     self.messages.append({'role': "assistant", 'content': user_previous})
+
+            summaries = context.get('summaries')
+            if summaries:
+                tags = ( GenerateTag('summary', summary) for summary in summaries )
+                self.messages.append({'role': "assistant", 'content': " ... ".join(tags)})
 
             tag_lines = GenerateTagLines(context, ['summary'])
 
@@ -39,7 +45,8 @@ class ChatGPTPrompt:
         Request retranslation of lines that were not translated originally
         """
         if errors:
-            error_list = list(set([ f"- {str(e).strip()}" for e in errors ]))
+            unique_errors = set(( f"- {str(e).strip()}" for e in errors ))
+            error_list = list(unique_errors)
             error_message = '\n'.join(error_list)
             retry_prompt = f"There were some problems with the translation:\n{error_message}\n\nPlease correct them."
         else:
