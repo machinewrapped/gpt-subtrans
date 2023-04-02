@@ -38,7 +38,8 @@ default_options = {
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
     'project' : os.getenv('PROJECT', None),
     'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY'),
-    'stop_on_error' : env_bool('STOP_ON_ERROR')
+    'stop_on_error' : env_bool('STOP_ON_ERROR'),
+    'write_backup' : env_bool('WRITE_BACKUP_FILE')
 }
 
 class Options:
