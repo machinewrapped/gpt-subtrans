@@ -35,9 +35,12 @@ class ModelView(QWidget):
         else:
             self.scenesView.populate(viewmodel)
 
-    def show_subtitles(self, subtitles, translations):
+    def show_subtitles(self, subtitles, translations, contexts):
         if subtitles:
             self.contentView.show_subtitles(subtitles)
         
         if translations:
             self.contentView.show_translations(translations)
+
+        if contexts:
+            self.contentView.show_contexts(contexts)

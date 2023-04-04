@@ -1,5 +1,7 @@
 from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt
 
+from GUI.Widgets.Widgets import SubtitleItemView
+
 class SubtitleListModel(QAbstractItemModel):
     def __init__(self, subtitles, parent=None):
         super().__init__(parent)
@@ -17,11 +19,19 @@ class SubtitleListModel(QAbstractItemModel):
         if not index.isValid():
             return None
 
-        if role == Qt.ItemDataRole.DisplayRole:
-            return self.subtitles[index.row()]
+        item = index.internalPointer()
 
         if role == Qt.ItemDataRole.UserRole:
-            return self.subtitles[index.row()].subtitle_data
+            return item
+
+        if role == Qt.ItemDataRole.DisplayRole:
+            return SubtitleItemView(item)
+        
+        if role == Qt.ItemDataRole.SizeHintRole:
+            return SubtitleItemView(item).sizeHint()
+
+        if role == Qt.ItemDataRole.UserRole:
+            return self.item.subtitle_data
 
         return None
 

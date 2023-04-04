@@ -40,6 +40,7 @@ class WidgetBody(QLabel):
         # self.setReadOnly(True)
         # self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.setText(text)
+        self.setWordWrap(True)
 
 class SubtitleItemView(QFrame):
     def __init__(self, subtitle, parent=None):

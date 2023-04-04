@@ -58,7 +58,8 @@ class ProjectDataModel:
                 'start': None,
                 'end': None,
                 'subtitles': [],
-                'translated': []
+                'translated': [],
+                'context': None,
             }
 
             for index, subtitle in enumerate(data.subtitles):
@@ -72,6 +73,9 @@ class ProjectDataModel:
                 model['subtitle_count'] = len(subtitles)
                 model['start'] = subtitles[0]['start']
                 model['end'] = subtitles[-1]['end']
+
+            model['context'] = data.context
+            model['summary'] = data.summary
 
         elif isinstance(data, Subtitle):
             model = {

@@ -107,12 +107,25 @@ class BatchItem(QStandardItem):
     @property
     def subtitle_count(self):
         return len(self.subtitles)
+    
+    @property
+    def context(self):
+        return self.batch_data.get('context')
+    
+    @property
+    def summary(self):
+        return self.batch_data.get('summary')
 
     def getContent(self):
+        metadata = [ 
+            "1 subtitle" if self.subtitle_count == 1 else f"{self.subtitle_count} subtitles", 
+            self.summary
+        ]
+
         return {
             'heading': f"Batch {self.index}",
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
-            'body': f"{self.subtitle_count} subtitles"
+            'body': "\n".join([data for data in metadata if data is not None])
         }
     
     def __str__(self) -> str:

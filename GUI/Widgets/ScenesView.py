@@ -7,7 +7,7 @@ from GUI.Widgets.ScenesBatchesModel import ScenesBatchesModel
 from GUI.Widgets.ScenesBatchesDelegate import ScenesBatchesDelegate
 
 class ScenesView(QTreeView):
-    selectedLines = Signal(list, list)
+    selectedLines = Signal(list, list, list)
 
     def __init__(self, parent=None, viewmodel=None):
         super().__init__(parent)
@@ -61,12 +61,15 @@ class ScenesView(QTreeView):
 
         subtitles = []
         translated = []
+        contexts = []
         for batch in selected_batches:
             subtitles.extend(batch.subtitles)
             if batch.translated:
                 translated.extend(batch.translated)
+            if batch.context:
+                contexts.append(batch.context)
 
         debug_output = '\n'.join([str(x) for x in subtitles])
         logging.debug(f"Selected lines: {debug_output}")
 
-        self.selectedLines.emit(subtitles, translated)
+        self.selectedLines.emit(subtitles, translated, contexts)
