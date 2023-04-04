@@ -15,3 +15,10 @@ class SubtitleView(QListView):
         subtitle_items = [ item if isinstance(item, SubtitleItem) else SubtitleItem(item['index'], item) for item in subtitles ]
         model = SubtitleListModel(subtitle_items)
         self.setModel(model)
+
+    def synchronise_scrollbar(self, scrollbar):
+        scrollbar.valueChanged.connect(self.partner_scrolled)
+
+    def partner_scrolled(self, value):
+        # TODO check an option
+        self.verticalScrollBar().setValue(value)
