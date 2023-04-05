@@ -42,7 +42,7 @@ class ProjectToolbar(QToolBar):
         self.addAction(quit_action)
 
     def quit(self):
-        QApplication.intance().quit()
+        QApplication.instance().quit()
 
     def load_project_file(self):
         filepath, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Subtrans Project files (*.subtrans);;All Files (*)")
