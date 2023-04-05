@@ -65,9 +65,6 @@ class MainWindow(QMainWindow):
         # Set up the status bar
         self.statusBar().showMessage("Ready.")
 
-        # TEMP
-        self.command_queue.add_command(LoadProjectFile('C:/Development/Projects/GPT/gpt-subtrans/A Hero Never Dies (1998) [FR.1080p].fr.subtrans'))
-
     def on_command_complete(self, command, success):
         if success:
             self.statusBar().showMessage(f"{type(command).__name__} was successful.")
@@ -76,6 +73,7 @@ class MainWindow(QMainWindow):
                 return
 
             if self.model_viewer:
+                # TODO: add model updates to the datamodel rather than rebuilding it 
                 viewmodel = self.datamodel.CreateViewModel()
                 self.model_viewer.populate(viewmodel)
 

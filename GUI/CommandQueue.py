@@ -1,4 +1,5 @@
 import logging
+import threading
 import debugpy
 from queue import Queue
 
@@ -15,21 +16,40 @@ class CommandQueue(QObject):
 
         self.command_queue = CommandQueueWorker()
         self.command_queue.command_executed.connect(self.on_command_executed)
+        self.mutex = threading.Lock()
 
         self.logger = logging.getLogger("CommandQueue")
 
     def on_command_executed(self, command, success):
         self.logger.debug(f"A {type(command).__name__} was completed")
         self.undo_stack.append(command)
+
+        if self.datamodel.commands_to_queue:
+            with self.mutex:
+                commands = [ cmd for cmd in self.datamodel.commands_to_queue if cmd ]
+                self.datamodel.commands_to_queue = []
+
+                for command in commands:
+                    self._queue_command(command)
+
+            for command in commands:
+                self.logger.debug(f"Added a {type(command).__name__} command to the queue")
+                self.command_added.emit(command)
+
         self.command_executed.emit(command, success)
 
     def add_command(self, command, callback=None, undo_callback=None):
-        self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
+        if command:
+            self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
+            with self.mutex:
+                self._queue_command(command, callback, undo_callback)
+            self.command_added.emit(command)
+
+    def _queue_command(self, command, callback=None, undo_callback=None):
         command.set_callback(callback)
         command.set_undo_callback(undo_callback)
 
         self.command_queue.add_command(command, self.datamodel)
-        self.command_added.emit(command)
 
 
 class CommandQueueWorker(QThread):

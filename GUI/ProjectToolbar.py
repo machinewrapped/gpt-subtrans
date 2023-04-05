@@ -20,9 +20,9 @@ class ProjectToolbar(QToolBar):
         # save_project_action.triggered.connect(self.save_project_file)
         # self.addAction(save_project_action)
 
-        # load_subtitle_action = QAction("Load Subtitle File", self)
-        # load_subtitle_action.triggered.connect(self.load_subtitle_file)
-        # self.addAction(load_subtitle_action)
+        load_subtitle_action = QAction("Load Subtitle File", self)
+        load_subtitle_action.triggered.connect(self.load_subtitle_file)
+        self.addAction(load_subtitle_action)
 
         # save_subtitle_action = QAction("Save Subtitle File", self)
         # save_subtitle_action.triggered.connect(self.save_subtitle_file)
@@ -49,4 +49,11 @@ class ProjectToolbar(QToolBar):
 
         if filepath:
             command = LoadProjectFile(filepath)
+            self.command_queue.add_command(command)
+
+    def load_subtitle_file(self):
+        filepath, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Subtitle files (*.srt);;All Files (*)")
+
+        if filepath:
+            command = LoadSubtitleFile(filepath)
             self.command_queue.add_command(command)

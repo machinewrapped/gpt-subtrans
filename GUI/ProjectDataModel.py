@@ -14,6 +14,7 @@ class ProjectDataModel:
 
         self.model = {}
         self.viewmodel = None
+        self.commands_to_queue = []
 
     def CreateViewModel(self):
         viewmodel = ProjectViewModel()
