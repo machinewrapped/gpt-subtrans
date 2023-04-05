@@ -4,6 +4,7 @@ import pysrt
 from pysrt import SubRipFile
 from PySubtitleGPT.Helpers import UnbatchScenes
 from PySubtitleGPT.Subtitle import Subtitle
+from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
@@ -96,6 +97,18 @@ class SubtitleFile:
         translator = SubtitleTranslator(options, project)
 
         self.scenes = translator.TranslateSubtitles(self.subtitles, self.context)
+
+    def AutoBatch(self, options, project):
+        """
+        Divide subtitles into scenes and batches based on threshold options
+        """
+        batcher = SubtitleBatcher(options)
+
+        self.scenes = batcher.BatchSubtitles(self.subtitles)
+
+        if project:
+            project.UpdateProjectFile(self.scenes)
+
 
     def AddScene(self, scene):
         self.scenes.append(scene)

@@ -151,6 +151,9 @@ class SubtitleProject:
         """
         Write current state of scenes to the project file
         """
+        if not scenes:
+            return
+        
         if self.update_project:
             if not self.subtitles:
                 raise Exception("Unable to update project file, no subtitles")
