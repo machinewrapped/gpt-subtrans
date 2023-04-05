@@ -9,7 +9,5 @@ __pycache__
 /Projects
 /subtrans-env
 /envsubtrans
-*.subtrans-backup
-/Designer
-*.code-workspace
-*.lnk
+/*.subtrans-backup
+/*.code-workspace

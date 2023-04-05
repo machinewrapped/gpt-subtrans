@@ -1,14 +1,10 @@
 import os
 import argparse
-import dotenv
 import logging
+
 from PySubtitleGPT.Helpers import ParseSubstitutions
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
-from PySubtitleGPT.SubtitleFile import SubtitleFile
-
-# Load environment variables from .env file
-dotenv.load_dotenv()
 
 logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'WARNING')}")
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
