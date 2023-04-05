@@ -1,6 +1,10 @@
 import os
+import dotenv
 
 linesep = '\n'
+
+# Load environment variables from .env file
+dotenv.load_dotenv()
 
 default_instructions = linesep.join([
     "You are to translate subtitles to a target language",
