@@ -11,7 +11,7 @@ To install GPT-Subtrans, you will need to have Python 3.x and pip installed on y
 
 2. Create a new file named .env in the root directory of the project. Add your OpenAI API key to the .env file like this:
 ```
-    OPENAI_API_KEY=<your_api_key_here>
+    API_KEY=<your_api_key_here>
 ```
 
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
