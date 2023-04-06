@@ -1,8 +1,10 @@
-from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QDialog
 from PySide6.QtWidgets import QToolBar, QFileDialog, QApplication
 from PySide6.QtGui import QAction
 
 from GUI.FileCommands import *
+from GUI.ProjectCommands import UpdateProjectOptionsCommand
+from GUI.ProjectOptions import ProjectOptionsDialog
 
 class ProjectToolbar(QToolBar):
     def __init__(self,  parent=None, command_queue=None):
@@ -20,9 +22,13 @@ class ProjectToolbar(QToolBar):
         # save_project_action.triggered.connect(self.save_project_file)
         # self.addAction(save_project_action)
 
-        load_subtitle_action = QAction("Load Subtitle File", self)
+        load_subtitle_action = QAction("Load Subtitles", self)
         load_subtitle_action.triggered.connect(self.load_subtitle_file)
         self.addAction(load_subtitle_action)
+
+        project_options_action = QAction("Project Options", self)
+        project_options_action.triggered.connect(self.show_project_options_dialog)
+        self.addAction(project_options_action)
 
         # save_subtitle_action = QAction("Save Subtitle File", self)
         # save_subtitle_action.triggered.connect(self.save_subtitle_file)
@@ -32,10 +38,9 @@ class ProjectToolbar(QToolBar):
         # save_translation_action.triggered.connect(self.save_translation_file)
         # self.addAction(save_translation_action)
 
-        # Add the undo and quit buttons
-        undo_action = QAction("Undo", self)
-        undo_action.triggered.connect(lambda: command_queue.undo_last_command())
-        self.addAction(undo_action)
+        # undo_action = QAction("Undo", self)
+        # undo_action.triggered.connect(lambda: command_queue.undo_last_command())
+        # self.addAction(undo_action)
 
         quit_action = QAction("Quit", self)
         quit_action.triggered.connect(self.quit)
@@ -57,3 +62,14 @@ class ProjectToolbar(QToolBar):
         if filepath:
             command = LoadSubtitleFile(filepath)
             self.command_queue.add_command(command)
+
+    def show_project_options_dialog(self):
+        if self.command_queue and self.command_queue.datamodel:
+            options = self.command_queue.datamodel.options.options
+        else:
+            options = None
+
+        dialog = ProjectOptionsDialog(options)
+        if dialog.exec_() == QDialog.Accepted:
+            options = dialog.get_options()
+            self.command_queue.add_command(UpdateProjectOptionsCommand(options))

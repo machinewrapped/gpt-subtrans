@@ -82,17 +82,32 @@ class SubtitleFile:
         srtfile = SubRipFile(items=self.translations)
         srtfile.save(filename)
 
+    def UpdateContext(self, options):
+        """
+        Update the project context from options,
+        and set any unspecified options from the project context.
+        """
+        if not self.context:
+            self.context = {
+                'gpt_model': "",
+                'gpt_prompt': "",
+                'movie_name': "",
+                'synopsis': "",
+                'characters': "",
+                'instructions': "",
+                'substitutions': []
+            }
+
+        # Update the context dictionary with matching fields from options, and vice versa
+        self.context.update({key: options[key] for key in options.keys() & self.context.keys()})
+        options.update({key: self.context[key] for key in options.keys() & self.context.keys()})
+
     def Translate(self, options, project):
         """
         Translate subtitles using the provided options
         """
         # Generate context for the project file
-        self.context = {
-            'synopsis': options.get('synopsis', ""),
-            'characters': options.get('characters', ""),
-            'instructions': options.get('instructions', ""),
-            'substitutions': options.get('substitutions')
-        }
+        self.UpdateContext(options)
 
         translator = SubtitleTranslator(options, project)
 

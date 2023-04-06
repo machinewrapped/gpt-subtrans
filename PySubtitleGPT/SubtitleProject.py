@@ -161,3 +161,15 @@ class SubtitleProject:
             self.subtitles.scenes = scenes
             self.WriteProjectFile()
 
+    def UpdateProjectOptions(self, options: dict):
+        """
+        Replace options if the provided dictionary has an entry with the same key  
+        """
+        if not self.options:
+            self.options = options
+            return
+        
+        self.options.update(options)
+
+        if self.subtitles:
+            self.subtitles.UpdateContext(self.options)

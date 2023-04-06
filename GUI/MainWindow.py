@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
 )
 
 from GUI.CommandQueue import CommandQueue
-from GUI.FileCommands import LoadProjectFile
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectToolbar import ProjectToolbar
 from GUI.Widgets.LogWindow import LogWindow

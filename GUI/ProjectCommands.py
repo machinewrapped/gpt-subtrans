@@ -1,5 +1,6 @@
 import logging
 from GUI.Command import Command
+from GUI.ProjectDataModel import ProjectDataModel
 
 class BatchSubtitlesCommand(Command):
     def execute(self, datamodel):
@@ -21,3 +22,19 @@ class BatchSubtitlesCommand(Command):
     def undo(self, datamodel):
         # Do we flatten, or do we cache the previous batches?
         pass    
+
+class UpdateProjectOptionsCommand(Command):
+    def __init__(self, options):
+        super().__init__()
+        self.options = options
+
+    def execute(self, datamodel: ProjectDataModel):
+        if not self.options:
+            return False
+        
+        if not datamodel.project:
+            raise Exception("No project loaded")
+
+        datamodel.project.UpdateProjectOptions(self.options)
+
+        
