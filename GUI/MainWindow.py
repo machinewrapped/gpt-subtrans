@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(splitter)
 
         self.model_viewer = ModelView(splitter)
+        self.model_viewer.optionsChanged.connect(self.on_options_changed)
         splitter.addWidget(self.model_viewer)
 
         # Create the log window widget and add it to the splitter
@@ -78,3 +79,6 @@ class MainWindow(QMainWindow):
         else:
             self.statusBar().showMessage(f"{type(command).__name__} failed.")
 
+    def on_options_changed(self, options: dict):
+        if options and self.datamodel.project:
+            self.datamodel.project.UpdateProjectOptions(options)

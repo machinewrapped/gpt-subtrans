@@ -1,10 +1,12 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QVBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from GUI.Widgets.ScenesView import ScenesView
 from GUI.Widgets.ContentView import ContentView
 from GUI.Widgets.ProjectOptions import ProjectOptions
 
 class ModelView(QWidget):
+    optionsChanged = Signal(dict)
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -17,6 +19,7 @@ class ModelView(QWidget):
         # Project Options
         self.projectOptions = ProjectOptions()
         self.projectOptions.hide()
+        self.projectOptions.optionsChanged.connect(self.optionsChanged)
 
         # Splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -51,6 +54,7 @@ class ModelView(QWidget):
 
     def toggle_project_options(self):
         if self.projectOptions.isVisible():
+            self.optionsChanged.emit(self.projectOptions.get_options())
             self.projectOptions.hide()
         else:
             self.projectOptions.show()

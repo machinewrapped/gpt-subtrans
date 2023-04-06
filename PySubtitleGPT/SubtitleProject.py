@@ -98,6 +98,7 @@ class SubtitleProject:
         """
         self.subtitles = SubtitleFile()
         self.subtitles.LoadSubtitles(filename)
+        self.subtitles.UpdateContext(self.options)
         return self.subtitles
 
     def WriteProjectFile(self, projectfile = None):
@@ -137,6 +138,7 @@ class SubtitleProject:
 
             subtitles.project = self
             self.subtitles = subtitles
+            self.subtitles.UpdateContext(self.options)
             return subtitles
 
         except FileNotFoundError:
@@ -163,12 +165,17 @@ class SubtitleProject:
 
     def UpdateProjectOptions(self, options: dict):
         """
-        Replace options if the provided dictionary has an entry with the same key  
+        Replace options if the provided dictionary has an entry with the same key
         """
         if not self.options:
             self.options = options
             return
-        
+
+        # Check if all values in "options" are the same as existing values in "self.options"
+        if all(options.get(key) == self.options.get(key) for key in options.keys()):
+            return
+
+        # Update "self.options"
         self.options.update(options)
 
         if self.subtitles:

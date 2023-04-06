@@ -25,8 +25,11 @@ default_options = {
     'gpt_model': os.getenv('GPT_MODEL', 'gpt-3.5-turbo'),
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
     'instruction_file': os.getenv('INSTRUCTIONFILE', "instructions.txt"),
-    'target_language' : os.getenv('TARGET_LANGUAGE', 'English'),
-    'movie_name' : None,
+    'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
+    'movie_name': None,
+    'synopsis': None,
+    'characters': None,
+    'substitutions': None,
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
     'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
     'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 15.0)),
@@ -80,6 +83,9 @@ class Options:
     
     def add(self, option, value):
         self.options[option] = value
+
+    def update(self, options: dict):
+        self.options.update(options)
 
     def api_key(self):
         return self.get('api_key')

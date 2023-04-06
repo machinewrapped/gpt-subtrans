@@ -87,6 +87,10 @@ class SubtitleFile:
         Update the project context from options,
         and set any unspecified options from the project context.
         """
+        if hasattr(options, 'options'):
+            self.UpdateContext(options.options)
+            return
+        
         if not self.context:
             self.context = {
                 'gpt_model': "",
@@ -99,8 +103,12 @@ class SubtitleFile:
             }
 
         # Update the context dictionary with matching fields from options, and vice versa
-        self.context.update({key: options[key] for key in options.keys() & self.context.keys()})
-        options.update({key: self.context[key] for key in options.keys() & self.context.keys()})
+        for key in options.keys() & self.context.keys():
+            if options[key] is not None:
+                self.context[key] = options[key]
+            if self.context[key] is not None:
+                options[key] = self.context[key]
+
 
     def Translate(self, options, project):
         """

@@ -12,7 +12,7 @@ class ScenesView(QTreeView):
     def __init__(self, parent=None, viewmodel=None):
         super().__init__(parent)
 
-        self.setMinimumWidth(500)
+        self.setMinimumWidth(350)
         self.setIndentation(20)
         self.setHeaderHidden(True)
         self.setExpandsOnDoubleClick(True)

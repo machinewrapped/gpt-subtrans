@@ -1,13 +1,28 @@
 from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QTextEdit
+from PySide6.QtCore import Signal
 
 class OptionsGrid(QGridLayout):
     def __init__(self, parent = None) -> None:
         super().__init__(parent)
 
+class TextBoxEditor(QTextEdit):
+    editingFinished = Signal(str)
+
+    def focusOutEvent(self, e) -> None:
+        text = self.toPlainText()
+        self.editingFinished.emit(text)
+        return super().focusOutEvent(e)
+
 class ProjectOptions(QGroupBox):
+    """
+    Allow the user to edit project-specific options
+    """
+    optionsChanged = Signal(dict)
+
     def __init__(self, options=None):
         super().__init__()
         self.setTitle("Project Options")
+        self.setMinimumWidth(400)
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
 
@@ -40,6 +55,7 @@ class ProjectOptions(QGroupBox):
         label_widget = QLabel(label)
         input_widget = QLineEdit()
         input_widget.setText(options.get(key, ""))
+        input_widget.editingFinished.connect(self.text_changed)
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
@@ -47,8 +63,9 @@ class ProjectOptions(QGroupBox):
     def AddMultiLineOption(self, row, label, options, key):
         # Add label and input field for a multi-line option
         label_widget = QLabel(label)
-        input_widget = QTextEdit()
+        input_widget = TextBoxEditor()
         input_widget.setText(options.get(key, ""))
+        input_widget.editingFinished.connect(self.text_changed)
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
@@ -61,3 +78,7 @@ class ProjectOptions(QGroupBox):
     def clear(self):
         for key in ["movie_name", "gpt_model", "gpt_prompt", "synopsis", "characters", "substitutions"]:
             getattr(self, key + "_input").setText("")
+
+    def text_changed(self, text):
+        options = self.get_options()
+        self.optionsChanged.emit(options)
