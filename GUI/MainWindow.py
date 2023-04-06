@@ -23,10 +23,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # Set the window title
         self.setWindowTitle("GUI-Subtrans")
-
-        # Set the window size
         self.setGeometry(100, 100, 1600, 900)
 
         # Create the project data model
@@ -44,7 +41,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_widget)
 
         # Create the toolbar
-        self.toolbar = ProjectToolbar(main_widget, command_queue=self.command_queue)
+        self.toolbar = ProjectToolbar(main_widget, main_window=self, command_queue=self.command_queue)
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -72,6 +69,8 @@ class MainWindow(QMainWindow):
                 return
 
             if self.model_viewer:
+                self.model_viewer.set_project(self.datamodel.project)
+
                 # TODO: add model updates to the datamodel rather than rebuilding it 
                 viewmodel = self.datamodel.CreateViewModel()
                 self.model_viewer.populate(viewmodel)

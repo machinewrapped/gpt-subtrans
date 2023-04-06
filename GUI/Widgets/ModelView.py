@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QVBoxLayout
 from PySide6.QtCore import Qt
-from GUI.Widgets.ContentView import ContentView
-
 from GUI.Widgets.ScenesView import ScenesView
+from GUI.Widgets.ContentView import ContentView
+from GUI.Widgets.ProjectOptions import ProjectOptions
 
 class ModelView(QWidget):
     def __init__(self, parent=None):
@@ -14,12 +14,18 @@ class ModelView(QWidget):
         # Main Content Area
         self.contentView = ContentView(self)
 
+        # Project Options
+        self.projectOptions = ProjectOptions()
+        self.projectOptions.hide()
+
         # Splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.addWidget(self.projectOptions)
         splitter.addWidget(self.scenesView)
         splitter.addWidget(self.contentView)
-        splitter.setStretchFactor(0, 1)
-        splitter.setStretchFactor(1, 3)
+        splitter.setStretchFactor(0, 2)
+        splitter.setStretchFactor(1, 1)
+        splitter.setStretchFactor(2, 3)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -34,6 +40,20 @@ class ModelView(QWidget):
             self.scenesView.clear()
         else:
             self.scenesView.populate(viewmodel)
+
+    def set_project(self, project):
+        if not project or not project.options:
+            self.projectOptions.clear()
+            self.projectOptions.hide()
+        else:
+            self.projectOptions.populate(project.options.options)
+            self.projectOptions.show()
+
+    def toggle_project_options(self):
+        if self.projectOptions.isVisible():
+            self.projectOptions.hide()
+        else:
+            self.projectOptions.show()
 
     def show_subtitles(self, subtitles, translations, contexts):
         if subtitles:

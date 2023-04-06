@@ -1,14 +1,12 @@
-from PySide6.QtWidgets import QDialog
 from PySide6.QtWidgets import QToolBar, QFileDialog, QApplication
 from PySide6.QtGui import QAction
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import UpdateProjectOptionsCommand
-from GUI.ProjectOptions import ProjectOptionsDialog
 
 class ProjectToolbar(QToolBar):
-    def __init__(self,  parent=None, command_queue=None):
+    def __init__(self,  parent=None, main_window=None, command_queue=None):
         super().__init__(parent)
+        self.main_window = main_window
         self.command_queue = command_queue
 
         self.setMovable(False)
@@ -27,7 +25,7 @@ class ProjectToolbar(QToolBar):
         self.addAction(load_subtitle_action)
 
         project_options_action = QAction("Project Options", self)
-        project_options_action.triggered.connect(self.show_project_options_dialog)
+        project_options_action.triggered.connect(self.toggle_project_options)
         self.addAction(project_options_action)
 
         # save_subtitle_action = QAction("Save Subtitle File", self)
@@ -63,13 +61,5 @@ class ProjectToolbar(QToolBar):
             command = LoadSubtitleFile(filepath)
             self.command_queue.add_command(command)
 
-    def show_project_options_dialog(self):
-        if self.command_queue and self.command_queue.datamodel:
-            options = self.command_queue.datamodel.options.options
-        else:
-            options = None
-
-        dialog = ProjectOptionsDialog(options)
-        if dialog.exec_() == QDialog.Accepted:
-            options = dialog.get_options()
-            self.command_queue.add_command(UpdateProjectOptionsCommand(options))
+    def toggle_project_options(self):
+        self.main_window.model_viewer.toggle_project_options()

@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QSplitter, QLabel, QVBoxLayout, QWidget, QSizePolicy
 from PySide6.QtCore import Qt
-from GUI.Widgets.ContextView import ContextView
 
 from GUI.Widgets.SubtitleView import SubtitleView
 
@@ -21,6 +20,7 @@ class ContentView(QWidget):
         metadata_context = QLabel("Metadata & Context Information")
         metadata_context.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         layout.addWidget(metadata_context)
+
 #        # connect the scrollbars
         self.subtitle_view.synchronise_scrollbar(self.translation_view.verticalScrollBar())
         self.translation_view.synchronise_scrollbar(self.subtitle_view.verticalScrollBar())
@@ -34,9 +34,10 @@ class ContentView(QWidget):
         self.translation_view.show_subtitles(translations)
 
     def show_contexts(self, contexts):
-        self.metadata_context.show_contexts(contexts)
+        # self.metadata_context.show_contexts(contexts)
+        pass
 
     def clear(self):
         self.subtitle_view.show_subtitles([])
         self.translation_view.show_subtitles([])
-        self.metadata_context.show_contexts([])
+        # self.metadata_context.show_contexts([])
