@@ -48,7 +48,7 @@ class ProjectOptions(QGroupBox):
         label_widget = QLabel(label)
         input_widget = QLineEdit()
         input_widget.setText(options.get(key, ""))
-        input_widget.editingFinished.connect(self.text_changed)
+        input_widget.editingFinished.connect(self._text_changed)
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
@@ -63,7 +63,7 @@ class ProjectOptions(QGroupBox):
             value = '\n'.join(value)
         input_widget.setPlainText(value)
 
-        input_widget.editingFinished.connect(self.text_changed)
+        input_widget.editingFinished.connect(self._text_changed)
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
@@ -71,15 +71,20 @@ class ProjectOptions(QGroupBox):
     def populate(self, options):
         for key in options:
             if hasattr(self, key + "_input"):
-                value = options.get(key)
-                if isinstance(value, list):
-                    value = '\n'.join(value)
-                getattr(self, key + "_input").setText(value or "")
+                self._settext(key, options.get(key))
 
     def clear(self):
         for key in ["movie_name", "gpt_model", "gpt_prompt", "synopsis", "characters", "substitutions"]:
             getattr(self, key + "_input").setText("")
 
-    def text_changed(self, text = None):
+    def _settext(self, key, value):
+        if isinstance(value, list):
+            value = '\n'.join(value)
+        elif isinstance(value, dict):
+            items = [ f"{k}::{v}" for k, v in value.items() ]
+            value = '\n'.join(items)
+        getattr(self, key + "_input").setText(value or "")
+
+    def _text_changed(self, text = None):
         options = self.get_options()
         self.optionsChanged.emit(options)
