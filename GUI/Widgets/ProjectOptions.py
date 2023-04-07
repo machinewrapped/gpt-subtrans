@@ -15,7 +15,7 @@ class ProjectOptions(QGroupBox):
     def __init__(self, options=None):
         super().__init__()
         self.setTitle("Project Options")
-        self.setMinimumWidth(400)
+        self.setMinimumWidth(450)
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
 
@@ -23,11 +23,12 @@ class ProjectOptions(QGroupBox):
 
         # Add options
         self.AddSingleLineOption(0, "Movie Name", options, 'movie_name')
-        self.AddSingleLineOption(1, "GPT Model", options, 'gpt_model')
-        self.AddSingleLineOption(2, "GPT Prompt", options, 'gpt_prompt')
-        self.AddMultiLineOption(3, "Synopsis", options, 'synopsis')
-        self.AddMultiLineOption(4, "Characters", options, 'characters')
-        self.AddMultiLineOption(5, "Substitutions", options, 'substitutions')
+        self.AddMultiLineOption(1, "Synopsis", options, 'synopsis')
+        self.AddMultiLineOption(2, "Characters", options, 'characters')
+        self.AddMultiLineOption(3, "Substitutions", options, 'substitutions')
+        self.AddSingleLineOption(4, "GPT Model", options, 'gpt_model')
+        self.AddSingleLineOption(5, "GPT Prompt", options, 'gpt_prompt')
+        #TODO Add an "Edit Instructions" button
 
         self.layout.addLayout(self.grid_layout)
 
