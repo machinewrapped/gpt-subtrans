@@ -1,17 +1,7 @@
-from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QGridLayout, QLabel, QLineEdit, QTextEdit
+from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit
 from PySide6.QtCore import Signal
 
-class OptionsGrid(QGridLayout):
-    def __init__(self, parent = None) -> None:
-        super().__init__(parent)
-
-class TextBoxEditor(QTextEdit):
-    editingFinished = Signal(str)
-
-    def focusOutEvent(self, e) -> None:
-        text = self.toPlainText()
-        self.editingFinished.emit(text)
-        return super().focusOutEvent(e)
+from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 
 class ProjectOptions(QGroupBox):
     """
@@ -73,12 +63,12 @@ class ProjectOptions(QGroupBox):
     def populate(self, options):
         for key in options:
             if hasattr(self, key + "_input"):
-                getattr(self, key + "_input").setText(options[key])
+                getattr(self, key + "_input").setText(options.get(key) or "")
 
     def clear(self):
         for key in ["movie_name", "gpt_model", "gpt_prompt", "synopsis", "characters", "substitutions"]:
             getattr(self, key + "_input").setText("")
 
-    def text_changed(self, text):
+    def text_changed(self, text = None):
         options = self.get_options()
         self.optionsChanged.emit(options)

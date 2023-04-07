@@ -1,9 +1,12 @@
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QWidget,
     QFrame,
     QHBoxLayout,
     QVBoxLayout,
-    QLabel
+    QLabel,
+    QTextEdit,
+    QGridLayout
 )
 
 from GUI.ProjectViewModel import SubtitleItem
@@ -62,4 +65,29 @@ class SubtitleBody(QLabel):
         super(SubtitleBody, self).__init__(parent)
         self.setText(subtitle.text)
         self.setWordWrap(True)
+
+class OptionsGrid(QGridLayout):
+    """
+    Grid layout for options (styling class)
+    """
+    def __init__(self, parent = None) -> None:
+        super().__init__(parent)
+
+class TextBoxEditor(QTextEdit):
+    """
+    Multi-line editor that provides a signal when text contents change
+    """
+    editingFinished = Signal(str)
+
+    _original = None
+
+    def focusInEvent(self, e) -> None:
+        self._original = self.toPlainText()
+        return super().focusInEvent(e)
+
+    def focusOutEvent(self, e) -> None:
+        text = self.toPlainText()
+        if text != self._original:
+            self.editingFinished.emit(text)
+        return super().focusOutEvent(e)
 
