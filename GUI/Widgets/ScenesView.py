@@ -69,7 +69,7 @@ class ScenesView(QTreeView):
             if batch.context:
                 contexts.append(batch.context)
 
-        debug_output = '\n'.join([str(x) for x in subtitles])
-        logging.debug(f"Selected lines: {debug_output}")
+        # debug_output = '\n'.join([str(x) for x in subtitles])
+        # logging.debug(f"Selected lines: {debug_output}")
 
         self.selectedLines.emit(subtitles, translated, contexts)

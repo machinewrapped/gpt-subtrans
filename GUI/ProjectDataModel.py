@@ -1,3 +1,4 @@
+import logging
 from GUI.ProjectViewModel import ProjectViewModel
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleFile import SubtitleFile
@@ -66,11 +67,11 @@ class ProjectDataModel:
                 'context': None,
             }
 
-            for index, subtitle in enumerate(data.subtitles):
-                model['subtitles'].append(self.CreateDataModel(subtitle, index + 1))
+            for subtitle in data.subtitles:
+                model['subtitles'].append(self.CreateDataModel(subtitle, subtitle.index))
 
-            for index, subtitle in enumerate(data.translated):
-                model['translated'].append(self.CreateDataModel(subtitle, index + 1))
+            for subtitle in data.translated:
+                model['translated'].append(self.CreateDataModel(subtitle, subtitle.index))
 
             if model['subtitles']:
                 subtitles = model['subtitles']
@@ -86,7 +87,8 @@ class ProjectDataModel:
                 'index': index,
                 'start': str(data.start),
                 'end': str(data.end),
-                'text': str(data.text)
+                'text': str(data.text),
+                'translated.index': data.translated.index if data.translated else None
             }
 
         else:

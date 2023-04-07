@@ -1,5 +1,7 @@
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
+from PySubtitleGPT.Helpers import Linearise
+
 class ProjectViewModel(QStandardItemModel):
     def __init__(self):
         super().__init__()
@@ -136,6 +138,9 @@ class SubtitleItem(QStandardItem):
         self.index = index
         self.subtitle_data = subtitle_data
 
+    def __str__(self) -> str:
+        return f"{self.index}: {self.start} --> {self.end} | {Linearise(self.text)}"
+
     @property
     def start(self):
         return self.subtitle_data['start']
@@ -147,4 +152,8 @@ class SubtitleItem(QStandardItem):
     @property
     def text(self):
         return self.subtitle_data['text']
+    
+    @property
+    def translated_index(self):
+        return self.subtitle_data.get('translated.index')
         

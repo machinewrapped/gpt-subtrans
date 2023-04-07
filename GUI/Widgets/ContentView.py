@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtWidgets import QSplitter, QLabel, QVBoxLayout, QWidget, QSizePolicy
 from PySide6.QtCore import Qt
 
@@ -21,6 +22,10 @@ class ContentView(QWidget):
         metadata_context.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         layout.addWidget(metadata_context)
 
+        # connect the selection handlers
+        self.subtitle_view.subtitlesSelected.connect(self._subtitles_selected)
+        self.translation_view.subtitlesSelected.connect(self._translations_selected)
+
 #        # connect the scrollbars
         self.subtitle_view.SynchroniseScrollbar(self.translation_view.verticalScrollBar())
         self.translation_view.SynchroniseScrollbar(self.subtitle_view.verticalScrollBar())
@@ -41,3 +46,16 @@ class ContentView(QWidget):
         self.subtitle_view.ShowSubtitles([])
         self.translation_view.ShowSubtitles([])
         # self.metadata_context.show_contexts([])
+
+    def _subtitles_selected(self, subtitles):
+        debug_output = '\n'.join([str(x) for x in subtitles])
+        logging.debug(f"Selected subtitles: {debug_output}")
+        matching_translations = [ subtitle.translated_index for subtitle in subtitles if subtitle.translated_index ]
+        if matching_translations:
+            self.translation_view.SelectSubtitles(matching_translations)
+
+    def _translations_selected(self, translations):
+        debug_output = '\n'.join([str(x) for x in translations])
+        logging.debug(f"Selected translations: {debug_output}")
+        translated_indexes = [ item.index for item in translations if item.index ]
+        self.subtitle_view.SelectSubtitles(translated_indexes)
