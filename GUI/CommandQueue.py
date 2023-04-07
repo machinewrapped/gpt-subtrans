@@ -63,10 +63,6 @@ class CommandQueue(QObject):
 
         self.command_executed.emit(command, success)
 
-    class StopThreadException(Exception):
-        def __init__(self) -> None:
-            super().__init__()
-
     def _queue_command(self, command, callback=None, undo_callback=None):
         command.set_callback(callback)
         command.set_undo_callback(undo_callback)
@@ -78,7 +74,7 @@ class CommandQueueWorker(QThread):
 
     class StopThread(Command):
         def execute(self, _):
-            raise CommandQueue.StopThreadException()
+            raise CommandQueueWorker.StopThreadException()
 
     def __init__(self):
         super().__init__()
@@ -102,10 +98,13 @@ class CommandQueueWorker(QThread):
         while self.queue:
             command, datamodel = self.queue.get()
             try:
+                if isinstance(command, CommandQueueWorker.StopThread):
+                    self.exit()
+                    break
+
                 success = command.execute(datamodel)
 
                 self.command_executed.emit(command, success)
 
-            except CommandQueue.StopThreadException as e:
-                logging.debug("Stopping command worker thread")
-                break
+            except Exception as e:
+                logging.error(f"Error processing {type(command).__name__} command ({str(e)})")
