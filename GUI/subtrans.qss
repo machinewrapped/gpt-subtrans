@@ -50,21 +50,24 @@ QWidget {
     background-color: lightblue;
 }
 
+.SubtitleView {
+    padding: 1px;
+}
+
 .SubtitleItemView {
-    padding: 1;
-    margin: 0;
-    border-width: 1;
-    border-style: solid;
-    border-color: aliceblue;
+    padding: 0px;
+    margin: 1px;
+    background-color: white;
 }
 
 .SubtitleHeader {
     background-color: aliceblue;
     font-weight: bold;
-    margin: 2;
+    margin: 0px;
 }
 
 .SubtitleBody {
-    margin: 2;
+    margin: 0px;
     background-color: white;
 }
+

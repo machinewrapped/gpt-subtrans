@@ -45,7 +45,7 @@ class WidgetBody(QLabel):
         self.setText(text)
         self.setWordWrap(True)
 
-class SubtitleItemView(QFrame):
+class SubtitleItemView(QWidget):
     def __init__(self, subtitle, parent=None):
         super(SubtitleItemView, self).__init__(parent)
 
