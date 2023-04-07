@@ -149,10 +149,12 @@ class SubtitleProject:
             logging.error(f"Error decoding JSON file: {e}")
             return None
 
-    def UpdateProjectFile(self, scenes):
+    def UpdateProjectFile(self, scenes = None):
         """
         Write current state of scenes to the project file
         """
+        scenes = scenes or self.subtitles.scenes
+
         if not scenes:
             return
         
@@ -180,3 +182,5 @@ class SubtitleProject:
 
         if self.subtitles:
             self.subtitles.UpdateContext(self.options)
+
+        self.UpdateProjectFile()

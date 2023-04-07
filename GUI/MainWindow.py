@@ -64,6 +64,10 @@ class MainWindow(QMainWindow):
     def closeEvent(self, e):
         if self.command_queue:
             self.command_queue.stop()
+
+        if self.datamodel.project:
+            self.datamodel.project.UpdateProjectFile()
+
         super().closeEvent(e)
 
     def on_command_complete(self, command, success):
