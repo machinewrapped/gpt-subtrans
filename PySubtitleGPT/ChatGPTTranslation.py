@@ -30,14 +30,14 @@ class ChatGPTTranslation:
 
     def PerformSubstitutions(self, substitutions):
         """
-        Apply any text substitutions to summery, characters and synopsis if they exist.
+        Apply any text substitutions to summary, characters and synopsis if they exist.
 
         Does NOT apply them to the translation text. 
         """
         if self.summary:
             self.summary = PerformSubstitutions(substitutions, self.summary)
         if self.characters:
-            self.characters = PerformSubstitutions(substitutions, self.characters)
+            self.characters, _ = PerformSubstitutions(substitutions, self.characters)
         if self.synopsis:
             self.synopsis = PerformSubstitutions(substitutions, self.synopsis)
 

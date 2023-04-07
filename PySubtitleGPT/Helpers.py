@@ -64,6 +64,9 @@ def GenerateTagLines(context, tags):
         return None
 
 def GenerateTag(tag, content):
+    if isinstance(content, list):
+        content = ', '.join(content)
+
     return f"<{tag}>{content}</{tag}>"
 
 def BuildPrompt(options):
@@ -84,7 +87,7 @@ def ParseTranslation(text):
     """
     text, summary = ExtractTag("summary", text)
     text, synopsis = ExtractTag("synopsis", text)
-    text, characters = ExtractTag("characters", text)
+    text, characters = ExtractTagList("characters", text)
 
     return text, summary, synopsis, characters
 
@@ -112,6 +115,14 @@ def ExtractTag(tagname, text):
     text = '\n'.join([text_before, text_after]).strip()
 
     return text, tag
+
+def ExtractTagList(tagname, text):
+    """
+    Look for an xml-like tag in the input text, and extract the contents as a comma or newline separated list.
+    """
+    text, tag = ExtractTag(tagname, text)
+    tag_list = [ item.strip() for item in re.split("[\n,]", tag) ] if tag else []
+    return text, tag_list
 
 def MergeTranslations(subtitles, translated):
     """
@@ -150,6 +161,12 @@ def UnbatchScenes(scenes):
 
     return subtitles, translations, untranslated
 
+def ParseCharacters(character_list):
+    if isinstance(character_list, str):
+        character_list = re.split("[\n,]", character_list)
+
+    return [ name.strip() for name in character_list ]
+
 def ParseSubstitutions(sub_list, separator="::"):
     """
     :param sub_list: is assumed to be a list of (before,after) pairs 
@@ -160,7 +177,10 @@ def ParseSubstitutions(sub_list, separator="::"):
     """
     if not sub_list:
         return {}
-    
+
+    if isinstance(sub_list, str):
+        sub_list = re.split("[\n,]", sub_list)
+
     substitutions = {}
     for sub in sub_list:
         if "::" in sub:

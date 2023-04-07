@@ -134,7 +134,7 @@ class SubtitleProject:
 
         try:
             with open(self.projectfile, 'r', encoding=default_encoding) as f:
-                subtitles = json.load(f, cls=SubtitleDecoder)
+                subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
 
             subtitles.project = self
             self.subtitles = subtitles

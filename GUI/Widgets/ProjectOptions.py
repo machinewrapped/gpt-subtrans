@@ -1,7 +1,9 @@
+import re
 from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit
 from PySide6.QtCore import Signal
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
+from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions
 
 class ProjectOptions(QGroupBox):
     """
@@ -26,18 +28,19 @@ class ProjectOptions(QGroupBox):
         self.AddMultiLineOption(4, "Characters", options, 'characters')
         self.AddMultiLineOption(5, "Substitutions", options, 'substitutions')
 
-        # Add grid layout to main layout
         self.layout.addLayout(self.grid_layout)
 
     def get_options(self):
-        # Return a dictionary containing the user input
+        """
+        Get a dictionary of the user's options
+        """
         return {
             "movie_name": self.movie_name_input.text(),
             "gpt_model": self.gpt_model_input.text(),
             "gpt_prompt": self.gpt_prompt_input.text(),
             "synopsis": self.synopsis_input.toPlainText(),
-            "characters": self.characters_input.toPlainText(),
-            "substitutions": self.substitutions_input.toPlainText(),
+            "characters": ParseCharacters(self.characters_input.toPlainText()),
+            "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText())
         }
 
     def AddSingleLineOption(self, row, label, options, key):
@@ -55,7 +58,11 @@ class ProjectOptions(QGroupBox):
         label_widget = QLabel(label)
         input_widget = TextBoxEditor()
         input_widget.setAcceptRichText(False)
-        input_widget.setPlainText(options.get(key, ""))
+        value = options.get(key, "")
+        if isinstance(value, list):
+            value = '\n'.join(value)
+        input_widget.setPlainText(value)
+
         input_widget.editingFinished.connect(self.text_changed)
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
@@ -64,7 +71,10 @@ class ProjectOptions(QGroupBox):
     def populate(self, options):
         for key in options:
             if hasattr(self, key + "_input"):
-                getattr(self, key + "_input").setText(options.get(key) or "")
+                value = options.get(key)
+                if isinstance(value, list):
+                    value = '\n'.join(value)
+                getattr(self, key + "_input").setText(value or "")
 
     def clear(self):
         for key in ["movie_name", "gpt_model", "gpt_prompt", "synopsis", "characters", "substitutions"]:

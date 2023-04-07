@@ -69,11 +69,11 @@ There are a number of command-line arguments that offer more control over the tr
 - `-m`, `--moviename`:
   Optionally specify the name of the movie to give context to the translator.
 
-- `--characters`:
-  Optionally provide a list of character names to use in the translation.
-
 - `--synopsis`:
   A brief synopsis of the film to give context. Less is more here, otherwise ChatGPT can start improvising.
+
+- `-c`, `--character`, `--characters`:
+  Optionally provide (a list of) character names to use in the translation.
 
 - `-s`, `--substitution`:
   A pair of strings separated by `::`, to substitute in either source or translation, or the name of a file containing a list of such pairs.

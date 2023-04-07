@@ -2,7 +2,7 @@ import os
 import logging
 import pysrt
 from pysrt import SubRipFile
-from PySubtitleGPT.Helpers import UnbatchScenes
+from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
@@ -91,24 +91,33 @@ class SubtitleFile:
             self.UpdateContext(options.options)
             return
         
-        if not self.context:
-            self.context = {
-                'gpt_model': "",
-                'gpt_prompt': "",
-                'movie_name': "",
-                'synopsis': "",
-                'characters': "",
-                'instructions': "",
-                'substitutions': []
-            }
+        context = {
+            'gpt_model': "",
+            'gpt_prompt': "",
+            'instructions': "",
+            'movie_name': "",
+            'synopsis': "",
+            'characters': None,
+            'substitutions': None
+        }
+
+        if self.context:
+            context = {**context, **self.context}
+
+        if isinstance(context['characters'], str):
+            context['characters'] = ParseCharacters(context['characters'])
+
+        if isinstance(context['substitutions'], str):
+            context['substitutions'] = ParseSubstitutions(context['substitutions'])
 
         # Update the context dictionary with matching fields from options, and vice versa
-        for key in options.keys() & self.context.keys():
-            if options[key] is not None:
-                self.context[key] = options[key]
-            if self.context[key] is not None:
-                options[key] = self.context[key]
+        for key in options.keys() & context.keys():
+            if options[key]:
+                context[key] = options[key]
+            if context[key]:
+                options[key] = context[key]
 
+        self.context = context
 
     def Translate(self, options, project):
         """

@@ -129,6 +129,11 @@ class SubtitleDecoder(json.JSONDecoder):
                     'completion_tokens' : dct.get('completion_tokens'),
                     'total_tokens' : dct.get('total_tokens'),
                     }
+                
+                if isinstance(response['text'], list):
+                    # This shouldn't happen, but try to recover if it does
+                    response['text'] = '\n'.join(response['text'])
+
                 obj = ChatGPTTranslation(response, dct.get('prompt'))
                 obj.summary = dct.get('summary', None)
                 obj.synopsis = dct.get('synopsis', None)
