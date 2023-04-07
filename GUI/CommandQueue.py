@@ -5,7 +5,12 @@ from queue import Queue
 
 from PySide6.QtCore import QThread, QObject, Signal, Slot
 
+from GUI.Command import Command
+
 class CommandQueue(QObject):
+    """
+    Execute commands on a background thread
+    """
     command_added = Signal(object)
     command_executed = Signal(object, bool)
 
@@ -20,7 +25,27 @@ class CommandQueue(QObject):
 
         self.logger = logging.getLogger("CommandQueue")
 
+    def stop(self):
+        """
+        Shut the background thread down
+        """
+        if self.command_queue:
+            self.command_queue.shutdown()
+
+    def add_command(self, command, callback=None, undo_callback=None):
+        """
+        Add a command to the command queue, with option callbacks for completion/undo events
+        """
+        if command:
+            self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
+            with self.mutex:
+                self._queue_command(command, callback, undo_callback)
+            self.command_added.emit(command)
+
     def on_command_executed(self, command, success):
+        """
+        Handle command callbacks, and queuing further actions 
+        """
         self.logger.debug(f"A {type(command).__name__} was completed")
         self.undo_stack.append(command)
 
@@ -38,12 +63,9 @@ class CommandQueue(QObject):
 
         self.command_executed.emit(command, success)
 
-    def add_command(self, command, callback=None, undo_callback=None):
-        if command:
-            self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
-            with self.mutex:
-                self._queue_command(command, callback, undo_callback)
-            self.command_added.emit(command)
+    class StopThreadException(Exception):
+        def __init__(self) -> None:
+            super().__init__()
 
     def _queue_command(self, command, callback=None, undo_callback=None):
         command.set_callback(callback)
@@ -51,28 +73,39 @@ class CommandQueue(QObject):
 
         self.command_queue.add_command(command, self.datamodel)
 
-
 class CommandQueueWorker(QThread):
     command_executed = Signal(object, bool)
+
+    class StopThread(Command):
+        def execute(self, _):
+            raise CommandQueue.StopThreadException()
 
     def __init__(self):
         super().__init__()
 
         self.queue = Queue()
 
-        self.thread = QThread()
-        self.moveToThread(self.thread)
-        self.thread.started.connect(self.run)
-        self.thread.start()
+        self.moveToThread(self)
+        self.started.connect(self.run)
+        self.start()
 
     def add_command(self, command, datamodel):
         self.queue.put((command, datamodel))
+
+    def shutdown(self):
+        self.add_command(CommandQueueWorker.StopThread(), None)
+        self.wait(500)
 
     @Slot()
     def run(self):
         debugpy.debug_this_thread()
         while self.queue:
             command, datamodel = self.queue.get()
-            success = command.execute(datamodel)
+            try:
+                success = command.execute(datamodel)
 
-            self.command_executed.emit(command, success)
+                self.command_executed.emit(command, success)
+
+            except CommandQueue.StopThreadException as e:
+                logging.debug("Stopping command worker thread")
+                break

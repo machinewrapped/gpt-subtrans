@@ -59,8 +59,12 @@ class MainWindow(QMainWindow):
         # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
 
-        # Set up the status bar
         self.statusBar().showMessage("Ready.")
+
+    def closeEvent(self, e):
+        if self.command_queue:
+            self.command_queue.stop()
+        super().closeEvent(e)
 
     def on_command_complete(self, command, success):
         if success:
