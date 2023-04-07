@@ -85,6 +85,7 @@ class Options:
         self.options[option] = value
 
     def update(self, options: dict):
+        options = {k: v for k, v in options.items() if v}
         self.options.update(options)
 
     def api_key(self):

@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
 )
 
 from GUI.CommandQueue import CommandQueue
+from GUI.FileCommands import LoadSubtitleFile
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectToolbar import ProjectToolbar
 from GUI.Widgets.LogWindow import LogWindow
@@ -20,14 +21,14 @@ from GUI.Widgets.ModelView import ModelView
 dotenv.load_dotenv()
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, options=None, filepath=None):
         super().__init__(parent)
 
         self.setWindowTitle("GUI-Subtrans")
         self.setGeometry(100, 100, 1600, 900)
 
         # Create the project data model
-        self.datamodel = ProjectDataModel()
+        self.datamodel = ProjectDataModel(options)
 
         # Create the command queue
         self.command_queue = CommandQueue(datamodel=self.datamodel)
@@ -58,6 +59,10 @@ class MainWindow(QMainWindow):
 
         # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
+
+        # Load file if we were opened with one
+        if filepath:
+            self.command_queue.add_command(LoadSubtitleFile(filepath))
 
         self.statusBar().showMessage("Ready.")
 

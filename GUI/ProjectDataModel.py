@@ -6,15 +6,20 @@ from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.Subtitle import Subtitle
 
 class ProjectDataModel:
-    def __init__(self):
-        self.project = None
-        self.options = Options({
-            'project': 'resume'            
-        })
-
-        self.model = {}
-        self.viewmodel = None
-        self.commands_to_queue = []
+    project = None
+    model = {}
+    viewmodel = None
+    commands_to_queue = []
+    options = Options({
+        'project': 'resume'
+    })
+    
+    def __init__(self, options = None):
+        if options:
+            if isinstance(options, Options):
+                self.options = options
+            else:
+              self.options.update(options)
 
     def CreateViewModel(self):
         viewmodel = ProjectViewModel()

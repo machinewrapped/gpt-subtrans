@@ -38,6 +38,7 @@ class LoadSubtitleFile(Command):
             return True
         
         except Exception as e:
+            logging.error(f"Unable to load {self.filepath} ({str(e)})")
             return False
 
     def undo(self, datamodel):
