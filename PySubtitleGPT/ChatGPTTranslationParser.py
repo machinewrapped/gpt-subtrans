@@ -46,7 +46,7 @@ class ChatGPTTranslationParser:
 
         logging.debug(f"Matches: {str(matches)}")
 
-        subs = [Subtitle.from_dict(match) for match in matches]
+        subs = [Subtitle.FromDictionary(match) for match in matches]
         self.translations = { 
             sub.key: sub for sub in subs 
             }

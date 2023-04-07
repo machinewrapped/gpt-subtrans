@@ -3,7 +3,7 @@ from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
 
 class BatchSubtitlesCommand(Command):
-    def execute(self, datamodel):
+    def Execute(self, datamodel):
         logging.info("Executing BatchSubtitlesCommand")
 
         project = datamodel.project
@@ -19,7 +19,7 @@ class BatchSubtitlesCommand(Command):
         except Exception as e:
             return False
 
-    def undo(self, datamodel):
+    def Undo(self, datamodel):
         # Do we flatten, or do we cache the previous batches?
         pass    
 
@@ -28,7 +28,7 @@ class UpdateProjectOptionsCommand(Command):
         super().__init__()
         self.options = options
 
-    def execute(self, datamodel: ProjectDataModel):
+    def Execute(self, datamodel: ProjectDataModel):
         if not self.options:
             return False
         

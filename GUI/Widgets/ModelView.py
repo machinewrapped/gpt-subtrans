@@ -35,36 +35,36 @@ class ModelView(QWidget):
         layout.addWidget(splitter)
         self.setLayout(layout)
 
-        self.scenesView.selectedLines.connect(self.show_subtitles)
+        self.scenesView.selectedLines.connect(self.ShowSubtitles)
 
-    def populate(self, viewmodel):
-        self.contentView.clear()
+    def Populate(self, viewmodel):
+        self.contentView.Clear()
         if viewmodel is None:
-            self.scenesView.clear()
+            self.scenesView.Clear()
         else:
-            self.scenesView.populate(viewmodel)
+            self.scenesView.Populate(viewmodel)
 
-    def set_project(self, project):
+    def SetProject(self, project):
         if not project or not project.options:
-            self.projectOptions.clear()
+            self.projectOptions.Clear()
             self.projectOptions.hide()
         else:
-            self.projectOptions.populate(project.options.options)
+            self.projectOptions.Populate(project.options.options)
             self.projectOptions.show()
 
-    def toggle_project_options(self):
+    def ToggleProjectOptions(self):
         if self.projectOptions.isVisible():
-            self.optionsChanged.emit(self.projectOptions.get_options())
+            self.optionsChanged.emit(self.projectOptions.GetOptions())
             self.projectOptions.hide()
         else:
             self.projectOptions.show()
 
-    def show_subtitles(self, subtitles, translations, contexts):
+    def ShowSubtitles(self, subtitles, translations, contexts):
         if subtitles:
-            self.contentView.show_subtitles(subtitles)
+            self.contentView.ShowSubtitles(subtitles)
         
         if translations:
-            self.contentView.show_translations(translations)
+            self.contentView.ShowTranslations(translations)
 
         if contexts:
-            self.contentView.show_contexts(contexts)
+            self.contentView.ShowContexts(contexts)

@@ -9,33 +9,33 @@ class ProjectViewModel(QStandardItemModel):
     def getRootItem(self):
         return self.root_item
 
-    def createFromDataModel(self, data_model):
+    def CreateFromDataModel(self, data_model):
         if data_model and 'scenes' in data_model:
             for scene_data in data_model['scenes']:
-                scene_item = self.createSceneItem(scene_data, scene_data['scene'])
+                scene_item = self.CreateSceneItem(scene_data, scene_data['scene'])
                 self.root_item.appendRow(scene_item)
 
-    def createSceneItem(self, scene_data, index):
+    def CreateSceneItem(self, scene_data, index):
         scene_item = SceneItem(index, scene_data)
         scene_item.setText(f"Scene {index}")
 
         for batch_data in scene_data['batches']:
-            batch_item = self.createBatchItem(batch_data, batch_data['batch'])
+            batch_item = self.CreateBatchItem(batch_data, batch_data['batch'])
             scene_item.appendRow(batch_item)
 
         return scene_item
 
-    def createBatchItem(self, batch_data, index):
+    def CreateBatchItem(self, batch_data, index):
         batch_item = BatchItem(index, batch_data)
         batch_item.setText(f"Batch {index}")
 
         for subtitle_data in batch_data['subtitles']:
-            subtitle_item = self.createSubtitleItem(subtitle_data, subtitle_data['index'])
+            subtitle_item = self.CreateSubtitleItem(subtitle_data, subtitle_data['index'])
             batch_item.appendRow(subtitle_item)
 
         return batch_item
 
-    def createSubtitleItem(self, subtitle_data, index):
+    def CreateSubtitleItem(self, subtitle_data, index):
         subtitle_item = SubtitleItem(index, subtitle_data)
         subtitle_item.setText(f"Subtitle {index}")
 

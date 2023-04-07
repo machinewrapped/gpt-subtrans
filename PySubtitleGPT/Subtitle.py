@@ -65,18 +65,18 @@ class Subtitle:
         return self._item
 
     @classmethod
-    def construct(cls, index, start, end, text):
+    def Construct(cls, index, start, end, text):
         start = FixTime(start)
         end = FixTime(end)
         item = SubRipItem(index, start, end, text)
         return Subtitle(item) 
     
     @classmethod
-    def from_dict(cls, values):
+    def FromDictionary(cls, values):
         """
         Construct a Subtitle from a dictionary.
         """
-        return Subtitle.construct(values.get('index'), values['start'].strip(), values['end'].strip(), values['body'].strip())
+        return Subtitle.Construct(values.get('index'), values['start'].strip(), values['end'].strip(), values['body'].strip())
 
     @classmethod
     def from_match(cls, match):
@@ -91,7 +91,7 @@ class Subtitle:
             start, end, body = match
             index = None
             
-        return Subtitle.construct(index, start.strip(), end.strip(), body.strip())
+        return Subtitle.Construct(index, start.strip(), end.strip(), body.strip())
 
     @item.setter
     def item(self, item):

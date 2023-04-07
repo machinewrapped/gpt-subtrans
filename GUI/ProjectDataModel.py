@@ -23,7 +23,7 @@ class ProjectDataModel:
 
     def CreateViewModel(self):
         viewmodel = ProjectViewModel()
-        viewmodel.createFromDataModel(self.model)
+        viewmodel.CreateFromDataModel(self.model)
         self.viewmodel = viewmodel
         return viewmodel
 

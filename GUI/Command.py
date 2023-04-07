@@ -6,20 +6,20 @@ class Command(QRunnable):
         self.undo_callback = None
         self.executed = False
 
-    def set_callback(self, callback):
+    def SetCallback(self, callback):
         self.callback = callback
 
-    def set_undo_callback(self, undo_callback):
+    def SetUndoCallback(self, undo_callback):
         self.undo_callback = undo_callback
 
     @Slot()
     def run(self):
-        self.execute()
+        self.Execute()
 
-    def execute(self):
+    def Execute(self):
         raise NotImplementedError
 
-    def undo(self):
+    def Undo(self):
         raise NotImplementedError
 
     def execute_callback(self):

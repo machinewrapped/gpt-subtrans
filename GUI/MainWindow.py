@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
 
         # Create the command queue
         self.command_queue = CommandQueue(datamodel=self.datamodel)
-        self.command_queue.command_executed.connect(self.on_command_complete)
+        self.command_queue.commandExecuted.connect(self._on_command_complete)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(splitter)
 
         self.model_viewer = ModelView(splitter)
-        self.model_viewer.optionsChanged.connect(self.on_options_changed)
+        self.model_viewer.optionsChanged.connect(self._on_options_changed)
         splitter.addWidget(self.model_viewer)
 
         # Create the log window widget and add it to the splitter
@@ -62,20 +62,20 @@ class MainWindow(QMainWindow):
 
         # Load file if we were opened with one
         if filepath:
-            self.command_queue.add_command(LoadSubtitleFile(filepath))
+            self.command_queue.AddCommand(LoadSubtitleFile(filepath))
 
         self.statusBar().showMessage("Ready.")
 
     def closeEvent(self, e):
         if self.command_queue:
-            self.command_queue.stop()
+            self.command_queue.Stop()
 
         if self.datamodel.project:
             self.datamodel.project.UpdateProjectFile()
 
         super().closeEvent(e)
 
-    def on_command_complete(self, command, success):
+    def _on_command_complete(self, command, success):
         if success:
             self.statusBar().showMessage(f"{type(command).__name__} was successful.")
 
@@ -83,15 +83,15 @@ class MainWindow(QMainWindow):
                 return
 
             if self.model_viewer:
-                self.model_viewer.set_project(self.datamodel.project)
+                self.model_viewer.SetProject(self.datamodel.project)
 
                 # TODO: add model updates to the datamodel rather than rebuilding it 
                 viewmodel = self.datamodel.CreateViewModel()
-                self.model_viewer.populate(viewmodel)
+                self.model_viewer.Populate(viewmodel)
 
         else:
             self.statusBar().showMessage(f"{type(command).__name__} failed.")
 
-    def on_options_changed(self, options: dict):
+    def _on_options_changed(self, options: dict):
         if options and self.datamodel.project:
             self.datamodel.project.UpdateProjectOptions(options)

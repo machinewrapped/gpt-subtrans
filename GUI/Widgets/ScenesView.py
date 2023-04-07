@@ -22,12 +22,12 @@ class ScenesView(QTreeView):
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
         self.setItemDelegate(ScenesBatchesDelegate(self))  
-        self.populate(viewmodel)
+        self.Populate(viewmodel)
 
-    def clear(self):
-        self.populate([])
+    def Clear(self):
+        self.Populate([])
 
-    def populate(self, viewmodel):
+    def Populate(self, viewmodel):
         self.viewmodel = viewmodel
         self.model = ScenesBatchesModel(self.viewmodel)
         self.setModel(self.model)

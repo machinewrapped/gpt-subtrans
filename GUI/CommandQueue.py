@@ -11,8 +11,8 @@ class CommandQueue(QObject):
     """
     Execute commands on a background thread
     """
-    command_added = Signal(object)
-    command_executed = Signal(object, bool)
+    commandAdded = Signal(object)
+    commandExecuted = Signal(object, bool)
 
     def __init__(self, datamodel):
         super().__init__()
@@ -20,19 +20,19 @@ class CommandQueue(QObject):
         self.undo_stack = []
 
         self.command_queue = CommandQueueWorker()
-        self.command_queue.command_executed.connect(self.on_command_executed)
+        self.command_queue.command_executed.connect(self._on_command_executed)
         self.mutex = threading.Lock()
 
         self.logger = logging.getLogger("CommandQueue")
 
-    def stop(self):
+    def Stop(self):
         """
         Shut the background thread down
         """
         if self.command_queue:
-            self.command_queue.shutdown()
+            self.command_queue.Shutdown()
 
-    def add_command(self, command, callback=None, undo_callback=None):
+    def AddCommand(self, command, callback=None, undo_callback=None):
         """
         Add a command to the command queue, with option callbacks for completion/undo events
         """
@@ -40,9 +40,9 @@ class CommandQueue(QObject):
             self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
             with self.mutex:
                 self._queue_command(command, callback, undo_callback)
-            self.command_added.emit(command)
+            self.commandAdded.emit(command)
 
-    def on_command_executed(self, command, success):
+    def _on_command_executed(self, command, success):
         """
         Handle command callbacks, and queuing further actions 
         """
@@ -59,15 +59,15 @@ class CommandQueue(QObject):
 
             for command in commands:
                 self.logger.debug(f"Added a {type(command).__name__} command to the queue")
-                self.command_added.emit(command)
+                self.commandAdded.emit(command)
 
-        self.command_executed.emit(command, success)
+        self.commandExecuted.emit(command, success)
 
     def _queue_command(self, command, callback=None, undo_callback=None):
         command.set_callback(callback)
         command.set_undo_callback(undo_callback)
 
-        self.command_queue.add_command(command, self.datamodel)
+        self.command_queue.AddCommand(command, self.datamodel)
 
 class CommandQueueWorker(QThread):
     command_executed = Signal(object, bool)
@@ -85,11 +85,11 @@ class CommandQueueWorker(QThread):
         self.started.connect(self.run)
         self.start()
 
-    def add_command(self, command, datamodel):
+    def AddCommand(self, command, datamodel):
         self.queue.put((command, datamodel))
 
-    def shutdown(self):
-        self.add_command(CommandQueueWorker.StopThread(), None)
+    def Shutdown(self):
+        self.AddCommand(CommandQueueWorker.StopThread(), None)
         self.wait(500)
 
     @Slot()

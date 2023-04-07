@@ -30,7 +30,7 @@ class ProjectOptions(QGroupBox):
 
         self.layout.addLayout(self.grid_layout)
 
-    def get_options(self):
+    def GetOptions(self):
         """
         Get a dictionary of the user's options
         """
@@ -68,12 +68,12 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
 
-    def populate(self, options):
+    def Populate(self, options):
         for key in options:
             if hasattr(self, key + "_input"):
                 self._settext(key, options.get(key))
 
-    def clear(self):
+    def Clear(self):
         for key in ["movie_name", "gpt_model", "gpt_prompt", "synopsis", "characters", "substitutions"]:
             getattr(self, key + "_input").setText("")
 
@@ -86,5 +86,5 @@ class ProjectOptions(QGroupBox):
         getattr(self, key + "_input").setText(value or "")
 
     def _text_changed(self, text = None):
-        options = self.get_options()
+        options = self.GetOptions()
         self.optionsChanged.emit(options)

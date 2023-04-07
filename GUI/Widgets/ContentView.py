@@ -22,22 +22,22 @@ class ContentView(QWidget):
         layout.addWidget(metadata_context)
 
 #        # connect the scrollbars
-        self.subtitle_view.synchronise_scrollbar(self.translation_view.verticalScrollBar())
-        self.translation_view.synchronise_scrollbar(self.subtitle_view.verticalScrollBar())
+        self.subtitle_view.SynchroniseScrollbar(self.translation_view.verticalScrollBar())
+        self.translation_view.SynchroniseScrollbar(self.subtitle_view.verticalScrollBar())
 
         self.setLayout(layout)
 
-    def show_subtitles(self, subtitles):
-        self.subtitle_view.show_subtitles(subtitles)
+    def ShowSubtitles(self, subtitles):
+        self.subtitle_view.ShowSubtitles(subtitles)
     
-    def show_translations(self, translations):
-        self.translation_view.show_subtitles(translations)
+    def ShowTranslations(self, translations):
+        self.translation_view.ShowSubtitles(translations)
 
-    def show_contexts(self, contexts):
+    def ShowContexts(self, contexts):
         # self.metadata_context.show_contexts(contexts)
         pass
 
-    def clear(self):
-        self.subtitle_view.show_subtitles([])
-        self.translation_view.show_subtitles([])
+    def Clear(self):
+        self.subtitle_view.ShowSubtitles([])
+        self.translation_view.ShowSubtitles([])
         # self.metadata_context.show_contexts([])

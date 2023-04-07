@@ -11,7 +11,7 @@ class LoadSubtitleFile(Command):
         super().__init__()
         self.filepath = filepath
 
-    def execute(self, datamodel: ProjectDataModel):
+    def Execute(self, datamodel: ProjectDataModel):
         logging.info(f"Executing LoadSubtitleFile {self.filepath}")
 
         if not self.filepath:
@@ -41,7 +41,7 @@ class LoadSubtitleFile(Command):
             logging.error(f"Unable to load {self.filepath} ({str(e)})")
             return False
 
-    def undo(self, datamodel):
+    def Undo(self, datamodel):
         # I suppose we _could_ store a reference to the previous project!
         pass
 
@@ -52,7 +52,7 @@ class SaveProjectFile(Command):
         self.filename = filename
         self.project_data = project_data
 
-    def execute(self):
+    def Execute(self):
         with open(self.filename, 'w') as f:
             json.dump(self.project_data, f)
             # ... save project data ...
@@ -64,7 +64,7 @@ class SaveSubtitleFile(Command):
         self.filename = filename
         self.subtitle_data = subtitle_data
 
-    def execute(self):
+    def Execute(self):
         with open(self.filename, 'w') as f:
             json.dump(self.subtitle_data, f)
             # ... save subtitle data ...
@@ -76,7 +76,7 @@ class SaveTranslationFile(Command):
         self.filename = filename
         self.translation_data = translation_data
 
-    def execute(self):
+    def Execute(self):
         with open(self.filename, 'w') as f:
             json.dump(self.translation_data, f)
             # ... save translation data ...
