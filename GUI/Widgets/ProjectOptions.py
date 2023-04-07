@@ -54,7 +54,8 @@ class ProjectOptions(QGroupBox):
         # Add label and input field for a multi-line option
         label_widget = QLabel(label)
         input_widget = TextBoxEditor()
-        input_widget.setText(options.get(key, ""))
+        input_widget.setAcceptRichText(False)
+        input_widget.setPlainText(options.get(key, ""))
         input_widget.editingFinished.connect(self.text_changed)
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
