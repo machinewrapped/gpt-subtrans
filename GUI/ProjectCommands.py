@@ -1,40 +1,35 @@
 import logging
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitleGPT import SubtitleProject
 
 class BatchSubtitlesCommand(Command):
-    def execute(self, datamodel):
+    project : SubtitleProject
+    
+    def __init__(self, project):
+        super().__init__()
+        self.project = project
+
+    def execute(self):
         logging.info("Executing BatchSubtitlesCommand")
 
-        project = datamodel.project
+        project = self.project
+        datamodel = self.datamodel or ProjectDataModel()
 
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
-        try:        
+        try:
             project.subtitles.AutoBatch(datamodel.options, project)
-            datamodel.CreateDataModel(datamodel.project.subtitles)
+            datamodel.CreateDataModel(project.subtitles)
+            self.datamodel = datamodel
             return True
         
         except Exception as e:
             return False
 
-    def undo(self, datamodel):
+    def undo(self):
         # Do we flatten, or do we cache the previous batches?
         pass    
 
-class UpdateProjectOptionsCommand(Command):
-    def __init__(self, options):
-        super().__init__()
-        self.options = options
 
-    def execute(self, datamodel: ProjectDataModel):
-        if not self.options:
-            return False
-        
-        if not datamodel.project:
-            raise Exception("No project loaded")
-
-        datamodel.project.UpdateProjectOptions(self.options)
-
-        

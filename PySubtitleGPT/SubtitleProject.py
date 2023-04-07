@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 
 from PySubtitleGPT.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
@@ -8,8 +9,11 @@ from PySubtitleGPT.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
+    subtitles : SubtitleFile
+    options : Options
+
     def __init__(self, options):
-        self.options = options
+        self.options = options.GetNonProjectSpecificOptions() if options else Options()
         self.subtitles = None
         
         project_mode = options.get('project', '')

@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QSplitter
 )
+from GUI.Command import Command
 
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
@@ -15,12 +16,16 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectToolbar import ProjectToolbar
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
+from PySubtitleGPT import SubtitleProject
 
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
 
 class MainWindow(QMainWindow):
+    datamodel : ProjectDataModel = None
+    project : SubtitleProject = None
+
     def __init__(self, parent=None, options=None, filepath=None):
         super().__init__(parent)
 
@@ -31,7 +36,7 @@ class MainWindow(QMainWindow):
         self.datamodel = ProjectDataModel(options)
 
         # Create the command queue
-        self.command_queue = CommandQueue(datamodel=self.datamodel)
+        self.command_queue = CommandQueue()
         self.command_queue.commandExecuted.connect(self._on_command_complete)
 
         # Create the main widget
@@ -42,7 +47,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_widget)
 
         # Create the toolbar
-        self.toolbar = ProjectToolbar(main_widget, main_window=self, command_queue=self.command_queue)
+        self.toolbar = ProjectToolbar(main_widget, main_window=self)
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -62,36 +67,45 @@ class MainWindow(QMainWindow):
 
         # Load file if we were opened with one
         if filepath:
-            self.command_queue.AddCommand(LoadSubtitleFile(filepath))
+            self.QueueCommand(LoadSubtitleFile(filepath))
 
         self.statusBar().showMessage("Ready.")
+
+    def QueueCommand(self, command: Command):
+        """
+        Add a command to the command queue and set the datamodel
+        """
+        self.command_queue.AddCommand(command, self.datamodel)
 
     def closeEvent(self, e):
         if self.command_queue:
             self.command_queue.Stop()
 
-        if self.datamodel.project:
-            self.datamodel.project.UpdateProjectFile()
+        if self.project:
+            self.project.UpdateProjectFile()
 
         super().closeEvent(e)
 
-    def _on_command_complete(self, command, success):
+    def _on_command_complete(self, command : Command, success):
         if success:
             self.statusBar().showMessage(f"{type(command).__name__} was successful.")
 
-            if not self.datamodel or not self.datamodel.project:
+            if isinstance(command, LoadSubtitleFile):
+                self.project = command.project
+
+            self.datamodel = command.datamodel
+            if not self.datamodel:
                 return
 
             if self.model_viewer:
-                self.model_viewer.SetProject(self.datamodel.project)
-
-                # TODO: add model updates to the datamodel rather than rebuilding it 
-                viewmodel = self.datamodel.CreateViewModel()
-                self.model_viewer.Populate(viewmodel)
+                # TODO: add model updates to the viewmodel rather than rebuilding it 
+                self.datamodel.CreateViewModel()
+                self.model_viewer.SetViewModel(self.datamodel.viewmodel)
+                self.model_viewer.SetProjectOptions(self.datamodel.options)
 
         else:
             self.statusBar().showMessage(f"{type(command).__name__} failed.")
 
     def _on_options_changed(self, options: dict):
-        if options and self.datamodel.project:
-            self.datamodel.project.UpdateProjectOptions(options)
+        if options and self.project:
+            self.project.UpdateProjectOptions(options)

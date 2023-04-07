@@ -1,10 +1,19 @@
 from PySide6.QtCore import QRunnable, Slot
 
+from GUI.ProjectDataModel import ProjectDataModel
+
 class Command(QRunnable):
-    def __init__(self):
-        self.callback = None
-        self.undo_callback = None
-        self.executed = False
+    datamodel : ProjectDataModel = None
+    executed : bool = False
+    callback = None
+    undo_callback = None
+    commands_to_queue : list = []
+
+    def __init__(self, datamodel = None):
+        self.datamodel = datamodel
+
+    def SetDataModel(self, datamodel):
+        self.datamodel = datamodel
 
     def SetCallback(self, callback):
         self.callback = callback

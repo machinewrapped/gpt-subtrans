@@ -52,7 +52,7 @@ class ProjectToolbar(QToolBar):
 
         if filepath:
             command = LoadSubtitleFile(filepath)
-            self.command_queue.AddCommand(command)
+            self.main_window.QueueCommand(command)
 
     def _toggle_project_options(self):
         model_viewer: ModelView = self.main_window.model_viewer

@@ -111,8 +111,8 @@ class SubtitleFile:
             context['substitutions'] = ParseSubstitutions(context['substitutions'])
 
         # Update the context dictionary with matching fields from options, and vice versa
-        for key in options.keys() & context.keys():
-            if options[key]:
+        for key in context.keys():
+            if options.get(key):
                 context[key] = options[key]
             if context[key]:
                 options[key] = context[key]

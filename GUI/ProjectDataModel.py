@@ -6,10 +6,8 @@ from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.Subtitle import Subtitle
 
 class ProjectDataModel:
-    project = None
     model = {}
-    viewmodel = None
-    commands_to_queue = []
+    viewmodel : ProjectViewModel = None
     options = Options({
         'project': 'resume'
     })

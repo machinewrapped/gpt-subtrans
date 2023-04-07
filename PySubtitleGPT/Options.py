@@ -26,10 +26,6 @@ default_options = {
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
     'instruction_file': os.getenv('INSTRUCTIONFILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
-    'movie_name': None,
-    'synopsis': None,
-    'characters': None,
-    'substitutions': None,
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
     'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
     'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 15.0)),
@@ -99,6 +95,14 @@ class Options:
             if value:
                 text = text.replace(f"[{name}]", str(value))
         return text
+    
+    def GetNonProjectSpecificOptions(self):
+        """
+        Get a copy of the options with only the default keys included
+        """
+        return Options({
+            key: self.get(key) for key in self.options.keys() & default_options.keys()
+        })
 
 def LoadInstructionsFile(filename):
     """

@@ -7,19 +7,20 @@ from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 class LoadSubtitleFile(Command):
+    project : SubtitleProject = None
+
     def __init__(self, filepath):
         super().__init__()
         self.filepath = filepath
 
-    def execute(self, datamodel: ProjectDataModel):
+    def execute(self):
         logging.info(f"Executing LoadSubtitleFile {self.filepath}")
 
         if not self.filepath:
             return False
 
-        options = datamodel.options
-
         try:
+            options = self.datamodel.options if self.datamodel else None
             project = SubtitleProject(options)
             project.Initialise(self.filepath)
 
@@ -27,13 +28,13 @@ class LoadSubtitleFile(Command):
                 logging.error("Unable to load subtitles from {self.filepath}")
                 return False
             
-            datamodel.project = project
-            datamodel.viewmodel = None
+            self.project = project
+            self.datamodel = ProjectDataModel(project.options)
 
             if project.subtitles.scenes:
-                datamodel.CreateDataModel(project.subtitles)
+                self.datamodel.CreateDataModel(project.subtitles)
             else:
-                datamodel.commands_to_queue.append(BatchSubtitlesCommand())
+                self.commands_to_queue.append(BatchSubtitlesCommand(self.project))
 
             return True
         
@@ -41,8 +42,8 @@ class LoadSubtitleFile(Command):
             logging.error(f"Unable to load {self.filepath} ({str(e)})")
             return False
 
-    def undo(self, datamodel):
-        # I suppose we _could_ store a reference to the previous project!
+    def undo(self):
+        # I suppose we _could_ store a reference to the previous project...
         pass
 
 

@@ -14,10 +14,10 @@ class CommandQueue(QObject):
     commandAdded = Signal(object)
     commandExecuted = Signal(object, bool)
 
-    def __init__(self, datamodel):
+    undo_stack = []
+
+    def __init__(self):
         super().__init__()
-        self.datamodel = datamodel
-        self.undo_stack = []
 
         self.command_queue = CommandQueueWorker()
         self.command_queue.commandExecuted.connect(self._on_command_executed)
@@ -32,48 +32,55 @@ class CommandQueue(QObject):
         if self.command_queue:
             self.command_queue.Shutdown()
 
-    def AddCommand(self, command, callback=None, undo_callback=None):
+    def AddCommand(self, command, datamodel=None, callback=None, undo_callback=None):
         """
         Add a command to the command queue, with option callbacks for completion/undo events
         """
         if command:
             self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
             with self.mutex:
-                self._queue_command(command, callback, undo_callback)
+                self._queue_command(command, datamodel, callback, undo_callback)
             self.commandAdded.emit(command)
 
     def _on_command_executed(self, command, success):
         """
         Handle command callbacks, and queuing further actions 
         """
-        self.logger.debug(f"A {type(command).__name__} was completed")
+        self.logger.debug(f"A {type(command).__name__} command was completed")
         self.undo_stack.append(command)
 
-        if self.datamodel.commands_to_queue:
+        if command.commands_to_queue:
             with self.mutex:
-                commands = [ cmd for cmd in self.datamodel.commands_to_queue if cmd ]
-                self.datamodel.commands_to_queue = []
+                for command in command.commands_to_queue:
+                    self._queue_command(command, command.datamodel)
 
-                for command in commands:
-                    self._queue_command(command)
-
-            for command in commands:
+            for command in command.commands_to_queue:
                 self.logger.debug(f"Added a {type(command).__name__} command to the queue")
                 self.commandAdded.emit(command)
 
         self.commandExecuted.emit(command, success)
 
-    def _queue_command(self, command, callback=None, undo_callback=None):
-        command.SetCallback(callback)
-        command.SetUndoCallback(undo_callback)
+    def _queue_command(self, command, datamodel = None, callback=None, undo_callback=None):
+        """
+        Add a command to the worker thread queue
+        """
+        if datamodel:
+            command.SetDataModel(datamodel)
+        if callback:
+            command.SetCallback(callback)
+        if undo_callback:
+            command.SetUndoCallback(undo_callback)
 
-        self.command_queue.AddCommand(command, self.datamodel)
+        self.command_queue.AddCommand(command)
 
 class CommandQueueWorker(QThread):
+    """
+    Execute commands on a background thread
+    """
     commandExecuted = Signal(object, bool)
 
     class StopThread(Command):
-        def execute(self, _):
+        def execute(self):
             raise CommandQueueWorker.StopThreadException()
 
     def __init__(self):
@@ -85,24 +92,24 @@ class CommandQueueWorker(QThread):
         self.started.connect(self.run)
         self.start()
 
-    def AddCommand(self, command, datamodel):
-        self.queue.put((command, datamodel))
+    def AddCommand(self, command):
+        self.queue.put(command)
 
     def Shutdown(self):
-        self.AddCommand(CommandQueueWorker.StopThread(), None)
-        self.wait(500)
+        self.AddCommand(CommandQueueWorker.StopThread())
+        self.wait(100)
 
     @Slot()
     def run(self):
         debugpy.debug_this_thread()
         while self.queue:
-            command, datamodel = self.queue.get()
+            command : Command = self.queue.get()
             try:
                 if isinstance(command, CommandQueueWorker.StopThread):
                     self.exit()
                     break
 
-                success = command.execute(datamodel)
+                success = command.execute()
 
                 self.commandExecuted.emit(command, success)
 

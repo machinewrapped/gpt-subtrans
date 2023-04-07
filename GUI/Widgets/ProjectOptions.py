@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit
 from PySide6.QtCore import Signal
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
+from PySubtitleGPT.Options import Options
 from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions
 
 class ProjectOptions(QGroupBox):
@@ -69,6 +70,9 @@ class ProjectOptions(QGroupBox):
         setattr(self, key + "_input", input_widget)
 
     def Populate(self, options):
+        if isinstance(options, Options):
+            return self.Populate(options.options)
+
         for key in options:
             if hasattr(self, key + "_input"):
                 self._settext(key, options.get(key))

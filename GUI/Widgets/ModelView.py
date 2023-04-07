@@ -37,19 +37,20 @@ class ModelView(QWidget):
 
         self.scenesView.selectedLines.connect(self.ShowSubtitles)
 
-    def Populate(self, viewmodel):
+    def SetViewModel(self, viewmodel):
         self.contentView.Clear()
+
         if viewmodel is None:
             self.scenesView.Clear()
         else:
             self.scenesView.Populate(viewmodel)
 
-    def SetProject(self, project):
-        if not project or not project.options:
-            self.projectOptions.Clear()
+    def SetProjectOptions(self, options):
+        self.projectOptions.Clear()
+        if not options:
             self.projectOptions.hide()
         else:
-            self.projectOptions.Populate(project.options.options)
+            self.projectOptions.Populate(options)
             self.projectOptions.show()
 
     def ToggleProjectOptions(self):
