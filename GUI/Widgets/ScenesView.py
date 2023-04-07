@@ -31,9 +31,9 @@ class ScenesView(QTreeView):
         self.viewmodel = viewmodel
         self.model = ScenesBatchesModel(self.viewmodel)
         self.setModel(self.model)
-        self.selectionModel().selectionChanged.connect(self.item_selected)
+        self.selectionModel().selectionChanged.connect(self._item_selected)
 
-    def item_selected(self, selected, deselected):
+    def _item_selected(self, selected, deselected):
         model = self.model
 
         for index in selected.indexes():
@@ -50,9 +50,9 @@ class ScenesView(QTreeView):
                     batch_item_index = model.index(row, 0, index)
                     selection_model.select(batch_item_index, selection_flags)
 
-        self.emit_selected_batches()
+        self._emit_selected_batches()
 
-    def emit_selected_batches(self):
+    def _emit_selected_batches(self):
         model = self.model
 
         selected_indexes = self.selectionModel().selectedIndexes()

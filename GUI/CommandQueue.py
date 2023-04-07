@@ -20,7 +20,7 @@ class CommandQueue(QObject):
         self.undo_stack = []
 
         self.command_queue = CommandQueueWorker()
-        self.command_queue.command_executed.connect(self._on_command_executed)
+        self.command_queue.commandExecuted.connect(self._on_command_executed)
         self.mutex = threading.Lock()
 
         self.logger = logging.getLogger("CommandQueue")
@@ -64,13 +64,13 @@ class CommandQueue(QObject):
         self.commandExecuted.emit(command, success)
 
     def _queue_command(self, command, callback=None, undo_callback=None):
-        command.set_callback(callback)
-        command.set_undo_callback(undo_callback)
+        command.SetCallback(callback)
+        command.SetUndoCallback(undo_callback)
 
         self.command_queue.AddCommand(command, self.datamodel)
 
 class CommandQueueWorker(QThread):
-    command_executed = Signal(object, bool)
+    commandExecuted = Signal(object, bool)
 
     class StopThread(Command):
         def execute(self, _):
@@ -104,7 +104,7 @@ class CommandQueueWorker(QThread):
 
                 success = command.execute(datamodel)
 
-                self.command_executed.emit(command, success)
+                self.commandExecuted.emit(command, success)
 
             except Exception as e:
                 logging.error(f"Error processing {type(command).__name__} command ({str(e)})")

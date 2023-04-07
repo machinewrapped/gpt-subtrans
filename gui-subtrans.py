@@ -43,14 +43,14 @@ def parse_arguments():
     
     return arguments, args.filepath
 
-def load_stylesheet(file_path):
+def LoadStylesheet(file_path):
     with open(file_path, 'r') as file:
         stylesheet = file.read()
     return stylesheet
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    stylesheet = load_stylesheet("GUI\subtrans.qss")
+    stylesheet = LoadStylesheet("GUI\subtrans.qss")
     app.setStyleSheet(stylesheet)
 
     arguments, filepath = parse_arguments()

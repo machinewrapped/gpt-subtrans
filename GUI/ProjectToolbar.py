@@ -1,9 +1,13 @@
 from PySide6.QtWidgets import QToolBar, QFileDialog, QApplication
 from PySide6.QtGui import QAction
 
+from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import *
+from GUI.Widgets.ModelView import ModelView
 
 class ProjectToolbar(QToolBar):
+    command_queue: CommandQueue
+
     def __init__(self,  parent=None, main_window=None, command_queue=None):
         super().__init__(parent)
         self.main_window = main_window
@@ -13,7 +17,7 @@ class ProjectToolbar(QToolBar):
 
         # Add the file commands to the toolbar
         load_subtitle_action = QAction("Load Subtitles", self)
-        load_subtitle_action.triggered.connect(self.load_subtitle_file)
+        load_subtitle_action.triggered.connect(self._load_subtitle_file)
         self.addAction(load_subtitle_action)
 
         # save_project_action = QAction("Save Project", self)
@@ -21,7 +25,7 @@ class ProjectToolbar(QToolBar):
         # self.addAction(save_project_action)
 
         project_options_action = QAction("Project Options", self)
-        project_options_action.triggered.connect(self.toggle_project_options)
+        project_options_action.triggered.connect(self._toggle_project_options)
         self.addAction(project_options_action)
 
         # save_subtitle_action = QAction("Save Subtitle File", self)
@@ -37,18 +41,19 @@ class ProjectToolbar(QToolBar):
         # self.addAction(undo_action)
 
         quit_action = QAction("Quit", self)
-        quit_action.triggered.connect(self.quit)
+        quit_action.triggered.connect(self._quit)
         self.addAction(quit_action)
 
-    def quit(self):
+    def _quit(self):
         QApplication.instance().quit()
 
-    def load_subtitle_file(self):
+    def _load_subtitle_file(self):
         filepath, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Subtitle files (*.srt;*.subtrans);;All Files (*)")
 
         if filepath:
             command = LoadSubtitleFile(filepath)
-            self.command_queue.add_command(command)
+            self.command_queue.AddCommand(command)
 
-    def toggle_project_options(self):
-        self.main_window.model_viewer.toggle_project_options()
+    def _toggle_project_options(self):
+        model_viewer: ModelView = self.main_window.model_viewer
+        model_viewer.ToggleProjectOptions()

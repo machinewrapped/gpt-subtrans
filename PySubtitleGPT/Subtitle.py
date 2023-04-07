@@ -79,7 +79,7 @@ class Subtitle:
         return Subtitle.Construct(values.get('index'), values['start'].strip(), values['end'].strip(), values['body'].strip())
 
     @classmethod
-    def from_match(cls, match):
+    def FromMatch(cls, match):
         """
         Construct a Subtitle from a regex match.
 

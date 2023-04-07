@@ -14,12 +14,12 @@ class Command(QRunnable):
 
     @Slot()
     def run(self):
-        self.Execute()
+        self.execute()
 
-    def Execute(self):
+    def execute(self):
         raise NotImplementedError
 
-    def Undo(self):
+    def undo(self):
         raise NotImplementedError
 
     def execute_callback(self):
