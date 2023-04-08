@@ -6,6 +6,7 @@ from queue import Queue
 from PySide6.QtCore import QThread, QObject, Signal, Slot
 
 from GUI.Command import Command
+from GUI.ProjectDataModel import ProjectDataModel
 
 class CommandQueue(QObject):
     """
@@ -32,7 +33,7 @@ class CommandQueue(QObject):
         if self.command_queue:
             self.command_queue.Shutdown()
 
-    def AddCommand(self, command, datamodel=None, callback=None, undo_callback=None):
+    def AddCommand(self, command : Command, datamodel : ProjectDataModel = None, callback = None, undo_callback = None):
         """
         Add a command to the command queue, with option callbacks for completion/undo events
         """
@@ -42,7 +43,7 @@ class CommandQueue(QObject):
                 self._queue_command(command, datamodel, callback, undo_callback)
             self.commandAdded.emit(command)
 
-    def _on_command_executed(self, command, success):
+    def _on_command_executed(self, command : Command, success : bool):
         """
         Handle command callbacks, and queuing further actions 
         """
@@ -60,7 +61,7 @@ class CommandQueue(QObject):
 
         self.commandExecuted.emit(command, success)
 
-    def _queue_command(self, command, datamodel = None, callback=None, undo_callback=None):
+    def _queue_command(self, command : Command, datamodel : ProjectDataModel = None, callback=None, undo_callback=None):
         """
         Add a command to the worker thread queue
         """
@@ -92,7 +93,7 @@ class CommandQueueWorker(QThread):
         self.started.connect(self.run)
         self.start()
 
-    def AddCommand(self, command):
+    def AddCommand(self, command : Command):
         self.queue.put(command)
 
     def Shutdown(self):
