@@ -12,12 +12,12 @@ from GUI.Command import Command
 
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
+from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectToolbar import ProjectToolbar
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
-from PySubtitleGPT import SubtitleProject
-
+from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -39,6 +39,10 @@ class MainWindow(QMainWindow):
         self.command_queue = CommandQueue()
         self.command_queue.commandExecuted.connect(self._on_command_complete)
 
+        # Create centralised action handler
+        self.action_handler = ProjectActions(mainwindow=self)
+        self.action_handler.issueCommand.connect(self.QueueCommand)
+
         # Create the main widget
         main_widget = QWidget(self)
         main_layout = QVBoxLayout()
@@ -47,7 +51,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_widget)
 
         # Create the toolbar
-        self.toolbar = ProjectToolbar(main_widget, main_window=self)
+        self.toolbar = ProjectToolbar(self.action_handler)
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -71,7 +75,7 @@ class MainWindow(QMainWindow):
 
         self.statusBar().showMessage("Ready.")
 
-    def QueueCommand(self, command: Command):
+    def QueueCommand(self, command : Command):
         """
         Add a command to the command queue and set the datamodel
         """
