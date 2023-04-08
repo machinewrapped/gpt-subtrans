@@ -111,9 +111,12 @@ class SubtitleProject:
         """
         if not self.subtitles:
             raise ValueError("Can't write project file, no subtitles")
-        
+
         if not isinstance(self.subtitles, SubtitleFile):
-            raise Exception("Asked to write a project file with the wrong content type")
+            raise ValueError("Asked to write a project file with the wrong content type")
+
+        if not self.subtitles.scenes:
+            raise ValueError("Asked to write a project file with no scenes")
 
         projectfile = projectfile or self.projectfile
 
@@ -122,6 +125,8 @@ class SubtitleProject:
         with open(projectfile, 'w', encoding=default_encoding) as f:
             project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
             f.write(project_json)
+
+        self.projectfile = projectfile
 
     def WriteBackupFile(self):
         """
@@ -132,7 +137,7 @@ class SubtitleProject:
 
     def ReadProjectFile(self):
         """
-        Load scenes, subtitles and context from a project file (really a project file)
+        Load scenes, subtitles and context from a project file
         """
         logging.info(f"Reading project data from {str(self.projectfile)}")
 
