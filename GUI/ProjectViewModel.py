@@ -2,6 +2,14 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 from PySubtitleGPT.Helpers import Linearise
 
+class ViewModelItem(QStandardItem):
+    def GetContent(self):
+        return {
+            'heading': "Item Heading",
+            'subheading': "Optional Subheading",
+            'body': "Body Content"
+        }
+
 class ProjectViewModel(QStandardItemModel):
     def __init__(self):
         super().__init__()
@@ -43,7 +51,7 @@ class ProjectViewModel(QStandardItemModel):
 
         return subtitle_item
 
-class SceneItem(QStandardItem):
+class SceneItem(ViewModelItem):
     def __init__(self, index, scene_data):
         super(SceneItem, self).__init__()
         self.index = index
@@ -70,7 +78,7 @@ class SceneItem(QStandardItem):
     def batch_count(self):
         return self.scene_data['batch_count']
 
-    def getContent(self):
+    def GetContent(self):
         return {
             'heading': f"Scene {self.index}",
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
@@ -78,11 +86,11 @@ class SceneItem(QStandardItem):
         }
 
     def __str__(self) -> str:
-        content = self.getContent()
+        content = self.GetContent()
         return f"{content['heading']}\n{content['subheading']}\n{content['body']}"
 
 
-class BatchItem(QStandardItem):
+class BatchItem(ViewModelItem):
     def __init__(self, index, batch_data):
         super(BatchItem, self).__init__(f"Batch {index}")
         self.index = index
@@ -116,7 +124,7 @@ class BatchItem(QStandardItem):
     def summary(self):
         return self.batch_data.get('summary')
 
-    def getContent(self):
+    def GetContent(self):
         metadata = [ 
             "1 subtitle" if self.subtitle_count == 1 else f"{self.subtitle_count} subtitles", 
             self.summary
@@ -129,7 +137,7 @@ class BatchItem(QStandardItem):
         }
     
     def __str__(self) -> str:
-        content = self.getContent()
+        content = self.GetContent()
         return f"{content['heading']}\n{content['subheading']}\n{content['body']}"
 
 class SubtitleItem(QStandardItem):

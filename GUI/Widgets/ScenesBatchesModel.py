@@ -1,7 +1,7 @@
 import logging
 from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt
 
-from GUI.ProjectViewModel import BatchItem
+from GUI.ProjectViewModel import BatchItem, ViewModelItem
 from GUI.Widgets.Widgets import TreeViewItemWidget
 
 class ScenesBatchesModel(QAbstractItemModel):
@@ -36,16 +36,16 @@ class ScenesBatchesModel(QAbstractItemModel):
         if not index.isValid():
             return None
 
-        item = index.internalPointer()
+        item : ViewModelItem = index.internalPointer()
 
         if role == Qt.ItemDataRole.UserRole:
             return item
 
         if role == Qt.ItemDataRole.DisplayRole:
-            return TreeViewItemWidget(item.getContent())
+            return TreeViewItemWidget(item.GetContent())
         
         if role == Qt.ItemDataRole.SizeHintRole:
-            return TreeViewItemWidget(item.getContent()).sizeHint()
+            return TreeViewItemWidget(item.GetContent()).sizeHint()
 
         return None
 
