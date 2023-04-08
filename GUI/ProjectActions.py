@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QFileDialog, QApplication
+from PySide6.QtGui import QAction, QIcon
+from PySide6.QtWidgets import QFileDialog, QApplication, QStyle
 
 from GUI.FileCommands import *
 from GUI.Widgets.ModelView import ModelView
@@ -13,14 +13,22 @@ class ProjectActions(QObject):
     def __init__(self, mainwindow=None):
         super().__init__()
         self._mainwindow = mainwindow
-        self.AddAction('Quit', self._quit)
-        self.AddAction('Load Subtitles', self._load_subtitle_file)
-        self.AddAction('Save Project', self._save_project_file)
-        self.AddAction('Project Options', self._toggle_project_options)
+        self.AddAction('Quit', self._quit, QStyle.StandardPixmap.SP_DialogCloseButton)
+        self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
+        self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton)
+        self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView)
 
-    def AddAction(self, name, function):
+    def AddAction(self, name, function, icon=None):
         action = QAction(name)
         action.triggered.connect(function)
+
+        if icon:
+            if isinstance(icon, QStyle.StandardPixmap):
+                icon = QApplication.style().standardIcon(icon)
+            else:
+                icon = QIcon(icon)
+            action.setIcon(icon)
+
         self._actions[name] = action
 
     def GetAction(self, name : str):
