@@ -44,7 +44,7 @@ class ScenesView(QTreeView):
                 self._deselect_children(model, index, data)
                 self.expand(index)
             elif isinstance(data, BatchItem):
-                self._deselect_parent(model, index, data)
+                self._deselect_parent(model, index)
                 # self._deselect_children(model, index, data)
 
         self._emit_selection()
@@ -56,14 +56,7 @@ class ScenesView(QTreeView):
 
         selected_indexes = self.selectionModel().selectedIndexes()
         for index in selected_indexes:
-            item = model.data(index, role=Qt.ItemDataRole.UserRole)
-            if isinstance(item, SceneItem):
-                selection.scenes.append(item)
-                children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
-                batches = [ model.data(child, role=Qt.ItemDataRole.UserRole) for child in children ]
-                selection.batches.extend(batches)
-            elif isinstance(item, BatchItem):
-                pass
+            self._append_selection(selection, model, index)
 
         # debug_output = '\n'.join([str(x) for x in subtitles])
         # logging.debug(f"Selected lines: {debug_output}")
@@ -86,4 +79,30 @@ class ScenesView(QTreeView):
         for row in range(item.rowCount()):
             batch_item_index = model.index(row, 0, index)
             selection_model.select(batch_item_index, selection_flags)
+
+    def _deselect_parent(self, model, index):
+        selection_model = self.selectionModel()
+        selection_flags = QItemSelectionModel.SelectionFlag.Deselect | QItemSelectionModel.SelectionFlag.Rows
+        selection_model.select(model.parent(index), selection_flags)
+
+    def _append_selection(self, selection : ProjectSelection, model, index):
+        """
+        Accumulated selected batches, scenes and subtitles
+        """
+        item = model.data(index, role=Qt.ItemDataRole.UserRole)
+        if isinstance(item, SceneItem):
+            selection.scenes.append(item)
+            children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
+            batches = [ model.data(child, role=Qt.ItemDataRole.UserRole) for child in children ]
+            selection.batches.extend(batches)
+            for child in children:
+                self._append_selection(selection, model, child)
+
+        elif isinstance(item, BatchItem):
+            selection.batches.append(item)
+            selection.subtitles.extend(item.subtitles)
+            selection.translated.extend(item.translated)
+        
+        #TODO individual subtitle/translation selection
+
 

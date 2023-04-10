@@ -44,7 +44,7 @@ class ModelView(QWidget):
         layout.addWidget(splitter)
         self.setLayout(layout)
 
-        self.scenesView.selectedLines.connect(self.ShowSubtitles)
+        self.scenesView.onSelection.connect(self._items_selected)
 
     def SetViewModel(self, viewmodel):
         self.contentView.Clear()
@@ -74,13 +74,13 @@ class ModelView(QWidget):
         else:
             self.projectOptions.show()
 
-    def ShowSubtitles(self, subtitles, translations, contexts):
+    def ShowSubtitles(self, subtitles, translated):
         if subtitles:
             self.contentView.ShowSubtitles(subtitles)
         
-        if translations:
-            self.contentView.ShowTranslations(translations)
+        if translated:
+            self.contentView.ShowTranslated(translated)
 
-        if contexts:
-            self.contentView.ShowContexts(contexts)
-
+    def _items_selected(self, selection : ProjectSelection):
+        self.contentView.ShowSelection(selection)
+        self.ShowSubtitles(selection.subtitles, selection.translated)

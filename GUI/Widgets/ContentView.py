@@ -1,6 +1,7 @@
 import logging
 from PySide6.QtWidgets import QSplitter, QLabel, QVBoxLayout, QWidget, QSizePolicy
 from PySide6.QtCore import Qt
+from GUI.ProjectSelection import ProjectSelection
 
 from GUI.Widgets.SubtitleView import SubtitleView
 
@@ -18,9 +19,9 @@ class ContentView(QWidget):
         splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(splitter)
 
-        metadata_context = QLabel("Metadata & Context Information")
-        metadata_context.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout.addWidget(metadata_context)
+        self.selection_view = QLabel("")
+        self.selection_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        layout.addWidget(self.selection_view)
 
         # connect the selection handlers
         self.subtitle_view.subtitlesSelected.connect(self._subtitles_selected)
@@ -35,12 +36,14 @@ class ContentView(QWidget):
     def ShowSubtitles(self, subtitles):
         self.subtitle_view.ShowSubtitles(subtitles)
     
-    def ShowTranslations(self, translations):
+    def ShowTranslated(self, translations):
         self.translation_view.ShowSubtitles(translations)
 
-    def ShowContexts(self, contexts):
-        # self.metadata_context.show_contexts(contexts)
-        pass
+    def ShowSelection(self, selection : ProjectSelection):
+        self.ShowSubtitles(selection.subtitles)
+        self.ShowTranslated(selection.translated)
+
+        self.selection_view.setText(str(selection))
 
     def Clear(self):
         self.subtitle_view.ShowSubtitles([])
