@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
+from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectToolbar import ProjectToolbar
 
 from GUI.Widgets.ScenesView import ScenesView
@@ -60,8 +61,11 @@ class ModelView(QWidget):
             self._toolbar.hide()
         else:
             self.projectOptions.Populate(options)
-            self.projectOptions.show()
+
             self._toolbar.show()
+            self._toolbar.show_options = not options.get('movie_name', None)
+            if self._toolbar.show_options:
+                self.projectOptions.show()
 
     def ToggleProjectOptions(self, show = None):
         if self.projectOptions.isVisible() and not show:

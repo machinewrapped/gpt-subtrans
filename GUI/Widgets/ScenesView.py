@@ -1,13 +1,14 @@
 import logging
 from PySide6.QtWidgets import QTreeView, QAbstractItemView
 from PySide6.QtCore import Qt, QItemSelectionModel, Signal
+from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModel import BatchItem, SceneItem
 
 from GUI.Widgets.ScenesBatchesModel import ScenesBatchesModel
 from GUI.Widgets.ScenesBatchesDelegate import ScenesBatchesDelegate
 
 class ScenesView(QTreeView):
-    selectedLines = Signal(list, list, list)
+    onSelection = Signal(object)
 
     def __init__(self, parent=None, viewmodel=None):
         super().__init__(parent)
@@ -39,37 +40,50 @@ class ScenesView(QTreeView):
         for index in selected.indexes():
             data = model.data(index, role=Qt.ItemDataRole.UserRole)
             if isinstance(data, SceneItem):
-                # If a scene is selected, expand the node and select the batches
+                # self._select_batches_in_scene(model, index, data)
+                self._deselect_children(model, index, data)
                 self.expand(index)
+            elif isinstance(data, BatchItem):
+                self._deselect_parent(model, index, data)
+                # self._deselect_children(model, index, data)
 
-                scene_item = data
-                selection_model = self.selectionModel()
-                selection_flags = QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows
+        self._emit_selection()
 
-                for row in range(scene_item.rowCount()):
-                    batch_item_index = model.index(row, 0, index)
-                    selection_model.select(batch_item_index, selection_flags)
-
-        self._emit_selected_batches()
-
-    def _emit_selected_batches(self):
+    def _emit_selection(self):
         model = self.model
 
-        selected_indexes = self.selectionModel().selectedIndexes()
-        selected_items = [ model.data(index, role=Qt.ItemDataRole.UserRole) for index in selected_indexes]
-        selected_batches = [item for item in selected_items if isinstance(item, BatchItem)]
+        selection = ProjectSelection()
 
-        subtitles = []
-        translated = []
-        contexts = []
-        for batch in selected_batches:
-            subtitles.extend(batch.subtitles)
-            if batch.translated:
-                translated.extend(batch.translated)
-            if batch.context:
-                contexts.append(batch.context)
+        selected_indexes = self.selectionModel().selectedIndexes()
+        for index in selected_indexes:
+            item = model.data(index, role=Qt.ItemDataRole.UserRole)
+            if isinstance(item, SceneItem):
+                selection.scenes.append(item)
+                children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
+                batches = [ model.data(child, role=Qt.ItemDataRole.UserRole) for child in children ]
+                selection.batches.extend(batches)
+            elif isinstance(item, BatchItem):
+                pass
 
         # debug_output = '\n'.join([str(x) for x in subtitles])
         # logging.debug(f"Selected lines: {debug_output}")
 
-        self.selectedLines.emit(subtitles, translated, contexts)
+        self.onSelection.emit(selection)
+
+    def _select_children(self, model, index, data):
+        scene_item = data
+        selection_model = self.selectionModel()
+        selection_flags = QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows
+
+        for row in range(scene_item.rowCount()):
+            batch_item_index = model.index(row, 0, index)
+            selection_model.select(batch_item_index, selection_flags)
+
+    def _deselect_children(self, model, index, item):
+        selection_model = self.selectionModel()
+        selection_flags = QItemSelectionModel.SelectionFlag.Deselect | QItemSelectionModel.SelectionFlag.Rows
+
+        for row in range(item.rowCount()):
+            batch_item_index = model.index(row, 0, index)
+            selection_model.select(batch_item_index, selection_flags)
+
