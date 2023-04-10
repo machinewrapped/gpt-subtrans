@@ -12,9 +12,9 @@ from GUI.Command import Command
 
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
+from GUI.MainToolbar import MainToolbar
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.ProjectToolbar import ProjectToolbar
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
 from PySubtitleGPT.SubtitleProject import SubtitleProject
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_widget)
 
         # Create the toolbar
-        self.toolbar = ProjectToolbar(self.action_handler)
+        self.toolbar = MainToolbar(self.action_handler)
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -98,14 +98,16 @@ class MainWindow(QMainWindow):
                 self.project = command.project
 
             self.datamodel = command.datamodel
-            if not self.datamodel:
-                return
 
             if self.model_viewer:
-                # TODO: add model updates to the viewmodel rather than rebuilding it 
-                self.datamodel.CreateViewModel()
-                self.model_viewer.SetViewModel(self.datamodel.viewmodel)
-                self.model_viewer.SetProjectOptions(self.datamodel.options)
+                if self.datamodel:
+                    # TODO: add model updates to the viewmodel rather than rebuilding it 
+                    self.datamodel.CreateViewModel()
+                    self.model_viewer.SetViewModel(self.datamodel.viewmodel)
+                    self.model_viewer.SetProjectOptions(self.datamodel.options)
+                    self.model_viewer.show()
+                else:
+                    self.model_viewer.hide()
 
         else:
             self.statusBar().showMessage(f"{type(command).__name__} failed.")

@@ -1,5 +1,7 @@
-from PySide6.QtWidgets import QWidget, QSplitter, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
+from GUI.ProjectToolbar import ProjectToolbar
+
 from GUI.Widgets.ScenesView import ScenesView
 from GUI.Widgets.ContentView import ContentView
 from GUI.Widgets.ProjectOptions import ProjectOptions
@@ -9,6 +11,14 @@ class ModelView(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self._toolbar = ProjectToolbar(self)
+        self._toolbar.toggleOptions.connect(self.ToggleProjectOptions)
+        self._toolbar.setVisible(False)
+        layout.addWidget(self._toolbar)
 
         # Scenes & Batches Panel
         self.scenesView = ScenesView(self)
@@ -30,8 +40,6 @@ class ModelView(QWidget):
         splitter.setStretchFactor(1, 1)
         splitter.setStretchFactor(2, 3)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(splitter)
         self.setLayout(layout)
 
@@ -49,12 +57,14 @@ class ModelView(QWidget):
         self.projectOptions.Clear()
         if not options:
             self.projectOptions.hide()
+            self._toolbar.hide()
         else:
             self.projectOptions.Populate(options)
             self.projectOptions.show()
+            self._toolbar.show()
 
-    def ToggleProjectOptions(self):
-        if self.projectOptions.isVisible():
+    def ToggleProjectOptions(self, show = None):
+        if self.projectOptions.isVisible() and not show:
             self.optionsChanged.emit(self.projectOptions.GetOptions())
             self.projectOptions.hide()
         else:
@@ -69,3 +79,4 @@ class ModelView(QWidget):
 
         if contexts:
             self.contentView.ShowContexts(contexts)
+
