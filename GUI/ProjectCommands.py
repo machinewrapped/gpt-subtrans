@@ -44,5 +44,7 @@ class TranslateBatchCommand(Command):
         project = self.datamodel.project
         project.TranslateBatch(self.batch_number)
 
-        #TODO: Update the data/view model
-        self.datamodel = ProjectDataModel(project)
+        #TODO: incremental updates to the data/view model
+        self.datamodel.CreateDataModel(project.subtitles)
+
+        return True
