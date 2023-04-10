@@ -5,11 +5,9 @@ from PySubtitleGPT import ChatGPTTranslation
 from PySubtitleGPT.Helpers import GenerateTag, GenerateTagLines, GenerateBatchPrompt
 
 class ChatGPTPrompt:
-    instructions = None
-    user_prompt = None
-    messages = []
-
     def __init__(self, instructions):
+        self.user_prompt = None
+        self.messages = []
         self.instructions = instructions
         
     def GenerateMessages(self, prompt, lines, context):

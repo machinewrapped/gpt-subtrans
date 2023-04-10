@@ -11,12 +11,9 @@ from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError
 linesep = '\n'
 
 class ChatGPTClient:
-    options : Options
-    
-    def __init__(self, options, instructions=None):
+    def __init__(self, options : Options, instructions=None):
         self.options = options
         self.instructions = options.get('instructions', "")
-
 
     # Generate the messages to send to OpenAI to request a translation
     def RequestTranslation(self, prompt : str, lines : list, context : dict):

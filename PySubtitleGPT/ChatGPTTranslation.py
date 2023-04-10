@@ -2,9 +2,7 @@ from PySubtitleGPT import ChatGPTPrompt
 from PySubtitleGPT.Helpers import ParseTranslation, PerformSubstitutions
 
 class ChatGPTTranslation:
-    prompt : ChatGPTPrompt = None
-
-    def __init__(self, response, prompt):
+    def __init__(self, response, prompt : ChatGPTPrompt):
         self.prompt = prompt
         self._text = response.get('text') if response else None
         self.finish_reason = response.get('finish_reason') if response else None

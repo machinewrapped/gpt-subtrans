@@ -26,13 +26,11 @@ class ChatGPTTranslationParser:
     """
     Extract translated subtitles from a ChatGPT completion 
     """
-    text = None
-    translations = {}
-    translated = []
-    options : Options = None
-
     def __init__(self, options):
         self.options = options
+        self.text = None
+        self.translations = {}
+        self.translated = []
 
     def ProcessChatGPTResponse(self, translation : ChatGPTTranslation):
         """

@@ -13,10 +13,7 @@ class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
-    options : Options = None
-    project = None
-
-    def __init__(self, options, project):
+    def __init__(self, options : Options, project):
         """
         Initialise a SubtitleTranslator with translation options
         """

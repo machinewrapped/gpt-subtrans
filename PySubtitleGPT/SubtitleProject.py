@@ -9,12 +9,9 @@ from PySubtitleGPT.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
-    subtitles : SubtitleFile
-    options : Options
-
-    def __init__(self, options):
+    def __init__(self, options : Options):
         self.options = options.GetNonProjectSpecificOptions() if options else Options()
-        self.subtitles = None
+        self.subtitles : SubtitleFile = None
         
         project_mode = options.get('project', '')
         if project_mode:
