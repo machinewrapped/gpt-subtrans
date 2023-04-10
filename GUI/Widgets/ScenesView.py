@@ -1,6 +1,6 @@
 import logging
 from PySide6.QtWidgets import QTreeView, QAbstractItemView
-from PySide6.QtCore import Qt, QItemSelectionModel, Signal
+from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelectionModel, QItemSelection, QItemSelectionRange, Signal
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModel import BatchItem, SceneItem
 
@@ -30,12 +30,27 @@ class ScenesView(QTreeView):
 
     def Populate(self, viewmodel):
         self.viewmodel = viewmodel
-        self.model = ScenesBatchesModel(self.viewmodel)
-        self.setModel(self.model)
+        model = ScenesBatchesModel(self.viewmodel)
+        self.setModel(model)
         self.selectionModel().selectionChanged.connect(self._item_selected)
 
+    def SelectAll(self):
+        model = self.model()
+        if not model:
+            return
+
+        # Create a selection that covers all the top-level items
+        selection = QItemSelection()
+        first_index = model.index(0, 0, QModelIndex())
+        last_index = model.index(model.rowCount(QModelIndex()) - 1, 0, QModelIndex())
+        selection_range = QItemSelectionRange(first_index, last_index)
+        selection.append(selection_range)
+
+        # Select the items using the selection model
+        self.selectionModel().select(selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+    
     def _item_selected(self, selected, deselected):
-        model = self.model
+        model : QAbstractItemModel = self.model()
 
         for index in selected.indexes():
             data = model.data(index, role=Qt.ItemDataRole.UserRole)
@@ -50,7 +65,7 @@ class ScenesView(QTreeView):
         self._emit_selection()
 
     def _emit_selection(self):
-        model = self.model
+        model = self.model()
 
         selection = ProjectSelection()
 
@@ -93,8 +108,6 @@ class ScenesView(QTreeView):
         if isinstance(item, SceneItem):
             selection.scenes.append(item)
             children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
-            batches = [ model.data(child, role=Qt.ItemDataRole.UserRole) for child in children ]
-            selection.batches.extend(batches)
             for child in children:
                 self._append_selection(selection, model, child)
 
@@ -106,3 +119,14 @@ class ScenesView(QTreeView):
         #TODO individual subtitle/translation selection
 
 
+    def keyPressEvent(self, event):
+        """
+        Handle keyboard events for the tree view
+        """
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+            # Ctrl+A pressed, select all items if the list view has focus
+            if self.hasFocus():
+                self.SelectAll()
+        else:
+            # Call the base class method to handle other key events
+            super().keyPressEvent(event)

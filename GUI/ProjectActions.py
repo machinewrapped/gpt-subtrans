@@ -17,6 +17,7 @@ class ProjectActions(QObject):
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
         self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton)
         self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView)
+        self.AddAction('Translate Selection', self._translate_selection)
 
     def AddAction(self, name, function, icon=None):
         action = QAction(name)
@@ -66,3 +67,6 @@ class ProjectActions(QObject):
         # TODO: Route GUI actions with signals and events or something
         model_viewer: ModelView = self._mainwindow.model_viewer
         model_viewer.ToggleProjectOptions()
+
+    def _translate_selection(self):
+        logging.info("So, you'd like to translate the selection, eh?")
