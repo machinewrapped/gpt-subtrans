@@ -1,6 +1,7 @@
-import re
-from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit
+import logging
+from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit, QPushButton, QDialog
 from PySide6.QtCore import Signal
+from GUI.TranslatorOptions import TranslatorOptionsDialog
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitleGPT.Options import Options
@@ -11,6 +12,8 @@ class ProjectOptions(QGroupBox):
     Allow the user to edit project-specific options
     """
     optionsChanged = Signal(dict)
+
+    _gpt_options = {}
 
     def __init__(self, options=None):
         super().__init__()
@@ -26,9 +29,11 @@ class ProjectOptions(QGroupBox):
         self.AddMultiLineOption(1, "Synopsis", options, 'synopsis')
         self.AddMultiLineOption(2, "Characters", options, 'characters')
         self.AddMultiLineOption(3, "Substitutions", options, 'substitutions')
-        self.AddSingleLineOption(4, "GPT Model", options, 'gpt_model')
-        self.AddSingleLineOption(5, "GPT Prompt", options, 'gpt_prompt')
-        #TODO Add an "Edit Instructions" button
+        # self.AddSingleLineOption(4, "GPT Model", options, 'gpt_model')
+        # self.AddSingleLineOption(5, "GPT Prompt", options, 'gpt_prompt')
+        self.AddButtonOption(4, "", "GPT Settings", self._gpt_settings)
+
+        self.Populate(options)
 
         self.layout.addLayout(self.grid_layout)
 
@@ -36,14 +41,17 @@ class ProjectOptions(QGroupBox):
         """
         Get a dictionary of the user's options
         """
-        return {
+        options = {
             "movie_name": self.movie_name_input.text(),
-            "gpt_model": self.gpt_model_input.text(),
-            "gpt_prompt": self.gpt_prompt_input.text(),
+            # "gpt_model": self.gpt_model_input.text(),
+            # "gpt_prompt": self.gpt_prompt_input.text(),
             "synopsis": self.synopsis_input.toPlainText(),
             "characters": ParseCharacters(self.characters_input.toPlainText()),
             "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText())
         }
+
+        options.update(self._gpt_options)
+        return options
 
     def AddSingleLineOption(self, row, label, options, key):
         # Add label and input field for a single-line option
@@ -70,16 +78,30 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
 
+    def AddButtonOption(self, row, label, text, callable):
+        label_widget = QLabel(label)
+        button_widget = QPushButton(text)
+        button_widget.clicked.connect(callable)
+        self.grid_layout.addWidget(label_widget, row, 0)
+        self.grid_layout.addWidget(button_widget, row, 1)        
+
     def Populate(self, options):
         if isinstance(options, Options):
             return self.Populate(options.options)
+
+        self._gpt_options = {
+            'gpt_model': options.get('gpt_model'),
+            'gpt_prompt': options.get('gpt_prompt'),
+            'instructions': options.get('instructions'),
+            'retry_instructions': options.get('retry_instructions')
+        }
 
         for key in options:
             if hasattr(self, key + "_input"):
                 self._settext(key, options.get(key))
 
     def Clear(self):
-        for key in ["movie_name", "gpt_model", "gpt_prompt", "synopsis", "characters", "substitutions"]:
+        for key in ["movie_name", "synopsis", "characters", "substitutions"]:
             getattr(self, key + "_input").setText("")
 
     def _settext(self, key, value):
@@ -93,3 +115,11 @@ class ProjectOptions(QGroupBox):
     def _text_changed(self, text = None):
         options = self.GetOptions()
         self.optionsChanged.emit(options)
+
+    def _gpt_settings(self):
+        dialog = TranslatorOptionsDialog(self._gpt_options, self)
+        result = dialog.exec()
+
+        if result == QDialog.Accepted:
+            logging.info("GPT Options for this project updated")
+            self.optionsChanged.emit(self._gpt_options)
