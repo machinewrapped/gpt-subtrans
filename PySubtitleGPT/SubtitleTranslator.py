@@ -20,6 +20,13 @@ class SubtitleTranslator:
         if not options:
             raise Exception("No translation options provided")
 
+        openai.api_key = options.api_key() or openai.api_key
+
+        if not openai.api_key:
+            raise ValueError('API key must be set in .env or provided as an argument')
+        
+        logging.info(f"Using API Key: {openai.api_key}")
+
         self.options = options
         self.project = project
         self.scenes = project.subtitles.scenes if project else None
@@ -29,14 +36,6 @@ class SubtitleTranslator:
         Translate a SubtitleFile using the translation options
         """
         self.subtitles = subtitles
-        options = self.options
-
-        openai.api_key = options.api_key() or openai.api_key
-
-        if not openai.api_key:
-            raise ValueError('API key must be set in .env or provided as an argument')
-        
-        logging.info(f"Using API Key: {openai.api_key}")
 
         # Do the translation
         self.Translate(context)
@@ -115,15 +114,13 @@ class SubtitleTranslator:
         """
         Present a scene to ChatGPT for translation
         """
-        options = self.options
         project = self.project
-        prompt = options.get('prompt')
 
         scene.context = context.copy() if context else {}
         scene.AddContext('summary', "New scene")
 
         try:
-            self.TranslateBatches(scene, prompt, scene.context, remaining_lines)
+            self.TranslateBatches(scene, scene.batches, scene.context, remaining_lines)
 
         except Exception as e:
             if project.write_project:
@@ -135,12 +132,14 @@ class SubtitleTranslator:
                 logging.warning(f"Failed to translate all scenes ({str(e)})... finishing")
 
     # Present each batch of subtitles for translation
-    def TranslateBatches(self, scene : SubtitleScene, prompt : str, context : dict, remaining_lines=None):
+    def TranslateBatches(self, scene, batches, context : dict, remaining_lines=None):
         """
-        Pass each batch of subtitles to ChatGPT for translation, building up context.
+        Pass batches of subtitles from a scene to ChatGPT for translation, building up context.
         """
         options : Options = self.options
         project = self.project
+
+        prompt = options.get('prompt')
 
         context = context or {}
         substitutions = context.get('substitutions')
@@ -150,9 +149,7 @@ class SubtitleTranslator:
         # Initialise the ChatGPT client
         client = ChatGPTClient(options, context.get('instructions'))
 
-        for batch_index, batch in enumerate(scene.batches):
-            batch.number = batch_index + 1
-
+        for batch in batches:
             if project.resume and batch.all_translated:
                 logging.info(f"Scene {scene.number} batch {batch.number} already translated {batch.size} lines...")
                 self.AddBatchToContext(context, batch)
@@ -357,6 +354,6 @@ class SubtitleTranslator:
     def UpdateContext(self, translation, batch, context):
         options = self.options
         context['summary'] = batch.summary or context['summary']
-        context['synopsis'] = options.get('synopsis') or translation.synopsis or context['synopsis']
-        #context['characters'] = options.get('characters') or translation.characters or context['characters']
+        context['synopsis'] = options.get('synopsis') or translation.synopsis or context.get('synopsis', "")
+        #context['characters'] = options.get('characters') or translation.characters or context.get('characters', [])
 

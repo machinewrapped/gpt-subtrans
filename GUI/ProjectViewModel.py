@@ -25,9 +25,9 @@ class ProjectViewModel(QStandardItemModel):
                 scene_item = self.CreateSceneItem(scene_data, scene_data['scene'])
                 self.root_item.appendRow(scene_item)
 
-    def CreateSceneItem(self, scene_data, index):
-        scene_item = SceneItem(index, scene_data)
-        scene_item.setText(f"Scene {index}")
+    def CreateSceneItem(self, scene_data, number):
+        scene_item = SceneItem(number, scene_data)
+        scene_item.setText(f"Scene {number}")
 
         for batch_data in scene_data['batches']:
             batch_item = self.CreateBatchItem(batch_data, batch_data['batch'])
@@ -35,9 +35,9 @@ class ProjectViewModel(QStandardItemModel):
 
         return scene_item
 
-    def CreateBatchItem(self, batch_data, index):
-        batch_item = BatchItem(index, batch_data)
-        batch_item.setText(f"Batch {index}")
+    def CreateBatchItem(self, batch_data, number):
+        batch_item = BatchItem(number, batch_data)
+        batch_item.setText(f"Batch {number}")
 
         for subtitle_data in batch_data['subtitles']:
             subtitle_item = self.CreateSubtitleItem(subtitle_data, subtitle_data['index'])
@@ -52,11 +52,11 @@ class ProjectViewModel(QStandardItemModel):
         return subtitle_item
 
 class SceneItem(ViewModelItem):
-    def __init__(self, index, scene_data):
+    def __init__(self, number, scene_data):
         super(SceneItem, self).__init__()
-        self.index = index
+        self.number = number
         self.scene_data = scene_data
-        self.setText(f"Scene {index}")
+        self.setText(f"Scene {number}")
 
     @property
     def start(self):
@@ -80,7 +80,7 @@ class SceneItem(ViewModelItem):
 
     def GetContent(self):
         return {
-            'heading': f"Scene {self.index}",
+            'heading': f"Scene {self.number}",
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
             'body': f"{self.subtitle_count} subtitles in {self.batch_count} batches"
         }
@@ -91,9 +91,9 @@ class SceneItem(ViewModelItem):
 
 
 class BatchItem(ViewModelItem):
-    def __init__(self, index, batch_data):
-        super(BatchItem, self).__init__(f"Batch {index}")
-        self.index = index
+    def __init__(self, number, batch_data):
+        super(BatchItem, self).__init__(f"Batch {number}")
+        self.number = number
         self.batch_data = batch_data
 
     @property
@@ -131,7 +131,7 @@ class BatchItem(ViewModelItem):
         ]
 
         return {
-            'heading': f"Batch {self.index}",
+            'heading': f"Batch {self.number}",
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
             'body': "\n".join([data for data in metadata if data is not None])
         }

@@ -1,9 +1,11 @@
-import logging
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QFrame, QHBoxLayout, QPushButton, QSizePolicy
 
 from GUI.ProjectSelection import ProjectSelection
 
 class SelectionView(QFrame):
+    onTranslateSelection = Signal()
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -29,4 +31,4 @@ class SelectionView(QFrame):
             self._translate_button.hide()
 
     def _translate_selection(self):
-        logging.info("Translate selection pushed")
+        self.onTranslateSelection.emit()

@@ -34,19 +34,29 @@ class ScenesView(QTreeView):
         self.setModel(model)
         self.selectionModel().selectionChanged.connect(self._item_selected)
 
+    def GetSelection(self) -> ProjectSelection:
+        """
+        Retrieve the current project selection
+        """
+        model = self.model()
+        selection = ProjectSelection()
+
+        selected_indexes = self.selectionModel().selectedIndexes()
+        for index in selected_indexes:
+            self._append_selection(selection, model, index)
+        return selection
+
     def SelectAll(self):
         model = self.model()
         if not model:
             return
 
-        # Create a selection that covers all the top-level items
         selection = QItemSelection()
         first_index = model.index(0, 0, QModelIndex())
         last_index = model.index(model.rowCount(QModelIndex()) - 1, 0, QModelIndex())
         selection_range = QItemSelectionRange(first_index, last_index)
         selection.append(selection_range)
 
-        # Select the items using the selection model
         self.selectionModel().select(selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
     
     def _item_selected(self, selected, deselected):
@@ -65,13 +75,7 @@ class ScenesView(QTreeView):
         self._emit_selection()
 
     def _emit_selection(self):
-        model = self.model()
-
-        selection = ProjectSelection()
-
-        selected_indexes = self.selectionModel().selectedIndexes()
-        for index in selected_indexes:
-            self._append_selection(selection, model, index)
+        selection = self.GetSelection()
 
         # debug_output = '\n'.join([str(x) for x in subtitles])
         # logging.debug(f"Selected lines: {debug_output}")
@@ -116,8 +120,7 @@ class ScenesView(QTreeView):
             selection.subtitles.extend(item.subtitles)
             selection.translated.extend(item.translated)
         
-        #TODO individual subtitle/translation selection
-
+        #TODO add individual subtitle/translation selection (implying a unified selectionModel?)
 
     def keyPressEvent(self, event):
         """

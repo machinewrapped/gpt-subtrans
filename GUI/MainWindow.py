@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1600, 900)
 
         # Create the project data model
-        self.datamodel = ProjectDataModel(options)
+        self.datamodel = ProjectDataModel()
 
         # Create the command queue
         self.command_queue = CommandQueue()
@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
 
         self.model_viewer = ModelView(splitter)
         self.model_viewer.optionsChanged.connect(self._on_options_changed)
+        self.model_viewer.commandIssued.connect(self._on_command_issued)
         splitter.addWidget(self.model_viewer)
 
         # Create the log window widget and add it to the splitter
@@ -89,6 +90,12 @@ class MainWindow(QMainWindow):
             self.project.UpdateProjectFile()
 
         super().closeEvent(e)
+
+    def _on_command_issued(self, command : Command):
+        if not isinstance(command, Command):
+            raise ValueError(f"Issued a command that is not a Command ({type(command).__name__})")
+        
+        self.QueueCommand(command)
 
     def _on_command_complete(self, command : Command, success):
         if success:

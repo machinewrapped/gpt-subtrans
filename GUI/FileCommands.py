@@ -7,11 +7,10 @@ from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 class LoadSubtitleFile(Command):
-    project : SubtitleProject = None
-
     def __init__(self, filepath):
         super().__init__()
         self.filepath = filepath
+        self.project : SubtitleProject = None
 
     def execute(self):
         logging.info(f"Executing LoadSubtitleFile {self.filepath}")
@@ -29,12 +28,12 @@ class LoadSubtitleFile(Command):
                 return False
             
             self.project = project
-            self.datamodel = ProjectDataModel(project.options)
+            self.datamodel = ProjectDataModel(project)
 
             if project.subtitles.scenes:
                 self.datamodel.CreateDataModel(project.subtitles)
             else:
-                self.commands_to_queue.append(BatchSubtitlesCommand(self.project))
+                self.commands_to_queue.append(BatchSubtitlesCommand(project))
 
             return True
         
@@ -48,9 +47,6 @@ class LoadSubtitleFile(Command):
 
 
 class SaveProjectFile(Command):
-    filename : str = None
-    project : SubtitleProject = None
-
     def __init__(self, filename, project):
         super().__init__()
         self.filename = filename

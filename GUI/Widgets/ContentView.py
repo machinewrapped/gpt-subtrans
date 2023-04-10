@@ -1,12 +1,14 @@
 import logging
-from PySide6.QtWidgets import QSplitter, QLabel, QVBoxLayout, QWidget, QSizePolicy
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QSplitter, QVBoxLayout, QWidget, QSizePolicy
+from PySide6.QtCore import Qt, Signal
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.SelectionView import SelectionView
 
 from GUI.Widgets.SubtitleView import SubtitleView
 
 class ContentView(QWidget):
+    onTranslateSelection = Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -21,6 +23,7 @@ class ContentView(QWidget):
         layout.addWidget(splitter)
 
         self.selection_view = SelectionView()
+        self.selection_view.onTranslateSelection.connect(self._on_translate_selection)
         layout.addWidget(self.selection_view)
 
         # connect the selection handlers
@@ -61,3 +64,6 @@ class ContentView(QWidget):
         logging.debug(f"Selected translations: {debug_output}")
         translated_indexes = [ item.index for item in translations if item.index ]
         self.subtitle_view.SelectSubtitles(translated_indexes)
+
+    def _on_translate_selection(self):
+        self.onTranslateSelection.emit()

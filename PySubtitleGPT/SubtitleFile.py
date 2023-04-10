@@ -2,9 +2,11 @@ import os
 import logging
 import pysrt
 from pysrt import SubRipFile
+from PySubtitleGPT import SubtitleScene
 from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
+from PySubtitleGPT.SubtitleError import TranslationError
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
@@ -123,12 +125,32 @@ class SubtitleFile:
         """
         Translate subtitles using the provided options
         """
-        # Generate context for the project file
         self.UpdateContext(options)
 
         translator = SubtitleTranslator(options, project)
 
         self.scenes = translator.TranslateSubtitles(self.subtitles, self.context)
+
+    def TranslateBatch(self, batch_number, options):
+        """
+        Translate a batch of subtitles using the provided options
+        """
+        if not self.scenes:
+            raise TranslationError("Subtitles have not been batched")
+
+        scene, batch = self.FindBatch(batch_number)
+        if not scene:
+            raise TranslationError(f"Cannot find scene with batch {batch_number} to translate it")
+
+        # TODO: Really need to build context from the entire scene
+        context = batch.context
+        context['scene_number'] = scene.number
+
+        # TODO: eliminate the dependency on SubtitleProject by using events/observer
+        translator = SubtitleTranslator(options, self.project)
+
+        batches = [ batch ]
+        translator.TranslateBatches(scene, batches, context)
 
     def AutoBatch(self, options, project):
         """
@@ -141,8 +163,15 @@ class SubtitleFile:
         if project:
             project.UpdateProjectFile(self.scenes)
 
-
     def AddScene(self, scene):
         self.scenes.append(scene)
 
         logging.debug("Added a new scene")
+
+    def FindBatch(self, batch_number):
+        for scene in self.scenes:
+            for batch in scene.batches:
+                if batch.number == batch_number:
+                    return scene, batch
+                
+        return None, None

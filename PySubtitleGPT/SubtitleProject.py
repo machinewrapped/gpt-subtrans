@@ -87,6 +87,25 @@ class SubtitleProject:
             logging.error(f"Failed to translate subtitles")
             raise
 
+    def TranslateBatch(self, batch_number):
+        """
+        Pass a batch of subtitles to the translation engine.
+        """
+        if not self.subtitles:
+            raise Exception("No subtitles to translate")
+
+        try:
+            self.subtitles.TranslateBatch(batch_number, self.options)
+
+            self.subtitles.SaveTranslation()
+
+        except Exception as e:
+            if self.subtitles and self.stop_on_error:
+                self.subtitles.SaveTranslation()
+
+            logging.error(f"Failed to translate subtitles")
+            raise
+
     def GetProjectFilename(self, filename):
         name, ext = os.path.splitext(filename)
         if ext == 'subtrans':

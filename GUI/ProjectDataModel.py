@@ -7,18 +7,19 @@ from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.Subtitle import Subtitle
 
 class ProjectDataModel:
-    model = {}
-    viewmodel : ProjectViewModel = None
-    options = Options({
-        'project': 'resume'
-    })
-    
-    def __init__(self, options = None):
-        if options:
-            if isinstance(options, Options):
-                self.options = options
+    def __init__(self, project = None):
+        self.project = project
+        self.model = {}
+        self.viewmodel : ProjectViewModel = None
+        self.options = Options({
+            'project': 'resume'
+        })
+
+        if project and project.options:
+            if isinstance(project.options, Options):
+                self.options = project.options
             else:
-              self.options.update(options)
+              self.options.update(project.options)
 
     def CreateViewModel(self):
         viewmodel = ProjectViewModel()
@@ -26,19 +27,19 @@ class ProjectDataModel:
         self.viewmodel = viewmodel
         return viewmodel
 
-    def CreateDataModel(self, data, index = None):
+    def CreateDataModel(self, data, number = None):
         if isinstance(data, SubtitleFile):
             model = {
                 'scenes': []
             }
-            for index, scene in enumerate(data.scenes):
-                model['scenes'].append(self.CreateDataModel(scene, index + 1))
+            for number, scene in enumerate(data.scenes):
+                model['scenes'].append(self.CreateDataModel(scene, number + 1))
 
             self.model = model
 
         elif isinstance(data, SubtitleScene):
             model = {
-                'scene': index,
+                'scene': number,
                 'start': None,
                 'end': None,
                 'duration': None,
@@ -47,8 +48,8 @@ class ProjectDataModel:
                 'batches': []
             }
             
-            for index, batch in enumerate(data.batches):
-                model['batches'].append(self.CreateDataModel(batch, index + 1))
+            for number, batch in enumerate(data.batches):
+                model['batches'].append(self.CreateDataModel(batch, number + 1))
 
             if model['batches']:
                 batches = model['batches']
@@ -59,7 +60,7 @@ class ProjectDataModel:
 
         elif isinstance(data, SubtitleBatch):
             model = {
-                'batch': index,
+                'batch': number,
                 'start': None,
                 'end': None,
                 'subtitles': [],
@@ -84,7 +85,7 @@ class ProjectDataModel:
 
         elif isinstance(data, Subtitle):
             model = {
-                'index': index,
+                'index': number,
                 'start': str(data.start),
                 'end': str(data.end),
                 'text': str(data.text),

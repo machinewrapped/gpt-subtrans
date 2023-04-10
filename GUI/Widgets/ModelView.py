@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
+from GUI.ProjectCommands import TranslateBatchCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectToolbar import ProjectToolbar
 
@@ -9,6 +10,7 @@ from GUI.Widgets.ProjectOptions import ProjectOptions
 
 class ModelView(QWidget):
     optionsChanged = Signal(dict)
+    commandIssued = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -45,6 +47,7 @@ class ModelView(QWidget):
         self.setLayout(layout)
 
         self.scenesView.onSelection.connect(self._items_selected)
+        self.contentView.onTranslateSelection.connect(self._on_translate_selection)
 
     def SetViewModel(self, viewmodel):
         self.contentView.Clear()
@@ -84,3 +87,9 @@ class ModelView(QWidget):
     def _items_selected(self, selection : ProjectSelection):
         self.contentView.ShowSelection(selection)
         self.ShowSubtitles(selection.subtitles, selection.translated)
+
+    def _on_translate_selection(self):
+        selection = self.scenesView.GetSelection()
+        for batch in selection.batches:
+            command = TranslateBatchCommand(batch.number)
+            self.commandIssued.emit(command)
