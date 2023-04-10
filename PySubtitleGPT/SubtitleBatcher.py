@@ -17,6 +17,7 @@ class SubtitleBatcher:
         batch_threshold = SubRipTime.from_ordinal(batch_threshold_us)
 
         scenes = []
+        batches = []
         last_endtime = None
 
         for item in subtitles:
@@ -25,10 +26,13 @@ class SubtitleBatcher:
             if gap is None or gap > scene_threshold:
                 scene = SubtitleScene()
                 scenes.append(scene)
+                scene.number = len(scenes)
                 batch = None
 
             if batch is None or (batch.size >= max_batch_size) or (batch.size >= min_batch_size and gap > batch_threshold):
                 batch = scene.AddNewBatch()
+                batches.append(batch)
+                batch.number = len(batches)
 
             batch.AddLine(item)
 
