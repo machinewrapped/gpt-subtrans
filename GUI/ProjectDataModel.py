@@ -27,19 +27,20 @@ class ProjectDataModel:
         self.viewmodel = viewmodel
         return viewmodel
 
-    def CreateDataModel(self, data, number = None):
+    def CreateDataModel(self, data):
+        #TODO This layer of the model is probably redundant, mapping directly from PySubtitleGPT to the view model might make more sense
         if isinstance(data, SubtitleFile):
             model = {
                 'scenes': []
             }
-            for number, scene in enumerate(data.scenes):
-                model['scenes'].append(self.CreateDataModel(scene, number + 1))
+            for scene in data.scenes:
+                model['scenes'].append(self.CreateDataModel(scene))
 
             self.model = model
 
         elif isinstance(data, SubtitleScene):
             model = {
-                'scene': number,
+                'scene': data.number,
                 'start': None,
                 'end': None,
                 'duration': None,
@@ -48,8 +49,8 @@ class ProjectDataModel:
                 'batches': []
             }
             
-            for number, batch in enumerate(data.batches):
-                model['batches'].append(self.CreateDataModel(batch, number + 1))
+            for batch in data.batches:
+                model['batches'].append(self.CreateDataModel(batch))
 
             if model['batches']:
                 batches = model['batches']
@@ -60,7 +61,7 @@ class ProjectDataModel:
 
         elif isinstance(data, SubtitleBatch):
             model = {
-                'batch': number,
+                'batch': data.number,
                 'start': None,
                 'end': None,
                 'subtitles': [],
@@ -69,10 +70,10 @@ class ProjectDataModel:
             }
 
             for subtitle in data.subtitles:
-                model['subtitles'].append(self.CreateDataModel(subtitle, subtitle.index))
+                model['subtitles'].append(self.CreateDataModel(subtitle))
 
             for subtitle in data.translated:
-                model['translated'].append(self.CreateDataModel(subtitle, subtitle.index))
+                model['translated'].append(self.CreateDataModel(subtitle))
 
             if model['subtitles']:
                 subtitles = model['subtitles']
@@ -85,7 +86,7 @@ class ProjectDataModel:
 
         elif isinstance(data, Subtitle):
             model = {
-                'index': number,
+                'index': data.index,
                 'start': str(data.start),
                 'end': str(data.end),
                 'text': str(data.text),

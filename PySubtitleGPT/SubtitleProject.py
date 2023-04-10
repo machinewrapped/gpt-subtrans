@@ -119,6 +119,7 @@ class SubtitleProject:
         self.subtitles = SubtitleFile()
         self.subtitles.LoadSubtitles(filename)
         self.subtitles.UpdateContext(self.options)
+        self.subtitles.project = self
         return self.subtitles
 
     def WriteProjectFile(self, projectfile = None):
