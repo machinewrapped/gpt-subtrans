@@ -8,6 +8,7 @@ To install GPT-Subtrans, you will need to have Python 3.x and pip installed on y
 ```
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
+The easiest setup method for most Windows users is to then run `install.bat` and enter your OpenAI API key when prompted. You can then skip the remaining steps.
 
 2. Create a new file named .env in the root directory of the project. Add your OpenAI API key to the .env file like this:
 ```
