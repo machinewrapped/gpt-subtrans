@@ -1,22 +1,25 @@
 import logging
 import random
 import time
-from os import linesep
-
 import openai
+
+from PySubtitleGPT import Options
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
+from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError
 
-from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+linesep = '\n'
 
 class ChatGPTClient:
+    options : Options
+    
     def __init__(self, options, instructions=None):
         self.options = options
         self.instructions = options.get('instructions', "")
 
 
     # Generate the messages to send to OpenAI to request a translation
-    def RequestTranslation(self, prompt, lines, context):
+    def RequestTranslation(self, prompt : str, lines : list, context : dict):
         options = self.options
 
         start_time = time.monotonic()
@@ -44,7 +47,7 @@ class ChatGPTClient:
         return translation
 
     # Generate the messages to send to OpenAI to request a retranslation
-    def RequestRetranslation(self, translation, errors):
+    def RequestRetranslation(self, translation : ChatGPTTranslation, errors):
         options = self.options
         prompt = translation.prompt
 

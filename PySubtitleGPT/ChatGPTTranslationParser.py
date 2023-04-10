@@ -1,5 +1,6 @@
 import logging
 import re
+from PySubtitleGPT import Options
 
 from PySubtitleGPT.Helpers import MergeTranslations
 from PySubtitleGPT.Subtitle import Subtitle
@@ -25,13 +26,15 @@ class ChatGPTTranslationParser:
     """
     Extract translated subtitles from a ChatGPT completion 
     """
+    text = None
+    translations = {}
+    translated = []
+    options : Options = None
+
     def __init__(self, options):
         self.options = options
-        self.text = None
-        self.translations = {}
-        self.translated = []
 
-    def ProcessChatGPTResponse(self, translation):
+    def ProcessChatGPTResponse(self, translation : ChatGPTTranslation):
         """
         Extract subtitle lines from a batched translation, using the
         pre-defined pattern to match each line, or a list of fallbacks

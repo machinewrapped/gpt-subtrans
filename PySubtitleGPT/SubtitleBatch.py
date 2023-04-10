@@ -4,7 +4,7 @@ from PySubtitleGPT.Subtitle import Subtitle
 class SubtitleBatch:
     def __init__(self, dict = None):
         dict = dict or {}
-        self.number = dict.get('number')
+        self.number = dict.get('batch') or dict.get('number')
         self.summary = dict.get('summary')
         self.context = dict.get('context', {})
         self.translation = dict.get('translation')

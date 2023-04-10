@@ -1,6 +1,7 @@
 import logging
 import openai
 from os import linesep
+from PySubtitleGPT import Options, SubtitleBatch, SubtitleScene
 
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.ChatGPTClient import ChatGPTClient
@@ -12,6 +13,9 @@ class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
+    options : Options = None
+    project = None
+
     def __init__(self, options, project):
         """
         Initialise a SubtitleTranslator with translation options
@@ -46,7 +50,7 @@ class SubtitleTranslator:
         """
         Perform the translation
         """
-        options = self.options
+        options : Options = self.options
         project = self.project
 
         if context:
@@ -110,7 +114,7 @@ class SubtitleTranslator:
         self.subtitles = subtitles
         self.translations = translations
 
-    def TranslateScene(self, scene, context=None, remaining_lines=None):
+    def TranslateScene(self, scene : SubtitleScene, context=None, remaining_lines=None):
         """
         Present a scene to ChatGPT for translation
         """
@@ -134,11 +138,11 @@ class SubtitleTranslator:
                 logging.warning(f"Failed to translate all scenes ({str(e)})... finishing")
 
     # Present each batch of subtitles for translation
-    def TranslateBatches(self, scene, prompt, context, remaining_lines=None):
+    def TranslateBatches(self, scene : SubtitleScene, prompt : str, context : dict, remaining_lines=None):
         """
         Pass each batch of subtitles to ChatGPT for translation, building up context.
         """
-        options = self.options
+        options : Options = self.options
         project = self.project
 
         context = context or {}
@@ -229,7 +233,7 @@ class SubtitleTranslator:
 
             self.AddBatchToContext(context, batch)
 
-    def AddBatchToContext(self, context, batch):
+    def AddBatchToContext(self, context, batch : SubtitleBatch):
         """
         Update context from previous batch
         """
@@ -245,11 +249,11 @@ class SubtitleTranslator:
                     if max_summaries:
                         summaries = summaries[-max_summaries:]
 
-    def ProcessTranslation(self, scene, batch, context, client):
+    def ProcessTranslation(self, scene : SubtitleScene, batch : SubtitleBatch, context : dict, client : ChatGPTClient):
         """
         Attempt to extract translation from the API response
         """
-        options = self.options
+        options : Options = self.options
         project = self.project
         substitutions = options.get('substitutions')
 

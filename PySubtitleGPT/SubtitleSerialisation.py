@@ -46,7 +46,7 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleScene):
             return {
-                "number": getattr(obj, 'number'),
+                "scene": getattr(obj, 'number'),
                 "batchcount": obj.size,
                 "linecount": obj.linecount,
                 "all_translated": obj.all_translated,
@@ -58,7 +58,7 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleBatch):
             return {
-                "number": getattr(obj, 'number'),
+                "batch": getattr(obj, 'number'),
                 "size": obj.size,
                 "all_translated": obj.all_translated,
                 "errors": obj.errors if obj.errors else None,
@@ -110,11 +110,7 @@ class SubtitleDecoder(json.JSONDecoder):
                 obj.scenes = dct.get('scenes', [])
                 return obj
             elif class_name == classname(SubtitleScene):
-                obj = SubtitleScene()
-                obj.number = dct.get('number')
-                obj.context = dct.get('context') or {}
-                obj._batches = dct.get('batches') or []
-                obj._summary = dct.get('summary')
+                obj = SubtitleScene(dct)
                 return obj
             elif class_name == classname(SubtitleBatch):
                 return SubtitleBatch(dct)

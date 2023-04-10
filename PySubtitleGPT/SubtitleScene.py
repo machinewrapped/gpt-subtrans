@@ -3,10 +3,15 @@ from os import linesep
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 
 class SubtitleScene:
-    def __init__(self):
-        self.number = None
-        self.context = {}
-        self._batches = []
+    number = None
+    context = {}
+    _batches = []
+
+    def __init__(self, dict = None):
+        dict = dict or {}
+        self.number = dict.get('scene') or dict.get('number')
+        self.context = dict.get('context', {})
+        self._batches = dict.get('batches', [])
 
     @property
     def batches(self):

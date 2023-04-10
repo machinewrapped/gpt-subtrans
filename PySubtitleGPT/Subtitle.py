@@ -5,8 +5,12 @@ from PySubtitleGPT.Helpers import FixTime
 
 class Subtitle:
     """
-    Represents a single subtitle line, with an index and start and end times plus original text and translated text.
+    Represents a single subtitle line, with an index and start and end times plus original text 
+    and (optionally) an associated translation.
     """
+    _item : SubRipItem = None
+    _translation : SubRipItem = None
+
     def __init__(self, line, translation=None):
         self.item = line
         self.translation = translation

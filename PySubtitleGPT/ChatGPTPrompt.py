@@ -1,13 +1,16 @@
 import logging
 from os import linesep
+from PySubtitleGPT import ChatGPTTranslation
 
 from PySubtitleGPT.Helpers import GenerateTag, GenerateTagLines, GenerateBatchPrompt
 
 class ChatGPTPrompt:
+    instructions = None
+    user_prompt = None
+    messages = []
+
     def __init__(self, instructions):
         self.instructions = instructions
-        self.user_prompt = None
-        self.messages = []
         
     def GenerateMessages(self, prompt, lines, context):
         if self.instructions:
@@ -40,7 +43,7 @@ class ChatGPTPrompt:
 
         self.messages.append({'role': "user", 'content': self.user_prompt})
 
-    def GenerateRetryPrompt(self, translation, retry_instructions, errors):
+    def GenerateRetryPrompt(self, translation : ChatGPTTranslation, retry_instructions, errors):
         """
         Request retranslation of lines that were not translated originally
         """
