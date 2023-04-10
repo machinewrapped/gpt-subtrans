@@ -1,6 +1,5 @@
 python-dotenv
 debugpy
-events
 pysrt
 openai
 pyside6
