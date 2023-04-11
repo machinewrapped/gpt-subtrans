@@ -11,3 +11,4 @@ __pycache__
 /envsubtrans
 /*.subtrans-backup
 /*.code-workspace
+.DS_Store
