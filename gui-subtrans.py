@@ -50,7 +50,7 @@ def LoadStylesheet(file_path):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    stylesheet = LoadStylesheet("GUI\subtrans.qss")
+    stylesheet = LoadStylesheet(os.path.join(os.getcwd(), "GUI", "subtrans.qss"))
     app.setStyleSheet(stylesheet)
 
     arguments, filepath = parse_arguments()
