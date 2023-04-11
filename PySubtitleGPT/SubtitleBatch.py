@@ -35,7 +35,7 @@ class SubtitleBatch:
 
     @translated.setter
     def translated(self, value):
-        self._translated = [ Subtitle(line) for line in value ]
+        self._translated = [ Subtitle(line) for line in value ] if value else None
 
     def AddLine(self, line):
         self._subtitles.append(Subtitle(line))
