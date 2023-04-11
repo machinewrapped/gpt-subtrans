@@ -225,3 +225,4 @@ def PerformSubstitutions(substitutions, input):
         result = re.sub(pattern, after, result)
         
     return result
+

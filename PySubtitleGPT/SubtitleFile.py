@@ -2,12 +2,11 @@ import os
 import logging
 import pysrt
 from pysrt import SubRipFile
-from PySubtitleGPT import SubtitleScene
 from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.SubtitleError import TranslationError
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
@@ -16,10 +15,10 @@ fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
 class SubtitleFile:
     def __init__(self, filename = None):
         self.filename = filename
-        self.subtitles = None
-        self.translations = None
+        self.subtitles : list[Subtitle] = None
+        self.translated : list[Subtitle] = None
         self.context = {}
-        self._scenes = []
+        self._scenes : list[SubtitleScene] = []
 
     @property
     def has_subtitles(self):
@@ -40,9 +39,23 @@ class SubtitleFile:
     @scenes.setter
     def scenes(self, scenes):
         self._scenes = scenes
-        self.subtitles, self.translations, _ = UnbatchScenes(scenes)
+        self.subtitles, self.translated, _ = UnbatchScenes(scenes)
+        self.Renumber()
 
-    def LoadSubtitles(self, filename):
+    def GetScene(self, scene_number : int):
+        if not self.scenes:
+            raise ValueError("Subtitles have not been batched")
+        
+        matches = [scene for scene in self.scenes if scene.number == scene_number ]
+        if not matches:
+            raise ValueError(f"Scene {scene_number} does not exist")
+        
+        if len(matches) > 1:
+            raise TranslationError(f"There is more than one scene {scene_number}!")
+        
+        return matches[0]
+
+    def LoadSubtitles(self, filename : str):
         """
         Load subtitles from an SRT file
         """
@@ -59,7 +72,7 @@ class SubtitleFile:
         self.subtitles = [ Subtitle(item) for item in srt ]
         
     # Write original subtitles to an SRT file
-    def SaveSubtitles(self, filename = None):
+    def SaveSubtitles(self, filename : str = None):
         self.filename = filename or self.filename 
         if not self.filename:
             raise ValueError("No filename set")
@@ -67,7 +80,7 @@ class SubtitleFile:
         srtfile = SubRipFile(items=self.subtitles)
         srtfile.save(filename)
 
-    def SaveTranslation(self, filename = None):
+    def SaveTranslation(self, filename : str = None):
         """
         Write translated subtitles to an SRT file
         """
@@ -75,13 +88,13 @@ class SubtitleFile:
         if not filename:
             raise ValueError("No filename set")
         
-        if not self.translations:
+        if not self.translated:
             logging.error("No subtitles translated")
             return
 
         logging.info(f"Saving translation to {str(filename)}")
 
-        srtfile = SubRipFile(items=self.translations)
+        srtfile = SubRipFile(items=self.translated)
         srtfile.save(filename)
 
     def UpdateContext(self, options):
@@ -90,9 +103,8 @@ class SubtitleFile:
         and set any unspecified options from the project context.
         """
         if hasattr(options, 'options'):
-            self.UpdateContext(options.options)
-            return
-        
+            return self.UpdateContext(options.options)
+    
         context = {
             'gpt_model': "",
             'gpt_prompt': "",
@@ -106,10 +118,10 @@ class SubtitleFile:
         if self.context:
             context = {**context, **self.context}
 
-        if isinstance(context['characters'], str):
+        if isinstance(context.get('characters'), str):
             context['characters'] = ParseCharacters(context['characters'])
 
-        if isinstance(context['substitutions'], str):
+        if isinstance(context.get('substitutions'), str):
             context['substitutions'] = ParseSubstitutions(context['substitutions'])
 
         # Update the context dictionary with matching fields from options, and vice versa
@@ -119,40 +131,8 @@ class SubtitleFile:
             if context[key]:
                 options[key] = context[key]
 
-        self.context = context
 
-    def Translate(self, options, project):
-        """
-        Translate subtitles using the provided options
-        """
-        self.UpdateContext(options)
-
-        translator = SubtitleTranslator(options, project)
-
-        self.scenes = translator.TranslateSubtitles(self.subtitles, self.context)
-
-    def TranslateBatch(self, batch_number, options):
-        """
-        Translate a batch of subtitles using the provided options
-        """
-        if not self.scenes:
-            raise TranslationError("Subtitles have not been batched")
-
-        scene, batch = self.FindBatch(batch_number)
-        if not scene:
-            raise TranslationError(f"Cannot find scene with batch {batch_number} to translate it")
-
-        # TODO: Really need to build context from the entire scene
-        context = batch.context
-        context['scene_number'] = scene.number
-
-        # TODO: eliminate the dependency on SubtitleProject by using events/observer
-        translator = SubtitleTranslator(options, self.project)
-
-        batches = [ batch ]
-        translator.TranslateBatches(scene, batches, context)
-
-    def AutoBatch(self, options, project):
+    def AutoBatch(self, options):
         """
         Divide subtitles into scenes and batches based on threshold options
         """
@@ -160,18 +140,24 @@ class SubtitleFile:
 
         self.scenes = batcher.BatchSubtitles(self.subtitles)
 
-        if project:
-            project.UpdateProjectFile(self.scenes)
-
     def AddScene(self, scene):
         self.scenes.append(scene)
 
         logging.debug("Added a new scene")
 
-    def FindBatch(self, batch_number):
-        for scene in self.scenes:
-            for batch in scene.batches:
-                if batch.number == batch_number:
-                    return scene, batch
-                
-        return None, None
+    def Renumber(self):
+        """
+        Force monotonic numbering of scenes, batches, subtitles and translated subtitles
+        """
+        for scene_index, scene in enumerate(self.scenes):
+            scene.number = scene_index + 1
+            for batch_index, batch in enumerate(scene.batches):
+                batch.number = batch_index + 1
+                batch.scene = scene.number
+
+        for subtitle_index, subtitle in enumerate(self.subtitles):
+            subtitle.index = subtitle_index + 1
+
+        for translated_index, translated in enumerate(self.translated):
+            translated.index = translated_index + 1
+            #TODO: fix the index of any subtitles associated with us

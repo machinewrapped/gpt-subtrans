@@ -1,4 +1,4 @@
-from PySubtitleGPT import ChatGPTPrompt
+from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitleGPT.Helpers import ParseTranslation, PerformSubstitutions
 
 class ChatGPTTranslation:

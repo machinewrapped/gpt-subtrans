@@ -34,7 +34,7 @@ parser.add_argument('--maxlines', type=int, default=None, help="Maximum number o
 args = parser.parse_args()
 
 try:
-    options = Options({
+    source = Options({
         'api_key': args.apikey,
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,
@@ -53,7 +53,7 @@ try:
     })
 
     # Process the project options
-    project = SubtitleProject(options)
+    project = SubtitleProject(source)
 
     project.Initialise(args.input, args.output)
 

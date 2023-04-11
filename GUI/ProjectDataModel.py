@@ -23,18 +23,18 @@ class ProjectDataModel:
 
     def CreateViewModel(self):
         viewmodel = ProjectViewModel()
-        viewmodel.CreateFromDataModel(self.model)
+        viewmodel.CreateFromModel(self.model)
         self.viewmodel = viewmodel
         return viewmodel
 
-    def CreateDataModel(self, data):
+    def CreateModel(self, data):
         #TODO This layer of the model is probably redundant, mapping directly from PySubtitleGPT to the view model might make more sense
         if isinstance(data, SubtitleFile):
             model = {
                 'scenes': []
             }
             for scene in data.scenes:
-                model['scenes'].append(self.CreateDataModel(scene))
+                model['scenes'].append(self.CreateModel(scene))
 
             self.model = model
 
@@ -50,7 +50,7 @@ class ProjectDataModel:
             }
             
             for batch in data.batches:
-                model['batches'].append(self.CreateDataModel(batch))
+                model['batches'].append(self.CreateModel(batch))
 
             if model['batches']:
                 batches = model['batches']
@@ -70,10 +70,10 @@ class ProjectDataModel:
             }
 
             for subtitle in data.subtitles:
-                model['subtitles'].append(self.CreateDataModel(subtitle))
+                model['subtitles'].append(self.CreateModel(subtitle))
 
             for subtitle in data.translated:
-                model['translated'].append(self.CreateDataModel(subtitle))
+                model['translated'].append(self.CreateModel(subtitle))
 
             if model['subtitles']:
                 subtitles = model['subtitles']

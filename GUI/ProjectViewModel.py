@@ -19,64 +19,64 @@ class ProjectViewModel(QStandardItemModel):
     def getRootItem(self):
         return self.root_item
 
-    def CreateFromDataModel(self, data_model):
-        if data_model and 'scenes' in data_model:
-            for scene_data in data_model['scenes']:
-                scene_item = self.CreateSceneItem(scene_data, scene_data['scene'])
+    def CreateFromModel(self, model):
+        if model and 'scenes' in model:
+            for scene_model in model['scenes']:
+                scene_item = self.CreateSceneItem(scene_model, scene_model['scene'])
                 self.root_item.appendRow(scene_item)
 
-    def CreateSceneItem(self, scene_data, number):
-        scene_item = SceneItem(number, scene_data)
+    def CreateSceneItem(self, scene_model, number):
+        scene_item = SceneItem(number, scene_model)
         scene_item.setText(f"Scene {number}")
 
-        for batch_data in scene_data['batches']:
-            batch_item = self.CreateBatchItem(batch_data, batch_data['batch'])
+        for batch_model in scene_model['batches']:
+            batch_item = self.CreateBatchItem(batch_model, batch_model['batch'])
             scene_item.appendRow(batch_item)
 
         return scene_item
 
-    def CreateBatchItem(self, batch_data, number):
-        batch_item = BatchItem(number, batch_data)
+    def CreateBatchItem(self, batch_model, number):
+        batch_item = BatchItem(number, batch_model)
         batch_item.setText(f"Batch {number}")
 
-        for subtitle_data in batch_data['subtitles']:
-            subtitle_item = self.CreateSubtitleItem(subtitle_data, subtitle_data['index'])
+        for subtitle_model in batch_model['subtitles']:
+            subtitle_item = self.CreateSubtitleItem(subtitle_model, subtitle_model['index'])
             batch_item.appendRow(subtitle_item)
 
         return batch_item
 
-    def CreateSubtitleItem(self, subtitle_data, index):
-        subtitle_item = SubtitleItem(index, subtitle_data)
+    def CreateSubtitleItem(self, subtitle_model, index):
+        subtitle_item = SubtitleItem(index, subtitle_model)
         subtitle_item.setText(f"Subtitle {index}")
 
         return subtitle_item
 
 class SceneItem(ViewModelItem):
-    def __init__(self, number, scene_data):
+    def __init__(self, number, scene_model):
         super(SceneItem, self).__init__()
         self.number = number
-        self.scene_data = scene_data
+        self.scene_model = scene_model
         self.setText(f"Scene {number}")
 
     @property
     def start(self):
-        return self.scene_data['start']
+        return self.scene_model['start']
 
     @property
     def end(self):
-        return self.scene_data['end']
+        return self.scene_model['end']
 
     @property
     def duration(self):
-        return self.scene_data['duration']
+        return self.scene_model['duration']
 
     @property
     def subtitle_count(self):
-        return self.scene_data['subtitle_count']
+        return self.scene_model['subtitle_count']
 
     @property
     def batch_count(self):
-        return self.scene_data['batch_count']
+        return self.scene_model['batch_count']
 
     def GetContent(self):
         return {
@@ -91,26 +91,26 @@ class SceneItem(ViewModelItem):
 
 
 class BatchItem(ViewModelItem):
-    def __init__(self, number, batch_data):
+    def __init__(self, number, batch_model):
         super(BatchItem, self).__init__(f"Batch {number}")
         self.number = number
-        self.batch_data = batch_data
+        self.batch_model = batch_model
 
     @property
     def start(self):
-        return self.batch_data['start']
+        return self.batch_model['start']
 
     @property
     def end(self):
-        return self.batch_data['end']
+        return self.batch_model['end']
 
     @property
     def subtitles(self):
-        return self.batch_data['subtitles']
+        return self.batch_model['subtitles']
 
     @property
     def translated(self):
-        return self.batch_data['translated']
+        return self.batch_model['translated']
 
     @property
     def subtitle_count(self):
@@ -118,11 +118,11 @@ class BatchItem(ViewModelItem):
     
     @property
     def context(self):
-        return self.batch_data.get('context')
+        return self.batch_model.get('context')
     
     @property
     def summary(self):
-        return self.batch_data.get('summary')
+        return self.batch_model.get('summary')
 
     def GetContent(self):
         metadata = [ 
@@ -141,27 +141,27 @@ class BatchItem(ViewModelItem):
         return f"{content['heading']}\n{content['subheading']}\n{content['body']}"
 
 class SubtitleItem(QStandardItem):
-    def __init__(self, index, subtitle_data):
+    def __init__(self, index, subtitle_model):
         super(SubtitleItem, self).__init__(f"Subtitle {index}")
         self.index = index
-        self.subtitle_data = subtitle_data
+        self.subtitle_model = subtitle_model
 
     def __str__(self) -> str:
         return f"{self.index}: {self.start} --> {self.end} | {Linearise(self.text)}"
 
     @property
     def start(self):
-        return self.subtitle_data['start']
+        return self.subtitle_model['start']
 
     @property
     def end(self):
-        return self.subtitle_data['end']
+        return self.subtitle_model['end']
 
     @property
     def text(self):
-        return self.subtitle_data['text']
+        return self.subtitle_model['text']
     
     @property
     def translated_index(self):
-        return self.subtitle_data.get('translated.index')
+        return self.subtitle_model.get('translated.index')
         

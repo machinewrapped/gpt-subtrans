@@ -2,15 +2,16 @@ from PySubtitleGPT.Helpers import PerformSubstitutions
 from PySubtitleGPT.Subtitle import Subtitle
 
 class SubtitleBatch:
-    def __init__(self, dict = None):
-        dict = dict or {}
-        self.number = dict.get('batch') or dict.get('number')
-        self.summary = dict.get('summary')
-        self.context = dict.get('context', {})
-        self.translation = dict.get('translation')
-        self.errors = dict.get('errors', [])
-        self._subtitles = dict.get('subtitles', [])
-        self._translated = dict.get('translated', [])
+    def __init__(self, dct = None):
+        dct = dct or {}
+        self.scene = dct.get('scene', None)
+        self.number = dct.get('batch') or dct.get('number')
+        self.summary = dct.get('summary')
+        self.context = dct.get('context', {})
+        self.translation = dct.get('translation')
+        self.errors = dct.get('errors', [])
+        self._subtitles = dct.get('subtitles', [])
+        self._translated = dct.get('translated', [])
 
     @property
     def subtitles(self):

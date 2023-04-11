@@ -58,6 +58,7 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleBatch):
             return {
+                "scene": getattr(obj, 'scene'),
                 "batch": getattr(obj, 'number'),
                 "size": obj.size,
                 "all_translated": obj.all_translated,

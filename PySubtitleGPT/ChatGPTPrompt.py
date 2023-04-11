@@ -1,8 +1,7 @@
 import logging
-from os import linesep
-from PySubtitleGPT import ChatGPTTranslation
 
 from PySubtitleGPT.Helpers import GenerateTag, GenerateTagLines, GenerateBatchPrompt
+from PySubtitleGPT.SubtitleError import TranslationError
 
 class ChatGPTPrompt:
     def __init__(self, instructions):
@@ -41,7 +40,7 @@ class ChatGPTPrompt:
 
         self.messages.append({'role': "user", 'content': self.user_prompt})
 
-    def GenerateRetryPrompt(self, translation : ChatGPTTranslation, retry_instructions, errors):
+    def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[TranslationError]):
         """
         Request retranslation of lines that were not translated originally
         """
@@ -55,7 +54,7 @@ class ChatGPTPrompt:
             retry_prompt = 'Please try again'
 
         self.messages.extend([
-            { 'role': "assistant", 'content': translation.text },
+            { 'role': "assistant", 'content': reponse },
             { 'role': "system", 'content': retry_instructions },
             { 'role': "user", 'content': retry_prompt }
         ])

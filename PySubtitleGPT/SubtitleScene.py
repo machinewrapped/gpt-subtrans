@@ -3,11 +3,11 @@ from os import linesep
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 
 class SubtitleScene:
-    def __init__(self, dict = None):
-        dict = dict or {}
-        self.number = dict.get('scene') or dict.get('number')
-        self.context = dict.get('context', {})
-        self._batches = dict.get('batches', [])
+    def __init__(self, dct = None):
+        dct = dct or {}
+        self.number = dct.get('scene') or dct.get('number')
+        self.context = dct.get('context', {})
+        self._batches = dct.get('batches', [])
 
     @property
     def batches(self):
@@ -33,7 +33,11 @@ class SubtitleScene:
         self._batches.append(batch)
 
     def AddNewBatch(self):
-        self._batches.append(SubtitleBatch())
+        batch = SubtitleBatch({
+            'scene': self.number,
+            'number': len(self.batches) + 1
+        })
+        self._batches.append(batch)
         return self._batches[-1]
 
     def AddContext(self, key, value):

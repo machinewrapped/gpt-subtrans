@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         if self.command_queue:
             self.command_queue.Stop()
 
-        if self.project:
+        if self.project and self.project.subtitles:
             self.project.UpdateProjectFile()
 
         super().closeEvent(e)

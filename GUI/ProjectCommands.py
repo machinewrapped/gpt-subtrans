@@ -1,26 +1,30 @@
 import logging
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitleGPT import SubtitleProject
+from PySubtitleGPT.SubtitleProject import SubtitleProject
 from PySubtitleGPT.SubtitleError import TranslationError
 
 class BatchSubtitlesCommand(Command):
-    def __init__(self, project):
+    def __init__(self, project : SubtitleProject):
         super().__init__()
-        self.project = project
+        self.project : SubtitleProject = project
 
     def execute(self):
         logging.info("Executing BatchSubtitlesCommand")
 
-        project = self.project
+        project : SubtitleProject = self.project
         datamodel = self.datamodel or ProjectDataModel(project)
 
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
         try:
-            project.subtitles.AutoBatch(datamodel.options, project)
-            datamodel.CreateDataModel(project.subtitles)
+            project.subtitles.AutoBatch(datamodel.options)
+
+            project.UpdateProjectFile()
+
+            datamodel.CreateModel(project.subtitles)
+
             self.datamodel = datamodel
             return True
         
@@ -31,20 +35,20 @@ class BatchSubtitlesCommand(Command):
         # Do we flatten, or do we cache the previous batches?
         pass    
 
-class TranslateBatchCommand(Command):
-    def __init__(self, batch_number, datamodel=None):
+class TranslateSceneCommand(Command):
+    def __init__(self, scene_number, datamodel=None):
         super().__init__(datamodel)
-        self.batch_number = batch_number
+        self.scene_number = scene_number
 
     def execute(self):
-        logging.info(f"Translating batch number {self.batch_number}")
+        logging.info(f"Translating scene number {self.scene_number}")
         if not self.datamodel.project:
-            raise TranslationError("Unable to translate batch because project is not set on datamodel")
+            raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
-        project = self.datamodel.project
-        project.TranslateBatch(self.batch_number)
+        project : SubtitleProject = self.datamodel.project
+        project.TranslateScene(self.scene_number)
 
         #TODO: incremental updates to the data/view model
-        self.datamodel.CreateDataModel(project.subtitles)
+        self.datamodel.CreateModel(project.subtitles)
 
         return True

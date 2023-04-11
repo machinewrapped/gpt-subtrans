@@ -1,10 +1,12 @@
 import json
 import os
 import logging
+from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 
 from PySubtitleGPT.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
+from PySubtitleGPT.TranslationEvents import TranslationEvents
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
@@ -12,6 +14,7 @@ class SubtitleProject:
     def __init__(self, options : Options):
         self.options = options.GetNonProjectSpecificOptions() if options else Options()
         self.subtitles : SubtitleFile = None
+        self.events = TranslationEvents()
         
         project_mode = options.get('project', '')
         if project_mode:
@@ -21,17 +24,14 @@ class SubtitleProject:
         self.write_project = project_mode in ["true", "write", "preview", "resume", "retranslate", "reparse"]
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
-        self.preview = project_mode in ["preview"]
-        self.resume = project_mode in ["resume", "true"]
-        self.reparse = project_mode in ["reparse"]
-        self.retranslate = project_mode in ["retranslate"]
-        self.stop_on_error = options.get('stop_on_error', False)
-        self.write_backup_file = options.get('write_backup_file', False)
 
+        options.add('read_project', self.read_project)
         options.add('write_project', self.write_project)
-        options.add('write_backup_file', self.write_backup_file)
-        options.add('preview', self.preview)
-        options.add('resume', self.resume)
+
+        options.add('preview', project_mode in ["preview"])
+        options.add('resume', project_mode in ["resume"])   #, "true"
+        options.add('reparse', project_mode in ["reparse"])
+        options.add('retranslate', project_mode in ["retranslate"])
 
     def Initialise(self, filename, outfilename = None):
         """
@@ -42,13 +42,16 @@ class SubtitleProject:
         """ 
         self.projectfile = self.GetProjectFilename(filename or "subtitles")
 
+        options : Options = self.options
+
         if self.read_project:
             # Try to load the project file
             subtitles = self.ReadProjectFile()
 
             if subtitles and subtitles.scenes:
-                logging.info("Project file loaded, saving backup copy" if self.write_backup_file else "Project file loaded")
-                if self.write_backup_file:
+                write_backup = options.get('write_backup_file', False)
+                logging.info("Project file loaded, saving backup copy" if write_backup else "Project file loaded")
+                if write_backup:
                     self.WriteBackupFile()
             else:
                 logging.warning(f"Unable to read project file, starting afresh")
@@ -76,18 +79,23 @@ class SubtitleProject:
             self.WriteProjectFile()
 
         try:
-            self.subtitles.Translate(self.options, self)
+            translator : SubtitleTranslator = SubtitleTranslator(self.subtitles, self.options)
+
+            translator.events.preprocessed += self._on_preprocessed
+            translator.events.batch_translated += self._on_batch_translated
+
+            translator.TranslateSubtitles()
 
             self.subtitles.SaveTranslation()
 
         except Exception as e:
-            if self.subtitles and self.stop_on_error:
+            if self.subtitles and self.options.get('stop_on_error'):
                 self.subtitles.SaveTranslation()
 
             logging.error(f"Failed to translate subtitles")
             raise
 
-    def TranslateBatch(self, batch_number):
+    def TranslateScene(self, scene_number, batch_numbers = None):
         """
         Pass a batch of subtitles to the translation engine.
         """
@@ -95,12 +103,19 @@ class SubtitleProject:
             raise Exception("No subtitles to translate")
 
         try:
-            self.subtitles.TranslateBatch(batch_number, self.options)
+            translator : SubtitleTranslator = SubtitleTranslator(self.subtitles, self.options)
+
+            translator.events.preprocessed += self._on_preprocessed
+            translator.events.batch_translated += self._on_batch_translated
+
+            scene = self.subtitles.GetScene(scene_number)
+
+            translator.TranslateScene(scene, batch_numbers=batch_numbers)
 
             self.subtitles.SaveTranslation()
 
         except Exception as e:
-            if self.subtitles and self.stop_on_error:
+            if self.subtitles and self.options.get('stop_on_error'):
                 self.subtitles.SaveTranslation()
 
             logging.error(f"Failed to translate subtitles")
@@ -175,20 +190,14 @@ class SubtitleProject:
             logging.error(f"Error decoding JSON file: {e}")
             return None
 
-    def UpdateProjectFile(self, scenes = None):
+    def UpdateProjectFile(self):
         """
         Write current state of scenes to the project file
         """
-        scenes = scenes or self.subtitles.scenes
-
-        if not scenes:
-            return
-        
         if self.update_project:
             if not self.subtitles:
                 raise Exception("Unable to update project file, no subtitles")
             
-            self.subtitles.scenes = scenes
             self.WriteProjectFile()
 
     def UpdateProjectOptions(self, options: dict):
@@ -210,3 +219,17 @@ class SubtitleProject:
             self.subtitles.UpdateContext(self.options)
 
         self.UpdateProjectFile()
+
+
+    def _on_preprocessed(self, scenes):
+        self.UpdateProjectFile()
+        self.events.preprocessed(scenes)
+
+    def _on_batch_translated(self, batch):
+        self.UpdateProjectFile()
+        self.events.batch_translated(batch)
+
+    def _on_scene_translated(self, scene):
+        self.UpdateProjectFile()
+        self.subtitles.SaveTranslation()
+        self.events.scene_translated(scene)

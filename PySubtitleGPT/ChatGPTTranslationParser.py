@@ -1,7 +1,7 @@
 import logging
 import re
-from PySubtitleGPT import Options
 
+from PySubtitleGPT.Options import Options
 from PySubtitleGPT.Helpers import MergeTranslations
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation

@@ -1,19 +1,24 @@
 import logging
 import openai
 from os import linesep
-from PySubtitleGPT import Options, SubtitleBatch, SubtitleScene
-
-from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.ChatGPTClient import ChatGPTClient
+from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitleGPT.ChatGPTTranslationParser import ChatGPTTranslationParser
+from PySubtitleGPT.Options import Options
+from PySubtitleGPT.SubtitleBatch import SubtitleBatch
+from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
+
 from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, UntranslatedLinesError
 from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, UnbatchScenes
-from PySubtitleGPT.ChatGPTTranslationParser import ChatGPTTranslationParser
+from PySubtitleGPT.SubtitleFile import SubtitleFile
+from PySubtitleGPT.SubtitleScene import SubtitleScene
+from PySubtitleGPT.TranslationEvents import TranslationEvents
 
 class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
-    def __init__(self, options : Options, project):
+    def __init__(self, subtitles : SubtitleFile, options : Options):
         """
         Initialise a SubtitleTranslator with translation options
         """
@@ -25,53 +30,52 @@ class SubtitleTranslator:
         if not openai.api_key:
             raise ValueError('API key must be set in .env or provided as an argument')
         
-        logging.info(f"Using API Key: {openai.api_key}")
+        logging.debug(f"Using API Key: {openai.api_key}")
 
-        self.options = options
-        self.project = project
-        self.scenes = project.subtitles.scenes if project else None
-
-    def TranslateSubtitles(self, subtitles, context=None):
-        """
-        Translate a SubtitleFile using the translation options
-        """
         self.subtitles = subtitles
+        self.options = options
+        self.events = TranslationEvents()
 
-        # Do the translation
-        self.Translate(context)
+        # Update subtitle context from options and make our own copy of it
+        subtitles.UpdateContext(options)
+        self.context = subtitles.context.copy()
 
-        return self.scenes
-
-    def Translate(self, context):
+    def TranslateSubtitles(self):
         """
-        Perform the translation
+        Translate a SubtitleFile
         """
         options : Options = self.options
-        project = self.project
+        subtitles : SubtitleFile = self.subtitles 
 
-        if context:
-            context_values = [f"{key}: {Linearise(value)}" for key, value in context.items()]
-            logging.info(f"Translation context:\n{linesep.join(context_values)}")
+        if not subtitles:
+            raise TranslationError("No subtitles to translate")
+    
+        if not subtitles.scenes:
+            raise TranslationError("Subtitles have not been batched")
+
+        if subtitles.context:
+            context_values = [f"{key}: {Linearise(value)}" for key, value in subtitles.context.items()]
+            logging.debug(f"Translation context:\n{linesep.join(context_values)}")
 
         batcher = SubtitleBatcher(options)
 
-        if self.scenes and project.resume:
+        if subtitles.scenes and options.get('resume'):
             logging.info("Resuming translation")
 
-        if not self.scenes:
-            if project.retranslate or project.resume:
+        if not subtitles.scenes:
+            if options.get('retranslate') or options.get('resume'):
                 logging.warning(f"Previous subtitles not found, starting fresh...")
 
-            self.scenes = batcher.BatchSubtitles(self.subtitles)
+            subtitles.scenes = batcher.BatchSubtitles(self.subtitles)
 
-        if not self.scenes:
+        if not subtitles.scenes:
             raise Exception("No scenes to translate")
         
-        project.UpdateProjectFile(self.scenes)
+        logging.info(f"Translating {len(self.subtitles)} subtitles in {subtitles.scenecount} scenes")
 
-        logging.info(f"Translating {len(self.subtitles)} subtitles in {len(self.scenes)} scenes")
+        self.events.preprocessed(subtitles.scenes)
 
-        if not project.reparse:
+        if not options.get('reparse'):
             prompt = BuildPrompt(options)
             logging.info(f"Translation prompt: {prompt}")
 
@@ -79,16 +83,15 @@ class SubtitleTranslator:
         remaining_lines = max_lines
 
         # Iterate over each subtitle scene and request translation
-        for scene_index, scene in enumerate(self.scenes):
-            scene.number = scene_index + 1
+        for scene in subtitles.scenes:
+            if options.get('resume') and scene.all_translated:
+                    logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
+                    continue
 
-            if project.resume and scene.batches and scene.all_translated:
-                logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
-                continue
+            logging.debug(f"Translating scene {scene.number} of {subtitles.scenecount}")
+            batch_numbers = [ batch.number for batch in scene.batches if not batch.translated ] if options.get('resume') else None
 
-            logging.debug(f"Translating scene {scene.number} of {len(self.scenes)}")
-
-            self.TranslateScene(scene, context, remaining_lines)
+            self.TranslateScene(scene, batch_numbers=batch_numbers, remaining_lines=remaining_lines)
 
             if remaining_lines:
                 remaining_lines = max(0, remaining_lines - scene.linecount)
@@ -97,7 +100,7 @@ class SubtitleTranslator:
                     break
 
         # Linearise the translated scenes
-        subtitles, translations, untranslated = UnbatchScenes(self.scenes)
+        originals, translations, untranslated = UnbatchScenes(subtitles.scenes)
 
         if translations and not max_lines:
             logging.info(f"Successfully translated {len(translations)} subtitles!")
@@ -107,63 +110,63 @@ class SubtitleTranslator:
             for subtitle in untranslated:
                 logging.info(f"Untranslated > {subtitle.index}. {subtitle.text}")
 
-        self.subtitles = subtitles
-        self.translations = translations
+        subtitles.subtitles = originals
+        subtitles.translated = translations
 
-    def TranslateScene(self, scene : SubtitleScene, context=None, remaining_lines=None):
+    def TranslateScene(self, scene : SubtitleScene, batch_numbers = None, remaining_lines=None):
         """
         Present a scene to ChatGPT for translation
         """
-        project = self.project
-
-        scene.context = context.copy() if context else {}
-        scene.AddContext('summary', "New scene")
+        options : Options = self.options
+        
+        if not scene.context:
+            scene.context = self.context.copy()
+        else:
+            scene.context = {**scene.context, **self.context}
 
         try:
-            self.TranslateBatches(scene, scene.batches, scene.context, remaining_lines)
+            if batch_numbers:
+                batches = [ batch for batch in scene.batches if batch.number in batch_numbers ]
+            else:
+                batches = scene.batches
+
+            self.TranslateBatches(scene, batches, remaining_lines)
+
+            # Notify observers the scene was translated
+            self.events.scene_translated(scene)
 
         except Exception as e:
-            if project.write_project:
-                project.UpdateProjectFile(self.scenes)
-
-            if project.stop_on_error:
+            if options.get('stop_on_error'):
                 raise
             else:
-                logging.warning(f"Failed to translate all scenes ({str(e)})... finishing")
+                logging.warning(f"Failed to translate scene {scene.number} ({str(e)})... finishing")
 
-    # Present each batch of subtitles for translation
-    def TranslateBatches(self, scene, batches, context : dict, remaining_lines=None):
+    def TranslateBatches(self, scene : SubtitleScene, batches : list[SubtitleBatch], remaining_lines=None):
         """
         Pass batches of subtitles from a scene to ChatGPT for translation, building up context.
         """
         options : Options = self.options
-        project = self.project
 
-        prompt = options.get('prompt')
+        #TODO: need to be able to build batch context on demand
+        context = scene.context.copy()
+        summaries = context.get('summaries', [])
 
-        context = context or {}
         substitutions = context.get('substitutions')
-
-        context['summaries'] = []
 
         # Initialise the ChatGPT client
         client = ChatGPTClient(options, context.get('instructions'))
 
+        prompt = options.get('prompt')
+
         for batch in batches:
-            if project.resume and batch.all_translated:
+            if options.get('resume') and batch.all_translated:
                 logging.info(f"Scene {scene.number} batch {batch.number} already translated {batch.size} lines...")
-                self.AddBatchToContext(context, batch)
+                summaries = self.AddBatchToContext(context, batch, summaries)
                 continue
 
-            # If it's a retranslation, restore the context
-            if project.retranslate or project.reparse:
+            if batch.context and (options.get('retranslate') or options.get('reparse')):
+                # If it's a retranslation, restore context from the batch
                 context = {**context, **batch.context}
-            else:
-                batch.SetContext({
-                    'synopsis' : context.get('synopsis'),
-                    'characters' : context.get('characters'),
-                    'summary' : context.get('summary')
-                    })
 
             # Apply any substitutions to the input
             replacements = batch.PerformInputSubstitutions(substitutions)
@@ -176,7 +179,7 @@ class SubtitleTranslator:
                 subtitles = subtitles[:remaining_lines]
 
             try:
-                if  project.reparse and batch.translation:
+                if  options.get('reparse') and batch.translation:
                     logging.info(f"Reparsing scene {scene.number} batch {batch.number} with {len(subtitles)} lines...")
                     translation = batch.translation
                 else:
@@ -186,12 +189,12 @@ class SubtitleTranslator:
                         replaced = [f"{Linearise(k)} -> {Linearise(v)}" for k,v in replacements.items()]
                         logging.info(f"Made substitutions in input:\n{linesep.join(replaced)}")
 
-                    if project.preview:
-                        project.UpdateProjectFile(self.scenes)
+                    if options.get('preview'):
+                        self.events.batch_translated(batch)
                         continue
 
                     # Ask OpenAI to do the translation
-                    translation = client.RequestTranslation(prompt, subtitles, context)
+                    translation : ChatGPTTranslation = client.RequestTranslation(prompt, subtitles, context)
 
                     if translation.reached_token_limit:
                         # Try again without the context to keep the tokens down
@@ -212,7 +215,7 @@ class SubtitleTranslator:
 
 
             except TranslationError as e:
-                if project.stop_on_error:
+                if options.get('stop_on_error'):
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
                 else:
                     logging.warning(f"Error translating subtitle batch: {str(e)}")
@@ -222,19 +225,18 @@ class SubtitleTranslator:
                 if not remaining_lines:
                     break
 
-            # Write WIP translations
-            project.UpdateProjectFile(self.scenes)
+            summaries = self.AddBatchToContext(context, batch, summaries)
 
-            self.AddBatchToContext(context, batch)
+            # Notify observers the batch was translated
+            self.events.batch_translated(batch)
 
-    def AddBatchToContext(self, context, batch : SubtitleBatch):
+    def AddBatchToContext(self, context, batch : SubtitleBatch, summaries : list = None):
         """
         Update context from previous batch
         """
         context['previous_batch'] = batch
 
-        if batch.summary:
-            summaries = context.get('summaries')
+        if summaries and batch.summary:
             if summaries is not None:
                 if not summaries or batch.summary != summaries[-1]:
                     summaries.append(batch.summary)
@@ -243,15 +245,16 @@ class SubtitleTranslator:
                     if max_summaries:
                         summaries = summaries[-max_summaries:]
 
+        return summaries
+
     def ProcessTranslation(self, scene : SubtitleScene, batch : SubtitleBatch, context : dict, client : ChatGPTClient):
         """
         Attempt to extract translation from the API response
         """
         options : Options = self.options
-        project = self.project
         substitutions = options.get('substitutions')
 
-        translation = batch.translation
+        translation : ChatGPTTranslation = batch.translation
 
         if not translation.has_translation:
             raise ValueError("Translation contains no translated text")
@@ -304,9 +307,11 @@ class SubtitleTranslator:
             translation.PerformSubstitutions(substitutions)
 
             # Update the context, unless it's a retranslation pass
-            if not project.retranslate:
+            if not options.get('retranslate'):
                 batch.summary = translation.summary or batch.summary
-                self.UpdateContext(translation, batch, context)
+                context['summary'] = batch.summary or context['summary']
+                context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
+                #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
 
             logging.info(f"Scene {scene.number} batch {batch.number}: {len(batch.translated)} subtitles and {len(batch.untranslated)} untranslated.")
 
@@ -314,7 +319,7 @@ class SubtitleTranslator:
                 logging.info(f"Summary: {batch.summary}")
 
         except TranslationError as te:
-            if project.stop_on_error:
+            if options.get('stop_on_error'):
                 raise
             else:
                 logging.warning(f"Error translating subtitle batch: {str(e)}")
@@ -349,11 +354,4 @@ class SubtitleTranslator:
 
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.get('text')}\n")
-
-
-    def UpdateContext(self, translation, batch, context):
-        options = self.options
-        context['summary'] = batch.summary or context['summary']
-        context['synopsis'] = options.get('synopsis') or translation.synopsis or context.get('synopsis', "")
-        #context['characters'] = options.get('characters') or translation.characters or context.get('characters', [])
 
