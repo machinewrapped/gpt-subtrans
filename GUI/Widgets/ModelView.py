@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
-from GUI.ProjectCommands import TranslateSceneCommand
+
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectToolbar import ProjectToolbar
 
@@ -10,7 +10,7 @@ from GUI.Widgets.ProjectOptions import ProjectOptions
 
 class ModelView(QWidget):
     optionsChanged = Signal(dict)
-    commandIssued = Signal(object)
+    requestAction = Signal(str, object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -89,10 +89,7 @@ class ModelView(QWidget):
         self.ShowSubtitles(selection.subtitles, selection.translated)
 
     def _on_translate_selection(self):
-        selection = self.scenesView.GetSelection()
-        for scene in selection.scenes:
-            command = TranslateSceneCommand(scene.number)
-            self.commandIssued.emit(command)
-        
-        #TODO: selected batches that aren't in selected scenes
-        #TODO: selected subtitles that aren't in selected batches
+        # Request a 'Translate Selection' action with the selection as a parameter
+        selection : ProjectSelection = self.scenesView.GetSelection()
+        self.requestAction.emit('Translate Selection', (selection,))
+

@@ -1,6 +1,7 @@
 import logging
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ProjectSelection import ProjectSelection
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 from PySubtitleGPT.SubtitleError import TranslationError
 
@@ -36,9 +37,10 @@ class BatchSubtitlesCommand(Command):
         pass    
 
 class TranslateSceneCommand(Command):
-    def __init__(self, scene_number, datamodel=None):
+    def __init__(self, scene_number : int, batch_numbers : list[int] = None, datamodel : ProjectDataModel = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
+        self.batch_numbers = batch_numbers
 
     def execute(self):
         logging.info(f"Translating scene number {self.scene_number}")
@@ -46,9 +48,10 @@ class TranslateSceneCommand(Command):
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
         project : SubtitleProject = self.datamodel.project
-        project.TranslateScene(self.scene_number)
+        project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
 
         #TODO: incremental updates to the data/view model
         self.datamodel.CreateModel(project.subtitles)
 
         return True
+

@@ -3,6 +3,8 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QStyle
 
 from GUI.FileCommands import *
+from GUI.ProjectCommands import TranslateSceneCommand
+from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
 class ProjectActions(QObject):
@@ -17,9 +19,11 @@ class ProjectActions(QObject):
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
         self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton)
         self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView)
-        self.AddAction('Translate Selection', self._translate_selection)
 
-    def AddAction(self, name, function, icon=None):
+        #TODO: Mixing different concepts of "action" here, is there a better separation?
+        ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
+
+    def AddAction(self, name, function : callable, icon=None):
         action = QAction(name)
         action.triggered.connect(function)
 
@@ -32,12 +36,12 @@ class ProjectActions(QObject):
 
         self._actions[name] = action
 
-    def GetAction(self, name : str):
+    def GetAction(self, name : str) -> QAction:
         return self._actions[name]
 
-    def GetActionList(self, names : list):
+    def GetActionList(self, names : list) -> list[QAction]:
         return [ self.GetAction(name) for name in names ]
-
+    
     def _issue_command(self, command : Command):
         self.issueCommand.emit(command)
 
@@ -68,5 +72,20 @@ class ProjectActions(QObject):
         model_viewer: ModelView = self._mainwindow.model_viewer
         model_viewer.ToggleProjectOptions()
 
-    def _translate_selection(self):
-        logging.info("So, you'd like to translate the selection, eh?")
+    def _translate_selection(self, datamodel, selection : ProjectSelection):
+        logging.info(f"Translate selection of {str(selection)}")
+
+        scenes = {}
+        for scene in selection.scenes:
+            scenes[scene.number] = {}
+
+        for batch in selection.batches:
+            scenes[batch.scene] = scenes.get(batch.scene) or {}
+            scenes[batch.scene][batch.number] = []
+
+        #TODO individual lines
+
+        for number, scene in scenes.items():
+            batch_numbers = scene.keys()
+            command = TranslateSceneCommand(number, batch_numbers, datamodel)
+            self._issue_command(command)

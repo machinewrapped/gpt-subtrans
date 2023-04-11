@@ -44,6 +44,7 @@ class ScenesView(QTreeView):
         selected_indexes = self.selectionModel().selectedIndexes()
         for index in selected_indexes:
             self._append_selection(selection, model, index)
+
         return selection
 
     def SelectAll(self):

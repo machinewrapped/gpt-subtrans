@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
 
         self.model_viewer = ModelView(splitter)
         self.model_viewer.optionsChanged.connect(self._on_options_changed)
-        self.model_viewer.commandIssued.connect(self._on_command_issued)
+        self.model_viewer.requestAction.connect(self._on_action_requested)
         splitter.addWidget(self.model_viewer)
 
         # Create the log window widget and add it to the splitter
@@ -90,6 +90,12 @@ class MainWindow(QMainWindow):
             self.project.UpdateProjectFile()
 
         super().closeEvent(e)
+
+    def _on_action_requested(self, action_name, params):
+        if not self.datamodel:
+            raise Exception(f"Cannot perform {action_name} without a data model")
+        
+        self.datamodel.PerformModelAction(action_name, params)
 
     def _on_command_issued(self, command : Command):
         if not isinstance(command, Command):

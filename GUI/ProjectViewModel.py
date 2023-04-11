@@ -30,6 +30,7 @@ class ProjectViewModel(QStandardItemModel):
         scene_item.setText(f"Scene {number}")
 
         for batch_model in scene_model['batches']:
+            batch_model['scene'] = number
             batch_item = self.CreateBatchItem(batch_model, batch_model['batch'])
             scene_item.appendRow(batch_item)
 
@@ -95,6 +96,10 @@ class BatchItem(ViewModelItem):
         super(BatchItem, self).__init__(f"Batch {number}")
         self.number = number
         self.batch_model = batch_model
+
+    @property
+    def scene(self) -> int:
+        return self.batch_model['scene']
 
     @property
     def start(self):

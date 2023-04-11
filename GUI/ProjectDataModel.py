@@ -7,6 +7,8 @@ from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.Subtitle import Subtitle
 
 class ProjectDataModel:
+    _action_handlers = {}
+
     def __init__(self, project = None):
         self.project = project
         self.model = {}
@@ -20,6 +22,20 @@ class ProjectDataModel:
                 self.options = project.options
             else:
               self.options.update(project.options)
+
+    @classmethod
+    def RegisterActionHandler(cls, action_name : str, handler : callable):
+        handlers = cls._action_handlers.get(action_name) or []
+        handlers.append(handler)
+        cls._action_handlers[action_name] = handlers
+
+    def PerformModelAction(self, action_name : str, params):
+        handlers = self._action_handlers.get(action_name)
+        if handlers:
+            for handler in handlers:
+                handler(self, *params)
+        else:
+            raise ValueError(f"No handler defined for action {action_name}")
 
     def CreateViewModel(self):
         viewmodel = ProjectViewModel()
