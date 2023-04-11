@@ -1,7 +1,8 @@
-from PySide6.QtGui import QColor, QTextCharFormat, QTextCursor
-from PySide6.QtWidgets import QTextEdit
-
 import logging
+
+from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor
+from PySide6.QtWidgets import QTextEdit
+from PySide6.QtCore import Signal, Qt
 
 class LogWindow(QTextEdit):
     level_colors = {
@@ -10,6 +11,8 @@ class LogWindow(QTextEdit):
         "WARNING": QColor(255, 255, 0),  # Yellow
         "ERROR": QColor(255, 0, 0)       # Red
     }
+
+    scrollToBottom = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -21,10 +24,16 @@ class LogWindow(QTextEdit):
         root_logger = logging.getLogger()
         root_logger.addHandler(self.qt_log_handler)
 
+        self.scrollToBottom.connect(self._scroll_to_bottom)
+
     def SetLoggingLevel(self, level):
         self.qt_log_handler.setLevel(level)
 
     def AppendLogMessage(self, message, level):
+        current_scroll = self.verticalScrollBar().value()
+        maximum_scroll = self.verticalScrollBar().maximum()
+        scroll_to_bottom = current_scroll == maximum_scroll
+
         text_cursor = self.textCursor()
         text_cursor.movePosition(QTextCursor.End)
 
@@ -32,6 +41,15 @@ class LogWindow(QTextEdit):
         text_format.setForeground(self.level_colors.get(level, QColor(0, 0, 0)))
 
         text_cursor.insertText(f"{message}\n", text_format)
+
+        # Scroll to the bottom if it was at the bottom before adding the new message
+        if scroll_to_bottom:
+            self.scrollToBottom.emit()
+
+    def _scroll_to_bottom(self):
+        current_scroll = self.verticalScrollBar().value()
+        maximum_scroll = self.verticalScrollBar().maximum()
+        self.verticalScrollBar().setValue(maximum_scroll)
 
 class QtLogHandler(logging.Handler):
     log_window: LogWindow
