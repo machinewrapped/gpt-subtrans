@@ -32,12 +32,14 @@ class CommandQueue(QObject):
         """
         Add a command to the command queue, with optional callbacks for completion/undo events
         """
-        if command:
-            self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
-            with QMutexLocker(self.mutex):
-                self._queue_command(command, datamodel, callback, undo_callback)
+        if not isinstance(command, Command):
+            raise ValueError(f"Issued a command that is not a Command ({type(command).__name__})")
 
-            self.commandAdded.emit(command)
+        self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
+        with QMutexLocker(self.mutex):
+            self._queue_command(command, datamodel, callback, undo_callback)
+
+        self.commandAdded.emit(command)
 
     def _on_command_executed(self, command: Command, success: bool):
         """
