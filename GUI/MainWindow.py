@@ -97,12 +97,6 @@ class MainWindow(QMainWindow):
         
         self.datamodel.PerformModelAction(action_name, params)
 
-    def _on_command_issued(self, command : Command):
-        if not isinstance(command, Command):
-            raise ValueError(f"Issued a command that is not a Command ({type(command).__name__})")
-        
-        self.QueueCommand(command)
-
     def _on_command_complete(self, command : Command, success):
         if success:
             self.statusBar().showMessage(f"{type(command).__name__} was successful.")
