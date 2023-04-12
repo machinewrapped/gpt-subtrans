@@ -130,7 +130,7 @@ class SubtitleTranslator:
             else:
                 batches = scene.batches
 
-            self.TranslateBatches(scene, batches, remaining_lines)
+            self.TranslateBatches(batches, scene.context.copy(), remaining_lines)
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
@@ -141,14 +141,13 @@ class SubtitleTranslator:
             else:
                 logging.warning(f"Failed to translate scene {scene.number} ({str(e)})... finishing")
 
-    def TranslateBatches(self, scene : SubtitleScene, batches : list[SubtitleBatch], remaining_lines=None):
+    def TranslateBatches(self, batches : list[SubtitleBatch], context : dict, remaining_lines=None):
         """
-        Pass batches of subtitles from a scene to ChatGPT for translation, building up context.
+        Pass batches of subtitles ChatGPT for translation, building up context.
         """
         options : Options = self.options
 
         #TODO: need to be able to build batch context on demand
-        context = scene.context.copy()
         summaries = context.get('summaries', [])
 
         substitutions = context.get('substitutions')
@@ -160,7 +159,7 @@ class SubtitleTranslator:
 
         for batch in batches:
             if options.get('resume') and batch.all_translated:
-                logging.info(f"Scene {scene.number} batch {batch.number} already translated {batch.size} lines...")
+                logging.info(f"Scene {batch.scene} batch {batch.number} already translated {batch.size} lines...")
                 summaries = self.AddBatchToContext(context, batch, summaries)
                 continue
 
@@ -180,10 +179,10 @@ class SubtitleTranslator:
 
             try:
                 if  options.get('reparse') and batch.translation:
-                    logging.info(f"Reparsing scene {scene.number} batch {batch.number} with {len(subtitles)} lines...")
+                    logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(subtitles)} lines...")
                     translation = batch.translation
                 else:
-                    logging.debug(f"Translating scene {scene.number} batch {batch.number} with {len(subtitles)} lines...")
+                    logging.debug(f"Translating scene {batch.scene} batch {batch.number} with {len(subtitles)} lines...")
 
                     if replacements:
                         replaced = [f"{Linearise(k)} -> {Linearise(v)}" for k,v in replacements.items()]
@@ -208,10 +207,10 @@ class SubtitleTranslator:
                     batch.translation = translation
 
                     # Process the response
-                    self.ProcessTranslation(scene, batch, context, client)
+                    self.ProcessTranslation(batch, context, client)
 
                 else:
-                    logging.warning(f"No translation for scene {scene.number} batch {batch.number}")
+                    logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
 
 
             except TranslationError as e:
@@ -247,7 +246,7 @@ class SubtitleTranslator:
 
         return summaries
 
-    def ProcessTranslation(self, scene : SubtitleScene, batch : SubtitleBatch, context : dict, client : ChatGPTClient):
+    def ProcessTranslation(self, batch : SubtitleBatch, context : dict, client : ChatGPTClient):
         """
         Attempt to extract translation from the API response
         """
@@ -259,7 +258,7 @@ class SubtitleTranslator:
         if not translation.has_translation:
             raise ValueError("Translation contains no translated text")
         
-        logging.debug(f"Scene {scene.number} batch {batch.number} translation:\n{translation.text}\n")
+        logging.debug(f"Scene {batch.scene} batch {batch.number} translation:\n{translation.text}\n")
 
         try:
             # Apply the translation to the subtitles
@@ -290,7 +289,7 @@ class SubtitleTranslator:
 
             # Consider retrying if there were errors
             if batch.errors and options.get('allow_retranslations'):
-                logging.warn(f"Scene {scene.number} batch {batch.number} failed validation, requesting retranslation")
+                logging.warn(f"Scene {batch.scene} batch {batch.number} failed validation, requesting retranslation")
                 self.RequestRetranslations(client, batch, translation)
 
             if batch.untranslated:
@@ -313,7 +312,7 @@ class SubtitleTranslator:
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
                 #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
 
-            logging.info(f"Scene {scene.number} batch {batch.number}: {len(batch.translated)} subtitles and {len(batch.untranslated)} untranslated.")
+            logging.info(f"Scene {batch.scene} batch {batch.number}: {len(batch.translated)} subtitles and {len(batch.untranslated)} untranslated.")
 
             if batch.summary and batch.summary.strip():
                 logging.info(f"Summary: {batch.summary}")
@@ -331,6 +330,8 @@ class SubtitleTranslator:
         """
         retranslation = client.RequestRetranslation(translation, batch.errors)
 
+        logging.debug(f"Scene {batch.scene} batch {batch.number} retranslation:\n{retranslation.get('text')}\n")
+
         parser = ChatGPTTranslationParser(self.options)
 
         retranslated = parser.ProcessChatGPTResponse(retranslation)
@@ -339,7 +340,7 @@ class SubtitleTranslator:
             logging.error("Retranslation request did not produce a useful result")
             return
         
-        batch.AddContext('retranslated_lines', [f"{item.index}. {item.translation}" for item in retranslated])
+        batch.AddContext('retranslated_lines', [f"{item.key}. {item.text}" for item in retranslated])
         logging.info(f"Retranslated {len(retranslated)} of {len(retranslated) + len(batch.untranslated)} lines")
 
         try:
