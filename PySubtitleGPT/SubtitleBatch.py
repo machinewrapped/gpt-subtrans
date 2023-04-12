@@ -13,6 +13,12 @@ class SubtitleBatch:
         self._subtitles = dct.get('subtitles', [])
         self._translated = dct.get('translated', [])
 
+    def __str__(self) -> str:
+        return f"Scene {str(self.scene)} batch {str(self.number)}"
+
+    def __repr__(self) -> str:
+        return str(self)
+
     @property
     def subtitles(self):
         return self._subtitles
@@ -32,6 +38,10 @@ class SubtitleBatch:
     @property
     def all_translated(self):
         return all(sub.translation for sub in self.subtitles)
+
+    @subtitles.setter
+    def subtitles(self, value):
+        self._subtitles = [ Subtitle(line) for line in value ] if value else None
 
     @translated.setter
     def translated(self, value):

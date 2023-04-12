@@ -4,6 +4,7 @@ import pysrt
 from pysrt import SubRipFile
 from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
+from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.Subtitle import Subtitle
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.SubtitleError import TranslationError
@@ -145,19 +146,63 @@ class SubtitleFile:
 
         logging.debug("Added a new scene")
 
+    def MergeScenes(self, scene_numbers: list[int]):
+        """
+        Merge several (sequential) scenes into one scene 
+        """
+        if not scene_numbers:
+            raise ValueError("No scene numbers supplied to MergeScenes")
+
+        scene_numbers = sorted(scene_numbers)
+        if scene_numbers != list(range(scene_numbers[0], scene_numbers[0] + len(scene_numbers))):
+            raise ValueError("Scene numbers to be merged are not sequential")
+
+        scenes = [scene for scene in self.scenes if scene.number in scene_numbers]
+        if len(scenes) != len(scene_numbers):
+            raise ValueError(f"Could not find scenes {','.join(scene_numbers)}")
+
+        # Merge all scenes into the first
+        scenes[0].MergeScenes(scenes[1:])
+
+        # Slice out the merged scenes
+        start_index = self.scenes.index(scenes[0])
+        end_index = self.scenes.index(scenes[-1])
+        self.scenes = self.scenes[:start_index + 1] + self.scenes[end_index+1:]
+
+        for number, scene in enumerate(self.scenes, start = 1):
+            scene.number = number
+
+    def MergeBatches(self, scene_number : int, batch_numbers: list[int]):
+        """
+        Merge several (sequential) batches from a scene into one batch 
+        """
+        if not batch_numbers:
+            raise ValueError("No batch numbers supplied to MergeBatches")
+
+        scene : SubtitleScene = next((scene for scene in self.scenes if scene.number == scene_number), None)
+        if not scene:
+            raise ValueError(f"Scene {str(scene_number)} not found")
+
+        scene.MergeBatches(batch_numbers)
+
     def Renumber(self):
         """
         Force monotonic numbering of scenes, batches, subtitles and translated subtitles
         """
-        for scene_index, scene in enumerate(self.scenes):
-            scene.number = scene_index + 1
-            for batch_index, batch in enumerate(scene.batches):
-                batch.number = batch_index + 1
+        for scene_number, scene in enumerate(self.scenes, start=1):
+            scene.number = scene_number
+            for batch_number, batch in enumerate(scene.batches, start=1):
+                batch.number = batch_number
                 batch.scene = scene.number
 
-        for subtitle_index, subtitle in enumerate(self.subtitles):
-            subtitle.index = subtitle_index + 1
+        # Renumber subtitles sequentially and remap translated indexes
+        translated_map = { translated.index: translated for translated in self.translated }
 
-        for translated_index, translated in enumerate(self.translated):
-            translated.index = translated_index + 1
-            #TODO: fix the index of any subtitles associated with us
+        for index, subtitle in enumerate(self.subtitles, start=1):
+            if subtitle.index in translated_map:
+                translated = translated_map[subtitle.index]
+                translated.index = index
+                del translated_map[subtitle.index]
+
+            subtitle.index = index
+

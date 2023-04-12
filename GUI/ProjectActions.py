@@ -3,7 +3,7 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QStyle
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import TranslateSceneCommand
+from GUI.ProjectCommands import MergeSelectionCommand, TranslateSceneCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -22,6 +22,7 @@ class ProjectActions(QObject):
 
         #TODO: Mixing different concepts of "action" here, is there a better separation?
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
+        ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
 
     def AddAction(self, name, function : callable, icon=None):
         action = QAction(name)
@@ -73,19 +74,23 @@ class ProjectActions(QObject):
         model_viewer.ToggleProjectOptions()
 
     def _translate_selection(self, datamodel, selection : ProjectSelection):
+        if not selection.Any():
+            logging.error("Nothing selected to translate")
+            return
+
         logging.info(f"Translate selection of {str(selection)}")
 
-        scenes = {}
-        for scene in selection.scenes:
-            scenes[scene.number] = {}
+        selection_map = selection.GetSelection()
 
-        for batch in selection.batches:
-            scenes[batch.scene] = scenes.get(batch.scene) or {}
-            scenes[batch.scene][batch.number] = []
-
-        #TODO individual lines
-
-        for number, scene in scenes.items():
+        for number, scene in selection_map.items():
             batch_numbers = scene.keys()
             command = TranslateSceneCommand(number, batch_numbers, datamodel)
             self._issue_command(command)
+
+    def _merge_selection(self, datamodel, selection : ProjectSelection):
+        if not selection.Any():
+            logging.error("Nothing selected to merge")
+            return
+
+        command = MergeSelectionCommand(selection, datamodel)
+        self._issue_command(command)

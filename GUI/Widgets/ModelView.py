@@ -109,3 +109,6 @@ class ModelView(QWidget):
         selection : ProjectSelection = self.GetSelection()
         self.requestAction.emit('Translate Selection', (selection,))
 
+    def _on_merge_selection(self):
+        selection : ProjectSelection = self.GetSelection()
+        self.requestAction.emit('Merge Selection', (selection,))

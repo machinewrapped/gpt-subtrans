@@ -8,6 +8,7 @@ from GUI.Widgets.SubtitleView import SubtitleView
 
 class ContentView(QWidget):
     onTranslateSelection = Signal()
+    onMergeSelection = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -22,6 +23,7 @@ class ContentView(QWidget):
 
         self.selection_view = SelectionView()
         self.selection_view.onTranslateSelection.connect(self.onTranslateSelection)
+        self.selection_view.onMergeSelection.connect(self.onMergeSelection)
 
         # connect the selection handlers
         self.subtitle_view.subtitlesSelected.connect(self._subtitles_selected)

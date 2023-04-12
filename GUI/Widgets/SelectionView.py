@@ -5,6 +5,7 @@ from GUI.ProjectSelection import ProjectSelection
 
 class SelectionView(QFrame):
     onTranslateSelection = Signal()
+    onMergeSelection = Signal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -15,10 +16,14 @@ class SelectionView(QFrame):
         self._translate_button = QPushButton("Translate Selection", self)
         self._translate_button.clicked.connect(self.onTranslateSelection)
 
+        self._merge_button = QPushButton("Merge Selection", self)
+        self._merge_button.clicked.connect(self.onMergeSelection)
+
         self.ShowSelection(ProjectSelection())
 
         layout = QHBoxLayout(self)
         layout.addWidget(self._label)
+        layout.addWidget(self._merge_button)
         layout.addWidget(self._translate_button)
 
         self.setLayout(layout)

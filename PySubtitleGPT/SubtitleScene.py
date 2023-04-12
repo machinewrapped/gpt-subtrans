@@ -28,6 +28,10 @@ class SubtitleScene:
     @property
     def summary(self):
         return self.GetContext('summary')
+    
+    @summary.setter
+    def summary(self, value):
+        self.AddContext('summary', value)
 
     def AddBatch(self, batch):
         self._batches.append(batch)
@@ -47,3 +51,43 @@ class SubtitleScene:
 
     def GetContext(self, key):
         return self.context.get(key) if self.context else None
+    
+    def MergeScenes(self, merged_scenes):
+        """
+        Merge another scene into this scene
+        """
+        scenes = [ self ] + merged_scenes
+        self.summary = "\n".join(scene.summary for scene in scenes if scene.summary)
+        self._batches = [ batch for scene in scenes for batch in scene.batches ]
+
+        self._renumber_batches() 
+
+    def MergeBatches(self, batch_numbers : list[int]):
+        """
+        Merge several batches in the scene together
+        """
+        batch_numbers = sorted(batch_numbers)
+        if batch_numbers != list(range(batch_numbers[0], batch_numbers[0] + len(batch_numbers))):
+            raise ValueError("Batch numbers to be merged are not sequential")
+
+        batches = [ batch for batch in self.batches if batch.number in batch_numbers]
+        if len(batches) != len(batch_numbers):
+            raise ValueError(f"Could not find batches {','.join(batch_numbers)} in scene {self.number}")
+        
+        merged_batch = SubtitleBatch()
+        merged_batch.number = batches[0].number
+        merged_batch.summary = "\n".join(batch.summary for batch in batches)
+        merged_batch.subtitles = [ line for batch in batches for line in batch.subtitles ]
+        merged_batch.translated = [ line for batch in batches for line in batch.translated ]
+
+        start_index = self._batches.index(batches[0])
+        end_index = self._batches.index(batches[-1])
+
+        self._batches = self._batches[:start_index] + [merged_batch] + self._batches[end_index+1:]
+
+        self._renumber_batches() 
+
+    def _renumber_batches(self):
+        for number, batch in enumerate(self._batches, start = 1):
+            batch.number = number
+
