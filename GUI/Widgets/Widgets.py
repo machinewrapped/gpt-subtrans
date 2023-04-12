@@ -1,4 +1,5 @@
 from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget,
     QFrame,
@@ -43,6 +44,7 @@ class WidgetBody(QLabel):
         # self.setReadOnly(True)
         # self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.setText(text)
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setWordWrap(True)
 
 class SubtitleItemView(QWidget):
@@ -64,6 +66,7 @@ class SubtitleBody(QLabel):
     def __init__(self, subtitle: SubtitleItem, parent=None):
         super(SubtitleBody, self).__init__(parent)
         self.setText(subtitle.text)
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setWordWrap(True)
 
 class OptionsGrid(QGridLayout):
