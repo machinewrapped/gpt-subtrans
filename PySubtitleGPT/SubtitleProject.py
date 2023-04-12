@@ -222,14 +222,17 @@ class SubtitleProject:
 
 
     def _on_preprocessed(self, scenes):
+        logging.debug("Pre-processing finished")
         self.UpdateProjectFile()
         self.events.preprocessed(scenes)
 
     def _on_batch_translated(self, batch):
+        logging.debug("Batch translated")
         self.UpdateProjectFile()
         self.events.batch_translated(batch)
 
     def _on_scene_translated(self, scene):
+        logging.debug("Scene translated")
         self.UpdateProjectFile()
         self.subtitles.SaveTranslation()
         self.events.scene_translated(scene)
