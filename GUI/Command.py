@@ -1,10 +1,16 @@
-from PySide6.QtCore import QRunnable, Slot
+import logging
+import debugpy
+
+from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
 
-class Command(QRunnable):
+class Command(QRunnable, QObject):
+    commandExecuted = Signal(object, bool)
 
     def __init__(self, datamodel : ProjectDataModel = None):
+        QRunnable.__init__(self)
+        QObject.__init__(self)
         self.datamodel = datamodel
         self.executed : bool = False
         self.callback = None
@@ -22,7 +28,17 @@ class Command(QRunnable):
 
     @Slot()
     def run(self):
-        self.execute()
+        debugpy.debug_this_thread()
+
+        try:
+            success = self.execute()
+
+            self.commandExecuted.emit(self, success)
+
+        except Exception as e:
+            logging.error(f"Error executing {type(self).__name__} command ({str(e)})")
+            self.commandExecuted.emit(self, False)
+
 
     def execute(self):
         raise NotImplementedError
