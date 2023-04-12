@@ -53,7 +53,7 @@ class MergeSelectionCommand(Command):
         selection : ProjectSelection = self.selection
         project : SubtitleProject = self.datamodel.project
 
-        selection_map = selection.GetSelection()
+        selection_map = selection.GetSelectionMap()
 
         # First merge selected batches in each scene
         for scene_number, scene_map in selection_map.items():

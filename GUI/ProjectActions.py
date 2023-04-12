@@ -80,11 +80,11 @@ class ProjectActions(QObject):
 
         logging.info(f"Translate selection of {str(selection)}")
 
-        selection_map = selection.GetSelection()
+        selection_map = selection.GetSelectionMap()
 
-        for number, scene in selection_map.items():
-            batch_numbers = scene.keys()
-            command = TranslateSceneCommand(number, batch_numbers, datamodel)
+        for scene_number, scene in selection_map.items():
+            batch_numbers = [ key for key in scene.keys() if isinstance(key, int) ]
+            command = TranslateSceneCommand(scene_number, batch_numbers, datamodel)
             self._issue_command(command)
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):

@@ -47,34 +47,29 @@ class LoadSubtitleFile(Command):
 
 
 class SaveProjectFile(Command):
-    def __init__(self, filename, project):
+    def __init__(self, filename, project : SubtitleProject):
         super().__init__()
         self.filename = filename
         self.project = project
 
     def execute(self):
         self.project.WriteProjectFile(self.filename)
+        self.project.subtitles.SaveTranslation()
 
 class SaveSubtitleFile(Command):
-    def __init__(self, filename, subtitle_data):
+    def __init__(self, filename, project : SubtitleProject):
         super().__init__()
         self.filename = filename
-        self.subtitle_data = subtitle_data
+        self.project = project
 
     def execute(self):
-        with open(self.filename, 'w') as f:
-            json.dump(self.subtitle_data, f)
-            # ... save subtitle data ...
-            pass
+        self.project.subtitles.SaveSubtitles(self.filename)
 
 class SaveTranslationFile(Command):
-    def __init__(self, filename, translation_data):
+    def __init__(self, filename, project : SubtitleProject):
         super().__init__()
         self.filename = filename
-        self.translation_data = translation_data
+        self.project = project
 
     def execute(self):
-        with open(self.filename, 'w') as f:
-            json.dump(self.translation_data, f)
-            # ... save translation data ...
-            pass
+        self.project.subtitles.SaveTranslation(self.filename)

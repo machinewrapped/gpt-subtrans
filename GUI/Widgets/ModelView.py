@@ -24,21 +24,21 @@ class ModelView(QWidget):
         layout.addWidget(self._toolbar)
 
         # Scenes & Batches Panel
-        self.scenesView = ScenesView(self)
+        self.scenes_view = ScenesView(self)
 
         # Main Content Area
-        self.contentView = ContentView(self)
+        self.content_view = ContentView(self)
 
         # Project Options
-        self.projectOptions = ProjectOptions()
-        self.projectOptions.hide()
-        self.projectOptions.optionsChanged.connect(self.optionsChanged)
+        self.project_options = ProjectOptions()
+        self.project_options.hide()
+        self.project_options.optionsChanged.connect(self.optionsChanged)
 
         # Splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.addWidget(self.projectOptions)
-        splitter.addWidget(self.scenesView)
-        splitter.addWidget(self.contentView)
+        splitter.addWidget(self.project_options)
+        splitter.addWidget(self.scenes_view)
+        splitter.addWidget(self.content_view)
         splitter.setStretchFactor(0, 2)
         splitter.setStretchFactor(1, 1)
         splitter.setStretchFactor(2, 3)
@@ -46,64 +46,69 @@ class ModelView(QWidget):
         layout.addWidget(splitter)
         self.setLayout(layout)
 
-        self.scenesView.onSelection.connect(self._items_selected)
-        self.contentView.onTranslateSelection.connect(self._on_translate_selection)
-        self.contentView.onMergeSelection.connect(self._on_merge_selection)
+        self.scenes_view.onSelection.connect(self._items_selected)
+        self.content_view.onTranslateSelection.connect(self._on_translate_selection)
+        self.content_view.onMergeSelection.connect(self._on_merge_selection)
 
     def SetViewModel(self, viewmodel):
-        self.contentView.Clear()
+        self.content_view.Clear()
 
         if viewmodel is None:
-            self.scenesView.Clear()
+            self.scenes_view.Clear()
         else:
-            self.scenesView.Populate(viewmodel)
+            self.scenes_view.Populate(viewmodel)
 
     def SetProjectOptions(self, options):
-        self.projectOptions.Clear()
+        self.project_options.Clear()
         if not options:
-            self.projectOptions.hide()
+            self.project_options.hide()
             self._toolbar.hide()
         else:
-            self.projectOptions.Populate(options)
+            self.project_options.Populate(options)
 
             self._toolbar.show()
             self._toolbar.show_options = not options.get('movie_name', None)
             if self._toolbar.show_options:
-                self.projectOptions.show()
+                self.project_options.show()
 
     def ToggleProjectOptions(self, show = None):
-        if self.projectOptions.isVisible() and not show:
-            self.optionsChanged.emit(self.projectOptions.GetOptions())
-            self.projectOptions.hide()
+        if self.project_options.isVisible() and not show:
+            self.optionsChanged.emit(self.project_options.GetOptions())
+            self.project_options.hide()
         else:
-            self.projectOptions.show()
+            self.project_options.show()
 
     def ShowSubtitles(self, subtitles, translated):
         if subtitles:
-            self.contentView.ShowSubtitles(subtitles)
+            self.content_view.ShowSubtitles(subtitles)
         
         if translated:
-            self.contentView.ShowTranslated(translated)
+            self.content_view.ShowTranslated(translated)
 
     def GetSelection(self) -> ProjectSelection:
         """
         Retrieve the current project selection
         """
         selection = ProjectSelection()
-        model = self.scenesView.model()
+        model = self.scenes_view.model()
 
-        selected_indexes = self.scenesView.selectionModel().selectedIndexes()
+        selected_indexes = self.scenes_view.selectionModel().selectedIndexes()
         for index in selected_indexes:
             selection.AppendItem(model, index)
 
-        #TODO add individual subtitle/translation selection (implying a unified selectionModel?)
+        # selected_subtitles = self.content_view.subtitle_view.selectionModel().selectedIndexes()
+        # for index in selected_subtitles:
+        #     selection.AppendSubtitle(model, index)
+
+        # selected_translations = self.content_view.translation_view.selectionModel().selectedIndexes()
+        # for index in selected_translations:
+        #     selection.AppendTranslation(model, index)
 
         return selection
 
     def _items_selected(self):
         selection : ProjectSelection = self.GetSelection()
-        self.contentView.ShowSelection(selection)
-        self.ShowSubtitles(selection.subtitles, selection.translated)
+        self.content_view.ShowSelection(selection)
 
     def _on_translate_selection(self):
         selection : ProjectSelection = self.GetSelection()
