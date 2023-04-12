@@ -36,6 +36,11 @@ class SubtitleTranslator:
         self.options = options
         self.events = TranslationEvents()
 
+        if not options.get('reparse') or not options.get('prompt'):
+            options.add('prompt', BuildPrompt(options))
+
+        logging.info(f"Translation prompt: {options.get('prompt')}")
+ 
         # Update subtitle context from options and make our own copy of it
         subtitles.UpdateContext(options)
         self.context = subtitles.context.copy()
@@ -74,10 +79,6 @@ class SubtitleTranslator:
         logging.info(f"Translating {len(self.subtitles)} subtitles in {subtitles.scenecount} scenes")
 
         self.events.preprocessed(subtitles.scenes)
-
-        if not options.get('reparse'):
-            prompt = BuildPrompt(options)
-            logging.info(f"Translation prompt: {prompt}")
 
         max_lines = options.get('max_lines')
         remaining_lines = max_lines
