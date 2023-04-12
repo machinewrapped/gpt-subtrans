@@ -88,8 +88,9 @@ class ProjectDataModel:
             for subtitle in data.subtitles:
                 model['subtitles'].append(self.CreateModel(subtitle))
 
-            for subtitle in data.translated:
-                model['translated'].append(self.CreateModel(subtitle))
+            if data.translated:
+                for subtitle in data.translated:
+                    model['translated'].append(self.CreateModel(subtitle))
 
             if model['subtitles']:
                 subtitles = model['subtitles']
