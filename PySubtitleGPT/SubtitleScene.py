@@ -76,7 +76,7 @@ class SubtitleScene:
         
         merged_batch = SubtitleBatch()
         merged_batch.number = batches[0].number
-        merged_batch.summary = "\n".join(batch.summary for batch in batches)
+        merged_batch.summary = "\n".join(batch.summary for batch in batches if batch.summary)
         merged_batch.subtitles = [ line for batch in batches for line in batch.subtitles ]
         merged_batch.translated = [ line for batch in batches for line in batch.translated ]
 
