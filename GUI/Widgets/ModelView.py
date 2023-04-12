@@ -48,6 +48,7 @@ class ModelView(QWidget):
 
         self.scenesView.onSelection.connect(self._items_selected)
         self.contentView.onTranslateSelection.connect(self._on_translate_selection)
+        self.contentView.onMergeSelection.connect(self._on_merge_selection)
 
     def SetViewModel(self, viewmodel):
         self.contentView.Clear()
@@ -84,12 +85,27 @@ class ModelView(QWidget):
         if translated:
             self.contentView.ShowTranslated(translated)
 
-    def _items_selected(self, selection : ProjectSelection):
+    def GetSelection(self) -> ProjectSelection:
+        """
+        Retrieve the current project selection
+        """
+        selection = ProjectSelection()
+        model = self.scenesView.model()
+
+        selected_indexes = self.scenesView.selectionModel().selectedIndexes()
+        for index in selected_indexes:
+            selection.AppendItem(model, index)
+
+        #TODO add individual subtitle/translation selection (implying a unified selectionModel?)
+
+        return selection
+
+    def _items_selected(self):
+        selection : ProjectSelection = self.GetSelection()
         self.contentView.ShowSelection(selection)
         self.ShowSubtitles(selection.subtitles, selection.translated)
 
     def _on_translate_selection(self):
-        # Request a 'Translate Selection' action with the selection as a parameter
-        selection : ProjectSelection = self.scenesView.GetSelection()
+        selection : ProjectSelection = self.GetSelection()
         self.requestAction.emit('Translate Selection', (selection,))
 

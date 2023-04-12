@@ -13,7 +13,7 @@ class SelectionView(QFrame):
         self._label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
         self._translate_button = QPushButton("Translate Selection", self)
-        self._translate_button.clicked.connect(self._translate_selection)
+        self._translate_button.clicked.connect(self.onTranslateSelection)
 
         self.ShowSelection(ProjectSelection())
 
@@ -29,6 +29,3 @@ class SelectionView(QFrame):
             self._translate_button.show()
         else:
             self._translate_button.hide()
-
-    def _translate_selection(self):
-        self.onTranslateSelection.emit()

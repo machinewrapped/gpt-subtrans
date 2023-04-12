@@ -15,16 +15,13 @@ class ContentView(QWidget):
         self.subtitle_view = SubtitleView(self)
         self.translation_view = SubtitleView(self)
 
-        layout = QVBoxLayout()
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self.subtitle_view)
         splitter.addWidget(self.translation_view)
         splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        layout.addWidget(splitter)
 
         self.selection_view = SelectionView()
-        self.selection_view.onTranslateSelection.connect(self._on_translate_selection)
-        layout.addWidget(self.selection_view)
+        self.selection_view.onTranslateSelection.connect(self.onTranslateSelection)
 
         # connect the selection handlers
         self.subtitle_view.subtitlesSelected.connect(self._subtitles_selected)
@@ -34,6 +31,9 @@ class ContentView(QWidget):
         self.subtitle_view.SynchroniseScrollbar(self.translation_view.verticalScrollBar())
         self.translation_view.SynchroniseScrollbar(self.subtitle_view.verticalScrollBar())
 
+        layout = QVBoxLayout()
+        layout.addWidget(splitter)
+        layout.addWidget(self.selection_view)
         self.setLayout(layout)
 
     def ShowSubtitles(self, subtitles):
@@ -64,6 +64,3 @@ class ContentView(QWidget):
         logging.debug(f"Selected translations: {debug_output}")
         translated_indexes = [ item.index for item in translations if item.index ]
         self.subtitle_view.SelectSubtitles(translated_indexes)
-
-    def _on_translate_selection(self):
-        self.onTranslateSelection.emit()

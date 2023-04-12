@@ -1,14 +1,13 @@
 import logging
 from PySide6.QtWidgets import QTreeView, QAbstractItemView
 from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelectionModel, QItemSelection, QItemSelectionRange, Signal
-from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModel import BatchItem, SceneItem
 
 from GUI.Widgets.ScenesBatchesModel import ScenesBatchesModel
 from GUI.Widgets.ScenesBatchesDelegate import ScenesBatchesDelegate
 
 class ScenesView(QTreeView):
-    onSelection = Signal(object)
+    onSelection = Signal()
 
     def __init__(self, parent=None, viewmodel=None):
         super().__init__(parent)
@@ -33,19 +32,6 @@ class ScenesView(QTreeView):
         model = ScenesBatchesModel(self.viewmodel)
         self.setModel(model)
         self.selectionModel().selectionChanged.connect(self._item_selected)
-
-    def GetSelection(self) -> ProjectSelection:
-        """
-        Retrieve the current project selection
-        """
-        model = self.model()
-        selection = ProjectSelection()
-
-        selected_indexes = self.selectionModel().selectedIndexes()
-        for index in selected_indexes:
-            self._append_selection(selection, model, index)
-
-        return selection
 
     def SelectAll(self):
         model = self.model()
@@ -73,15 +59,7 @@ class ScenesView(QTreeView):
                 self._deselect_parent(model, index)
                 # self._deselect_children(model, index, data)
 
-        self._emit_selection()
-
-    def _emit_selection(self):
-        selection = self.GetSelection()
-
-        # debug_output = '\n'.join([str(x) for x in subtitles])
-        # logging.debug(f"Selected lines: {debug_output}")
-
-        self.onSelection.emit(selection)
+        self.onSelection.emit()
 
     def _select_children(self, model, index, data):
         scene_item = data
@@ -104,24 +82,6 @@ class ScenesView(QTreeView):
         selection_model = self.selectionModel()
         selection_flags = QItemSelectionModel.SelectionFlag.Deselect | QItemSelectionModel.SelectionFlag.Rows
         selection_model.select(model.parent(index), selection_flags)
-
-    def _append_selection(self, selection : ProjectSelection, model, index):
-        """
-        Accumulated selected batches, scenes and subtitles
-        """
-        item = model.data(index, role=Qt.ItemDataRole.UserRole)
-        if isinstance(item, SceneItem):
-            selection.scenes.append(item)
-            children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
-            for child in children:
-                self._append_selection(selection, model, child)
-
-        elif isinstance(item, BatchItem):
-            selection.batches.append(item)
-            selection.subtitles.extend(item.subtitles)
-            selection.translated.extend(item.translated)
-        
-        #TODO add individual subtitle/translation selection (implying a unified selectionModel?)
 
     def keyPressEvent(self, event):
         """
