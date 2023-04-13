@@ -132,13 +132,12 @@ class BatchItem(ViewModelItem):
     def GetContent(self):
         metadata = [ 
             "1 subtitle" if self.subtitle_count == 1 else f"{self.subtitle_count} subtitles", 
-            self.summary
         ]
 
         return {
             'heading': f"Batch {self.number}",
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
-            'body': "\n".join([data for data in metadata if data is not None])
+            'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None])
         }
     
     def __str__(self) -> str:
