@@ -39,32 +39,44 @@ class BatchSubtitlesCommand(Command):
         # Do we flatten, or do we cache the previous batches?
         pass    
 
-class MergeSelectionCommand(Command):
+class MergeScenesCommand(Command):
     """
-    Combine multiple scenes or batches into one
+    Combine multiple scenes into one
     """
-    def __init__(self, selection : ProjectSelection, datamodel: ProjectDataModel = None):
+    def __init__(self, scene_numbers : list[int], datamodel: ProjectDataModel = None):
         super().__init__(datamodel)
-        self.selection = selection
+        self.scene_numbers = scene_numbers
 
     def execute(self):
-        logging.info(f"Merging selection: {str(self.selection)}")
+        logging.info(f"Merging scenes {','.join(str(x) for x in self.scene_numbers)}")
 
-        selection : ProjectSelection = self.selection
         project : SubtitleProject = self.datamodel.project
 
-        selection_map = selection.GetSelectionMap()
+        if len(self.scene_numbers) > 1:
+            project.subtitles.MergeScenes(self.scene_numbers)
+
+        #TODO: incremental updates to the data/view model
+        self.datamodel.CreateModel(project.subtitles)
+
+        return True
+
+class MergeBatchesCommand(Command):
+    """
+    Combine multiple batches into one
+    """
+    def __init__(self, scene_number : int, batch_numbers : list[int], datamodel: ProjectDataModel = None):
+        super().__init__(datamodel)
+        self.scene_number = scene_number
+        self.batch_numbers = batch_numbers
+
+    def execute(self):
+        logging.info(f"Merging scene {str(self.scene_number)} batches: {','.join(str(x) for x in self.batch_numbers)}")
+
+        project : SubtitleProject = self.datamodel.project
 
         # First merge selected batches in each scene
-        for scene_number, scene_map in selection_map.items():
-            batch_numbers = [ key for key in scene_map.keys() if isinstance(key, int) ]
-            if len(batch_numbers) > 1:
-                project.subtitles.MergeBatches(scene_number, batch_numbers)
-
-        # Then merge each selected scene
-        scene_numbers = [ number for number, scene in selection_map.items() if scene.get('selected') ]
-        if len(scene_numbers) > 1:
-            project.subtitles.MergeScenes(scene_numbers)
+        if len(self.batch_numbers) > 1:
+            project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
         #TODO: incremental updates to the data/view model
         self.datamodel.CreateModel(project.subtitles)
