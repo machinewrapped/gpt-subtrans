@@ -21,6 +21,8 @@ class ProjectActions(QObject):
         self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Options')
 
         #TODO: Mixing different concepts of "action" here, is there a better separation?
+        # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
+        # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
 
