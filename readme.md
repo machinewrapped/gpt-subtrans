@@ -162,7 +162,13 @@ Push your changes to your forked repository.
 Submit a pull request to the main GPT-Subtrans repository.
 
 ## Acknowledgements
-This project uses the pysrt library (https://github.com/byroot/pysrt).
+This project uses several useful libraries:
+
+- openai, of course (https://platform.openai.com/docs/libraries/python-bindings)
+- pysrt (https://github.com/byroot/pysrt)
+- pyside6 (https://wiki.qt.io/Qt_for_Python)
+- fontawesome (https://github.com/justbuchanan/fontawesome-python)
+- events (https://pypi.org/project/Events/)
 
 ## License
 GPT-Subtrans is licensed under the MIT License.
