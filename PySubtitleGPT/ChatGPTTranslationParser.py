@@ -91,7 +91,9 @@ class ChatGPTTranslationParser:
         if unmatched:
             self.TryFuzzyMatches(unmatched)
 
-        return unmatched
+        self.translated = MergeTranslations(self.translated, self.translations.values())
+
+        return self.translated, unmatched
 
     def TryFuzzyMatches(self, unmatched):
         """

@@ -269,10 +269,10 @@ class SubtitleTranslator:
             batch.errors = []
 
             try:
-                batch.translated = parser.ProcessChatGPTResponse(translation)
+                parser.ProcessChatGPTResponse(translation)
 
                 # Try to match the translations with the original lines
-                unmatched = parser.MatchTranslations(batch.subtitles)
+                batch.translated, unmatched = parser.MatchTranslations(batch.subtitles)
 
                 if unmatched:
                     logging.warning(f"Unable to match {len(unmatched)} subtitles with a source line")
