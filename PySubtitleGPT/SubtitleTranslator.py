@@ -9,7 +9,7 @@ from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 
 from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, UntranslatedLinesError
-from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, UnbatchScenes
+from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.TranslationEvents import TranslationEvents
@@ -43,6 +43,7 @@ class SubtitleTranslator:
  
         # Update subtitle context from options and make our own copy of it
         subtitles.UpdateContext(options)
+        
         self.context = subtitles.context.copy()
 
     def TranslateSubtitles(self):
@@ -150,8 +151,7 @@ class SubtitleTranslator:
 
         #TODO: need to be able to build batch context on demand
         summaries = context.get('summaries', [])
-
-        substitutions = context.get('substitutions')
+        substitutions = ParseSubstitutions(context.get('substitutions', {}))
 
         # Initialise the ChatGPT client
         client = ChatGPTClient(options, context.get('instructions'))

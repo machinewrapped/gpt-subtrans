@@ -165,7 +165,11 @@ def ParseCharacters(character_list):
     if isinstance(character_list, str):
         character_list = re.split("[\n,]", character_list)
 
-    return [ name.strip() for name in character_list ]
+    if isinstance(character_list, list):
+        return [ name.strip() for name in character_list ]
+    
+    return []
+
 
 def ParseSubstitutions(sub_list, separator="::"):
     """
@@ -177,31 +181,36 @@ def ParseSubstitutions(sub_list, separator="::"):
     """
     if not sub_list:
         return {}
+    
+    if isinstance(sub_list, dict):
+        return sub_list
 
     if isinstance(sub_list, str):
         sub_list = re.split("[\n,]", sub_list)
 
-    substitutions = {}
-    for sub in sub_list:
-        if "::" in sub:
-            before, after = sub.split(separator)
-            substitutions[before] = after
-        else:
-            try:
-                with open(sub, "r", encoding="utf-8") as f:
-                    for line in [line.strip() for line in f if line.strip()]:
-                        if "::" in line:
-                            before, after = line.split("::")
-                            substitutions[before] = after
-                        else:
-                            raise ValueError(f"Invalid substitution format in {sub}: {line}")
-            except FileNotFoundError:
-                logging.warning(f"Substitution file not found: {sub}")
-            except ValueError:
-                raise
-    
-    return substitutions
+    if isinstance(sub_list, list):
+        substitutions = {}
+        for sub in sub_list:
+            if "::" in sub:
+                before, after = sub.split(separator)
+                substitutions[before] = after
+            else:
+                try:
+                    with open(sub, "r", encoding="utf-8") as f:
+                        for line in [line.strip() for line in f if line.strip()]:
+                            if "::" in line:
+                                before, after = line.split("::")
+                                substitutions[before] = after
+                            else:
+                                raise ValueError(f"Invalid substitution format in {sub}: {line}")
+                except FileNotFoundError:
+                    logging.warning(f"Substitution file not found: {sub}")
+                except ValueError:
+                    raise
+        
+        return substitutions
 
+    return {}
 
 def PerformSubstitutions(substitutions, input):
     """

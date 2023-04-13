@@ -119,11 +119,11 @@ class SubtitleFile:
         if self.context:
             context = {**context, **self.context}
 
-        if isinstance(context.get('characters'), str):
-            context['characters'] = ParseCharacters(context['characters'])
+        context['characters'] = ParseCharacters(context.get('characters'))
+        options['characters'] = ParseCharacters(options.get('characters'))
 
-        if isinstance(context.get('substitutions'), str):
-            context['substitutions'] = ParseSubstitutions(context['substitutions'])
+        context['substitutions'] = ParseSubstitutions(context.get('substitutions'))
+        options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
 
         # Update the context dictionary with matching fields from options, and vice versa
         for key in context.keys():
