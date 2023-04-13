@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QListView
+from PySide6.QtWidgets import QListView, QAbstractItemView
 from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSignalBlocker
 
 from GUI.ProjectViewModel import SubtitleItem
@@ -13,6 +13,7 @@ class SubtitleView(QListView):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setSelectionMode(QListView.SelectionMode.ExtendedSelection)
         self.setSelectionBehavior(QListView.SelectionBehavior.SelectRows)
 

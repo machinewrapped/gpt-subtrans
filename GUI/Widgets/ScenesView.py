@@ -21,6 +21,9 @@ class ScenesView(QTreeView):
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.verticalScrollBar().setSingleStep(10)
+
         self.setItemDelegate(ScenesBatchesDelegate(self))  
         self.Populate(viewmodel)
 
