@@ -1,6 +1,6 @@
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtGui import QAction, QIcon
-from PySide6.QtWidgets import QFileDialog, QApplication, QStyle
+from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 
 from GUI.FileCommands import *
 from GUI.ProjectCommands import MergeBatchesCommand, MergeScenesCommand, TranslateSceneCommand
@@ -12,19 +12,19 @@ class ProjectActions(QObject):
 
     _actions = {}
 
-    def __init__(self, mainwindow=None):
+    def __init__(self, mainwindow : QMainWindow = None):
         super().__init__()
         self._mainwindow = mainwindow
-        self.AddAction('Quit', self._quit, QStyle.StandardPixmap.SP_DialogCloseButton)
+        self.AddAction('Quit', self._quit, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
-        self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton)
-        self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView)
+        self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project')
+        self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Options')
 
         #TODO: Mixing different concepts of "action" here, is there a better separation?
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
 
-    def AddAction(self, name, function : callable, icon=None):
+    def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
         action = QAction(name)
         action.triggered.connect(function)
 
@@ -35,7 +35,14 @@ class ProjectActions(QObject):
                 icon = QIcon(icon)
             action.setIcon(icon)
 
+        if shortcut:
+            action.setShortcut(shortcut)
+
+        if tooltip:
+            action.setToolTip(f"{tooltip} ({shortcut})" if shortcut else tooltip)
+
         self._actions[name] = action
+
 
     def GetAction(self, name : str) -> QAction:
         return self._actions[name]
@@ -58,15 +65,21 @@ class ProjectActions(QObject):
 
     def _save_project_file(self):
         # TODO: Don't ask the main window for the project
-        if not self._mainwindow.project:
+        project : SubtitleProject = self._mainwindow.project
+        if not project:
             logging.error("Nothing to save!")
             return
 
-        filepath, _ = QFileDialog.getSaveFileName(self._mainwindow, "Save Project File", "", "Subtrans projects (*.subtrans);;All Files (*)")
+        filepath = project.projectfile
+        if not filepath or self._is_shift_pressed():
+            filepath, _ = QFileDialog.getSaveFileName(self._mainwindow, "Save Project File", filepath, "Subtrans projects (*.subtrans);;All Files (*)")
 
         if filepath:
             command = SaveProjectFile(filepath, self._mainwindow.project)
             self._issue_command(command)
+
+    def _is_shift_pressed(self):
+        return QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
 
     def _toggle_project_options(self):
         # TODO: Route GUI actions with signals and events or something

@@ -15,6 +15,7 @@ class SubtitleProject:
         self.options = options.GetNonProjectSpecificOptions() if options else Options()
         self.subtitles : SubtitleFile = None
         self.events = TranslationEvents()
+        self.projectfile = None
         
         project_mode = options.get('project', '')
         if project_mode:
@@ -152,7 +153,7 @@ class SubtitleProject:
 
         projectfile = projectfile or self.projectfile
 
-        logging.debug(f"Writing project data to {str(projectfile)}")
+        logging.info(f"Writing project data to {str(projectfile)}")
 
         with open(projectfile, 'w', encoding=default_encoding) as f:
             project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
