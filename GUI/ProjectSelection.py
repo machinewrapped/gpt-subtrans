@@ -45,7 +45,7 @@ class ProjectSelection():
     def selected_batches(self) -> list[BatchItem]:
         batches = []
         for scene in self.scenes.values():
-            batches.extend([ (batch.scene, batch.number) for batch in scene.batches.values() if batch.selected])
+            batches.extend([ batch for batch in scene.batches.values() if batch.selected])
         return batches
 
     @property
