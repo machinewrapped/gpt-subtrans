@@ -22,7 +22,7 @@ class ScenesView(QTreeView):
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-        self.verticalScrollBar().setSingleStep(10)
+        self.verticalScrollBar().setSingleStep(16)  # Per-pixel scrolling doesn't work unless we set a step
 
         self.setItemDelegate(ScenesBatchesDelegate(self))  
         self.Populate(viewmodel)

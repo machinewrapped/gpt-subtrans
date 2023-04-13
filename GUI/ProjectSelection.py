@@ -4,7 +4,6 @@ from GUI.ProjectViewModel import BatchItem, SceneItem, SubtitleItem
 
 class SelectedScene:
     def __init__(self, scene : SceneItem, selected : bool = True) -> None:
-        self.scene = scene
         self.number = scene.number
         self.selected = selected
         self.batches = {}
@@ -17,7 +16,7 @@ class SelectedScene:
 
 class SelectedBatch:
     def __init__(self, batch : BatchItem, selected : bool = True) -> None:
-        self.batch = batch
+        self.scene = batch.scene
         self.number = batch.number
         self.selected = selected
         self.subtitles = {}
@@ -29,24 +28,24 @@ class ProjectSelection():
 
     @property
     def scene_numbers(self) -> list[int]:
-        return [ key for key in self.scenes.keys() ]
+        return sorted([ key for key in self.scenes.keys() ])
     
     @property
     def selected_scenes(self) -> list[SceneItem]:
-        return [ selection.scene for selection in self.scenes.values() if selection.selected]
+        return [ selection.number for selection in self.scenes.values() if selection.selected]
     
     @property
     def batch_numbers(self) -> list[(int,int)]:
         batches = []
         for scene in self.scenes.values():
             batches.extend([ (scene.number, key) for key in scene.batches.keys() ])
-        return batches
+        return sorted(batches)
 
     @property
     def selected_batches(self) -> list[BatchItem]:
         batches = []
         for scene in self.scenes.values():
-            batches.extend([ batch.batch for batch in scene.batches.values() if batch.selected])
+            batches.extend([ (batch.scene, batch.number) for batch in scene.batches.values() if batch.selected])
         return batches
 
     @property
@@ -98,8 +97,6 @@ class ProjectSelection():
                 return False
         
         return True
-
-
 
     def GetSelectionMap(self):
         selection = {}
