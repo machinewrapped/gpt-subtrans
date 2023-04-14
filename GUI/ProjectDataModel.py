@@ -1,17 +1,14 @@
 import logging
 from GUI.ProjectViewModel import ProjectViewModel
+from PySubtitleGPT.Helpers import UpdateFields
 from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleFile import SubtitleFile
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.Subtitle import Subtitle
+from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 class ProjectDataModel:
     _action_handlers = {}
 
     def __init__(self, project = None):
-        self.project = project
-        self.model = {}
+        self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
         self.options = Options({
             'project': 'resume'
@@ -38,79 +35,40 @@ class ProjectDataModel:
             raise ValueError(f"No handler defined for action {action_name}")
 
     def CreateViewModel(self):
-        viewmodel = ProjectViewModel()
-        viewmodel.CreateFromModel(self.model)
-        self.viewmodel = viewmodel
-        return viewmodel
+        self.viewmodel = ProjectViewModel()
+        self.viewmodel.CreateModel(self.project.subtitles)
+        return self.viewmodel
 
-    def CreateModel(self, data):
-        #TODO This layer of the model is probably redundant, mapping directly from PySubtitleGPT to the view model might make more sense
-        if isinstance(data, SubtitleFile):
-            model = {
-                'scenes': []
-            }
-            for scene in data.scenes:
-                model['scenes'].append(self.CreateModel(scene))
+    def UpdateModel(self, update):
+        """
+        Incrementally update the model and viewmodel
+        """
 
-            self.model = model
+        if not self.model or not self.model['scenes']:
+            raise Exception("Unable to update model - no model")
 
-        elif isinstance(data, SubtitleScene):
-            model = {
-                'scene': data.number,
-                'start': None,
-                'end': None,
-                'duration': None,
-                'subtitle_count': None,
-                'batch_count': None,
-                'batches': []
-            }
-            
-            for batch in data.batches:
-                model['batches'].append(self.CreateModel(batch))
+        for scene_update in update['scenes']:
+            scene = self.model['scenes'].get(scene_update['scene'])
 
-            if model['batches']:
-                batches = model['batches']
-                model['batch_count'] = len(batches)
-                model['subtitle_count'] = sum(batch['subtitle_count'] for batch in batches)
-                model['start'] = batches[0]['start']
-                model['end'] = batches[-1]['end']
+            if not scene:
+                # TODO: add a new scene? Support scene removal? Probably not with this method.
+                logging.error(f"Model update for unknown scene {scene_update['scene']}")
+                continue
 
-        elif isinstance(data, SubtitleBatch):
-            model = {
-                'batch': data.number,
-                'start': None,
-                'end': None,
-                'subtitles': [],
-                'translated': [],
-                'context': None,
-            }
+            UpdateFields(scene, scene_update, ['summary', 'context', 'start', 'end'])
 
-            for subtitle in data.subtitles:
-                model['subtitles'].append(self.CreateModel(subtitle))
+            scene_batches = scene['batches']
+            for batch_update in scene_update['batches']:
+                batch = scene_batches.get(batch_update['batch'])
+                if not batch:
+                    logging.error(f"Model update for unknown batch {batch_update['batch']}")
+                    continue
 
-            if data.translated:
-                for subtitle in data.translated:
-                    model['translated'].append(self.CreateModel(subtitle))
+                UpdateFields(batch, batch_update, ['summary', 'context', 'start', 'end'])
 
-            if model['subtitles']:
-                subtitles = model['subtitles']
-                model['subtitle_count'] = len(subtitles)
-                model['start'] = subtitles[0]['start']
-                model['end'] = subtitles[-1]['end']
+                dict = { line['index']: line for line in batch['translated'] }
+                dict.update({ line['index']: line for line in batch_update['translated'] })
+                batch['translated'] = list(dict.values())
 
-            model['context'] = data.context
-            model['summary'] = data.summary
-
-        elif isinstance(data, Subtitle):
-            model = {
-                'index': data.index,
-                'start': str(data.start),
-                'end': str(data.end),
-                'text': str(data.text),
-                'translated.index': data.translated.index if data.translated else None
-            }
-
-        else:
-            raise ValueError(f"Unable to create DataModel for {type(data).__name__}")
-        
-        return model
+                if self.viewmodel:
+                    self.viewmodel.UpdateBatch(batch)

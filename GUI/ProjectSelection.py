@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 
-from GUI.ProjectViewModel import BatchItem, SceneItem, SubtitleItem
+from GUI.ProjectViewModel import BatchItem, SceneItem
 
 class SelectedScene:
     def __init__(self, scene : SceneItem, selected : bool = True) -> None:
@@ -121,13 +121,15 @@ class ProjectSelection():
         if isinstance(item, SceneItem):
             self.scenes[item.number] = SelectedScene(item, selected)
 
-            for child_index in [ model.index(i, 0, index) for i in range(model.rowCount(index))]:
+            children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
+            for child_index in children:
                 self.AppendItem(model, child_index, False)
 
         elif isinstance(item, BatchItem):
             batch = SelectedBatch(item, selected)
-            batch.subtitles = { line['index'] : line for line in item.subtitles }
-            batch.translated = { line['index'] : line for line in item.translated }
+            #TODO: subtitle selection
+            batch.subtitles = item.subtitles
+            batch.translated = item.translated
 
             if not self.scenes.get(item.scene):
                 self.AppendItem(model, model.parent(index), False)

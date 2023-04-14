@@ -10,7 +10,7 @@ class SubtitleScene:
         self._batches = dct.get('batches', [])
 
     @property
-    def batches(self):
+    def batches(self) -> list[SubtitleBatch]:
         return self._batches
 
     @property

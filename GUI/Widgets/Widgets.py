@@ -60,7 +60,7 @@ class SubtitleItemView(QWidget):
 class SubtitleHeader(QLabel):
     def __init__(self, subtitle: SubtitleItem, parent=None):
         super(SubtitleHeader, self).__init__(parent)
-        self.setText(f"{str(subtitle.index)}, {str(subtitle.start)} --> {str(subtitle.end)}")
+        self.setText(f"{str(subtitle.number)}, {str(subtitle.start)} --> {str(subtitle.end)}")
 
 class SubtitleBody(QLabel):
     def __init__(self, subtitle: SubtitleItem, parent=None):

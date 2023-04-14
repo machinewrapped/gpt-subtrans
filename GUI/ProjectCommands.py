@@ -27,7 +27,7 @@ class BatchSubtitlesCommand(Command):
 
             project.UpdateProjectFile()
 
-            datamodel.CreateModel(project.subtitles)
+            datamodel.CreateViewModel()
 
             self.datamodel = datamodel
             return True
@@ -56,7 +56,7 @@ class MergeScenesCommand(Command):
             project.subtitles.MergeScenes(self.scene_numbers)
 
         #TODO: incremental updates to the data/view model
-        self.datamodel.CreateModel(project.subtitles)
+        self.datamodel.CreateViewModel()
 
         return True
 
@@ -79,7 +79,7 @@ class MergeBatchesCommand(Command):
             project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
         #TODO: incremental updates to the data/view model
-        self.datamodel.CreateModel(project.subtitles)
+        self.datamodel.CreateViewModel()
 
         return True
 
@@ -98,10 +98,11 @@ class TranslateSceneCommand(Command):
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
         project : SubtitleProject = self.datamodel.project
+
         project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
 
         #TODO: incremental updates to the data/view model
-        self.datamodel.CreateModel(project.subtitles)
+        #self.datamodel.CreateViewModel()
 
         return True
 

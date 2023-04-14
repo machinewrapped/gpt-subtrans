@@ -1,5 +1,5 @@
 from os import linesep
-from pysrt import SubRipItem
+from pysrt import SubRipItem, SubRipTime
 
 from PySubtitleGPT.Helpers import FixTime
 
@@ -31,12 +31,16 @@ class Subtitle:
         return self._item.text_without_tags if self._item else None
 
     @property
-    def start(self):
+    def start(self) -> SubRipTime:
         return self._item.start if self._item else None
     
     @property
-    def end(self):
+    def end(self) -> SubRipTime:
         return self._item.end if self._item else None
+    
+    @property
+    def duration(self) -> SubRipTime:
+        return self.end - self.start if self.start and self.end else SubRipTime()
 
     @property
     def line(self):

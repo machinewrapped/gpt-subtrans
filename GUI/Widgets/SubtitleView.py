@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import QListView, QAbstractItemView
 from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSignalBlocker
+from GUI.ProjectSelection import ProjectSelection
 
-from GUI.ProjectViewModel import SubtitleItem
+from GUI.ProjectViewModel import ProjectViewModel, SubtitleItem
 from GUI.Widgets.SubtitleItemDelegate import SubtitleItemDelegate
 from GUI.Widgets.SubtitleListModel import SubtitleListModel
 
@@ -10,8 +11,10 @@ class SubtitleView(QListView):
 
     synchronise_scrolling = True    # TODO: Make this an option on the toolbar
 
-    def __init__(self, parent=None):
+    def __init__(self, show_translated, parent=None):
         super().__init__(parent)
+
+        self.show_translated = show_translated
 
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setSelectionMode(QListView.SelectionMode.ExtendedSelection)
@@ -20,10 +23,12 @@ class SubtitleView(QListView):
         subtitle_delegate = SubtitleItemDelegate()
         self.setItemDelegate(subtitle_delegate)
 
-    def ShowSubtitles(self, subtitles):
-        subtitle_items = [ item if isinstance(item, SubtitleItem) else SubtitleItem(item['index'], item) for item in subtitles ]
-        model = SubtitleListModel(subtitle_items)
+    def SetViewModel(self, viewmodel : ProjectViewModel):
+        model = SubtitleListModel(self.show_translated, viewmodel)
         self.setModel(model)
+
+    def ShowSelectedBatches(self, selection : ProjectSelection):
+        self.model().ShowSelectedBatches(selection)
 
     def SelectSubtitles(self, indexes):
         """

@@ -2,6 +2,7 @@ import logging
 from PySide6.QtWidgets import QSplitter, QVBoxLayout, QWidget, QSizePolicy
 from PySide6.QtCore import Qt, Signal
 from GUI.ProjectSelection import ProjectSelection
+from GUI.ProjectViewModel import ProjectViewModel
 from GUI.Widgets.SelectionView import SelectionView
 
 from GUI.Widgets.SubtitleView import SubtitleView
@@ -13,8 +14,8 @@ class ContentView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.subtitle_view = SubtitleView(self)
-        self.translation_view = SubtitleView(self)
+        self.subtitle_view = SubtitleView(show_translated = False, parent=self)
+        self.translation_view = SubtitleView(show_translated = True, parent=self)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self.subtitle_view)
@@ -38,21 +39,21 @@ class ContentView(QWidget):
         layout.addWidget(self.selection_view)
         self.setLayout(layout)
 
-    def ShowSubtitles(self, subtitles):
-        self.subtitle_view.ShowSubtitles(subtitles)
-    
-    def ShowTranslated(self, translations):
-        self.translation_view.ShowSubtitles(translations)
-
     def ShowSelection(self, selection : ProjectSelection):
-        self.ShowSubtitles(selection.subtitles)
-        self.ShowTranslated(selection.translated)
+        self.subtitle_view.ShowSelectedBatches(selection)
+        self.translation_view.ShowSelectedBatches(selection)
         self.selection_view.ShowSelection(selection)
 
+    def Populate(self, viewmodel):
+        self.subtitle_view.SetViewModel(viewmodel)
+        self.translation_view.SetViewModel(viewmodel)
+        self.selection_view.ShowSelection(ProjectSelection())
+
     def Clear(self):
-        self.subtitle_view.ShowSubtitles([])
-        self.translation_view.ShowSubtitles([])
-        # self.metadata_context.show_contexts([])
+        viewmodel = ProjectViewModel()
+        self.subtitle_view.SetViewModel(viewmodel)
+        self.translation_view.SetViewModel(viewmodel)
+        self.selection_view.ShowSelection(ProjectSelection())
 
     def _subtitles_selected(self, subtitles):
         debug_output = '\n'.join([str(x) for x in subtitles])

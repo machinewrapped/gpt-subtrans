@@ -1,3 +1,4 @@
+from pysrt import SubRipTime
 from PySubtitleGPT.Helpers import PerformSubstitutions
 from PySubtitleGPT.Subtitle import Subtitle
 
@@ -20,7 +21,7 @@ class SubtitleBatch:
         return str(self)
 
     @property
-    def subtitles(self):
+    def subtitles(self) -> list[Subtitle]:
         return self._subtitles
     
     @property
@@ -28,7 +29,7 @@ class SubtitleBatch:
         return len(self._subtitles)
     
     @property
-    def translated(self):
+    def translated(self) -> list[Subtitle]:
         return self._translated
 
     @property
@@ -38,7 +39,19 @@ class SubtitleBatch:
     @property
     def all_translated(self):
         return all(sub.translation for sub in self.subtitles)
-
+    
+    @property
+    def start(self) -> SubRipTime:
+        return self.subtitles[0].start if self.subtitles else None
+        
+    @property
+    def end(self) -> SubRipTime:
+        return self.subtitles[-1].end if self.subtitles else None
+    
+    @property
+    def duration(self):
+        return self.end - self.start if self.start and self.end else SubRipTime()
+    
     @subtitles.setter
     def subtitles(self, value):
         self._subtitles = [ Subtitle(line) for line in value ] if value else None

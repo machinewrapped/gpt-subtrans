@@ -50,6 +50,10 @@ class ModelView(QWidget):
         self.content_view.onTranslateSelection.connect(self._on_translate_selection)
         self.content_view.onMergeSelection.connect(self._on_merge_selection)
 
+    def SetDataModel(self, datamodel):
+        self.SetViewModel(datamodel.viewmodel)
+        self.SetProjectOptions(datamodel.options)
+
     def SetViewModel(self, viewmodel):
         self.content_view.Clear()
 
@@ -57,6 +61,7 @@ class ModelView(QWidget):
             self.scenes_view.Clear()
         else:
             self.scenes_view.Populate(viewmodel)
+            self.content_view.Populate(viewmodel)
 
     def SetProjectOptions(self, options):
         self.project_options.Clear()

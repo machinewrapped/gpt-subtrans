@@ -38,6 +38,7 @@ class MainWindow(QMainWindow):
         # Create the command queue
         self.command_queue = CommandQueue()
         self.command_queue.commandExecuted.connect(self._on_command_complete)
+        self.command_queue.modelUpdated.connect(self._on_model_updated)
 
         # Create centralised action handler
         self.action_handler = ProjectActions(mainwindow=self)
@@ -104,20 +105,23 @@ class MainWindow(QMainWindow):
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
 
-            self.datamodel = command.datamodel
-
             if self.model_viewer:
-                if self.datamodel:
+                if command.datamodel:
                     # TODO: add model updates to the viewmodel rather than rebuilding it 
+                    self.datamodel = command.datamodel
                     self.datamodel.CreateViewModel()
-                    self.model_viewer.SetViewModel(self.datamodel.viewmodel)
-                    self.model_viewer.SetProjectOptions(self.datamodel.options)
+
+                    self.model_viewer.SetDataModel(self.datamodel)
                     self.model_viewer.show()
                 else:
                     self.model_viewer.hide()
 
         else:
             self.statusBar().showMessage(f"{type(command).__name__} failed.")
+
+    def _on_model_updated(self, update : dict):
+        logging.info(f"Model update: {str(update)}")
+        self.datamodel.UpdateModel(update)
 
     def _on_options_changed(self, options: dict):
         if options and self.project:

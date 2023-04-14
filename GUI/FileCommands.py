@@ -31,7 +31,7 @@ class LoadSubtitleFile(Command):
             self.datamodel = ProjectDataModel(project)
 
             if project.subtitles.scenes:
-                self.datamodel.CreateModel(project.subtitles)
+                self.datamodel.CreateViewModel()
             else:
                 self.commands_to_queue.append(BatchSubtitlesCommand(project))
 
