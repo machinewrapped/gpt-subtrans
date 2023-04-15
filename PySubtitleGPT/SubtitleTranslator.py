@@ -39,7 +39,7 @@ class SubtitleTranslator:
         if not options.get('reparse') or not options.get('prompt'):
             options.add('prompt', BuildPrompt(options))
 
-        logging.info(f"Translation prompt: {options.get('prompt')}")
+        logging.debug(f"Translation prompt: {options.get('prompt')}")
  
         # Update subtitle context from options and make our own copy of it
         subtitles.UpdateContext(options)
