@@ -47,25 +47,25 @@ class WidgetBody(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setWordWrap(True)
 
-class SubtitleItemView(QWidget):
-    def __init__(self, subtitle, parent=None):
-        super(SubtitleItemView, self).__init__(parent)
+class LineItemView(QWidget):
+    def __init__(self, line, parent=None):
+        super(LineItemView, self).__init__(parent)
 
         layout = QVBoxLayout()
-        layout.addWidget(SubtitleHeader(subtitle, parent=self))
-        layout.addWidget(SubtitleBody(subtitle, parent=self))
+        layout.addWidget(LineItemHeader(line, parent=self))
+        layout.addWidget(LineItemBody(line, parent=self))
 
         self.setLayout(layout)
 
-class SubtitleHeader(QLabel):
-    def __init__(self, subtitle: LineItem, parent=None):
-        super(SubtitleHeader, self).__init__(parent)
-        self.setText(f"{str(subtitle.number)}, {str(subtitle.start)} --> {str(subtitle.end)}")
+class LineItemHeader(QLabel):
+    def __init__(self, line: LineItem, parent=None):
+        super(LineItemHeader, self).__init__(parent)
+        self.setText(f"{str(line.number)}, {str(line.start)} --> {str(line.end)}")
 
-class SubtitleBody(QLabel):
-    def __init__(self, subtitle: LineItem, parent=None):
-        super(SubtitleBody, self).__init__(parent)
-        self.setText(subtitle.text)
+class LineItemBody(QLabel):
+    def __init__(self, line: LineItem, parent=None):
+        super(LineItemBody, self).__init__(parent)
+        self.setText(line.text)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setWordWrap(True)
 

@@ -3,7 +3,7 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeScenesCommand, SwapSubtitlesAndTranslations, TranslateSceneCommand
+from GUI.ProjectCommands import MergeBatchesCommand, MergeScenesCommand, SwapTextAndTranslations, TranslateSceneCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -108,7 +108,7 @@ class ProjectActions(QObject):
         if not selection.Any():
             raise ActionError("Nothing selected to translate")
 
-        logging.info(f"Translate selection of {str(selection)}")
+        logging.debug(f"Translate selection of {str(selection)}")
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in scene.batches.values() if batch.selected ]
@@ -145,4 +145,4 @@ class ProjectActions(QObject):
         
         scene_number, batch_number = selection.batch_numbers[0]
     
-        self._issue_command(SwapSubtitlesAndTranslations(scene_number, batch_number, datamodel))
+        self._issue_command(SwapTextAndTranslations(scene_number, batch_number, datamodel))

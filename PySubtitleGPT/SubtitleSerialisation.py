@@ -1,7 +1,7 @@
 import json
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.Subtitle import Subtitle
+from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleError import TranslationError
 from PySubtitleGPT.SubtitleFile import SubtitleFile
@@ -64,14 +64,14 @@ class SubtitleEncoder(json.JSONEncoder):
                 "all_translated": obj.all_translated,
                 "errors": obj.errors if obj.errors else None,
                 "summary": getattr(obj, 'summary'),
-                "subtitles": obj._subtitles,
+                "originals": obj._originals,
                 "translated": obj._translated,
                 "context": {
                     "summary": obj.context.get('summary')
                 },
                 "translation": obj.translation
             }
-        elif isinstance(obj, Subtitle):
+        elif isinstance(obj, SubtitleLine):
             return {
                 "line": obj.line,
                 "translation": getattr(obj, 'translation'),
@@ -115,8 +115,8 @@ class SubtitleDecoder(json.JSONDecoder):
                 return obj
             elif class_name == classname(SubtitleBatch):
                 return SubtitleBatch(dct)
-            elif class_name == classname(Subtitle):
-                return Subtitle(dct['line'], dct.get('translation'))
+            elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
+                return SubtitleLine(dct['line'], dct.get('translation'))
             elif class_name == classname(ChatGPTTranslation):
                 response = {
                     'text' : dct.get('text'),

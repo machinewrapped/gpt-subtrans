@@ -7,7 +7,7 @@ from GUI.Widgets.SubtitleItemDelegate import SubtitleItemDelegate
 from GUI.Widgets.SubtitleListModel import SubtitleListModel
 
 class SubtitleView(QListView):
-    subtitlesSelected = Signal(list)
+    linesSelected = Signal(list)
 
     synchronise_scrolling = True    # TODO: Make this an option on the toolbar
 
@@ -20,8 +20,8 @@ class SubtitleView(QListView):
         self.setSelectionMode(QListView.SelectionMode.ExtendedSelection)
         self.setSelectionBehavior(QListView.SelectionBehavior.SelectRows)
 
-        subtitle_delegate = SubtitleItemDelegate()
-        self.setItemDelegate(subtitle_delegate)
+        item_delegate = SubtitleItemDelegate()
+        self.setItemDelegate(item_delegate)
 
     def SetViewModel(self, viewmodel : ProjectViewModel):
         model = SubtitleListModel(self.show_translated, viewmodel)
@@ -32,7 +32,7 @@ class SubtitleView(QListView):
 
     def SelectSubtitles(self, line_numbers):
         """
-        Select subtitles with index in the given list
+        Select lines with number in the given list
         """
         model = self.model()
         if not model:
@@ -60,7 +60,7 @@ class SubtitleView(QListView):
 
     def SelectAll(self):
         """
-        Select all subtitles in the list view
+        Select all lines in the list view
         """
         model = self.model()
         if not model:
@@ -95,9 +95,9 @@ class SubtitleView(QListView):
         selected_indexes = self.selectedIndexes()
         if selected_indexes:
             selected_items = [ model.data(index, role=Qt.ItemDataRole.UserRole) for index in selected_indexes]
-            selected_subtitles = [item for item in selected_items if isinstance(item, LineItem)]
+            selected_lines = [item for item in selected_items if isinstance(item, LineItem)]
 
-            self.subtitlesSelected.emit(selected_subtitles)
+            self.linesSelected.emit(selected_lines)
 
     def keyPressEvent(self, event):
         """

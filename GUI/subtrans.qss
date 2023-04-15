@@ -52,21 +52,22 @@ QWidget {
 
 .SubtitleView {
     padding: 1px;
+    border 1px solid red;
 }
 
-.SubtitleItemView {
+.LineItemView {
     padding: 0px;
     margin: 1px;
     background-color: white;
 }
 
-.SubtitleHeader {
+.LineHeader {
     background-color: aliceblue;
     font-weight: bold;
     margin: 0px;
 }
 
-.SubtitleBody {
+.LineBody {
     margin: 0px;
     background-color: white;
 }

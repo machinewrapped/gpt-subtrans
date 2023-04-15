@@ -21,8 +21,8 @@ class ChatGPTPrompt:
 
             # previous_batch = context.get('previous_batch')
             # if previous_batch:
-            #     previous_subtitles = previous_batch.subtitles
-            #     previous_lines = [ line.prompt for line in previous_subtitles ]
+            #     previous_originals = previous_batch.originals
+            #     previous_lines = [ line.prompt for line in previous_originals ]
             #     user_previous = linesep.join(previous_lines)
             #     self.messages.append({'role': "assistant", 'content': user_previous})
 

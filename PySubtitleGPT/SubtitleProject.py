@@ -98,7 +98,7 @@ class SubtitleProject:
 
     def TranslateScene(self, scene_number, batch_numbers = None):
         """
-        Pass a batch of subtitles to the translation engine.
+        Pass batches of subtitles to the translation engine.
         """
         if not self.subtitles:
             raise Exception("No subtitles to translate")
@@ -114,6 +114,8 @@ class SubtitleProject:
             translator.TranslateScene(scene, batch_numbers=batch_numbers)
 
             self.subtitles.SaveTranslation()
+
+            return scene
 
         except Exception as e:
             if self.subtitles and self.options.get('stop_on_error'):

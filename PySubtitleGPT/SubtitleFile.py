@@ -5,7 +5,7 @@ from pysrt import SubRipFile
 from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.Subtitle import Subtitle
+from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.SubtitleError import TranslationError
 
@@ -16,8 +16,8 @@ fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
 class SubtitleFile:
     def __init__(self, filename = None):
         self.filename = filename
-        self.subtitles : list[Subtitle] = None
-        self.translated : list[Subtitle] = None
+        self.originals : list[SubtitleLine] = None
+        self.translated : list[SubtitleLine] = None
         self.context = {}
         self._scenes : list[SubtitleScene] = []
 
@@ -27,7 +27,7 @@ class SubtitleFile:
     
     @property
     def linecount(self):
-        return len(self.subtitles) if self.subtitles else 0
+        return len(self.originals) if self.originals else 0
     
     @property
     def scenecount(self):
@@ -38,9 +38,9 @@ class SubtitleFile:
         return self._scenes
 
     @scenes.setter
-    def scenes(self, scenes):
+    def scenes(self, scenes : list[SubtitleScene]):
         self._scenes = scenes
-        self.subtitles, self.translated, _ = UnbatchScenes(scenes)
+        self.originals, self.translated, _ = UnbatchScenes(scenes)
         self.Renumber()
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
@@ -70,15 +70,15 @@ class SubtitleFile:
         except UnicodeDecodeError as e:
             srt = pysrt.open(filename, encoding=fallback_encoding)
 
-        self.subtitles = [ Subtitle(item) for item in srt ]
+        self.originals = [ SubtitleLine(item) for item in srt ]
         
     # Write original subtitles to an SRT file
-    def SaveSubtitles(self, filename : str = None):
+    def SaveOriginals(self, filename : str = None):
         self.filename = filename or self.filename 
         if not self.filename:
             raise ValueError("No filename set")
 
-        srtfile = SubRipFile(items=self.subtitles)
+        srtfile = SubRipFile(items=self.originals)
         srtfile.save(filename)
 
     def SaveTranslation(self, filename : str = None):
@@ -139,7 +139,7 @@ class SubtitleFile:
         """
         batcher = SubtitleBatcher(options)
 
-        self.scenes = batcher.BatchSubtitles(self.subtitles)
+        self.scenes = batcher.BatchSubtitles(self.originals)
 
     def AddScene(self, scene):
         self.scenes.append(scene)
@@ -187,7 +187,7 @@ class SubtitleFile:
 
     def Renumber(self):
         """
-        Force monotonic numbering of scenes, batches, subtitles and translated subtitles
+        Force monotonic numbering of scenes, batches, lines and translated lines
         """
         for scene_number, scene in enumerate(self.scenes, start=1):
             scene.number = scene_number
@@ -195,14 +195,14 @@ class SubtitleFile:
                 batch.number = batch_number
                 batch.scene = scene.number
 
-        # Renumber subtitles sequentially and remap translated indexes
-        translated_map = { translated.index: translated for translated in self.translated }
+        # Renumber lines sequentially and remap translated indexes
+        translated_map = { translated.number: translated for translated in self.translated }
 
-        for index, subtitle in enumerate(self.subtitles, start=1):
-            if subtitle.index in translated_map:
-                translated = translated_map[subtitle.index]
-                translated.index = index
-                del translated_map[subtitle.index]
+        for number, line in enumerate(self.originals, start=1):
+            if line.number in translated_map:
+                translated = translated_map[line.number]
+                translated.number = number
+                del translated_map[line.number]
 
-            subtitle.index = index
+            line.number = number
 

@@ -9,6 +9,12 @@ class SubtitleScene:
         self.context = dct.get('context', {})
         self._batches = dct.get('batches', [])
 
+    def __str__(self) -> str:
+        return f"SubtitleScene {self.number} with {self.size} batches and {self.linecount} lines"
+    
+    def __repr__(self) -> str:
+        return str(self)
+
     @property
     def batches(self) -> list[SubtitleBatch]:
         return self._batches
@@ -84,7 +90,7 @@ class SubtitleScene:
         merged_batch = SubtitleBatch()
         merged_batch.number = batches[0].number
         merged_batch.summary = "\n".join(batch.summary for batch in batches if batch.summary)
-        merged_batch.subtitles = [ line for batch in batches for line in batch.subtitles ]
+        merged_batch.originals = [ line for batch in batches for line in batch.originals ]
         merged_batch.translated = [ line for batch in batches for line in batch.translated ]
 
         start_index = self._batches.index(batches[0])

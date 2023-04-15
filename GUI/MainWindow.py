@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(f"{type(command).__name__} failed.")
 
     def _on_model_updated(self, update : dict):
-        logging.info(f"Model update: {str(update)}")
+        logging.debug(f"Model update: {str(update)}")
         self.datamodel.UpdateViewModel(update)
 
     def _on_options_changed(self, options: dict):

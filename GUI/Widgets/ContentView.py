@@ -25,8 +25,8 @@ class ContentView(QWidget):
         self.selection_view.actionRequested.connect(self.actionRequested)
 
         # connect the selection handlers
-        self.subtitle_view.subtitlesSelected.connect(self._subtitles_selected)
-        self.translation_view.subtitlesSelected.connect(self._translations_selected)
+        self.subtitle_view.linesSelected.connect(self._originals_selected)
+        self.translation_view.linesSelected.connect(self._translations_selected)
 
 #        # connect the scrollbars
         self.subtitle_view.SynchroniseScrollbar(self.translation_view.verticalScrollBar())
@@ -53,8 +53,8 @@ class ContentView(QWidget):
         self.translation_view.SetViewModel(viewmodel)
         self.selection_view.ShowSelection(ProjectSelection())
 
-    def _subtitles_selected(self, subtitles):
-        line_numbers = [ item.number for item in subtitles if item.number ]
+    def _originals_selected(self, originals):
+        line_numbers = [ item.number for item in originals if item.number ]
         if line_numbers:
             self.translation_view.SelectSubtitles(line_numbers)
 

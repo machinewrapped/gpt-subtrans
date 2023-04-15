@@ -7,7 +7,6 @@ from PySubtitleGPT.Helpers import Linearise, UpdateFields
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.Subtitle import Subtitle
 
 class ViewModelItem(QStandardItem):
     def GetContent(self):
@@ -50,23 +49,23 @@ class ProjectViewModel(QStandardItemModel):
     def CreateBatchItem(self, scene : SubtitleScene, batch : SubtitleBatch):
         batch_item = BatchItem(scene.number, batch)
 
-        for subtitle in batch.subtitles:
-            batch_item.AddLineItem(False, subtitle.index, {
+        for line in batch.originals:
+            batch_item.AddLineItem(False, line.number, {
                 'scene': scene.number,
                 'batch': batch.number,
-                'start': str(subtitle.start),
-                'end': str(subtitle.end),
-                'text': str(subtitle.text)
+                'start': str(line.start),
+                'end': str(line.end),
+                'text': str(line.text)
             })
 
         if batch.translated:
-            for subtitle in batch.translated:
-                batch_item.AddLineItem(True, subtitle.index,  {
+            for line in batch.translated:
+                batch_item.AddLineItem(True, line.number,  {
                     'scene': scene.number,
                     'batch': batch.number,
-                    'start': str(subtitle.start),
-                    'end': str(subtitle.end),
-                    'text': str(subtitle.text)
+                    'start': str(line.start),
+                    'end': str(line.end),
+                    'text': str(line.text)
                 })
 
         return batch_item
@@ -109,8 +108,8 @@ class ProjectViewModel(QStandardItemModel):
 
         batch_item.Update(batch_update)
 
-        if batch_update.get('subtitles'):
-            self._update_subtitles(scene_number, batch_number, batch_update['subtitles'])
+        if batch_update.get('originals'):
+            self._update_originals(scene_number, batch_number, batch_update['originals'])
 
         if batch_update.get('translated'):
             self._update_translated(scene_number, batch_number, batch_update['translated'])
@@ -120,22 +119,22 @@ class ProjectViewModel(QStandardItemModel):
 
         return True
 
-    def _update_subtitles(self, scene_number, batch_number, subtitles):
+    def _update_originals(self, scene_number, batch_number, lines):
         scene_item = self.model[scene_number]
         batch_item = scene_item.batches[batch_number]
-        for line_number, line_update in subtitles.items():
-            subtitle_item = batch_item.subtitles[line_number]
-            subtitle_item.Update(line_update)            
+        for line_number, line_update in lines.items():
+            line_item = batch_item.lines[line_number]
+            line_item.Update(line_update)            
 
-    def _update_translated(self, scene_number, batch_number, subtitles):
+    def _update_translated(self, scene_number, batch_number, lines):
         scene_item = self.model[scene_number]
         batch_item = scene_item.batches[batch_number]
-        for line_number, line_update in subtitles.items():
-            subtitle_item = batch_item.translated.get(line_number)
-            if subtitle_item:
-                subtitle_item.Update(line_update)
+        for line_number, line_update in lines.items():
+            line_item = batch_item.translated.get(line_number)
+            if line_item:
+                line_item.Update(line_update)
             else:
-                line_model = batch_item.subtitles[line_number].line_model.copy()
+                line_model = batch_item.originals[line_number].line_model.copy()
                 UpdateFields(line_model, line_update, [ 'text' ])
                 batch_item.AddLineItem(True, line_number, line_model)
 
@@ -150,8 +149,8 @@ class LineItem(QStandardItem):
 
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
-    def Update(self, subtitle_update):
-        UpdateFields(self.line_model, subtitle_update, ['start', 'end', 'text'])
+    def Update(self, line_update):
+        UpdateFields(self.line_model, line_update, ['start', 'end', 'text'])
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
     def __str__(self) -> str:
@@ -179,11 +178,11 @@ class BatchItem(ViewModelItem):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
         self.scene = scene_number
         self.number = batch.number
-        self.subtitles = {}
+        self.originals = {}
         self.translated = {}
         self.batch_model = {
-            'start': str(batch.subtitles[0].start),
-            'end': str(batch.subtitles[-1].end),
+            'start': str(batch.originals[0].start),
+            'end': str(batch.originals[-1].end),
             'summary': batch.summary,
             'context': batch.context,
         }
@@ -196,11 +195,15 @@ class BatchItem(ViewModelItem):
         if line_item.is_translation:
             self.translated[line_number] = line_item
         else:
-            self.subtitles[line_number] = line_item
+            self.originals[line_number] = line_item
 
     @property
-    def subtitle_count(self):
-        return len(self.subtitles)
+    def original_count(self):
+        return len(self.originals)
+    
+    @property
+    def translated_count(self):
+        return len(self.translated)
     
     @property
     def start(self):
@@ -223,7 +226,8 @@ class BatchItem(ViewModelItem):
     
     def GetContent(self):
         metadata = [ 
-            "1 subtitle" if self.subtitle_count == 1 else f"{self.subtitle_count} subtitles", 
+            "1 line" if self.original_count == 1 else f"{self.original_count} lines",
+            f"{self.translated_count} translated" if self.translated_count > 0 else None 
         ]
 
         return {
@@ -248,6 +252,7 @@ class SceneItem(ViewModelItem):
             'start': scene.batches[0].start,
             'end': scene.batches[-1].end,
             'duration': None,
+            'summary': None
         }
         self.setText(f"Scene {scene.number}")
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
@@ -259,10 +264,18 @@ class SceneItem(ViewModelItem):
     @property
     def batch_count(self):
         return len(self.batches)
+    
+    @property
+    def translated_batch_count(self):
+        return sum(1 if batch.translated else 0 for batch in self.batches.values())
 
     @property
-    def subtitle_count(self):
-        return sum(batch.subtitle_count for batch in self.batches.values())
+    def original_count(self):
+        return sum(batch.original_count for batch in self.batches.values())
+    
+    @property
+    def translated_count(self):
+        return sum(batch.translated_count for batch in self.batches.values())
 
     @property
     def start(self):
@@ -275,15 +288,25 @@ class SceneItem(ViewModelItem):
     @property
     def duration(self):
         return self.scene_model['duration']
+    
+    @property
+    def summary(self):
+        return self.scene_model['summary']
 
     def Update(self, update):
-        UpdateFields(self.scene_model, update, ['summary', 'context', 'start', 'end'])
+        UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration'])
 
     def GetContent(self):
+        str_translated = "All batches translated" if self.translated_batch_count == self.batch_count else f"{self.translated_batch_count} of {self.batch_count} batches translated"
+        metadata = [ 
+            "1 line" if self.original_count == 1 else f"{self.original_count} lines in {self.batch_count} batches", 
+            str_translated if self.translated_batch_count > 0 else None,
+        ]
+
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
-            'body': f"{self.subtitle_count} subtitles in {self.batch_count} batches"
+            'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({self.duration})
+            'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None])
         }
 
     def __str__(self) -> str:

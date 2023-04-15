@@ -131,42 +131,38 @@ def ExtractTagList(tagname, text):
     tag_list = [ item.strip() for item in re.split("[\n,]", tag) ] if tag else []
     return text, tag_list
 
-def MergeTranslations(subtitles, translated):
+def MergeTranslations(lines, translated):
     """
-    Replace lines in subtitles with corresponding lines in translated
+    Replace lines with corresponding lines in translated
     """
-    subtitle_dict = {item.key: item for item in subtitles}
+    line_dict = {item.key: item for item in lines}
 
     for item in translated:
-        subtitle_dict[item.key] = item
+        line_dict[item.key] = item
 
-    subtitles = sorted(subtitle_dict.values(), key=lambda item: item.start)
+    lines = sorted(line_dict.values(), key=lambda item: item.start)
 
-    return subtitles
+    return lines
 
 def UnbatchScenes(scenes):
     """
     Reconstruct a sequential subtitle from multiple scenes
     """
-    subtitles = []
+    originals = []
     translations = []
     untranslated = []
 
     for i_scene, scene in enumerate(scenes):
         for i_batch, batch in enumerate(scene.batches):
-            batch_subtitles = batch.subtitles if batch.subtitles else []
+            batch_originals = batch.originals if batch.originals else []
             batch_translations = batch.translated if batch.translated else []
             batch_untranslated = batch.untranslated if batch.untranslated else []
 
-            subtitles.extend(batch_subtitles)
+            originals.extend(batch_originals)
             translations.extend(batch_translations)
             untranslated.extend(batch_untranslated)
     
-    # Renumber
-    for index, line in enumerate(translations):
-        line.index = index + 1
-
-    return subtitles, translations, untranslated
+    return originals, translations, untranslated
 
 def ParseCharacters(character_list):
     if isinstance(character_list, str):

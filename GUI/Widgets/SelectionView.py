@@ -47,7 +47,7 @@ class SelectionView(QFrame):
 
         self._label.setText(str(selection))
 
-        _show(self._translate_button, selection.subtitles)
+        _show(self._translate_button, selection.originals)
         _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.SelectionIsSequential())
         _show(self._merge_batches_button, selection.OnlyBatches() and selection.MultipleSelected() and selection.SelectionIsSequential())
         # _show(self._swap_text_button, selection.AnyBatches() and not selection.MultipleSelected())

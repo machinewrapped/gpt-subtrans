@@ -1,7 +1,7 @@
 from PySide6.QtCore import QModelIndex, Qt, QPoint
 from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QWidget
 
-from GUI.Widgets.Widgets import SubtitleItemView
+from GUI.Widgets.Widgets import LineItemView
 
 class SubtitleItemDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -16,7 +16,7 @@ class SubtitleItemDelegate(QStyledItemDelegate):
             return super().paint(painter, option, index)
 
         widget = index.data(Qt.ItemDataRole.DisplayRole)
-        if not isinstance(widget, SubtitleItemView):
+        if not isinstance(widget, LineItemView):
             return super().paint(painter, option, index)
 
         self.initStyleOption(option, index)

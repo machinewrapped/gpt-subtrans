@@ -13,7 +13,7 @@ class LoadSubtitleFile(Command):
         self.project : SubtitleProject = None
 
     def execute(self):
-        logging.info(f"Executing LoadSubtitleFile {self.filepath}")
+        logging.debug(f"Executing LoadSubtitleFile {self.filepath}")
 
         if not self.filepath:
             return False
@@ -63,7 +63,7 @@ class SaveSubtitleFile(Command):
         self.project = project
 
     def execute(self):
-        self.project.subtitles.SaveSubtitles(self.filename)
+        self.project.subtitles.SaveOriginals(self.filename)
 
 class SaveTranslationFile(Command):
     def __init__(self, filename, project : SubtitleProject):

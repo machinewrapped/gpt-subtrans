@@ -19,7 +19,7 @@ class SelectedBatch:
         self.scene = batch.scene
         self.number = batch.number
         self.selected = selected
-        self.subtitles = {}
+        self.originals = {}
         self.translated = {}
 
 class ProjectSelection():
@@ -49,11 +49,11 @@ class ProjectSelection():
         return batches
 
     @property
-    def subtitles(self) -> list[int]:
-        subtitles = []
+    def originals(self) -> list[int]:
+        originals = []
         for scene, batch in self.batch_numbers:
-            subtitles.extend(self.scenes[scene][batch].subtitles.values())
-        return subtitles
+            originals.extend(self.scenes[scene][batch].originals.values())
+        return originals
 
     @property
     def translated(self) -> list[int]:
@@ -63,7 +63,7 @@ class ProjectSelection():
         return translated
 
     def Any(self) -> bool:
-        return self.scene_numbers or self.batch_numbers or self.subtitles or self.translated
+        return self.scene_numbers or self.batch_numbers or self.originals or self.translated
     
     def AnyScenes(self) -> bool:
         return self.selected_scenes and True
@@ -106,7 +106,7 @@ class ProjectSelection():
             for batch in scene.batches.values():
                 selection[scene.number][batch.number] = { 
                     'selected' : True,
-                    'subtitles' : batch.subtitles.keys(),
+                    'originals' : batch.originals.keys(),
                     'translated' : batch.translated.keys() 
                     }
 
@@ -114,7 +114,7 @@ class ProjectSelection():
 
     def AppendItem(self, model, index, selected : bool = True):
         """
-        Accumulated selected batches, scenes and subtitles
+        Accumulated selected batches, scenes and lines
         """
         item = model.data(index, role=Qt.ItemDataRole.UserRole)
 
@@ -127,8 +127,8 @@ class ProjectSelection():
 
         elif isinstance(item, BatchItem):
             batch = SelectedBatch(item, selected)
-            #TODO: subtitle selection
-            batch.subtitles = item.subtitles
+            #TODO: line selection
+            batch.originals = item.originals
             batch.translated = item.translated
 
             if not self.scenes.get(item.scene):
@@ -138,13 +138,13 @@ class ProjectSelection():
             
     def __str__(self):
         if self.scene_numbers:
-            return f"{self.str_scenes} with {self.str_subtitles} and {self.str_translated} in {self.str_batches}"
+            return f"{self.str_scenes} with {self.str_originals} and {self.str_translated} in {self.str_batches}"
         elif self.batch_numbers:
-            return f"{self.str_subtitles} and {self.str_translated} in {self.str_batches}"
+            return f"{self.str_originals} and {self.str_translated} in {self.str_batches}"
         elif self.translated:
-            return f"{self.str_subtitles} and {self.str_translated}"
-        elif self.subtitles:
-            return f"{self.str_subtitles}"
+            return f"{self.str_originals} and {self.str_translated}"
+        elif self.originals:
+            return f"{self.str_originals}"
         else:
             return "Nothing selected"
         
@@ -160,8 +160,8 @@ class ProjectSelection():
         return self._count(len(self.batch_numbers), "batch", "batches")
 
     @property
-    def str_subtitles(self):
-        return self._count(len(self.subtitles), "subtitle", "subtitles")
+    def str_originals(self):
+        return self._count(len(self.originals), "original", "originals")
 
     @property
     def str_translated(self):

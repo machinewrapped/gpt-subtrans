@@ -2,7 +2,7 @@ import logging
 from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt
 from GUI.ProjectViewModel import BatchItem, ProjectViewModel, SceneItem, LineItem
 from GUI.ProjectSelection import ProjectSelection
-from GUI.Widgets.Widgets import SubtitleItemView
+from GUI.Widgets.Widgets import LineItemView
 
 class SubtitleListModel(QAbstractItemModel):
     def __init__(self, show_translated, viewmodel=None, parent=None):
@@ -29,8 +29,8 @@ class SubtitleListModel(QAbstractItemModel):
                 batch_item : BatchItem = scene_item.child(batch_index, 0)
                 
                 if (scene_item.number, batch_item.number) in batch_numbers:
-                    subtitles = batch_item.translated if self.show_translated else batch_item.subtitles
-                    visible_lines = [ (scene_item.number, batch_item.number, line) for line in subtitles.keys() ]
+                    lines = batch_item.translated if self.show_translated else batch_item.originals
+                    visible_lines = [ (scene_item.number, batch_item.number, line) for line in lines.keys() ]
                     visible.extend(visible_lines)
         
         self.visible = visible
@@ -52,10 +52,10 @@ class SubtitleListModel(QAbstractItemModel):
             return item
 
         if role == Qt.ItemDataRole.DisplayRole:
-            return SubtitleItemView(item)
+            return LineItemView(item)
         
         if role == Qt.ItemDataRole.SizeHintRole:
-            return SubtitleItemView(item).sizeHint()
+            return LineItemView(item).sizeHint()
 
         return None
 
@@ -65,9 +65,9 @@ class SubtitleListModel(QAbstractItemModel):
         
         scene_number, batch_number, line_number = self.visible[row]
         batches : list[BatchItem] = self.viewmodel.model[scene_number].batches
-        subtitles = batches[batch_number].translated if self.show_translated else batches[batch_number].subtitles
-        subtitle : LineItem = subtitles [line_number]
-        return self.createIndex(row, column, subtitle)
+        lines = batches[batch_number].translated if self.show_translated else batches[batch_number].originals
+        line : LineItem = lines [line_number]
+        return self.createIndex(row, column, line)
 
     def parent(self, index):
         return QModelIndex()

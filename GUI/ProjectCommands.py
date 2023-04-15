@@ -112,7 +112,12 @@ class TranslateSceneCommand(Command):
 
         project.events.batch_translated += self._on_batch_translated
 
-        project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
+        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
+
+        if scene:
+            self.datamodel_update[scene.number].update({
+                'summary' : scene.summary
+            })
 
         return True
     
@@ -120,7 +125,7 @@ class TranslateSceneCommand(Command):
         update = {
             'summary' : batch.summary,
             'context' : batch.context,
-            'translated' : { line.index : { 'text' : line.text } for line in batch.translated } 
+            'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
         }
 
         self.datamodel_update[self.scene_number][batch.number] = update
@@ -129,7 +134,7 @@ class TranslateSceneCommand(Command):
 
 #############################################################
 
-class SwapSubtitlesAndTranslations(Command):
+class SwapTextAndTranslations(Command):
     """
     Test class for model updates
     """
@@ -139,7 +144,7 @@ class SwapSubtitlesAndTranslations(Command):
         self.batch_number = batch_number
 
     def execute(self):
-        logging.info(f"Swapping subtitles and translations in scene {self.scene_number} batch {self.batch_number}")
+        logging.info(f"Swapping text and translations in scene {self.scene_number} batch {self.batch_number}")
         if not self.datamodel.project:
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
@@ -148,13 +153,13 @@ class SwapSubtitlesAndTranslations(Command):
         scene : SubtitleScene = file.GetScene(self.scene_number)
         batch : SubtitleBatch = scene.GetBatch(self.batch_number)
 
-        # Swap text of subtitle and translated lists (only in the viewmodel)
+        # Swap original and translated text (only in the viewmodel)
         self.datamodel_update  = {
             self.scene_number : {
                 'batches' : {
                     self.batch_number : {
-                        'subtitles' : { line.index : { 'text' : line.text } for line in batch.translated },
-                        'translated' : { line.index : { 'text' : line.text } for line in batch.subtitles }
+                        'originals' : { line.number : { 'text' : line.text } for line in batch.translated },
+                        'translated' : { line.number : { 'text' : line.text } for line in batch.originals }
                     }           
                 }
             }
