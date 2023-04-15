@@ -129,9 +129,11 @@ class SubtitleFile:
         for key in context.keys():
             if options.get(key):
                 context[key] = options[key]
-            if context[key]:
+            elif context[key]:
                 options[key] = context[key]
 
+        self.context = context
+        return context
 
     def AutoBatch(self, options):
         """
@@ -196,10 +198,11 @@ class SubtitleFile:
                 batch.scene = scene.number
 
         # Renumber lines sequentially and remap translated indexes
-        translated_map = { translated.number: translated for translated in self.translated }
+        translated_map = { translated.number: translated for translated in self.translated } if self.translated else None
 
         for number, line in enumerate(self.originals, start=1):
-            if line.number in translated_map:
+            # If there is a matching translation, remap its number
+            if translated_map and line.number in translated_map:
                 translated = translated_map[line.number]
                 translated.number = number
                 del translated_map[line.number]

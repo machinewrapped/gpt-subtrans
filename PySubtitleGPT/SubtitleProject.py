@@ -223,6 +223,7 @@ class SubtitleProject:
 
         self.UpdateProjectFile()
 
+#########################################################################
 
     def _on_preprocessed(self, scenes):
         logging.debug("Pre-processing finished")

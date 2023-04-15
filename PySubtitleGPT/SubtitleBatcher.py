@@ -1,11 +1,12 @@
 from pysrt import SubRipTime
 from PySubtitleGPT.SubtitleScene import SubtitleScene
+from PySubtitleGPT.SubtitleLine import SubtitleLine
 
 class SubtitleBatcher:
     def __init__(self, options):
         self.options = options
 
-    def BatchSubtitles(self, lines):
+    def BatchSubtitles(self, lines : list[SubtitleLine]):
         options = self.options
         max_batch_size = options.get('max_batch_size')
         min_batch_size = options.get('min_batch_size')
@@ -20,7 +21,7 @@ class SubtitleBatcher:
         last_endtime = None
 
         for line in lines:
-            gap = None if not last_endtime else line.start - last_endtime
+            gap = line.start - last_endtime if last_endtime else None 
 
             if gap is None or gap > scene_threshold:
                 scene = SubtitleScene()

@@ -42,9 +42,11 @@ class SubtitleTranslator:
         logging.debug(f"Translation prompt: {options.get('prompt')}")
  
         # Update subtitle context from options and make our own copy of it
-        subtitles.UpdateContext(options)
-        
-        self.context = subtitles.context.copy()
+        self.context = subtitles.UpdateContext(options).copy()
+
+        context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]
+        logging.debug(f"Translation context:\n{linesep.join(context_values)}")
+
 
     def TranslateSubtitles(self):
         """
@@ -56,15 +58,6 @@ class SubtitleTranslator:
         if not subtitles:
             raise TranslationError("No subtitles to translate")
     
-        if not subtitles.scenes:
-            raise TranslationError("Subtitles have not been batched")
-
-        if subtitles.context:
-            context_values = [f"{key}: {Linearise(value)}" for key, value in subtitles.context.items()]
-            logging.debug(f"Translation context:\n{linesep.join(context_values)}")
-
-        batcher = SubtitleBatcher(options)
-
         if subtitles.scenes and options.get('resume'):
             logging.info("Resuming translation")
 
@@ -72,7 +65,7 @@ class SubtitleTranslator:
             if options.get('retranslate') or options.get('resume'):
                 logging.warning(f"Previous subtitles not found, starting fresh...")
 
-            subtitles.scenes = batcher.BatchSubtitles(self.subtitles)
+            self.subtitles.AutoBatch(options)
 
         if not subtitles.scenes:
             raise Exception("No scenes to translate")
@@ -311,7 +304,7 @@ class SubtitleTranslator:
             # Update the context, unless it's a retranslation pass
             if not options.get('retranslate'):
                 batch.summary = translation.summary or batch.summary
-                context['summary'] = batch.summary or context['summary']
+                context['summary'] = batch.summary or context.get('summary')
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
                 #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
 
