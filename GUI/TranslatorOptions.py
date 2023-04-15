@@ -1,59 +1,97 @@
-from PySide6.QtWidgets import QStyle, QApplication, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QPushButton, QFileDialog
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QStyle, 
+    QApplication, 
+    QFormLayout, 
+    QDialog, 
+    QVBoxLayout, 
+    QHBoxLayout, 
+    QLabel, 
+    QLineEdit, 
+    QTextEdit, 
+    QPushButton, 
+    QFileDialog, 
+    QDoubleSpinBox, 
+    QSpinBox 
+    )
 from PySide6.QtGui import QTextOption
 
 class TranslatorOptionsDialog(QDialog):
     def __init__(self, data, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Translator Options")
+        self.setMinimumWidth(800)
 
         self.data = data
 
         layout = QVBoxLayout()
 
-        self.model_label = QLabel("Model")
-        self.model_edit = QLineEdit()
-        self.model_edit.setPlaceholderText("Enter Model")
-        self.model_edit.setText(self.data.get('gpt_model', ''))
+        self.form_layout = QFormLayout()
 
-        self.prompt_label = QLabel("Prompt")
-        self.prompt_edit = QLineEdit()
-        self.prompt_edit.setPlaceholderText("Enter Prompt")
-        self.prompt_edit.setText(self.data.get('gpt_prompt', ''))
+        self.model_edit = self._create_input("Model", QLineEdit, "Enter Model", self.data.get('gpt_model', ''))
 
-        self.instructions_label = QLabel("Instructions")
-        self.instructions_edit = QTextEdit()
-        self.instructions_edit.setPlaceholderText("Enter Instructions")
-        self.instructions_edit.setPlainText(self.data.get('instructions', ''))
-        self.instructions_edit.setWordWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
+        self.prompt_edit = self._create_input("Prompt", QLineEdit, "Enter Prompt", self.data.get('gpt_prompt', ''))
 
-        self.load_button = QPushButton(self.load_icon, "Load Instructions")
-        self.load_button.clicked.connect(self._load_instructions)
+        self.instructions_edit = self._create_input("Instructions", QTextEdit, "Enter Instructions", self.data.get('instructions', ''), QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
 
-        self.save_button = QPushButton(self.save_icon, "Save Instructions")
-        self.save_button.clicked.connect(self._save_instructions)
+        self.min_batch_size_spinbox = self._create_input("Min Batch Size", QSpinBox, default_value=self.data.get('min_batch_size', 1))
 
-        self.ok_button = QPushButton("OK")
-        self.ok_button.clicked.connect(self.accept)
+        self.max_batch_size_spinbox = self._create_input("Max Batch Size", QSpinBox, default_value=self.data.get('max_batch_size', 10))
 
-        self.cancel_button = QPushButton("Cancel")
-        self.cancel_button.clicked.connect(self.reject)
+        self.batch_threshold_spinbox = self._create_input("Batch Threshold (seconds)", QDoubleSpinBox, default_value=self.data.get('batch_threshold', 0.5))
 
-        layout.addWidget(self.model_label)
-        layout.addWidget(self.model_edit)
-        layout.addWidget(self.prompt_label)
-        layout.addWidget(self.prompt_edit)
-        layout.addWidget(self.instructions_label)
-        layout.addWidget(self.instructions_edit)
+        self.scene_threshold_spinbox = self._create_input("Scene Threshold (seconds)", QDoubleSpinBox, default_value=self.data.get('scene_threshold', 2.0))
 
-        button_layout = QHBoxLayout()
-        button_layout.addWidget(self.load_button)
-        button_layout.addWidget(self.save_button)
-        button_layout.addWidget(self.ok_button)
-        button_layout.addWidget(self.cancel_button)
-        layout.addLayout(button_layout)
+        layout.addLayout(self.form_layout)
+
+        self.button_layout = QHBoxLayout()
+
+        self.load_button = self._create_button("Load Instructions", self._load_instructions)
+        self.save_button = self._create_button("Save Instructions", self._save_instructions)
+        self.ok_button = self._create_button("OK", self.accept)
+        self.cancel_button = self._create_button("Cancel", self.reject)
+
+        layout.addLayout(self.button_layout)
 
         self.setLayout(layout)
+
+    def _create_input(self, label_text, input_type, placeholder=None, default_value=None, word_wrap_mode=None):
+        label = QLabel(label_text)
+        input_widget = input_type()
+
+        if placeholder:
+            input_widget.setPlaceholderText(placeholder)
+
+        if default_value is not None:
+            if isinstance(input_widget, QLineEdit):
+                input_widget.setText(default_value)
+            elif isinstance(input_widget, QTextEdit):
+                input_widget.setPlainText(default_value)
+                input_widget.setWordWrapMode(word_wrap_mode)
+            elif isinstance(input_widget, QSpinBox) or isinstance(input_widget, QDoubleSpinBox):
+                input_widget.setValue(default_value)
+
+        self.form_layout.addRow(label, input_widget)
+        return input_widget
+
+    def _create_button(self, text, on_click):
+        button = QPushButton(text)
+        button.clicked.connect(on_click)
+        self.button_layout.addWidget(button)
+        return button
+
+    def accept(self):
+        self.data['gpt_model'] = self.model_edit.text()
+        self.data['gpt_prompt'] = self.prompt_edit.text()
+        self.data['instructions'] = self.instructions_edit.toPlainText()
+        self.data['min_batch_size'] = self.min_batch_size_spinbox.value()
+        self.data['max_batch_size'] = self.max_batch_size_spinbox.value()
+        self.data['batch_threshold'] = self.batch_threshold_spinbox.value()
+        self.data['scene_threshold'] = self.scene_threshold_spinbox.value()
+        super().accept()
+
+
+    def reject(self):
+        super().reject()
 
     @property
     def load_icon(self):
@@ -81,11 +119,3 @@ class TranslatorOptionsDialog(QDialog):
                 content = self.instructions_edit.toPlainText()
                 file.write(content)
 
-    def accept(self):
-        self.data['gpt_model'] = self.model_edit.text()
-        self.data['gpt_prompt'] = self.prompt_edit.text()
-        self.data['instructions'] = self.instructions_edit.toPlainText()
-        super().accept()
-
-    def reject(self):
-        super().reject()

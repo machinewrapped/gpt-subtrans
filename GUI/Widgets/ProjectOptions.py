@@ -26,12 +26,11 @@ class ProjectOptions(QGroupBox):
 
         # Add options
         self.AddSingleLineOption(0, "Movie Name", options, 'movie_name')
-        self.AddMultiLineOption(1, "Synopsis", options, 'synopsis')
-        self.AddMultiLineOption(2, "Characters", options, 'characters')
-        self.AddMultiLineOption(3, "Substitutions", options, 'substitutions')
-        # self.AddSingleLineOption(4, "GPT Model", options, 'gpt_model')
-        # self.AddSingleLineOption(5, "GPT Prompt", options, 'gpt_prompt')
-        self.AddButtonOption(4, "", "GPT Settings", self._gpt_settings)
+        self.AddSingleLineOption(1, "Target Language", options, 'target_language')
+        self.AddMultiLineOption(2, "Synopsis", options, 'synopsis')
+        self.AddMultiLineOption(3, "Characters", options, 'characters')
+        self.AddMultiLineOption(4, "Substitutions", options, 'substitutions')
+        self.AddButtonOption(5, "", "GPT Settings", self._gpt_settings)
 
         self.Populate(options)
 
@@ -43,8 +42,7 @@ class ProjectOptions(QGroupBox):
         """
         options = {
             "movie_name": self.movie_name_input.text(),
-            # "gpt_model": self.gpt_model_input.text(),
-            # "gpt_prompt": self.gpt_prompt_input.text(),
+            "target_language": self.target_language_input.text(),
             "synopsis": self.synopsis_input.toPlainText(),
             "characters": ParseCharacters(self.characters_input.toPlainText()),
             "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText())
@@ -93,7 +91,11 @@ class ProjectOptions(QGroupBox):
             'gpt_model': options.get('gpt_model'),
             'gpt_prompt': options.get('gpt_prompt'),
             'instructions': options.get('instructions'),
-            'retry_instructions': options.get('retry_instructions')
+            'retry_instructions': options.get('retry_instructions'),
+            'min_batch_size' : options.get('min_batch_size'),
+            'max_batch_size' : options.get('max_batch_size'),
+            'batch_threshold' : options.get('batch_threshold'),
+            'scene_threshold' : options.get('scene_threshold'),
         }
 
         for key in options:
