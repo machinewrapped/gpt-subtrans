@@ -8,6 +8,12 @@ class TranslationError(Exception):
         if self.error:
             return str(self.error)
         return super().__str__()
+    
+class TranslationImpossibleError(TranslationError):
+    """ No chance of retry succeeding """
+    def __init__(self, message, translation, error = None):
+        super().__init__(message, error)
+        self.translation = translation
 
 class TranslationFailedError(TranslationError):
     def __init__(self, message, translation, error = None):

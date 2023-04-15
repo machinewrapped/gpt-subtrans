@@ -4,7 +4,7 @@ from os import linesep
 
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.ChatGPTClient import ChatGPTClient
-from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, UntranslatedLinesError
+from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
 from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, UnbatchScenes
 from PySubtitleGPT.ChatGPTTranslationParser import ChatGPTTranslationParser
 
@@ -128,7 +128,7 @@ class SubtitleTranslator:
             if project.write_project:
                 project.UpdateProjectFile(self.scenes)
 
-            if project.stop_on_error:
+            if project.stop_on_error or isinstance(e, TranslationImpossibleError):
                 raise
             else:
                 logging.warning(f"Failed to translate all scenes ({str(e)})... finishing")
@@ -195,6 +195,9 @@ class SubtitleTranslator:
                     # Ask OpenAI to do the translation
                     translation = client.RequestTranslation(prompt, subtitles, context)
 
+                    if translation.quota_reached:
+                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
+
                     if translation.reached_token_limit:
                         # Try again without the context to keep the tokens down
                         logging.warning("Hit API token limit, retrying batch without context...")
@@ -212,9 +215,8 @@ class SubtitleTranslator:
                 else:
                     logging.warning(f"No translation for scene {scene.number} batch {batch.number}")
 
-
             except TranslationError as e:
-                if project.stop_on_error:
+                if project.stop_on_error or isinstance(e, TranslationImpossibleError):
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
                 else:
                     logging.warning(f"Error translating subtitle batch: {str(e)}")

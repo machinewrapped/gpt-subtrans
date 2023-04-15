@@ -4,8 +4,10 @@ import time
 from os import linesep
 
 import openai
+import openai.error
+
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError
+from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
 
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 
@@ -103,19 +105,22 @@ class ChatGPTClient:
                     raise NoTranslationError("No choices returned in the response", response)
 
                 # Return the response if the API call succeeds
-                return translation  
-
+                return translation
+            
             except openai.error.RateLimitError as e:
-                if retries == max_retries:
-                    raise
-                else:
-                    retries += 1
-                    sleep_time = backoff_time * 1 + random.uniform(1.5, 2.0)**retries
-                    logging.warning(f"Rate limit hit, retrying in {sleep_time}...")
-                    time.sleep(sleep_time)
+                retry_after = e.headers.get('x-ratelimit-reset-requests') or e.headers.get('Retry-After')
+                if retry_after:
+                    retry_seconds = float(retry_after.rstrip("s"))
+                    logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
+                    time.sleep(retry_seconds)
                     continue
+                else:
+                    logging.warning("Rate limit hit, quota exceeded. Please wait until the quota resets.")
+                    raise
 
-            except openai.error.OpenAIError as e:
+            except (openai.error.APIConnectionError, openai.error.Timeout, openai.error.ServiceUnavailableError) as e:
+                if isinstance(e, openai.error.APIConnectionError) and not e.should_retry:
+                    raise TranslationImpossibleError(str(e))
                 if retries == max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
                     raise
@@ -127,7 +132,7 @@ class ChatGPTClient:
                     continue
 
             except Exception as e:
-                raise TranslationError(f"Unexpected error getting response from OpenAI", e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", e)
 
         return None
 
