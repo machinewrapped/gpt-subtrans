@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QGridLayout
 )
 
-from GUI.ProjectViewModel import SubtitleItem
+from GUI.ProjectViewModel import LineItem
 
 class TreeViewItemWidget(QFrame):
     def __init__(self, content, parent=None):
@@ -58,12 +58,12 @@ class SubtitleItemView(QWidget):
         self.setLayout(layout)
 
 class SubtitleHeader(QLabel):
-    def __init__(self, subtitle: SubtitleItem, parent=None):
+    def __init__(self, subtitle: LineItem, parent=None):
         super(SubtitleHeader, self).__init__(parent)
         self.setText(f"{str(subtitle.number)}, {str(subtitle.start)} --> {str(subtitle.end)}")
 
 class SubtitleBody(QLabel):
-    def __init__(self, subtitle: SubtitleItem, parent=None):
+    def __init__(self, subtitle: LineItem, parent=None):
         super(SubtitleBody, self).__init__(parent)
         self.setText(subtitle.text)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)

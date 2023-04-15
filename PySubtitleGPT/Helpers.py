@@ -3,10 +3,17 @@ import re
 import pysrt
 
 def Linearise(lines):
-    if isinstance(lines, list):
-        lines = " | ".join(lines)
-    lines = [line.strip() for line in str(lines).split("\n")]
+    if not isinstance(lines, list):
+        lines = str(lines).split("\n")
+
+    lines = [ str(line).strip() for line in lines ]
     return " | ".join(lines)
+
+def UpdateFields(item : dict, update: dict, fields : list[str]):
+    """
+    Patch selected fields in a dictionary 
+    """
+    item.update({field: update[field] for field in update.keys() if field in fields})
 
 def FixTime(time):
     try:

@@ -10,7 +10,7 @@ from GUI.Widgets.ProjectOptions import ProjectOptions
 
 class ModelView(QWidget):
     optionsChanged = Signal(dict)
-    requestAction = Signal(str, object)
+    actionRequested = Signal(str, object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -47,8 +47,8 @@ class ModelView(QWidget):
         self.setLayout(layout)
 
         self.scenes_view.onSelection.connect(self._items_selected)
-        self.content_view.onTranslateSelection.connect(self._on_translate_selection)
-        self.content_view.onMergeSelection.connect(self._on_merge_selection)
+
+        self.content_view.actionRequested.connect(self.actionRequested)
 
     def SetDataModel(self, datamodel):
         self.SetViewModel(datamodel.viewmodel)
@@ -83,13 +83,6 @@ class ModelView(QWidget):
         else:
             self.project_options.show()
 
-    def ShowSubtitles(self, subtitles, translated):
-        if subtitles:
-            self.content_view.ShowSubtitles(subtitles)
-        
-        if translated:
-            self.content_view.ShowTranslated(translated)
-
     def GetSelection(self) -> ProjectSelection:
         """
         Retrieve the current project selection
@@ -115,10 +108,3 @@ class ModelView(QWidget):
         selection : ProjectSelection = self.GetSelection()
         self.content_view.ShowSelection(selection)
 
-    def _on_translate_selection(self):
-        selection : ProjectSelection = self.GetSelection()
-        self.requestAction.emit('Translate Selection', (selection,))
-
-    def _on_merge_selection(self):
-        selection : ProjectSelection = self.GetSelection()
-        self.requestAction.emit('Merge Selection', (selection,))

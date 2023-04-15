@@ -8,8 +8,7 @@ from GUI.Widgets.SelectionView import SelectionView
 from GUI.Widgets.SubtitleView import SubtitleView
 
 class ContentView(QWidget):
-    onTranslateSelection = Signal()
-    onMergeSelection = Signal()
+    actionRequested = Signal(str, object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -23,8 +22,7 @@ class ContentView(QWidget):
         splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         self.selection_view = SelectionView()
-        self.selection_view.onTranslateSelection.connect(self.onTranslateSelection)
-        self.selection_view.onMergeSelection.connect(self.onMergeSelection)
+        self.selection_view.actionRequested.connect(self.actionRequested)
 
         # connect the selection handlers
         self.subtitle_view.subtitlesSelected.connect(self._subtitles_selected)
@@ -40,8 +38,8 @@ class ContentView(QWidget):
         self.setLayout(layout)
 
     def ShowSelection(self, selection : ProjectSelection):
-        self.subtitle_view.ShowSelectedBatches(selection)
-        self.translation_view.ShowSelectedBatches(selection)
+        self.subtitle_view.ShowSelection(selection)
+        self.translation_view.ShowSelection(selection)
         self.selection_view.ShowSelection(selection)
 
     def Populate(self, viewmodel):
@@ -56,14 +54,11 @@ class ContentView(QWidget):
         self.selection_view.ShowSelection(ProjectSelection())
 
     def _subtitles_selected(self, subtitles):
-        debug_output = '\n'.join([str(x) for x in subtitles])
-        logging.debug(f"Selected subtitles: {debug_output}")
-        matching_translations = [ subtitle.translated_index for subtitle in subtitles if subtitle.translated_index ]
-        if matching_translations:
-            self.translation_view.SelectSubtitles(matching_translations)
+        line_numbers = [ item.number for item in subtitles if item.number ]
+        if line_numbers:
+            self.translation_view.SelectSubtitles(line_numbers)
 
     def _translations_selected(self, translations):
-        debug_output = '\n'.join([str(x) for x in translations])
-        logging.debug(f"Selected translations: {debug_output}")
-        translated_indexes = [ item.index for item in translations if item.index ]
-        self.subtitle_view.SelectSubtitles(translated_indexes)
+        line_numbers = [ item.number for item in translations if item.number ]
+        if line_numbers:
+            self.subtitle_view.SelectSubtitles(line_numbers)

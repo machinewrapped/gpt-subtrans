@@ -11,13 +11,15 @@ class CommandQueue(QObject):
     """
     commandAdded = Signal(object)
     commandExecuted = Signal(object, bool)
-
+    modelUpdated = Signal(object)
+    
     undo_stack = []
 
     def __init__(self):
         super().__init__()
 
         self.command_pool = QThreadPool()
+        self.command_pool.setMaxThreadCount(1)  #TODO: simultaneous scene translations should be possible
         self.mutex = QMutex()
 
         self.logger = logging.getLogger("CommandQueue")
@@ -71,5 +73,6 @@ class CommandQueue(QObject):
             command.SetUndoCallback(undo_callback)
 
         command.commandExecuted.connect(self._on_command_executed)
+        command.modelUpdated.connect(self.modelUpdated)
 
         self.command_pool.start(command)

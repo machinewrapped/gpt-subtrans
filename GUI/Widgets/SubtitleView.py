@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QListView, QAbstractItemView
 from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSignalBlocker
 from GUI.ProjectSelection import ProjectSelection
 
-from GUI.ProjectViewModel import ProjectViewModel, SubtitleItem
+from GUI.ProjectViewModel import ProjectViewModel, LineItem
 from GUI.Widgets.SubtitleItemDelegate import SubtitleItemDelegate
 from GUI.Widgets.SubtitleListModel import SubtitleListModel
 
@@ -27,10 +27,10 @@ class SubtitleView(QListView):
         model = SubtitleListModel(self.show_translated, viewmodel)
         self.setModel(model)
 
-    def ShowSelectedBatches(self, selection : ProjectSelection):
-        self.model().ShowSelectedBatches(selection)
+    def ShowSelection(self, selection : ProjectSelection):
+        self.model().ShowSelection(selection)
 
-    def SelectSubtitles(self, indexes):
+    def SelectSubtitles(self, line_numbers):
         """
         Select subtitles with index in the given list
         """
@@ -45,9 +45,9 @@ class SubtitleView(QListView):
         with QSignalBlocker(selection_model):
             for row in range(model.rowCount()):
                 item_index = model.index(row, 0)
-                row_item : SubtitleItem = model.data(item_index, Qt.ItemDataRole.UserRole)
-                if isinstance(row_item, SubtitleItem):
-                    if row_item.translated_index and row_item.translated_index in indexes:
+                row_item : LineItem = model.data(item_index, Qt.ItemDataRole.UserRole)
+                if isinstance(row_item, LineItem):
+                    if row_item.number and row_item.number in line_numbers:
                         selection_model.select(item_index, selection_flags)
                         selected_indexes.append(item_index)
 
@@ -95,7 +95,7 @@ class SubtitleView(QListView):
         selected_indexes = self.selectedIndexes()
         if selected_indexes:
             selected_items = [ model.data(index, role=Qt.ItemDataRole.UserRole) for index in selected_indexes]
-            selected_subtitles = [item for item in selected_items if isinstance(item, SubtitleItem)]
+            selected_subtitles = [item for item in selected_items if isinstance(item, LineItem)]
 
             self.subtitlesSelected.emit(selected_subtitles)
 

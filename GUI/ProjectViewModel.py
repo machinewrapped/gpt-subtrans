@@ -1,4 +1,6 @@
+import logging
 from PySide6.QtCore import Qt
+
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 from PySubtitleGPT.Helpers import Linearise, UpdateFields
@@ -49,62 +51,108 @@ class ProjectViewModel(QStandardItemModel):
         batch_item = BatchItem(scene.number, batch)
 
         for subtitle in batch.subtitles:
-            subtitle_item : SubtitleItem = SubtitleItem(batch, subtitle, False)
-            batch_item.AddSubtitleItem(subtitle_item)
+            batch_item.AddLineItem(False, subtitle.index, {
+                'scene': scene.number,
+                'batch': batch.number,
+                'start': str(subtitle.start),
+                'end': str(subtitle.end),
+                'text': str(subtitle.text)
+            })
 
         if batch.translated:
             for subtitle in batch.translated:
-                subtitle_item : SubtitleItem = SubtitleItem(batch, subtitle, True)
-                batch_item.AddSubtitleItem(subtitle_item)
+                batch_item.AddLineItem(True, subtitle.index,  {
+                    'scene': scene.number,
+                    'batch': batch.number,
+                    'start': str(subtitle.start),
+                    'end': str(subtitle.end),
+                    'text': str(subtitle.text)
+                })
 
         return batch_item
 
-    def UpdateScene(self, scene):
-        scene_number = scene['number']
-        for i in range(self.rowCount()):
-            scene_item : SceneItem = self.item(i)
-            if isinstance(scene_item, SceneItem) and scene_item.number == scene_number:
-                scene_item.Update(scene)
+    def UpdateModel(self, update):
+        """
+        Incrementally update the viewmodel
+        """
+        if not self.model:
+            raise Exception("Unable to update ProjectViewModel - no model")
 
-                if scene.get('batches'):
-                    for batch in scene.get('batches'):
-                        self.UpdateBatch(batch)
+        for scene_number, scene_update in update.items():
+            self.UpdateScene(scene_number, scene_update)
 
-    def UpdateBatch(self, batch):
-        scene_number = batch['scene']
-        batch_number = batch['batch']
-        root = self.getRootItem()
-        for i in range(root.rowCount()):
-            scene_item = root.child(i)
-            if isinstance(scene_item, SceneItem) and scene_item.number == scene_number:
-                for j in range(scene_item.rowCount()):
-                    batch_item = scene_item.child(j)
-                    if isinstance(batch_item, BatchItem) and batch_item.number == batch_number:
-                        batch_item.Update(batch)
-                        item_index = self.indexFromItem(batch_item)
-                        self.setData(item_index, batch_item, Qt.ItemDataRole.DisplayRole)
-                        return True
-        return False
+        self.layoutChanged.emit()
+
+    def UpdateScene(self, scene_number, scene_update):
+        scene_item = self.model.get(scene_number)
+        if not scene_item:
+            logging.error(f"Model update for unknown scene {scene_number}")
+            return False
+
+        scene_item.Update(scene_update)
+
+        if scene_update.get('batches'):
+            for batch_number, batch_update in scene_update['batches'].items():
+                self.UpdateBatch(scene_number, batch_number, batch_update)
+
+        scene_index = self.indexFromItem(scene_item)
+        self.setData(scene_index, scene_item, Qt.ItemDataRole.UserRole)
+
+        return True
+
+    def UpdateBatch(self, scene_number, batch_number, batch_update):
+        scene_item = self.model.get(scene_number)
+        batch_item = scene_item.batches[batch_number] if scene_number else None
+        if not batch_item:
+            logging.error(f"Model update for unknown batch, scene {scene_number} batch {batch_number}")
+            return False
+
+        batch_item.Update(batch_update)
+
+        if batch_update.get('subtitles'):
+            self._update_subtitles(scene_number, batch_number, batch_update['subtitles'])
+
+        if batch_update.get('translated'):
+            self._update_translated(scene_number, batch_number, batch_update['translated'])
+
+        batch_index = self.indexFromItem(batch_item)
+        self.setData(batch_index, batch_item, Qt.ItemDataRole.UserRole)
+
+        return True
+
+    def _update_subtitles(self, scene_number, batch_number, subtitles):
+        scene_item = self.model[scene_number]
+        batch_item = scene_item.batches[batch_number]
+        for line_number, line_update in subtitles.items():
+            subtitle_item = batch_item.subtitles[line_number]
+            subtitle_item.Update(line_update)            
+
+    def _update_translated(self, scene_number, batch_number, subtitles):
+        scene_item = self.model[scene_number]
+        batch_item = scene_item.batches[batch_number]
+        for line_number, line_update in subtitles.items():
+            subtitle_item = batch_item.translated.get(line_number)
+            if subtitle_item:
+                subtitle_item.Update(line_update)
+            else:
+                line_model = batch_item.subtitles[line_number].line_model.copy()
+                UpdateFields(line_model, line_update, [ 'text' ])
+                batch_item.AddLineItem(True, line_number, line_model)
 
 ###############################################
 
-class SubtitleItem(QStandardItem):
-    def __init__(self, batch : SubtitleBatch, subtitle : Subtitle, is_translation : bool):
-        super(SubtitleItem, self).__init__(f"Subtitle {subtitle.index}")
+class LineItem(QStandardItem):
+    def __init__(self, is_translation, line_number, model):
+        super(LineItem, self).__init__(f"Translation {line_number}" if is_translation else f"Line {line_number}")
         self.is_translation = is_translation
-        self.number = subtitle.index
-        self.subtitle_model = {
-            'scene': batch.scene,
-            'batch': batch.number,
-            'index': subtitle.index,
-            'start': str(subtitle.start),
-            'end': str(subtitle.end),
-            'text': str(subtitle.text)
-        }
+        self.number = line_number
+        self.line_model = model
 
-        self.setData(self.subtitle_model, Qt.ItemDataRole.UserRole)
-        if is_translation:
-            self.setText(f"Translation {subtitle.index}")
+        self.setData(self.line_model, Qt.ItemDataRole.UserRole)
+
+    def Update(self, subtitle_update):
+        UpdateFields(self.line_model, subtitle_update, ['start', 'end', 'text'])
+        self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
     def __str__(self) -> str:
         return f"{self.number}: {self.start} --> {self.end} | {Linearise(self.text)}"
@@ -114,15 +162,15 @@ class SubtitleItem(QStandardItem):
 
     @property
     def start(self):
-        return self.subtitle_model['start']
+        return self.line_model['start']
 
     @property
     def end(self):
-        return self.subtitle_model['end']
+        return self.line_model['end']
 
     @property
     def text(self):
-        return self.subtitle_model['text']
+        return self.line_model['text']
 
 ###############################################
 
@@ -141,13 +189,19 @@ class BatchItem(ViewModelItem):
         }
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
-    def AddSubtitleItem(self, subtitle_item : SubtitleItem):
-        self.appendRow(subtitle_item)
-        if subtitle_item.is_translation:
-            self.translated[subtitle_item.number] = subtitle_item
-        else:
-            self.subtitles[subtitle_item.number] = subtitle_item
+    def AddLineItem(self, is_translation : bool, line_number : int, model : dict):
+        line_item : LineItem = LineItem(is_translation, line_number, model)
+        self.appendRow(line_item)
 
+        if line_item.is_translation:
+            self.translated[line_number] = line_item
+        else:
+            self.subtitles[line_number] = line_item
+
+    @property
+    def subtitle_count(self):
+        return len(self.subtitles)
+    
     @property
     def start(self):
         return self.batch_model['start']
@@ -157,10 +211,6 @@ class BatchItem(ViewModelItem):
         return self.batch_model['end']
 
     @property
-    def subtitle_count(self):
-        return len(self.subtitles)
-    
-    @property
     def context(self):
         return self.batch_model.get('context')
     
@@ -168,6 +218,9 @@ class BatchItem(ViewModelItem):
     def summary(self):
         return self.batch_model.get('summary')
 
+    def Update(self, update : dict):
+        UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])
+    
     def GetContent(self):
         metadata = [ 
             "1 subtitle" if self.subtitle_count == 1 else f"{self.subtitle_count} subtitles", 
@@ -178,9 +231,6 @@ class BatchItem(ViewModelItem):
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None])
         }
-    
-    def Update(self, update):
-        self.batch_model.update(update)
     
     def __str__(self) -> str:
         content = self.GetContent()
@@ -198,7 +248,6 @@ class SceneItem(ViewModelItem):
             'start': scene.batches[0].start,
             'end': scene.batches[-1].end,
             'duration': None,
-            'subtitle_count': sum(batch.size for batch in scene.batches),
         }
         self.setText(f"Scene {scene.number}")
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
@@ -206,6 +255,14 @@ class SceneItem(ViewModelItem):
     def AddBatchItem(self, batch_item : BatchItem):
         self.batches[batch_item.number] = batch_item
         self.appendRow(batch_item)
+
+    @property
+    def batch_count(self):
+        return len(self.batches)
+
+    @property
+    def subtitle_count(self):
+        return sum(batch.subtitle_count for batch in self.batches.values())
 
     @property
     def start(self):
@@ -219,13 +276,8 @@ class SceneItem(ViewModelItem):
     def duration(self):
         return self.scene_model['duration']
 
-    @property
-    def subtitle_count(self):
-        return self.scene_model['subtitle_count']
-
-    @property
-    def batch_count(self):
-        return len(self.batches)
+    def Update(self, update):
+        UpdateFields(self.scene_model, update, ['summary', 'context', 'start', 'end'])
 
     def GetContent(self):
         return {
@@ -233,9 +285,6 @@ class SceneItem(ViewModelItem):
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
             'body': f"{self.subtitle_count} subtitles in {self.batch_count} batches"
         }
-
-    def Update(self, update):
-        UpdateFields(self.scene_model, update, ['summary', 'context', 'start', 'end'])
 
     def __str__(self) -> str:
         content = self.GetContent()

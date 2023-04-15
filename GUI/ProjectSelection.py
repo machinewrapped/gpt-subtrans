@@ -31,7 +31,7 @@ class ProjectSelection():
         return sorted([ key for key in self.scenes.keys() ])
     
     @property
-    def selected_scenes(self) -> list[SceneItem]:
+    def selected_scenes(self) -> list[SelectedScene]:
         return [ selection.number for selection in self.scenes.values() if selection.selected]
     
     @property
@@ -42,7 +42,7 @@ class ProjectSelection():
         return sorted(batches)
 
     @property
-    def selected_batches(self) -> list[BatchItem]:
+    def selected_batches(self) -> list[SelectedBatch]:
         batches = []
         for scene in self.scenes.values():
             batches.extend([ batch for batch in scene.batches.values() if batch.selected])

@@ -33,6 +33,13 @@ class SubtitleScene:
     def summary(self, value):
         self.AddContext('summary', value)
 
+    def GetBatch(self, batch_number) -> SubtitleBatch:
+        for batch in self.batches:
+            if batch.number == batch_number:
+                return batch
+
+        return None
+
     def AddBatch(self, batch):
         self._batches.append(batch)
 

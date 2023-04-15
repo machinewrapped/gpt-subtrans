@@ -1,4 +1,5 @@
 import logging
+from PySide6.QtCore import Qt, QMutex, QMutexLocker
 from GUI.ProjectViewModel import ProjectViewModel
 from PySubtitleGPT.Helpers import UpdateFields
 from PySubtitleGPT.Options import Options
@@ -13,6 +14,7 @@ class ProjectDataModel:
         self.options = Options({
             'project': 'resume'
         })
+        self.mutex = QMutex()
 
         if project and project.options:
             if isinstance(project.options, Options):
@@ -35,40 +37,14 @@ class ProjectDataModel:
             raise ValueError(f"No handler defined for action {action_name}")
 
     def CreateViewModel(self):
-        self.viewmodel = ProjectViewModel()
-        self.viewmodel.CreateModel(self.project.subtitles)
+        with QMutexLocker(self.mutex):
+            self.viewmodel = ProjectViewModel()
+            self.viewmodel.CreateModel(self.project.subtitles)
         return self.viewmodel
 
-    def UpdateModel(self, update):
-        """
-        Incrementally update the model and viewmodel
-        """
-
-        if not self.model or not self.model['scenes']:
-            raise Exception("Unable to update model - no model")
-
-        for scene_update in update['scenes']:
-            scene = self.model['scenes'].get(scene_update['scene'])
-
-            if not scene:
-                # TODO: add a new scene? Support scene removal? Probably not with this method.
-                logging.error(f"Model update for unknown scene {scene_update['scene']}")
-                continue
-
-            UpdateFields(scene, scene_update, ['summary', 'context', 'start', 'end'])
-
-            scene_batches = scene['batches']
-            for batch_update in scene_update['batches']:
-                batch = scene_batches.get(batch_update['batch'])
-                if not batch:
-                    logging.error(f"Model update for unknown batch {batch_update['batch']}")
-                    continue
-
-                UpdateFields(batch, batch_update, ['summary', 'context', 'start', 'end'])
-
-                dict = { line['index']: line for line in batch['translated'] }
-                dict.update({ line['index']: line for line in batch_update['translated'] })
-                batch['translated'] = list(dict.values())
-
-                if self.viewmodel:
-                    self.viewmodel.UpdateBatch(batch)
+    def UpdateViewModel(self, update : dict):
+        if not self.viewmodel:
+            raise Exception("Cannot update view model because it doesn't exist")
+        
+        with QMutexLocker(self.mutex):
+            self.viewmodel.UpdateModel(update)

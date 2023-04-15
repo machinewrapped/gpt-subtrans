@@ -7,6 +7,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 class Command(QRunnable, QObject):
     commandExecuted = Signal(object, bool)
+    modelUpdated = Signal(object)
 
     def __init__(self, datamodel : ProjectDataModel = None):
         QRunnable.__init__(self)
@@ -15,6 +16,7 @@ class Command(QRunnable, QObject):
         self.executed : bool = False
         self.callback = None
         self.undo_callback = None
+        self.datamodel_update = {}
         self.commands_to_queue : list = []
 
     def SetDataModel(self, datamodel):
@@ -38,7 +40,6 @@ class Command(QRunnable, QObject):
         except Exception as e:
             logging.error(f"Error executing {type(self).__name__} command ({str(e)})")
             self.commandExecuted.emit(self, False)
-
 
     def execute(self):
         raise NotImplementedError

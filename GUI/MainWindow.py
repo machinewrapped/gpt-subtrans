@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
 
         self.model_viewer = ModelView(splitter)
         self.model_viewer.optionsChanged.connect(self._on_options_changed)
-        self.model_viewer.requestAction.connect(self._on_action_requested)
+        self.model_viewer.actionRequested.connect(self._on_action_requested)
         splitter.addWidget(self.model_viewer)
 
         # Create the log window widget and add it to the splitter
@@ -96,7 +96,10 @@ class MainWindow(QMainWindow):
         if not self.datamodel:
             raise Exception(f"Cannot perform {action_name} without a data model")
         
-        self.datamodel.PerformModelAction(action_name, params)
+        try:
+            self.datamodel.PerformModelAction(action_name, params)
+        except Exception as e:
+            logging.error(f"Error in {action_name}: {str(e)}")
 
     def _on_command_complete(self, command : Command, success):
         if success:
@@ -105,23 +108,23 @@ class MainWindow(QMainWindow):
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
 
-            if self.model_viewer:
-                if command.datamodel:
-                    # TODO: add model updates to the viewmodel rather than rebuilding it 
-                    self.datamodel = command.datamodel
-                    self.datamodel.CreateViewModel()
+            if command.datamodel_update:
+                self.datamodel.UpdateViewModel(command.datamodel_update)
+            elif command.datamodel:
+                # Shouldn't  need to do a full model rebuild often? 
+                self.datamodel = command.datamodel
+                self.model_viewer.SetDataModel(self.datamodel)
+                self.model_viewer.show()
+            else:
+                self.model_viewer.hide()
 
-                    self.model_viewer.SetDataModel(self.datamodel)
-                    self.model_viewer.show()
-                else:
-                    self.model_viewer.hide()
 
         else:
             self.statusBar().showMessage(f"{type(command).__name__} failed.")
 
     def _on_model_updated(self, update : dict):
         logging.info(f"Model update: {str(update)}")
-        self.datamodel.UpdateModel(update)
+        self.datamodel.UpdateViewModel(update)
 
     def _on_options_changed(self, options: dict):
         if options and self.project:

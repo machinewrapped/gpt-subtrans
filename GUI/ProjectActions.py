@@ -3,9 +3,19 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeScenesCommand, TranslateSceneCommand
+from GUI.ProjectCommands import MergeBatchesCommand, MergeScenesCommand, SwapSubtitlesAndTranslations, TranslateSceneCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
+
+class ActionError(Exception):
+    def __init__(self, message, error = None):
+        super().__init__(message)
+        self.error = error
+
+    def __str__(self) -> str:
+        if self.error:
+            return str(self.error)
+        return super().__str__()
 
 class ProjectActions(QObject):
     issueCommand = Signal(object)
@@ -25,6 +35,7 @@ class ProjectActions(QObject):
         # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
+        ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
     def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
         action = QAction(name)
@@ -66,11 +77,10 @@ class ProjectActions(QObject):
             self._issue_command(command)
 
     def _save_project_file(self):
-        # TODO: Don't ask the main window for the project
+        # TODO: Shouldn't have to ask the main window for the project
         project : SubtitleProject = self._mainwindow.project
         if not project:
-            logging.error("Nothing to save!")
-            return
+            raise ActionError("Nothing to save!")
 
         filepath = project.projectfile
         if not filepath or self._is_shift_pressed():
@@ -84,14 +94,19 @@ class ProjectActions(QObject):
         return QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
 
     def _toggle_project_options(self):
+        """
+        Hide or show the project options panel
+        """
         # TODO: Route GUI actions with signals and events or something
         model_viewer: ModelView = self._mainwindow.model_viewer
         model_viewer.ToggleProjectOptions()
 
     def _translate_selection(self, datamodel, selection : ProjectSelection):
+        """
+        Request translation of selected scenes and batches
+        """
         if not selection.Any():
-            logging.error("Nothing selected to translate")
-            return
+            raise ActionError("Nothing selected to translate")
 
         logging.info(f"Translate selection of {str(selection)}")
 
@@ -101,13 +116,14 @@ class ProjectActions(QObject):
             self._issue_command(command)
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
+        """
+        Merge selected scenes or batches (TODO: lines)
+        """
         if not selection.Any():
-            logging.error("Nothing selected to merge")
-            return
+            raise ActionError("Nothing selected to merge")
         
         if not selection.SelectionIsSequential():
-            logging.error("Cannot merge non-sequential elements")
-            return
+            raise ActionError("Cannot merge non-sequential elements")
         
         if selection.OnlyScenes():
             self._issue_command(MergeScenesCommand(selection.scene_numbers, datamodel))
@@ -118,4 +134,15 @@ class ProjectActions(QObject):
             self._issue_command(MergeBatchesCommand(scene_number, batch_numbers, datamodel))
 
         else:
-            logging.error(f"Invalid selection for merge ({str(selection)})")
+            raise ActionError(f"Invalid selection for merge ({str(selection)})")
+
+    def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
+        """
+        This is a simple action to test the GUI
+        """
+        if not selection.AnyBatches() or selection.MultipleSelected():
+            raise ActionError("Can only swap text of a single batch")
+        
+        scene_number, batch_number = selection.batch_numbers[0]
+    
+        self._issue_command(SwapSubtitlesAndTranslations(scene_number, batch_number, datamodel))

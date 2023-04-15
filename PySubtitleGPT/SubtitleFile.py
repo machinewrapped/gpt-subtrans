@@ -43,7 +43,7 @@ class SubtitleFile:
         self.subtitles, self.translated, _ = UnbatchScenes(scenes)
         self.Renumber()
 
-    def GetScene(self, scene_number : int):
+    def GetScene(self, scene_number : int) -> SubtitleScene:
         if not self.scenes:
             raise ValueError("Subtitles have not been batched")
         

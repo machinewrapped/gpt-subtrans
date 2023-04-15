@@ -1,7 +1,9 @@
 import logging
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.ProjectSelection import ProjectSelection
+from PySubtitleGPT.SubtitleFile import SubtitleFile
+from PySubtitleGPT.SubtitleScene import SubtitleScene
+from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 from PySubtitleGPT.SubtitleError import TranslationError
 
@@ -39,6 +41,8 @@ class BatchSubtitlesCommand(Command):
         # Do we flatten, or do we cache the previous batches?
         pass    
 
+#############################################################
+
 class MergeScenesCommand(Command):
     """
     Combine multiple scenes into one
@@ -59,6 +63,8 @@ class MergeScenesCommand(Command):
         self.datamodel.CreateViewModel()
 
         return True
+
+#############################################################
 
 class MergeBatchesCommand(Command):
     """
@@ -83,6 +89,8 @@ class MergeBatchesCommand(Command):
 
         return True
 
+#############################################################
+
 class TranslateSceneCommand(Command):
     """
     Ask ChatGPT to translate a scene (optionally just select batches in the scene)
@@ -91,6 +99,9 @@ class TranslateSceneCommand(Command):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
+        self.datamodel_update = { scene_number : {
+
+        }}
 
     def execute(self):
         logging.info(f"Translating scene number {self.scene_number}")
@@ -99,10 +110,54 @@ class TranslateSceneCommand(Command):
 
         project : SubtitleProject = self.datamodel.project
 
+        project.events.batch_translated += self._on_batch_translated
+
         project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
 
-        #TODO: incremental updates to the data/view model
-        #self.datamodel.CreateViewModel()
+        return True
+    
+    def _on_batch_translated(self, batch : SubtitleBatch):
+        update = {
+            'summary' : batch.summary,
+            'context' : batch.context,
+            'translated' : { line.index : { 'text' : line.text } for line in batch.translated } 
+        }
+
+        self.datamodel_update[self.scene_number][batch.number] = update
+
+        self.modelUpdated.emit({ batch.scene : { 'batches' : { batch.number : update } } })
+
+#############################################################
+
+class SwapSubtitlesAndTranslations(Command):
+    """
+    Test class for model updates
+    """
+    def __init__(self, scene_number : int, batch_number : int, datamodel : ProjectDataModel = None):
+        super().__init__(datamodel)
+        self.scene_number = scene_number
+        self.batch_number = batch_number
+
+    def execute(self):
+        logging.info(f"Swapping subtitles and translations in scene {self.scene_number} batch {self.batch_number}")
+        if not self.datamodel.project:
+            raise TranslationError("Unable to translate scene because project is not set on datamodel")
+
+        project : SubtitleProject = self.datamodel.project
+        file : SubtitleFile = project.subtitles
+        scene : SubtitleScene = file.GetScene(self.scene_number)
+        batch : SubtitleBatch = scene.GetBatch(self.batch_number)
+
+        # Swap text of subtitle and translated lists (only in the viewmodel)
+        self.datamodel_update  = {
+            self.scene_number : {
+                'batches' : {
+                    self.batch_number : {
+                        'subtitles' : { line.index : { 'text' : line.text } for line in batch.translated },
+                        'translated' : { line.index : { 'text' : line.text } for line in batch.subtitles }
+                    }           
+                }
+            }
+        }
 
         return True
-
