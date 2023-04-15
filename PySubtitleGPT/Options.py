@@ -1,5 +1,6 @@
 import os
 import dotenv
+import darkdetect
 
 linesep = '\n'
 
@@ -24,7 +25,7 @@ default_options = {
     'api_key': os.getenv('API_KEY', None),
     'gpt_model': os.getenv('GPT_MODEL', 'gpt-3.5-turbo'),
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
-    'instruction_file': os.getenv('INSTRUCTIONFILE', "instructions.txt"),
+    'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
     'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
@@ -42,7 +43,8 @@ default_options = {
     'project' : os.getenv('PROJECT', None),
     'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY'),
     'stop_on_error' : env_bool('STOP_ON_ERROR'),
-    'write_backup' : env_bool('WRITE_BACKUP_FILE')
+    'write_backup' : env_bool('WRITE_BACKUP_FILE'),
+    'theme' : os.getenv('THEME', None)
 }
 
 class Options:
@@ -58,6 +60,10 @@ class Options:
 
         # Apply any explicit parameters
         options.update(kwargs)
+
+        # Select theme or use OS default 
+        if not self.get('theme'):
+            self.add('theme', "subtrans-dark" if darkdetect.isDark() else "subtrans")
 
         # If instructions file exists load the instructions from that
         instructions, retry_instructions = LoadInstructionsFile(options.get('instruction_file'))

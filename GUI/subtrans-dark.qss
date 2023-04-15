@@ -4,24 +4,33 @@ QWidget {
 }
 
 QLabel {
-    color: black;
+    background-color: #242424;
+    color: white;
+}
+
+QSplitter::handle {
+    background-color: teal;
 }
 
 QStatusBar {
-    color: black;
+    color: white;
 }
 
 .MainWindow {
-    background-color: aliceblue;
-    color: black;
+    background-color: #363636;
+}
+
+.MainToolbar, .ProjectToolbar {
+    background-color: #606060;
 }
 
 .LogWindow {
     background-color: black;
+    border: 1px solid #242424;
 }
 
 .ScenesView {
-    background-color: lightyellow;
+    background-color: skyblue;
 }
 
 .TreeViewItemWidget {
@@ -29,17 +38,17 @@ QStatusBar {
     margin: 0;
     border-width: 2;
     border-style: solid;
-    border-color: lightgray;
+    border-color: black;
     border-radius 12;
-    background-color: white;
+    background-color: #121212;
 }
 
 .WidgetHeader { 
     font-size: 12pt; 
     font-weight: bold; 
+    background-color: blanchedalmond;
     padding: 4;
     padding-left: 10;
-    background-color: blanchedalmond;
     color: black;
 }
 
@@ -47,38 +56,47 @@ QStatusBar {
     font-size: 10pt;
     padding: 3;
     padding-left: 10;
-    background-color: lavenderblush;
-    color: black;
+    background-color: #363636;
+    color: lavenderblush;
 }
 
 .WidgetBody {
     font-size: 10pt;
     padding: 2;
     padding-left: 10;
-    background-color: white;
-    color: black;
+    background-color: #242424;
+    color: white;
+}
+
+.ContentView {
+    background-color: black;
 }
 
 .SubtitleView {
     padding: 1px;
+    background-color: #121212;
 }
 
 .LineItemView {
     padding: 0px;
     margin: 1px;
-    background-color: white;
+    background-color: #242424;
 }
 
 .LineItemHeader {
     font-weight: bold;
     margin: 0px;
-    background-color: aliceblue;
-    color: black;
 }
 
 .LineItemBody {
     margin: 0px;
-    background-color: white;
-    color: black;
 }
 
+.SelectionView {
+    background-color: #242424;
+}
+
+.ProjectOptions {
+    color: white;
+    background-color: #121212;
+}

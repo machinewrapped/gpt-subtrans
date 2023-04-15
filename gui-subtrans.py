@@ -5,6 +5,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
+from PySubtitleGPT.Options import Options
 
 # This seems insane but ChatGPT told me to do it.
 project_dir = os.path.abspath(os.path.dirname(__file__))
@@ -26,6 +27,7 @@ def parse_arguments():
     parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
     parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
     parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
+    parser.add_argument('--theme', type=str, default=None, help="Stylesheet to load")
 
     args = parser.parse_args()
 
@@ -38,24 +40,19 @@ def parse_arguments():
         'max_batch_size': args.maxbatchsize,
         'batch_threshold': args.batchthreshold,
         'scene_threshold': args.scenethreshold,
-        'project': args.project and args.project.lower()
+        'project': args.project and args.project.lower(),
+        'theme': args.theme
     }
     
     return arguments, args.filepath
 
-def LoadStylesheet(file_path):
-    with open(file_path, 'r') as file:
-        stylesheet = file.read()
-    return stylesheet
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    stylesheet = LoadStylesheet(os.path.join(os.getcwd(), "GUI", "subtrans.qss"))
-    app.setStyleSheet(stylesheet)
 
     arguments, filepath = parse_arguments()
 
-    app.main_window = MainWindow( options=arguments, filepath=filepath)
+    options = Options(arguments)
+    app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()
 
     app.exec()

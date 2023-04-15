@@ -1,8 +1,10 @@
+import os
 import logging
 import dotenv
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QApplication,
     QMainWindow,
     QWidget,
     QVBoxLayout,
@@ -22,6 +24,12 @@ from PySubtitleGPT.SubtitleProject import SubtitleProject
 # Load environment variables from .env file
 dotenv.load_dotenv()
 
+def LoadStylesheet(file_path):
+    with open(file_path, 'r') as file:
+        stylesheet = file.read()
+    QApplication.instance().setStyleSheet(stylesheet)
+    return stylesheet
+
 class MainWindow(QMainWindow):
     datamodel : ProjectDataModel = None
     project : SubtitleProject = None
@@ -31,6 +39,9 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("GUI-Subtrans")
         self.setGeometry(100, 100, 1600, 900)
+
+        theme = options.get('theme', 'subtrans')
+        LoadStylesheet(os.path.join(os.getcwd(), "GUI", f"{theme}.qss"))
 
         # Create the project data model
         self.datamodel = ProjectDataModel()
