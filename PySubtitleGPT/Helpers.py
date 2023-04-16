@@ -46,7 +46,7 @@ def GetInputFilename(filename):
     if not filename:
         return None
     
-    basename, _ = os.path.splitext(os.path.basename(filename))
+    basename, _ = os.path.splitext(filename)
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
     return f"{basename}.srt"
@@ -55,7 +55,7 @@ def GetOutputFilename(filename):
     if not filename:
         return None
     
-    basename, _ = os.path.splitext(os.path.basename(filename))
+    basename, _ = os.path.splitext(filename)
     if not basename.endswith("-ChatGPT"):
         basename = basename + "-ChatGPT"
     return f"{basename}.srt"

@@ -63,19 +63,20 @@ class SubtitleFile:
         
         return matches[0]
 
-    def LoadSubtitles(self, filename : str):
+    def LoadSubtitles(self, filename : str = None):
         """
         Load subtitles from an SRT file
         """
-        self.sourcefile = GetInputFilename(filename)
+        filename = GetInputFilename(filename) if filename else self.sourcefile
 
         try:
-            srt = pysrt.open(self.sourcefile)
+            srt = pysrt.open(filename)
             
         except UnicodeDecodeError as e:
             srt = pysrt.open(filename, encoding=fallback_encoding)
 
         with self.lock:
+            self.sourcefile = filename
             self.filename = GetOutputFilename(filename)
             self.originals = [ SubtitleLine(item) for item in srt ]
         
