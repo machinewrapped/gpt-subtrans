@@ -1,46 +1,70 @@
+from pysrt import SubRipTime
 from PySubtitleGPT.Helpers import PerformSubstitutions
-from PySubtitleGPT.Subtitle import Subtitle
+from PySubtitleGPT.SubtitleLine import SubtitleLine
 
 class SubtitleBatch:
-    def __init__(self, dict = None):
-        dict = dict or {}
-        self.number = dict.get('number')
-        self.summary = dict.get('summary')
-        self.context = dict.get('context', {})
-        self.translation = dict.get('translation')
-        self.errors = dict.get('errors', [])
-        self._subtitles = dict.get('subtitles', [])
-        self._translated = dict.get('translated', [])
+    def __init__(self, dct = None):
+        dct = dct or {}
+        self.scene = dct.get('scene', None)
+        self.number = dct.get('batch') or dct.get('number')
+        self.summary = dct.get('summary')
+        self.context = dct.get('context', {})
+        self.translation = dct.get('translation')
+        self.errors = dct.get('errors', [])
+        self._originals = dct.get('originals', []) or dct.get('subtitles', []) 
+        self._translated = dct.get('translated', [])
+
+    def __str__(self) -> str:
+        return f"SubtitleBatch: {str(self.number)} in scene {str(self.scene)} with {self.size} lines"
+
+    def __repr__(self) -> str:
+        return str(self)
 
     @property
-    def subtitles(self):
-        return self._subtitles
+    def originals(self) -> list[SubtitleLine]:
+        return self._originals
     
     @property
     def size(self):
-        return len(self._subtitles)
+        return len(self._originals)
     
     @property
-    def translated(self):
+    def translated(self) -> list[SubtitleLine]:
         return self._translated
 
     @property
     def untranslated(self):
-        return [sub for sub in self.subtitles if not sub.translation]
+        return [sub for sub in self.originals if not sub.translated]
 
     @property
     def all_translated(self):
-        return all(sub.translation for sub in self.subtitles)
+        return self.translated and (len(self.translated) == len(self.originals))
+    
+    @property
+    def start(self) -> SubRipTime:
+        return self.originals[0].start if self.originals else None
+        
+    @property
+    def end(self) -> SubRipTime:
+        return self.originals[-1].end if self.originals else None
+    
+    @property
+    def duration(self):
+        return self.end - self.start if self.start and self.end else SubRipTime()
+    
+    @originals.setter
+    def originals(self, value):
+        self._originals = [ SubtitleLine(line) for line in value ] if value else None
 
     @translated.setter
     def translated(self, value):
-        self._translated = [ Subtitle(line) for line in value ]
+        self._translated = [ SubtitleLine(line) for line in value ] if value else None
 
     def AddLine(self, line):
-        self._subtitles.append(Subtitle(line))
+        self._originals.append(SubtitleLine(line))
 
-    def AddTranslation(self, line):
-        self._translated.append(Subtitle(line))
+    def AddTranslatedLine(self, line):
+        self._translated.append(SubtitleLine(line))
 
     def AddContext(self, key, value):
         self.context[key] = value
@@ -55,14 +79,14 @@ class SubtitleBatch:
         """
         Perform any word/phrase substitutions on source text
         """
-        if substitutions and self.subtitles:
-            lines = [item.text for item in self.subtitles]
+        if substitutions and self.originals:
+            lines = [item.text for item in self.originals]
 
             lines, replacements = PerformSubstitutions(substitutions, lines)
 
             if replacements:
                 self.AddContext('input_replacements', replacements)
-                for item in self.subtitles:
+                for item in self.originals:
                     item.text = replacements.get(item.text) or item.text
 
             return replacements

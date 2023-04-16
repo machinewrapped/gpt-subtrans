@@ -1,24 +1,30 @@
 import logging
-import random
 import time
-from os import linesep
-
 import openai
 import openai.error
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
+from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
 
-from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+linesep = '\n'
 
 class ChatGPTClient:
-    def __init__(self, options, instructions=None):
+    """
+    Handles communication with OpenAI to request translations
+    """
+    def __init__(self, options : Options, instructions=None):
         self.options = options
-        self.instructions = options.get('instructions', "")
+        self.instructions = instructions or options.get('instructions', "")
 
+        if not self.instructions:
+            raise TranslationError("No instructions provided for the translator")
 
-    # Generate the messages to send to OpenAI to request a translation
-    def RequestTranslation(self, prompt, lines, context):
+    def RequestTranslation(self, prompt : str, lines : list, context : dict):
+        """
+        Generate the messages to send to OpenAI to request a translation
+        """
         options = self.options
 
         start_time = time.monotonic()
@@ -45,8 +51,10 @@ class ChatGPTClient:
 
         return translation
 
-    # Generate the messages to send to OpenAI to request a retranslation
-    def RequestRetranslation(self, translation, errors):
+    def RequestRetranslation(self, translation : ChatGPTTranslation, errors : list[TranslationError]):
+        """
+        Generate the messages to send to OpenAI to request a retranslation
+        """
         options = self.options
         prompt = translation.prompt
 
@@ -60,16 +68,18 @@ class ChatGPTClient:
 
         retry_instructions = options.get('retry_instructions')
 
-        prompt.GenerateRetryPrompt(translation, retry_instructions, errors)
+        prompt.GenerateRetryPrompt(translation.text, retry_instructions, errors)
 
         # Let's raise the temperature a little bit
-        temperature = min(options.get('temperature', 0.0) + 0.2, 1.0)
+        temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
         retranslation = self.SendMessages(prompt.messages, temperature)
 
         return retranslation
 
-    # Make a request to the OpenAI API to provide a translation
-    def SendMessages(self, messages, temperature = None):
+    def SendMessages(self, messages : list[str], temperature : float = None):
+        """
+        Make a request to the OpenAI API to provide a translation
+        """
         options = self.options
         max_retries = options.get('max_retries', 3.0)
         backoff_time = options.get('backoff_time', 5.0)

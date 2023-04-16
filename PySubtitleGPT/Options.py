@@ -1,5 +1,6 @@
 import os
 import dotenv
+import darkdetect
 
 linesep = '\n'
 
@@ -24,25 +25,27 @@ default_options = {
     'api_key': os.getenv('API_KEY', None),
     'gpt_model': os.getenv('GPT_MODEL', 'gpt-3.5-turbo'),
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
-    'instruction_file': os.getenv('INSTRUCTIONFILE', "instructions.txt"),
-    'target_language' : os.getenv('TARGET_LANGUAGE', 'English'),
-    'movie_name' : None,
+    'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
+    'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
     'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
-    'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 15.0)),
-    'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 3.0)),
+    'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 30.0)),
+    'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 5.0)),
     'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 5)),
-    'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 20)),
+    'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 25)),
     'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
     'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None, 
     'rate_limit': float(os.getenv('RATE_LIMIT')) if os.getenv('RATE_LIMIT') else None,
+    'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 5)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
     'project' : os.getenv('PROJECT', None),
-    'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY'),
-    'stop_on_error' : env_bool('STOP_ON_ERROR')
+    'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY', True),
+    'stop_on_error' : env_bool('STOP_ON_ERROR'),
+    'write_backup' : env_bool('WRITE_BACKUP_FILE', True),
+    'theme' : os.getenv('THEME', None)
 }
 
 class Options:
@@ -58,6 +61,10 @@ class Options:
 
         # Apply any explicit parameters
         options.update(kwargs)
+
+        # Select theme or use OS default 
+        if not self.get('theme'):
+            self.add('theme', "subtrans-dark" if darkdetect.isDark() else "subtrans")
 
         # If instructions file exists load the instructions from that
         instructions, retry_instructions = LoadInstructionsFile(options.get('instruction_file'))
@@ -80,6 +87,10 @@ class Options:
     def add(self, option, value):
         self.options[option] = value
 
+    def update(self, options: dict):
+        options = {k: v for k, v in options.items() if v}
+        self.options.update(options)
+
     def api_key(self):
         return self.get('api_key')
 
@@ -91,6 +102,14 @@ class Options:
             if value:
                 text = text.replace(f"[{name}]", str(value))
         return text
+    
+    def GetNonProjectSpecificOptions(self):
+        """
+        Get a copy of the options with only the default keys included
+        """
+        return Options({
+            key: self.get(key) for key in self.options.keys() & default_options.keys()
+        })
 
 def LoadInstructionsFile(filename):
     """

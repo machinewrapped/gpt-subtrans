@@ -1,11 +1,12 @@
 from os import linesep
-from pysrt import SubRipItem
+from pysrt import SubRipItem, SubRipTime
 
 from PySubtitleGPT.Helpers import FixTime
 
-class Subtitle:
+class SubtitleLine:
     """
-    Represents a single subtitle line, with an index and start and end times plus original text and translated text.
+    Represents a single line, with a number and start and end times plus original text 
+    and (optionally) an associated translation.
     """
     def __init__(self, line, translation=None):
         self.item = line
@@ -15,14 +16,14 @@ class Subtitle:
         return str(self.item)
 
     def __repr__(self):
-        return f"Subtitle({str(self.key)}, {repr(self.text)})"
+        return f"Line({str(self.key)}, {repr(self.text)})"
 
     @property
     def key(self):
-        return str(self.start) if self.start else self.index
+        return str(self.start) if self.start else self.number
 
     @property
-    def index(self):
+    def number(self):
         return self._item.index if self._item else None
 
     @property
@@ -30,12 +31,16 @@ class Subtitle:
         return self._item.text_without_tags if self._item else None
 
     @property
-    def start(self):
+    def start(self) -> SubRipTime:
         return self._item.start if self._item else None
     
     @property
-    def end(self):
+    def end(self) -> SubRipTime:
         return self._item.end if self._item else None
+    
+    @property
+    def duration(self) -> SubRipTime:
+        return self.end - self.start if self.start and self.end else SubRipTime()
 
     @property
     def line(self):
@@ -45,9 +50,9 @@ class Subtitle:
     def translated(self):
         if not self._item:
             return None 
-        subtitle = Subtitle(self._item)
-        subtitle.text = self.translation
-        return subtitle
+        line = SubtitleLine(self._item)
+        line.text = self.translation
+        return line
     
     @property
     def prompt(self):
@@ -65,42 +70,46 @@ class Subtitle:
         return self._item
 
     @classmethod
-    def construct(cls, index, start, end, text):
+    def Construct(cls, number, start, end, text):
         start = FixTime(start)
         end = FixTime(end)
-        item = SubRipItem(index, start, end, text)
-        return Subtitle(item) 
+        item = SubRipItem(number, start, end, text)
+        return SubtitleLine(item) 
     
     @classmethod
-    def from_dict(cls, values):
+    def FromDictionary(cls, values):
         """
-        Construct a Subtitle from a dictionary.
+        Construct a SubtitleLine from a dictionary.
         """
-        return Subtitle.construct(values.get('index'), values['start'].strip(), values['end'].strip(), values['body'].strip())
+        return SubtitleLine.Construct(
+            values.get('number') or values.get('index'), 
+            values['start'].strip(), 
+            values['end'].strip(), 
+            values['body'].strip())
 
     @classmethod
-    def from_match(cls, match):
+    def FromMatch(cls, match):
         """
-        Construct a Subtitle from a regex match.
+        Construct a SubtitleLine from a regex match.
 
         Really should use named groups, but findall doesn't seem to preserve the names. 
         """
         if len(match) > 3:
-            index, start, end, body = match
+            number, start, end, body = match
         else:
             start, end, body = match
-            index = None
+            number = None
             
-        return Subtitle.construct(index, start.strip(), end.strip(), body.strip())
+        return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
 
     @item.setter
     def item(self, item):
         self._item = SubRipItem.from_lines(str(item).strip().split('\n'))
 
-    @index.setter
-    def index(self, index):
+    @number.setter
+    def number(self, value):
         if self._item:
-            self._item.index = index
+            self._item.index = value
 
     @text.setter
     def text(self, text):
@@ -118,28 +127,28 @@ class Subtitle:
             self._item.end = SubRipItem.coerce(time)
 
     @classmethod
-    def GetSubtitles(lines):
+    def GetLines(lines):
         """
-        (re)parse the lines as subtitles, assuming SubRip format 
+        (re)parse the lines, assuming SubRip format 
         """
-        if all(isinstance(line, Subtitle) for line in lines):
+        if all(isinstance(line, SubtitleLine) for line in lines):
             return lines
         else:
-            return [Subtitle(line) for line in lines]
+            return [SubtitleLine(line) for line in lines]
 
     @classmethod
     def GetLineItems(lines, tag):
         """
-        Generate a set of translation lines for the translator
+        Generate a set of translation cues for the translator
         """
-        items = Subtitle.GetSubtitles(lines)
-        return [Subtitle.GetLineItem(item, tag) for item in items]
+        items = SubtitleLine.GetLines(lines)
+        return [ SubtitleLine.GetLineItem(item, tag) for item in items ]
 
     @classmethod
-    def GetLineItem(item, tag):
+    def GetLineItem(line, tag):
         """
-        Generate the translation prompt line for a subtitle
+        Format line for the translator
         """
-        line = f"<{tag} line={item.index}>{item.text}</{tag}>"
+        line = f"<{tag} line={line.number}>{line.text}</{tag}>"
         return line
 

@@ -32,6 +32,11 @@ class UntranslatedLinesError(TranslationError):
 
     def __str__(self) -> str:
         return str(self.args[0])
+    
+class UnmatchedLinesError(TranslationError):
+    def __init__(self, message, lines):
+        super().__init__(message)
+        self.lines = lines
 
 class TooManyNewlinesError(TranslationError):
     def __init__(self, message, lines):

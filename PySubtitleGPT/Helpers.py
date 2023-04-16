@@ -1,12 +1,20 @@
+import os
 import logging
 import re
 import pysrt
 
 def Linearise(lines):
-    if isinstance(lines, list):
-        lines = " | ".join(lines)
-    lines = [line.strip() for line in str(lines).split("\n")]
+    if not isinstance(lines, list):
+        lines = str(lines).split("\n")
+
+    lines = [ str(line).strip() for line in lines ]
     return " | ".join(lines)
+
+def UpdateFields(item : dict, update: dict, fields : list[str]):
+    """
+    Patch selected fields in a dictionary 
+    """
+    item.update({field: update[field] for field in update.keys() if field in fields})
 
 def FixTime(time):
     try:
@@ -33,6 +41,26 @@ def FixTime(time):
             return f"{parts[0]}:{parts[1]}:{parts[2]},{parts[3]}"
 
     raise ValueError("Unable to interpret time string '{time}'")
+
+def GetInputFilename(filename):
+    if not filename:
+        return None
+    
+    basename, _ = os.path.splitext(os.path.basename(filename))
+    if basename.endswith("-ChatGPT"):
+        basename = basename[0:basename.index("-ChatGPT")]
+    return f"{basename}.srt"
+
+def GetOutputFilename(filename):
+    if not filename:
+        return None
+    
+    basename, _ = os.path.splitext(os.path.basename(filename))
+    if not basename.endswith("-ChatGPT"):
+        basename = basename + "-ChatGPT"
+    return f"{basename}.srt"
+
+
 
 def GenerateBatchPrompt(prompt, lines, tag_lines=None):
     """
@@ -64,6 +92,9 @@ def GenerateTagLines(context, tags):
         return None
 
 def GenerateTag(tag, content):
+    if isinstance(content, list):
+        content = ', '.join(content)
+
     return f"<{tag}>{content}</{tag}>"
 
 def BuildPrompt(options):
@@ -84,7 +115,7 @@ def ParseTranslation(text):
     """
     text, summary = ExtractTag("summary", text)
     text, synopsis = ExtractTag("synopsis", text)
-    text, characters = ExtractTag("characters", text)
+    text, characters = ExtractTagList("characters", text)
 
     return text, summary, synopsis, characters
 
@@ -113,42 +144,56 @@ def ExtractTag(tagname, text):
 
     return text, tag
 
-def MergeTranslations(subtitles, translated):
+def ExtractTagList(tagname, text):
     """
-    Replace lines in subtitles with corresponding lines in translated
+    Look for an xml-like tag in the input text, and extract the contents as a comma or newline separated list.
     """
-    subtitle_dict = {item.key: item for item in subtitles}
+    text, tag = ExtractTag(tagname, text)
+    tag_list = [ item.strip() for item in re.split("[\n,]", tag) ] if tag else []
+    return text, tag_list
+
+def MergeTranslations(lines, translated):
+    """
+    Replace lines with corresponding lines in translated
+    """
+    line_dict = {item.key: item for item in lines}
 
     for item in translated:
-        subtitle_dict[item.key] = item
+        line_dict[item.key] = item
 
-    subtitles = sorted(subtitle_dict.values(), key=lambda item: item.start)
+    lines = sorted(line_dict.values(), key=lambda item: item.start)
 
-    return subtitles
+    return lines
 
 def UnbatchScenes(scenes):
     """
     Reconstruct a sequential subtitle from multiple scenes
     """
-    subtitles = []
+    originals = []
     translations = []
     untranslated = []
 
     for i_scene, scene in enumerate(scenes):
         for i_batch, batch in enumerate(scene.batches):
-            batch_subtitles = batch.subtitles if batch.subtitles else []
+            batch_originals = batch.originals if batch.originals else []
             batch_translations = batch.translated if batch.translated else []
             batch_untranslated = batch.untranslated if batch.untranslated else []
 
-            subtitles.extend(batch_subtitles)
+            originals.extend(batch_originals)
             translations.extend(batch_translations)
             untranslated.extend(batch_untranslated)
     
-    # Renumber
-    for index, line in enumerate(translations):
-        line.index = index + 1
+    return originals, translations, untranslated
 
-    return subtitles, translations, untranslated
+def ParseCharacters(character_list):
+    if isinstance(character_list, str):
+        character_list = re.split("[\n,]", character_list)
+
+    if isinstance(character_list, list):
+        return [ name.strip() for name in character_list ]
+    
+    return []
+
 
 def ParseSubstitutions(sub_list, separator="::"):
     """
@@ -161,27 +206,35 @@ def ParseSubstitutions(sub_list, separator="::"):
     if not sub_list:
         return {}
     
-    substitutions = {}
-    for sub in sub_list:
-        if "::" in sub:
-            before, after = sub.split(separator)
-            substitutions[before] = after
-        else:
-            try:
-                with open(sub, "r", encoding="utf-8") as f:
-                    for line in [line.strip() for line in f if line.strip()]:
-                        if "::" in line:
-                            before, after = line.split("::")
-                            substitutions[before] = after
-                        else:
-                            raise ValueError(f"Invalid substitution format in {sub}: {line}")
-            except FileNotFoundError:
-                logging.warning(f"Substitution file not found: {sub}")
-            except ValueError:
-                raise
-    
-    return substitutions
+    if isinstance(sub_list, dict):
+        return sub_list
 
+    if isinstance(sub_list, str):
+        sub_list = re.split("[\n,]", sub_list)
+
+    if isinstance(sub_list, list):
+        substitutions = {}
+        for sub in sub_list:
+            if "::" in sub:
+                before, after = sub.split(separator)
+                substitutions[before] = after
+            else:
+                try:
+                    with open(sub, "r", encoding="utf-8") as f:
+                        for line in [line.strip() for line in f if line.strip()]:
+                            if "::" in line:
+                                before, after = line.split("::")
+                                substitutions[before] = after
+                            else:
+                                raise ValueError(f"Invalid substitution format in {sub}: {line}")
+                except FileNotFoundError:
+                    logging.warning(f"Substitution file not found: {sub}")
+                except ValueError:
+                    raise
+        
+        return substitutions
+
+    return {}
 
 def PerformSubstitutions(substitutions, input):
     """
@@ -205,3 +258,4 @@ def PerformSubstitutions(substitutions, input):
         result = re.sub(pattern, after, result)
         
     return result
+

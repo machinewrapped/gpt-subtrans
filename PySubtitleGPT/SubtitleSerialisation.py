@@ -1,7 +1,7 @@
 import json
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.Subtitle import Subtitle
+from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleError import TranslationError
 from PySubtitleGPT.SubtitleFile import SubtitleFile
@@ -46,7 +46,7 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleScene):
             return {
-                "number": getattr(obj, 'number'),
+                "scene": getattr(obj, 'number'),
                 "batchcount": obj.size,
                 "linecount": obj.linecount,
                 "all_translated": obj.all_translated,
@@ -58,19 +58,20 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleBatch):
             return {
-                "number": getattr(obj, 'number'),
+                "scene": getattr(obj, 'scene'),
+                "batch": getattr(obj, 'number'),
                 "size": obj.size,
                 "all_translated": obj.all_translated,
                 "errors": obj.errors if obj.errors else None,
                 "summary": getattr(obj, 'summary'),
-                "subtitles": obj._subtitles,
+                "originals": obj._originals,
                 "translated": obj._translated,
                 "context": {
                     "summary": obj.context.get('summary')
                 },
                 "translation": obj.translation
             }
-        elif isinstance(obj, Subtitle):
+        elif isinstance(obj, SubtitleLine):
             return {
                 "line": obj.line,
                 "translation": getattr(obj, 'translation'),
@@ -110,16 +111,12 @@ class SubtitleDecoder(json.JSONDecoder):
                 obj.scenes = dct.get('scenes', [])
                 return obj
             elif class_name == classname(SubtitleScene):
-                obj = SubtitleScene()
-                obj.number = dct.get('number')
-                obj.context = dct.get('context') or {}
-                obj._batches = dct.get('batches') or []
-                obj._summary = dct.get('summary')
+                obj = SubtitleScene(dct)
                 return obj
             elif class_name == classname(SubtitleBatch):
                 return SubtitleBatch(dct)
-            elif class_name == classname(Subtitle):
-                return Subtitle(dct['line'], dct.get('translation'))
+            elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
+                return SubtitleLine(dct['line'], dct.get('translation'))
             elif class_name == classname(ChatGPTTranslation):
                 response = {
                     'text' : dct.get('text'),
@@ -129,6 +126,11 @@ class SubtitleDecoder(json.JSONDecoder):
                     'completion_tokens' : dct.get('completion_tokens'),
                     'total_tokens' : dct.get('total_tokens'),
                     }
+                
+                if isinstance(response['text'], list):
+                    # This shouldn't happen, but try to recover if it does
+                    response['text'] = '\n'.join(response['text'])
+
                 obj = ChatGPTTranslation(response, dct.get('prompt'))
                 obj.summary = dct.get('summary', None)
                 obj.synopsis = dct.get('synopsis', None)

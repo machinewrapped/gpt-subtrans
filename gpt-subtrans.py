@@ -2,7 +2,7 @@ import os
 import argparse
 import logging
 
-from PySubtitleGPT.Helpers import ParseSubstitutions
+from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
@@ -19,6 +19,7 @@ parser.add_argument('-r', '--ratelimit', type=int, default=None, help="Maximum n
 parser.add_argument('-k', '--apikey', type=str, default=None, help="Your OpenAI API Key (https://platform.openai.com/account/api-keys)")
 parser.add_argument('-t', '--temperature', type=float, default=0.0, help="A higher temperature increases the random variance of translations.")
 parser.add_argument('-p', '--project', type=str, default=None, help="Read or Write project file to working directory")
+parser.add_argument('-c', '--character', action='append', type=str, default=None, help="Read or Write project file to working directory")
 parser.add_argument('-s', '--substitution', action='append', type=str, default=None, help="A pair of strings separated by ::, to subsitute in source or translation")
 parser.add_argument('-i', '--instruction', action='append', type=str, default=None, help="An instruction for Chat GPT about the translation")
 parser.add_argument('-f', '--instructionfile', type=str, default=None, help="Name/path of a file to load GPT instructions from")
@@ -33,14 +34,14 @@ parser.add_argument('--maxlines', type=int, default=None, help="Maximum number o
 args = parser.parse_args()
 
 try:
-    options = Options({
+    source = Options({
         'api_key': args.apikey,
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,
         'target_language': args.target_language,
         'movie_name': args.moviename or args.input,
         'synopsis': args.synopsis,
-        'characters': args.characters,
+        'characters': ParseCharacters(args.characters or args.character),
         'substitutions': ParseSubstitutions(args.substitution),
         'instruction_file': args.instructionfile,
         'instruction_args': args.instruction,
@@ -52,7 +53,7 @@ try:
     })
 
     # Process the project options
-    project = SubtitleProject(options)
+    project = SubtitleProject(source)
 
     project.Initialise(args.input, args.output)
 

@@ -1,3 +1,7 @@
 python-dotenv
-pysrt
+debugpy
 openai
+pysrt
+events
+pyside6
+darkdetect
