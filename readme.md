@@ -44,7 +44,8 @@ This will activate the virtual environment and call the translation script with 
 
 The program works by dividing the subtitles up into small batches and sending each one to Chat GPT in turn. It is likely to take a long time to complete, and can potentially make hundreds of API calls.
 
-Note: GPT-Subtrans requires an active internet connection to access the OpenAI API.
+Note: GPT-Subtrans requires an active internet connection to access the OpenAI API. Data is sent to their servers for translation, so their privacy policy applies: https://openai.com/policies/privacy-policy.
+
 
 By default The translated subtitles will be written to a new SRT file with the suffix -ChatGPT added to the original filename, in the same directory.
 

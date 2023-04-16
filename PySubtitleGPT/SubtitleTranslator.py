@@ -8,7 +8,7 @@ from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 
-from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, UntranslatedLinesError
+from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
 from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
@@ -191,6 +191,12 @@ class SubtitleTranslator:
                     # Ask OpenAI to do the translation
                     translation : ChatGPTTranslation = client.RequestTranslation(prompt, originals, context)
 
+                    if translation.quota_reached:
+                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
+
+                    if translation.quota_reached:
+                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
+
                     if translation.reached_token_limit:
                         # Try again without the context to keep the tokens down
                         logging.warning("Hit API token limit, retrying batch without context...")
@@ -206,11 +212,10 @@ class SubtitleTranslator:
                     self.ProcessTranslation(batch, context, client)
 
                 else:
-                    logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
-
+                    logging.warning(f"No translation for scene {scene.number} batch {batch.number}")
 
             except TranslationError as e:
-                if options.get('stop_on_error'):
+                if options.get('stop_on_error') or isinstance(e, TranslationImpossibleError):
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
                 else:
                     logging.warning(f"Error translating batch: {str(e)}")

@@ -28,6 +28,10 @@ class ChatGPTTranslation:
     @property
     def reached_token_limit(self):
         return self.finish_reason == "length"
+    
+    @property
+    def quota_reached(self):
+        return self.finish_reason == "quota_reached"
 
     def PerformSubstitutions(self, substitutions):
         """
