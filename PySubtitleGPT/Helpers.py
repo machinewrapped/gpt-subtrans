@@ -1,3 +1,4 @@
+import os
 import logging
 import re
 import pysrt
@@ -40,6 +41,26 @@ def FixTime(time):
             return f"{parts[0]}:{parts[1]}:{parts[2]},{parts[3]}"
 
     raise ValueError("Unable to interpret time string '{time}'")
+
+def GetInputFilename(filename):
+    if not filename:
+        return None
+    
+    basename, _ = os.path.splitext(os.path.basename(filename))
+    if basename.endswith("-ChatGPT"):
+        basename = basename[0:basename.index("-ChatGPT")]
+    return f"{basename}.srt"
+
+def GetOutputFilename(filename):
+    if not filename:
+        return None
+    
+    basename, _ = os.path.splitext(os.path.basename(filename))
+    if not basename.endswith("-ChatGPT"):
+        basename = basename + "-ChatGPT"
+    return f"{basename}.srt"
+
+
 
 def GenerateBatchPrompt(prompt, lines, tag_lines=None):
     """

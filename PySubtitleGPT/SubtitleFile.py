@@ -3,7 +3,7 @@ import logging
 import threading
 import pysrt
 from pysrt import SubRipFile
-from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitleGPT.Helpers import GetInputFilename, GetOutputFilename, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
@@ -15,7 +15,8 @@ fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
 # High level class for manipulating subtitle files
 class SubtitleFile:
     def __init__(self, filename = None):
-        self.filename = filename
+        self.sourcefile = GetInputFilename(filename)
+        self.filename = GetOutputFilename(filename)
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.context = {}
@@ -39,7 +40,7 @@ class SubtitleFile:
     @property
     def scenes(self):
         return self._scenes
-
+    
     @scenes.setter
     def scenes(self, scenes : list[SubtitleScene]):
         with self.lock:
@@ -66,18 +67,16 @@ class SubtitleFile:
         """
         Load subtitles from an SRT file
         """
-        if not self.filename:
-            inputname, _ = os.path.splitext(os.path.basename(filename))
-            filename = f"{inputname}-ChatGPT.srt"
+        self.sourcefile = GetInputFilename(filename)
 
         try:
-            srt = pysrt.open(filename)
+            srt = pysrt.open(self.sourcefile)
             
         except UnicodeDecodeError as e:
             srt = pysrt.open(filename, encoding=fallback_encoding)
 
         with self.lock:
-            self.filename = filename
+            self.filename = GetOutputFilename(filename)
             self.originals = [ SubtitleLine(item) for item in srt ]
         
     # Write original subtitles to an SRT file
@@ -228,4 +227,3 @@ class SubtitleFile:
                     del translated_map[line.number]
 
                 line.number = number
-
