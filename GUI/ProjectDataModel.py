@@ -10,7 +10,7 @@ class ProjectDataModel:
         self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
         self.options = Options({
-            'project': 'resume'
+            'project': 'true'
         })
         self.mutex = QMutex()
 
