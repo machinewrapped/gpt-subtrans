@@ -42,7 +42,7 @@ default_options = {
     'max_retries': int(os.getenv('MAX_RETRIES', 5)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
     'project' : os.getenv('PROJECT', None),
-    'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY'),
+    'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY', True),
     'stop_on_error' : env_bool('STOP_ON_ERROR'),
     'write_backup' : env_bool('WRITE_BACKUP_FILE', True),
     'theme' : os.getenv('THEME', None)
