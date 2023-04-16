@@ -3,7 +3,7 @@ import logging
 import threading
 import pysrt
 from pysrt import SubRipFile
-from PySubtitleGPT.Helpers import GetInputFilename, GetOutputFilename, ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitleGPT.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
@@ -15,8 +15,8 @@ fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
 # High level class for manipulating subtitle files
 class SubtitleFile:
     def __init__(self, filename = None):
-        self.sourcefile = GetInputFilename(filename)
-        self.filename = GetOutputFilename(filename)
+        self.inputpath = GetInputPath(filename)
+        self.outputpath = GetOutputPath(filename)
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.context = {}
@@ -67,22 +67,22 @@ class SubtitleFile:
         """
         Load subtitles from an SRT file
         """
-        self.sourcefile = GetInputFilename(filename)
+        self.inputpath = GetInputPath(filename)
 
         try:
-            srt = pysrt.open(self.sourcefile)
+            srt = pysrt.open(self.inputpath)
             
         except UnicodeDecodeError as e:
             srt = pysrt.open(filename, encoding=fallback_encoding)
 
         with self.lock:
-            self.filename = GetOutputFilename(filename)
+            self.outputpath = GetOutputPath(filename)
             self.originals = [ SubtitleLine(item) for item in srt ]
         
     # Write original subtitles to an SRT file
     def SaveOriginals(self, filename : str = None):
-        self.filename = filename or self.filename 
-        if not self.filename:
+        self.outputpath = filename or self.outputpath
+        if not self.outputpath:
             raise ValueError("No filename set")
 
         with self.lock:
@@ -93,7 +93,7 @@ class SubtitleFile:
         """
         Write translated subtitles to an SRT file
         """
-        filename = filename or self.filename 
+        filename = filename or self.outputpath
         if not filename:
             raise ValueError("No filename set")
         

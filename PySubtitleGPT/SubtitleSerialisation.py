@@ -39,7 +39,7 @@ class SubtitleEncoder(json.JSONEncoder):
         
         if isinstance(obj, SubtitleFile):
             return {
-                "filename": obj.filename,
+                "filename": obj.outputpath,
                 "scenecount": len(obj.scenes),
                 "context": getattr(obj, 'context'),
                 "scenes": obj.scenes,

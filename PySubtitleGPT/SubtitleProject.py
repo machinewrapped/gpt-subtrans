@@ -45,14 +45,14 @@ class SubtitleProject:
             self.stop_event.set()
             self.periodic_update_thread.join()
 
-    def Initialise(self, filename, outfilename = None):
+    def Initialise(self, filepath, outfilename = None):
         """
         Initialize the project by either loading an existing project file or creating a new one.
         Load the subtitles to be translated, either from the project file or the source file.
 
         :param filename: the path to the source subtitle file (in .srt format) to be translated
         """ 
-        self.projectfile = self.GetProjectFilename(filename or "subtitles")
+        self.projectfile = self.GetProjectFilename(filepath or "subtitles")
 
         options : Options = self.options
 
@@ -72,13 +72,13 @@ class SubtitleProject:
 
         if self.load_subtitles:
             # (re)load the source subtitle file if required
-            subtitles = self.LoadSubtitleFile(filename)
+            subtitles = self.LoadSubtitleFile(filepath)
 
         if outfilename:
-            subtitles.filename = outfilename
+            subtitles.outputpath = outfilename
 
         if not subtitles.has_subtitles:
-            raise ValueError(f"No subtitles to translate in {filename}")
+            raise ValueError(f"No subtitles to translate in {filepath}")
 
     def TranslateSubtitles(self):
         """
@@ -142,13 +142,13 @@ class SubtitleProject:
             return filename
         return os.path.join(os.getcwd(), f"{name}.subtrans")
     
-    def LoadSubtitleFile(self, filename):
+    def LoadSubtitleFile(self, filepath):
         """
         Load subtitles from an SRT file
         """
         with self.lock:
             self.subtitles = SubtitleFile()
-            self.subtitles.LoadSubtitles(filename)
+            self.subtitles.LoadSubtitles(filepath)
             self.subtitles.UpdateContext(self.options)
             self.subtitles.project = self
         return self.subtitles
