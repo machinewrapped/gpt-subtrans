@@ -169,9 +169,8 @@ class SubtitleProject:
         """
         Save a backup copy of the project
         """
-        with self.lock:
-            if self.subtitles and self.projectfile:
-                self.WriteProjectFile(f"{self.projectfile}-backup")
+        if self.subtitles and self.projectfile:
+            self.WriteProjectFile(f"{self.projectfile}-backup")
 
     def ReadProjectFile(self):
         """
