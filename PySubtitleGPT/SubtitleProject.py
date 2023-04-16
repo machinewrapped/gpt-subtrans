@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+import threading
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleFile import SubtitleFile
@@ -16,6 +17,7 @@ class SubtitleProject:
         self.subtitles : SubtitleFile = None
         self.events = TranslationEvents()
         self.projectfile = None
+        self.lock = threading.Lock()
         
         project_mode = options.get('project', '')
         if project_mode:
@@ -134,56 +136,60 @@ class SubtitleProject:
         """
         Load subtitles from an SRT file
         """
-        self.subtitles = SubtitleFile()
-        self.subtitles.LoadSubtitles(filename)
-        self.subtitles.UpdateContext(self.options)
-        self.subtitles.project = self
+        with self.lock:
+            self.subtitles = SubtitleFile()
+            self.subtitles.LoadSubtitles(filename)
+            self.subtitles.UpdateContext(self.options)
+            self.subtitles.project = self
         return self.subtitles
 
     def WriteProjectFile(self, projectfile = None):
         """
         Write a set of subtitles to a project file
         """
-        if not self.subtitles:
-            raise ValueError("Can't write project file, no subtitles")
+        with self.lock:
+            if not self.subtitles:
+                raise ValueError("Can't write project file, no subtitles")
 
-        if not isinstance(self.subtitles, SubtitleFile):
-            raise ValueError("Asked to write a project file with the wrong content type")
+            if not isinstance(self.subtitles, SubtitleFile):
+                raise ValueError("Asked to write a project file with the wrong content type")
 
-        if not self.subtitles.scenes:
-            raise ValueError("Asked to write a project file with no scenes")
+            if not self.subtitles.scenes:
+                raise ValueError("Asked to write a project file with no scenes")
 
-        projectfile = projectfile or self.projectfile
+            projectfile = projectfile or self.projectfile
 
-        logging.info(f"Writing project data to {str(projectfile)}")
+            logging.info(f"Writing project data to {str(projectfile)}")
 
-        with open(projectfile, 'w', encoding=default_encoding) as f:
-            project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
-            f.write(project_json)
+            with open(projectfile, 'w', encoding=default_encoding) as f:
+                project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
+                f.write(project_json)
 
-        self.projectfile = projectfile
+            self.projectfile = projectfile
 
     def WriteBackupFile(self):
         """
         Save a backup copy of the project
         """
-        if self.subtitles and self.projectfile:
-            self.WriteProjectFile(f"{self.projectfile}-backup")
+        with self.lock:
+            if self.subtitles and self.projectfile:
+                self.WriteProjectFile(f"{self.projectfile}-backup")
 
     def ReadProjectFile(self):
         """
         Load scenes, subtitles and context from a project file
         """
-        logging.info(f"Reading project data from {str(self.projectfile)}")
-
         try:
-            with open(self.projectfile, 'r', encoding=default_encoding) as f:
-                subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
+            with self.lock:
+                logging.info(f"Reading project data from {str(self.projectfile)}")
 
-            subtitles.project = self
-            self.subtitles = subtitles
-            self.subtitles.UpdateContext(self.options)
-            return subtitles
+                with open(self.projectfile, 'r', encoding=default_encoding) as f:
+                    subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
+
+                subtitles.project = self
+                self.subtitles = subtitles
+                self.subtitles.UpdateContext(self.options)
+                return subtitles
 
         except FileNotFoundError:
             logging.error(f"Project file {self.projectfile} not found")
@@ -215,15 +221,14 @@ class SubtitleProject:
         if all(options.get(key) == self.options.get(key) for key in options.keys()):
             return
 
-        # Update "self.options"
-        self.options.update(options)
+        with self.lock:
+            # Update "self.options"
+            self.options.update(options)
 
-        if self.subtitles:
-            self.subtitles.UpdateContext(self.options)
+            if self.subtitles:
+                self.subtitles.UpdateContext(self.options)
 
         self.UpdateProjectFile()
-
-#########################################################################
 
     def _on_preprocessed(self, scenes):
         logging.debug("Pre-processing finished")

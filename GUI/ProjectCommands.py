@@ -114,23 +114,31 @@ class TranslateSceneCommand(Command):
 
         scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
 
+        project.events.batch_translated -= self._on_batch_translated
+
         if scene:
             self.datamodel_update[scene.number].update({
                 'summary' : scene.summary
             })
 
+            for batch in scene.batches:
+                if not self.batch_numbers or batch.number in self.batch_numbers:
+                    self.datamodel_update[self.scene_number][batch.number] = {
+                        'summary' : batch.summary,
+                        'context' : batch.context,
+                        'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
+                    }
+
         return True
     
     def _on_batch_translated(self, batch : SubtitleBatch):
-        update = {
-            'summary' : batch.summary,
-            'context' : batch.context,
-            'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
-        }
-
-        self.datamodel_update[self.scene_number][batch.number] = update
-
-        self.modelUpdated.emit({ batch.scene : { 'batches' : { batch.number : update } } })
+        if self.datamodel:
+            update = {
+                'summary' : batch.summary,
+                'context' : batch.context,
+                'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
+            }
+            self.datamodel.UpdateViewModel({ batch.scene : { 'batches' : { batch.number : update } } })
 
 #############################################################
 

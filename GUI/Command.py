@@ -7,7 +7,6 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 class Command(QRunnable, QObject):
     commandExecuted = Signal(object, bool)
-    modelUpdated = Signal(object)
 
     def __init__(self, datamodel : ProjectDataModel = None):
         QRunnable.__init__(self)

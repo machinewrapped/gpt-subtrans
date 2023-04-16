@@ -11,18 +11,26 @@ class CommandQueue(QObject):
     """
     commandAdded = Signal(object)
     commandExecuted = Signal(object, bool)
-    modelUpdated = Signal(object)
     
-    undo_stack = []
-
-    def __init__(self):
-        super().__init__()
-
-        self.command_pool = QThreadPool()
-        self.command_pool.setMaxThreadCount(1)  #TODO: simultaneous scene translations should be possible
-        self.mutex = QMutex()
+    def __init__(self, parent):
+        super().__init__(parent)
 
         self.logger = logging.getLogger("CommandQueue")
+
+        self.queue = []
+        self.undo_stack = []
+
+        self.mutex = QMutex()
+
+        self.command_pool = QThreadPool(self)
+        self.SetMaxThreadCount(1)
+
+    def SetMaxThreadCount(self, count):
+        """
+        Maximum number of worker threads
+        """
+        self.command_pool.setMaxThreadCount(count)
+
 
     def Stop(self):
         """
@@ -38,6 +46,7 @@ class CommandQueue(QObject):
             raise ValueError(f"Issued a command that is not a Command ({type(command).__name__})")
 
         self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
+        command.setParent(self)
         with QMutexLocker(self.mutex):
             self._queue_command(command, datamodel, callback, undo_callback)
 
@@ -50,21 +59,25 @@ class CommandQueue(QObject):
         self.logger.debug(f"A {type(command).__name__} command was completed")
         self.undo_stack.append(command)
 
-        if command.commands_to_queue:
-            with QMutexLocker(self.mutex):
+        with QMutexLocker(self.mutex):
+            self.queue.remove(command)
+
+            if command.commands_to_queue:
                 for command in command.commands_to_queue:
                     self._queue_command(command, command.datamodel)
 
-            for command in command.commands_to_queue:
-                self.logger.debug(f"Added a {type(command).__name__} command to the queue")
-                self.commandAdded.emit(command)
-
+                for command in command.commands_to_queue:
+                    self.logger.debug(f"Added a {type(command).__name__} command to the queue")
+                    self.commandAdded.emit(command)
+            
         self.commandExecuted.emit(command, success)
 
     def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
         """
         Add a command to the worker thread queue
         """
+        self.queue.append(command)
+
         if datamodel:
             command.SetDataModel(datamodel)
         if callback:
@@ -73,6 +86,5 @@ class CommandQueue(QObject):
             command.SetUndoCallback(undo_callback)
 
         command.commandExecuted.connect(self._on_command_executed)
-        command.modelUpdated.connect(self.modelUpdated)
 
         self.command_pool.start(command)

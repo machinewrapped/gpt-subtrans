@@ -47,9 +47,9 @@ class MainWindow(QMainWindow):
         self.datamodel = ProjectDataModel()
 
         # Create the command queue
-        self.command_queue = CommandQueue()
+        self.command_queue = CommandQueue(self)
+        self.command_queue.SetMaxThreadCount(4)
         self.command_queue.commandExecuted.connect(self._on_command_complete)
-        self.command_queue.modelUpdated.connect(self._on_model_updated)
 
         # Create centralised action handler
         self.action_handler = ProjectActions(mainwindow=self)
@@ -132,10 +132,6 @@ class MainWindow(QMainWindow):
 
         else:
             self.statusBar().showMessage(f"{type(command).__name__} failed.")
-
-    def _on_model_updated(self, update : dict):
-        logging.debug(f"Model update: {str(update)}")
-        self.datamodel.UpdateViewModel(update)
 
     def _on_options_changed(self, options: dict):
         if options and self.project:

@@ -1,7 +1,5 @@
-import logging
-from PySide6.QtCore import Qt, QMutex, QMutexLocker
+from PySide6.QtCore import QMutex, QMutexLocker
 from GUI.ProjectViewModel import ProjectViewModel
-from PySubtitleGPT.Helpers import UpdateFields
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
@@ -29,12 +27,13 @@ class ProjectDataModel:
         cls._action_handlers[action_name] = handlers
 
     def PerformModelAction(self, action_name : str, params):
-        handlers = self._action_handlers.get(action_name)
-        if handlers:
-            for handler in handlers:
-                handler(self, *params)
-        else:
-            raise ValueError(f"No handler defined for action {action_name}")
+        with QMutexLocker(self.mutex):
+            handlers = self._action_handlers.get(action_name)
+            if handlers:
+                for handler in handlers:
+                    handler(self, *params)
+            else:
+                raise ValueError(f"No handler defined for action {action_name}")
 
     def CreateViewModel(self):
         with QMutexLocker(self.mutex):

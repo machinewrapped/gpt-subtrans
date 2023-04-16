@@ -1,10 +1,10 @@
 import os
 import logging
+import threading
 import pysrt
 from pysrt import SubRipFile
 from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.SubtitleError import TranslationError
@@ -20,6 +20,7 @@ class SubtitleFile:
         self.translated : list[SubtitleLine] = None
         self.context = {}
         self._scenes : list[SubtitleScene] = []
+        self.lock = threading.RLock()
 
     @property
     def has_subtitles(self):
@@ -27,11 +28,13 @@ class SubtitleFile:
     
     @property
     def linecount(self):
-        return len(self.originals) if self.originals else 0
+        with self.lock:
+            return len(self.originals) if self.originals else 0
     
     @property
     def scenecount(self):
-        return len(self.scenes) if self.scenes else 0
+        with self.lock:
+            return len(self.scenes) if self.scenes else 0
     
     @property
     def scenes(self):
@@ -39,15 +42,18 @@ class SubtitleFile:
 
     @scenes.setter
     def scenes(self, scenes : list[SubtitleScene]):
-        self._scenes = scenes
-        self.originals, self.translated, _ = UnbatchScenes(scenes)
-        self.Renumber()
+        with self.lock:
+            self._scenes = scenes
+            self.originals, self.translated, _ = UnbatchScenes(scenes)
+            self.Renumber()
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
         if not self.scenes:
             raise ValueError("Subtitles have not been batched")
         
-        matches = [scene for scene in self.scenes if scene.number == scene_number ]
+        with self.lock:
+            matches = [scene for scene in self.scenes if scene.number == scene_number ]
+    
         if not matches:
             raise ValueError(f"Scene {scene_number} does not exist")
         
@@ -62,7 +68,7 @@ class SubtitleFile:
         """
         if not self.filename:
             inputname, _ = os.path.splitext(os.path.basename(filename))
-            self.filename = f"{inputname}-ChatGPT.srt"
+            filename = f"{inputname}-ChatGPT.srt"
 
         try:
             srt = pysrt.open(filename)
@@ -70,7 +76,9 @@ class SubtitleFile:
         except UnicodeDecodeError as e:
             srt = pysrt.open(filename, encoding=fallback_encoding)
 
-        self.originals = [ SubtitleLine(item) for item in srt ]
+        with self.lock:
+            self.filename = filename
+            self.originals = [ SubtitleLine(item) for item in srt ]
         
     # Write original subtitles to an SRT file
     def SaveOriginals(self, filename : str = None):
@@ -78,8 +86,9 @@ class SubtitleFile:
         if not self.filename:
             raise ValueError("No filename set")
 
-        srtfile = SubRipFile(items=self.originals)
-        srtfile.save(filename)
+        with self.lock:
+            srtfile = SubRipFile(items=self.originals)
+            srtfile.save(filename)
 
     def SaveTranslation(self, filename : str = None):
         """
@@ -95,8 +104,9 @@ class SubtitleFile:
 
         logging.info(f"Saving translation to {str(filename)}")
 
-        srtfile = SubRipFile(items=self.translated)
-        srtfile.save(filename)
+        with self.lock:
+            srtfile = SubRipFile(items=self.translated)
+            srtfile.save(filename)
 
     def UpdateContext(self, options):
         """
@@ -120,23 +130,25 @@ class SubtitleFile:
             'scene_threshold' : None,
         }
 
-        if self.context:
-            context = {**context, **self.context}
+        with self.lock:
+            if self.context:
+                context = {**context, **self.context}
 
-        context['characters'] = ParseCharacters(context.get('characters'))
-        options['characters'] = ParseCharacters(options.get('characters'))
+            context['characters'] = ParseCharacters(context.get('characters'))
+            options['characters'] = ParseCharacters(options.get('characters'))
 
-        context['substitutions'] = ParseSubstitutions(context.get('substitutions'))
-        options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
+            context['substitutions'] = ParseSubstitutions(context.get('substitutions'))
+            options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
 
-        # Update the context dictionary with matching fields from options, and vice versa
-        for key in context.keys():
-            if options.get(key):
-                context[key] = options[key]
-            elif context[key]:
-                options[key] = context[key]
+            # Update the context dictionary with matching fields from options, and vice versa
+            for key in context.keys():
+                if options.get(key):
+                    context[key] = options[key]
+                elif context[key]:
+                    options[key] = context[key]
 
-        self.context = context
+            self.context = context
+
         return context
 
     def AutoBatch(self, options):
@@ -145,12 +157,13 @@ class SubtitleFile:
         """
         batcher = SubtitleBatcher(options)
 
-        self.scenes = batcher.BatchSubtitles(self.originals)
+        with self.lock:
+            self.scenes = batcher.BatchSubtitles(self.originals)
 
     def AddScene(self, scene):
-        self.scenes.append(scene)
-
-        logging.debug("Added a new scene")
+        with self.lock:
+            self.scenes.append(scene)
+            logging.debug("Added a new scene")
 
     def MergeScenes(self, scene_numbers: list[int]):
         """
@@ -163,20 +176,21 @@ class SubtitleFile:
         if scene_numbers != list(range(scene_numbers[0], scene_numbers[0] + len(scene_numbers))):
             raise ValueError("Scene numbers to be merged are not sequential")
 
-        scenes = [scene for scene in self.scenes if scene.number in scene_numbers]
-        if len(scenes) != len(scene_numbers):
-            raise ValueError(f"Could not find scenes {','.join(scene_numbers)}")
+        with self.lock:
+            scenes = [scene for scene in self.scenes if scene.number in scene_numbers]
+            if len(scenes) != len(scene_numbers):
+                raise ValueError(f"Could not find scenes {','.join(scene_numbers)}")
 
-        # Merge all scenes into the first
-        scenes[0].MergeScenes(scenes[1:])
+            # Merge all scenes into the first
+            scenes[0].MergeScenes(scenes[1:])
 
-        # Slice out the merged scenes
-        start_index = self.scenes.index(scenes[0])
-        end_index = self.scenes.index(scenes[-1])
-        self.scenes = self.scenes[:start_index + 1] + self.scenes[end_index+1:]
+            # Slice out the merged scenes
+            start_index = self.scenes.index(scenes[0])
+            end_index = self.scenes.index(scenes[-1])
+            self.scenes = self.scenes[:start_index + 1] + self.scenes[end_index+1:]
 
-        for number, scene in enumerate(self.scenes, start = 1):
-            scene.number = number
+            for number, scene in enumerate(self.scenes, start = 1):
+                scene.number = number
 
     def MergeBatches(self, scene_number : int, batch_numbers: list[int]):
         """
@@ -185,31 +199,33 @@ class SubtitleFile:
         if not batch_numbers:
             raise ValueError("No batch numbers supplied to MergeBatches")
 
-        scene : SubtitleScene = next((scene for scene in self.scenes if scene.number == scene_number), None)
-        if not scene:
-            raise ValueError(f"Scene {str(scene_number)} not found")
+        with self.lock:
+            scene : SubtitleScene = next((scene for scene in self.scenes if scene.number == scene_number), None)
+            if not scene:
+                raise ValueError(f"Scene {str(scene_number)} not found")
 
-        scene.MergeBatches(batch_numbers)
+            scene.MergeBatches(batch_numbers)
 
     def Renumber(self):
         """
         Force monotonic numbering of scenes, batches, lines and translated lines
         """
-        for scene_number, scene in enumerate(self.scenes, start=1):
-            scene.number = scene_number
-            for batch_number, batch in enumerate(scene.batches, start=1):
-                batch.number = batch_number
-                batch.scene = scene.number
+        with self.lock:
+            for scene_number, scene in enumerate(self.scenes, start=1):
+                scene.number = scene_number
+                for batch_number, batch in enumerate(scene.batches, start=1):
+                    batch.number = batch_number
+                    batch.scene = scene.number
 
-        # Renumber lines sequentially and remap translated indexes
-        translated_map = { translated.number: translated for translated in self.translated } if self.translated else None
+            # Renumber lines sequentially and remap translated indexes
+            translated_map = { translated.number: translated for translated in self.translated } if self.translated else None
 
-        for number, line in enumerate(self.originals, start=1):
-            # If there is a matching translation, remap its number
-            if translated_map and line.number in translated_map:
-                translated = translated_map[line.number]
-                translated.number = number
-                del translated_map[line.number]
+            for number, line in enumerate(self.originals, start=1):
+                # If there is a matching translation, remap its number
+                if translated_map and line.number in translated_map:
+                    translated = translated_map[line.number]
+                    translated.number = number
+                    del translated_map[line.number]
 
-            line.number = number
+                line.number = number
 
