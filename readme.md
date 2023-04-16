@@ -1,6 +1,11 @@
 # GPT-Subtrans
 GPT-Subtrans is an open source subtitle translator built with OpenAI's ChatGPT. It can translate subtitles between any language pairs supported by the GPT language model. You will need an OpenAI API key from https://platform.openai.com/account/api-keys to use the translator. If you are on the free trial the speed will be severely restricted.
 
+Note: GPT-Subtrans requires an active internet connection to access the OpenAI API. Subtitles are sent to OpenAI's servers for translation, so their privacy policy applies: https://openai.com/policies/privacy-policy.
+
+## New
+Merged the GUI branch into main. The GUI is now the best way to use the translator, even though it is far from finished. 
+
 ## Installation
 To install GPT-Subtrans, you will need to have Python 3.x and pip installed on your system.
 
@@ -8,7 +13,8 @@ To install GPT-Subtrans, you will need to have Python 3.x and pip installed on y
 ```
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
-The easiest setup method for most Windows users is to then run `install.bat` and enter your OpenAI API key when prompted. You can then skip the remaining steps.
+
+** The easiest setup method for most Windows users is to run `install.bat` or `install.sh` and enter your OpenAI API key when prompted. You can then skip the remaining installation steps. **
 
 2. Create a new file named .env in the root directory of the project. Add your OpenAI API key to the .env file like this:
 ```
@@ -32,32 +38,34 @@ The easiest setup method for most Windows users is to then run `install.bat` and
 
 Note that steps 3 and 4 are optional, but they can help prevent conflicts with other Python applications.
 
-
 ## Usage
 
-The simplest way use GPT-Subtrans is with a console command. From the root directory of the project run:
+The easiest way for most people to use GPT-Subtrans is with the GUI. After installation launch the GUI with the `gui-subtrans` command or shell script, and in theory the rest should be self-explanatory. In practise it almost certainly is not, so I'll work on documenting the interface.
+
+GPT-Subtrans can still be used as a console command for scripting, or if that's what you prefer. The most basic usage is:
 ```
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 ```
 
 This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified, the default is English.
 
+Note: Remember to activate the virtual environment every time you work on the project.
+
 The program works by dividing the subtitles up into small batches and sending each one to Chat GPT in turn. It is likely to take a long time to complete, and can potentially make hundreds of API calls.
-
-Note: GPT-Subtrans requires an active internet connection to access the OpenAI API. Data is sent to their servers for translation, so their privacy policy applies: https://openai.com/policies/privacy-policy.
-
 
 By default The translated subtitles will be written to a new SRT file with the suffix -ChatGPT added to the original filename, in the same directory.
 
-For more control over the translation process it is recommended to use an IDE such as VS Code to configure launch parameters.
-
-Note: Remember to activate the virtual environment every time you work on the project.
+For more control over the translation process it is recommended to use an IDE such as VS Code.
 
 It is highly recommended to use Subtitle Edit's (https://www.nikse.dk/subtitleedit) "Fix Common Errors" on the results to clean them up (e.g. add line breaks).
 
 ## Advanced usage
 
-There are a number of command-line arguments that offer more control over the translation process:
+There are a number of command-line arguments that offer more control over the translation process. Many of these work for the GUI as well as the command line, though the more common options can more easily be set in the GUI.
+
+Many of these settings can be configured in the .env file too, using a similar name NAME_IN_CAPS with underscores, 
+along with some other configuration options. See Options.py for the full list. Arguments specified on the command line have priority.
+
 
 - `-o`, `--output`:
   Specify the filename for the translated subtitles.
@@ -120,11 +128,9 @@ To use any of these arguments, add them to the command-line after the path to th
 gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit 10 -s cat::dog
 ```
 
-Many of these settings can be configured in the .env file too, using a similar name NAME_IN_CAPS with underscores, 
-along with some other less commonly useful options. See Options.py for the full list. Arguments specified on the command line always have priority.
-
-
 ## Project File
+
+**Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and the project is generally updated automatically when anything changes, so you shouldn't need to use the project argument.
 
 The `--project` argument or `PROJECT` .env setting can take a number of values, which control whether and when an intermediate file will be written to disc.
 
