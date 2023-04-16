@@ -239,7 +239,7 @@ class BatchItem(ViewModelItem):
             else self.summary if self.summary \
             else "\n".join([ 
                 "1 line" if self.original_count == 1 else f"{self.original_count} lines",
-                f"{self.translated_count} translated" if self.translated_count > 0 else None 
+                f"{self.translated_count} translated" if self.translated_count > 0 else "" 
             ])
 
         return {
