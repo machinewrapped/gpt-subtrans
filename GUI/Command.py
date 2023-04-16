@@ -1,9 +1,12 @@
+import os
 import logging
-import debugpy
 
 from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
+
+if os.environ.get("DEBUG_MODE") == "1":
+    import debugpy
 
 class Command(QRunnable, QObject):
     commandExecuted = Signal(object, bool)
@@ -29,7 +32,8 @@ class Command(QRunnable, QObject):
 
     @Slot()
     def run(self):
-        debugpy.debug_this_thread()
+        if 'debugpy' in globals():
+            debugpy.debug_this_thread()
 
         try:
             success = self.execute()
