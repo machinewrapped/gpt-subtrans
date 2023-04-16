@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 from PySubtitleGPT.Helpers import Linearise, UpdateFields
+from PySubtitleGPT.SubtitleError import TranslationError
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
@@ -186,7 +187,7 @@ class BatchItem(ViewModelItem):
             'end': str(batch.originals[-1].end),
             'summary': batch.summary,
             'context': batch.context,
-            'errors': [ e.get('problem') for e in batch.errors if e.get('problem') ]
+            'errors': self._get_errors(batch.errors)
         }
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
@@ -251,6 +252,14 @@ class BatchItem(ViewModelItem):
                 'errors' : self.has_errors
             }
         }
+    
+    def _get_errors(self, errors):
+        if errors:
+            if all(isinstance(e, Exception) for e in errors):
+                return [ str(e) for e in errors ]
+            if all(isinstance(e, dict) for e in errors):
+                return [ e.get('problem') for e in errors if e.get('problem') ]
+        return []
     
     def __str__(self) -> str:
         content = self.GetContent()

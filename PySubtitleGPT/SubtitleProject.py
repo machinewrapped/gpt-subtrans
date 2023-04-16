@@ -17,6 +17,7 @@ class SubtitleProject:
         self.subtitles : SubtitleFile = None
         self.events = TranslationEvents()
         self.projectfile = None
+        self.needsupdate = False
         self.lock = threading.Lock()
         
         project_mode = options.get('project', '')
@@ -36,6 +37,14 @@ class SubtitleProject:
         options.add('reparse', project_mode in ["reparse"])
         options.add('retranslate', project_mode in ["retranslate"])
 
+        if self.update_project:
+            self._start_autosave_thread
+
+    def __del__(self):
+        if self.update_project:
+            self.stop_event.set()
+            self.periodic_update_thread.join()
+
     def Initialise(self, filename, outfilename = None):
         """
         Initialize the project by either loading an existing project file or creating a new one.
@@ -52,6 +61,7 @@ class SubtitleProject:
             subtitles = self.ReadProjectFile()
 
             if subtitles and subtitles.scenes:
+                self.load_subtitles = False
                 write_backup = options.get('write_backup', False)
                 logging.info("Project file loaded, saving backup copy" if write_backup else "Project file loaded")
                 if write_backup:
@@ -204,7 +214,8 @@ class SubtitleProject:
             if not self.subtitles:
                 raise Exception("Unable to update project file, no subtitles")
             
-            self.WriteProjectFile()
+            self.needsupdate = True
+            # self.WriteProjectFile()
 
     def UpdateProjectOptions(self, options: dict):
         """
@@ -225,19 +236,34 @@ class SubtitleProject:
             if self.subtitles:
                 self.subtitles.UpdateContext(self.options)
 
-        self.UpdateProjectFile()
+        self.WriteProjectFile()
+
+    def _start_autosave_thread(self):
+        self.stop_event = threading.Event()
+        self.periodic_update_thread = threading.Thread(target=self._background_autosave)
+        self.periodic_update_thread.daemon = True
+        self.periodic_update_interval = 20  # Autosave interval in seconds
+        self.periodic_update_thread.start()
+
+    def _background_autosave(self):
+        while not self.stop_event.is_set():
+            if self.needsupdate:
+                self.needsupdate = False
+                self.WriteProjectFile()
+            self.stop_event.wait(self.periodic_update_interval)
 
     def _on_preprocessed(self, scenes):
         logging.debug("Pre-processing finished")
-        self.UpdateProjectFile()
+        self.needsupdate = self.update_project
         self.events.preprocessed(scenes)
 
     def _on_batch_translated(self, batch):
         logging.debug("Batch translated")
-        self.UpdateProjectFile()
+        self.needsupdate = self.update_project
         self.events.batch_translated(batch)
 
     def _on_scene_translated(self, scene):
         logging.debug("Scene translated")
         self.subtitles.SaveTranslation()
+        self.needsupdate = self.update_project
         self.events.scene_translated(scene)

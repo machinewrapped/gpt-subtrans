@@ -27,7 +27,7 @@ class BatchSubtitlesCommand(Command):
         try:
             project.subtitles.AutoBatch(datamodel.options)
 
-            project.UpdateProjectFile()
+            project.WriteProjectFile()
 
             datamodel.CreateViewModel()
 
@@ -126,6 +126,7 @@ class TranslateSceneCommand(Command):
                     self.datamodel_update[self.scene_number][batch.number] = {
                         'summary' : batch.summary,
                         'context' : batch.context,
+                        'errors' : batch.errors,
                         'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
                     }
 
