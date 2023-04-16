@@ -52,7 +52,7 @@ class SubtitleProject:
             subtitles = self.ReadProjectFile()
 
             if subtitles and subtitles.scenes:
-                write_backup = options.get('write_backup_file', False)
+                write_backup = options.get('write_backup', False)
                 logging.info("Project file loaded, saving backup copy" if write_backup else "Project file loaded")
                 if write_backup:
                     self.WriteBackupFile()
