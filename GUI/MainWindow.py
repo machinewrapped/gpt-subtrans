@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
 
         # Create the command queue
         self.command_queue = CommandQueue(self)
-        self.command_queue.SetMaxThreadCount(4)
+        self.command_queue.SetMaxThreadCount(options.get('max_threads', 1))
         self.command_queue.commandExecuted.connect(self._on_command_complete)
 
         # Create centralised action handler

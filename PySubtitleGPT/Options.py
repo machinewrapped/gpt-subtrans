@@ -38,6 +38,7 @@ default_options = {
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None, 
     'rate_limit': float(os.getenv('RATE_LIMIT')) if os.getenv('RATE_LIMIT') else None,
+    'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 5)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
     'project' : os.getenv('PROJECT', None),
