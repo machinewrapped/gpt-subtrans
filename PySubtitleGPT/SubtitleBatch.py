@@ -38,7 +38,7 @@ class SubtitleBatch:
 
     @property
     def all_translated(self):
-        return all(sub.translated for sub in self.originals)
+        return len(self.translated) == len(self.originals)
     
     @property
     def start(self) -> SubRipTime:

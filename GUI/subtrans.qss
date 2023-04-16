@@ -34,13 +34,24 @@ QStatusBar {
     background-color: white;
 }
 
-.WidgetHeader { 
-    font-size: 12pt; 
-    font-weight: bold; 
+.WidgetHeader {
+    font-size: 12pt;
+    font-weight: bold;
     padding: 4;
     padding-left: 10;
-    background-color: blanchedalmond;
     color: black;
+}
+
+.WidgetHeader[all_translated=true] {
+    background-color: blanchedalmond;
+}
+
+.WidgetHeader[all_translated=false] {
+    background-color: burlywood;
+}
+
+.WidgetHeader[errors=true], .WidgetBody[errors=true] {
+    color: red;
 }
 
 .WidgetSubheading {

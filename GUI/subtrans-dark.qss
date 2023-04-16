@@ -52,6 +52,18 @@ QStatusBar {
     color: black;
 }
 
+.WidgetHeader[all_translated=true] {
+    background-color: blanchedalmond;
+}
+
+.WidgetHeader[all_translated=false] {
+    background-color: burlywood;
+}
+
+.WidgetHeader[errors=true], .WidgetBody[errors=true] {
+    color: red;
+}
+
 .WidgetSubheading {
     font-size: 10pt;
     padding: 3;

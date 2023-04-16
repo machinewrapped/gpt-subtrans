@@ -13,7 +13,8 @@ class ViewModelItem(QStandardItem):
         return {
             'heading': "Item Heading",
             'subheading': "Optional Subheading",
-            'body': "Body Content"
+            'body': "Body Content",
+            'properties': {}
         }
 
 class ProjectViewModel(QStandardItemModel):
@@ -174,7 +175,7 @@ class LineItem(QStandardItem):
 ###############################################
 
 class BatchItem(ViewModelItem):
-    def __init__(self, scene_number, batch):
+    def __init__(self, scene_number, batch : SubtitleBatch):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
         self.scene = scene_number
         self.number = batch.number
@@ -185,6 +186,7 @@ class BatchItem(ViewModelItem):
             'end': str(batch.originals[-1].end),
             'summary': batch.summary,
             'context': batch.context,
+            'errors': [ e.get('problem') for e in batch.errors if e.get('problem') ]
         }
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
@@ -206,6 +208,10 @@ class BatchItem(ViewModelItem):
         return len(self.translated)
     
     @property
+    def all_translated(self):
+        return self.translated_count == self.original_count
+    
+    @property
     def start(self):
         return self.batch_model['start']
 
@@ -220,20 +226,30 @@ class BatchItem(ViewModelItem):
     @property
     def summary(self):
         return self.batch_model.get('summary')
+    
+    @property
+    def has_errors(self):
+        return self.batch_model.get('errors') and True
 
     def Update(self, update : dict):
         UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])
     
     def GetContent(self):
-        metadata = [ 
-            "1 line" if self.original_count == 1 else f"{self.original_count} lines",
-            f"{self.translated_count} translated" if self.translated_count > 0 else None 
-        ]
+        body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \
+            else self.summary if self.summary \
+            else "\n".join([ 
+                "1 line" if self.original_count == 1 else f"{self.original_count} lines",
+                f"{self.translated_count} translated" if self.translated_count > 0 else None 
+            ])
 
         return {
             'heading': f"Batch {self.number}",
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
-            'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None])
+            'body': body,
+            'properties': {
+                'all_translated' : self.all_translated,
+                'errors' : self.has_errors
+            }
         }
     
     def __str__(self) -> str:
@@ -252,7 +268,7 @@ class SceneItem(ViewModelItem):
             'start': scene.batches[0].start,
             'end': scene.batches[-1].end,
             'duration': None,
-            'summary': None
+            'summary': scene.summary
         }
         self.setText(f"Scene {scene.number}")
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
@@ -276,6 +292,14 @@ class SceneItem(ViewModelItem):
     @property
     def translated_count(self):
         return sum(batch.translated_count for batch in self.batches.values())
+    
+    @property
+    def all_translated(self):
+        return self.batches and all(b.all_translated for b in self.batches.values())
+
+    @property
+    def has_errors(self):
+        return self.batches and any(b.has_errors for b in self.batches.values())
 
     @property
     def start(self):
@@ -306,7 +330,11 @@ class SceneItem(ViewModelItem):
         return {
             'heading': f"Scene {self.number}",
             'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({self.duration})
-            'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None])
+            'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
+            'properties': {
+                'all_translated' : self.all_translated,
+                'errors' : self.has_errors
+            }
         }
 
     def __str__(self) -> str:

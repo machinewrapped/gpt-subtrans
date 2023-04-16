@@ -16,17 +16,33 @@ class TreeViewItemWidget(QFrame):
     def __init__(self, content, parent=None):
         super(TreeViewItemWidget, self).__init__(parent)
 
+        properties = content.get('properties', {})
+
         layout = QVBoxLayout()
         if content.get('heading'):
-            layout.addWidget(WidgetHeader(content['heading'], parent=self))
+            header_widget = WidgetHeader(content['heading'], parent=self)
+            self._set_properties(header_widget, properties)
+            if  properties.get('errors'):
+                print("An item has errors")
+            layout.addWidget(header_widget)
 
         if content.get('subheading'):
-            layout.addWidget(WidgetSubheading(content['subheading'], parent=self))
+            subheading_widget = WidgetSubheading(content['subheading'], parent=self)
+            self._set_properties(subheading_widget, properties)
+            layout.addWidget(subheading_widget)
 
         if content.get('body'):
-            layout.addWidget(WidgetBody(content['body'], parent=self))
+            body_widget = WidgetBody(content['body'], parent=self)
+            self._set_properties(body_widget, properties)
+            layout.addWidget(body_widget)
 
+        self._set_properties(self, properties)
         self.setLayout(layout)
+
+    def _set_properties(self, widget : QWidget, properties : dict):
+        for key, value in properties.items():
+            widget.setProperty(key, value)
+
 
 class WidgetHeader(QLabel):
     def __init__(self, text, parent=None):
@@ -41,8 +57,6 @@ class WidgetSubheading(QLabel):
 class WidgetBody(QLabel):
     def __init__(self, text, parent=None):
         super(WidgetBody, self).__init__(parent)
-        # self.setReadOnly(True)
-        # self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.setText(text)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setWordWrap(True)

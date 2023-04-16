@@ -139,10 +139,10 @@ class SubtitleLine:
     @classmethod
     def GetLineItems(lines, tag):
         """
-        Generate a set of translation lines for the translator
+        Generate a set of translation cues for the translator
         """
         items = SubtitleLine.GetLines(lines)
-        return [SubtitleLine.GetLineItem(item, tag) for item in items]
+        return [ SubtitleLine.GetLineItem(item, tag) for item in items ]
 
     @classmethod
     def GetLineItem(line, tag):
