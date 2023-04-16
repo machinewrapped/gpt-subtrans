@@ -44,7 +44,7 @@ default_options = {
     'project' : os.getenv('PROJECT', None),
     'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY'),
     'stop_on_error' : env_bool('STOP_ON_ERROR'),
-    'write_backup' : env_bool('WRITE_BACKUP_FILE'),
+    'write_backup' : env_bool('WRITE_BACKUP_FILE', True),
     'theme' : os.getenv('THEME', None)
 }
 
