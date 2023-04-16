@@ -212,7 +212,7 @@ class SubtitleTranslator:
                     self.ProcessTranslation(batch, context, client)
 
                 else:
-                    logging.warning(f"No translation for scene {scene.number} batch {batch.number}")
+                    logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
 
             except TranslationError as e:
                 if options.get('stop_on_error') or isinstance(e, TranslationImpossibleError):
