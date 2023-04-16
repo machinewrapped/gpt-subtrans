@@ -6,6 +6,8 @@ Note: GPT-Subtrans requires an active internet connection to access the OpenAI A
 ## New
 Merged the GUI branch into main. The GUI is now the best way to use the translator, even though it is far from finished. 
 
+If you have already installed the project it is recommended to delete the envsubtrans folder and run the install script again (make a note of your API key in the .env file). At minimum you will need to install the updated requirements.txt with pip to use the GUI.
+
 ## Installation
 To install GPT-Subtrans, you will need to have Python 3.x and pip installed on your system.
 
