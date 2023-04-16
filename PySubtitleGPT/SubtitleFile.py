@@ -113,7 +113,11 @@ class SubtitleFile:
             'movie_name': "",
             'synopsis': "",
             'characters': None,
-            'substitutions': None
+            'substitutions': None,
+            'min_batch_size' : None,
+            'max_batch_size' : None,
+            'batch_threshold' : None,
+            'scene_threshold' : None,
         }
 
         if self.context:
