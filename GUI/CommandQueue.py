@@ -31,6 +31,10 @@ class CommandQueue(QObject):
         """
         self.command_pool.setMaxThreadCount(count)
 
+    @property
+    def queue_size(self):
+        with QMutexLocker(self.mutex):
+            return len(self.queue)
 
     def Stop(self):
         """

@@ -106,15 +106,24 @@ class MainWindow(QMainWindow):
     def _on_action_requested(self, action_name, params):
         if not self.datamodel:
             raise Exception(f"Cannot perform {action_name} without a data model")
-        
+
+        self.statusBar().showMessage(f"Executing {action_name}")
+
         try:
             self.datamodel.PerformModelAction(action_name, params)
+
         except Exception as e:
             logging.error(f"Error in {action_name}: {str(e)}")
 
     def _on_command_complete(self, command : Command, success):
         if success:
-            self.statusBar().showMessage(f"{type(command).__name__} was successful.")
+            if self.command_queue.queue_size:
+                if self.command_queue.queue_size == 1:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
+                else:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful. {self.command_queue.queue_size} commands in queue.")
+            else:
+                self.statusBar().showMessage(f"{type(command).__name__} was successful.")
 
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
