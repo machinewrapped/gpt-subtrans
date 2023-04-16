@@ -167,8 +167,8 @@ This project uses several useful libraries:
 - openai, of course (https://platform.openai.com/docs/libraries/python-bindings)
 - pysrt (https://github.com/byroot/pysrt)
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
-- fontawesome (https://github.com/justbuchanan/fontawesome-python)
 - events (https://pypi.org/project/Events/)
+- darkdetect (https://github.com/albertosottile/darkdetect)
 
 ## License
 GPT-Subtrans is licensed under the MIT License.

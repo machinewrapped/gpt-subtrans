@@ -21,16 +21,30 @@ call envsubtrans\Scripts\activate.bat
 echo Installing requirements from "requirements.txt"...
 pip install -r requirements.txt
 
-if not exist .env (
-    echo Please enter your OpenAI API key:
-    set /p api_key=API_KEY:
+echo Please enter your OpenAI API key:
+set /p api_key=API_KEY:
 
-    if not "!api_key!"=="" (
-        echo API_KEY=!api_key! > .env
-        echo API key saved to .env
-    )
+if not "!api_key!"=="" (
+    echo API_KEY=!api_key! > .env
+    echo API key saved to .env
+)
+
+echo Are you on the free plan? (Y/N)
+set /p free_plan=Free plan?:
+
+if /i "!free_plan!"=="Y" (
+    set add_limits=1
+) else if /i "!free_plan!"=="Yes" (
+    set add_limits=1
 ) else (
-    echo .env file already exists, skipping API key input.
+    set add_limits=0
+)
+
+if "!add_limits!"=="1" (
+    echo MAX_THREADS=1 >> .env
+    echo RATE_LIMIT=5 >> .env
+    echo Warning: Translation speed will be severely limited due to the free plan limitations.
+    echo If you upgrade your plan, rerun the script to update your settings.
 )
 
 echo Installation complete.

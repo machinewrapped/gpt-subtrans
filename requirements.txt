@@ -4,3 +4,4 @@ openai
 pysrt
 events
 pyside6
+darkdetect
