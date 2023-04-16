@@ -165,8 +165,6 @@ class SubtitleProject:
                 project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
                 f.write(project_json)
 
-            self.projectfile = projectfile
-
     def WriteBackupFile(self):
         """
         Save a backup copy of the project
@@ -242,6 +240,5 @@ class SubtitleProject:
 
     def _on_scene_translated(self, scene):
         logging.debug("Scene translated")
-        self.UpdateProjectFile()
         self.subtitles.SaveTranslation()
         self.events.scene_translated(scene)
