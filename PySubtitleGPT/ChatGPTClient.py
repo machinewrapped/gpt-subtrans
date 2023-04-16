@@ -1,11 +1,11 @@
 import logging
-import random
 import time
 import openai
 import openai.error
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
 
 linesep = '\n'
@@ -57,6 +57,14 @@ class ChatGPTClient:
         """
         options = self.options
         prompt = translation.prompt
+
+        # Trim messages after the original translation to keep tokens down
+        messages = []
+        for message in prompt.messages:
+            messages.append(message)
+            if message['role'] == 'assistant':
+                break
+        prompt.messages = messages
 
         retry_instructions = options.get('retry_instructions')
 
