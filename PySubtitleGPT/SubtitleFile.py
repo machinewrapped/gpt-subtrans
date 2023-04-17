@@ -14,9 +14,9 @@ fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
 
 # High level class for manipulating subtitle files
 class SubtitleFile:
-    def __init__(self, filename = None):
-        self.inputpath = GetInputPath(filename)
-        self.outputpath = GetOutputPath(filename)
+    def __init__(self, filepath = None):
+        self.sourcepath = GetInputPath(filepath)
+        self.outputpath = GetOutputPath(filepath)
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.context = {}
@@ -63,50 +63,51 @@ class SubtitleFile:
         
         return matches[0]
 
-    def LoadSubtitles(self, filename : str = None):
+    def LoadSubtitles(self, filepath : str = None):
         """
         Load subtitles from an SRT file
         """
-        self.inputpath = GetInputPath(filename)
+        if filepath:
+            self.sourcepath = GetInputPath(filepath)
 
         try:
-            srt = pysrt.open(self.inputpath)
+            srt = pysrt.open(self.sourcepath)
             
         except UnicodeDecodeError as e:
-            srt = pysrt.open(filename, encoding=fallback_encoding)
+            srt = pysrt.open(self.sourcepath, encoding=fallback_encoding)
 
         with self.lock:
-            self.sourcefile = filename
-            self.outputpath = GetOutputPath(filename)
+            self.outputpath = GetOutputPath(self.sourcepath)
             self.originals = [ SubtitleLine(item) for item in srt ]
         
     # Write original subtitles to an SRT file
-    def SaveOriginals(self, filename : str = None):
-        self.outputpath = filename or self.outputpath
-        if not self.outputpath:
-            raise ValueError("No filename set")
+    def SaveOriginals(self, path : str = None):
+        self.sourcepath = path or self.sourcepath
+        if not self.sourcepath:
+            raise ValueError("No file path set")
 
         with self.lock:
             srtfile = SubRipFile(items=self.originals)
-            srtfile.save(filename)
+            srtfile.save(self.sourcepath)
 
-    def SaveTranslation(self, filename : str = None):
+    def SaveTranslation(self, outputpath : str = None):
         """
         Write translated subtitles to an SRT file
         """
-        filename = filename or self.outputpath
-        if not filename:
-            raise ValueError("No filename set")
+        outputpath = outputpath or self.outputpath
+        if not outputpath:
+            raise ValueError("No file path set")
         
         if not self.translated:
             logging.error("No subtitles translated")
             return
 
-        logging.info(f"Saving translation to {str(filename)}")
+        logging.info(f"Saving translation to {str(outputpath)}")
 
         with self.lock:
             srtfile = SubRipFile(items=self.translated)
-            srtfile.save(filename)
+            srtfile.save(outputpath)
+            self.outputpath = outputpath
 
     def UpdateContext(self, options):
         """
