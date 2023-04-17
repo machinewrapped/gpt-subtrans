@@ -22,8 +22,6 @@ class TreeViewItemWidget(QFrame):
         if content.get('heading'):
             header_widget = WidgetHeader(content['heading'], parent=self)
             self._set_properties(header_widget, properties)
-            if  properties.get('errors'):
-                print("An item has errors")
             layout.addWidget(header_widget)
 
         if content.get('subheading'):

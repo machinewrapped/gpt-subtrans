@@ -63,7 +63,7 @@ class SubtitleFile:
         
         return matches[0]
 
-    def LoadSubtitles(self, filename : str):
+    def LoadSubtitles(self, filename : str = None):
         """
         Load subtitles from an SRT file
         """
@@ -76,6 +76,7 @@ class SubtitleFile:
             srt = pysrt.open(filename, encoding=fallback_encoding)
 
         with self.lock:
+            self.sourcefile = filename
             self.outputpath = GetOutputPath(filename)
             self.originals = [ SubtitleLine(item) for item in srt ]
         

@@ -147,8 +147,8 @@ class SubtitleProject:
         Load subtitles from an SRT file
         """
         with self.lock:
-            self.subtitles = SubtitleFile()
-            self.subtitles.LoadSubtitles(filepath)
+            self.subtitles = SubtitleFile(filepath)
+            self.subtitles.LoadSubtitles()
             self.subtitles.UpdateContext(self.options)
             self.subtitles.project = self
         return self.subtitles

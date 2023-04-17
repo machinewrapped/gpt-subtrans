@@ -14,7 +14,11 @@ class SubtitleListModel(QAbstractItemModel):
         self.visible = []
 
     def ShowSelection(self, selection : ProjectSelection):
-        batch_numbers = selection.batch_numbers # TODO: filter on selected_batches
+        if selection.selected_batches:
+            batch_numbers = [(batch.scene, batch.number) for batch in selection.selected_batches]
+        else:
+            batch_numbers = selection.batch_numbers
+
         self.ShowSelectedBatches(batch_numbers)
 
     def ShowSelectedBatches(self, batch_numbers):
