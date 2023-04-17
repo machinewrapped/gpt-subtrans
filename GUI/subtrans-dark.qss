@@ -43,7 +43,7 @@ QStatusBar {
 }
 
 .WidgetHeader { 
-    font-size: large; 
+    font-size: 12pt;
     background-color: blanchedalmond;
     padding: 4;
     padding-left: 10;
@@ -63,7 +63,7 @@ QStatusBar {
 }
 
 .WidgetSubheading {
-    font-size: medium;
+    font-size: 11pt;
     padding: 3;
     padding-left: 10;
     background-color: #363636;
@@ -71,7 +71,7 @@ QStatusBar {
 }
 
 .WidgetBody {
-    font-size: small;
+    font-size: 10pt;
     padding: 2;
     padding-left: 10;
     background-color: #242424;
@@ -95,10 +95,12 @@ QStatusBar {
 
 .LineItemHeader {
     font-weight: bold;
+    font-size: 10pt;
     margin: 0px;
 }
 
 .LineItemBody {
+    font-size: 10pt;
     margin: 0px;
 }
 
