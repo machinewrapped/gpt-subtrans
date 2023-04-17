@@ -35,6 +35,7 @@ class ProjectActions(QObject):
         # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
+        ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
     def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
@@ -135,6 +136,21 @@ class ProjectActions(QObject):
 
         else:
             raise ActionError(f"Invalid selection for merge ({str(selection)})")
+        
+    def _split_batch(self, datamodel, selection : ProjectSelection):
+        """
+        Split a batch in two at the specified index (optionally, using a different index for translated lines)
+        """
+        if not selection.Any():
+            raise ActionError("Please select a line to split the batch at")
+        
+        if selection.MultipleSelected():
+            raise ActionError("Please select a single split point")
+        
+        scene_number, batch_number = selection.selected_batches[0]
+        line_number = selection.selected_lines[0]
+
+        
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
         """

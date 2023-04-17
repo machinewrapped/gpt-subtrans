@@ -172,6 +172,14 @@ class LineItem(QStandardItem):
     @property
     def text(self):
         return self.line_model['text']
+    
+    @property
+    def scene(self):
+        return self.line_model.get('scene')
+    
+    @property
+    def batch(self):
+        return self.line_model.get('batch')
 
 ###############################################
 

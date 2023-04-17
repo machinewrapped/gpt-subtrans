@@ -8,10 +8,13 @@ from GUI.Widgets.SelectionView import SelectionView
 from GUI.Widgets.SubtitleView import SubtitleView
 
 class ContentView(QWidget):
+    onSelection = Signal()
     actionRequested = Signal(str, object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.viewmodel = None
 
         self.subtitle_view = SubtitleView(show_translated = False, parent=self)
         self.translation_view = SubtitleView(show_translated = True, parent=self)
@@ -43,22 +46,32 @@ class ContentView(QWidget):
         self.selection_view.ShowSelection(selection)
 
     def Populate(self, viewmodel):
+        self.viewmodel = viewmodel
         self.subtitle_view.SetViewModel(viewmodel)
         self.translation_view.SetViewModel(viewmodel)
         self.selection_view.ShowSelection(ProjectSelection())
 
     def Clear(self):
-        viewmodel = ProjectViewModel()
-        self.subtitle_view.SetViewModel(viewmodel)
-        self.translation_view.SetViewModel(viewmodel)
+        self.viewmodel = ProjectViewModel()
+        self.subtitle_view.SetViewModel(self.viewmodel)
+        self.translation_view.SetViewModel(self.viewmodel)
         self.selection_view.ShowSelection(ProjectSelection())
+
+    def GetSelectedLines(self):
+        selected_originals = self.subtitle_view.GetSelectedLines()
+        selected_translations = self.translation_view.GetSelectedLines()
+        return selected_originals, selected_translations
 
     def _originals_selected(self, originals):
         line_numbers = [ item.number for item in originals if item.number ]
         if line_numbers:
             self.translation_view.SelectSubtitles(line_numbers)
+            
+
+        self.onSelection.emit()
 
     def _translations_selected(self, translations):
-        line_numbers = [ item.number for item in translations if item.number ]
-        if line_numbers:
-            self.subtitle_view.SelectSubtitles(line_numbers)
+        # line_numbers = [ item.number for item in translations if item.number ]
+        # if line_numbers:
+        #     self.subtitle_view.SelectSubtitles(line_numbers)
+        pass
