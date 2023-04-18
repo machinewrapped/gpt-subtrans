@@ -6,7 +6,10 @@ from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 from GUI.ProjectDataModel import ProjectDataModel
 
 if os.environ.get("DEBUG_MODE") == "1":
-    import debugpy
+    try:
+        import debugpy
+    except ImportError:
+        logging.warn("debugpy is not available, breakpoints on worker threads will not work")
 
 class Command(QRunnable, QObject):
     commandExecuted = Signal(object, bool)
