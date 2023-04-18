@@ -42,7 +42,7 @@ Note that steps 3 and 4 are optional, but they can help prevent conflicts with o
 
 ## Usage
 
-The easiest way for most people to use GPT-Subtrans is with the GUI. After installation launch the GUI with the `gui-subtrans` command or shell script, and in theory the rest should be self-explanatory. In practise it almost certainly is not, so I'll work on documenting the interface.
+The easiest way for most people to use GPT-Subtrans is with the [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans). After installation launch the GUI with the `gui-subtrans` command or shell script, and in theory the rest should be self-explanatory. In practise it almost certainly is not, so I'll work on documenting the interface.
 
 GPT-Subtrans can still be used as a console command for scripting, or if that's what you prefer. The most basic usage is:
 ```
