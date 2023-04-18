@@ -66,16 +66,17 @@ class CommandQueue(QObject):
         with QMutexLocker(self.mutex):
             self.queue.remove(command)
 
-            if command.commands_to_queue:
+        self.commandExecuted.emit(command, success)
+
+        if command.commands_to_queue:
+            with QMutexLocker(self.mutex):
                 for command in command.commands_to_queue:
                     self._queue_command(command, command.datamodel)
 
-                for command in command.commands_to_queue:
-                    self.logger.debug(f"Added a {type(command).__name__} command to the queue")
-                    self.commandAdded.emit(command)
+            for command in command.commands_to_queue:
+                self.logger.debug(f"Added a {type(command).__name__} command to the queue")
+                self.commandAdded.emit(command)
             
-        self.commandExecuted.emit(command, success)
-
     def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
         """
         Add a command to the worker thread queue
