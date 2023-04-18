@@ -11,16 +11,19 @@ from PySubtitleGPT.SubtitleError import TranslationError
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
 
-# High level class for manipulating subtitle files
 class SubtitleFile:
-    def __init__(self, filepath = None):
-        self.sourcepath = GetInputPath(filepath)
-        self.outputpath = GetOutputPath(filepath)
+    """
+    High level class for manipulating subtitle files
+    """
+    def __init__(self, filepath = None, outputpath = None):
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.context = {}
         self._scenes : list[SubtitleScene] = []
         self.lock = threading.RLock()
+
+        self.sourcepath = GetInputPath(filepath)
+        self.outputpath = outputpath or None
 
     @property
     def has_subtitles(self):
@@ -68,6 +71,7 @@ class SubtitleFile:
         """
         if filepath:
             self.sourcepath = GetInputPath(filepath)
+            self.outputpath = GetOutputPath(filepath)
 
         try:
             with open(self.sourcepath, 'r', encoding=default_encoding) as f:
@@ -78,7 +82,6 @@ class SubtitleFile:
                 source = list(srt.parse(f))
 
         with self.lock:
-            self.outputpath = GetOutputPath(self.sourcepath)
             self.originals = [ SubtitleLine(item) for item in source ]
         
     # Write original subtitles to an SRT file
@@ -98,7 +101,9 @@ class SubtitleFile:
         """
         outputpath = outputpath or self.outputpath 
         if not outputpath:
-            raise ValueError("No filename set")
+            outputpath = GetOutputPath(self.sourcepath)
+            if not outputpath:
+                raise Exception("I don't know where to save the translated subtitles")
 
         if not self.scenes:
             raise ValueError("No scenes in subtitles")
