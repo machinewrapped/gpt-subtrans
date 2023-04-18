@@ -2,7 +2,7 @@ import os
 import logging
 import threading
 import srt
-from PySubtitleGPT.Helpers import GetInputFilename, GetOutputFilename, ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitleGPT.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
@@ -13,9 +13,9 @@ fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
 
 # High level class for manipulating subtitle files
 class SubtitleFile:
-    def __init__(self, filename = None):
-        self.sourcefile = GetInputFilename(filename)
-        self.filename = GetOutputFilename(filename)
+    def __init__(self, filepath = None):
+        self.sourcepath = GetInputPath(filepath)
+        self.outputpath = GetOutputPath(filepath)
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.context = {}
@@ -62,11 +62,12 @@ class SubtitleFile:
         
         return matches[0]
 
-    def LoadSubtitles(self, filename : str = None):
+    def LoadSubtitles(self, filepath : str = None):
         """
         Load subtitles from an SRT file
         """
-        filename = GetInputFilename(filename) if filename else self.sourcefile
+        if filepath:
+            self.sourcepath = GetInputPath(filepath)
 
         try:
             with open(filename, 'r', encoding=default_encoding) as f:
@@ -82,17 +83,17 @@ class SubtitleFile:
             self.originals = [ SubtitleLine(item) for item in source ]
         
     # Write original subtitles to an SRT file
-    def SaveOriginals(self, filename : str = None):
-        self.filename = filename or self.filename 
-        if not self.filename:
-            raise ValueError("No filename set")
+    def SaveOriginals(self, path : str = None):
+        self.sourcepath = path or self.sourcepath
+        if not self.sourcepath:
+            raise ValueError("No file path set")
 
         with self.lock:
             srtfile = srt.compose([ line.item for line in self.originals ])
             with open(filename, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
-    def SaveTranslation(self, filename : str = None):
+    def SaveTranslation(self, outputpath : str = None):
         """
         Write translated subtitles to an SRT file
         """
@@ -111,7 +112,7 @@ class SubtitleFile:
                 logging.error("No subtitles translated")
                 return
 
-            logging.info(f"Saving translation to {str(filename)}")
+        logging.info(f"Saving translation to {str(outputpath)}")
 
             srtfile = srt.compose([ line.item for line in translated ])
             with open(filename, 'w', encoding=default_encoding) as f:

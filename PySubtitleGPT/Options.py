@@ -111,13 +111,13 @@ class Options:
             key: self.get(key) for key in self.options.keys() & default_options.keys()
         })
 
-def LoadInstructionsFile(filename):
+def LoadInstructionsFile(filepath):
     """
     Try to load instructions from a text file.
     Retry instructions can be added to the file after a line of at least 3 # characters.
     """
-    if filename and os.path.exists(filename):
-        with open(filename, "r", encoding="utf-8") as f:
+    if filepath and os.path.exists(filepath):
+        with open(filepath, "r", encoding="utf-8") as f:
             lines = [l.strip() for l in f.readlines() if l.strip()]
 
         if lines:

@@ -44,31 +44,30 @@ class LoadSubtitleFile(Command):
         # I suppose we _could_ store a reference to the previous project...
         pass
 
-
 class SaveProjectFile(Command):
-    def __init__(self, filename, project : SubtitleProject):
+    def __init__(self, filepath, project : SubtitleProject):
         super().__init__()
-        self.filename = filename
+        self.filepath = filepath
         self.project = project
 
     def execute(self):
-        self.project.WriteProjectFile(self.filename)
+        self.project.WriteProjectFile(self.filepath)
         self.project.subtitles.SaveTranslation()
 
 class SaveSubtitleFile(Command):
-    def __init__(self, filename, project : SubtitleProject):
+    def __init__(self, filepath, project : SubtitleProject):
         super().__init__()
-        self.filename = filename
+        self.filepath = filepath
         self.project = project
 
     def execute(self):
-        self.project.subtitles.SaveOriginals(self.filename)
+        self.project.subtitles.SaveOriginals(self.filepath)
 
 class SaveTranslationFile(Command):
-    def __init__(self, filename, project : SubtitleProject):
+    def __init__(self, filepath, project : SubtitleProject):
         super().__init__()
-        self.filename = filename
+        self.filepath = filepath
         self.project = project
 
     def execute(self):
-        self.project.subtitles.SaveTranslation(self.filename)
+        self.project.subtitles.SaveTranslation(self.filepath)

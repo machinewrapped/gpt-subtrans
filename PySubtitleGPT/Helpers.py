@@ -62,24 +62,23 @@ def GetTimeDelta(time):
 
     raise ValueError(f"Unable to interpret time '{str(time)}'")
 
-def GetInputFilename(filename):
-    if not filename:
+def GetInputPath(filepath):
+    if not filepath:
         return None
     
-    basename, _ = os.path.splitext(filename)
+    basename, _ = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
-    return f"{basename}.srt"
+    return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def GetOutputFilename(filename):
-    if not filename:
+def GetOutputPath(filepath):
+    if not filepath:
         return None
     
-    basename, _ = os.path.splitext(filename)
+    basename, _ = os.path.splitext(os.path.basename(filepath))
     if not basename.endswith("-ChatGPT"):
         basename = basename + "-ChatGPT"
-    return f"{basename}.srt"
-
+    return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
 def GenerateBatchPrompt(prompt, lines, tag_lines=None):
     """
