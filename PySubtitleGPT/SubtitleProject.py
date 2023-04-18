@@ -29,9 +29,6 @@ class SubtitleProject:
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
 
-        options.add('read_project', self.read_project)
-        options.add('write_project', self.write_project)
-
         options.add('preview', project_mode in ["preview"])
         options.add('resume', project_mode in ["resume"])   #, "true"
         options.add('reparse', project_mode in ["reparse"])
@@ -53,6 +50,12 @@ class SubtitleProject:
         :param filename: the path to the source subtitle file (in .srt format) to be translated
         """ 
         self.projectfile = self.GetProjectFilename(filename or "subtitles")
+
+        # Check if the project file exists
+        if self.read_project and not os.path.exists(self.projectfile):
+            logging.info(f"Project file {self.projectfile} does not exist")
+            self.read_project = False
+            self.load_subtitles = True
 
         options : Options = self.options
 

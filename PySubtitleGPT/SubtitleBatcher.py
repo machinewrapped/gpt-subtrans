@@ -1,4 +1,4 @@
-from pysrt import SubRipTime
+from datetime import timedelta
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 
@@ -11,11 +11,11 @@ class SubtitleBatcher:
         max_batch_size = options.get('max_batch_size')
         min_batch_size = options.get('min_batch_size')
 
-        scene_threshold_us = options.get('scene_threshold', 30.0) * SubRipTime.SECONDS_RATIO
-        scene_threshold = SubRipTime.from_ordinal(scene_threshold_us)
+        scene_threshold_seconds = options.get('scene_threshold', 30.0)
+        scene_threshold = timedelta(seconds=scene_threshold_seconds)
 
-        batch_threshold_us = options.get('batch_threshold', 2.0) * SubRipTime.SECONDS_RATIO
-        batch_threshold = SubRipTime.from_ordinal(batch_threshold_us)
+        batch_threshold_seconds = options.get('batch_threshold', 2.0)
+        batch_threshold = timedelta(seconds=batch_threshold_seconds)
 
         scenes = []
         last_endtime = None

@@ -1,8 +1,7 @@
 import os
 import logging
 import threading
-import pysrt
-from pysrt import SubRipFile
+import srt
 from PySubtitleGPT.Helpers import GetInputFilename, GetOutputFilename, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
@@ -70,15 +69,17 @@ class SubtitleFile:
         filename = GetInputFilename(filename) if filename else self.sourcefile
 
         try:
-            srt = pysrt.open(filename)
+            with open(filename, 'r', encoding=default_encoding) as f:
+                source = list(srt.parse(f))
             
-        except UnicodeDecodeError as e:
-            srt = pysrt.open(filename, encoding=fallback_encoding)
+        except srt.SRTParseError as e:
+            with open(filename, 'r') as f:
+                source = list(srt.parse(f))
 
         with self.lock:
             self.sourcefile = filename
             self.filename = GetOutputFilename(filename)
-            self.originals = [ SubtitleLine(item) for item in srt ]
+            self.originals = [ SubtitleLine(item) for item in source ]
         
     # Write original subtitles to an SRT file
     def SaveOriginals(self, filename : str = None):
@@ -87,8 +88,9 @@ class SubtitleFile:
             raise ValueError("No filename set")
 
         with self.lock:
-            srtfile = SubRipFile(items=self.originals)
-            srtfile.save(filename)
+            srtfile = srt.compose([ line.item for line in self.originals ])
+            with open(filename, 'w', encoding=default_encoding) as f:
+                f.write(srtfile)
 
     def SaveTranslation(self, filename : str = None):
         """
@@ -97,16 +99,25 @@ class SubtitleFile:
         filename = filename or self.filename 
         if not filename:
             raise ValueError("No filename set")
-        
-        if not self.translated:
-            logging.error("No subtitles translated")
-            return
 
-        logging.info(f"Saving translation to {str(filename)}")
+        if not self.scenes:
+            raise ValueError("No scenes in subtitles")
 
         with self.lock:
-            srtfile = SubRipFile(items=self.translated)
-            srtfile.save(filename)
+            # Linearise the translated scenes
+            originals, translated, untranslated = UnbatchScenes(self.scenes)
+
+            if not translated:
+                logging.error("No subtitles translated")
+                return
+
+            logging.info(f"Saving translation to {str(filename)}")
+
+            srtfile = srt.compose([ line.item for line in translated ])
+            with open(filename, 'w', encoding=default_encoding) as f:
+                f.write(srtfile)
+
+            self.translated = translated
 
     def UpdateContext(self, options):
         """

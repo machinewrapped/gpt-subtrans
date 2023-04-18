@@ -1,7 +1,8 @@
+from datetime import timedelta
 from os import linesep
-from pysrt import SubRipItem, SubRipTime
+import srt
 
-from PySubtitleGPT.Helpers import FixTime
+from PySubtitleGPT.Helpers import CreateSrtSubtitle, GetTimeDelta
 
 class SubtitleLine:
     """
@@ -13,10 +14,10 @@ class SubtitleLine:
         self.translation = translation
     
     def __str__(self):
-        return str(self.item)
+        return self.item.to_srt() if self.item else None
 
     def __repr__(self):
-        return f"Line({str(self.key)}, {repr(self.text)})"
+        return f"Line({srt.timedelta_to_srt_timestamp(self.start) if self.start else '***'}, {repr(self.text)})"
 
     @property
     def key(self):
@@ -28,23 +29,31 @@ class SubtitleLine:
 
     @property
     def text(self):
-        return self._item.text_without_tags if self._item else None
+        return self._item.content if self._item else None
 
     @property
-    def start(self) -> SubRipTime:
+    def start(self) -> timedelta:
         return self._item.start if self._item else None
     
     @property
-    def end(self) -> SubRipTime:
+    def srt_start(self) -> str:
+        return srt.timedelta_to_srt_timestamp(self._item.start) if self._item else None
+    
+    @property
+    def end(self) -> timedelta:
         return self._item.end if self._item else None
     
     @property
-    def duration(self) -> SubRipTime:
-        return self.end - self.start if self.start and self.end else SubRipTime()
+    def srt_end(self) -> str:
+        return srt.timedelta_to_srt_timestamp(self._item.end) if self._item else None
+    
+    @property
+    def duration(self) -> timedelta:
+        return self.end - self.start if self.start and self.end else timedelta(seconds=0)
 
     @property
     def line(self):
-        return str(self._item) if self._item else None
+        return self._item.to_srt() if self._item else None
 
     @property
     def translated(self):
@@ -60,7 +69,7 @@ class SubtitleLine:
             return None
         
         return '\n'.join([
-            f"<original start='{self.start}' end='{self.end}'>",
+            f"<original start='{self.srt_start}' end='{self.srt_end}'>",
             self.text.replace(linesep, '\n'),
             f"</original>"
         ])
@@ -71,9 +80,10 @@ class SubtitleLine:
 
     @classmethod
     def Construct(cls, number, start, end, text):
-        start = FixTime(start)
-        end = FixTime(end)
-        item = SubRipItem(number, start, end, text)
+        start = GetTimeDelta(start)
+        end = GetTimeDelta(end)
+        text = srt.make_legal_content(text)
+        item = srt.Subtitle(number, start, end, text)
         return SubtitleLine(item) 
     
     @classmethod
@@ -104,7 +114,10 @@ class SubtitleLine:
 
     @item.setter
     def item(self, item):
-        self._item = SubRipItem.from_lines(str(item).strip().split('\n'))
+        if isinstance(item, SubtitleLine):
+            item = item.item
+
+        self._item = CreateSrtSubtitle(item)
 
     @number.setter
     def number(self, value):
@@ -119,12 +132,12 @@ class SubtitleLine:
     @start.setter
     def start(self, time):
         if self._item:
-            self._item.start = SubRipItem.coerce(time)
+            self._item.start = GetTimeDelta(time)
 
     @end.setter
     def end(self, time):
         if self._item:
-            self._item.end = SubRipItem.coerce(time)
+            self._item.end = GetTimeDelta(time)
 
     @classmethod
     def GetLines(lines):
