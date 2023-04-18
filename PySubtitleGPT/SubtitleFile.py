@@ -70,16 +70,15 @@ class SubtitleFile:
             self.sourcepath = GetInputPath(filepath)
 
         try:
-            with open(filename, 'r', encoding=default_encoding) as f:
+            with open(self.sourcepath, 'r', encoding=default_encoding) as f:
                 source = list(srt.parse(f))
             
         except srt.SRTParseError as e:
-            with open(filename, 'r') as f:
+            with open(self.sourcepath, 'r') as f:
                 source = list(srt.parse(f))
 
         with self.lock:
-            self.sourcefile = filename
-            self.filename = GetOutputFilename(filename)
+            self.outputpath = GetOutputPath(self.sourcepath)
             self.originals = [ SubtitleLine(item) for item in source ]
         
     # Write original subtitles to an SRT file
@@ -90,15 +89,15 @@ class SubtitleFile:
 
         with self.lock:
             srtfile = srt.compose([ line.item for line in self.originals ])
-            with open(filename, 'w', encoding=default_encoding) as f:
+            with open(self.sourcepath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
     def SaveTranslation(self, outputpath : str = None):
         """
         Write translated subtitles to an SRT file
         """
-        filename = filename or self.filename 
-        if not filename:
+        outputpath = outputpath or self.outputpath 
+        if not outputpath:
             raise ValueError("No filename set")
 
         if not self.scenes:
@@ -112,13 +111,14 @@ class SubtitleFile:
                 logging.error("No subtitles translated")
                 return
 
-        logging.info(f"Saving translation to {str(outputpath)}")
+            logging.info(f"Saving translation to {str(outputpath)}")
 
             srtfile = srt.compose([ line.item for line in translated ])
-            with open(filename, 'w', encoding=default_encoding) as f:
+            with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
             self.translated = translated
+            self.outputpath = outputpath
 
     def UpdateContext(self, options):
         """
