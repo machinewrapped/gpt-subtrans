@@ -69,7 +69,7 @@ class Options:
         # If instructions file exists load the instructions from that
         instructions, retry_instructions = LoadInstructionsFile(options.get('instruction_file'))
         instructions = instructions if instructions else default_instructions
-        retry_instructions = retry_instructions if retry_instructions else self.options['retry_instructions']
+        retry_instructions = retry_instructions if retry_instructions else self.options.get('retry_instructions')
 
         # Add any additional instructions from the command line
         if options.get('instruction_args'):
@@ -98,9 +98,10 @@ class Options:
         """
         Replace option tags in a string with the value of the corresponding option.
         """
-        for name, value in self.options.items():
-            if value:
-                text = text.replace(f"[{name}]", str(value))
+        if text:
+            for name, value in self.options.items():
+                if value:
+                    text = text.replace(f"[{name}]", str(value))
         return text
     
     def GetNonProjectSpecificOptions(self):
