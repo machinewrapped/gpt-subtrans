@@ -12,3 +12,5 @@ __pycache__
 /*.subtrans-backup
 /*.code-workspace
 .DS_Store
+/dist
+/build
