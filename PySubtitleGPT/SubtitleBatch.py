@@ -1,4 +1,4 @@
-from pysrt import SubRipTime
+from datetime import timedelta
 from PySubtitleGPT.Helpers import PerformSubstitutions
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 
@@ -41,16 +41,16 @@ class SubtitleBatch:
         return self.translated and (len(self.translated) == len(self.originals))
     
     @property
-    def start(self) -> SubRipTime:
+    def start(self) -> timedelta:
         return self.originals[0].start if self.originals else None
         
     @property
-    def end(self) -> SubRipTime:
+    def end(self) -> timedelta:
         return self.originals[-1].end if self.originals else None
     
     @property
     def duration(self):
-        return self.end - self.start if self.start and self.end else SubRipTime()
+        return self.end - self.start if self.start and self.end else timedelta(seconds=0)
     
     @originals.setter
     def originals(self, value):

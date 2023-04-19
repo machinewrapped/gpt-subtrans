@@ -1,7 +1,8 @@
+from datetime import timedelta
 import os
 import logging
 import re
-import pysrt
+import srt
 
 def Linearise(lines):
     if not isinstance(lines, list):
@@ -16,9 +17,28 @@ def UpdateFields(item : dict, update: dict, fields : list[str]):
     """
     item.update({field: update[field] for field in update.keys() if field in fields})
 
-def FixTime(time):
+def CreateSrtSubtitle(item):
+    """
+    Try to construct an srt.Subtitle from the argument
+    """
+    if hasattr(item, 'item'):
+        item = item.item
+
+    if not isinstance(item, srt.Subtitle):
+        line = str(item).strip()
+        match = srt.SRT_REGEX.match(line)
+        if match:
+            raw_index, raw_start, raw_end, proprietary, content = match.groups()
+            index = int(raw_index) if raw_index else None
+            start = srt.srt_timestamp_to_timedelta(raw_start)
+            end = srt.srt_timestamp_to_timedelta(raw_end)
+            item = srt.Subtitle(index, start, end, content, proprietary)
+
+    return item
+
+def GetTimeDelta(time):
     try:
-        return str(pysrt.SubRipTime.coerce(time))
+        return srt.srt_timestamp_to_timedelta(str(time))
 
     except Exception as e:
         time = str(time)
@@ -27,40 +47,38 @@ def FixTime(time):
         if len(parts) == 3:
             if len(parts[-1]) == 3:
                 logging.warn(f"Adding hour to time '{time}'")
-                return f"00:{parts[0]}:{parts[1]},{parts[2]}"
+                return GetTimeDelta(f"00:{parts[0]}:{parts[1]},{parts[2]}")
             else:
                 logging.warn(f"Adding milliseconds to time '{time}'")
-                return f"{parts[0]}:{parts[1]}:{parts[2],000}"
+                return GetTimeDelta(f"{parts[0]}:{parts[1]}:{parts[2],000}")
 
         if len(parts) >= 4:
             if len(parts[-1]) == 3:
                 logging.warn(f"Using last four parts of '{time}' as time")
-                return f"{parts[-4]}:{parts[-3]}:{parts[-2]},{parts[-1]}"
+                return GetTimeDelta(f"{parts[-4]}:{parts[-3]}:{parts[-2]},{parts[-1]}")
 
             logging.warn(f"Using first four parts of '{time}' as time")
-            return f"{parts[0]}:{parts[1]}:{parts[2]},{parts[3]}"
+            return GetTimeDelta(f"{parts[0]}:{parts[1]}:{parts[2]},{parts[3]}")
 
-    raise ValueError("Unable to interpret time string '{time}'")
+    raise ValueError(f"Unable to interpret time '{str(time)}'")
 
-def GetInputFilename(filename):
-    if not filename:
+def GetInputPath(filepath):
+    if not filepath:
         return None
     
-    basename, _ = os.path.splitext(filename)
+    basename, _ = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
-    return f"{basename}.srt"
+    return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def GetOutputFilename(filename):
-    if not filename:
+def GetOutputPath(filepath):
+    if not filepath:
         return None
     
-    basename, _ = os.path.splitext(filename)
+    basename, _ = os.path.splitext(os.path.basename(filepath))
     if not basename.endswith("-ChatGPT"):
         basename = basename + "-ChatGPT"
-    return f"{basename}.srt"
-
-
+    return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
 def GenerateBatchPrompt(prompt, lines, tag_lines=None):
     """

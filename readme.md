@@ -174,10 +174,12 @@ Submit a pull request to the main GPT-Subtrans repository.
 This project uses several useful libraries:
 
 - openai, of course (https://platform.openai.com/docs/libraries/python-bindings)
-- pysrt (https://github.com/byroot/pysrt)
+- srt (https://github.com/cdown/srt)
+
+For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
 - events (https://pypi.org/project/Events/)
 - darkdetect (https://github.com/albertosottile/darkdetect)
 
 ## License
-GPT-Subtrans is licensed under the MIT License.
+GPT-Subtrans is licensed under the MIT License. See LICENSE for the 3rd party library licenses.
