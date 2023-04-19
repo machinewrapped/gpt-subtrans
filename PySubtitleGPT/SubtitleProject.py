@@ -143,7 +143,7 @@ class SubtitleProject:
 
     def GetProjectFilepath(self, filepath):
         path, ext = os.path.splitext(filepath)
-        return filepath if ext == 'subtrans' else f"{path}.subtrans"
+        return filepath if ext == '.subtrans' else f"{path}.subtrans"
     
     def LoadSubtitleFile(self, filepath):
         """
