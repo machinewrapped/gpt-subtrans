@@ -78,7 +78,7 @@ class SubtitleFile:
                 source = list(srt.parse(f))
             
         except srt.SRTParseError as e:
-            with open(self.sourcepath, 'r') as f:
+            with open(self.sourcepath, 'r', encoding=fallback_encoding) as f:
                 source = list(srt.parse(f))
 
         with self.lock:

@@ -2,6 +2,7 @@ import json
 import os
 import logging
 import threading
+from PySubtitleGPT.Helpers import GetOutputPath
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleFile import SubtitleFile
@@ -50,7 +51,7 @@ class SubtitleProject:
         :param filepath: the path to the project or a source subtitle file (in .srt format) to be translated
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
         """ 
-        self.projectfile = self.GetProjectFilename(filepath or "subtitles")
+        self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
 
         # Check if the project file exists
         if self.read_project and not os.path.exists(self.projectfile):
@@ -140,11 +141,9 @@ class SubtitleProject:
             logging.error(f"Failed to translate subtitles")
             raise
 
-    def GetProjectFilename(self, filename):
-        name, ext = os.path.splitext(os.path.basename(filename))
-        if ext == 'subtrans':
-            return filename
-        return os.path.join(os.getcwd(), f"{name}.subtrans")
+    def GetProjectFilepath(self, filepath):
+        path, ext = os.path.splitext(filepath)
+        return filepath if ext == 'subtrans' else f"{path}.subtrans"
     
     def LoadSubtitleFile(self, filepath):
         """
@@ -163,19 +162,21 @@ class SubtitleProject:
         """
         with self.lock:
             if not self.subtitles:
-                raise ValueError("Can't write project file, no subtitles")
+                raise Exception("Can't write project file, no subtitles")
 
             if not isinstance(self.subtitles, SubtitleFile):
-                raise ValueError("Asked to write a project file with the wrong content type")
+                raise Exception("Can't write project file, wrong content type")
 
             if not self.subtitles.scenes:
-                raise ValueError("Asked to write a project file with no scenes")
+                raise Exception("Can't write project file, no scenes")
 
-            projectfile = projectfile or self.projectfile
+            if projectfile:
+                self.projectfile = self.GetProjectFilepath(projectfile)
+                self.subtitles.outputpath = GetOutputPath(projectfile)
 
-            logging.info(f"Writing project data to {str(projectfile)}")
+            logging.info(f"Writing project data to {str(self.projectfile)}")
 
-            with open(projectfile, 'w', encoding=default_encoding) as f:
+            with open(self.projectfile, 'w', encoding=default_encoding) as f:
                 project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
                 f.write(project_json)
 

@@ -52,8 +52,6 @@ class SaveProjectFile(Command):
 
     def execute(self):
         self.project.WriteProjectFile(self.filepath)
-
-        # TODO: should be able to change the outputpath for the subtitles too
         self.project.subtitles.SaveTranslation()
 
 class SaveSubtitleFile(Command):
