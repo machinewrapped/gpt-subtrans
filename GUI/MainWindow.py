@@ -19,13 +19,16 @@ from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
+from PySubtitleGPT.Helpers import GetResourcePath
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
 
-def LoadStylesheet(file_path):
-    with open(file_path, 'r') as file:
+def LoadStylesheet(name):
+    filepath = GetResourcePath(os.path.join("theme", f"{name}.qss"))
+    logging.info(f"Loading stylesheet from {filepath}")
+    with open(filepath, 'r') as file:
         stylesheet = file.read()
     QApplication.instance().setStyleSheet(stylesheet)
     return stylesheet
@@ -41,7 +44,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1600, 900)
 
         theme = options.get('theme', 'subtrans')
-        LoadStylesheet(os.path.join(os.getcwd(), "GUI", f"{theme}.qss"))
+        LoadStylesheet(theme)
 
         # Create the project data model
         self.datamodel = ProjectDataModel()
