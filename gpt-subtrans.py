@@ -6,7 +6,7 @@ from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
-logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'WARNING')}")
+logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
 
 # Parse command line arguments

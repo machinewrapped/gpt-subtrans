@@ -16,6 +16,9 @@ def UpdateFields(item : dict, update: dict, fields : list[str]):
     """
     Patch selected fields in a dictionary 
     """
+    if not isinstance(item, dict) or not isinstance(update, dict):
+        raise Exception(f"Can't patch a {type(item).__name__} with a {type(update).__name__}")
+
     item.update({field: update[field] for field in update.keys() if field in fields})
 
 def CreateSrtSubtitle(item):
