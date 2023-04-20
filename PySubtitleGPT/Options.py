@@ -1,6 +1,5 @@
 import os
 import dotenv
-import darkdetect
 
 linesep = '\n'
 
@@ -62,10 +61,6 @@ class Options:
         # Apply any explicit parameters
         options.update(kwargs)
 
-        # Select theme or use OS default 
-        if not self.get('theme'):
-            self.add('theme', "subtrans-dark" if darkdetect.isDark() else "subtrans")
-
         # If instructions file exists load the instructions from that
         instructions, retry_instructions = LoadInstructionsFile(options.get('instruction_file'))
         instructions = instructions if instructions else default_instructions
@@ -87,7 +82,10 @@ class Options:
     def add(self, option, value):
         self.options[option] = value
 
-    def update(self, options: dict):
+    def update(self, options):
+        if isinstance(options, Options):
+            return self.update(options.options)
+
         options = {k: v for k, v in options.items() if v}
         self.options.update(options)
 
@@ -108,9 +106,27 @@ class Options:
         """
         Get a copy of the options with only the default keys included
         """
-        return Options({
-            key: self.get(key) for key in self.options.keys() & default_options.keys()
-        })
+        options = { key: self.get(key) for key in self.options.keys() & default_options.keys() }
+        return Options(options)
+    
+    def GetSettings(self) -> dict:
+        """
+        Return a dictionary of generic options
+        """
+        exclusions = [ 'instructions', 'retry_instructions' ]
+        keys = [ key for key in default_options.keys() if key not in exclusions]
+        settings = { key: self.get(key) for key in keys if key in self.options.keys() }
+        return settings
+
+    def Save(self):
+        settings : dict = self.GetSettings()
+        default_options.update(settings)
+
+        save_options = [ f"{key.upper()}={value}" for key, value in settings.items() if value != default_options.get(key) ]
+
+        with open(os.path.join(os.getcwd(), '.env'), "w", encoding="utf-8") as envfile:
+            envfile.write(os.linesep.join(save_options))
+
 
 def LoadInstructionsFile(filepath):
     """

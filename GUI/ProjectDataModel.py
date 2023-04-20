@@ -6,18 +6,13 @@ from PySubtitleGPT.SubtitleProject import SubtitleProject
 class ProjectDataModel:
     _action_handlers = {}
 
-    def __init__(self, project = None):
+    def __init__(self, project = None, options = None):
         self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
-        self.options = Options({
-            'project': 'true'
-        })
+        self.options = options or Options()
         self.mutex = QMutex()
 
         if project and project.options:
-            if isinstance(project.options, Options):
-                self.options = project.options
-            else:
               self.options.update(project.options)
 
     @classmethod
