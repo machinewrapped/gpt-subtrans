@@ -2,6 +2,7 @@ import logging
 from GUI.Command import Command
 from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitleGPT.Options import Options
 
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
@@ -19,6 +20,10 @@ class LoadSubtitleFile(Command):
 
         try:
             options = self.datamodel.options if self.datamodel else None
+            if not options:
+                options = Options()
+                options.Load()
+
             project = SubtitleProject(options)
             project.Initialise(self.filepath)
 
