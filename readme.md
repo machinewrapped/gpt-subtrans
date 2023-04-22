@@ -180,6 +180,7 @@ For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
 - events (https://pypi.org/project/Events/)
 - darkdetect (https://github.com/albertosottile/darkdetect)
+- appdirs (https://github.com/ActiveState/appdirs)
 
 For bundled versions:
 - python (https://www.python.org/)
