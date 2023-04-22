@@ -34,10 +34,7 @@ parser.add_argument('--maxlines', type=int, default=None, help="Maximum number o
 args = parser.parse_args()
 
 try:
-    options = Options()
-    options.Load()
-    options.update(
-    {
+    options = Options({
         'api_key': args.apikey,
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,

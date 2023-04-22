@@ -56,9 +56,8 @@ default_options = {
 
 class Options:
     def __init__(self, options=None, **kwargs):
-        # Initialise from defaults settings  & any saved settings
+        # Initialise from defaults settings
         self.options = default_options.copy()
-        self.Load()
 
         if options:
             # Remove None values from options and merge with defaults

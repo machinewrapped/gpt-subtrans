@@ -50,7 +50,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("GUI-Subtrans")
         self.setGeometry(100, 100, 1600, 900)
 
-        options = options or Options()
+        if not options:
+            options = Options()
+            options.Load()
+
         theme = options.get('theme', 'default')
         LoadStylesheet(theme)
 
