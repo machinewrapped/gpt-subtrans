@@ -21,7 +21,7 @@ class SubtitleProject:
         self.needsupdate = False
         self.lock = threading.Lock()
         
-        project_mode = options.get('project', '')
+        project_mode = self.options.get('project', '')
         if project_mode:
             project_mode = project_mode.lower() 
 
@@ -30,10 +30,10 @@ class SubtitleProject:
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
 
-        options.add('preview', project_mode in ["preview"])
-        options.add('resume', project_mode in ["resume"])   #, "true"
-        options.add('reparse', project_mode in ["reparse"])
-        options.add('retranslate', project_mode in ["retranslate"])
+        self.options.add('preview', project_mode in ["preview"])
+        self.options.add('resume', project_mode in ["resume"])   #, "true"
+        self.options.add('reparse', project_mode in ["reparse"])
+        self.options.add('retranslate', project_mode in ["retranslate"])
 
         if self.update_project:
             self._start_autosave_thread
@@ -237,6 +237,7 @@ class SubtitleProject:
         with self.lock:
             # Update "self.options"
             self.options.update(options)
+            self.options.Save()
 
             if self.subtitles:
                 self.subtitles.UpdateContext(self.options)

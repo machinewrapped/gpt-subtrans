@@ -5,7 +5,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
-from PySubtitleGPT.Options import Options
+from PySubtitleGPT.Options import Options, settings_path
 
 # This seems insane but ChatGPT told me to do it.
 project_dir = os.path.abspath(os.path.dirname(__file__))
@@ -51,7 +51,13 @@ if __name__ == "__main__":
 
     arguments, filepath = parse_arguments()
 
-    options = Options(arguments)
+    # Load default options and update with any explicit arguments
+    options = Options()
+    if options.Load():
+        logging.info(f"Loaded settings from {settings_path}")
+    options.update(arguments)
+
+    # Launch the GUI
     app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()
 

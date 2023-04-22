@@ -180,6 +180,11 @@ For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
 - events (https://pypi.org/project/Events/)
 - darkdetect (https://github.com/albertosottile/darkdetect)
+- appdirs (https://github.com/ActiveState/appdirs)
+
+For bundled versions:
+- python (https://www.python.org/)
+- pyinstaller (https://pyinstaller.org/)
 
 ## License
 GPT-Subtrans is licensed under the MIT License. See LICENSE for the 3rd party library licenses.
