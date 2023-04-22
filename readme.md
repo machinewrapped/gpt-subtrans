@@ -181,5 +181,9 @@ For the GUI:
 - events (https://pypi.org/project/Events/)
 - darkdetect (https://github.com/albertosottile/darkdetect)
 
+For bundled versions:
+- python (https://www.python.org/)
+- pyinstaller (https://pyinstaller.org/)
+
 ## License
 GPT-Subtrans is licensed under the MIT License. See LICENSE for the 3rd party library licenses.

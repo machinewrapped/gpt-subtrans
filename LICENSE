@@ -343,3 +343,159 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+------------------------------------------------------------------
+
+Bundled under the GPL Exceptions clause of PyInstaller
+
+================================
+ The PyInstaller licensing terms
+================================
+ 
+
+Copyright (c) 2010-2023, PyInstaller Development Team
+Copyright (c) 2005-2009, Giovanni Bajo
+Based on previous work under copyright (c) 2002 McMillan Enterprises, Inc.
+
+
+PyInstaller is licensed under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+
+Bootloader Exception
+--------------------
+
+In addition to the permissions in the GNU General Public License, the
+authors give you unlimited permission to link or embed compiled bootloader
+and related files into combinations with other programs, and to distribute
+those combinations without any restriction coming from the use of those
+files. (The General Public License restrictions do apply in other respects;
+for example, they cover modification of the files, and distribution when
+not linked into a combined executable.)
+ 
+ 
+Bootloader and Related Files
+----------------------------
+
+Bootloader and related files are files which are embedded within the
+final executable. This includes files in directories:
+
+./bootloader/
+./PyInstaller/loader
+
+
+Run-time Hooks
+----------------------------
+
+Run-time Hooks are a different kind of files embedded within the final
+executable. To ease moving them into a separate repository, or into the
+respective project, these files are now licensed under the Apache License,
+Version 2.0.
+
+Run-time Hooks are in the directory
+./PyInstaller/hooks/rthooks
+
+
+The PyInstaller.isolated submodule
+----------------------------------
+
+By request, the PyInstaller.isolated submodule and its corresponding tests are
+additionally licensed with the MIT license so that it may be reused outside of
+PyInstaller under GPL 2.0 or MIT terms and conditions -- whichever is the most
+suitable to the recipient downstream project. Affected files/directories are:
+
+./PyInstaller/isolated/
+./tests/unit/test_isolation.py
+
+
+About the PyInstaller Development Team
+--------------------------------------
+
+The PyInstaller Development Team is the set of contributors
+to the PyInstaller project. A full list with details is kept
+in the documentation directory, in the file
+``doc/CREDITS.rst``.
+
+The core team that coordinates development on GitHub can be found here:
+https://github.com/pyinstaller/pyinstaller.  As of 2021, it consists of:
+
+* Hartmut Goebel
+* Jasper Harrison
+* Bryan Jones
+* Brenainn Woodsend
+* Rok Mandeljc
+
+Our Copyright Policy
+--------------------
+
+PyInstaller uses a shared copyright model. Each contributor maintains copyright
+over their contributions to PyInstaller. But, it is important to note that these
+contributions are typically only changes to the repositories. Thus,
+the PyInstaller source code, in its entirety is not the copyright of any single
+person or institution.  Instead, it is the collective copyright of the entire
+PyInstaller Development Team.  If individual contributors want to maintain
+a record of what changes/contributions they have specific copyright on, they
+should indicate their copyright in the commit message of the change, when they
+commit the change to the PyInstaller repository.
+
+With this in mind, the following banner should be used in any source code file
+to indicate the copyright and license terms:
+
+
+#-----------------------------------------------------------------------------
+# Copyright (c) 2005-2023, PyInstaller Development Team.
+#
+# Distributed under the terms of the GNU General Public License (version 2
+# or later) with exception for distributing the bootloader.
+#
+# The full license is in the file COPYING.txt, distributed with this software.
+#
+# SPDX-License-Identifier: (GPL-2.0-or-later WITH Bootloader-exception)
+#-----------------------------------------------------------------------------
+
+Python is included in distributions in accordance with the PSF License Agreement
+
+1. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
+   the Individual or Organization ("Licensee") accessing and otherwise using Python
+   3.11.3 software in source or binary form and its associated documentation.
+
+2. Subject to the terms and conditions of this License Agreement, PSF hereby
+   grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce,
+   analyze, test, perform and/or display publicly, prepare derivative works,
+   distribute, and otherwise use Python 3.11.3 alone or in any derivative
+   version, provided, however, that PSF's License Agreement and PSF's notice of
+   copyright, i.e., "Copyright © 2001-2023 Python Software Foundation; All Rights
+   Reserved" are retained in Python 3.11.3 alone or in any derivative version
+   prepared by Licensee.
+
+3. In the event Licensee prepares a derivative work that is based on or
+   incorporates Python 3.11.3 or any part thereof, and wants to make the
+   derivative work available to others as provided herein, then Licensee hereby
+   agrees to include in any such work a brief summary of the changes made to Python
+   3.11.3.
+
+4. PSF is making Python 3.11.3 available to Licensee on an "AS IS" basis.
+   PSF MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED.  BY WAY OF
+   EXAMPLE, BUT NOT LIMITATION, PSF MAKES NO AND DISCLAIMS ANY REPRESENTATION OR
+   WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE
+   USE OF PYTHON 3.11.3 WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
+
+5. PSF SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF PYTHON 3.11.3
+   FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS A RESULT OF
+   MODIFYING, DISTRIBUTING, OR OTHERWISE USING PYTHON 3.11.3, OR ANY DERIVATIVE
+   THEREOF, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
+
+6. This License Agreement will automatically terminate upon a material breach of
+   its terms and conditions.
+
+7. Nothing in this License Agreement shall be deemed to create any relationship
+   of agency, partnership, or joint venture between PSF and Licensee.  This License
+   Agreement does not grant permission to use PSF trademarks or trade name in a
+   trademark sense to endorse or promote products or services of Licensee, or any
+   third party.
+
+8. By copying, installing or otherwise using Python 3.11.3, Licensee agrees
+   to be bound by the terms and conditions of this License Agreement.
+   
