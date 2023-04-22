@@ -1,7 +1,13 @@
+import json
+import logging
 import os
 import dotenv
+import appdirs
 
 linesep = '\n'
+
+config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
+settings_path = os.path.join(config_dir, 'settings.json')
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -21,6 +27,7 @@ def env_bool(key, default=False):
     return var and str(var).lower() in ('true', 'yes', '1')
 
 default_options = {
+    'version': '0.1.2',
     'api_key': os.getenv('API_KEY', None),
     'gpt_model': os.getenv('GPT_MODEL', 'gpt-3.5-turbo'),
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
@@ -49,22 +56,24 @@ default_options = {
 
 class Options:
     def __init__(self, options=None, **kwargs):
-        if not options:
-            options = default_options.copy()
-        else:
-            # Remove None values from options and merge with default_options
-            options = {k: v for k, v in options.items() if v}
-            options = {**default_options, **options}
+        # Initialise from defaults settings  & any saved settings
+        self.options = default_options.copy()
+        self.Load()
 
-        self.options = options
+        if options:
+            # Remove None values from options and merge with defaults
+            options = {k: v for k, v in options.items() if v}
+            self.options = {**self.options, **options}
 
         # Apply any explicit parameters
-        options.update(kwargs)
+        self.options.update(kwargs)
 
+        options = self.options
+        
         # If instructions file exists load the instructions from that
         instructions, retry_instructions = LoadInstructionsFile(options.get('instruction_file'))
         instructions = instructions if instructions else default_instructions
-        retry_instructions = retry_instructions if retry_instructions else self.options.get('retry_instructions')
+        retry_instructions = retry_instructions if retry_instructions else options.get('retry_instructions')
 
         # Add any additional instructions from the command line
         if options.get('instruction_args'):
@@ -118,15 +127,60 @@ class Options:
         settings = { key: self.get(key) for key in keys if key in self.options.keys() }
         return settings
 
+    def Load(self):
+        if not os.path.exists(settings_path):
+            return False
+        
+        try:
+            with open(settings_path, "r", encoding="utf-8") as settings_file:
+                settings = json.load(settings_file)
+            
+            if not settings:
+                return False
+            
+            if settings.get('version') != default_options['version']:
+                self._update_settings_version(settings)
+
+            if not self.options:
+                self.options = default_options.copy()
+
+            self.options.update(settings)
+
+            return True
+        
+        except Exception as e:
+            logging.error(f"Error loading settings from {settings_path}")
+            return False
+
     def Save(self):
-        settings : dict = self.GetSettings()
-        default_options.update(settings)
+        try:
+            settings : dict = self.GetSettings()
 
-        save_options = [ f"{key.upper()}={value}" for key, value in settings.items() if value != default_options.get(key) ]
+            if not settings:
+                return False
+            
+            save_dict = { key : value for key, value in settings.items() if value != default_options.get(key) }
 
-        with open(os.path.join(os.getcwd(), '.env'), "w", encoding="utf-8") as envfile:
-            envfile.write(os.linesep.join(save_options))
+            if save_dict:
+                os.makedirs(config_dir, exist_ok=True)
 
+                save_dict['version'] = default_options['version']
+
+                with open(settings_path, "w", encoding="utf-8") as settings_file:
+                    json.dump(save_dict, settings_file, ensure_ascii=False)
+
+            return True
+
+        except Exception as e:
+            logging.error(f"Error saving settings to {settings_path}")
+            return False
+
+    def _update_settings_version(self, settings):
+        """
+        This is where we would patch or remove any out of date settings.
+        """
+        current_version = default_options['version']
+        settings['version'] = current_version    
 
 def LoadInstructionsFile(filepath):
     """
