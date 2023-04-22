@@ -3,11 +3,12 @@
 
 block_cipher = None
 
+
 a = Analysis(
     ['gui-subtrans.py'],
     pathex=[],
     binaries=[],
-    datas=[('instructions.txt', '.'), ('theme', 'theme')],
+    datas=[('theme/*', 'theme/'), ('instructions.txt', '.'), ('LICENSE', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -47,4 +48,3 @@ coll = COLLECT(
     upx_exclude=[],
     name='gui-subtrans',
 )
-
