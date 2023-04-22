@@ -28,10 +28,10 @@ class FirstRunOptions(QDialog):
 
         self.form_layout = QFormLayout()
 
-        self.language = self._create_input("Language", QLineEdit, "Target Language", self.data.get('target_language', ''))
-
         self.api_key = self._create_input("API Key", QLineEdit, "Enter API Key", self.data.get('api_key', ''))
         self.api_key.textChanged.connect(self._api_key_changed)
+
+        self.language = self._create_input("Language", QLineEdit, "Target Language", self.data.get('target_language', ''))
 
         self.model = self._create_input("Model", QLineEdit, "Default Model", self.data.get('gpt_model', ''))
 
