@@ -173,22 +173,26 @@ class ProjectSelection():
         item = model.data(index, role=Qt.ItemDataRole.UserRole)
 
         if isinstance(item, SceneItem):
-            self.scenes[item.number] = SelectionScene(item, selected)
+            if not item.number in self.scenes.keys():
+                self.scenes[item.number] = SelectionScene(item, selected)
 
-            children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
-            for child_index in children:
-                self.AppendItem(model, child_index, False)
+                if selected:
+                    children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
+                    for child_index in children:
+                        self.AppendItem(model, child_index, False)
 
         elif isinstance(item, BatchItem):
-            batch = SelectionBatch(item, selected)
-            self.batches[item.number] = batch
-            if not self.scenes.get(item.scene):
-                self.AppendItem(model, model.parent(index), False)
+            if not item.number in self.batches.keys():
+                batch = SelectionBatch(item, selected)
+                self.batches[item.number] = batch
+                if not self.scenes.get(item.scene):
+                    self.AppendItem(model, model.parent(index), False)
 
-            for line in item.originals:
-                self.originals[line] = SelectionLine(batch.scene, batch.number, line, False)
-            for line in item.translated:
-                self.translated[line] = SelectionLine(batch.scene, batch.number, line, False)
+            if selected:
+                for line in item.originals:
+                    self.originals[line] = SelectionLine(batch.scene, batch.number, line, False)
+                for line in item.translated:
+                    self.translated[line] = SelectionLine(batch.scene, batch.number, line, False)
 
     def AddSelectedLines(self, selected_originals : list[SelectionLine], selected_translations : list[SelectionLine]):
         for line in selected_originals:
