@@ -45,7 +45,7 @@ def parse_arguments():
         'max_batch_size': args.maxbatchsize,
         'batch_threshold': args.batchthreshold,
         'scene_threshold': args.scenethreshold,
-        'project': args.project and args.project.lower(),
+        'project': args.project and args.project.lower() or 'true',
         'theme': args.theme,
         'firstrun': args.firstrun
     }
