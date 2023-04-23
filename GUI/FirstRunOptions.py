@@ -1,6 +1,5 @@
+import os
 from PySide6.QtWidgets import (
-    QStyle, 
-    QApplication, 
     QFormLayout, 
     QDialog, 
     QVBoxLayout, 
@@ -11,9 +10,12 @@ from PySide6.QtWidgets import (
     QPushButton, 
     QCheckBox, 
     QDoubleSpinBox, 
+    QComboBox,
     QSpinBox 
     )
 from PySide6.QtGui import QTextOption
+
+from PySubtitleGPT.Helpers import GetResourcePath
 
 
 class FirstRunOptions(QDialog):
@@ -28,10 +30,14 @@ class FirstRunOptions(QDialog):
 
         self.form_layout = QFormLayout()
 
-        self.api_key = self._create_input("API Key", QLineEdit, "Enter API Key", self.data.get('api_key', ''))
+        api_key = self.data.get('api_key', '')
+        self.api_key = self._create_input("API Key", QLineEdit, "Enter API Key", api_key)
         self.api_key.textChanged.connect(self._api_key_changed)
 
         self.language = self._create_input("Language", QLineEdit, "Target Language", self.data.get('target_language', ''))
+
+        self.theme_path = GetResourcePath("theme")
+        self.theme = self._add_theme_input("Theme", self.data.get('theme', 'default'))
 
         self.model = self._create_input("Model", QLineEdit, "Default Model", self.data.get('gpt_model', ''))
 
@@ -48,7 +54,7 @@ class FirstRunOptions(QDialog):
         self.button_layout = QHBoxLayout()
 
         self.ok_button = self._create_button("OK", self.accept)
-        self.ok_button.setEnabled(False)
+        self.ok_button.setEnabled(api_key and True)
 
         layout.addLayout(self.button_layout)
 
@@ -62,9 +68,10 @@ class FirstRunOptions(QDialog):
         self.data['target_language'] = self.language.text()
         self.data['max_threads'] = self.max_threads.value()
         self.data['rate_limit'] = self.rate_limit.value()
+        self.data['theme'] = self.theme.currentText()
         super().accept()
 
-    def _create_input(self, label_text, input_type, placeholder=None, default_value=None, word_wrap_mode=None):
+    def _create_input(self, label_text, input_type, placeholder=None, default_value=None):
         label = QLabel(label_text)
         input_widget = input_type()
 
@@ -104,3 +111,23 @@ class FirstRunOptions(QDialog):
             self.rate_limit.setValue(self.data.get('rate_limit', None))
             self.max_threads.setEnabled(True)
             self.rate_limit.setEnabled(False)
+
+    def _add_theme_input(self, label_text, current_theme):
+        theme = QComboBox()
+        theme.addItem('default')
+        for file in os.listdir(self.theme_path):
+            if file.endswith(".qss"):
+                theme_name = os.path.splitext(file)[0]
+                theme.addItem(theme_name)
+
+        if current_theme is None:
+            theme.setCurrentIndex(0)
+        else:
+            index = theme.findText(current_theme)
+            if index != -1:
+                theme.setCurrentIndex(index)
+
+        self.form_layout.addRow(label_text, theme)
+
+        return theme
+

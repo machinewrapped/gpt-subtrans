@@ -96,7 +96,7 @@ class MainWindow(QMainWindow):
         # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
 
-        if not options.api_key():
+        if not options.api_key() or options.get('firstrun'):
             # Make sure we have an API key
             self._first_run(options)
         elif filepath:
@@ -171,3 +171,4 @@ class MainWindow(QMainWindow):
             logging.info("First run options set")
             options.update(settings)
             options.Save()
+            LoadStylesheet(options.get('theme'))

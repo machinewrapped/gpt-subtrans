@@ -28,8 +28,13 @@ def parse_arguments():
     parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
     parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
     parser.add_argument('--theme', type=str, default=None, help="Stylesheet to load")
+    parser.add_argument('--firstrun', action='store_true', help="Show the first-run options dialog on launch")
 
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except SystemExit as e:
+        print(f"Argument error: {e}")
+        raise
 
     arguments = {
         'api_key': args.apikey,
@@ -41,7 +46,8 @@ def parse_arguments():
         'batch_threshold': args.batchthreshold,
         'scene_threshold': args.scenethreshold,
         'project': args.project and args.project.lower(),
-        'theme': args.theme
+        'theme': args.theme,
+        'firstrun': args.firstrun
     }
     
     return arguments, args.filepath
