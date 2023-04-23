@@ -97,7 +97,7 @@ class ModelView(QWidget):
 
         selected_lines, selected_translations = self.content_view.GetSelectedLines()
         if selected_lines or selected_translations:
-            selection.AppendLines(selected_lines, selected_translations)
+            selection.AddSelectedLines(selected_lines, selected_translations)
 
         return selection
 
