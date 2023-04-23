@@ -55,7 +55,8 @@ class SelectionView(QFrame):
         else:
             self._label.setText(str(selection))
 
-        _show(self._translate_button, selection.original_lines)
+        # TEMP - no individual line translation yet
+        _show(self._translate_button, selection.original_lines and selection.Any() and not selection.AnyLines())
         _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsSequential())
         _show(self._merge_batches_button, selection.OnlyBatches() and selection.MultipleSelected() and selection.IsSequential())
         _show(self._merge_lines_button, selection.AnyLines() and selection.MultipleSelected() and selection.IsSequential() and selection.AllLinesInSameBatch())
