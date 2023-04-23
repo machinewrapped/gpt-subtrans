@@ -165,6 +165,8 @@ class TranslateSceneCommand(Command):
 
         project.events.batch_translated -= self._on_batch_translated
 
+        project.UpdateProjectFile()
+
         if scene:
             self.datamodel_update[scene.number].update({
                 'summary' : scene.summary
