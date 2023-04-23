@@ -52,8 +52,10 @@ class SubtitleProject:
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
         """ 
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
-        if self.projectfile == filepath:
+        if self.projectfile == filepath and not self.read_project:
             self.read_project = True
+            self.write_project = True
+            self.options.add('project', 'true')
 
         # Check if the project file exists
         if self.read_project and not os.path.exists(self.projectfile):
@@ -171,6 +173,11 @@ class SubtitleProject:
 
             if not self.subtitles.scenes:
                 raise Exception("Can't write project file, no scenes")
+
+            if projectfile and not self.write_project:
+                self.write_project = True
+                self.read_project = True
+                self.options.add('project', 'true')
 
             if projectfile:
                 self.projectfile = self.GetProjectFilepath(projectfile)
