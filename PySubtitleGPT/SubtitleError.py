@@ -1,5 +1,4 @@
-
-class TranslationError(Exception):
+class SubtitleError(Exception):
     def __init__(self, message, error = None):
         super().__init__(message)
         self.error = error
@@ -8,6 +7,11 @@ class TranslationError(Exception):
         if self.error:
             return str(self.error)
         return super().__str__()
+
+class TranslationError(SubtitleError):
+    def __init__(self, message, error = None):
+        super().__init__(message)
+        self.error = error
     
 class TranslationImpossibleError(TranslationError):
     """ No chance of retry succeeding """
