@@ -5,7 +5,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
-from PySubtitleGPT.Options import Options
+from PySubtitleGPT.Options import Options, settings_path
 
 # This seems insane but ChatGPT told me to do it.
 project_dir = os.path.abspath(os.path.dirname(__file__))
@@ -28,8 +28,13 @@ def parse_arguments():
     parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
     parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
     parser.add_argument('--theme', type=str, default=None, help="Stylesheet to load")
+    parser.add_argument('--firstrun', action='store_true', help="Show the first-run options dialog on launch")
 
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except SystemExit as e:
+        print(f"Argument error: {e}")
+        raise
 
     arguments = {
         'api_key': args.apikey,
@@ -41,7 +46,8 @@ def parse_arguments():
         'batch_threshold': args.batchthreshold,
         'scene_threshold': args.scenethreshold,
         'project': args.project and args.project.lower(),
-        'theme': args.theme
+        'theme': args.theme,
+        'firstrun': args.firstrun
     }
     
     return arguments, args.filepath
@@ -51,7 +57,13 @@ if __name__ == "__main__":
 
     arguments, filepath = parse_arguments()
 
-    options = Options(arguments)
+    # Load default options and update with any explicit arguments
+    options = Options()
+    if options.Load():
+        logging.info(f"Loaded settings from {settings_path}")
+    options.update(arguments)
+
+    # Launch the GUI
     app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()
 

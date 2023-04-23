@@ -71,7 +71,7 @@ class ProjectActions(QObject):
         QApplication.instance().quit()
 
     def _load_subtitle_file(self):
-        filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt;*.subtrans);;All Files (*)")
+        filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")
 
         if filepath:
             command = LoadSubtitleFile(filepath)

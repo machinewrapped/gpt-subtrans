@@ -1,6 +1,8 @@
 python-dotenv
 openai
-pysrt
+srt
 events
 pyside6
 darkdetect
+appdirs
+

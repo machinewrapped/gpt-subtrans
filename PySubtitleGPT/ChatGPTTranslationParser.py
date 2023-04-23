@@ -137,7 +137,7 @@ class ChatGPTTranslationParser:
                 too_many_newlines.append(line)
 
         if no_number:
-            raise UnmatchedLinesError(f"{len(no_number)} translations could not be matched with a source line")
+            raise UnmatchedLinesError(f"{len(no_number)} translations could not be matched with a source line", no_number)
 
         if too_long:
             raise LineTooLongError(f"One or more lines exceeded {max_characters} characters", too_long)

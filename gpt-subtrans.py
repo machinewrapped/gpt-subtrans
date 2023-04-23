@@ -6,7 +6,7 @@ from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
-logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'WARNING')}")
+logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
 
 # Parse command line arguments
@@ -34,7 +34,7 @@ parser.add_argument('--maxlines', type=int, default=None, help="Maximum number o
 args = parser.parse_args()
 
 try:
-    source = Options({
+    options = Options({
         'api_key': args.apikey,
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,
@@ -53,7 +53,7 @@ try:
     })
 
     # Process the project options
-    project = SubtitleProject(source)
+    project = SubtitleProject(options)
 
     project.Initialise(args.input, args.output)
 

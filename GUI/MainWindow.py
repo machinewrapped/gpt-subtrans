@@ -1,6 +1,7 @@
 import os
 import logging
 import dotenv
+import darkdetect
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -8,24 +9,33 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
     QVBoxLayout,
-    QSplitter
+    QSplitter,
+    QDialog
 )
 from GUI.Command import Command
 
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
+from GUI.FirstRunOptions import FirstRunOptions
 from GUI.MainToolbar import MainToolbar
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
+from PySubtitleGPT.Helpers import GetResourcePath
+from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
 
-def LoadStylesheet(file_path):
-    with open(file_path, 'r') as file:
+def LoadStylesheet(name):
+    if not name or name == "default":
+        name = "subtrans-dark" if darkdetect.isDark() else "subtrans"
+
+    filepath = GetResourcePath(os.path.join("theme", f"{name}.qss"))
+    logging.info(f"Loading stylesheet from {filepath}")
+    with open(filepath, 'r') as file:
         stylesheet = file.read()
     QApplication.instance().setStyleSheet(stylesheet)
     return stylesheet
@@ -34,17 +44,21 @@ class MainWindow(QMainWindow):
     datamodel : ProjectDataModel = None
     project : SubtitleProject = None
 
-    def __init__(self, parent=None, options=None, filepath=None):
+    def __init__(self, parent=None, options : Options = None, filepath : str = None):
         super().__init__(parent)
 
         self.setWindowTitle("GUI-Subtrans")
         self.setGeometry(100, 100, 1600, 900)
 
-        theme = options.get('theme', 'subtrans')
-        LoadStylesheet(os.path.join(os.getcwd(), "GUI", f"{theme}.qss"))
+        if not options:
+            options = Options()
+            options.Load()
+
+        theme = options.get('theme', 'default')
+        LoadStylesheet(theme)
 
         # Create the project data model
-        self.datamodel = ProjectDataModel()
+        self.datamodel = ProjectDataModel(options=options)
 
         # Create the command queue
         self.command_queue = CommandQueue(self)
@@ -82,8 +96,11 @@ class MainWindow(QMainWindow):
         # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
 
-        # Load file if we were opened with one
-        if filepath:
+        if not options.api_key() or options.get('firstrun'):
+            # Make sure we have an API key
+            self._first_run(options)
+        elif filepath:
+            # Load file if we were opened with one
             self.QueueCommand(LoadSubtitleFile(filepath))
 
         self.statusBar().showMessage("Ready.")
@@ -145,3 +162,14 @@ class MainWindow(QMainWindow):
     def _on_options_changed(self, options: dict):
         if options and self.project:
             self.project.UpdateProjectOptions(options)
+
+    def _first_run(self, options: Options):
+        settings = options.GetSettings()
+        result = FirstRunOptions(settings, self).exec()
+
+        if result == QDialog.Accepted:
+            logging.info("First run options set")
+            options.update(settings)
+            options.add('firstrun', False)
+            options.Save()
+            LoadStylesheet(options.get('theme'))
