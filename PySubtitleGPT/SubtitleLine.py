@@ -59,9 +59,7 @@ class SubtitleLine:
     def translated(self):
         if not self._item or not self.translation:
             return None 
-        line = SubtitleLine(self._item)
-        line.text = self.translation
-        return line
+        return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
     
     @property
     def prompt(self):
