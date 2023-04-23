@@ -47,7 +47,7 @@ class ModelView(QWidget):
         self.setLayout(layout)
 
         self.scenes_view.onSelection.connect(self._items_selected)
-        self.content_view.onSelection.connect(self._items_selected)
+        self.content_view.onSelection.connect(self._lines_selected)
 
         self.content_view.actionRequested.connect(self.actionRequested)
 
@@ -102,6 +102,10 @@ class ModelView(QWidget):
         return selection
 
     def _items_selected(self):
+        self.content_view.ClearSelectedLines()
         selection : ProjectSelection = self.GetSelection()
         self.content_view.ShowSelection(selection)
 
+    def _lines_selected(self):
+        selection : ProjectSelection = self.GetSelection()
+        self.content_view.ShowSelection(selection)

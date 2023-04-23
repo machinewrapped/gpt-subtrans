@@ -36,6 +36,10 @@ class SubtitleView(QListView):
         selected_items = [ model.data(index, Qt.ItemDataRole.UserRole) for index in selected_indexes ]
         selected_lines = [ SelectionLine(item.scene, item.batch, item.number, True) for item in selected_items ]
         return selected_lines
+    
+    def ClearSelectedLines(self):
+        selection_model = self.selectionModel()
+        selection_model.clearSelection()
 
     def SelectSubtitles(self, line_numbers):
         """

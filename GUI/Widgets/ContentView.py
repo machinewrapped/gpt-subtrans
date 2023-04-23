@@ -61,13 +61,16 @@ class ContentView(QWidget):
         selected_originals = self.subtitle_view.GetSelectedLines()
         selected_translations = self.translation_view.GetSelectedLines()
         return selected_originals, selected_translations
+    
+    def ClearSelectedLines(self):
+        self.subtitle_view.ClearSelectedLines()
+        self.translation_view.ClearSelectedLines()
 
     def _originals_selected(self, originals):
         line_numbers = [ item.number for item in originals if item.number ]
         if line_numbers:
             self.translation_view.SelectSubtitles(line_numbers)
             
-
         self.onSelection.emit()
 
     def _translations_selected(self, translations):
