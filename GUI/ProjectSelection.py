@@ -106,13 +106,18 @@ class ProjectSelection():
     def AnyLines(self) -> bool:
         return self.selected_originals or self.selected_translations
     
+    def AllLinesInSameBatch(self) -> bool:
+        originals = self.selected_originals
+        translated = self.selected_translations
+        return all(line.batch == originals[0].batch for line in originals) and all(line.batch == translated[0].batch for line in translated)
+
     def MatchingLines(self) -> bool:
         return self.selected_originals == self.selected_translations
 
     def MultipleSelected(self) -> bool:
         return len(self.selected_scenes) > 1 or len(self.selected_batches) > 1 or len(self.selected_originals) > 1 or len(self.selected_translations) > 1
 
-    def SelectionIsSequential(self) -> bool:
+    def IsSequential(self) -> bool:
         scene_numbers = sorted(scene.number for scene in self.selected_scenes)
         if scene_numbers and scene_numbers != list(range(scene_numbers[0], scene_numbers[0] + len(scene_numbers))):
             return False
@@ -136,6 +141,30 @@ class ProjectSelection():
             return False
 
         return True
+    
+    def GetHierarchy(self) -> dict:
+        """
+        Hierarchical representation of selected lines/batches/scenes
+        """
+        scenes = {}
+        
+        for scene in self.selected_scenes:
+            scenes[scene.number] = {}
+        for batch in self.selected_batches:
+            scene = scenes[batch.scene] = scenes.get(batch.scene) or {}
+            scene[batch.number] = { 'originals': {}, 'translated': {} }
+
+        for line in self.selected_originals:
+            scene = scenes[line.scene] = scenes.get(line.scene) or {}
+            batch = scene[line.batch] = scene.get(line.batch) or { 'originals': {}, 'translated': {} }
+            batch['originals'][line.number] = line
+
+        for line in self.selected_translations:
+            scene = scenes[line.scene] = scenes.get(line.scene) or {}
+            batch = scene[line.batch] = scene.get(line.batch) or { 'originals': {}, 'translated': {} }
+            batch['translated'][line.number] = line
+
+        return scenes
 
     def AppendItem(self, model, index, selected : bool = True):
         """
@@ -200,7 +229,7 @@ class ProjectSelection():
 
     def _count(self, num, singular, plural):
         if num == 0:
-            return f"No {plural}"
+            return f"no {plural}"
         elif num == 1:
             return f"1 {singular}"
         else:

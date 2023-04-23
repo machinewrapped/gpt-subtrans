@@ -3,7 +3,7 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeScenesCommand, SwapTextAndTranslations, TranslateSceneCommand
+from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, SwapTextAndTranslations, TranslateSceneCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -123,7 +123,7 @@ class ProjectActions(QObject):
         if not selection.Any():
             raise ActionError("Nothing selected to merge")
         
-        if not selection.SelectionIsSequential():
+        if not selection.IsSequential():
             raise ActionError("Cannot merge non-sequential elements")
         
         if selection.OnlyScenes():
@@ -134,8 +134,11 @@ class ProjectActions(QObject):
             batch_numbers = [ batch[1] for batch in selection.batch_numbers ]
             self._issue_command(MergeBatchesCommand(scene_number, batch_numbers, datamodel))
 
+        elif selection.AnyLines():
+            self._issue_command(MergeLinesCommand(selection))
+
         else:
-            raise ActionError(f"Invalid selection for merge ({str(selection)})")
+            raise ActionError(f"Unable to merge selection ({str(selection)})")
         
     def _split_batch(self, datamodel, selection : ProjectSelection):
         """

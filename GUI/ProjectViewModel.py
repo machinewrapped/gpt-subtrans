@@ -122,17 +122,17 @@ class ProjectViewModel(QStandardItemModel):
         return True
 
     def _update_originals(self, scene_number, batch_number, lines):
-        scene_item = self.model[scene_number]
-        batch_item = scene_item.batches[batch_number]
+        scene_item : SceneItem = self.model[scene_number]
+        batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
-            line_item = batch_item.lines[line_number]
+            line_item : LineItem = batch_item.originals[line_number]
             line_item.Update(line_update)            
 
     def _update_translated(self, scene_number, batch_number, lines):
-        scene_item = self.model[scene_number]
-        batch_item = scene_item.batches[batch_number]
+        scene_item : SceneItem = self.model[scene_number]
+        batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
-            line_item = batch_item.translated.get(line_number)
+            line_item : LineItem = batch_item.translated.get(line_number)
             if line_item:
                 line_item.Update(line_update)
             else:

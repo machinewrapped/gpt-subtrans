@@ -1,4 +1,5 @@
 from datetime import timedelta
+from PySubtitleGPT import SubtitleError
 from PySubtitleGPT.Helpers import PerformSubstitutions
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 
@@ -114,4 +115,36 @@ class SubtitleBatch:
                     item.text = replacements.get(item.text) or item.text
 
             return replacements
+
+    def MergeLines(self, original_lines : list[int], translated_lines : list[int]):
+        if not translated_lines or translated_lines == original_lines:
+            first_line = next((line for line in self.originals if line.number == original_lines[0]), None)
+            last_line = next((line for line in self.originals if line.number == original_lines[-1]), None)
+            if first_line and last_line:
+                first_index = self.originals.index(first_line)
+                last_index = self.originals.index(last_line)
+                lines_removed = last_index - first_index
+
+                merged = SubtitleLine.MergeSubtitles(self.originals[first_index : last_index + 1])
+                self.originals = self.originals[:first_index] + [ merged ] + self.originals[last_index + 1:]
+
+                if translated_lines:
+                    merged = SubtitleLine.MergeSubtitles(self.translated[first_index : last_index + 1])
+                    self.translated = self.translated[:first_index] + [ merged ] + self.translated[last_index:]
+
+                # TODO: Need to renumber the rest of the file
+                for line in self.originals[last_index + 1:]:
+                    line.number = line.number - lines_removed
+                
+                if translated_lines:
+                    for line in self.translated[last_index + 1:]:
+                        line.number = line.number - lines_removed
+
+
+        elif len(original_lines) > len(translated_lines):
+            # Merge original lines and remap/resync subsequent translations
+            raise SubtitleError("Merging multiple lines with a single translation is not yet supported")
+        else:
+            # Merge translated lines and resync to source... not sure why this would happen
+            raise SubtitleError("Merging multiple translated lines with a single source line is not yet supported")
 
