@@ -11,8 +11,8 @@ class SubtitleBatch:
         self.context = dct.get('context', {})
         self.translation = dct.get('translation')
         self.errors = dct.get('errors', [])
-        self._originals = dct.get('originals', []) or dct.get('subtitles', []) 
-        self._translated = dct.get('translated', [])
+        self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', []) 
+        self._translated : list[SubtitleLine] = dct.get('translated', [])
 
     def __str__(self) -> str:
         return f"SubtitleBatch: {str(self.number)} in scene {str(self.scene)} with {self.size} lines"
@@ -43,11 +43,19 @@ class SubtitleBatch:
     @property
     def start(self) -> timedelta:
         return self.originals[0].start if self.originals else None
-        
+    
+    @property
+    def srt_start(self) -> str:
+        return self.originals[0].srt_start if self.originals else ""
+
     @property
     def end(self) -> timedelta:
         return self.originals[-1].end if self.originals else None
-    
+
+    @property
+    def srt_end(self) -> str:
+        return self.originals[-1].srt_end if self.originals else ""
+
     @property
     def duration(self):
         return self.end - self.start if self.start and self.end else timedelta(seconds=0)

@@ -55,9 +55,9 @@ class ProjectViewModel(QStandardItemModel):
             batch_item.AddLineItem(False, line.number, {
                 'scene': scene.number,
                 'batch': batch.number,
-                'start': str(line.start),
-                'end': str(line.end),
-                'text': str(line.text)
+                'start': line.srt_start,
+                'end': line.srt_end,
+                'text': line.text
             })
 
         if batch.translated:
@@ -65,9 +65,9 @@ class ProjectViewModel(QStandardItemModel):
                 batch_item.AddLineItem(True, line.number,  {
                     'scene': scene.number,
                     'batch': batch.number,
-                    'start': str(line.start),
-                    'end': str(line.end),
-                    'text': str(line.text)
+                    'start': line.srt_start,
+                    'end': line.srt_end,
+                    'text': line.text
                 })
 
         return batch_item
@@ -191,8 +191,8 @@ class BatchItem(ViewModelItem):
         self.originals = {}
         self.translated = {}
         self.batch_model = {
-            'start': str(batch.originals[0].start),
-            'end': str(batch.originals[-1].end),
+            'start': batch.srt_start,
+            'end': batch.srt_end,
             'summary': batch.summary,
             'context': batch.context,
             'errors': self._get_errors(batch.errors)
@@ -282,8 +282,8 @@ class SceneItem(ViewModelItem):
         self.batches = {}
         self.scene_model = {
             'scene': scene.number,
-            'start': scene.batches[0].start,
-            'end': scene.batches[-1].end,
+            'start': scene.batches[0].srt_start,
+            'end': scene.batches[-1].srt_end,
             'duration': None,
             'summary': scene.summary
         }
@@ -346,7 +346,7 @@ class SceneItem(ViewModelItem):
 
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({self.duration})
+            'subheading': f"{self.start} -> {self.end}",   # ({self.duration})
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'properties': {
                 'all_translated' : self.all_translated,
