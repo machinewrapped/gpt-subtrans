@@ -10,7 +10,7 @@ class SubtitleLine:
     and (optionally) an associated translation.
     """
     def __init__(self, line, translation=None):
-        self.item = line
+        self.item = line or srt.Subtitle()
         self.translation = translation
     
     def __str__(self):
@@ -57,11 +57,9 @@ class SubtitleLine:
 
     @property
     def translated(self):
-        if not self._item:
+        if not self._item or not self.translation:
             return None 
-        line = SubtitleLine(self._item)
-        line.text = self.translation
-        return line
+        return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
     
     @property
     def prompt(self):
@@ -127,7 +125,7 @@ class SubtitleLine:
     @text.setter
     def text(self, text):
         if self._item:
-            self._item.text = text
+            self._item.content = text
 
     @start.setter
     def start(self, time):
