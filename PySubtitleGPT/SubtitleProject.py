@@ -52,6 +52,8 @@ class SubtitleProject:
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
         """ 
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
+        if self.projectfile == filepath:
+            self.read_project = True
 
         # Check if the project file exists
         if self.read_project and not os.path.exists(self.projectfile):
