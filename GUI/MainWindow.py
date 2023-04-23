@@ -170,5 +170,6 @@ class MainWindow(QMainWindow):
         if result == QDialog.Accepted:
             logging.info("First run options set")
             options.update(settings)
+            options.add('firstrun', False)
             options.Save()
             LoadStylesheet(options.get('theme'))
