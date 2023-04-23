@@ -4,19 +4,20 @@ GPT-Subtrans is an open source subtitle translator built with OpenAI's ChatGPT. 
 Note: GPT-Subtrans requires an active internet connection to access the OpenAI API. Subtitles are sent to OpenAI's servers for translation, so their privacy policy applies: https://openai.com/policies/privacy-policy.
 
 ## New
-Merged the GUI branch into main. The GUI is now the best way to use the translator, even though it is far from finished. 
-
-If you have already installed the project it is recommended to delete the envsubtrans folder and run the install script again (make a note of your API key in the .env file). At minimum you will need to install the updated requirements.txt with pip to use the GUI.
+First release as a stand-alone package. All dependencies are included, just unzip and run.
 
 ## Installation
-To install GPT-Subtrans, you will need to have Python 3.x and pip installed on your system.
+For most users (only on Windows at the moment) the packaged release is the easiest way to use the program. Simply unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first-run.
+
+### Source code installation
+For other platforms, or if you want to modify the program, you will need to have Python 3.x and pip installed on your system, then follow these steps.
 
 1. Clone the GPT-Subtrans repository onto your local machine using the following command:
 ```
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-**The easiest setup method for most users is to run `install.bat` or `install.sh` and enter your OpenAI API key when prompted. You can then skip the remaining installation steps.**
+**The easiest setup method for most users is to run `install.bat` or `install.sh` and enter your OpenAI API key when prompted. You can then skip the remaining steps.**
 
 2. Create a new file named .env in the root directory of the project. Add your OpenAI API key to the .env file like this:
 ```
@@ -42,7 +43,11 @@ Note that steps 3 and 4 are optional, but they can help prevent conflicts with o
 
 ## Usage
 
-The easiest way for most people to use GPT-Subtrans is with the [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans). After installation launch the GUI with the `gui-subtrans` command or shell script, and in theory the rest should be self-explanatory. In practise it almost certainly is not, so I'll work on documenting the interface.
+### GUI
+
+The easiest way for most people to use GPT-Subtrans is with the [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans). After installation launch the GUI with the `gui-subtrans` command or shell script, and in theory the rest should be self-explanatory. In practise it almost certainly is not, so I'll work on documenting and improving the interface.
+
+### Command Line
 
 GPT-Subtrans can still be used as a console command for scripting, or if that's what you prefer. The most basic usage is:
 ```
