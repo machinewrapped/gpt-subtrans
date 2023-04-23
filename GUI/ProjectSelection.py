@@ -85,7 +85,7 @@ class ProjectSelection():
         return sorted([ number for number in self.translated.keys() ])
 
     @property 
-    def selected_translations(self) -> list[SelectionLine]:
+    def selected_translated(self) -> list[SelectionLine]:
         return [line for line in self.translated.values() if line.selected ]
 
     def Any(self) -> bool:
@@ -95,27 +95,27 @@ class ProjectSelection():
         return self.selected_scenes and True
     
     def OnlyScenes(self) -> bool:
-        return self.selected_scenes and not (self.selected_batches or self.selected_originals or self.selected_translations)
+        return self.selected_scenes and not (self.selected_batches or self.selected_originals or self.selected_translated)
     
     def AnyBatches(self) -> bool:
         return self.selected_batches and True
 
     def OnlyBatches(self) -> bool:
-        return self.selected_batches  and not (self.selected_scenes or self.selected_originals or self.selected_translations)
+        return self.selected_batches  and not (self.selected_scenes or self.selected_originals or self.selected_translated)
 
     def AnyLines(self) -> bool:
-        return self.selected_originals or self.selected_translations
+        return self.selected_originals or self.selected_translated
     
     def AllLinesInSameBatch(self) -> bool:
         originals = self.selected_originals
-        translated = self.selected_translations
+        translated = self.selected_translated
         return all(line.batch == originals[0].batch for line in originals) and all(line.batch == translated[0].batch for line in translated)
 
     def MatchingLines(self) -> bool:
-        return self.selected_originals == self.selected_translations
+        return self.selected_originals == self.selected_translated
 
     def MultipleSelected(self) -> bool:
-        return len(self.selected_scenes) > 1 or len(self.selected_batches) > 1 or len(self.selected_originals) > 1 or len(self.selected_translations) > 1
+        return len(self.selected_scenes) > 1 or len(self.selected_batches) > 1 or len(self.selected_originals) > 1 or len(self.selected_translated) > 1
 
     def IsSequential(self) -> bool:
         scene_numbers = sorted(scene.number for scene in self.selected_scenes)
@@ -129,14 +129,14 @@ class ProjectSelection():
         if batch_numbers and batch_numbers != list(range(batch_numbers[0], batch_numbers[0] + len(batch_numbers))):
             return False
 
-        if not all(batch.scene == batch_numbers[0].scene for batch in self.selected_batches):
+        if not all(batch.scene == self.selected_batches[0].scene for batch in self.selected_batches):
             return False
 
         line_numbers = sorted(line.number for line in self.selected_originals)
         if line_numbers and line_numbers != list(range(line_numbers[0], line_numbers[0] + len(line_numbers))):
             return False
 
-        line_numbers = sorted(line.number for line in self.selected_translations)
+        line_numbers = sorted(line.number for line in self.selected_translated)
         if line_numbers and line_numbers != list(range(line_numbers[0], line_numbers[0] + len(line_numbers))):
             return False
 
@@ -159,7 +159,7 @@ class ProjectSelection():
             batch = scene[line.batch] = scene.get(line.batch) or { 'originals': {}, 'translated': {} }
             batch['originals'][line.number] = line
 
-        for line in self.selected_translations:
+        for line in self.selected_translated:
             scene = scenes[line.scene] = scenes.get(line.scene) or {}
             batch = scene[line.batch] = scene.get(line.batch) or { 'originals': {}, 'translated': {} }
             batch['translated'][line.number] = line
@@ -173,22 +173,20 @@ class ProjectSelection():
         item = model.data(index, role=Qt.ItemDataRole.UserRole)
 
         if isinstance(item, SceneItem):
-            if not item.number in self.scenes.keys():
+            if selected or not item.number in self.scenes.keys():
                 self.scenes[item.number] = SelectionScene(item, selected)
 
-                if selected:
-                    children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
-                    for child_index in children:
-                        self.AppendItem(model, child_index, False)
+                children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
+                for child_index in children:
+                    self.AppendItem(model, child_index, False)
 
         elif isinstance(item, BatchItem):
-            if not item.number in self.batches.keys():
+            if selected or not item.number in self.batches.keys():
                 batch = SelectionBatch(item, selected)
                 self.batches[item.number] = batch
                 if not self.scenes.get(item.scene):
                     self.AppendItem(model, model.parent(index), False)
 
-            if selected:
                 for line in item.originals:
                     self.originals[line] = SelectionLine(batch.scene, batch.number, line, False)
                 for line in item.translated:
@@ -198,17 +196,19 @@ class ProjectSelection():
         for line in selected_originals:
             self.originals[line.number] = line
         for line in selected_translations:
-            self.translations[line.number] = line
+            self.translated[line.number] = line
 
     def __str__(self):
-        if self.scene_numbers:
-            return f"{self.str_scenes} with {self.str_originals} and {self.str_translated} in {self.str_batches}"
-        elif self.batch_numbers:
-            return f"{self.str_originals} and {self.str_translated} in {self.str_batches}"
-        elif self.translated_lines:
-            return f"{self.str_originals} and {self.str_translated}"
-        elif self.original_lines:
-            return f"{self.str_originals}"
+        if self.selected_originals or self.selected_translated:
+            return f"{self.str_lines} in {self.str_batches}"
+        if self.selected_scenes:
+            return f"{self.str_scenes} with {self.str_lines} in {self.str_batches}"
+        elif self.selected_batches:
+            return f"{self.str_batches} with {self.str_lines}"
+        elif self.original_lines or self.translated_lines:
+            return f"{self.str_scenes} with {self.str_lines} in {self.str_batches}"
+        elif self.scene_numbers:
+            return f"{self.str_scenes}"
         else:
             return "Nothing selected"
         
@@ -217,19 +217,60 @@ class ProjectSelection():
 
     @property
     def str_scenes(self):
-        return self._count(len(self.scene_numbers), "scene", "scenes")
+        if self.selected_scenes:
+            return self._count(len(self.scene_numbers), "scene", "scenes")
+        else:
+            return self._count(len(self.selected_scenes), "scene", "scenes")
 
     @property
     def str_batches(self):
-        return self._count(len(self.batch_numbers), "batch", "batches")
+        if self.selected_batches:
+           return self._count(len(self.selected_batches), "batch", "batches")
+        else:
+            return self._count(len(self.batch_numbers), "batch", "batches")
 
     @property
     def str_originals(self):
         return self._count(len(self.original_lines), "original", "originals")
+    
+    @property
+    def str_selected_originals(self):
+        return self._count(len(self.selected_originals), "original", "originals")
 
     @property
     def str_translated(self):
         return self._count(len(self.translated_lines), "translation", "translations")
+
+    @property
+    def str_selected_translated(self):
+        return self._count(len(self.selected_translated), "translation", "translations")
+    
+    @property
+    def str_lines(self):
+        if self.selected_originals and self.selected_translated:
+            return f"{len(self.selected_originals)} original lines and {len(self.selected_translated)} translated lines selected"
+        elif self.selected_originals:
+            return f"{len(self.selected_originals)} original lines selected"
+        elif self.selected_translated:
+            return f"{len(self.selected_translated)} translated lines selected"
+        elif self.selected_batches:
+            selected_batch_numbers = [ batch.number for batch in self.selected_batches ]
+            batch_originals = [ x for x in self.originals.values() if x.batch in selected_batch_numbers ]
+            batch_translated = [ x for x in self.translated.values() if x.batch in selected_batch_numbers ]
+            if batch_originals and batch_translated:
+                return f"{len(batch_originals)} original lines and {len(batch_translated)} translated lines"
+            elif batch_originals:
+                return f"{len(batch_originals)} original lines"
+            elif self.translated:
+                return f"{len(batch_translated)} translated lines"
+        elif self.originals and self.translated:
+            return f"{len(self.originals)} original lines and {len(self.translated)} translated lines"
+        elif self.originals:
+            return f"{len(self.originals)} original lines"
+        elif self.translated:
+            return f"{len(self.translated)} translated lines"
+        else:
+            return "nothing selected"
 
     def _count(self, num, singular, plural):
         if num == 0:

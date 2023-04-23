@@ -50,7 +50,7 @@ class SelectionView(QFrame):
     def ShowSelection(self, selection : ProjectSelection):
         self.selection = selection
 
-        if os.environ.get("DEBUG_MODE") == "1":
+        if os.environ.get("DEBUG_MODE") == "1" and self._debug_text(selection):
             self._label.setText(f"{str(selection)} {self._debug_text(selection)}")
         else:
             self._label.setText(str(selection))

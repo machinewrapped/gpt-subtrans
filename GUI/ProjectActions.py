@@ -112,7 +112,7 @@ class ProjectActions(QObject):
         logging.debug(f"Translate selection of {str(selection)}")
 
         for scene in selection.scenes.values():
-            batch_numbers = [ batch.number for batch in scene.batches.values() if batch.selected ]
+            batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
             command = TranslateSceneCommand(scene.number, batch_numbers, datamodel)
             self._issue_command(command)
 

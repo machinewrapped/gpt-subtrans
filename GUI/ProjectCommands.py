@@ -100,7 +100,7 @@ class MergeLinesCommand(Command):
 
     def execute(self):
         originals = [line.number for line in self.selection.selected_originals]
-        translated = [line.number for line in self.selection.selected_translations]
+        translated = [line.number for line in self.selection.selected_translated]
 
         if originals and translated and originals != translated:
             logging.info(f"Merging original lines {str(originals)} and translated lines {str(translated)}")
