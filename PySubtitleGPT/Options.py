@@ -4,6 +4,8 @@ import os
 import dotenv
 import appdirs
 
+from PySubtitleGPT.version import __version__
+
 linesep = '\n'
 
 config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
@@ -27,7 +29,7 @@ def env_bool(key, default=False):
     return var and str(var).lower() in ('true', 'yes', '1')
 
 default_options = {
-    'version': '0.1.2',
+    'version': __version__,
     'api_key': os.getenv('API_KEY', None),
     'gpt_model': os.getenv('GPT_MODEL', 'gpt-3.5-turbo'),
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),

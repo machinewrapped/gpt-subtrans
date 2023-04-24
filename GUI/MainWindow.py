@@ -25,6 +25,7 @@ from GUI.Widgets.ModelView import ModelView
 from PySubtitleGPT.Helpers import GetResourcePath
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
+from PySubtitleGPT.version import __version__
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -102,6 +103,8 @@ class MainWindow(QMainWindow):
         elif filepath:
             # Load file if we were opened with one
             self.QueueCommand(LoadSubtitleFile(filepath))
+
+        logging.info(f"GPT-Subtrans v{__version__}")
 
         self.statusBar().showMessage("Ready.")
 
