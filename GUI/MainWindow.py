@@ -25,6 +25,7 @@ from GUI.Widgets.ModelView import ModelView
 from PySubtitleGPT.Helpers import GetResourcePath
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
+from PySubtitleGPT.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitleGPT.version import __version__
 
 # Load environment variables from .env file
@@ -105,6 +106,10 @@ class MainWindow(QMainWindow):
             self.QueueCommand(LoadSubtitleFile(filepath))
 
         logging.info(f"GPT-Subtrans v{__version__}")
+
+        # Check if there is a more recent version on Github (TODO: make this optional)
+        if CheckIfUpdateCheckIsRequired():
+            CheckIfUpdateAvailable()
 
         self.statusBar().showMessage("Ready.")
 
