@@ -50,7 +50,6 @@ class SelectionLine:
 
 class ProjectSelection():
     def __init__(self) -> None:
-        # 90% sure it would be better to store the selection as flat lists & construct the hierarchy on demand 
         self.scenes = {}
         self.batches = {}
         self.originals = {}
