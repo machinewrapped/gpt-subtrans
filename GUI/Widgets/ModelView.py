@@ -47,6 +47,7 @@ class ModelView(QWidget):
         self.setLayout(layout)
 
         self.scenes_view.onSelection.connect(self._items_selected)
+        self.content_view.onSelection.connect(self._lines_selected)
 
         self.content_view.actionRequested.connect(self.actionRequested)
 
@@ -94,17 +95,17 @@ class ModelView(QWidget):
         for index in selected_indexes:
             selection.AppendItem(model, index)
 
-        # selected_subtitles = self.content_view.subtitle_view.selectionModel().selectedIndexes()
-        # for index in selected_subtitles:
-        #     selection.AppendSubtitle(model, index)
-
-        # selected_translations = self.content_view.translation_view.selectionModel().selectedIndexes()
-        # for index in selected_translations:
-        #     selection.AppendTranslation(model, index)
+        selected_lines, selected_translations = self.content_view.GetSelectedLines()
+        if selected_lines or selected_translations:
+            selection.AddSelectedLines(selected_lines, selected_translations)
 
         return selection
 
     def _items_selected(self):
+        self.content_view.ClearSelectedLines()
         selection : ProjectSelection = self.GetSelection()
         self.content_view.ShowSelection(selection)
 
+    def _lines_selected(self):
+        selection : ProjectSelection = self.GetSelection()
+        self.content_view.ShowSelection(selection)

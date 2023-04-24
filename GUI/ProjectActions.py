@@ -3,7 +3,7 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeScenesCommand, SwapTextAndTranslations, TranslateSceneCommand
+from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, SwapTextAndTranslations, TranslateSceneCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -35,6 +35,7 @@ class ProjectActions(QObject):
         # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
+        ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
     def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
@@ -111,7 +112,7 @@ class ProjectActions(QObject):
         logging.debug(f"Translate selection of {str(selection)}")
 
         for scene in selection.scenes.values():
-            batch_numbers = [ batch.number for batch in scene.batches.values() if batch.selected ]
+            batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
             command = TranslateSceneCommand(scene.number, batch_numbers, datamodel)
             self._issue_command(command)
 
@@ -122,7 +123,7 @@ class ProjectActions(QObject):
         if not selection.Any():
             raise ActionError("Nothing selected to merge")
         
-        if not selection.SelectionIsSequential():
+        if not selection.IsSequential():
             raise ActionError("Cannot merge non-sequential elements")
         
         if selection.OnlyScenes():
@@ -133,8 +134,26 @@ class ProjectActions(QObject):
             batch_numbers = [ batch[1] for batch in selection.batch_numbers ]
             self._issue_command(MergeBatchesCommand(scene_number, batch_numbers, datamodel))
 
+        elif selection.AnyLines():
+            self._issue_command(MergeLinesCommand(selection))
+
         else:
-            raise ActionError(f"Invalid selection for merge ({str(selection)})")
+            raise ActionError(f"Unable to merge selection ({str(selection)})")
+        
+    def _split_batch(self, datamodel, selection : ProjectSelection):
+        """
+        Split a batch in two at the specified index (optionally, using a different index for translated lines)
+        """
+        if not selection.Any():
+            raise ActionError("Please select a line to split the batch at")
+        
+        if selection.MultipleSelected():
+            raise ActionError("Please select a single split point")
+        
+        scene_number, batch_number = selection.selected_batches[0]
+        line_number = selection.selected_lines[0]
+
+        
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
         """

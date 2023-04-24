@@ -1,6 +1,7 @@
 import logging
-from GUI.Command import Command
+from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ProjectSelection import ProjectSelection
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
@@ -89,6 +90,54 @@ class MergeBatchesCommand(Command):
 
         return True
 
+class MergeLinesCommand(Command):
+    """
+    Merge one or several lines together and renumber the rest
+    """
+    def __init__(self, selection : ProjectSelection, datamodel: ProjectDataModel = None):
+        super().__init__(datamodel)
+        self.selection = selection
+
+    def execute(self):
+        originals = [line.number for line in self.selection.selected_originals]
+        translated = [line.number for line in self.selection.selected_translated]
+
+        if originals and translated and originals != translated:
+            logging.info(f"Merging original lines {str(originals)} and translated lines {str(translated)}")
+        elif originals:
+            logging.info(f"Merging lines {str(originals)}")
+        elif translated:
+            logging.info(f"Merging translated lines {str(translated)}")
+        else:
+            raise CommandError("No lines selected to merge")
+
+        project : SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+        
+        selected = self.selection.GetHierarchy()
+
+        if selected:
+            project.subtitles.MergeLines(selected)
+            
+            # TODO: maybe MergeLines should return the update (need a model update builder anyway)
+            for scene_number in selected.keys():
+                self.datamodel_update[scene_number] = { 'batches' : {} }
+                for batch_number in selected[scene_number].keys():
+                    batch = project.subtitles.GetBatch(scene_number, batch_number)
+
+                    self.datamodel_update[scene_number]['batches'][batch_number] = {
+                        'originals' : { line.number : { 'text' : line.text } for line in batch.originals },
+                        'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
+                    }
+
+        return True
+    
+    def undo(self):
+        # Really need to implement undo for this!
+        return super().undo()
+
 #############################################################
 
 class TranslateSceneCommand(Command):
@@ -115,6 +164,8 @@ class TranslateSceneCommand(Command):
         scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
 
         project.events.batch_translated -= self._on_batch_translated
+
+        project.UpdateProjectFile()
 
         if scene:
             self.datamodel_update[scene.number].update({

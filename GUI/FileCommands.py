@@ -58,6 +58,7 @@ class SaveProjectFile(Command):
     def execute(self):
         self.project.WriteProjectFile(self.filepath)
         self.project.subtitles.SaveTranslation()
+        return True
 
 class SaveSubtitleFile(Command):
     def __init__(self, filepath, project : SubtitleProject):
@@ -67,6 +68,7 @@ class SaveSubtitleFile(Command):
 
     def execute(self):
         self.project.subtitles.SaveOriginals(self.filepath)
+        return True
 
 class SaveTranslationFile(Command):
     def __init__(self, filepath, project : SubtitleProject):
@@ -76,3 +78,4 @@ class SaveTranslationFile(Command):
 
     def execute(self):
         self.project.subtitles.SaveTranslation(self.filepath)
+        return True

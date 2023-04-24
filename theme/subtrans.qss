@@ -17,7 +17,8 @@ QStatusBar {
 }
 
 .LogWindow {
-    background-color: black;
+    background-color: #121212;
+    border: 1px solid #242424;
 }
 
 .ScenesView {

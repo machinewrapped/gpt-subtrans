@@ -148,7 +148,7 @@ class SubtitleLine:
             return [SubtitleLine(line) for line in lines]
 
     @classmethod
-    def GetLineItems(lines, tag):
+    def GetLineItems(cls, lines, tag):
         """
         Generate a set of translation cues for the translator
         """
@@ -156,10 +156,21 @@ class SubtitleLine:
         return [ SubtitleLine.GetLineItem(item, tag) for item in items ]
 
     @classmethod
-    def GetLineItem(line, tag):
+    def GetLineItem(cls, line, tag):
         """
         Format line for the translator
         """
         line = f"<{tag} line={line.number}>{line.text}</{tag}>"
         return line
+
+    @classmethod
+    def MergeSubtitles(cls, merged_lines):
+        first_line = merged_lines[0]
+        last_line = merged_lines[-1]
+        merged_number = first_line.number 
+        merged_start = first_line.start
+        merged_end = last_line.end
+        merged_content = "\n".join(line.text for line in merged_lines)
+        subtitle = srt.Subtitle(merged_number, merged_start, merged_end, merged_content)
+        return SubtitleLine(subtitle)
 

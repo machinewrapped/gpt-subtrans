@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QListView, QAbstractItemView
 from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSignalBlocker
-from GUI.ProjectSelection import ProjectSelection
+from GUI.ProjectSelection import ProjectSelection, SelectionLine
 
 from GUI.ProjectViewModel import ProjectViewModel, LineItem
 from GUI.Widgets.SubtitleItemDelegate import SubtitleItemDelegate
@@ -29,6 +29,17 @@ class SubtitleView(QListView):
 
     def ShowSelection(self, selection : ProjectSelection):
         self.model().ShowSelection(selection)
+
+    def GetSelectedLines(self):
+        model = self.model()
+        selected_indexes = self.selectedIndexes()
+        selected_items = [ model.data(index, Qt.ItemDataRole.UserRole) for index in selected_indexes ]
+        selected_lines = [ SelectionLine(item.scene, item.batch, item.number, True) for item in selected_items ]
+        return selected_lines
+    
+    def ClearSelectedLines(self):
+        selection_model = self.selectionModel()
+        selection_model.clearSelection()
 
     def SelectSubtitles(self, line_numbers):
         """

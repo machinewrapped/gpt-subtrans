@@ -2,6 +2,8 @@ import os
 import logging
 import threading
 import srt
+from PySubtitleGPT import SubtitleBatch
+from PySubtitleGPT import SubtitleError
 from PySubtitleGPT.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
@@ -52,18 +54,26 @@ class SubtitleFile:
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
         if not self.scenes:
-            raise ValueError("Subtitles have not been batched")
+            raise SubtitleError("Subtitles have not been batched")
         
         with self.lock:
             matches = [scene for scene in self.scenes if scene.number == scene_number ]
     
         if not matches:
-            raise ValueError(f"Scene {scene_number} does not exist")
+            raise SubtitleError(f"Scene {scene_number} does not exist")
         
         if len(matches) > 1:
-            raise TranslationError(f"There is more than one scene {scene_number}!")
+            raise SubtitleError(f"There is more than one scene {scene_number}!")
         
         return matches[0]
+    
+    def GetBatch(self, scene_number : int, batch_number : int) -> SubtitleBatch:
+        scene = self.GetScene(scene_number)
+        for batch in scene.batches:
+            if batch.number == batch_number:
+                return batch
+        
+        raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
 
     def LoadSubtitles(self, filepath : str = None):
         """
@@ -222,6 +232,20 @@ class SubtitleFile:
                 raise ValueError(f"Scene {str(scene_number)} not found")
 
             scene.MergeBatches(batch_numbers)
+
+    def MergeLines(self, hierarchy : dict):
+        """
+        Merge several sequential lines together, remapping originals and translated lines if necessary.
+        """
+        with self.lock:
+            for scene_number in hierarchy.keys():
+                for batch_number in hierarchy[scene_number].keys():
+                    batch_dict = hierarchy[scene_number][batch_number]
+                    original_lines = list(batch_dict['originals'].keys())
+                    translated_lines = list(batch_dict['translated'].keys())
+
+                    batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
+                    batch.MergeLines(original_lines, translated_lines)
 
     def Renumber(self):
         """
