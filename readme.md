@@ -180,6 +180,7 @@ This project uses several useful libraries:
 
 - openai, of course (https://platform.openai.com/docs/libraries/python-bindings)
 - srt (https://github.com/cdown/srt)
+- requests (https://github.com/psf/requests)
 
 For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
