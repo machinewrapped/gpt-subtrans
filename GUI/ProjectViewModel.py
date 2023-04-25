@@ -238,7 +238,7 @@ class BatchItem(ViewModelItem):
     
     @property
     def has_errors(self):
-        return self.batch_model.get('errors') and True
+        return True if self.batch_model.get('errors') else False
 
     def Update(self, update : dict):
         UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])

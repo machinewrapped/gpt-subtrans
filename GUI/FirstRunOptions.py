@@ -54,7 +54,7 @@ class FirstRunOptions(QDialog):
         self.button_layout = QHBoxLayout()
 
         self.ok_button = self._create_button("OK", self.accept)
-        self.ok_button.setEnabled(api_key and True)
+        self.ok_button.setEnabled(True if api_key else False)
 
         layout.addLayout(self.button_layout)
 

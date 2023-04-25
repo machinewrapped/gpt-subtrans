@@ -91,13 +91,13 @@ class ProjectSelection():
         return self.scene_numbers or self.batch_numbers or self.original_lines or self.translated_lines
     
     def AnyScenes(self) -> bool:
-        return self.selected_scenes and True
+        return True if self.selected_scenes else False
     
     def OnlyScenes(self) -> bool:
         return self.selected_scenes and not (self.selected_batches or self.selected_originals or self.selected_translated)
     
     def AnyBatches(self) -> bool:
-        return self.selected_batches and True
+        return True if self.selected_batches else False
 
     def OnlyBatches(self) -> bool:
         return self.selected_batches  and not (self.selected_scenes or self.selected_originals or self.selected_translated)
