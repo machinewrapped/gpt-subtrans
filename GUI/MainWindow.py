@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
             # Load file if we were opened with one
             self.QueueCommand(LoadSubtitleFile(filepath))
 
-        logging.info(f"GPT-Subtrans v{__version__}")
+        logging.info(f"GPT-Subtrans {__version__}")
 
         # Check if there is a more recent version on Github (TODO: make this optional)
         if CheckIfUpdateCheckIsRequired():
