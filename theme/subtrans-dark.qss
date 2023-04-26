@@ -80,13 +80,17 @@ QStatusBar {
 
 .SubtitleView {
     padding: 1px;
-    background-color: #121212;
+    background-color: #242424;
+}
+
+.SubtitleView::item:selected {
+    border: 1px solid aliceblue;
 }
 
 .LineItemView {
     padding: 0px;
     margin: 1px;
-    background-color: #242424;
+    background-color: #363636;
 }
 
 .LineItemHeader {
@@ -101,7 +105,7 @@ QStatusBar {
 }
 
 .SelectionView {
-    background-color: #242424;
+    background-color: #363636;
 }
 
 .ProjectOptions {
