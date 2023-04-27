@@ -208,7 +208,7 @@ class ProjectViewModel(QStandardItemModel):
 
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
-        if line.number in batch_item.originals.keys():
+        if line.number in batch_item.translated.keys():
             # Not too worried if this happens, TBH
             raise ViewModelError(f"Line {line.number} already exists in {scene_number} batch {batch_number}")
 
