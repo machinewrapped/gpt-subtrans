@@ -153,8 +153,10 @@ class MainWindow(QMainWindow):
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
 
-            if command.datamodel_update:
-                self.datamodel.UpdateViewModel(command.datamodel_update)
+            if command.model_update.HasUpdate():
+                # Patch the model
+                command.model_update.UpdateModel(self.datamodel)
+
             elif command.datamodel:
                 # Shouldn't  need to do a full model rebuild often? 
                 self.datamodel = command.datamodel
