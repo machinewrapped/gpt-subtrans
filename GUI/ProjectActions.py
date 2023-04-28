@@ -3,7 +3,7 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, SwapTextAndTranslations, TranslateSceneCommand
+from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, SplitBatchCommand, SwapTextAndTranslations, TranslateSceneCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -150,9 +150,9 @@ class ProjectActions(QObject):
         if selection.MultipleSelected():
             raise ActionError("Please select a single split point")
         
-        scene_number, batch_number = selection.selected_batches[0]
-        line_number = selection.selected_lines[0]
+        selected_line = selection.selected_originals[0]
 
+        self._issue_command(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
         
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
