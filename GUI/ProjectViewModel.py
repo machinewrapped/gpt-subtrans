@@ -78,10 +78,11 @@ class ProjectViewModel(QStandardItemModel):
         return batch_item
 
     def AddScene(self, scene : SubtitleScene):
+        logging.debug(f"Adding scene {scene.number}")
         if not isinstance(scene, SubtitleScene):
             raise ViewModelError(f"Wrong type for AddScene ({type(scene).__name__})")
         
-        if scene.number in self.model.keys:
+        if scene.number in self.model.keys():
             raise ViewModelError(f"Scene number {scene.number} already exists")
 
         scene_item = SceneItem(scene)
@@ -89,16 +90,18 @@ class ProjectViewModel(QStandardItemModel):
         self.root_item.appendRow(scene_item)
 
     def RemoveScene(self, scene_number):
-        if scene_number not in self.model.keys:
+        logging.debug(f"Removing scene {scene_number}")
+        if scene_number not in self.model.keys():
             raise ViewModelError(f"Scene number {scene_number} does not exist")
         
         scene_item = self.model.get(scene_number)
         scene_index = self.indexFromItem(scene_item)
-        self.root_item.removeRow(scene_index)
+        self.root_item.removeRow(scene_index.row())
 
         del self.model[scene_number]
 
     def UpdateScene(self, scene_number, scene_update):
+        logging.debug(f"Updating scene {scene_number}")
         scene_item : SceneItem = self.model.get(scene_number)
         if not scene_item:
             raise ViewModelError(f"Model update for unknown scene {scene_number}")
@@ -115,6 +118,7 @@ class ProjectViewModel(QStandardItemModel):
         return True
 
     def AddBatch(self, batch : SubtitleBatch):
+        logging.debug(f"Adding new batch ({batch.scene}, {batch.number})")
         if not isinstance(batch, SubtitleBatch):
             raise ViewModelError(f"Wrong type for AddBatch ({type(batch).__name__})")
 
@@ -126,17 +130,22 @@ class ProjectViewModel(QStandardItemModel):
         scene_item.AddBatchItem(batch_item)
 
     def RemoveBatch(self, scene_number, batch_number):
+        logging.debug(f"Removing batch ({scene_number}, {batch_number})")
         scene_item : SceneItem = self.model.get(scene_number)
-        if batch_number not in scene_item.keys():
+        if batch_number not in scene_item.batches.keys():
             raise ViewModelError(f"Scene {scene_number} batch {batch_number} does not exist")
         
         batch_item = scene_item.batches[batch_number]
         batch_index = self.indexFromItem(batch_item)
-        scene_item.removeRow(batch_index)
+        scene_item.removeRow(batch_index.row())
 
         del scene_item.batches[batch_number]
 
     def UpdateBatch(self, scene_number, batch_number, batch_update):
+        logging.debug(f"Updating batch ({scene_number}, {batch_number})")
+        if not isinstance(batch_update, dict):
+            raise ViewModelError("Expected a patch dictionary")
+        
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number] if scene_number else None
         if not batch_item:
@@ -160,6 +169,8 @@ class ProjectViewModel(QStandardItemModel):
         if not isinstance(line, SubtitleLine):
             raise ViewModelError(f"Wrong type for AddOriginalLine ({type(line).__name__})")
 
+        logging.debug(f"Adding original line ({scene_number}, {batch_number}, {line.number})")
+
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
         if line.number in batch_item.originals.keys():
@@ -174,6 +185,8 @@ class ProjectViewModel(QStandardItemModel):
             })
 
     def RemoveOriginalLine(self, scene_number, batch_number, line_number):
+        logging.debug(f"Removing original line ({scene_number}, {batch_number}, {line_number})")
+
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
         if line_number not in batch_item.originals.keys():
@@ -181,11 +194,15 @@ class ProjectViewModel(QStandardItemModel):
         
         line_item = batch_item.originals[line_number]
         line_index = self.indexFromItem(line_item)
-        batch_item.removeRow(line_index)
+        batch_item.removeRow(line_index.row())
 
         del batch_item.originals[line_number]
 
     def UpdateOriginalLine(self, scene_number, batch_number, line_number, line_update):
+        logging.debug(f"Updating original line ({scene_number}, {batch_number}, {line_number})")
+        if not isinstance(line_update, dict):
+            raise ViewModelError("Expected a patch dictionary")
+
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
         if line_number not in batch_item.originals.keys():
@@ -195,6 +212,7 @@ class ProjectViewModel(QStandardItemModel):
         line_item.Update(line_update)
 
     def UpdateOriginalLines(self, scene_number, batch_number, lines):
+        logging.debug(f"Updating original lines in ({scene_number}, {batch_number})")
         scene_item : SceneItem = self.model[scene_number]
         batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
@@ -205,6 +223,8 @@ class ProjectViewModel(QStandardItemModel):
     def AddTranslatedLine(self, scene_number, batch_number, line : SubtitleLine):
         if not isinstance(line, SubtitleLine):
             raise ViewModelError(f"Wrong type for AddTranslatedLine ({type(line).__name__})")
+
+        logging.debug(f"Adding translated line ({scene_number}, {batch_number}, {line.number})")
 
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
@@ -221,6 +241,8 @@ class ProjectViewModel(QStandardItemModel):
             })
 
     def RemoveTranslatedLine(self, scene_number, batch_number, line_number):
+        logging.debug(f"Removing translated line ({scene_number}, {batch_number}, {line_number})")
+
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
         if line_number not in batch_item.translated.keys():
@@ -228,11 +250,13 @@ class ProjectViewModel(QStandardItemModel):
         
         line_item = batch_item.translated[line_number]
         line_index = self.indexFromItem(line_item)
-        batch_item.removeRow(line_index)
+        batch_item.removeRow(line_index.row())
 
         del batch_item.translated[line_number]
 
     def UpdateTranslatedLine(self, scene_number, batch_number, line_number, line_update):
+        logging.debug(f"Updating translated line ({scene_number}, {batch_number}, {line_number})")
+
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
         if line_number not in batch_item.translated.keys():
@@ -242,6 +266,8 @@ class ProjectViewModel(QStandardItemModel):
         line_item.Update(line_update)
 
     def UpdateTranslatedLines(self, scene_number, batch_number, lines):
+        logging.debug(f"Updating translated lines in ({scene_number}, {batch_number})")
+
         scene_item : SceneItem = self.model[scene_number]
         batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
