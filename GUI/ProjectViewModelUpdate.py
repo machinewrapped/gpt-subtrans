@@ -35,12 +35,12 @@ class ModelUpdate:
 
     def UpdateModel(self, datamodel: ProjectDataModel):
         """
-        Incrementally update the viewmodel
+        Patch the viewmodel
         """
         if not datamodel or not isinstance(datamodel, ProjectDataModel):
             raise Exception("Invalid datamodel")
                 
-        with datamodel.project.lock:
+        with datamodel.lock():
             viewmodel : ProjectViewModel = datamodel.viewmodel
 
             for scene_number in self.scenes.removals:
@@ -58,7 +58,7 @@ class ModelUpdate:
 
             for key, batch in self.batches.additions.items():
                 scene_number, batch_number = key
-                viewmodel.AddBatch(scene_number, batch_number, batch)
+                viewmodel.AddBatch(batch)
 
             for key, batch_update in self.batches.updates.items():
                 scene_number, batch_number = key

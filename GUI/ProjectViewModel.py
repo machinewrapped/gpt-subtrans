@@ -123,7 +123,7 @@ class ProjectViewModel(QStandardItemModel):
             raise ViewModelError(f"Wrong type for AddBatch ({type(batch).__name__})")
 
         scene_item : SceneItem = self.model.get(batch.scene)
-        if batch.number in scene_item.keys():
+        if batch.number in scene_item.batches.keys():
             raise ViewModelError(f"Scene {batch.scene} batch {batch.number} already exists")
 
         batch_item = BatchItem(batch.scene, batch)

@@ -14,6 +14,9 @@ class ProjectDataModel:
 
         if project and project.options:
               self.options.update(project.options)
+    
+    def lock(self):
+        return QMutexLocker(self.mutex)
 
     @classmethod
     def RegisterActionHandler(cls, action_name : str, handler : callable):
