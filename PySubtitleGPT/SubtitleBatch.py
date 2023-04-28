@@ -61,6 +61,14 @@ class SubtitleBatch:
     def duration(self):
         return self.end - self.start if self.start and self.end else timedelta(seconds=0)
     
+    @property
+    def first_line_number(self):
+        return self.originals[0].number if self.originals else -1
+    
+    @property
+    def last_line_number(self):
+        return self.originals[-1].number if self.originals else -1
+    
     @originals.setter
     def originals(self, value):
         self._originals = [ SubtitleLine(line) for line in value ] if value else None

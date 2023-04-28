@@ -1,4 +1,6 @@
+import logging
 from os import linesep
+from PySubtitleGPT.Helpers import ResyncTranslatedLines
 
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 
@@ -98,7 +100,47 @@ class SubtitleScene:
 
         self._batches = self._batches[:start_index] + [merged_batch] + self._batches[end_index+1:]
 
-        self._renumber_batches() 
+        self._renumber_batches()
+
+    def SplitBatch(self, batch_number: int, line_number: int, translated_number: int = None):
+        batch = self.GetBatch(batch_number)
+        if not batch:
+            raise ValueError("Invalid batch number")
+
+        first_line = batch.originals[0]
+        last_line = batch.originals[-1]
+        if line_number <= first_line.number or line_number >= last_line.number:
+            raise ValueError(f"Cannot split batch {batch_number} at line {line_number}")
+
+        split_index = next((i for i, line in enumerate(batch.originals) if line.number == line_number), -1)
+        if split_index <= 0:
+            raise ValueError(f"Line {line_number} not found in batch (unexpectedly)")
+
+        new_batch = SubtitleBatch({
+            'scene': batch.scene,
+            'number': batch.number + 1,
+            'originals': batch.originals[split_index:]
+        })
+
+        batch.originals = batch.originals[:split_index]
+
+        if batch.translated:
+            translated_number = translated_number or line_number
+            translated_index = next((i for i, line in enumerate(batch.translated) if line.number == translated_number), -1)
+            if translated_index > 0:
+                new_batch.translated = batch.translated[translated_index:]
+                batch.translated = batch.translated[:translated_index]
+
+                if translated_number != line_number:
+                    ResyncTranslatedLines(new_batch.originals, new_batch.translated)
+            else:
+                logging.warning(f"Expected line number {translated_number} not found in batch translations")
+
+        batch_index = self._batches.index(batch)
+        self._batches = self._batches[:batch_index + 1] + [new_batch] + self._batches[batch_index + 1:]
+
+        self._renumber_batches()
+
 
     def _renumber_batches(self):
         for number, batch in enumerate(self._batches, start = 1):

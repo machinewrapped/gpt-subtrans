@@ -1,3 +1,4 @@
+from itertools import groupby
 from PySide6.QtCore import Qt
 
 from GUI.ProjectViewModel import BatchItem, SceneItem
@@ -113,7 +114,10 @@ class ProjectSelection():
     def MatchingLines(self) -> bool:
         return self.selected_originals == self.selected_translated
 
-    def MultipleSelected(self) -> bool:
+    def MultipleSelected(self, max = None) -> bool:
+        if max and len(self.selected_scenes) > max and len(self.selected_batches) > max and len(self.selected_originals) > max and len(self.selected_translated) > max:
+            return False
+
         return len(self.selected_scenes) > 1 or len(self.selected_batches) > 1 or len(self.selected_originals) > 1 or len(self.selected_translated) > 1
 
     def IsSequential(self) -> bool:
@@ -140,6 +144,25 @@ class ProjectSelection():
             return False
 
         return True
+    
+    def IsFirstOrLastInBatchSelected(self) -> bool:
+        """
+        Check whether the first or last line of any batch is selected
+        """
+        line_dict = {}
+        for line in list(self.originals.values()) + list(self.translated.values()):
+            key = (line.scene, line.batch, line.number)
+            if key in line_dict:
+                line_dict[key].selected = line_dict[key].selected or line.selected
+            else:
+                line_dict[key] = line
+        
+        for batch_lines in groupby(sorted(line_dict.values(), key=lambda x: (x.scene, x.batch, x.number)), key=lambda x: (x.scene, x.batch)):
+            batch_lines = list(batch_lines[1])
+            if batch_lines[0].selected or batch_lines[-1].selected:
+                return True
+        
+        return False
     
     def GetHierarchy(self) -> dict:
         """

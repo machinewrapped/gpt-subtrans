@@ -155,6 +155,60 @@ class MergeLinesCommand(Command):
 
 #############################################################
 
+class SplitBatchCommand(Command):
+    def __init__(self, scene_number : int, batch_number : int, line_number : int, translation_number : int = None, datamodel: ProjectDataModel = None):
+        super().__init__(datamodel)
+        self.scene_number = scene_number
+        self.batch_number = batch_number
+        self.line_number = line_number
+        self.translation_number = translation_number
+
+    def execute(self):
+        logging.info(f"Splitting scene {str(self.scene_number)} batch: {str(self.batch_number)} at line {self.line_number}")
+
+        project : SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+
+        scene = project.subtitles.GetScene(self.scene_number)
+
+        if not scene or not scene.GetBatch(self.batch_number):
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
+        
+        scene.SplitBatch(self.batch_number, self.line_number, self.translation_number)
+
+        # TODO: fix mysterious crash when replacing batches
+        # batch_index = scene.batches.index(next(batch for batch in scene.batches if batch.number == self.batch_number))
+
+        # for batch in scene.batches[batch_index:-1]:
+        #     self.model_update.batches.replace((self.scene_number, batch.number), batch)
+        # self.model_update.batches.add((scene.number, scene.batches[-1].number), scene.batches[-1])
+
+        self.datamodel.CreateViewModel()
+
+        return True
+
+    def undo(self):
+        project: SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+
+        scene = project.subtitles.GetScene(self.scene_number)
+
+        if not scene or not scene.GetBatch(self.batch_number):
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
+
+        scene.MergeBatches([self.batch_number, self.batch_number + 1])
+
+        for batch in scene.batches[self.batch_number:]:
+            self.model_update.batches.replace((self.scene_number, batch.number), batch)
+
+        return True
+
+#############################################################
+
 class TranslateSceneCommand(Command):
     """
     Ask ChatGPT to translate a scene (optionally just select batches in the scene)
@@ -163,12 +217,12 @@ class TranslateSceneCommand(Command):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
-        self.datamodel_update = { scene_number : {
-
-        }}
 
     def execute(self):
-        logging.info(f"Translating scene number {self.scene_number}")
+        if self.batch_numbers:
+            logging.info(f"Translating scene number {self.scene_number} batches {str(self.batch_numbers)}")        
+        else:
+            logging.info(f"Translating scene number {self.scene_number}")
         if not self.datamodel.project:
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
