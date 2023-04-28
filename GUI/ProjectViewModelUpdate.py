@@ -47,7 +47,7 @@ class ModelUpdate:
                 viewmodel.RemoveScene(scene_number)
 
             for scene_number, scene in self.scenes.additions.items():
-                viewmodel.AddScene(scene_number, scene)
+                viewmodel.AddScene(scene)
 
             for scene_number, scene_update in self.scenes.updates.items():
                 viewmodel.UpdateScene(scene_number, scene_update)
@@ -72,6 +72,7 @@ class ModelUpdate:
                 scene_number, batch_number, line_number = key
                 viewmodel.AddOriginalLine(scene_number, batch_number, line_number, line)
 
+            #TODO: Use UpdateOriginalLines
             for key, line_update in self.originals.updates.items():
                 scene_number, batch_number, line_number = key
                 viewmodel.UpdateOriginalLine(scene_number, batch_number, line_number, line_update)
@@ -84,6 +85,7 @@ class ModelUpdate:
                 scene_number, batch_number, line_number = key
                 viewmodel.AddTranslatedLine(scene_number, batch_number, line_number, line)
 
+            #TODO: Use UpdateTranslatedLines
             for key, line_update in self.translated.updates.items():
                 scene_number, batch_number, line_number = key
                 viewmodel.UpdateTranslatedLine(scene_number, batch_number, line_number, line_update)
