@@ -130,8 +130,8 @@ class ProjectActions(QObject):
             self._issue_command(MergeScenesCommand(selection.scene_numbers, datamodel))
 
         elif selection.OnlyBatches():
-            scene_number = selection.batch_numbers[0][0]
-            batch_numbers = [ batch[1] for batch in selection.batch_numbers ]
+            scene_number = selection.selected_batches[0].scene
+            batch_numbers = [ batch.number for batch in selection.selected_batches ]
             self._issue_command(MergeBatchesCommand(scene_number, batch_numbers, datamodel))
 
         elif selection.AnyLines():
