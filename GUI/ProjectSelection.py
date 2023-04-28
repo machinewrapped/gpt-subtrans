@@ -203,9 +203,10 @@ class ProjectSelection():
                     self.AppendItem(model, child_index, False)
 
         elif isinstance(item, BatchItem):
-            if selected or not item.number in self.batches.keys():
+            key = (item.scene, item.number)
+            if selected or not key in self.batches:
                 batch = SelectionBatch(item, selected)
-                self.batches[item.number] = batch
+                self.batches[key] = batch
                 if not self.scenes.get(item.scene):
                     self.AppendItem(model, model.parent(index), False)
 
