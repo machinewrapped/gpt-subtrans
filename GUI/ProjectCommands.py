@@ -178,14 +178,15 @@ class SplitBatchCommand(Command):
         
         scene.SplitBatch(self.batch_number, self.line_number, self.translation_number)
 
-        # TODO: fix mysterious crash when replacing batches
-        # batch_index = scene.batches.index(next(batch for batch in scene.batches if batch.number == self.batch_number))
-
-        # for batch in scene.batches[batch_index:-1]:
-        #     self.model_update.batches.replace((self.scene_number, batch.number), batch)
-        # self.model_update.batches.add((scene.number, scene.batches[-1].number), scene.batches[-1])
-
         self.datamodel.CreateViewModel()
+
+        # TODO: this won't work because we need to update the keys as well
+        # new_batch_number = self.batch_number + 1
+        # for batch_number in range(new_batch_number, scene.batches[-1].number + 1):
+        #     self.model_update.batches.renumber(self.scene_number, batch_number, batch_number + 1)
+
+        # self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+        # self.model_update.batches.update((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
 
         return True
 

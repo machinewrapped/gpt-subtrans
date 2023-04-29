@@ -85,9 +85,12 @@ class ProjectViewModel(QStandardItemModel):
         if scene.number in self.model.keys():
             raise ViewModelError(f"Scene number {scene.number} already exists")
 
+        #TODO: insert row at appropriate position
         scene_item = SceneItem(scene)
-        self.model[scene.number] = scene_item
-        self.root_item.appendRow(scene_item)
+        self.root_item.insertRow(scene_item, scene.number)
+
+        scene_items = [ self.data(self.index(i, 0, self.root_item)) for i in range(0, self.root_item.rowCount()) ]
+        self.model = { item.number: item for item in scene_items  }
 
     def RemoveScene(self, scene_number):
         logging.debug(f"Removing scene {scene_number}")
@@ -218,7 +221,6 @@ class ProjectViewModel(QStandardItemModel):
         for line_number, line_update in lines.items():
             line_item : LineItem = batch_item.originals[line_number]
             line_item.Update(line_update)            
-
 
     def AddTranslatedLine(self, scene_number, batch_number, line : SubtitleLine):
         if not isinstance(line, SubtitleLine):
