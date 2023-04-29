@@ -322,7 +322,7 @@ class SubtitleTranslator:
             if options.get('stop_on_error'):
                 raise
             else:
-                logging.warning(f"Error translating batch: {str(e)}")
+                logging.warning(f"Error translating batch: {str(te)}")
 
 
     def RequestRetranslations(self, client : ChatGPTClient, batch : SubtitleBatch, translation : str):
