@@ -3,6 +3,7 @@ import os
 import logging
 import threading
 from PySubtitleGPT.Helpers import GetOutputPath
+from PySubtitleGPT.SubtitleError import TranslationAbortedError
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleFile import SubtitleFile
@@ -39,7 +40,7 @@ class SubtitleProject:
             self._start_autosave_thread
 
     def __del__(self):
-        if self.update_project:
+        if self.stop_event:
             self.stop_event.set()
             self.periodic_update_thread.join()
 
@@ -110,6 +111,11 @@ class SubtitleProject:
 
             self.subtitles.SaveTranslation()
 
+        except TranslationAbortedError:
+            self.subtitles.SaveTranslation()
+            logging.warning(f"Translation aborted")
+            raise
+
         except Exception as e:
             if self.subtitles and self.options.get('stop_on_error'):
                 self.subtitles.SaveTranslation()
@@ -117,7 +123,7 @@ class SubtitleProject:
             logging.error(f"Failed to translate subtitles")
             raise
 
-    def TranslateScene(self, scene_number, batch_numbers = None):
+    def TranslateScene(self, scene_number, batch_numbers = None, translator : SubtitleTranslator = None):
         """
         Pass batches of subtitles to the translation engine.
         """
@@ -125,7 +131,8 @@ class SubtitleProject:
             raise Exception("No subtitles to translate")
 
         try:
-            translator : SubtitleTranslator = SubtitleTranslator(self.subtitles, self.options)
+            if not translator:
+                translator = SubtitleTranslator(self.subtitles, self.options)
 
             translator.events.preprocessed += self._on_preprocessed
             translator.events.batch_translated += self._on_batch_translated
@@ -137,6 +144,9 @@ class SubtitleProject:
             self.subtitles.SaveTranslation()
 
             return scene
+        
+        except TranslationAbortedError:
+            raise
 
         except Exception as e:
             if self.subtitles and self.options.get('stop_on_error'):
@@ -144,6 +154,12 @@ class SubtitleProject:
 
             logging.error(f"Failed to translate subtitles")
             raise
+
+    def AnyTranslated(self):
+        """
+        Have any subtitles been translated yet?
+        """
+        return True if self.subtitles and self.subtitles.translated else False
 
     def GetProjectFilepath(self, filepath):
         path, ext = os.path.splitext(filepath)

@@ -19,6 +19,10 @@ class TranslationImpossibleError(TranslationError):
         super().__init__(message, error)
         self.translation = translation
 
+class TranslationAbortedError(TranslationImpossibleError):
+    def __init__(self, translation = None):
+        super().__init__("Translation aborted", translation)
+
 class TranslationFailedError(TranslationError):
     def __init__(self, message, translation, error = None):
         super().__init__(message, error)

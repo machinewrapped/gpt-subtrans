@@ -1,9 +1,10 @@
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
+from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, SwapTextAndTranslations, TranslateSceneCommand
+from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, ResumeTranslationCommand, SwapTextAndTranslations, TranslateSceneCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -29,6 +30,9 @@ class ProjectActions(QObject):
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
         self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project')
         self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Options')
+        self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
+        self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads')
+        self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
 
         #TODO: Mixing different concepts of "action" here, is there a better separation?
         # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
@@ -102,6 +106,15 @@ class ProjectActions(QObject):
         model_viewer: ModelView = self._mainwindow.model_viewer
         model_viewer.ToggleProjectOptions()
 
+    def _start_translating(self):
+        self._issue_command(ResumeTranslationCommand(multithreaded=False))
+
+    def _start_translating_fast(self):
+        self._issue_command(ResumeTranslationCommand(multithreaded=True))
+
+    def _stop_translating(self):
+        self._issue_command(ClearCommandQueue())
+
     def _translate_selection(self, datamodel, selection : ProjectSelection):
         """
         Request translation of selected scenes and batches
@@ -152,8 +165,6 @@ class ProjectActions(QObject):
         
         scene_number, batch_number = selection.selected_batches[0]
         line_number = selection.selected_lines[0]
-
-        
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
         """
