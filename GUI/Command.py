@@ -1,7 +1,7 @@
 import os
 import logging
 
-from PySide6.QtCore import QObject, QRunnable, QEventLoop, Slot, Signal
+from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitleGPT.SubtitleError import TranslationAbortedError
