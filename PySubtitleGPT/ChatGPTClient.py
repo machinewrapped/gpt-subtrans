@@ -58,15 +58,16 @@ class ChatGPTClient:
         options = self.options
         prompt = translation.prompt
 
-        # Trim messages after the original translation to keep tokens down
+        retry_instructions = options.get('retry_instructions')
+
         messages = []
         for message in prompt.messages:
-            messages.append(message)
-            if message['role'] == 'assistant':
+            # Trim retry messages to keep tokens down
+            if message.get('content') == retry_instructions:
                 break
-        prompt.messages = messages
+            messages.append(message)
 
-        retry_instructions = options.get('retry_instructions')
+        prompt.messages = messages
 
         prompt.GenerateRetryPrompt(translation.text, retry_instructions, errors)
 

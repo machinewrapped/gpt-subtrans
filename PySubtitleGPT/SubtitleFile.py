@@ -4,7 +4,7 @@ import threading
 import srt
 from PySubtitleGPT import SubtitleBatch
 from PySubtitleGPT import SubtitleError
-from PySubtitleGPT.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitleGPT.Helpers import GenerateTag, GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
@@ -74,6 +74,38 @@ class SubtitleFile:
                 return batch
         
         raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
+    
+
+    def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int = None) -> list[str]:
+        """
+        Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
+        """
+        context_lines = []
+        last_summary = ""
+        for scene in self.scenes:
+            if scene.number == scene_number:
+                break
+
+            if scene.summary and scene.summary != last_summary and scene.summary != "New scene":
+                context_lines.append(f"scene {scene.number}: {scene.summary}")
+                last_summary = scene.summary
+
+        if not scene:
+            raise SubtitleError(f"Failed to find scene {scene_number}")
+
+        for batch in scene.batches:
+            if batch.number == batch_number:
+                break
+
+            if batch.summary and batch.summary != last_summary and batch.summary != "New scene":
+                context_lines.append(f"scene {batch.scene} batch {batch.number}: {batch.summary}")
+                last_summary = batch.summary
+
+        if max_lines:
+            context_lines = context_lines[-max_lines:]
+
+        return context_lines
+
 
     def LoadSubtitles(self, filepath : str = None):
         """
@@ -93,9 +125,11 @@ class SubtitleFile:
 
         with self.lock:
             self.originals = [ SubtitleLine(item) for item in source ]
-        
-    # Write original subtitles to an SRT file
+
     def SaveOriginals(self, path : str = None):
+        """
+        Write original subtitles to an SRT file
+        """
         self.sourcepath = path or self.sourcepath
         if not self.sourcepath:
             raise ValueError("No file path set")

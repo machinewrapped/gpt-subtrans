@@ -153,14 +153,13 @@ class SubtitleTranslator:
         """
         options : Options = self.options
 
-        #TODO: need to be able to build batch context on demand
-        summaries = context.get('summaries', [])
         substitutions = ParseSubstitutions(context.get('substitutions', {}))
 
         # Initialise the ChatGPT client
         client = ChatGPTClient(options, context.get('instructions'))
 
         prompt = options.get('prompt')
+        max_context_summaries = options.get('max_context_summaries')
 
         for batch in batches:
             if self.aborted:
@@ -199,6 +198,9 @@ class SubtitleTranslator:
                     if options.get('preview'):
                         self.events.batch_translated(batch)
                         continue
+
+                    # Build summaries context
+                    context['summaries'] = self.subtitles.GetBatchContext(batch.scene, batch.number, max_context_summaries)
 
                     # Ask OpenAI to do the translation
                     translation : ChatGPTTranslation = client.RequestTranslation(prompt, originals, context)
@@ -240,27 +242,10 @@ class SubtitleTranslator:
                 if not remaining_lines:
                     break
 
-            summaries = self.AddBatchToContext(context, batch, summaries)
+            context['previous_batch'] = batch
 
             # Notify observers the batch was translated
             self.events.batch_translated(batch)
-
-    def AddBatchToContext(self, context, batch : SubtitleBatch, summaries : list = None):
-        """
-        Update context from previous batch
-        """
-        context['previous_batch'] = batch
-
-        if summaries and batch.summary:
-            if summaries is not None:
-                if not summaries or batch.summary != summaries[-1]:
-                    summaries.append(batch.summary)
-
-                    max_summaries = self.options.get('max_context_summaries')
-                    if max_summaries:
-                        summaries = summaries[-max_summaries:]
-
-        return summaries
 
     def ProcessTranslation(self, batch : SubtitleBatch, context : dict, client : ChatGPTClient):
         """
@@ -364,12 +349,11 @@ class SubtitleTranslator:
         logging.info(f"Retranslated {len(retranslated)} of {len(retranslated) + len(batch.untranslated)} lines")
 
         try:
+            parser.MatchTranslations(batch.originals)
+
             parser.ValidateTranslations()
 
             logging.info("Retranslation passed validation")
-
-            # Let's NOT assume the results were an improvement            
-            parser.MatchTranslations(batch.originals)
 
             MergeTranslations(batch.translated, retranslated)
 
