@@ -190,9 +190,6 @@ class TranslateSceneCommand(Command):
     def on_abort(self):
         if self.translator:
             self.translator.StopTranslating()
-
-        super().on_abort()
-
     
     def _on_batch_translated(self, batch : SubtitleBatch):
         if self.datamodel:

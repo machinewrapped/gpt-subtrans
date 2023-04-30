@@ -14,7 +14,6 @@ if os.environ.get("DEBUG_MODE") == "1":
 
 class Command(QRunnable, QObject):
     commandExecuted = Signal(object, bool)
-    abort = Signal()
 
     def __init__(self, datamodel : ProjectDataModel = None):
         QRunnable.__init__(self)
@@ -37,8 +36,9 @@ class Command(QRunnable, QObject):
         self.undo_callback = undo_callback
 
     def Abort(self):
-        self.aborted = True
-        self.abort.emit()
+        if not self.aborted:
+            self.aborted = True
+            self.on_abort()
 
     @Slot()
     def run(self):
@@ -46,20 +46,10 @@ class Command(QRunnable, QObject):
             if 'debugpy' in globals():
                 debugpy.debug_this_thread()
 
-            self.abort.connect(self.on_abort)
-
-            # Create a QEventLoop to process the abort signal
-            loop = QEventLoop()
-
-            # Connect the abort signal to the loop's quit slot
-            self.abort.connect(loop.quit)
-
             try:
                 success = self.execute()
 
                 self.commandExecuted.emit(self, success)
-
-                loop.exec()
 
             except TranslationAbortedError:
                 logging.debug(f"Aborted {type(self).__name__} command")
@@ -76,7 +66,7 @@ class Command(QRunnable, QObject):
         raise NotImplementedError
     
     def on_abort(self):
-        self.aborted = True
+        pass
 
     def execute_callback(self):
         if self.callback:
