@@ -3,7 +3,8 @@ from PySide6.QtWidgets import QToolBar
 from GUI.ProjectActions import ProjectActions
 
 class MainToolbar(QToolBar):
-    _action_groups = [ ["Load Subtitles", "Save Project"], ["Quit"] ]
+    _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Stop Translating"], ["Quit"] ]
+    # _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Start Translating Fast", "Stop Translating"], ["Quit"] ]
 
     def __init__(self,  handler : ProjectActions):
         super().__init__("Main Toolbar")
@@ -18,3 +19,19 @@ class MainToolbar(QToolBar):
             for action in handlers:
                 self.addAction(action)
 
+    def EnableTranslatingCommands(self):
+        for action in self.actions():
+            if action.text() in [ "Start Translating", "Start Translating Fast" ]:
+                action.setEnabled(True)
+
+            if action.text() in [ "Stop Translating" ]:
+                action.setEnabled(False)
+
+    def DisableTranslatingCommands(self, enable_stop = False):
+        for action in self.actions():
+            if action.text() in [ "Start Translating", "Start Translating Fast" ]:
+                action.setEnabled(False)
+            
+            if action.text() in [ "Stop Translating" ]:
+                action.setEnabled(enable_stop)
+    

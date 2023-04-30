@@ -19,6 +19,7 @@ from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.MainToolbar import MainToolbar
 from GUI.ProjectActions import ProjectActions
+from GUI.ProjectCommands import ResumeTranslationCommand, TranslateSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
@@ -66,6 +67,7 @@ class MainWindow(QMainWindow):
         self.command_queue = CommandQueue(self)
         self.command_queue.SetMaxThreadCount(options.get('max_threads', 1))
         self.command_queue.commandExecuted.connect(self._on_command_complete)
+        self.command_queue.commandAdded.connect(self._on_command_added)
 
         # Create centralised action handler
         self.action_handler = ProjectActions(mainwindow=self)
@@ -80,6 +82,7 @@ class MainWindow(QMainWindow):
 
         # Create the toolbar
         self.toolbar = MainToolbar(self.action_handler)
+        self.toolbar.DisableTranslatingCommands()
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -140,32 +143,60 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logging.error(f"Error in {action_name}: {str(e)}")
 
+    def _on_command_added(self, command : Command):
+        self._update_main_toolbar()
+        self._update_status_bar(command)
+
     def _on_command_complete(self, command : Command, success):
         if success:
-            if self.command_queue.queue_size:
-                if self.command_queue.queue_size == 1:
-                    self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
-                else:
-                    self.statusBar().showMessage(f"{type(command).__name__} was successful. {self.command_queue.queue_size} commands in queue.")
-            else:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful.")
-
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
 
             if command.datamodel_update:
                 self.datamodel.UpdateViewModel(command.datamodel_update)
+
             elif command.datamodel:
-                # Shouldn't  need to do a full model rebuild often? 
+                # Shouldn't need to do a full model rebuild often? 
                 self.datamodel = command.datamodel
                 self.model_viewer.SetDataModel(self.datamodel)
                 self.model_viewer.show()
+
             else:
                 self.model_viewer.hide()
 
+        self._update_status_bar(command, success)
+        self._update_main_toolbar()
 
+    def _update_status_bar(self, command : Command, succeeded : bool = None):
+        if not command:
+            self.statusBar().showMessage("")
+        elif succeeded is None:
+            self.statusBar().showMessage(f"{type(command).__name__} executed. {self.command_queue.queue_size} commands in queue.")
         else:
-            self.statusBar().showMessage(f"{type(command).__name__} failed.")
+            if succeeded:
+                if self.command_queue.queue_size:
+                    if self.command_queue.queue_size == 1:
+                        self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
+                    else:
+                        self.statusBar().showMessage(f"{type(command).__name__} was successful. {self.command_queue.queue_size} commands in queue.")
+                else:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful.")
+
+            elif command.aborted:
+                self.statusBar().showMessage(f"{type(command).__name__} aborted.")
+
+            else:
+                self.statusBar().showMessage(f"{type(command).__name__} failed.")
+
+    def _update_main_toolbar(self):
+        # Enable or disable the translation commands in the toolbar depending on whether any translations are ongoing
+        if self.datamodel.project and self.datamodel.project.subtitles:
+            if self.command_queue.Contains(type_list = [TranslateSceneCommand, ResumeTranslationCommand]):
+                self.toolbar.DisableTranslatingCommands( enable_stop = True )
+            else:
+                self.toolbar.EnableTranslatingCommands()
+        else:
+            self.toolbar.DisableTranslatingCommands()
 
     def _on_options_changed(self, options: dict):
         if options and self.project:

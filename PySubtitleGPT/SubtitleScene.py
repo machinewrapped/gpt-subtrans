@@ -30,6 +30,10 @@ class SubtitleScene:
     @property
     def all_translated(self):
         return all(batch.all_translated for batch in self.batches)
+    
+    @property
+    def any_translated(self):
+        return any(batch.all_translated for batch in self.batches)
 
     @property
     def summary(self):

@@ -8,7 +8,7 @@ from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 
-from PySubtitleGPT.SubtitleError import TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
+from PySubtitleGPT.SubtitleError import TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
 from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
@@ -35,6 +35,7 @@ class SubtitleTranslator:
         self.subtitles = subtitles
         self.options = options
         self.events = TranslationEvents()
+        self.aborted = False
 
         if not options.get('reparse') or not options.get('prompt'):
             options.add('prompt', BuildPrompt(options))
@@ -47,6 +48,8 @@ class SubtitleTranslator:
         context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]
         logging.debug(f"Translation context:\n{linesep.join(context_values)}")
 
+    def StopTranslating(self):
+        self.aborted = True
 
     def TranslateSubtitles(self):
         """
@@ -54,6 +57,9 @@ class SubtitleTranslator:
         """
         options : Options = self.options
         subtitles : SubtitleFile = self.subtitles 
+
+        if self.aborted:
+            raise TranslationAbortedError()
 
         if not subtitles:
             raise TranslationError("No subtitles to translate")
@@ -79,6 +85,9 @@ class SubtitleTranslator:
 
         # Iterate over each subtitle scene and request translation
         for scene in subtitles.scenes:
+            if self.aborted:
+                raise TranslationAbortedError()
+
             if options.get('resume') and scene.all_translated:
                     logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
                     continue
@@ -154,6 +163,9 @@ class SubtitleTranslator:
         prompt = options.get('prompt')
 
         for batch in batches:
+            if self.aborted:
+                raise TranslationAbortedError()
+
             if options.get('resume') and batch.all_translated:
                 logging.info(f"Scene {batch.scene} batch {batch.number} already translated {batch.size} lines...")
                 summaries = self.AddBatchToContext(context, batch, summaries)
@@ -190,6 +202,9 @@ class SubtitleTranslator:
 
                     # Ask OpenAI to do the translation
                     translation : ChatGPTTranslation = client.RequestTranslation(prompt, originals, context)
+
+                    if self.aborted:
+                        raise TranslationAbortedError()
 
                     if translation.quota_reached:
                         raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
@@ -281,6 +296,9 @@ class SubtitleTranslator:
 
                 # Sanity check the results
                 parser.ValidateTranslations()
+            
+            except TranslationAbortedError:
+                raise
 
             except TranslationError as e:
                 if not options.get('allow_retranslations'):
@@ -338,6 +356,7 @@ class SubtitleTranslator:
         retranslated = parser.ProcessChatGPTResponse(retranslation)
 
         if not retranslated:
+            #TODO line-by-line retranslation?
             logging.error("Retranslation request did not produce a useful result")
             return
         

@@ -16,7 +16,7 @@ QStatusBar {
 }
 
 .MainToolbar, .ProjectToolbar {
-    background-color: #606060;
+    background-color: #909090;
 }
 
 .LogWindow {
