@@ -3,9 +3,6 @@ GPT-Subtrans is an open source subtitle translator built with OpenAI's ChatGPT. 
 
 Note: GPT-Subtrans requires an active internet connection to access the OpenAI API. Subtitles are sent to OpenAI's servers for translation, so their privacy policy applies: https://openai.com/policies/privacy-policy.
 
-## New
-First release as a stand-alone package. All dependencies are included, just unzip and run.
-
 ## Installation
 For most users (only on Windows at the moment) the packaged release is the easiest way to use the program. Simply unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first-run.
 
