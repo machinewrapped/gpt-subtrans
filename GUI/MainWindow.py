@@ -19,7 +19,7 @@ from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.MainToolbar import MainToolbar
 from GUI.ProjectActions import ProjectActions
-from GUI.ProjectCommands import ResumeTranslationCommand, TranslateSceneCommand
+from GUI.ProjectCommands import BatchSubtitlesCommand, ResumeTranslationCommand, TranslateSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
 
         # Create the toolbar
         self.toolbar = MainToolbar(self.action_handler)
-        self.toolbar.DisableTranslatingCommands()
+        self.toolbar.SetBusyStatus(None, self.command_queue)
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -144,13 +144,18 @@ class MainWindow(QMainWindow):
             logging.error(f"Error in {action_name}: {str(e)}")
 
     def _on_command_added(self, command : Command):
+        logging.debug(f"Added a {type(command).__name__} command to the queue")
         self._update_main_toolbar()
         self._update_status_bar(command)
 
     def _on_command_complete(self, command : Command, success):
+        logging.debug(f"A {type(command).__name__} command completed (success={str(success)})")
+
         if success:
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
+                if not self.project.subtitles.scenes:
+                    self.QueueCommand(BatchSubtitlesCommand(self.project))
 
             if command.datamodel_update:
                 self.datamodel.UpdateViewModel(command.datamodel_update)
@@ -172,34 +177,27 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("")
         elif succeeded is None:
             self.statusBar().showMessage(f"{type(command).__name__} executed. {self.command_queue.queue_size} commands in queue.")
+        elif command.aborted:
+            self.statusBar().showMessage(f"{type(command).__name__} aborted.")
+
         else:
             if succeeded:
-                if self.command_queue.queue_size:
-                    if self.command_queue.queue_size == 1:
-                        self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
-                    else:
-                        self.statusBar().showMessage(f"{type(command).__name__} was successful. {self.command_queue.queue_size} commands in queue.")
+                if self.command_queue.queue_size > 1:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful. {self.command_queue.queue_size} commands in queue.")
+                elif self.command_queue.queue_size == 1:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
                 else:
                     self.statusBar().showMessage(f"{type(command).__name__} was successful.")
-
-            elif command.aborted:
-                self.statusBar().showMessage(f"{type(command).__name__} aborted.")
 
             else:
                 self.statusBar().showMessage(f"{type(command).__name__} failed.")
 
     def _update_main_toolbar(self):
-        # Enable or disable the translation commands in the toolbar depending on whether any translations are ongoing
-        if self.datamodel.project and self.datamodel.project.subtitles:
-            if self.command_queue.Contains(type_list = [TranslateSceneCommand, ResumeTranslationCommand]):
-                self.toolbar.DisableTranslatingCommands( enable_stop = True )
-            else:
-                self.toolbar.EnableTranslatingCommands()
-        else:
-            self.toolbar.DisableTranslatingCommands()
+        self.toolbar.SetBusyStatus(self.datamodel.project, self.command_queue)
 
     def _on_options_changed(self, options: dict):
         if options and self.project:
+            self.datamodel.options.update(options)
             self.project.UpdateProjectOptions(options)
 
     def _first_run(self, options: Options):

@@ -15,7 +15,7 @@ class ClearCommandQueue(Command):
         super().__init__(datamodel)
 
     def execute(self):
-        logging.info("Aborting command queue...")
+        logging.info("Terminating command queue...")
 
 #############################################################
 
@@ -75,6 +75,8 @@ class CommandQueue(QObject):
 
         self.commandAdded.emit(command)
 
+        self._start_command_queue()
+
     def Contains(self, command_type: type = None, type_list : list[type] = None):
         """
         Check if the queue contains a command type(s)
@@ -87,6 +89,9 @@ class CommandQueue(QObject):
                 return True
         
         return command_type and any( [ isinstance(command, command_type) ] for command in self.queue )
+    
+    def AnyBlocking(self):
+        return any( command.is_blocking for command in self.queue )
 
     def _on_command_executed(self, command: Command, success: bool):
         """
@@ -103,12 +108,13 @@ class CommandQueue(QObject):
 
         if command.commands_to_queue and not command.aborted:
             with QMutexLocker(self.mutex):
-                for command in command.commands_to_queue:
-                    self._queue_command(command, command.datamodel)
+                for queued_command in command.commands_to_queue:
+                    self._queue_command(queued_command, command.datamodel)
 
-            for command in command.commands_to_queue:
-                self.logger.debug(f"Added a {type(command).__name__} command to the queue")
-                self.commandAdded.emit(command)
+            for queued_command in command.commands_to_queue:
+                self.commandAdded.emit(queued_command)
+
+            self._start_command_queue()
             
     def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
         """
@@ -125,9 +131,28 @@ class CommandQueue(QObject):
 
         command.commandExecuted.connect(self._on_command_executed)
 
-        self.command_pool.start(command)
+    def _start_command_queue(self):
+        if not self.queue:
+            return
+
+        self.logger.debug(f"Starting command queue")
+
+        with QMutexLocker(self.mutex):
+            for command in self.queue:
+                if not command.started:
+                    command.started = True
+                    self.command_pool.start(command)
+
+                if command.is_blocking:
+                    break
 
     def _clear_command_queue(self):
+        self.logger.debug(f"Clearing command queue")
+
+        # Remove commands that haven't been started
+        self.queue = [command for command in self.queue if command.started]
+
+        # Request termination of remaining commands
         for command in self.queue:
             command.Abort()
 

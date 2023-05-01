@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, ResumeTranslationCommand, SwapTextAndTranslations, TranslateSceneCommand
+from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, ResumeTranslationCommand, SwapTextAndTranslations, TranslateSceneCommand, TranslateSceneMultithreadedCommand
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -92,7 +92,7 @@ class ProjectActions(QObject):
             filepath, _ = QFileDialog.getSaveFileName(self._mainwindow, "Save Project File", filepath, "Subtrans projects (*.subtrans);;All Files (*)")
 
         if filepath:
-            command = SaveProjectFile(filepath, self._mainwindow.project)
+            command = SaveProjectFile(project, filepath)
             self._issue_command(command)
 
     def _is_shift_pressed(self):
@@ -126,7 +126,7 @@ class ProjectActions(QObject):
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
-            command = TranslateSceneCommand(scene.number, batch_numbers, datamodel)
+            command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel)
             self._issue_command(command)
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):

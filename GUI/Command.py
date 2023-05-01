@@ -19,6 +19,8 @@ class Command(QRunnable, QObject):
         QRunnable.__init__(self)
         QObject.__init__(self)
         self.datamodel = datamodel
+        self.is_blocking : bool = True
+        self.started : bool = False
         self.executed : bool = False
         self.aborted : bool = False
         self.callback = None
@@ -42,22 +44,26 @@ class Command(QRunnable, QObject):
 
     @Slot()
     def run(self):
-        if not self.aborted:
-            if 'debugpy' in globals():
-                debugpy.debug_this_thread()
+        if self.aborted:
+            logging.debug(f"{type(self).__name__} command aborted before it started")
+            self.commandExecuted.emit(self, False)
+            return
 
-            try:
-                success = self.execute()
+        if 'debugpy' in globals():
+            debugpy.debug_this_thread()
 
-                self.commandExecuted.emit(self, success)
+        try:
+            success = self.execute()
 
-            except TranslationAbortedError:
-                logging.debug(f"Aborted {type(self).__name__} command")
-                self.commandExecuted.emit(self, False)
+            self.commandExecuted.emit(self, success)
 
-            except Exception as e:
-                logging.error(f"Error executing {type(self).__name__} command ({str(e)})")
-                self.commandExecuted.emit(self, False)
+        except TranslationAbortedError:
+            logging.info(f"Aborted {type(self).__name__} command")
+            self.commandExecuted.emit(self, False)
+
+        except Exception as e:
+            logging.error(f"Error executing {type(self).__name__} command ({str(e)})")
+            self.commandExecuted.emit(self, False)
 
     def execute(self):
         raise NotImplementedError

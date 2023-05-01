@@ -106,13 +106,13 @@ class SubtitleProject:
 
             translator.events.preprocessed += self._on_preprocessed
             translator.events.batch_translated += self._on_batch_translated
+            translator.events.scene_translated += self._on_scene_translated
 
             translator.TranslateSubtitles()
 
             self.subtitles.SaveTranslation()
 
         except TranslationAbortedError:
-            self.subtitles.SaveTranslation()
             logging.warning(f"Translation aborted")
             raise
 
@@ -306,6 +306,7 @@ class SubtitleProject:
 
     def _on_scene_translated(self, scene):
         logging.debug("Scene translated")
-        self.subtitles.SaveTranslation()
+        with self.lock:
+            self.subtitles.SaveTranslation()
         self.needsupdate = self.update_project
         self.events.scene_translated(scene)
