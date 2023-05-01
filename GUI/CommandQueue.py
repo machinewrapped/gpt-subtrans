@@ -15,7 +15,7 @@ class ClearCommandQueue(Command):
         super().__init__(datamodel)
 
     def execute(self):
-        logging.info("Terminating command queue...")
+        logging.info("Aborting command queue...")
 
 #############################################################
 

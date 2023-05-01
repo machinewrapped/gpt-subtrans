@@ -165,6 +165,10 @@ class SubtitleProject:
         path, ext = os.path.splitext(filepath)
         return filepath if ext == '.subtrans' else f"{path}.subtrans"
     
+    def GetBackupFilepath(self, filepath):
+        projectfile = self.GetProjectFilepath(filepath)
+        return f"{projectfile}-backup"
+    
     def LoadSubtitleFile(self, filepath):
         """
         Load subtitles from an SRT file
@@ -195,13 +199,19 @@ class SubtitleProject:
                 self.read_project = True
                 self.options.add('project', 'true')
 
-            if projectfile:
+            if not projectfile:
+                projectfile = self.projectfile
+
+            elif projectfile and not self.projectfile:
                 self.projectfile = self.GetProjectFilepath(projectfile)
                 self.subtitles.outputpath = GetOutputPath(projectfile)
 
-            logging.info(f"Writing project data to {str(self.projectfile)}")
+            if not projectfile:
+                raise Exception("No file path provided")                
 
-            with open(self.projectfile, 'w', encoding=default_encoding) as f:
+            logging.info(f"Writing project data to {str(projectfile)}")
+
+            with open(projectfile, 'w', encoding=default_encoding) as f:
                 project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
                 f.write(project_json)
 
@@ -210,7 +220,8 @@ class SubtitleProject:
         Save a backup copy of the project
         """
         if self.subtitles and self.projectfile:
-            self.WriteProjectFile(f"{self.projectfile}-backup")
+            backupfile = self.GetBackupFilepath(self.projectfile)
+            self.WriteProjectFile(backupfile)
 
     def ReadProjectFile(self):
         """
