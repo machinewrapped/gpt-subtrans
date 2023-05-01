@@ -90,7 +90,16 @@ class CommandQueue(QObject):
         
         return command_type and any( [ isinstance(command, command_type) ] for command in self.queue )
     
+    def AnyCommands(self):
+        """
+        Any commands in the queue?
+        """
+        return True if self.queue else False
+    
     def AnyBlocking(self):
+        """
+        Any blocking commands in the queue?
+        """
         return any( command.is_blocking for command in self.queue )
 
     def _on_command_executed(self, command: Command, success: bool):

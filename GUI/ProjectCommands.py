@@ -245,9 +245,6 @@ class ResumeTranslationCommand(Command):
                     translate_command.commands_to_queue.append(command)
                     translate_command = command
 
-        # Write the project when the last command is done
-        translate_command.commands_to_queue.append(SaveProjectFile(self.datamodel.project))
-
         return True
 
 #############################################################

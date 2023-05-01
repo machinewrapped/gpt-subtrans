@@ -169,6 +169,11 @@ class MainWindow(QMainWindow):
             else:
                 self.model_viewer.hide()
 
+        # Auto-save if the commmand queue is empty and the project has changed
+        if self.project and self.project.needsupdate:
+            if not self.command_queue.AnyCommands():
+                self.project.WriteProjectFile()
+
         self._update_status_bar(command, success)
         self._update_main_toolbar()
 
