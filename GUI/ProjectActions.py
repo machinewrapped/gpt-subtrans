@@ -137,8 +137,7 @@ class ProjectActions(QObject):
             self._issue_command(ResumeTranslationCommand(multithreaded=True))
 
     def _stop_translating(self):
-        if self._check_api_key():
-            self._issue_command(ClearCommandQueue())
+        self._issue_command(ClearCommandQueue())
 
     def _translate_selection(self, datamodel, selection : ProjectSelection):
         """
