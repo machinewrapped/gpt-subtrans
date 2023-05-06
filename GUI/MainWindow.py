@@ -13,13 +13,12 @@ from PySide6.QtWidgets import (
     QDialog
 )
 from GUI.Command import Command
-
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.MainToolbar import MainToolbar
-from GUI.ProjectActions import ProjectActions
-from GUI.ProjectCommands import BatchSubtitlesCommand, ResumeTranslationCommand, TranslateSceneCommand
+from GUI.ProjectActions import NoApiKeyError, ProjectActions
+from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
@@ -72,6 +71,7 @@ class MainWindow(QMainWindow):
         # Create centralised action handler
         self.action_handler = ProjectActions(mainwindow=self)
         self.action_handler.issueCommand.connect(self.QueueCommand)
+        self.action_handler.actionError.connect(self._on_error)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -215,3 +215,10 @@ class MainWindow(QMainWindow):
             options.add('firstrun', False)
             options.Save()
             LoadStylesheet(options.get('theme'))
+
+    def _on_error(self, error : object):
+        logging.error(str(error))
+
+        if isinstance(error, NoApiKeyError):
+            if self.datamodel and self.datamodel.options:
+                self._first_run(self.datamodel.options)

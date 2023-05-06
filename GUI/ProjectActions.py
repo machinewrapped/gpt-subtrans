@@ -4,7 +4,15 @@ from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.FileCommands import *
-from GUI.ProjectCommands import MergeBatchesCommand, MergeLinesCommand, MergeScenesCommand, ResumeTranslationCommand, SwapTextAndTranslations, TranslateSceneCommand, TranslateSceneMultithreadedCommand
+from GUI.ProjectCommands import (
+    MergeBatchesCommand, 
+    MergeLinesCommand, 
+    MergeScenesCommand, 
+    ResumeTranslationCommand, 
+    SwapTextAndTranslations, 
+    TranslateSceneCommand, 
+    TranslateSceneMultithreadedCommand
+)
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
 
@@ -18,8 +26,13 @@ class ActionError(Exception):
             return str(self.error)
         return super().__str__()
 
+class NoApiKeyError(ActionError):
+    def __init__(self):
+        super().__init__("Cannot translate without a valid OpenAI API Key")
+
 class ProjectActions(QObject):
     issueCommand = Signal(object)
+    actionError = Signal(object)
 
     _actions = {}
 
@@ -71,6 +84,15 @@ class ProjectActions(QObject):
     def _issue_command(self, command : Command):
         self.issueCommand.emit(command)
 
+    def _check_api_key(self):
+        if self._mainwindow and self._mainwindow.datamodel and self._mainwindow.datamodel.options:
+            options: Options = self._mainwindow.datamodel.options
+            if options.api_key():
+                return True
+        
+        self.actionError.emit(NoApiKeyError())
+        return False
+
     def _quit(self):
         QApplication.instance().quit()
 
@@ -107,13 +129,16 @@ class ProjectActions(QObject):
         model_viewer.ToggleProjectOptions()
 
     def _start_translating(self):
-        self._issue_command(ResumeTranslationCommand(multithreaded=False))
+        if self._check_api_key():
+            self._issue_command(ResumeTranslationCommand(multithreaded=False))
 
     def _start_translating_fast(self):
-        self._issue_command(ResumeTranslationCommand(multithreaded=True))
+        if self._check_api_key():
+            self._issue_command(ResumeTranslationCommand(multithreaded=True))
 
     def _stop_translating(self):
-        self._issue_command(ClearCommandQueue())
+        if self._check_api_key():
+            self._issue_command(ClearCommandQueue())
 
     def _translate_selection(self, datamodel, selection : ProjectSelection):
         """
@@ -122,6 +147,9 @@ class ProjectActions(QObject):
         if not selection.Any():
             raise ActionError("Nothing selected to translate")
 
+        if not self._check_api_key():
+            return
+            
         logging.debug(f"Translate selection of {str(selection)}")
 
         for scene in selection.scenes.values():
