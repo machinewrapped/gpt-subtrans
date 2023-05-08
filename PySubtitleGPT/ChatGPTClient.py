@@ -131,7 +131,7 @@ class ChatGPTClient:
 
             except (openai.error.APIConnectionError, openai.error.Timeout, openai.error.ServiceUnavailableError) as e:
                 if isinstance(e, openai.error.APIConnectionError) and not e.should_retry:
-                    raise TranslationImpossibleError(str(e))
+                    raise TranslationImpossibleError(str(e), translation)
                 if retries == max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
                     raise
@@ -143,7 +143,7 @@ class ChatGPTClient:
                     continue
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", translation, error=e)
 
         return None
 

@@ -15,7 +15,7 @@ class TranslationError(SubtitleError):
     
 class TranslationImpossibleError(TranslationError):
     """ No chance of retry succeeding """
-    def __init__(self, message, translation, error = None):
+    def __init__(self, message, translation = None, error = None):
         super().__init__(message, error)
         self.translation = translation
 

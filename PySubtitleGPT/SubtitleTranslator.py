@@ -209,10 +209,7 @@ class SubtitleTranslator:
                         raise TranslationAbortedError()
 
                     if translation.quota_reached:
-                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
-
-                    if translation.quota_reached:
-                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
+                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
 
                     if translation.reached_token_limit:
                         # Try again without the context to keep the tokens down
