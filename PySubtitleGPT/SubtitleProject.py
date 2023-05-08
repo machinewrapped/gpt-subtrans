@@ -21,6 +21,7 @@ class SubtitleProject:
         self.projectfile = None
         self.needsupdate = False
         self.lock = threading.Lock()
+        self.stop_event = None
         
         project_mode = self.options.get('project', '')
         if project_mode:
