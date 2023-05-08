@@ -255,7 +255,7 @@ class BatchItem(ViewModelItem):
 
         return {
             'heading': f"Batch {self.number}",
-            'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
+            'subheading': f"{str(self.start)} -> {str(self.end)} ({self.original_count} lines)",   # ({end - start})
             'body': body,
             'properties': {
                 'all_translated' : self.all_translated,
@@ -348,7 +348,7 @@ class SceneItem(ViewModelItem):
 
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"{self.start} -> {self.end}",   # ({self.duration})
+            'subheading': f"{self.start} -> {self.end} ({self.original_count} lines)",   # ({self.duration})
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'properties': {
                 'all_translated' : self.all_translated,
