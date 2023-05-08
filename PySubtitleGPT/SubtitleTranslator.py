@@ -349,6 +349,8 @@ class SubtitleTranslator:
         logging.info(f"Retranslated {len(retranslated)} of {len(retranslated) + len(batch.untranslated)} lines")
 
         try:
+            batch.errors = []
+
             parser.MatchTranslations(batch.originals)
 
             parser.ValidateTranslations()

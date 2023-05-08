@@ -152,7 +152,11 @@ class TranslateSceneCommand(Command):
         }}
 
     def execute(self):
-        logging.info(f"Translating scene number {self.scene_number}")
+        if self.batch_numbers:
+            logging.info(f"Translating scene number {self.scene_number} batch {','.join(str(x) for x in self.batch_numbers)}")
+        else:
+            logging.info(f"Translating scene number {self.scene_number}")
+
         if not self.datamodel.project:
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
@@ -193,7 +197,8 @@ class TranslateSceneCommand(Command):
             update = {
                 'summary' : batch.summary,
                 'context' : batch.context,
-                'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
+                'errors' : batch.errors,
+                'translated' : { line.number : { 'text' : line.text } for line in batch.translated if line.number }
             }
             self.datamodel.UpdateViewModel({ batch.scene : { 'batches' : { batch.number : update } } })
 

@@ -242,6 +242,8 @@ class BatchItem(ViewModelItem):
 
     def Update(self, update : dict):
         UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])
+        if 'errors' in update.keys():
+            self.batch_model['errors'] = self._get_errors(update['errors'])
     
     def GetContent(self):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \
