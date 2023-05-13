@@ -17,6 +17,7 @@ from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.MainToolbar import MainToolbar
+from GUI.SettingsDialog import SettingsDialog
 from GUI.ProjectActions import NoApiKeyError, ProjectActions
 from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
@@ -121,6 +122,23 @@ class MainWindow(QMainWindow):
         Add a command to the command queue and set the datamodel
         """
         self.command_queue.AddCommand(command, self.datamodel)
+
+    def ShowSettingsDialog(self):
+        """
+        Open user settings dialog and update options
+        """
+        options = self.datamodel.options
+        settings = options.GetSettings()
+        result = SettingsDialog(settings, self).exec()
+
+        if result == QDialog.Accepted:
+            options.update(settings)
+            options.Save()
+            LoadStylesheet(options.get('theme'))
+            logging.info("Settings updated")
+
+    def PrepareForSave(self):
+        self.model_viewer.CloseProjectOptions()
 
     def closeEvent(self, e):
         if self.command_queue:
