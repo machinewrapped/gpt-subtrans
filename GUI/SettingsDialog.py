@@ -25,10 +25,10 @@ class SettingsDialog(QDialog):
             'enforce_line_parity': bool
         },
         'Advanced': {
-            'scene_threshold': float,
-            'batch_threshold': float,
             'min_batch_size': int,
             'max_batch_size': int,
+            'scene_threshold': float,
+            'batch_threshold': float,
             'max_context_summaries': int,
             'max_characters': int,
             'max_newlines': int,
