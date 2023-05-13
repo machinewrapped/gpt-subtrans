@@ -1,17 +1,37 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QSizePolicy, QFrame)
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
 
-from GUI.Widgets.OptionsWidgets import CreateDropdownOptionWidget, CreateOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
 class SettingsDialog(QDialog):
     SECTIONS = {
-        'General': ['theme', 'write_backup', 'stop_on_error'], 
-        'GPT': ['api_key', 'gpt_model', 'gpt_prompt', 'temperature', 'rate_limit', 'max_retries'],
-        'Translation': ['target_language', 'allow_retranslations', 'enforce_line_parity', 'max_context_summaries', 'max_characters', 'max_newlines'],
-        'Advanced': ['scene_threshold', 'batch_threshold', 'min_batch_size', 'max_batch_size']
-    }
-
-    DROPDOWNS = {
-        'theme': ['subtrans', 'subtrans-dark']
+        'General': {
+            'theme': ['subtrans', 'subtrans-dark'],
+            'autosave': bool,
+            'write_backup': bool,
+            'stop_on_error': bool
+        },
+        'GPT': {
+            'api_key': str,
+            'gpt_model': str,
+            'gpt_prompt': str,
+            'temperature': float,
+            'rate_limit': float,
+            'max_retries': int
+        },
+        'Translation': {
+            'target_language': str,
+            'allow_retranslations': bool,
+            'enforce_line_parity': bool,
+            'max_context_summaries': int,
+            'max_characters': int,
+            'max_newlines': int
+        },
+        'Advanced': {
+            'scene_threshold': float,
+            'batch_threshold': float,
+            'min_batch_size': int,
+            'max_batch_size': int
+        }
     }
 
     def __init__(self, options, parent=None):
@@ -26,8 +46,8 @@ class SettingsDialog(QDialog):
         self.sections = QTabWidget(self)
         self.layout.addWidget(self.sections)
 
-        for section_name, keys in self.SECTIONS.items():
-            section_widget = self.create_section_widget(keys, section_name)
+        for section_name, settings in self.SECTIONS.items():
+            section_widget = self.create_section_widget(settings, section_name)
             self.sections.addTab(section_widget, section_name)
 
         # Add Ok and Cancel buttons
@@ -36,19 +56,15 @@ class SettingsDialog(QDialog):
         self.buttonBox.rejected.connect(self.reject)
         self.layout.addWidget(self.buttonBox)
 
-    def create_section_widget(self, keys, section_name):
+    def create_section_widget(self, settings, section_name):
         section_widget = QFrame(self)
         section_widget.setObjectName(section_name)
 
         layout = QFormLayout(section_widget)
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        for key in keys:
-            if key in self.DROPDOWNS:
-                field = CreateDropdownOptionWidget(key, self.DROPDOWNS[key], self.options[key])
-            else:
-                field = CreateOptionWidget(key, self.options[key])
-            
+        for key, key_type in settings.items():
+            field = CreateOptionWidget(key, self.options[key], key_type)
             layout.addRow(field.name, field)
 
         return section_widget
