@@ -41,7 +41,7 @@ class ChatGPTClient:
 
         # If a rate limit is replied ensure a minimum duration for each request
         rate_limit = options.get('rate_limit')
-        if rate_limit:
+        if rate_limit and rate_limit > 0.0:
             minimum_duration = 60.0 / rate_limit
 
             elapsed_time = time.monotonic() - start_time

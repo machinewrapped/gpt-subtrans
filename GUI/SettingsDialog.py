@@ -8,29 +8,32 @@ class SettingsDialog(QDialog):
             'theme': ['subtrans', 'subtrans-dark'],
             'autosave': bool,
             'write_backup': bool,
-            'stop_on_error': bool
+            'stop_on_error': bool,
+            'max_threads': int
         },
         'GPT': {
             'api_key': str,
             'gpt_model': str,
-            'gpt_prompt': str,
             'temperature': float,
-            'rate_limit': float,
-            'max_retries': int
+            'rate_limit': float
         },
         'Translation': {
+            'gpt_prompt': str,
             'target_language': str,
+            'instruction_file': str,
             'allow_retranslations': bool,
-            'enforce_line_parity': bool,
-            'max_context_summaries': int,
-            'max_characters': int,
-            'max_newlines': int
+            'enforce_line_parity': bool
         },
         'Advanced': {
             'scene_threshold': float,
             'batch_threshold': float,
             'min_batch_size': int,
-            'max_batch_size': int
+            'max_batch_size': int,
+            'max_context_summaries': int,
+            'max_characters': int,
+            'max_newlines': int,
+            'max_retries': int,
+            'backoff_time': float
         }
     }
 
