@@ -43,6 +43,7 @@ class ProjectActions(QObject):
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
         self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project')
         self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Options')
+        self.AddAction('Settings', self._show_settings_dialog, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
         self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
         self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
         self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
@@ -108,6 +109,8 @@ class ProjectActions(QObject):
         project : SubtitleProject = self._mainwindow.project
         if not project:
             raise ActionError("Nothing to save!")
+        
+        self._mainwindow.PrepareForSave()
 
         filepath = project.projectfile
         if not filepath or self._is_shift_pressed():
@@ -127,6 +130,9 @@ class ProjectActions(QObject):
         # TODO: Route GUI actions with signals and events or something
         model_viewer: ModelView = self._mainwindow.model_viewer
         model_viewer.ToggleProjectOptions()
+    
+    def _show_settings_dialog(self):
+        self._mainwindow.ShowSettingsDialog()
 
     def _start_translating(self):
         if self._check_api_key():

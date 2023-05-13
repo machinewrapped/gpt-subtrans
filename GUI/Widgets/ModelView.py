@@ -79,10 +79,14 @@ class ModelView(QWidget):
 
     def ToggleProjectOptions(self, show = None):
         if self.project_options.isVisible() and not show:
-            self.optionsChanged.emit(self.project_options.GetOptions())
-            self.project_options.hide()
+            self.CloseProjectOptions()
         else:
             self.project_options.show()
+
+    def CloseProjectOptions(self):
+        if self.project_options.isVisible():
+            self.optionsChanged.emit(self.project_options.GetOptions())
+            self.project_options.hide()
 
     def GetSelection(self) -> ProjectSelection:
         """
