@@ -37,7 +37,7 @@ class SubtitleProject:
         self.options.add('reparse', project_mode in ["reparse"])
         self.options.add('retranslate', project_mode in ["retranslate"])
 
-        if self.update_project:
+        if self.update_project and options.get('autosave'):
             self._start_autosave_thread
 
     def __del__(self):

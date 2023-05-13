@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
                 self.model_viewer.hide()
 
         # Auto-save if the commmand queue is empty and the project has changed
-        if self.project and self.project.needsupdate:
+        if self.project and self.project.needsupdate and self.datamodel.options.get('autosave'):
             if not self.command_queue.AnyCommands():
                 self.project.WriteProjectFile()
 
