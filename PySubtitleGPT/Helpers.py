@@ -83,11 +83,6 @@ def GetOutputPath(filepath):
         basename = basename + "-ChatGPT"
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def GetResourcePath(relative_path):
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
-
 def GenerateBatchPrompt(prompt, lines, tag_lines=None):
     """
     Create the user prompt for translating a set of lines

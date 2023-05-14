@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
+from GUI.GuiHelpers import GetThemeNames
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
 class SettingsDialog(QDialog):
     SECTIONS = {
         'General': {
-            'theme': ['subtrans', 'subtrans-dark'],
+            'theme': [],
             'autosave': bool,
             'write_backup': bool,
             'stop_on_error': bool,
@@ -43,6 +44,8 @@ class SettingsDialog(QDialog):
         self.setMinimumWidth(800)
 
         self.options = options
+
+        self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
 
         self.layout = QVBoxLayout(self)
 

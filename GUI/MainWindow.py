@@ -16,6 +16,7 @@ from GUI.Command import Command
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
+from GUI.GuiHelpers import GetResourcePath
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
 from GUI.ProjectActions import NoApiKeyError, ProjectActions
@@ -23,7 +24,6 @@ from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
-from PySubtitleGPT.Helpers import GetResourcePath
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 from PySubtitleGPT.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
