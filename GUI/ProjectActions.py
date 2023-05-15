@@ -15,6 +15,7 @@ from GUI.ProjectCommands import (
 )
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.ModelView import ModelView
+from PySubtitleGPT.SubtitleFile import SubtitleFile
 
 class ActionError(Exception):
     def __init__(self, message, error = None):
@@ -52,6 +53,8 @@ class ProjectActions(QObject):
         # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
         # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
+        ProjectDataModel.RegisterActionHandler('Update Scene', self._update_scene)
+        ProjectDataModel.RegisterActionHandler('Update Batch', self._update_batch)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
@@ -134,11 +137,34 @@ class ProjectActions(QObject):
     def _show_settings_dialog(self):
         self._mainwindow.ShowSettingsDialog()
 
-    def _start_translating(self):
+    def _validate_datamodel(self, datamodel : ProjectDataModel):
+        """
+        Validate that there is a datamodel with subtitles that have been batched
+        """
+        if not datamodel or not datamodel.project:
+            raise ActionError("Project is not valid")
+        
+        if not datamodel.project.subtitles:
+            raise ActionError("No subtitles")
+        
+        if not datamodel.project.subtitles.scenes:
+            raise ActionError("Subtitles have not been batched")
+
+    def _start_translating(self, datamodel : ProjectDataModel):
+        self._validate_datamodel(datamodel)
+
+        if datamodel.project.needsupdate:
+            datamodel.project.WriteProjectFile()
+
         if self._check_api_key():
             self._issue_command(ResumeTranslationCommand(multithreaded=False))
 
-    def _start_translating_fast(self):
+    def _start_translating_fast(self, datamodel : ProjectDataModel):
+        self._validate_datamodel(datamodel)
+
+        if datamodel.project.needsupdate:
+            datamodel.project.WriteProjectFile()
+
         if self._check_api_key():
             self._issue_command(ResumeTranslationCommand(multithreaded=True))
 
@@ -154,13 +180,42 @@ class ProjectActions(QObject):
 
         if not self._check_api_key():
             return
-            
+
+        self._validate_datamodel(datamodel)
+
+        if datamodel.project.needsupdate:
+            datamodel.project.WriteProjectFile()
+
         logging.debug(f"Translate selection of {str(selection)}")
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
             command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel)
             self._issue_command(command)
+
+    def _update_scene(self, datamodel : ProjectDataModel, scene_number : int, update : dict):
+        """
+        Update the user-updatable properties of a subtitle scene
+        """
+        logging.debug(f"Updating scene {scene_number} with {str(update)}")
+
+        self._validate_datamodel(datamodel)
+
+        subtitles : SubtitleFile = datamodel.project.subtitles
+        if subtitles.UpdateScene(scene_number, update):
+            datamodel.project.needsupdate = True
+
+    def _update_batch(self, datamodel : ProjectDataModel, scene_number : int, batch_number : int, update : dict):
+        """
+        Update the user-updatable properties of a subtitle batch
+        """
+        logging.debug(f"Updating scene {scene_number} batch {batch_number} with {str(update)}")
+
+        self._validate_datamodel(datamodel)
+
+        subtitles : SubtitleFile = datamodel.project.subtitles
+        if subtitles.UpdateBatch(scene_number, batch_number, update):
+            datamodel.project.needsupdate = True
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
         """
@@ -198,6 +253,8 @@ class ProjectActions(QObject):
         
         scene_number, batch_number = selection.selected_batches[0]
         line_number = selection.selected_lines[0]
+
+        raise ActionError("I need to finish implementing this")
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
         """

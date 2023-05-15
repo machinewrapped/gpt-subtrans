@@ -1,19 +1,21 @@
-import logging
-from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout)
+import json
+from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
+
+MULTILINE_OPTION = 'multiline'
 
 class OptionWidget(QWidget):
     def __init__(self, key, initial_value, parent=None):
         super(OptionWidget, self).__init__(parent)
         self.key = key
-        self.name = self.generate_name(key)
+        self.name = self.GenerateName(key)
         self.initial_value = initial_value
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
     @staticmethod
-    def generate_name(key):
+    def GenerateName(key):
         return key.replace('_', ' ').title()
 
-    def get_value(self):
+    def GetValue(self):
         raise NotImplementedError
 
 class TextOptionWidget(OptionWidget):
@@ -23,11 +25,33 @@ class TextOptionWidget(OptionWidget):
         self.layout.setContentsMargins(0,0,0,0)
         self.text_field = QLineEdit(self)
         self.text_field.setText(initial_value)
-        self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
         self.layout.addWidget(self.text_field)
 
-    def get_value(self):
+    def GetValue(self):
         return self.text_field.text()
+
+class MultilineTextOptionWidget(OptionWidget):
+    def __init__(self, key, initial_value):
+        super(MultilineTextOptionWidget, self).__init__(key, initial_value)
+        if isinstance(initial_value, list):
+            initial_value = '\n'.join(str(x) for x in initial_value)
+        elif isinstance(initial_value, dict):
+            initial_value = json.dumps(initial_value, ensure_ascii=False, indent=2, sort_keys=True)
+
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.text_field = QTextEdit(self)
+        self.text_field.setAcceptRichText(False)
+        self.text_field.setPlainText(initial_value)
+        self.text_field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
+        self.layout.addWidget(self.text_field)
+
+    def GetValue(self):
+        return self.text_field.toPlainText()
+    
+    def SetReadOnly(self, is_read_only : bool):
+        self.text_field.setReadOnly(is_read_only)
 
 class IntegerOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):
@@ -38,7 +62,7 @@ class IntegerOptionWidget(OptionWidget):
         if initial_value:
             self.spin_box.setValue(initial_value)
 
-    def get_value(self):
+    def GetValue(self):
         return self.spin_box.value()
 
 class FloatOptionWidget(OptionWidget):
@@ -50,7 +74,7 @@ class FloatOptionWidget(OptionWidget):
         if initial_value:
             self.double_spin_box.setValue(initial_value)
 
-    def get_value(self):
+    def GetValue(self):
         return self.double_spin_box.value()
 
 class CheckboxOptionWidget(OptionWidget):
@@ -60,7 +84,7 @@ class CheckboxOptionWidget(OptionWidget):
         if initial_value:
             self.check_box.setChecked(initial_value)
 
-    def get_value(self):
+    def GetValue(self):
         return self.check_box.isChecked()
 
 class DropdownOptionWidget(OptionWidget):
@@ -73,14 +97,16 @@ class DropdownOptionWidget(OptionWidget):
         if initial_value:
             self.combo_box.setCurrentIndex(self.combo_box.findText(initial_value))
 
-    def get_value(self):
+    def GetValue(self):
         return self.combo_box.currentText()
 
 def CreateOptionWidget(key, initial_value, key_type):
     # Helper function to create an OptionWidget based on the specified type
     if isinstance(key_type, list):
         return DropdownOptionWidget(key, key_type, initial_value)
-    if key_type == str:
+    elif key_type == MULTILINE_OPTION:
+        return MultilineTextOptionWidget(key, initial_value)
+    elif key_type == str:
         return TextOptionWidget(key, initial_value)
     elif key_type == int:
         return IntegerOptionWidget(key, initial_value)
