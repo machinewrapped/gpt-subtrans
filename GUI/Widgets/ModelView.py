@@ -51,6 +51,9 @@ class ModelView(QWidget):
 
         self.content_view.actionRequested.connect(self.actionRequested)
 
+        self.scenes_view.onBatchEdited.connect(self._on_batch_edited)
+        self.scenes_view.onSceneEdited.connect(self._on_scene_edited)
+
     def SetDataModel(self, datamodel):
         self.SetViewModel(datamodel.viewmodel)
         self.SetProjectOptions(datamodel.options)
@@ -113,3 +116,16 @@ class ModelView(QWidget):
     def _lines_selected(self):
         selection : ProjectSelection = self.GetSelection()
         self.content_view.ShowSelection(selection)
+
+    def _on_scene_edited(self, scene_number, scene_model):
+        update = {
+            'summary' : scene_model.get('summary')
+        }
+        self.actionRequested.emit('Update Scene', (scene_number, update,))
+
+    def _on_batch_edited(self, scene, batch_number, batch_model):
+        update = {
+            'summary' : batch_model.get('summary')
+        }
+        self.actionRequested.emit('Update Batch', (scene, batch_number, update,))
+

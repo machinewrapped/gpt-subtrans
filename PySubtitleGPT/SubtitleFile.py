@@ -226,6 +226,22 @@ class SubtitleFile:
             self.scenes.append(scene)
             logging.debug("Added a new scene")
 
+    def UpdateScene(self, scene_number, update):
+        with self.lock:
+            scene : SubtitleScene = self.GetScene(scene_number)
+            if not scene:
+                raise Exception(f"Scene {scene_number} does not exist")
+            
+            return scene.UpdateContext(update)
+
+    def UpdateBatch(self, scene_number, batch_number, update):
+        with self.lock:
+            batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
+            if not batch:
+                raise Exception(f"Batch ({scene_number},{batch_number}) does not exist")
+            
+            return batch.UpdateContext(update)
+
     def MergeScenes(self, scene_numbers: list[int]):
         """
         Merge several (sequential) scenes into one scene 

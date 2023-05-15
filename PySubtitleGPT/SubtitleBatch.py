@@ -84,6 +84,23 @@ class SubtitleBatch:
     def SetContext(self, context):
         self.context = context.copy()
 
+    def UpdateContext(self, update) -> bool:
+        if not self.context:
+            self.context = {}
+
+        updated = False
+        for key in update.keys():
+            if key == 'summary':
+                if update[key] != self.summary:
+                    self.summary = update[key]
+                    updated = True
+
+            elif update[key] != self.context.get(key):
+                self.context[key] = update[key]
+                updated = True
+
+        return updated
+
     def PerformInputSubstitutions(self, substitutions):
         """
         Perform any word/phrase substitutions on source text

@@ -135,6 +135,9 @@ class SubtitleTranslator:
                 batches = scene.batches
 
             context = scene.context.copy()
+            if scene.summary:
+                context['scene'] = scene.summary
+
             self.TranslateBatches(batches, context, remaining_lines)
             scene.summary = context['summary'] or scene.summary
 
@@ -201,6 +204,7 @@ class SubtitleTranslator:
 
                     # Build summaries context
                     context['summaries'] = self.subtitles.GetBatchContext(batch.scene, batch.number, max_context_summaries)
+                    context['summary'] = batch.summary
 
                     # Ask OpenAI to do the translation
                     translation : ChatGPTTranslation = client.RequestTranslation(prompt, originals, context)

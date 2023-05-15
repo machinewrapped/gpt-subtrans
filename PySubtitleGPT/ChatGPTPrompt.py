@@ -14,8 +14,7 @@ class ChatGPTPrompt:
             self.messages.append({'role': "system", 'content': self.instructions})
 
         if context:
-            tags = ['synopsis', 'characters']
-            context_tags = GenerateTagLines(context, tags)
+            context_tags = GenerateTagLines(context, ['synopsis', 'characters'])
             if context_tags:
                 self.messages.append({'role': "user", 'content': context_tags})
 
@@ -31,7 +30,7 @@ class ChatGPTPrompt:
                 tags = ( GenerateTag('summary', summary) for summary in summaries )
                 self.messages.append({'role': "assistant", 'content': " ... ".join(tags)})
 
-            tag_lines = GenerateTagLines(context, ['summary'])
+            tag_lines = GenerateTagLines(context, ['scene', 'summary'])
 
             self.user_prompt = GenerateBatchPrompt(prompt, lines, tag_lines)
 
