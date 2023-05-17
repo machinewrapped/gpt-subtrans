@@ -1,8 +1,11 @@
+import datetime
 import os
 import logging
 import re
 import sys
 import srt
+
+from PySubtitleGPT.Options import Options
 
 def Linearise(lines):
     if not isinstance(lines, list):
@@ -40,11 +43,17 @@ def CreateSrtSubtitle(item):
     return item
 
 def GetTimeDelta(time):
+    if not time:
+        return None
+    
+    if isinstance(time, datetime.timedelta):
+        return time
+
     try:
         return srt.srt_timestamp_to_timedelta(str(time))
 
     except Exception as e:
-        time = str(time)
+        time = str(time).strip()
         parts = re.split('[:,]', time)
 
         if len(parts) == 3:
@@ -83,21 +92,6 @@ def GetOutputPath(filepath):
         basename = basename + "-ChatGPT"
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def GenerateBatchPrompt(prompt, lines, tag_lines=None):
-    """
-    Create the user prompt for translating a set of lines
-
-    :param tag_lines: optional list of extra lines to include at the top of the prompt.
-    """
-    source_lines = [ line.prompt for line in lines ]
-    source_text = '\n\n'.join(source_lines)
-    if tag_lines:
-        return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
-    elif prompt:
-        return f"{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
-    else:
-        return f"<batch>\n{source_text}\n</batch>\n"
-
 def GenerateTagLines(context, tags):
     """
     Create a user message for specifying a set of tags
@@ -118,7 +112,7 @@ def GenerateTag(tag, content):
 
     return f"<{tag}>{content}</{tag}>"
 
-def BuildPrompt(options):
+def BuildPrompt(options : Options):
     """
     Generate the base prompt to use for requesting translations
     """
@@ -177,12 +171,12 @@ def MergeTranslations(lines, translated):
     """
     Replace lines with corresponding lines in translated
     """
-    line_dict = {item.key: item for item in lines}
+    line_dict = {item.key: item for item in lines if item.key}
 
     for item in translated:
         line_dict[item.key] = item
 
-    lines = sorted(line_dict.values(), key=lambda item: item.start)
+    lines = sorted(line_dict.values(), key=lambda item: item.key)
 
     return lines
 
