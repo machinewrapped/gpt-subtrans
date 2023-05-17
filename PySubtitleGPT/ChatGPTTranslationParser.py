@@ -87,6 +87,12 @@ class ChatGPTTranslationParser:
                 translation.number = item.number
                 translation.start = item.start
                 translation.end = item.end
+
+                if translation.text == item.text:
+                    # Check for swapped original & translation
+                    translation.text = translation.original
+                    translation.original = item.text
+
                 item.translation = translation.text
             else:
                 item.translation = None
@@ -106,10 +112,17 @@ class ChatGPTTranslationParser:
         possible_matches : list[(SubtitleLine,SubtitleLine)] = []
         for item in unmatched:
             for translation in self.translations.values():
-                # A match on the original text is pretty compelling
-                if translation.original and translation.original == item.text:
-                    possible_matches.append(item, translation)
-                    continue
+                if translation.original:
+                    if translation.original == item.text:
+                        # A match on the original text is pretty compelling
+                        possible_matches.append(item, translation)
+                        continue
+                    elif translation.text == item.text:
+                        # GPT sometimes swaps the original and translated text - swap them back
+                        translation.text = translation.original
+                        translation.original = item.text
+                        possible_matches.append(item, translation)
+                        continue
 
                 # This is not very convincing logic but let's try it
                 if translation.start <= item.start and translation.end >= item.end:
@@ -117,7 +130,7 @@ class ChatGPTTranslationParser:
 
         if possible_matches:
             for item, translation in possible_matches:
-                logging.warn(f"Only found fuzzy match for line {item.number} in translations")
+                logging.warn(f"Found fuzzy match for line {item.number} in translations")
                 item.translation = f"#Fuzzy: {translation.text}"
                 #unmatched.remove(item)
 

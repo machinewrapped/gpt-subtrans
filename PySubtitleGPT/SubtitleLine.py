@@ -88,8 +88,8 @@ class SubtitleLine:
         end = GetTimeDelta(end)
         text = srt.make_legal_content(text) if text else None
         original = srt.make_legal_content(original) if original else None
-        item = srt.Subtitle(int(number), start, end, text, original)
-        return SubtitleLine(item) 
+        item = srt.Subtitle(int(number), start, end, text)
+        return SubtitleLine(item, original=original) 
     
     @classmethod
     def FromDictionary(cls, values):
@@ -100,7 +100,8 @@ class SubtitleLine:
             values.get('number') or values.get('index'), 
             values.get('start'), 
             values.get('end'), 
-            values.get('body'))
+            values.get('body'),
+            values.get('original'))
 
     @classmethod
     def FromMatch(cls, match):
