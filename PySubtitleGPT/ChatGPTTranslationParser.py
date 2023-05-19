@@ -8,7 +8,7 @@ from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 from PySubtitleGPT.SubtitleError import LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError, UntranslatedLinesError
 
 #template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
-template = re.compile(r"#(?P<number>\d+)[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?)[\s\r\n]Translation>[\s\r\n]+(?P<body>[\s\S]*?)(?:\n{2,})", re.MULTILINE)
+template = re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*Translation>[\s\r\n]+(?P<body>[\s\S]*?)(?:\n{2,})", re.MULTILINE)
 
 #TODO: update fallback patterns with start and end groups
 fallback_patterns = [
