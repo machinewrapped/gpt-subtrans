@@ -181,6 +181,7 @@ class MainWindow(QMainWindow):
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often? 
                 self.datamodel = command.datamodel
+                self.action_handler.datamodel = self.datamodel
                 self.model_viewer.SetDataModel(self.datamodel)
                 self.model_viewer.show()
 
