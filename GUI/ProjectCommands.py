@@ -178,13 +178,14 @@ class TranslateSceneCommand(Command):
             })
 
             for batch in scene.batches:
-                if not self.batch_numbers or batch.number in self.batch_numbers:
-                    self.datamodel_update[self.scene_number][batch.number] = {
-                        'summary' : batch.summary,
-                        'context' : batch.context,
-                        'errors' : batch.errors,
-                        'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
-                    }
+                if batch.translated:
+                    if not self.batch_numbers or batch.number in self.batch_numbers:
+                        self.datamodel_update[self.scene_number][batch.number] = {
+                            'summary' : batch.summary,
+                            'context' : batch.context,
+                            'errors' : batch.errors,
+                            'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
+                        }
 
         return True
     
