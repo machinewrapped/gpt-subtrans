@@ -61,7 +61,7 @@ class ChatGPTPrompt:
         source_lines = [ line.prompt for line in lines ]
         source_text = '\n\n'.join(source_lines)
         if tag_lines:
-            return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
+            return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n{source_text}\n\n"
         elif prompt:
             return f"{prompt}\n\n{source_text}\n"
         else:
