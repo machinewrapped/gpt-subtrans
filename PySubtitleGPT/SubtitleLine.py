@@ -58,7 +58,7 @@ class SubtitleLine:
 
     @property
     def line(self):
-        return self._item.to_srt() if self._item else None
+        return self._item.to_srt() if self._item and self._item.content else None
 
     @property
     def translated(self):

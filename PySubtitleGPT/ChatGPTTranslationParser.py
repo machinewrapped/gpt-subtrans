@@ -115,13 +115,13 @@ class ChatGPTTranslationParser:
                 if translation.original:
                     if IsTextContentEqual(translation.original, item.text):
                         # A match on the original text is pretty compelling
-                        possible_matches.append(item, translation)
+                        possible_matches.append((item, translation))
                         continue
                     elif IsTextContentEqual(translation.text, item.text):
                         # GPT sometimes swaps the original and translated text - swap them back
                         translation.text = translation.original
                         translation.original = item.text
-                        possible_matches.append(item, translation)
+                        possible_matches.append((item, translation))
                         continue
 
                     #TODO: check for merged lines
