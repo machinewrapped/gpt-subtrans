@@ -74,8 +74,7 @@ class SubtitleLine:
         return '\n'.join([
             f"#{self.number}",
             f"Original>",
-            self.text_normalized,
-            "#"
+            self.text_normalized
         ])
 
     @property
