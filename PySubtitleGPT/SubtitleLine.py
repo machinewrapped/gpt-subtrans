@@ -18,7 +18,7 @@ class SubtitleLine:
         return self.item.to_srt() if self.item else None
 
     def __repr__(self):
-        return f"Line({srt.timedelta_to_srt_timestamp(self.start) if self.start else '***'}, {repr(self.text)})"
+        return f"Line({srt.timedelta_to_srt_timestamp(self.start) if self.start else self.number}, {repr(self.text)})"
 
     @property
     def key(self):
@@ -83,11 +83,12 @@ class SubtitleLine:
 
     @classmethod
     def Construct(cls, number, start, end, text, original = None):
+        number = int(number) if number else None
         start = GetTimeDelta(start)
         end = GetTimeDelta(end)
         text = srt.make_legal_content(text) if text else None
         original = srt.make_legal_content(original) if original else None
-        item = srt.Subtitle(int(number), start, end, text)
+        item = srt.Subtitle(number, start, end, text)
         return SubtitleLine(item, original=original) 
     
     @classmethod
