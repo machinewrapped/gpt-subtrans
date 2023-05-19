@@ -2,7 +2,7 @@ import logging
 import re
 
 from PySubtitleGPT.Options import Options
-from PySubtitleGPT.Helpers import MergeTranslations
+from PySubtitleGPT.Helpers import IsTextContentEqual, MergeTranslations
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 from PySubtitleGPT.SubtitleError import LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError, UntranslatedLinesError
@@ -88,7 +88,7 @@ class ChatGPTTranslationParser:
                 translation.start = item.start
                 translation.end = item.end
 
-                if translation.text == item.text:
+                if IsTextContentEqual(translation.text, item.text):
                     # Check for swapped original & translation
                     translation.text = translation.original
                     translation.original = item.text
@@ -113,16 +113,18 @@ class ChatGPTTranslationParser:
         for item in unmatched:
             for translation in self.translations.values():
                 if translation.original:
-                    if translation.original == item.text:
+                    if IsTextContentEqual(translation.original, item.text):
                         # A match on the original text is pretty compelling
                         possible_matches.append(item, translation)
                         continue
-                    elif translation.text == item.text:
+                    elif IsTextContentEqual(translation.text, item.text):
                         # GPT sometimes swaps the original and translated text - swap them back
                         translation.text = translation.original
                         translation.original = item.text
                         possible_matches.append(item, translation)
                         continue
+
+                    #TODO: check for merged lines
 
                 # This is not very convincing logic but let's try it
                 if translation.start <= item.start and translation.end >= item.end:

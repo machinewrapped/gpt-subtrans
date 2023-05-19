@@ -1,8 +1,8 @@
 import datetime
 import os
 import logging
-import re
-import sys
+import regex
+import unicodedata
 import srt
 
 from PySubtitleGPT.Options import Options
@@ -54,7 +54,7 @@ def GetTimeDelta(time):
 
     except Exception as e:
         time = str(time).strip()
-        parts = re.split('[:,]', time)
+        parts = regex.split('[:,]', time)
 
         if len(parts) == 3:
             if len(parts[-1]) == 3:
@@ -164,7 +164,7 @@ def ExtractTagList(tagname, text):
     Look for an xml-like tag in the input text, and extract the contents as a comma or newline separated list.
     """
     text, tag = ExtractTag(tagname, text)
-    tag_list = [ item.strip() for item in re.split("[\n,]", tag) ] if tag else []
+    tag_list = [ item.strip() for item in regex.split("[\n,]", tag) ] if tag else []
     return text, tag_list
 
 def MergeTranslations(lines, translated):
@@ -202,7 +202,7 @@ def UnbatchScenes(scenes):
 
 def ParseCharacters(character_list):
     if isinstance(character_list, str):
-        character_list = re.split("[\n,]", character_list)
+        character_list = regex.split("[\n,]", character_list)
 
     if isinstance(character_list, list):
         return [ name.strip() for name in character_list ]
@@ -225,7 +225,7 @@ def ParseSubstitutions(sub_list, separator="::"):
         return sub_list
 
     if isinstance(sub_list, str):
-        sub_list = re.split("[\n,]", sub_list)
+        sub_list = regex.split("[\n,]", sub_list)
 
     if isinstance(sub_list, list):
         substitutions = {}
@@ -269,11 +269,25 @@ def PerformSubstitutions(substitutions, input):
 
     result = str(input)
     for before, after in substitutions.items():
-        pattern = fr"((?<=\W)|^){re.escape(before)}((?=\W)|$)"
-        result = re.sub(pattern, after, result)
+        pattern = fr"((?<=\W)|^){regex.escape(before)}((?=\W)|$)"
+        result = regex.sub(pattern, after, result)
         
     return result
 
+
+def RemoveWhitespaceAndPunctuation(string):
+    # Matches any punctuation, separator, or other Unicode character
+    pattern = r'[\p{P}\p{Z}\p{C}]'
+    stripped = regex.sub(pattern, '', string)
+
+    # Normalize Unicode characters to their canonical forms
+    normalized = unicodedata.normalize('NFC', stripped)
+    return normalized
+
+def IsTextContentEqual(string1 : str, string2 : str):
+    stripped1 = RemoveWhitespaceAndPunctuation(string1)
+    stripped2 = RemoveWhitespaceAndPunctuation(string2)
+    return stripped1 == stripped2
 
 def ParseDelayFromHeader(value : str):
     """
@@ -282,7 +296,7 @@ def ParseDelayFromHeader(value : str):
     if not isinstance(value, str):
         return 12.3
 
-    match = re.match(r"([0-9\.]+)(\w+)?", value)
+    match = regex.match(r"([0-9\.]+)(\w+)?", value)
     if not match:
         return 32.1
 
