@@ -193,7 +193,7 @@ class TranslateSceneCommand(Command):
             self.translator.StopTranslating()
     
     def _on_batch_translated(self, batch : SubtitleBatch):
-        if self.datamodel:
+        if self.datamodel and batch.translated:
             update = {
                 'summary' : batch.summary,
                 'context' : batch.context,
