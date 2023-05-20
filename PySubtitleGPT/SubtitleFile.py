@@ -86,7 +86,7 @@ class SubtitleFile:
             if scene.number == scene_number:
                 break
 
-            if scene.summary and scene.summary != last_summary and scene.summary != "New scene":
+            if scene.summary and scene.summary != last_summary:
                 context_lines.append(f"scene {scene.number}: {scene.summary}")
                 last_summary = scene.summary
 
@@ -97,7 +97,7 @@ class SubtitleFile:
             if batch.number == batch_number:
                 break
 
-            if batch.summary and batch.summary != last_summary and batch.summary != "New scene":
+            if batch.summary and batch.summary != last_summary:
                 context_lines.append(f"scene {batch.scene} batch {batch.number}: {batch.summary}")
                 last_summary = batch.summary
 
@@ -105,7 +105,6 @@ class SubtitleFile:
             context_lines = context_lines[-max_lines:]
 
         return context_lines
-
 
     def LoadSubtitles(self, filepath : str = None):
         """

@@ -11,7 +11,7 @@ class ChatGPTTranslation:
         self.completion_tokens = response.get('completion_tokens') if response else None
         self.total_tokens = response.get('total_tokens') if response else None
 
-        self._text, self.summary, self.synopsis, self.characters = ParseTranslation(self.text or "")
+        self._text, self.context = ParseTranslation(self.text or "")
 
     @property
     def text(self):
@@ -24,6 +24,26 @@ class ChatGPTTranslation:
     @property
     def user_prompt(self):
         return self.prompt.user_prompt if self.prompt else None
+    
+    @property
+    def summary(self):
+        return self.context.get('summary') if self.context else None
+
+    @property
+    def summary(self):
+        return self.context.get('summary') if self.context else None
+
+    @property
+    def scene(self):
+        return self.context.get('scene') if self.context else None
+
+    @property
+    def synopsis(self):
+        return self.context.get('synopsis') if self.context else None
+
+    @property
+    def characters(self):
+        return self.context.get('characters') if self.context else None
 
     @property
     def reached_token_limit(self):
@@ -40,10 +60,12 @@ class ChatGPTTranslation:
         Does NOT apply them to the translation text. 
         """
         if self.summary:
-            self.summary = PerformSubstitutions(substitutions, self.summary)
+            self.context['summary'] = PerformSubstitutions(substitutions, self.summary)
+        if self.scene:
+            self.context['scene'] = PerformSubstitutions(substitutions, self.scene)
         if self.characters:
-            self.characters, _ = PerformSubstitutions(substitutions, self.characters)
+            self.context['characters'], _ = PerformSubstitutions(substitutions, self.characters)
         if self.synopsis:
-            self.synopsis = PerformSubstitutions(substitutions, self.synopsis)
+            self.context['synopsis'] = PerformSubstitutions(substitutions, self.synopsis)
 
 

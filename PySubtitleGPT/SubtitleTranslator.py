@@ -140,7 +140,7 @@ class SubtitleTranslator:
 
             self.TranslateBatches(batches, context, remaining_lines)
 
-            scene.summary = scene.summary or context['summary']
+            scene.summary = scene.summary or context.get('scene') or context.get('summary')
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
@@ -171,7 +171,6 @@ class SubtitleTranslator:
 
             if options.get('resume') and batch.all_translated:
                 logging.info(f"Scene {batch.scene} batch {batch.number} already translated {batch.size} lines...")
-                summaries = self.AddBatchToContext(context, batch, summaries)
                 continue
 
             if batch.context and (options.get('retranslate') or options.get('reparse')):
@@ -313,8 +312,10 @@ class SubtitleTranslator:
 
             # Update the context, unless it's a retranslation pass
             if not options.get('retranslate'):
-                batch.summary = translation.summary or batch.summary
+                if translation.summary:
+                    batch.summary = translation.summary
                 context['summary'] = batch.summary or context.get('summary')
+                context['scene'] = translation.scene or context.get('scene') 
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
                 #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
 

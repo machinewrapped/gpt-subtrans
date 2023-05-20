@@ -99,7 +99,7 @@ def GenerateTagLines(context, tags):
     :param context: dictionary of tag, value pairs
     :param tags: list of tags to extract from the context.
     """
-    tag_lines = [ GenerateTag(tag, context.get(tag,'')) for tag in tags ]
+    tag_lines = [ GenerateTag(tag, context.get(tag,'')) for tag in tags if context.get(tag) ]
 
     if tag_lines:
         return '\n'.join([tag.strip() for tag in tag_lines if tag.strip()])
@@ -130,9 +130,17 @@ def ParseTranslation(text):
     """
     text, summary = ExtractTag("summary", text)
     text, synopsis = ExtractTag("synopsis", text)
+    text, scene = ExtractTag("scene", text)
     text, characters = ExtractTagList("characters", text)
 
-    return text, summary, synopsis, characters
+    context = {
+        'summary': summary,
+        'scene': scene,
+        'synopsis': synopsis,
+        'characters': characters
+    }
+
+    return text, context 
 
 def ExtractTag(tagname, text):
     """

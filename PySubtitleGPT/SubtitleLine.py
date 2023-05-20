@@ -65,17 +65,6 @@ class SubtitleLine:
         if not self._item or not self.translation:
             return None 
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
-    
-    @property
-    def prompt(self):
-        if not self._item:
-            return None
-        
-        return '\n'.join([
-            f"#{self.number}",
-            f"Original>",
-            self.text_normalized
-        ])
 
     @property
     def item(self):

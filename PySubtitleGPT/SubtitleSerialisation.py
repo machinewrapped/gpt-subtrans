@@ -134,9 +134,12 @@ class SubtitleDecoder(json.JSONDecoder):
                     response['text'] = '\n'.join(response['text'])
 
                 obj = ChatGPTTranslation(response, dct.get('prompt'))
-                obj.summary = dct.get('summary', None)
-                obj.synopsis = dct.get('synopsis', None)
-                obj.characters = dct.get('characters', None)
+                obj.context = {
+                    'summary': dct.get('summary', None),
+                    'scene': dct.get('scene', None),
+                    'synopsis': dct.get('synopsis', None),
+                    'characters': dct.get('characters', None),
+                }
                 return obj
             elif class_name == classname(ChatGPTPrompt):
                 obj = ChatGPTPrompt(dct.get('instructions'))

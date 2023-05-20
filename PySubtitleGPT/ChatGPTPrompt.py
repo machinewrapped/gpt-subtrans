@@ -21,8 +21,7 @@ class ChatGPTPrompt:
 
             summaries = context.get('summaries')
             if summaries:
-                tags = ( GenerateTag('summary', summary) for summary in summaries )
-                self.messages.append({'role': "assistant", 'content': " ... ".join(tags)})
+                self.messages.append({'role': "system", 'content': 'n'.join(summaries)})
 
             tag_lines = GenerateTagLines(context, ['scene', 'summary'])
 
@@ -58,8 +57,9 @@ class ChatGPTPrompt:
 
         :param tag_lines: optional list of extra lines to include at the top of the prompt.
         """
-        source_lines = [ line.prompt for line in lines ]
+        source_lines = [ self.GetLinePrompt(line) for line in lines ]
         source_text = '\n\n'.join(source_lines)
+
         if tag_lines:
             return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n{source_text}\n\n"
         elif prompt:
@@ -67,4 +67,14 @@ class ChatGPTPrompt:
         else:
             return f"\n{source_text}\n"
 
+    def GetLinePrompt(self, line):
+        if not line._item:
+            return None
+        
+        return '\n'.join([
+            f"#{line.number}",
+            "Original>",
+            line.text_normalized,
+            "Translation>"
+        ])
 
