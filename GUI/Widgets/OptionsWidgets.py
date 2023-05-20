@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
 
 MULTILINE_OPTION = 'multiline'
@@ -34,16 +36,13 @@ class TextOptionWidget(OptionWidget):
 class MultilineTextOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):
         super(MultilineTextOptionWidget, self).__init__(key, initial_value)
-        if isinstance(initial_value, list):
-            initial_value = '\n'.join(str(x) for x in initial_value)
-        elif isinstance(initial_value, dict):
-            initial_value = json.dumps(initial_value, ensure_ascii=False, indent=2, sort_keys=True)
+        content = self._get_content(initial_value)
 
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.text_field = QTextEdit(self)
         self.text_field.setAcceptRichText(False)
-        self.text_field.setPlainText(initial_value)
+        self.text_field.setPlainText(content)
         self.text_field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         self.layout.addWidget(self.text_field)
 
@@ -52,6 +51,28 @@ class MultilineTextOptionWidget(OptionWidget):
     
     def SetReadOnly(self, is_read_only : bool):
         self.text_field.setReadOnly(is_read_only)
+
+    def _get_content(self, value):
+        """
+        Convert a value to a human-readable string
+        """
+        if isinstance(value, str):
+            return value.replace('\\n', '\n')
+        elif isinstance(value, list):
+            return '\n'.join(self._get_content(x) for x in value)
+        elif isinstance(value, dict):
+            jsonstring = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
+            return self._get_content(jsonstring)
+        elif isinstance(value, (int, float)):
+            return f'{value:,}'  # Format number with commas
+        elif isinstance(value, datetime):
+            return value.strftime('%Y-%m-%d %H:%M:%S')  # Format date
+        elif value is None:
+            return ''  # Return empty string for None
+        else:
+            return str(value)
+
+
 
 class IntegerOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):

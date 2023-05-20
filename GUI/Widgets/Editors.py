@@ -1,5 +1,6 @@
 import os
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QFormLayout)
+from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QLabel, QDialogButtonBox, QTabWidget, QWidget, )
+
 from GUI.ProjectViewModel import BatchItem, SceneItem
 
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
@@ -9,7 +10,7 @@ class EditDialog(QDialog):
         super().__init__(parent)
         self.model = model
         self.editors = {}
-        self.setMinimumWidth(512)
+        self.setMinimumWidth(800)
 
         self.layout = QVBoxLayout(self)
 
@@ -17,13 +18,10 @@ class EditDialog(QDialog):
             self.setWindowTitle(title)
             self.layout.addWidget(QLabel(title))
 
-        self.form_layout = QFormLayout()
-        self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        # Subclass populates the editor widget
+        editor_widget = self.CreateEditor()
 
-        # Subclass populates the form
-        self.CreateForm()
-
-        self.layout.addLayout(self.form_layout)
+        self.layout.addWidget(editor_widget)
 
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.buttonBox.accepted.connect(self.accept)
@@ -31,7 +29,17 @@ class EditDialog(QDialog):
 
         self.layout.addWidget(self.buttonBox)
 
-    def AddMultilineEdit(self, key : str, read_only=False):
+    def GetFormLayout(self):
+        layout = QFormLayout()
+        layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        return layout
+
+    def SetTabLayout(self, tab_widget : QTabWidget, layout, title : str):
+        widget = QWidget()
+        widget.setLayout(layout)
+        tab_widget.addTab(widget, title)
+
+    def AddMultilineEdit(self, form_layout : QFormLayout, key : str, read_only=False):
         """
         Add an editable field supporting multiline plaintext, optionally making it read-only
         """
@@ -39,8 +47,8 @@ class EditDialog(QDialog):
         if read_only:
             editor.SetReadOnly(True)
 
+        form_layout.addRow(editor.key, editor)
         self.editors[key] = editor
-        self.form_layout.addRow(editor.key, editor)
 
     def UpdateModelFromEditor(self, key):
         """
@@ -48,7 +56,7 @@ class EditDialog(QDialog):
         """
         self.model[key] = self.editors[key].GetValue()
 
-    def CreateForm(self):
+    def CreateEditor(self):
         """
         Subclasses should override this method to add editable fields to the form layout
         """
@@ -69,8 +77,14 @@ class EditSceneDialog(EditDialog):
         self.item = item
         super().__init__(item.scene_model, parent, title=f"Scene {item.number}")
 
-    def CreateForm(self):
-        self.AddMultilineEdit('summary')
+    def CreateEditor(self) -> QWidget:
+        form_layout = self.GetFormLayout()
+        self.AddMultilineEdit(form_layout, 'summary')
+
+        # Create widget, set layout, and return
+        editor_widget = QWidget()
+        editor_widget.setLayout(form_layout)
+        return editor_widget
 
     def UpdateModel(self):
         self.UpdateModelFromEditor('summary')
@@ -80,12 +94,33 @@ class EditBatchDialog(EditDialog):
         self.item = item
         super().__init__(item.batch_model, parent, title=f"Scene {item.scene} Batch {item.number}")
 
-    def CreateForm(self):
-        self.AddMultilineEdit('summary')
+    def CreateEditor(self):
+        # Create tab widget
+        tab_widget = QTabWidget()
 
+        # Create "Summary" tab
+        summary_layout = self.GetFormLayout()
+        self.AddMultilineEdit(summary_layout, 'summary')
+        self.SetTabLayout(tab_widget, summary_layout, "Summary")
+
+        # Create "Response" tab if item has a response
+        if self.item.response:
+            response_layout = self.GetFormLayout()
+            self.AddMultilineEdit(response_layout, 'response', read_only=True)
+            if self.item.has_errors:
+                self.AddMultilineEdit(response_layout, 'errors', read_only=True)
+
+            self.SetTabLayout(tab_widget, response_layout, "Response")
+
+        # Create "Debug" tab if DEBUG_MODE environment var is set
         if os.environ.get("DEBUG_MODE") == "1":
-            self.AddMultilineEdit('context', read_only=True)
-            self.AddMultilineEdit('errors', read_only=True)
+            debug_layout = self.GetFormLayout()
+            self.AddMultilineEdit(debug_layout, 'messages', read_only=True)
+            self.AddMultilineEdit(debug_layout, 'context', read_only=True)
+            self.SetTabLayout(tab_widget, debug_layout, "Debug")
+
+
+        return tab_widget
 
     def UpdateModel(self):
         self.UpdateModelFromEditor('summary')

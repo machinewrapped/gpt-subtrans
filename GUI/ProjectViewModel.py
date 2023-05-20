@@ -1,4 +1,5 @@
 import logging
+import os
 from PySide6.QtCore import Qt
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
@@ -194,9 +195,16 @@ class BatchItem(ViewModelItem):
             'start': batch.srt_start,
             'end': batch.srt_end,
             'summary': batch.summary,
-            'context': batch.context,
             'errors': self._get_errors(batch.errors)
         }
+
+        if batch.translation and os.environ.get("DEBUG_MODE") == "1":
+            self.batch_model.update({
+                'response': batch.translation.text,
+                'messages': batch.translation.prompt.messages,
+                'context': batch.context
+            })
+
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
     def AddLineItem(self, is_translation : bool, line_number : int, model : dict):
@@ -235,6 +243,10 @@ class BatchItem(ViewModelItem):
     @property
     def summary(self):
         return self.batch_model.get('summary')
+    
+    @property
+    def response(self):
+        return self.batch_model.get('response')
     
     @property
     def has_errors(self):
