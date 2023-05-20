@@ -21,7 +21,7 @@ class ChatGPTPrompt:
 
             summaries = context.get('summaries')
             if summaries:
-                self.messages.append({'role': "system", 'content': 'n'.join(summaries)})
+                self.messages.append({'role': "user", 'content': 'n'.join(summaries)})
 
             tag_lines = GenerateTagLines(context, ['scene', 'summary'])
 
