@@ -224,7 +224,11 @@ class SubtitleTranslator:
                             raise TranslationError(f"Too many tokens in translation", translation)
 
                 if translation:
+                    translation.ParseResponse()
+
                     batch.translation = translation
+                    batch.AddContext('summary', context.get('summary'))
+                    batch.AddContext('summaries', context.get('summaries'))
 
                     # Process the response
                     self.ProcessTranslation(batch, context, client)
@@ -315,7 +319,7 @@ class SubtitleTranslator:
                 if translation.summary:
                     batch.summary = translation.summary
                 context['summary'] = batch.summary or context.get('summary')
-                context['scene'] = translation.scene or context.get('scene') 
+                context['scene'] = translation.scene or context.get('scene')
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
                 #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
 

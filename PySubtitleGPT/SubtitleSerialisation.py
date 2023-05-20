@@ -68,7 +68,8 @@ class SubtitleEncoder(json.JSONEncoder):
                 "originals": obj._originals,
                 "translated": obj._translated,
                 "context": {
-                    "summary": obj.context.get('summary')
+                    "summary": obj.context.get('summary'),
+                    "summaries": obj.context.get('summaries')
                 },
                 "translation": obj.translation
             }

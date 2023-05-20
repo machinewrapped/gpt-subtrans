@@ -1,5 +1,5 @@
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.Helpers import ParseTranslation, PerformSubstitutions
+from PySubtitleGPT.Helpers import GenerateTagLines, ParseTranslation, PerformSubstitutions
 
 class ChatGPTTranslation:
     def __init__(self, response, prompt : ChatGPTPrompt):
@@ -10,8 +10,10 @@ class ChatGPTTranslation:
         self.prompt_tokens = response.get('prompt_tokens') if response else None
         self.completion_tokens = response.get('completion_tokens') if response else None
         self.total_tokens = response.get('total_tokens') if response else None
+        self.context = None
 
-        self._text, self.context = ParseTranslation(self.text or "")
+    def ParseResponse(self):
+        self._text, self.context = ParseTranslation(self.full_text or "")
 
     @property
     def text(self):
@@ -30,10 +32,6 @@ class ChatGPTTranslation:
         return self.context.get('summary') if self.context else None
 
     @property
-    def summary(self):
-        return self.context.get('summary') if self.context else None
-
-    @property
     def scene(self):
         return self.context.get('scene') if self.context else None
 
@@ -44,6 +42,11 @@ class ChatGPTTranslation:
     @property
     def characters(self):
         return self.context.get('characters') if self.context else None
+    
+    @property
+    def full_text(self):
+        tag_lines = GenerateTagLines(self.context, ['summary', 'scene', 'synopsis', 'characters']) if self.context else None
+        return f"{tag_lines}\n\n{self._text}" if tag_lines else self._text
 
     @property
     def reached_token_limit(self):
