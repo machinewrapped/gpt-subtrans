@@ -297,6 +297,8 @@ class SubtitleFile:
                     batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
                     batch.MergeLines(original_lines, translated_lines)
 
+        self.Renumber()
+
     def Renumber(self):
         """
         Force monotonic numbering of scenes, batches, lines and translated lines
