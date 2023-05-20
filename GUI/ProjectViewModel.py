@@ -103,8 +103,8 @@ class ProjectViewModel(QStandardItemModel):
         return True
 
     def UpdateBatch(self, scene_number, batch_number, batch_update):
-        scene_item = self.model.get(scene_number)
-        batch_item = scene_item.batches[batch_number] if scene_number else None
+        scene_item : SceneItem = self.model.get(scene_number)
+        batch_item : BatchItem = scene_item.batches[batch_number] if scene_number else None
         if not batch_item:
             logging.error(f"Model update for unknown batch, scene {scene_number} batch {batch_number}")
             return False
@@ -254,8 +254,16 @@ class BatchItem(ViewModelItem):
 
     def Update(self, update : dict):
         UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])
+
         if 'errors' in update.keys():
             self.batch_model['errors'] = self._get_errors(update['errors'])
+
+        if 'translation' in update.keys() and os.environ.get("DEBUG_MODE") == "1":
+            translation = update['translation']
+            self.batch_model.update({
+                'response': translation.text,
+                'messages': translation.prompt.messages
+            })
     
     def GetContent(self):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \

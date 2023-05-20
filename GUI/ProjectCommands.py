@@ -184,6 +184,7 @@ class TranslateSceneCommand(Command):
                             'summary' : batch.summary,
                             'context' : batch.context,
                             'errors' : batch.errors,
+                            'translation': batch.translation,
                             'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
                         }
 
