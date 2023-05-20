@@ -100,7 +100,7 @@ class SubtitleLine:
             values.get('number') or values.get('index'), 
             values.get('start'), 
             values.get('end'), 
-            values.get('body'),
+            values.get('body') or values.get('original'),
             values.get('original'))
 
     @classmethod
