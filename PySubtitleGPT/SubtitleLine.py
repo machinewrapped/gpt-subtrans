@@ -9,27 +9,32 @@ class SubtitleLine:
     Represents a single line, with a number and start and end times plus original text 
     and (optionally) an associated translation.
     """
-    def __init__(self, line, translation=None):
+    def __init__(self, line, translation=None, original=None):
         self.item = line or srt.Subtitle()
         self.translation = translation
+        self.original = original
     
     def __str__(self):
         return self.item.to_srt() if self.item else None
 
     def __repr__(self):
-        return f"Line({srt.timedelta_to_srt_timestamp(self.start) if self.start else '***'}, {repr(self.text)})"
+        return f"Line({srt.timedelta_to_srt_timestamp(self.start) if self.start else self.number}, {repr(self.text)})"
 
     @property
     def key(self):
-        return str(self.start) if self.start else self.number
+        return self.number if self.number else str(self.start)
 
     @property
-    def number(self):
+    def number(self) -> int:
         return self._item.index if self._item else None
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self._item.content if self._item else None
+    
+    @property
+    def text_normalized(self) -> str:
+        return self.text.replace(linesep, '\n') if self.text else None
 
     @property
     def start(self) -> timedelta:
@@ -37,7 +42,7 @@ class SubtitleLine:
     
     @property
     def srt_start(self) -> str:
-        return srt.timedelta_to_srt_timestamp(self._item.start) if self._item else None
+        return srt.timedelta_to_srt_timestamp(self.start) if self.start else None
     
     @property
     def end(self) -> timedelta:
@@ -45,7 +50,7 @@ class SubtitleLine:
     
     @property
     def srt_end(self) -> str:
-        return srt.timedelta_to_srt_timestamp(self._item.end) if self._item else None
+        return srt.timedelta_to_srt_timestamp(self.end) if self.end else None
     
     @property
     def duration(self) -> timedelta:
@@ -53,7 +58,7 @@ class SubtitleLine:
 
     @property
     def line(self):
-        return self._item.to_srt() if self._item else None
+        return self._item.to_srt() if self._item and self._item.content else None
 
     @property
     def translated(self):
@@ -67,9 +72,9 @@ class SubtitleLine:
             return None
         
         return '\n'.join([
-            f"<original start='{self.srt_start}' end='{self.srt_end}'>",
-            self.text.replace(linesep, '\n'),
-            f"</original>"
+            f"#{self.number}",
+            f"Original>",
+            self.text_normalized
         ])
 
     @property
@@ -77,12 +82,14 @@ class SubtitleLine:
         return self._item
 
     @classmethod
-    def Construct(cls, number, start, end, text):
+    def Construct(cls, number, start, end, text, original = None):
+        number = int(number) if number else None
         start = GetTimeDelta(start)
         end = GetTimeDelta(end)
-        text = srt.make_legal_content(text)
+        text = srt.make_legal_content(text) if text else None
+        original = srt.make_legal_content(original) if original else None
         item = srt.Subtitle(number, start, end, text)
-        return SubtitleLine(item) 
+        return SubtitleLine(item, original=original) 
     
     @classmethod
     def FromDictionary(cls, values):
@@ -91,9 +98,10 @@ class SubtitleLine:
         """
         return SubtitleLine.Construct(
             values.get('number') or values.get('index'), 
-            values['start'].strip(), 
-            values['end'].strip(), 
-            values['body'].strip())
+            values.get('start'), 
+            values.get('end'), 
+            values.get('body'),
+            values.get('original'))
 
     @classmethod
     def FromMatch(cls, match):

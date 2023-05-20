@@ -139,7 +139,8 @@ class SubtitleTranslator:
                 context['scene'] = scene.summary
 
             self.TranslateBatches(batches, context, remaining_lines)
-            scene.summary = context['summary'] or scene.summary
+
+            scene.summary = scene.summary or context['summary']
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)

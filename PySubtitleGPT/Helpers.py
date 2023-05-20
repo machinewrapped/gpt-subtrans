@@ -1,8 +1,11 @@
+import datetime
 import os
 import logging
-import re
-import sys
+import regex
+import unicodedata
 import srt
+
+from PySubtitleGPT.Options import Options
 
 def Linearise(lines):
     if not isinstance(lines, list):
@@ -40,12 +43,18 @@ def CreateSrtSubtitle(item):
     return item
 
 def GetTimeDelta(time):
+    if not time:
+        return None
+    
+    if isinstance(time, datetime.timedelta):
+        return time
+
     try:
         return srt.srt_timestamp_to_timedelta(str(time))
 
     except Exception as e:
-        time = str(time)
-        parts = re.split('[:,]', time)
+        time = str(time).strip()
+        parts = regex.split('[:,]', time)
 
         if len(parts) == 3:
             if len(parts[-1]) == 3:
@@ -83,21 +92,6 @@ def GetOutputPath(filepath):
         basename = basename + "-ChatGPT"
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def GenerateBatchPrompt(prompt, lines, tag_lines=None):
-    """
-    Create the user prompt for translating a set of lines
-
-    :param tag_lines: optional list of extra lines to include at the top of the prompt.
-    """
-    source_lines = [ line.prompt for line in lines ]
-    source_text = '\n\n'.join(source_lines)
-    if tag_lines:
-        return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
-    elif prompt:
-        return f"{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
-    else:
-        return f"<batch>\n{source_text}\n</batch>\n"
-
 def GenerateTagLines(context, tags):
     """
     Create a user message for specifying a set of tags
@@ -118,7 +112,7 @@ def GenerateTag(tag, content):
 
     return f"<{tag}>{content}</{tag}>"
 
-def BuildPrompt(options):
+def BuildPrompt(options : Options):
     """
     Generate the base prompt to use for requesting translations
     """
@@ -170,19 +164,19 @@ def ExtractTagList(tagname, text):
     Look for an xml-like tag in the input text, and extract the contents as a comma or newline separated list.
     """
     text, tag = ExtractTag(tagname, text)
-    tag_list = [ item.strip() for item in re.split("[\n,]", tag) ] if tag else []
+    tag_list = [ item.strip() for item in regex.split("[\n,]", tag) ] if tag else []
     return text, tag_list
 
 def MergeTranslations(lines, translated):
     """
     Replace lines with corresponding lines in translated
     """
-    line_dict = {item.key: item for item in lines}
+    line_dict = {item.key: item for item in lines if item.key}
 
     for item in translated:
         line_dict[item.key] = item
 
-    lines = sorted(line_dict.values(), key=lambda item: item.start)
+    lines = sorted(line_dict.values(), key=lambda item: item.key)
 
     return lines
 
@@ -208,7 +202,7 @@ def UnbatchScenes(scenes):
 
 def ParseCharacters(character_list):
     if isinstance(character_list, str):
-        character_list = re.split("[\n,]", character_list)
+        character_list = regex.split("[\n,]", character_list)
 
     if isinstance(character_list, list):
         return [ name.strip() for name in character_list ]
@@ -231,7 +225,7 @@ def ParseSubstitutions(sub_list, separator="::"):
         return sub_list
 
     if isinstance(sub_list, str):
-        sub_list = re.split("[\n,]", sub_list)
+        sub_list = regex.split("[\n,]", sub_list)
 
     if isinstance(sub_list, list):
         substitutions = {}
@@ -275,8 +269,50 @@ def PerformSubstitutions(substitutions, input):
 
     result = str(input)
     for before, after in substitutions.items():
-        pattern = fr"((?<=\W)|^){re.escape(before)}((?=\W)|$)"
-        result = re.sub(pattern, after, result)
+        pattern = fr"((?<=\W)|^){regex.escape(before)}((?=\W)|$)"
+        result = regex.sub(pattern, after, result)
         
     return result
 
+
+def RemoveWhitespaceAndPunctuation(string):
+    # Matches any punctuation, separator, or other Unicode character
+    pattern = r'[\p{P}\p{Z}\p{C}]'
+    stripped = regex.sub(pattern, '', string)
+
+    # Normalize Unicode characters to their canonical forms
+    normalized = unicodedata.normalize('NFC', stripped)
+    return normalized
+
+def IsTextContentEqual(string1 : str, string2 : str):
+    stripped1 = RemoveWhitespaceAndPunctuation(string1)
+    stripped2 = RemoveWhitespaceAndPunctuation(string2)
+    return stripped1 == stripped2
+
+def ParseDelayFromHeader(value : str):
+    """
+    Try to figure out how long a suggested retry-after is
+    """
+    if not isinstance(value, str):
+        return 12.3
+
+    match = regex.match(r"([0-9\.]+)(\w+)?", value)
+    if not match:
+        return 32.1
+
+    try:
+        delay, unit = match.groups()
+        delay = float(delay)
+        unit = unit.lower() if unit else 's'
+        if unit == 's':
+            pass
+        elif unit == 'm':
+            delay *= 60
+        elif unit == 'ms':
+            delay /= 1000
+
+        return max(1, delay)  # ensure at least 1 second
+
+    except Exception as e:
+        logging.error(f"Unexpected time value '{value}'")
+        return 6.66

@@ -1,7 +1,8 @@
 import logging
 
-from PySubtitleGPT.Helpers import GenerateTag, GenerateTagLines, GenerateBatchPrompt
+from PySubtitleGPT.Helpers import GenerateTag, GenerateTagLines
 from PySubtitleGPT.SubtitleError import TranslationError
+from PySubtitleGPT.SubtitleLine import SubtitleLine
 
 class ChatGPTPrompt:
     def __init__(self, instructions):
@@ -18,13 +19,6 @@ class ChatGPTPrompt:
             if context_tags:
                 self.messages.append({'role': "user", 'content': context_tags})
 
-            # previous_batch = context.get('previous_batch')
-            # if previous_batch:
-            #     previous_originals = previous_batch.originals
-            #     previous_lines = [ line.prompt for line in previous_originals ]
-            #     user_previous = linesep.join(previous_lines)
-            #     self.messages.append({'role': "assistant", 'content': user_previous})
-
             summaries = context.get('summaries')
             if summaries:
                 tags = ( GenerateTag('summary', summary) for summary in summaries )
@@ -32,10 +26,10 @@ class ChatGPTPrompt:
 
             tag_lines = GenerateTagLines(context, ['scene', 'summary'])
 
-            self.user_prompt = GenerateBatchPrompt(prompt, lines, tag_lines)
+            self.user_prompt = self.GenerateBatchPrompt(prompt, lines, tag_lines)
 
         else:
-            self.user_prompt = GenerateBatchPrompt(prompt, lines)
+            self.user_prompt = self.GenerateBatchPrompt(prompt, lines)
 
         self.messages.append({'role': "user", 'content': self.user_prompt})
 
@@ -57,5 +51,20 @@ class ChatGPTPrompt:
             { 'role': "system", 'content': retry_instructions },
             { 'role': "user", 'content': retry_prompt }
         ])
+
+    def GenerateBatchPrompt(self, prompt : str, lines : list[SubtitleLine], tag_lines=None):
+        """
+        Create the user prompt for translating a set of lines
+
+        :param tag_lines: optional list of extra lines to include at the top of the prompt.
+        """
+        source_lines = [ line.prompt for line in lines ]
+        source_text = '\n\n'.join(source_lines)
+        if tag_lines:
+            return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n{source_text}\n\n"
+        elif prompt:
+            return f"{prompt}\n\n{source_text}\n"
+        else:
+            return f"\n{source_text}\n"
 
 

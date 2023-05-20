@@ -39,7 +39,9 @@ class ProjectActions(QObject):
 
     def __init__(self, mainwindow : QMainWindow = None):
         super().__init__()
+        # TODO: add a proxy interface for ProjectActions to communicate with the main window
         self._mainwindow = mainwindow
+        self.datamodel = mainwindow.project.datamodel if mainwindow.project else None
         self.AddAction('Quit', self._quit, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
         self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project')
@@ -150,7 +152,8 @@ class ProjectActions(QObject):
         if not datamodel.project.subtitles.scenes:
             raise ActionError("Subtitles have not been batched")
 
-    def _start_translating(self, datamodel : ProjectDataModel):
+    def _start_translating(self):
+        datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel(datamodel)
 
         if datamodel.project.needsupdate:
@@ -159,7 +162,8 @@ class ProjectActions(QObject):
         if self._check_api_key():
             self._issue_command(ResumeTranslationCommand(multithreaded=False))
 
-    def _start_translating_fast(self, datamodel : ProjectDataModel):
+    def _start_translating_fast(self):
+        datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel(datamodel)
 
         if datamodel.project.needsupdate:

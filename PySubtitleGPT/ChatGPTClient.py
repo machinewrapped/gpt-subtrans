@@ -5,6 +5,7 @@ import openai.error
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitleGPT.Helpers import ParseDelayFromHeader
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
 
@@ -121,7 +122,7 @@ class ChatGPTClient:
             except openai.error.RateLimitError as e:
                 retry_after = e.headers.get('x-ratelimit-reset-requests') or e.headers.get('Retry-After')
                 if retry_after:
-                    retry_seconds = float(retry_after.rstrip("s"))
+                    retry_seconds = ParseDelayFromHeader(retry_after)
                     logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
                     time.sleep(retry_seconds)
                     continue
