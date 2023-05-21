@@ -72,6 +72,20 @@ class ProjectViewModel(QStandardItemModel):
                 })
 
         return batch_item
+    
+    def GetLineItem(self, line_number, get_translated):
+        if line_number and self.model:
+            for scene_item in self.model.values():
+                for batch_item in scene_item.batches.values():
+                    if batch_item.first_line_number > line_number:
+                        return None
+                    
+                    if batch_item.last_line_number >= line_number:
+                        lines = batch_item.translated if get_translated else batch_item.originals
+                        if lines:
+                            for line_item in lines.values():
+                                if line_item.number == line_number:
+                                    return line_item
 
     def UpdateModel(self, update):
         """
@@ -250,6 +264,14 @@ class BatchItem(ViewModelItem):
     def response(self):
         return self.batch_model.get('response')
     
+    @property
+    def first_line_number(self):
+        return min(self.originals.keys()) if self.originals else None
+
+    @property
+    def last_line_number(self):
+        return max(self.originals.keys()) if self.originals else None    
+
     @property
     def has_errors(self):
         return True if self.batch_model.get('errors') else False

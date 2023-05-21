@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QLabel, QDialogButtonBox, QTabWidget, QWidget, )
 
-from GUI.ProjectViewModel import BatchItem, SceneItem
+from GUI.ProjectViewModel import BatchItem, LineItem, SceneItem
 
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
@@ -124,3 +124,29 @@ class EditBatchDialog(EditDialog):
 
     def UpdateModel(self):
         self.UpdateModelFromEditor('summary')
+
+
+class EditSubtitleDialog(EditDialog):
+    def __init__(self, original : LineItem, translated : LineItem, parent=None) -> None:
+        self.original = original
+        self.translated = translated
+        self.number = self.original.number if original else self.translated.number
+        self.model = {
+            'original_text' : original.text if original else "",
+            'translated_text'  : translated.text if translated else ""
+        }
+        super().__init__(self.model, parent, title=f"Line {self.number}")
+
+    def CreateEditor(self) -> QWidget:
+        form_layout = self.GetFormLayout()
+        self.AddMultilineEdit(form_layout, 'original_text')
+        self.AddMultilineEdit(form_layout, 'translated_text')
+
+        editor_widget = QWidget()
+        editor_widget.setLayout(form_layout)
+        return editor_widget
+
+    def UpdateModel(self):
+        self.UpdateModelFromEditor('original_text')
+        self.UpdateModelFromEditor('translated_text')
+        
