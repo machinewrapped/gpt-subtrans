@@ -192,7 +192,7 @@ def LoadInstructionsFile(filepath):
     """
     if filepath and os.path.exists(filepath):
         with open(filepath, "r", encoding="utf-8") as f:
-            lines = [l.strip() for l in f.readlines() if l.strip()]
+            lines = [l.strip() for l in f.readlines()]
 
         if lines:
             for idx, item in enumerate(lines):
