@@ -102,9 +102,9 @@ class ContentView(QWidget):
 
         if dialog.exec() == QDialog.Accepted:
             if dialog.model:
-                if original:
+                if original and 'original_text' in dialog.model.keys():
                     original.Update({ 'text' : dialog.model.get('original_text')})
-                if translated:
+                if translated and 'translated_text' in dialog.model.keys():
                     translated.Update({ 'text' : dialog.model.get('translated_text')})
 
                 # self.model().dataChanged.emit(index, index)
