@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 
-from PySubtitleGPT.Helpers import Linearise, UpdateFields
+from PySubtitleGPT.Helpers import FormatMessages, Linearise, UpdateFields
 from PySubtitleGPT.SubtitleError import TranslationError
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
@@ -201,9 +201,11 @@ class BatchItem(ViewModelItem):
         if batch.translation and os.environ.get("DEBUG_MODE") == "1":
             self.batch_model.update({
                 'response': batch.translation.text,
-                'messages': batch.translation.prompt.messages,
                 'context': batch.context
             })
+            if batch.translation.prompt:
+                self.batch_model['messages'] = FormatMessages(batch.translation.prompt.messages)
+
 
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
@@ -261,9 +263,10 @@ class BatchItem(ViewModelItem):
         if 'translation' in update.keys() and os.environ.get("DEBUG_MODE") == "1":
             translation = update['translation']
             self.batch_model.update({
-                'response': translation.text,
-                'messages': translation.prompt.messages
+                'response': translation.text
             })
+            if translation.prompt:
+                self.batch_model['messages'] = FormatMessages(translation.prompt.messages)
     
     def GetContent(self):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \

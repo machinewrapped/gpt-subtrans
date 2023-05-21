@@ -324,3 +324,17 @@ def ParseDelayFromHeader(value : str):
     except Exception as e:
         logging.error(f"Unexpected time value '{value}'")
         return 6.66
+
+def FormatMessages(messages):
+    lines = []
+    for index, message in enumerate(messages, start=1):
+        lines.append(f"Message {index}")
+        if 'role' in message:
+            lines.append(f"Role: {message['role']}")
+        if 'content' in message:
+            content = message['content'].replace('\\n', '\n')
+            lines.extend(["--------------------", content])
+        lines.append("")
+
+    return '\n'.join(lines)
+
