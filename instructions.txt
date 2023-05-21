@@ -56,7 +56,7 @@ könnten sich zurückgelassen finden.
 
 Please ensure that each line of dialogue remains distinct in the translation. Merging lines together can lead to timing problems during playback.
 
-At the end of each set of translations, include a one or two line summary of the dialogue encapsulated in a <summary/> tag and a short summary of the scene encapsulated in a <scene/> tag, for example:
+At the end of each set of translations, include a one or two line summary of the dialogue encapsulated in a <summary/> tag and a short synopsis of the scene encapsulated in a <scene/> tag, for example:
 
 <summary>The team prepares to attack a killer on the rooftop</summary>
 <scene>Some police officers are chasing a killer, they follow him to an apartment building and trap him on the roof.</scene>
