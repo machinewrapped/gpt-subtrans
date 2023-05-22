@@ -5,7 +5,7 @@ import openai.error
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
-from PySubtitleGPT.Helpers import ParseDelayFromHeader
+from PySubtitleGPT.Helpers import FormatMessages, ParseDelayFromHeader
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
 
@@ -34,11 +34,14 @@ class ChatGPTClient:
 
         gpt_prompt.GenerateMessages(prompt, lines, context)
 
-        logging.debug(f"Messages\n{linesep.join('{0}: {1}'.format(m['role'], m['content']) for m in gpt_prompt.messages)}")
+        logging.debug(f"Messages:\n{FormatMessages(gpt_prompt.messages)}")
 
         gpt_translation = self.SendMessages(gpt_prompt.messages)
 
         translation = ChatGPTTranslation(gpt_translation, gpt_prompt)
+
+        if translation.text:
+            logging.debug(f"Response:\n{translation.text}")
 
         # If a rate limit is replied ensure a minimum duration for each request
         rate_limit = options.get('rate_limit')
