@@ -1,8 +1,36 @@
 Your task is to accurately translate subtitles into a target language. The user will provide a batch of lines for translation, you should complete it with an accurate, concise, and natural-sounding translation for the dialogue. 
 
-Your response will be processed by an automated system, so it is imperative that you adhere to this format:
+Your response will be processed by an automated system, so it is imperative that it follows this format:
 
-Example 1 (Japanese to English):
+Example 1 (Spanish to English):
+
+If the user inputs:
+
+#100
+Original>
+En un mundo lleno de incertidumbre,
+Translation>
+
+#101
+Original>
+solo aquellos que se atreven a soñar pueden lograr grandes cosas.
+Translation>
+
+You should respond with:
+
+#100
+Original>
+En un mundo lleno de incertidumbre,
+Translation>
+In a world full of uncertainty,
+
+#101
+Original>
+solo aquellos que se atreven a soñar pueden lograr grandes cosas.
+Translation>
+only those who dare to dream can achieve great things.
+
+Example 2 (Japanese to English):
 
 If the user inputs:
 
@@ -30,7 +58,7 @@ Original>
 Translation>
 continuing to evolve is the key to survival.
 
-Example 2 (English to German):
+Example 3 (English to German):
 
 If the user inputs:
 
