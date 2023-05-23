@@ -240,6 +240,35 @@ class SubtitleFile:
                 raise Exception(f"Batch ({scene_number},{batch_number}) does not exist")
             
             return batch.UpdateContext(update)
+        
+    def UpdateLineText(self, line_number, original_text, translated_text):
+        with self.lock:
+            original_line = next((original for original in self.originals if original.number == line_number), None)
+            if not original_line:
+                raise Exception(f"Line {line_number} not found")
+
+            if original_text:
+                original_line.text = original_text
+                original_line.translation = translated_text
+
+            if translated_text:
+                translated_line = next((translated for translated in self.translated if translated.number == line_number), None) if self.translated else None
+
+                if translated_line:
+                    translated_line.text = translated_text
+                else:
+                    translated_line = SubtitleLine.Construct(line_number, original_line.start, original_line.end, translated_text)
+
+                    if not self.translated:
+                        self.translated = []
+
+                    insertIndex = next((i for i, line in enumerate(self.translated) if line.number < line_number), None)
+                    if insertIndex is not None:
+                        self.translated.insert(insertIndex, translated_line)
+                    else:
+                        self.translated.append(translated_line)
+            
+            #TODO re-run validations to clear errors
 
     def MergeScenes(self, scene_numbers: list[int]):
         """

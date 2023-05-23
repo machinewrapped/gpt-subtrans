@@ -57,6 +57,7 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Update Scene', self._update_scene)
         ProjectDataModel.RegisterActionHandler('Update Batch', self._update_batch)
+        ProjectDataModel.RegisterActionHandler('Update Line', self._update_line)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
@@ -219,6 +220,19 @@ class ProjectActions(QObject):
 
         subtitles : SubtitleFile = datamodel.project.subtitles
         if subtitles.UpdateBatch(scene_number, batch_number, update):
+            datamodel.project.needsupdate = True
+
+    def _update_line(self, datamodel : ProjectDataModel, line_number : int, original_text : str, translated_text : str):
+        """
+        Update the user-updatable properties of a subtitle batch
+        """
+        logging.debug(f"Updating line {line_number} with {str(original_text)} > {str(translated_text)}")
+
+        self._validate_datamodel(datamodel)
+
+        subtitles : SubtitleFile = datamodel.project.subtitles
+
+        if subtitles.UpdateLineText(line_number, original_text, translated_text):
             datamodel.project.needsupdate = True
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
