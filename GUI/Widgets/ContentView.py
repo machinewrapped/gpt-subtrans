@@ -105,9 +105,15 @@ class ContentView(QWidget):
                 original_text = dialog.model.get('original_text')
                 translated_text = dialog.model.get('translated_text')
 
+                self.actionRequested.emit('Update Line', (item.number, original_text, translated_text,))
+
                 if original and 'original_text' in dialog.model.keys():
                     original.Update({ 'text' : original_text})
-                if translated and 'translated_text' in dialog.model.keys():
-                    translated.Update({ 'text' : translated_text})
+                if 'translated_text' in dialog.model.keys():
+                    if translated:
+                        translated.Update({ 'text' : translated_text})
+                    else:
+                        #TODO Need to add an item to the parent viewmodel
+                        logging.warn("TODO: Need to an item to the parent viewmodel for manually translated lines.")
+                        pass
 
-                self.actionRequested.emit('Update Line', (item.number, original_text, translated_text,))

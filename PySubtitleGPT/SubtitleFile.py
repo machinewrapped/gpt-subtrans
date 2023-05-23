@@ -2,6 +2,8 @@ import os
 import logging
 import threading
 import srt
+import bisect
+
 from PySubtitleGPT import SubtitleBatch
 from PySubtitleGPT import SubtitleError
 from PySubtitleGPT.Helpers import GenerateTag, GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
@@ -253,7 +255,6 @@ class SubtitleFile:
 
             if translated_text:
                 translated_line = next((translated for translated in self.translated if translated.number == line_number), None) if self.translated else None
-
                 if translated_line:
                     translated_line.text = translated_text
                 else:
@@ -262,11 +263,8 @@ class SubtitleFile:
                     if not self.translated:
                         self.translated = []
 
-                    insertIndex = next((i for i, line in enumerate(self.translated) if line.number < line_number), None)
-                    if insertIndex is not None:
-                        self.translated.insert(insertIndex, translated_line)
-                    else:
-                        self.translated.append(translated_line)
+                    insertIndex = bisect.bisect_left([line.number for line in self.translated], line_number)
+                    self.translated.insert(insertIndex, translated_line)
             
             #TODO re-run validations to clear errors
 
