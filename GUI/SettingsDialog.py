@@ -82,7 +82,7 @@ class SettingsDialog(QDialog):
 
             for row in range(layout.rowCount()):
                 field = layout.itemAt(row, QFormLayout.FieldRole).widget()
-                self.options[field.key] = field.get_value()
+                self.options[field.key] = field.GetValue()
 
         super(SettingsDialog, self).accept()
 
