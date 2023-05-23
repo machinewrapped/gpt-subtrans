@@ -33,13 +33,9 @@ class TranslatorOptionsDialog(QDialog):
 
         self.instructions_edit = self._create_input("Instructions", QTextEdit, "Enter Instructions", self.data.get('instructions', ''), QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
 
-        self.min_batch_size_spinbox = self._create_input("Min Batch Size", QSpinBox, default_value=self.data.get('min_batch_size', 1))
 
-        self.max_batch_size_spinbox = self._create_input("Max Batch Size", QSpinBox, default_value=self.data.get('max_batch_size', 10))
 
-        self.batch_threshold_spinbox = self._create_input("Batch Threshold (seconds)", QDoubleSpinBox, default_value=self.data.get('batch_threshold', 0.5))
 
-        self.scene_threshold_spinbox = self._create_input("Scene Threshold (seconds)", QDoubleSpinBox, default_value=self.data.get('scene_threshold', 2.0))
 
         layout.addLayout(self.form_layout)
 
@@ -83,10 +79,6 @@ class TranslatorOptionsDialog(QDialog):
         self.data['gpt_model'] = self.model_edit.text()
         self.data['gpt_prompt'] = self.prompt_edit.text()
         self.data['instructions'] = self.instructions_edit.toPlainText()
-        self.data['min_batch_size'] = self.min_batch_size_spinbox.value()
-        self.data['max_batch_size'] = self.max_batch_size_spinbox.value()
-        self.data['batch_threshold'] = self.batch_threshold_spinbox.value()
-        self.data['scene_threshold'] = self.scene_threshold_spinbox.value()
         super().accept()
 
 
