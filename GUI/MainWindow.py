@@ -172,6 +172,8 @@ class MainWindow(QMainWindow):
         if success:
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
+                self.datamodel = command.datamodel
+                self.model_viewer.SetDataModel(command.datamodel)
                 if not self.project.subtitles.scenes:
                     self.QueueCommand(BatchSubtitlesCommand(self.project))
 
