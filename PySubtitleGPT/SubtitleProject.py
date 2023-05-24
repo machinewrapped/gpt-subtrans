@@ -307,7 +307,6 @@ class SubtitleProject:
 
     def _on_scene_translated(self, scene):
         logging.debug("Scene translated")
-        with self.lock:
-            self.subtitles.SaveTranslation()
+        self.subtitles.SaveTranslation()
         self.needsupdate = self.update_project
         self.events.scene_translated(scene)
