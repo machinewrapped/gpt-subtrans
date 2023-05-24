@@ -26,6 +26,14 @@ class SubtitleScene:
     @property
     def linecount(self):
         return sum(batch.size for batch in self.batches)
+    
+    @property
+    def first_line_number(self):
+        return self.batches[0].first_line_number if self.batches else None
+
+    @property
+    def last_line_number(self):
+        return self.batches[-1].last_line_number if self.batches else None
 
     @property
     def all_translated(self):

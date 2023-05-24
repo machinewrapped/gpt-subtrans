@@ -232,8 +232,22 @@ class ProjectActions(QObject):
 
         subtitles : SubtitleFile = datamodel.project.subtitles
 
-        if subtitles.UpdateLineText(line_number, original_text, translated_text):
-            datamodel.project.needsupdate = True
+        subtitles.UpdateLineText(line_number, original_text, translated_text)
+        datamodel.project.needsupdate = True
+
+        batch = subtitles.GetBatchContainingLine(line_number)
+        if batch:
+            if batch.errors:
+                # re-run validations to clear errors
+                batch.Validate(datamodel.options)
+
+            update = {
+                'originals' : { line_number : { 'text' : original_text }},
+                'translated' : { line_number : { 'text' : translated_text }},
+                'errors' : batch.errors,
+            }
+
+            datamodel.UpdateViewModel({ batch.scene : { 'batches' : { batch.number : update } } })
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
         """

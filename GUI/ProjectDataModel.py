@@ -15,6 +15,9 @@ class ProjectDataModel:
         if project and project.options:
               self.options.update(project.options)
 
+    def GetLock(self):
+        return QMutexLocker(self.mutex)
+
     @classmethod
     def RegisterActionHandler(cls, action_name : str, handler : callable):
         handlers = cls._action_handlers.get(action_name) or []
@@ -40,5 +43,11 @@ class ProjectDataModel:
         if not self.viewmodel:
             raise Exception("Cannot update view model because it doesn't exist")
         
-        with QMutexLocker(self.mutex):
+        self.viewmodel.UpdateModel(update)
+
+    def UpdateViewModelWithLock(self, update : dict):
+        if not self.viewmodel:
+            raise Exception("Cannot update view model because it doesn't exist")
+
+        with self.GetLock():
             self.viewmodel.UpdateModel(update)

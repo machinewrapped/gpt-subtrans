@@ -4,8 +4,8 @@ import threading
 import srt
 import bisect
 
-from PySubtitleGPT import SubtitleBatch
-from PySubtitleGPT import SubtitleError
+from PySubtitleGPT.SubtitleBatch import SubtitleBatch
+from PySubtitleGPT.SubtitleError import SubtitleError
 from PySubtitleGPT.Helpers import GenerateTag, GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
@@ -77,6 +77,21 @@ class SubtitleFile:
         
         raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
     
+    def GetBatchContainingLine(self, line_number : int):
+        if not self.scenes:
+            raise SubtitleError("Subtitles have not been batched yet")
+        
+        for scene in self.scenes:
+            if scene.first_line_number > line_number:
+                break
+
+            if scene.last_line_number >= line_number:
+                for batch in scene.batches:
+                    if batch.first_line_number > line_number:
+                        break
+
+                    if batch.last_line_number >= line_number:
+                        return batch
 
     def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int = None) -> list[str]:
         """
@@ -161,6 +176,9 @@ class SubtitleFile:
                 logging.error("No subtitles translated")
                 return
 
+            # Regenerate sequential line numbers
+            self.Renumber()
+
             logging.info(f"Saving translation to {str(outputpath)}")
 
             srtfile = srt.compose([ line.item for line in translated ])
@@ -243,7 +261,7 @@ class SubtitleFile:
             
             return batch.UpdateContext(update)
         
-    def UpdateLineText(self, line_number, original_text, translated_text):
+    def UpdateLineText(self, line_number : int, original_text : str, translated_text : str):
         with self.lock:
             original_line = next((original for original in self.originals if original.number == line_number), None)
             if not original_line:
@@ -253,20 +271,21 @@ class SubtitleFile:
                 original_line.text = original_text
                 original_line.translation = translated_text
 
-            if translated_text:
-                translated_line = next((translated for translated in self.translated if translated.number == line_number), None) if self.translated else None
-                if translated_line:
-                    translated_line.text = translated_text
-                else:
-                    translated_line = SubtitleLine.Construct(line_number, original_line.start, original_line.end, translated_text)
+            if not translated_text:
+                return
 
-                    if not self.translated:
-                        self.translated = []
+            translated_line = next((translated for translated in self.translated if translated.number == line_number), None) if self.translated else None
+            if translated_line:
+                translated_line.text = translated_text
+                return
 
-                    insertIndex = bisect.bisect_left([line.number for line in self.translated], line_number)
-                    self.translated.insert(insertIndex, translated_line)
-            
-            #TODO re-run validations to clear errors
+            translated_line = SubtitleLine.Construct(line_number, original_line.start, original_line.end, translated_text)
+
+            if not self.translated:
+                self.translated = []
+
+            insertIndex = bisect.bisect_left([line.number for line in self.translated], line_number)
+            self.translated.insert(insertIndex, translated_line)
 
     def MergeScenes(self, scene_numbers: list[int]):
         """
@@ -322,8 +341,6 @@ class SubtitleFile:
 
                     batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
                     batch.MergeLines(original_lines, translated_lines)
-
-        self.Renumber()
 
     def Renumber(self):
         """

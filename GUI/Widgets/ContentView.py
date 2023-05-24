@@ -92,11 +92,11 @@ class ContentView(QWidget):
             logging.error("Can't identify the line number")
         
         if item.is_translation:
-            translated = item
-            original = self.viewmodel.GetLineItem(item.number, get_translated=False)
+            translated : LineItem = item
+            original : LineItem = self.viewmodel.GetLineItem(item.number, get_translated=False)
         else:
-            original = item
-            translated = self.viewmodel.GetLineItem(item.number, get_translated=True)
+            original : LineItem = item
+            translated : LineItem = self.viewmodel.GetLineItem(item.number, get_translated=True)
 
         dialog = EditSubtitleDialog(original, translated)
 
@@ -106,14 +106,4 @@ class ContentView(QWidget):
                 translated_text = dialog.model.get('translated_text')
 
                 self.actionRequested.emit('Update Line', (item.number, original_text, translated_text,))
-
-                if original and 'original_text' in dialog.model.keys():
-                    original.Update({ 'text' : original_text})
-                if 'translated_text' in dialog.model.keys():
-                    if translated:
-                        translated.Update({ 'text' : translated_text})
-                    else:
-                        #TODO Need to add an item to the parent viewmodel
-                        logging.warn("TODO: Need to an item to the parent viewmodel for manually translated lines.")
-                        pass
 

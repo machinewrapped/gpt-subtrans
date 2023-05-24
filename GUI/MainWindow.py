@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
                     self.QueueCommand(BatchSubtitlesCommand(self.project))
 
             if command.datamodel_update:
-                self.datamodel.UpdateViewModel(command.datamodel_update)
+                self.datamodel.UpdateViewModelWithLock(command.datamodel_update)
 
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often? 

@@ -1,5 +1,6 @@
 from datetime import timedelta
-from PySubtitleGPT.SubtitleError import SubtitleError
+from PySubtitleGPT.SubtitleValidator import SubtitleValidator
+from PySubtitleGPT.SubtitleError import SubtitleError, TranslationError
 from PySubtitleGPT.Helpers import PerformSubstitutions
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 
@@ -61,6 +62,14 @@ class SubtitleBatch:
     def duration(self):
         return self.end - self.start if self.start and self.end else timedelta(seconds=0)
     
+    @property
+    def first_line_number(self):
+        return self.originals[0].number if self.originals else None
+
+    @property
+    def last_line_number(self):
+        return self.originals[-1].number if self.originals else None
+
     @originals.setter
     def originals(self, value):
         self._originals = [ SubtitleLine(line) for line in value ] if value else None
@@ -100,6 +109,22 @@ class SubtitleBatch:
                 updated = True
 
         return updated
+    
+    def Validate(self, options):
+        """
+        Check whether translation contains obvious errors.
+        """
+        self.errors = []
+        if self.translated:
+            try:
+                validator = SubtitleValidator(options)
+                validator.ValidateTranslations(self.translated)
+
+            except TranslationError as e:
+                if not options.get('allow_retranslations'):
+                    raise
+                else:
+                    self.errors.append(e)
 
     def PerformInputSubstitutions(self, substitutions):
         """
