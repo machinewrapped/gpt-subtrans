@@ -104,7 +104,11 @@ class ProjectOptions(QGroupBox):
 
     def Clear(self):
         for key in ["movie_name", "synopsis", "characters", "substitutions"]:
-            getattr(self, key + "_input").setText("")
+            input = getattr(self, key + "_input")
+            if input:
+                input.clear()
+            else:
+                logging.error(f"No input found for {key}")
 
     def _settext(self, key, value):
         if isinstance(value, list):

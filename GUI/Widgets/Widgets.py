@@ -105,4 +105,8 @@ class TextBoxEditor(QTextEdit):
         if text != self._original:
             self.editingFinished.emit(text)
         return super().focusOutEvent(e)
+    
+    def SetText(self, text):
+        self.setText(text)
+        self.setPlainText(text)
 
