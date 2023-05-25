@@ -150,7 +150,7 @@ class ProjectViewModel(QStandardItemModel):
             line_item : LineItem = batch_item.translated.get(line_number)
             if line_item:
                 line_item.Update(line_update)
-            else:
+            elif line_number in batch_item.originals.keys():
                 line_model = batch_item.originals[line_number].line_model.copy()
                 UpdateFields(line_model, line_update, [ 'text' ])
                 batch_item.AddLineItem(True, line_number, line_model)
