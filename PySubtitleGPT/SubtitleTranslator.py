@@ -135,8 +135,7 @@ class SubtitleTranslator:
                 batches = scene.batches
 
             context = scene.context.copy()
-            if scene.summary:
-                context['scene'] = scene.summary
+            context['scene'] = f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}"
 
             self.TranslateBatches(batches, context, remaining_lines)
 
