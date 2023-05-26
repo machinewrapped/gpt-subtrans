@@ -373,5 +373,5 @@ class SubtitleTranslator:
             batch.translated = MergeTranslations(batch.translated, retranslated)
 
         except TranslationError as e:
-            logging.warn(f"Retranslation request did not fix problems:\n{retranslation.get('text')}\n")
+            logging.warn(f"Retranslation request did not fix problems:\n{retranslation.text}\n")
 
