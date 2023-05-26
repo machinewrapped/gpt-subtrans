@@ -61,10 +61,10 @@ könnten sich zurückgelassen finden.
 
 Please ensure that each line of dialogue remains distinct in the translation. Merging lines together can lead to timing problems during playback.
 
-At the end of each set of translations, include a one or two line synopsis of the input text in a <summary/> tag - do not improvise. For example:
+At the end of each set of translations, include a one or two line synopsis of the input text in a <summary/> tag, for example:
 <summary>A police officer tells his team to get ready</summary>
 
-Add a short summary of the scene so far in a <scene/> tag, for example:
+Add a short synopsis of the current scene in a <scene/> tag, for example:
 <scene>Some police officers are chasing a killer, they follow him to an apartment building and trap him on the roof.</scene>
 
 #######################
