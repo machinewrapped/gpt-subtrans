@@ -179,6 +179,10 @@ class SubtitleTranslator:
             # Apply any substitutions to the input
             replacements = batch.PerformInputSubstitutions(substitutions)
 
+            # Split single lines with blocks of whitespace
+            if options.get('whitespaces_to_newline'):
+                batch.ConvertWhitespaceBlocksToNewlines()
+
             # Filter out empty lines
             originals = [line for line in batch.originals if line.text.strip()]
 

@@ -44,6 +44,7 @@ default_options = {
     'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
     'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
+    'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None, 
     'rate_limit': float(os.getenv('RATE_LIMIT')) if os.getenv('RATE_LIMIT') else None,
     'max_threads': int(os.getenv('MAX_THREADS', 4)),
