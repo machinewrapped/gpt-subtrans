@@ -77,8 +77,9 @@ class ChatGPTClient:
 
         # Let's raise the temperature a little bit
         temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
-        retranslation = self.SendMessages(prompt.messages, temperature)
+        gpt_retranslation = self.SendMessages(prompt.messages, temperature)
 
+        retranslation = ChatGPTTranslation(gpt_retranslation, prompt)
         return retranslation
 
     def SendMessages(self, messages : list[str], temperature : float = None):

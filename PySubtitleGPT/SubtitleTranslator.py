@@ -338,22 +338,25 @@ class SubtitleTranslator:
         """
         Ask ChatGPT to retranslate any missing lines
         """
-        retranslation = client.RequestRetranslation(translation, batch.errors)
+        retranslation : ChatGPTTranslation = client.RequestRetranslation(translation, batch.errors)
 
-        logging.debug(f"Scene {batch.scene} batch {batch.number} retranslation:\n{retranslation.get('text')}\n")
+        if not isinstance(retranslation, ChatGPTTranslation):
+            raise TranslationError("Retranslation is not the expected type")
+
+        logging.debug(f"Scene {batch.scene} batch {batch.number} retranslation:\n{retranslation.text}\n")
 
         parser = ChatGPTTranslationParser(self.options)
 
         retranslated = parser.ProcessChatGPTResponse(retranslation)
 
-        if not retranslated:
+        if retranslated:
+            batch.AddContext('retranslated_lines', [f"{item.key}. {item.text}" for item in retranslated])
+            logging.info(f"Retranslated {len(retranslated)} of {len(retranslated) + len(batch.untranslated)} lines")
+        else:
             #TODO line-by-line retranslation?
             logging.error("Retranslation request did not produce a useful result")
-            return
+            # return
         
-        batch.AddContext('retranslated_lines', [f"{item.key}. {item.text}" for item in retranslated])
-        logging.info(f"Retranslated {len(retranslated)} of {len(retranslated) + len(batch.untranslated)} lines")
-
         try:
             batch.errors = []
 
@@ -363,7 +366,7 @@ class SubtitleTranslator:
 
             logging.info("Retranslation passed validation")
 
-            MergeTranslations(batch.translated, retranslated)
+            batch.translated = MergeTranslations(batch.translated, retranslated)
 
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.get('text')}\n")
