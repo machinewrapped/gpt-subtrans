@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (
     )
 from PySide6.QtGui import QTextOption
 
+from PySubtitleGPT.Options import Options
+
 class TranslatorOptionsDialog(QDialog):
     def __init__(self, data, parent=None):
         super().__init__(parent)
@@ -33,16 +35,13 @@ class TranslatorOptionsDialog(QDialog):
 
         self.instructions_edit = self._create_input("Instructions", QTextEdit, "Enter Instructions", self.data.get('instructions', ''), QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
 
-
-
-
-
         layout.addLayout(self.form_layout)
 
         self.button_layout = QHBoxLayout()
 
         self.load_button = self._create_button("Load Instructions", self._load_instructions)
         self.save_button = self._create_button("Save Instructions", self._save_instructions)
+        self.default_button = self._create_button("Defaults", self.set_defaults)
         self.ok_button = self._create_button("OK", self.accept)
         self.cancel_button = self._create_button("Cancel", self.reject)
 
@@ -111,3 +110,8 @@ class TranslatorOptionsDialog(QDialog):
                 content = self.instructions_edit.toPlainText()
                 file.write(content)
 
+    def set_defaults(self):
+        options = Options()
+        self.model_edit.setText(options.get('gpt_model'))
+        self.prompt_edit.setText(options.get('gpt_prompt'))
+        self.instructions_edit.setPlainText(options.get('instructions'))
