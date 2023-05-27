@@ -164,7 +164,8 @@ class SubtitleProject:
 
     def GetProjectFilepath(self, filepath):
         path, ext = os.path.splitext(filepath)
-        return filepath if ext == '.subtrans' else f"{path}.subtrans"
+        filepath = filepath if ext == '.subtrans' else f"{path}.subtrans"
+        return os.path.normpath(filepath)
     
     def GetBackupFilepath(self, filepath):
         projectfile = self.GetProjectFilepath(filepath)
@@ -208,7 +209,9 @@ class SubtitleProject:
                 self.subtitles.outputpath = GetOutputPath(projectfile)
 
             if not projectfile:
-                raise Exception("No file path provided")                
+                raise Exception("No file path provided")
+            
+            projectfile = os.path.normpath(projectfile)
 
             logging.info(f"Writing project data to {str(projectfile)}")
 

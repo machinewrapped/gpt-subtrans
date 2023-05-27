@@ -164,20 +164,22 @@ class SubtitleFile:
             outputpath = GetOutputPath(self.sourcepath)
             if not outputpath:
                 raise Exception("I don't know where to save the translated subtitles")
+            
+        outputpath = os.path.normpath(outputpath)
 
         if not self.scenes:
             raise ValueError("No scenes in subtitles")
 
         with self.lock:
+            # Regenerate sequential line numbers
+            self.Renumber()
+
             # Linearise the translated scenes
             originals, translated, untranslated = UnbatchScenes(self.scenes)
 
             if not translated:
                 logging.error("No subtitles translated")
                 return
-
-            # Regenerate sequential line numbers
-            self.Renumber()
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
