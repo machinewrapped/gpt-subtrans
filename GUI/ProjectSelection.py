@@ -131,11 +131,11 @@ class ProjectSelection():
         if not all(batch.scene == self.selected_batches[0].scene for batch in self.selected_batches):
             return False
 
-        line_numbers = sorted(line.number for line in self.selected_originals)
+        line_numbers = sorted(line.number for line in self.selected_originals if line.number)
         if line_numbers and line_numbers != list(range(line_numbers[0], line_numbers[0] + len(line_numbers))):
             return False
 
-        line_numbers = sorted(line.number for line in self.selected_translated)
+        line_numbers = sorted(line.number for line in self.selected_translated if line.number)
         if line_numbers and line_numbers != list(range(line_numbers[0], line_numbers[0] + len(line_numbers))):
             return False
 
