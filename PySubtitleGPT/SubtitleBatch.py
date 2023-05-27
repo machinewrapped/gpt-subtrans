@@ -161,11 +161,11 @@ class SubtitleBatch:
         
     def ConvertWhitespaceBlocksToNewlines(self):
         """
-        Convert blocks of 3 or more spaces to a newline, unless there are newlines already
+        Convert chinese commas or blocks of 3 or more spaces to newlines, unless there are newlines already
         """
         for item in self.originals:
             if '\n' not in item.text:
-                item.text = re.sub(r' {3,}', '\n', item.text)
+                item.text = re.sub(r' {3,}|\，\s*', '\n', item.text)
 
     def MergeLines(self, original_lines : list[int], translated_lines : list[int]):
         first_line = next((line for line in self.originals if line.number == original_lines[0]), None)
