@@ -1,4 +1,5 @@
 import logging
+import re
 import openai
 from os import linesep
 from PySubtitleGPT.ChatGPTClient import ChatGPTClient
@@ -139,7 +140,10 @@ class SubtitleTranslator:
 
             self.TranslateBatches(batches, context, remaining_lines)
 
+            # Update the scene summary based on the best available information (we hope)
             scene.summary = scene.summary or context.get('scene') or context.get('summary')
+            if scene.summary:
+                scene.summary = re.sub(r'^Scene\s*(\d*)\s*[:\-]\s*', '', scene.summary)
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
@@ -320,7 +324,8 @@ class SubtitleTranslator:
             # Update the context, unless it's a retranslation pass
             if not options.get('retranslate'):
                 if translation.summary:
-                    batch.summary = translation.summary
+                    batch.summary : str = self.SanitiseSummary(translation.summary, context)
+
                 context['summary'] = batch.summary or context.get('summary')
                 context['scene'] = translation.scene or context.get('scene')
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
@@ -375,3 +380,15 @@ class SubtitleTranslator:
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.text}\n")
 
+    def SanitiseSummary(self, summary : str, context : dict):
+        if not summary:
+            return None
+
+        summary = re.sub(r'^Scene\s*(\d*)\s*[:\-]\s*', '', summary)
+
+        movie_name = self.options.get('movie_name')
+        if movie_name:
+            # Remove movie name and any connectors (-,: or whitespace)
+            summary = re.sub(r'^' + re.escape(movie_name) + r'\s*[:\-]\s*', '', summary)
+
+        return summary
