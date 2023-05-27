@@ -18,7 +18,7 @@ class SubtitleLine:
         return self.item.to_srt() if self.item else None
 
     def __repr__(self):
-        return f"Line({srt.timedelta_to_srt_timestamp(self.start) if self.start else self.number}, {repr(self.text)})"
+        return f"Line({srt.timedelta_to_srt_timestamp(self.start) if self.start is not None else self.number}, {repr(self.text)})"
 
     @property
     def key(self):
@@ -42,7 +42,7 @@ class SubtitleLine:
     
     @property
     def srt_start(self) -> str:
-        return srt.timedelta_to_srt_timestamp(self.start) if self.start else None
+        return srt.timedelta_to_srt_timestamp(self.start) if self.start is not None else None
     
     @property
     def end(self) -> timedelta:
@@ -54,7 +54,7 @@ class SubtitleLine:
     
     @property
     def duration(self) -> timedelta:
-        return self.end - self.start if self.start and self.end else timedelta(seconds=0)
+        return self.end - self.start if self.start is not None and self.end else timedelta(seconds=0)
 
     @property
     def line(self):

@@ -43,7 +43,7 @@ def CreateSrtSubtitle(item):
     return item
 
 def GetTimeDelta(time):
-    if not time:
+    if time is None:
         return None
     
     if isinstance(time, datetime.timedelta):
