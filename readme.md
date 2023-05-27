@@ -7,7 +7,7 @@ Note: GPT-Subtrans requires an active internet connection to access the OpenAI A
 version 0.2 employs a new prompting approach that greatly reduces desyncs caused by GPT merging together source lines in the translation. This can reduce the naturalness of the translation when the source and target languages have very different grammar, but it provides a better base for a human to polish the output.
 
 The instructions have also been made more detailed, with multiple examples of correct output for GPT to reference, and the generation of summaries has been improved so that GPT is better able to understand the context of the batch it is translating. Additionally, double-clicking a scene or batch now allows the summary to be edited by hand, which can greatly improve the results of 
-a retranslation and of subsequent batches or scenes.
+a retranslation and of subsequent batches or scenes. Individually lines can also be edited by double-clicking them.
 
 ## Installation
 For most users the packaged release is the easiest way to use the program. Simply unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first-run.
