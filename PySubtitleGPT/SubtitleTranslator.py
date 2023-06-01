@@ -161,6 +161,7 @@ class SubtitleTranslator:
         options : Options = self.options
 
         substitutions = ParseSubstitutions(context.get('substitutions', {}))
+        match_partial_words = options.get('match_partial_words')
 
         # Initialise the ChatGPT client
         client = ChatGPTClient(options, context.get('instructions'))
@@ -181,7 +182,7 @@ class SubtitleTranslator:
                 context = {**context, **batch.context}
 
             # Apply any substitutions to the input
-            replacements = batch.PerformInputSubstitutions(substitutions)
+            replacements = batch.PerformInputSubstitutions(substitutions, match_partial_words)
 
             # Split single lines with blocks of whitespace
             if options.get('whitespaces_to_newline'):
@@ -265,6 +266,7 @@ class SubtitleTranslator:
         """
         options : Options = self.options
         substitutions = options.get('substitutions')
+        match_partial_words = options.get('match_partial_words')
 
         translation : ChatGPTTranslation = batch.translation
 
@@ -312,14 +314,14 @@ class SubtitleTranslator:
                 batch.AddContext('untranslated_lines', [f"{item.number}. {item.text}" for item in batch.untranslated])
 
             # Apply any word/phrase substitutions to the translation 
-            replacements = batch.PerformOutputSubstitutions(substitutions)
+            replacements = batch.PerformOutputSubstitutions(substitutions, match_partial_words)
 
             if replacements:
                 replaced = [f"{k} -> {v}" for k,v in replacements.items()]
                 logging.info(f"Made substitutions in output:\n{linesep.join(replaced)}")
 
             # Perform substitutions on the output
-            translation.PerformSubstitutions(substitutions)
+            translation.PerformSubstitutions(substitutions, match_partial_words)
 
             # Update the context, unless it's a retranslation pass
             if not options.get('retranslate'):

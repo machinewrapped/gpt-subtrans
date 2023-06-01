@@ -259,7 +259,7 @@ def ParseSubstitutions(sub_list, separator="::"):
 
     return {}
 
-def PerformSubstitutions(substitutions, input):
+def PerformSubstitutions(substitutions : dict, input, match_partial_words : bool = False):
     """
     :param input: If input is string-like, attempt to substitute all (before,after) pairs 
     in substitutions. If input is a list, iterate over all elements performing substitutions.
@@ -271,14 +271,14 @@ def PerformSubstitutions(substitutions, input):
     substitutions = substitutions if substitutions else {}
 
     if isinstance(input, list):
-        new_list = [ PerformSubstitutions(substitutions, line) for line in input ]
+        new_list = [ PerformSubstitutions(substitutions, line, match_partial_words) for line in input ]
         replacements = { line: new_line for line, new_line in zip(input, new_list) if new_line != str(line) }
         return new_list, replacements
 
     result = str(input)
     for before, after in substitutions.items():
-        pattern = fr"((?<=\W)|^){regex.escape(before)}((?=\W)|$)"
-        result = regex.sub(pattern, after, result)
+        pattern = fr"\b{regex.escape(before)}\b" if not match_partial_words else regex.escape(before) 
+        result = regex.sub(pattern, after, result, flags=regex.UNICODE)
         
     return result
 

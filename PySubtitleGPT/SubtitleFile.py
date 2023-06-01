@@ -210,6 +210,7 @@ class SubtitleFile:
             'max_batch_size' : None,
             'batch_threshold' : None,
             'scene_threshold' : None,
+            'match_partial_words': False
         }
 
         with self.lock:

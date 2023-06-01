@@ -30,6 +30,7 @@ class SettingsDialog(QDialog):
             'max_batch_size': int,
             'scene_threshold': float,
             'batch_threshold': float,
+            'match_partial_words': bool,
             'whitespaces_to_newline': bool,
             'max_context_summaries': int,
             'max_characters': int,

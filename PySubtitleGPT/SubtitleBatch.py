@@ -127,14 +127,14 @@ class SubtitleBatch:
                 else:
                     self.errors.append(e)
 
-    def PerformInputSubstitutions(self, substitutions):
+    def PerformInputSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
         Perform any word/phrase substitutions on source text
         """
         if substitutions and self.originals:
             lines = [item.text for item in self.originals]
 
-            lines, replacements = PerformSubstitutions(substitutions, lines)
+            lines, replacements = PerformSubstitutions(substitutions, lines, match_partial_words)
 
             if replacements:
                 self.AddContext('input_replacements', replacements)
@@ -143,14 +143,14 @@ class SubtitleBatch:
 
             return replacements
 
-    def PerformOutputSubstitutions(self, substitutions):
+    def PerformOutputSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
         Perform any word/phrase substitutions on translated text
         """
         if substitutions and self.translated:
             lines = [item.text for item in self.translated]
 
-            _, replacements = PerformSubstitutions(substitutions, lines)
+            _, replacements = PerformSubstitutions(substitutions, lines, match_partial_words)
 
             if replacements:
                 self.AddContext('output_replacements', replacements)

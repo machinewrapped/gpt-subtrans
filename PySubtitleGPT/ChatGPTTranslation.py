@@ -56,19 +56,19 @@ class ChatGPTTranslation:
     def quota_reached(self):
         return self.finish_reason == "quota_reached"
 
-    def PerformSubstitutions(self, substitutions):
+    def PerformSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
         Apply any text substitutions to summary, characters and synopsis if they exist.
 
         Does NOT apply them to the translation text. 
         """
         if self.summary:
-            self.context['summary'] = PerformSubstitutions(substitutions, self.summary)
+            self.context['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
         if self.scene:
-            self.context['scene'] = PerformSubstitutions(substitutions, self.scene)
+            self.context['scene'] = PerformSubstitutions(substitutions, self.scene, match_partial_words)
         if self.characters:
-            self.context['characters'], _ = PerformSubstitutions(substitutions, self.characters)
+            self.context['characters'], _ = PerformSubstitutions(substitutions, self.characters, match_partial_words)
         if self.synopsis:
-            self.context['synopsis'] = PerformSubstitutions(substitutions, self.synopsis)
+            self.context['synopsis'] = PerformSubstitutions(substitutions, self.synopsis, match_partial_words)
 
 
