@@ -15,7 +15,7 @@ default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
     def __init__(self, options : Options):
-        self.options = options.GetNonProjectSpecificOptions() if options else Options()
+        self.options = options or Options()
         self.subtitles : SubtitleFile = None
         self.events = TranslationEvents()
         self.projectfile = None
