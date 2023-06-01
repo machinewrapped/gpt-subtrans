@@ -100,7 +100,7 @@ class Options:
         if isinstance(options, Options):
             return self.update(options.options)
 
-        options = {k: v for k, v in options.items() if v}
+        options = {k: v for k, v in options.items() if v is not None}
         self.options.update(options)
 
     def api_key(self):
