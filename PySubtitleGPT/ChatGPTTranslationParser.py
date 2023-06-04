@@ -111,7 +111,7 @@ class ChatGPTTranslationParser:
         Try to match translations to their source lines using heuristics
         """
         possible_matches : list[(SubtitleLine,SubtitleLine)] = []
-        for item in unmatched:
+        for item in (item for item in unmatched if item.number is not None):
             for translation in self.translations.values():
                 if translation.original:
                     if IsTextContentEqual(translation.original, item.text):
