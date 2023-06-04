@@ -295,7 +295,8 @@ def RemoveWhitespaceAndPunctuation(string):
 def IsTextContentEqual(string1 : str, string2 : str):
     stripped1 = RemoveWhitespaceAndPunctuation(string1)
     stripped2 = RemoveWhitespaceAndPunctuation(string2)
-    return stripped1 == stripped2
+    if string1 and string2:
+        stripped1 = RemoveWhitespaceAndPunctuation(string1)
 
 def ParseDelayFromHeader(value : str):
     """

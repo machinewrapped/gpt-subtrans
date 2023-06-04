@@ -73,7 +73,7 @@ class ProjectSelection():
 
     @property
     def original_lines(self) -> list[SelectionLine]:
-        return sorted([ number for number in self.originals.keys() ])
+        return sorted([ number for number in self.originals.keys() if number is not None ])
     
     @property 
     def selected_originals(self) -> list[SelectionLine]:

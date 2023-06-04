@@ -189,7 +189,7 @@ class SubtitleTranslator:
                 batch.ConvertWhitespaceBlocksToNewlines()
 
             # Filter out empty lines
-            originals = [line for line in batch.originals if line.text.strip()]
+            originals = [line for line in batch.originals if line.text and line.text.strip()]
 
             if remaining_lines and len(originals) > remaining_lines:
                 logging.info("Truncating batch to remain within max_lines")

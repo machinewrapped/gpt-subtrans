@@ -119,7 +119,7 @@ class SubtitleDecoder(json.JSONDecoder):
             elif class_name == classname(SubtitleBatch):
                 return SubtitleBatch(dct)
             elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-                return SubtitleLine(dct['line'], dct.get('translation'))
+                return SubtitleLine(dct.get('line'), dct.get('translation'))
             elif class_name == classname(ChatGPTTranslation):
                 response = {
                     'text' : dct.get('text'),

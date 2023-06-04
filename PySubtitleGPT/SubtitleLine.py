@@ -10,7 +10,7 @@ class SubtitleLine:
     and (optionally) an associated translation.
     """
     def __init__(self, line, translation=None, original=None):
-        self.item = line or srt.Subtitle()
+        self.item = line
         self.translation = translation
         self.original = original
     
