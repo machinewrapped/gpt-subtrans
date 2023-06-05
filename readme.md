@@ -63,7 +63,7 @@ Note: Remember to activate the virtual environment every time you work on the pr
 
 The program works by dividing the subtitles up into small batches and sending each one to Chat GPT in turn. It is likely to take a long time to complete, and can potentially make hundreds of API calls.
 
-By default The translated subtitles will be written to a new SRT file with the suffix -ChatGPT added to the original filename, in the same directory.
+By default The translated subtitles will be written to a new SRT file with the suffix -GPT added to the original filename, in the same directory.
 
 For more control over the translation process it is recommended to use an IDE such as VS Code.
 

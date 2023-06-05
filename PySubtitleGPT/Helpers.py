@@ -81,6 +81,8 @@ def GetInputPath(filepath):
     basename, _ = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
+    if basename.endswith("-GPT"):
+        basename = basename[0:basename.index("-GPT")]
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
 def GetOutputPath(filepath):
@@ -88,8 +90,11 @@ def GetOutputPath(filepath):
         return None
     
     basename, _ = os.path.splitext(os.path.basename(filepath))
-    if not basename.endswith("-ChatGPT"):
-        basename = basename + "-ChatGPT"
+
+    if basename.endswith("-ChatGPT"):
+        basename = basename[0:basename.index("-ChatGPT")]
+    if not basename.endswith("-GPT"):
+        basename = basename + "-GPT"
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
 def GenerateTagLines(context, tags):
@@ -293,8 +298,6 @@ def RemoveWhitespaceAndPunctuation(string):
     return normalized
 
 def IsTextContentEqual(string1 : str, string2 : str):
-    stripped1 = RemoveWhitespaceAndPunctuation(string1)
-    stripped2 = RemoveWhitespaceAndPunctuation(string2)
     if string1 and string2:
         stripped1 = RemoveWhitespaceAndPunctuation(string1)
 
