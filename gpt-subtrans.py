@@ -40,7 +40,7 @@ try:
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,
         'target_language': args.target_language,
-        'movie_name': args.moviename or args.input,
+        'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'synopsis': args.synopsis,
         'characters': ParseCharacters(args.characters or args.character),
         'substitutions': ParseSubstitutions(args.substitution),
