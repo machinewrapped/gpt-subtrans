@@ -61,7 +61,7 @@ class MultilineTextOptionWidget(OptionWidget):
         elif isinstance(value, list):
             return '\n'.join(self._get_content(x) for x in value)
         elif isinstance(value, dict):
-            jsonstring = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
+            jsonstring = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True, default=self._encode_content)
             return self._get_content(jsonstring)
         elif isinstance(value, (int, float)):
             return f'{value:,}'  # Format number with commas
@@ -72,7 +72,8 @@ class MultilineTextOptionWidget(OptionWidget):
         else:
             return str(value)
 
-
+    def _encode_content(obj):
+        return str(obj)
 
 class IntegerOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):
