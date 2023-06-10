@@ -67,6 +67,8 @@ At the end of each set of translations, include a one or two line synopsis of th
 Use the available information to add a short synopsis of the current scene in a <scene/> tag, for example:
 <scene>John and Sarah are in their office analyzing data and planning their next steps. They deduce that the suspect is probably in the uptown area and decide to start their search there.</scene>
 
+Do not guess or improvise if the context is unclear, just summarise the dialogue.
+
 #######################
 There was an issue with the previous translation. 
 
