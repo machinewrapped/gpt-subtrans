@@ -1,9 +1,13 @@
 from PySide6.QtWidgets import QToolBar
+from GUI.CommandQueue import CommandQueue
 
 from GUI.ProjectActions import ProjectActions
+from GUI.ProjectCommands import ResumeTranslationCommand, TranslateSceneCommand, TranslateSceneMultithreadedCommand
+from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 class MainToolbar(QToolBar):
-    _action_groups = [ ["Load Subtitles", "Save Project"], ["Quit"] ]
+    # _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Stop Translating"], ["Quit"] ]
+    _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Start Translating Fast", "Stop Translating"], ['Settings'], ["Quit"] ]
 
     def __init__(self,  handler : ProjectActions):
         super().__init__("Main Toolbar")
@@ -18,3 +22,32 @@ class MainToolbar(QToolBar):
             for action in handlers:
                 self.addAction(action)
 
+    def EnableActions(self, action_list):
+        for action in self.actions():
+            if action.text() in action_list:
+                action.setEnabled(True) 
+
+    def DisableActions(self, action_list):
+        for action in self.actions():
+            if action.text() in action_list:
+                action.setEnabled(False) 
+
+    def SetBusyStatus(self, project : SubtitleProject, command_queue : CommandQueue):
+        if not project or not project.subtitles:
+            self.DisableActions([ "Save Project", "Start Translating", "Start Translating Fast", "Stop Translating" ])
+            self.EnableActions([ "Load Subtitles" ])
+            return
+        
+        # Enable or disable toolbar commands  depending on whether any translations are ongoing
+        if command_queue.Contains(type_list = [TranslateSceneCommand, TranslateSceneMultithreadedCommand, ResumeTranslationCommand]):
+            self.DisableActions([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast"])
+            self.EnableActions([ "Stop Translating" ])
+            return
+        
+        self.DisableActions("Stop Translating")
+
+        if command_queue.AnyBlocking():
+            self.DisableActions([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast" ])
+            return
+        
+        self.EnableActions([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast" ])

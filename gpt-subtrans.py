@@ -30,6 +30,7 @@ parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum numb
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
 parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
+parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
 
 args = parser.parse_args()
 
@@ -39,10 +40,11 @@ try:
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,
         'target_language': args.target_language,
-        'movie_name': args.moviename or args.input,
+        'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'synopsis': args.synopsis,
         'characters': ParseCharacters(args.characters or args.character),
         'substitutions': ParseSubstitutions(args.substitution),
+        'match_partial_words': args.matchpartialwords,
         'instruction_file': args.instructionfile,
         'instruction_args': args.instruction,
         'min_batch_size': args.minbatchsize,

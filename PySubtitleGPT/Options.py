@@ -44,12 +44,15 @@ default_options = {
     'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
     'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
+    'match_partial_words': env_bool('MATCH_PARTIAL_WORDS', False),
+    'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None, 
     'rate_limit': float(os.getenv('RATE_LIMIT')) if os.getenv('RATE_LIMIT') else None,
     'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 5)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
     'project' : os.getenv('PROJECT', None),
+    'autosave': env_bool('AUTOSAVE', True),
     'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY', True),
     'stop_on_error' : env_bool('STOP_ON_ERROR'),
     'write_backup' : env_bool('WRITE_BACKUP_FILE', True),
@@ -97,7 +100,7 @@ class Options:
         if isinstance(options, Options):
             return self.update(options.options)
 
-        options = {k: v for k, v in options.items() if v}
+        options = {k: v for k, v in options.items() if v is not None}
         self.options.update(options)
 
     def api_key(self):
@@ -191,7 +194,7 @@ def LoadInstructionsFile(filepath):
     """
     if filepath and os.path.exists(filepath):
         with open(filepath, "r", encoding="utf-8") as f:
-            lines = [l.strip() for l in f.readlines() if l.strip()]
+            lines = [l.strip() for l in f.readlines()]
 
         if lines:
             for idx, item in enumerate(lines):

@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtWidgets import QListView, QAbstractItemView
 from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSignalBlocker
 from GUI.ProjectSelection import ProjectSelection, SelectionLine
@@ -8,6 +9,7 @@ from GUI.Widgets.SubtitleListModel import SubtitleListModel
 
 class SubtitleView(QListView):
     linesSelected = Signal(list)
+    editLine = Signal(object)
 
     synchronise_scrolling = True    # TODO: Make this an option on the toolbar
 
@@ -22,6 +24,8 @@ class SubtitleView(QListView):
 
         item_delegate = SubtitleItemDelegate()
         self.setItemDelegate(item_delegate)
+
+        self.doubleClicked.connect(self._on_double_click)
 
     def SetViewModel(self, viewmodel : ProjectViewModel):
         model = SubtitleListModel(self.show_translated, viewmodel)
@@ -99,6 +103,10 @@ class SubtitleView(QListView):
     def _partner_scrolled(self, value):
         if self.synchronise_scrolling:
             self.verticalScrollBar().setValue(value)
+
+    def _on_double_click(self, index):
+        item: LineItem = index.internalPointer()
+        self.editLine.emit(item)
 
     def selectionChanged(self, selected, deselected):
         model : SubtitleListModel = self.model()

@@ -5,6 +5,7 @@ import openai.error
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitleGPT.Helpers import FormatMessages, ParseDelayFromHeader
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
 
@@ -33,15 +34,18 @@ class ChatGPTClient:
 
         gpt_prompt.GenerateMessages(prompt, lines, context)
 
-        logging.debug(f"Messages\n{linesep.join('{0}: {1}'.format(m['role'], m['content']) for m in gpt_prompt.messages)}")
+        logging.debug(f"Messages:\n{FormatMessages(gpt_prompt.messages)}")
 
         gpt_translation = self.SendMessages(gpt_prompt.messages)
 
         translation = ChatGPTTranslation(gpt_translation, gpt_prompt)
 
+        if translation.text:
+            logging.debug(f"Response:\n{translation.text}")
+
         # If a rate limit is replied ensure a minimum duration for each request
         rate_limit = options.get('rate_limit')
-        if rate_limit:
+        if rate_limit and rate_limit > 0.0:
             minimum_duration = 60.0 / rate_limit
 
             elapsed_time = time.monotonic() - start_time
@@ -58,22 +62,24 @@ class ChatGPTClient:
         options = self.options
         prompt = translation.prompt
 
-        # Trim messages after the original translation to keep tokens down
+        retry_instructions = options.get('retry_instructions')
+
         messages = []
         for message in prompt.messages:
-            messages.append(message)
-            if message['role'] == 'assistant':
+            # Trim retry messages to keep tokens down
+            if message.get('content') == retry_instructions:
                 break
-        prompt.messages = messages
+            messages.append(message)
 
-        retry_instructions = options.get('retry_instructions')
+        prompt.messages = messages
 
         prompt.GenerateRetryPrompt(translation.text, retry_instructions, errors)
 
         # Let's raise the temperature a little bit
         temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
-        retranslation = self.SendMessages(prompt.messages, temperature)
+        gpt_retranslation = self.SendMessages(prompt.messages, temperature)
 
+        retranslation = ChatGPTTranslation(gpt_retranslation, prompt)
         return retranslation
 
     def SendMessages(self, messages : list[str], temperature : float = None):
@@ -120,7 +126,7 @@ class ChatGPTClient:
             except openai.error.RateLimitError as e:
                 retry_after = e.headers.get('x-ratelimit-reset-requests') or e.headers.get('Retry-After')
                 if retry_after:
-                    retry_seconds = float(retry_after.rstrip("s"))
+                    retry_seconds = ParseDelayFromHeader(retry_after)
                     logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
                     time.sleep(retry_seconds)
                     continue
@@ -130,7 +136,7 @@ class ChatGPTClient:
 
             except (openai.error.APIConnectionError, openai.error.Timeout, openai.error.ServiceUnavailableError) as e:
                 if isinstance(e, openai.error.APIConnectionError) and not e.should_retry:
-                    raise TranslationImpossibleError(str(e))
+                    raise TranslationImpossibleError(str(e), translation)
                 if retries == max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
                     raise
@@ -142,7 +148,7 @@ class ChatGPTClient:
                     continue
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", translation, error=e)
 
         return None
 

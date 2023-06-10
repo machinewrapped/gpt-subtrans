@@ -1,6 +1,7 @@
 python-dotenv
 openai
 srt
+regex
 events
 pyside6
 darkdetect

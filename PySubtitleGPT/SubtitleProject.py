@@ -3,6 +3,7 @@ import os
 import logging
 import threading
 from PySubtitleGPT.Helpers import GetOutputPath
+from PySubtitleGPT.SubtitleError import TranslationAbortedError
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleFile import SubtitleFile
@@ -14,12 +15,13 @@ default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
     def __init__(self, options : Options):
-        self.options = options.GetNonProjectSpecificOptions() if options else Options()
+        self.options = options or Options()
         self.subtitles : SubtitleFile = None
         self.events = TranslationEvents()
         self.projectfile = None
         self.needsupdate = False
         self.lock = threading.Lock()
+        self.stop_event = None
         
         project_mode = self.options.get('project', '')
         if project_mode:
@@ -35,11 +37,11 @@ class SubtitleProject:
         self.options.add('reparse', project_mode in ["reparse"])
         self.options.add('retranslate', project_mode in ["retranslate"])
 
-        if self.update_project:
+        if self.update_project and options.get('autosave'):
             self._start_autosave_thread
 
     def __del__(self):
-        if self.update_project:
+        if self.stop_event:
             self.stop_event.set()
             self.periodic_update_thread.join()
 
@@ -105,10 +107,15 @@ class SubtitleProject:
 
             translator.events.preprocessed += self._on_preprocessed
             translator.events.batch_translated += self._on_batch_translated
+            translator.events.scene_translated += self._on_scene_translated
 
             translator.TranslateSubtitles()
 
             self.subtitles.SaveTranslation()
+
+        except TranslationAbortedError:
+            logging.warning(f"Translation aborted")
+            raise
 
         except Exception as e:
             if self.subtitles and self.options.get('stop_on_error'):
@@ -117,7 +124,7 @@ class SubtitleProject:
             logging.error(f"Failed to translate subtitles")
             raise
 
-    def TranslateScene(self, scene_number, batch_numbers = None):
+    def TranslateScene(self, scene_number, batch_numbers = None, translator : SubtitleTranslator = None):
         """
         Pass batches of subtitles to the translation engine.
         """
@@ -125,7 +132,8 @@ class SubtitleProject:
             raise Exception("No subtitles to translate")
 
         try:
-            translator : SubtitleTranslator = SubtitleTranslator(self.subtitles, self.options)
+            if not translator:
+                translator = SubtitleTranslator(self.subtitles, self.options)
 
             translator.events.preprocessed += self._on_preprocessed
             translator.events.batch_translated += self._on_batch_translated
@@ -137,6 +145,9 @@ class SubtitleProject:
             self.subtitles.SaveTranslation()
 
             return scene
+        
+        except TranslationAbortedError:
+            raise
 
         except Exception as e:
             if self.subtitles and self.options.get('stop_on_error'):
@@ -145,9 +156,20 @@ class SubtitleProject:
             logging.error(f"Failed to translate subtitles")
             raise
 
+    def AnyTranslated(self):
+        """
+        Have any subtitles been translated yet?
+        """
+        return True if self.subtitles and self.subtitles.translated else False
+
     def GetProjectFilepath(self, filepath):
         path, ext = os.path.splitext(filepath)
-        return filepath if ext == '.subtrans' else f"{path}.subtrans"
+        filepath = filepath if ext == '.subtrans' else f"{path}.subtrans"
+        return os.path.normpath(filepath)
+    
+    def GetBackupFilepath(self, filepath):
+        projectfile = self.GetProjectFilepath(filepath)
+        return f"{projectfile}-backup"
     
     def LoadSubtitleFile(self, filepath):
         """
@@ -179,13 +201,21 @@ class SubtitleProject:
                 self.read_project = True
                 self.options.add('project', 'true')
 
-            if projectfile:
+            if not projectfile:
+                projectfile = self.projectfile
+
+            elif projectfile and not self.projectfile:
                 self.projectfile = self.GetProjectFilepath(projectfile)
                 self.subtitles.outputpath = GetOutputPath(projectfile)
 
-            logging.info(f"Writing project data to {str(self.projectfile)}")
+            if not projectfile:
+                raise Exception("No file path provided")
+            
+            projectfile = os.path.normpath(projectfile)
 
-            with open(self.projectfile, 'w', encoding=default_encoding) as f:
+            logging.info(f"Writing project data to {str(projectfile)}")
+
+            with open(projectfile, 'w', encoding=default_encoding) as f:
                 project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
                 f.write(project_json)
 
@@ -194,7 +224,8 @@ class SubtitleProject:
         Save a backup copy of the project
         """
         if self.subtitles and self.projectfile:
-            self.WriteProjectFile(f"{self.projectfile}-backup")
+            backupfile = self.GetBackupFilepath(self.projectfile)
+            self.WriteProjectFile(backupfile)
 
     def ReadProjectFile(self):
         """

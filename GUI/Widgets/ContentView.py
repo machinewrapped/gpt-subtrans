@@ -1,8 +1,9 @@
 import logging
-from PySide6.QtWidgets import QSplitter, QVBoxLayout, QWidget, QSizePolicy
+from PySide6.QtWidgets import QSplitter, QVBoxLayout, QWidget, QSizePolicy, QDialog
 from PySide6.QtCore import Qt, Signal
 from GUI.ProjectSelection import ProjectSelection
-from GUI.ProjectViewModel import ProjectViewModel
+from GUI.ProjectViewModel import LineItem, ProjectViewModel
+from GUI.Widgets.Editors import EditSubtitleDialog
 from GUI.Widgets.SelectionView import SelectionView
 
 from GUI.Widgets.SubtitleView import SubtitleView
@@ -34,6 +35,10 @@ class ContentView(QWidget):
 #        # connect the scrollbars
         self.subtitle_view.SynchroniseScrollbar(self.translation_view.verticalScrollBar())
         self.translation_view.SynchroniseScrollbar(self.subtitle_view.verticalScrollBar())
+
+        # connect the editors
+        self.subtitle_view.editLine.connect(self._edit_line)
+        self.translation_view.editLine.connect(self._edit_line)
 
         layout = QVBoxLayout()
         layout.addWidget(splitter)
@@ -78,3 +83,27 @@ class ContentView(QWidget):
         # if line_numbers:
         #     self.subtitle_view.SelectSubtitles(line_numbers)
         pass
+
+    def _edit_line(self, item : LineItem):
+        if not isinstance(item, LineItem):
+            raise Exception("Double-clicked something unexpected")
+        
+        if not item.number:
+            logging.error("Can't identify the line number")
+        
+        if item.is_translation:
+            translated : LineItem = item
+            original : LineItem = self.viewmodel.GetLineItem(item.number, get_translated=False)
+        else:
+            original : LineItem = item
+            translated : LineItem = self.viewmodel.GetLineItem(item.number, get_translated=True)
+
+        dialog = EditSubtitleDialog(original, translated)
+
+        if dialog.exec() == QDialog.Accepted:
+            if dialog.model:
+                original_text = dialog.model.get('original_text')
+                translated_text = dialog.model.get('translated_text')
+
+                self.actionRequested.emit('Update Line', (item.number, original_text, translated_text,))
+

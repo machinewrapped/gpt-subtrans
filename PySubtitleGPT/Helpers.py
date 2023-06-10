@@ -1,8 +1,11 @@
+import datetime
 import os
 import logging
-import re
-import sys
+import regex
+import unicodedata
 import srt
+
+from PySubtitleGPT.Options import Options
 
 def Linearise(lines):
     if not isinstance(lines, list):
@@ -40,12 +43,18 @@ def CreateSrtSubtitle(item):
     return item
 
 def GetTimeDelta(time):
+    if time is None:
+        return None
+    
+    if isinstance(time, datetime.timedelta):
+        return time
+
     try:
         return srt.srt_timestamp_to_timedelta(str(time))
 
     except Exception as e:
-        time = str(time)
-        parts = re.split('[:,]', time)
+        time = str(time).strip()
+        parts = regex.split('[:,]', time)
 
         if len(parts) == 3:
             if len(parts[-1]) == 3:
@@ -72,6 +81,8 @@ def GetInputPath(filepath):
     basename, _ = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
+    if basename.endswith("-GPT"):
+        basename = basename[0:basename.index("-GPT")]
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
 def GetOutputPath(filepath):
@@ -79,29 +90,12 @@ def GetOutputPath(filepath):
         return None
     
     basename, _ = os.path.splitext(os.path.basename(filepath))
-    if not basename.endswith("-ChatGPT"):
-        basename = basename + "-ChatGPT"
+
+    if basename.endswith("-ChatGPT"):
+        basename = basename[0:basename.index("-ChatGPT")]
+    if not basename.endswith("-GPT"):
+        basename = basename + "-GPT"
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
-
-def GetResourcePath(relative_path):
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
-
-def GenerateBatchPrompt(prompt, lines, tag_lines=None):
-    """
-    Create the user prompt for translating a set of lines
-
-    :param tag_lines: optional list of extra lines to include at the top of the prompt.
-    """
-    source_lines = [ line.prompt for line in lines ]
-    source_text = '\n\n'.join(source_lines)
-    if tag_lines:
-        return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
-    elif prompt:
-        return f"{prompt}\n\n<batch>\n{source_text}\n</batch>\n"
-    else:
-        return f"<batch>\n{source_text}\n</batch>\n"
 
 def GenerateTagLines(context, tags):
     """
@@ -110,7 +104,7 @@ def GenerateTagLines(context, tags):
     :param context: dictionary of tag, value pairs
     :param tags: list of tags to extract from the context.
     """
-    tag_lines = [ GenerateTag(tag, context.get(tag,'')) for tag in tags ]
+    tag_lines = [ GenerateTag(tag, context.get(tag,'')) for tag in tags if context.get(tag) ]
 
     if tag_lines:
         return '\n'.join([tag.strip() for tag in tag_lines if tag.strip()])
@@ -123,7 +117,7 @@ def GenerateTag(tag, content):
 
     return f"<{tag}>{content}</{tag}>"
 
-def BuildPrompt(options):
+def BuildPrompt(options : Options):
     """
     Generate the base prompt to use for requesting translations
     """
@@ -141,9 +135,17 @@ def ParseTranslation(text):
     """
     text, summary = ExtractTag("summary", text)
     text, synopsis = ExtractTag("synopsis", text)
+    text, scene = ExtractTag("scene", text)
     text, characters = ExtractTagList("characters", text)
 
-    return text, summary, synopsis, characters
+    context = {
+        'summary': summary,
+        'scene': scene,
+        'synopsis': synopsis,
+        'characters': characters
+    }
+
+    return text, context 
 
 def ExtractTag(tagname, text):
     """
@@ -175,19 +177,19 @@ def ExtractTagList(tagname, text):
     Look for an xml-like tag in the input text, and extract the contents as a comma or newline separated list.
     """
     text, tag = ExtractTag(tagname, text)
-    tag_list = [ item.strip() for item in re.split("[\n,]", tag) ] if tag else []
+    tag_list = [ item.strip() for item in regex.split("[\n,]", tag) ] if tag else []
     return text, tag_list
 
 def MergeTranslations(lines, translated):
     """
     Replace lines with corresponding lines in translated
     """
-    line_dict = {item.key: item for item in lines}
+    line_dict = {item.key: item for item in lines if item.key}
 
     for item in translated:
         line_dict[item.key] = item
 
-    lines = sorted(line_dict.values(), key=lambda item: item.start)
+    lines = sorted(line_dict.values(), key=lambda item: item.key)
 
     return lines
 
@@ -235,7 +237,7 @@ def ResyncTranslatedLines(original_lines, translated_lines):
 
 def ParseCharacters(character_list):
     if isinstance(character_list, str):
-        character_list = re.split("[\n,]", character_list)
+        character_list = regex.split("[\n,]", character_list)
 
     if isinstance(character_list, list):
         return [ name.strip() for name in character_list ]
@@ -258,7 +260,7 @@ def ParseSubstitutions(sub_list, separator="::"):
         return sub_list
 
     if isinstance(sub_list, str):
-        sub_list = re.split("[\n,]", sub_list)
+        sub_list = regex.split("[\n,]", sub_list)
 
     if isinstance(sub_list, list):
         substitutions = {}
@@ -284,7 +286,7 @@ def ParseSubstitutions(sub_list, separator="::"):
 
     return {}
 
-def PerformSubstitutions(substitutions, input):
+def PerformSubstitutions(substitutions : dict, input, match_partial_words : bool = False):
     """
     :param input: If input is string-like, attempt to substitute all (before,after) pairs 
     in substitutions. If input is a list, iterate over all elements performing substitutions.
@@ -296,14 +298,73 @@ def PerformSubstitutions(substitutions, input):
     substitutions = substitutions if substitutions else {}
 
     if isinstance(input, list):
-        new_list = [ PerformSubstitutions(substitutions, line) for line in input ]
+        new_list = [ PerformSubstitutions(substitutions, line, match_partial_words) for line in input ]
         replacements = { line: new_line for line, new_line in zip(input, new_list) if new_line != str(line) }
         return new_list, replacements
 
     result = str(input)
     for before, after in substitutions.items():
-        pattern = fr"((?<=\W)|^){re.escape(before)}((?=\W)|$)"
-        result = re.sub(pattern, after, result)
+        pattern = fr"\b{regex.escape(before)}\b" if not match_partial_words else regex.escape(before) 
+        result = regex.sub(pattern, after, result, flags=regex.UNICODE)
         
     return result
+
+
+def RemoveWhitespaceAndPunctuation(string):
+    # Matches any punctuation, separator, or other Unicode character
+    pattern = r'[\p{P}\p{Z}\p{C}]'
+    stripped = regex.sub(pattern, '', string)
+
+    # Normalize Unicode characters to their canonical forms
+    normalized = unicodedata.normalize('NFC', stripped)
+    return normalized
+
+def IsTextContentEqual(string1 : str, string2 : str):
+    if string1 and string2:
+        stripped1 = RemoveWhitespaceAndPunctuation(string1)
+        stripped2 = RemoveWhitespaceAndPunctuation(string2)
+        return stripped1 == stripped2
+
+    return string1 == string2
+
+def ParseDelayFromHeader(value : str):
+    """
+    Try to figure out how long a suggested retry-after is
+    """
+    if not isinstance(value, str):
+        return 12.3
+
+    match = regex.match(r"([0-9\.]+)(\w+)?", value)
+    if not match:
+        return 32.1
+
+    try:
+        delay, unit = match.groups()
+        delay = float(delay)
+        unit = unit.lower() if unit else 's'
+        if unit == 's':
+            pass
+        elif unit == 'm':
+            delay *= 60
+        elif unit == 'ms':
+            delay /= 1000
+
+        return max(1, delay)  # ensure at least 1 second
+
+    except Exception as e:
+        logging.error(f"Unexpected time value '{value}'")
+        return 6.66
+
+def FormatMessages(messages):
+    lines = []
+    for index, message in enumerate(messages, start=1):
+        lines.append(f"Message {index}")
+        if 'role' in message:
+            lines.append(f"Role: {message['role']}")
+        if 'content' in message:
+            content = message['content'].replace('\\n', '\n')
+            lines.extend(["--------------------", content])
+        lines.append("")
+
+    return '\n'.join(lines)
 

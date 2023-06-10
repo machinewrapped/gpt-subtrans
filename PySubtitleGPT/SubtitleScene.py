@@ -28,10 +28,22 @@ class SubtitleScene:
     @property
     def linecount(self):
         return sum(batch.size for batch in self.batches)
+    
+    @property
+    def first_line_number(self):
+        return self.batches[0].first_line_number if self.batches else None
+
+    @property
+    def last_line_number(self):
+        return self.batches[-1].last_line_number if self.batches else None
 
     @property
     def all_translated(self):
         return all(batch.all_translated for batch in self.batches)
+    
+    @property
+    def any_translated(self):
+        return any(batch.all_translated for batch in self.batches)
 
     @property
     def summary(self):
@@ -66,6 +78,18 @@ class SubtitleScene:
 
     def GetContext(self, key):
         return self.context.get(key) if self.context else None
+    
+    def UpdateContext(self, update) -> bool:
+        if not self.context:
+            self.context = {}
+
+        updated = False
+        for key in update.keys():
+            if update[key] != self.context.get(key):
+                self.context[key] = update[key]
+                updated = True
+
+        return updated
     
     def MergeScenes(self, merged_scenes):
         """

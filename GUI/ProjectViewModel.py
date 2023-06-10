@@ -1,10 +1,11 @@
 import logging
+import os
 from PySide6.QtCore import Qt
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySubtitleGPT import SubtitleLine
 
-from PySubtitleGPT.Helpers import Linearise, UpdateFields
+from PySubtitleGPT.Helpers import FormatMessages, Linearise, UpdateFields
 from PySubtitleGPT.SubtitleError import SubtitleError
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
@@ -76,6 +77,20 @@ class ProjectViewModel(QStandardItemModel):
                 })
 
         return batch_item
+    
+    def GetLineItem(self, line_number, get_translated):
+        if line_number and self.model:
+            for scene_item in self.model.values():
+                for batch_item in scene_item.batches.values():
+                    if batch_item.first_line_number > line_number:
+                        return None
+                    
+                    if batch_item.last_line_number >= line_number:
+                        lines = batch_item.translated if get_translated else batch_item.originals
+                        if lines:
+                            for line_item in lines.values():
+                                if line_item.number == line_number:
+                                    return line_item
 
     def AddScene(self, scene : SubtitleScene):
         logging.debug(f"Adding scene {scene.number}")
@@ -276,7 +291,7 @@ class ProjectViewModel(QStandardItemModel):
             line_item : LineItem = batch_item.translated.get(line_number)
             if line_item:
                 line_item.Update(line_update)
-            else:
+            elif line_number in batch_item.originals.keys():
                 line_model = batch_item.originals[line_number].line_model.copy()
                 UpdateFields(line_model, line_update, [ 'text' ])
                 batch_item.AddLineItem(True, line_number, line_model)
@@ -338,9 +353,18 @@ class BatchItem(ViewModelItem):
             'start': batch.srt_start,
             'end': batch.srt_end,
             'summary': batch.summary,
-            'context': batch.context,
             'errors': self._get_errors(batch.errors)
         }
+
+        if batch.translation and os.environ.get("DEBUG_MODE") == "1":
+            self.batch_model.update({
+                'response': batch.translation.text,
+                'context': batch.context
+            })
+            if batch.translation.prompt:
+                self.batch_model['messages'] = FormatMessages(batch.translation.prompt.messages)
+
+
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
     def AddLineItem(self, is_translation : bool, line_number : int, model : dict):
@@ -381,6 +405,18 @@ class BatchItem(ViewModelItem):
         return self.batch_model.get('summary')
     
     @property
+    def response(self):
+        return self.batch_model.get('response')
+    
+    @property
+    def first_line_number(self):
+        return min(self.originals.keys()) if self.originals else None
+
+    @property
+    def last_line_number(self):
+        return max(self.originals.keys()) if self.originals else None    
+
+    @property
     def has_errors(self):
         return True if self.batch_model.get('errors') else False
 
@@ -389,6 +425,17 @@ class BatchItem(ViewModelItem):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
         UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])
+
+        if 'errors' in update.keys():
+            self.batch_model['errors'] = self._get_errors(update['errors'])
+
+        if 'translation' in update.keys() and os.environ.get("DEBUG_MODE") == "1":
+            translation = update['translation']
+            self.batch_model.update({
+                'response': translation.text
+            })
+            if translation.prompt:
+                self.batch_model['messages'] = FormatMessages(translation.prompt.messages)
     
     def GetContent(self):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \
@@ -400,7 +447,7 @@ class BatchItem(ViewModelItem):
 
         return {
             'heading': f"Batch {self.number}",
-            'subheading': f"{str(self.start)} -> {str(self.end)}",   # ({end - start})
+            'subheading': f"{str(self.start)} -> {str(self.end)} ({self.original_count} lines)",   # ({end - start})
             'body': body,
             'properties': {
                 'all_translated' : self.all_translated,
@@ -496,7 +543,7 @@ class SceneItem(ViewModelItem):
 
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"{self.start} -> {self.end}",   # ({self.duration})
+            'subheading': f"{self.start} -> {self.end} ({self.original_count} lines)",   # ({self.duration})
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'properties': {
                 'all_translated' : self.all_translated,

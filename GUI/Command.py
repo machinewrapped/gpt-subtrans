@@ -5,6 +5,7 @@ from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
+from PySubtitleGPT.SubtitleError import TranslationAbortedError
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:
@@ -19,7 +20,10 @@ class Command(QRunnable, QObject):
         QRunnable.__init__(self)
         QObject.__init__(self)
         self.datamodel = datamodel
+        self.is_blocking : bool = True
+        self.started : bool = False
         self.executed : bool = False
+        self.aborted : bool = False
         self.callback = None
         self.undo_callback = None
         self.model_update = ModelUpdate()
@@ -34,8 +38,18 @@ class Command(QRunnable, QObject):
     def SetUndoCallback(self, undo_callback):
         self.undo_callback = undo_callback
 
+    def Abort(self):
+        if not self.aborted:
+            self.aborted = True
+            self.on_abort()
+
     @Slot()
     def run(self):
+        if self.aborted:
+            logging.debug(f"{type(self).__name__} command aborted before it started")
+            self.commandExecuted.emit(self, False)
+            return
+
         if 'debugpy' in globals():
             debugpy.debug_this_thread()
 
@@ -43,6 +57,10 @@ class Command(QRunnable, QObject):
             success = self.execute()
 
             self.commandExecuted.emit(self, success)
+
+        except TranslationAbortedError:
+            logging.info(f"Aborted {type(self).__name__} command")
+            self.commandExecuted.emit(self, False)
 
         except Exception as e:
             logging.error(f"Error executing {type(self).__name__} command ({str(e)})")
@@ -53,6 +71,9 @@ class Command(QRunnable, QObject):
 
     def undo(self):
         raise NotImplementedError
+    
+    def on_abort(self):
+        pass
 
     def execute_callback(self):
         if self.callback:

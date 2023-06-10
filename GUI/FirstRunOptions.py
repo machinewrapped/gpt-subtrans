@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     )
 from PySide6.QtGui import QTextOption
 
-from PySubtitleGPT.Helpers import GetResourcePath
+from GUI.GuiHelpers import GetResourcePath
 
 
 class FirstRunOptions(QDialog):

@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (
     )
 from PySide6.QtGui import QTextOption
 
+from PySubtitleGPT.Options import Options
+
 class TranslatorOptionsDialog(QDialog):
     def __init__(self, data, parent=None):
         super().__init__(parent)
@@ -33,20 +35,13 @@ class TranslatorOptionsDialog(QDialog):
 
         self.instructions_edit = self._create_input("Instructions", QTextEdit, "Enter Instructions", self.data.get('instructions', ''), QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
 
-        self.min_batch_size_spinbox = self._create_input("Min Batch Size", QSpinBox, default_value=self.data.get('min_batch_size', 1))
-
-        self.max_batch_size_spinbox = self._create_input("Max Batch Size", QSpinBox, default_value=self.data.get('max_batch_size', 10))
-
-        self.batch_threshold_spinbox = self._create_input("Batch Threshold (seconds)", QDoubleSpinBox, default_value=self.data.get('batch_threshold', 0.5))
-
-        self.scene_threshold_spinbox = self._create_input("Scene Threshold (seconds)", QDoubleSpinBox, default_value=self.data.get('scene_threshold', 2.0))
-
         layout.addLayout(self.form_layout)
 
         self.button_layout = QHBoxLayout()
 
         self.load_button = self._create_button("Load Instructions", self._load_instructions)
         self.save_button = self._create_button("Save Instructions", self._save_instructions)
+        self.default_button = self._create_button("Defaults", self.set_defaults)
         self.ok_button = self._create_button("OK", self.accept)
         self.cancel_button = self._create_button("Cancel", self.reject)
 
@@ -83,10 +78,6 @@ class TranslatorOptionsDialog(QDialog):
         self.data['gpt_model'] = self.model_edit.text()
         self.data['gpt_prompt'] = self.prompt_edit.text()
         self.data['instructions'] = self.instructions_edit.toPlainText()
-        self.data['min_batch_size'] = self.min_batch_size_spinbox.value()
-        self.data['max_batch_size'] = self.max_batch_size_spinbox.value()
-        self.data['batch_threshold'] = self.batch_threshold_spinbox.value()
-        self.data['scene_threshold'] = self.scene_threshold_spinbox.value()
         super().accept()
 
 
@@ -119,3 +110,8 @@ class TranslatorOptionsDialog(QDialog):
                 content = self.instructions_edit.toPlainText()
                 file.write(content)
 
+    def set_defaults(self):
+        options = Options()
+        self.model_edit.setText(options.get('gpt_model'))
+        self.prompt_edit.setText(options.get('gpt_prompt'))
+        self.instructions_edit.setPlainText(options.get('instructions'))

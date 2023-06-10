@@ -6,7 +6,37 @@ The user may provide additional context, such as a synopsis of the film, a summa
 
 Your response will be processed by an automated system, so it is imperative that you adhere to the required output format.
 
-Example input (Japanese to English):
+Example 1 (Spanish to English):
+
+If the user inputs:
+
+#100
+Original>
+En un mundo lleno de incertidumbre,
+Translation>
+
+#101
+Original>
+solo aquellos que se atreven a soñar pueden lograr grandes cosas.
+Translation>
+
+You should respond with:
+
+#100
+Original>
+En un mundo lleno de incertidumbre,
+Translation>
+In a world full of uncertainty,
+
+#101
+Original>
+solo aquellos que se atreven a soñar pueden lograr grandes cosas.
+Translation>
+only those who dare to dream can achieve great things.
+
+Example 2 (Japanese to English):
+
+If the user inputs:
 
 #200
 Original>
@@ -32,7 +62,9 @@ Original>
 Translation>
 continuing to evolve is the key to survival.
 
-Example input (English to German):
+Example 3 (English to German):
+
+If the user inputs:
 
 #700
 Original>
@@ -61,11 +93,11 @@ könnten sich zurückgelassen finden.
 
 Please ensure that each line of dialogue remains distinct in the translation. Merging lines together can lead to timing problems during playback.
 
-At the end of each set of translations, include a one or two line synopsis of the input text in a <summary/> tag, for example:
-<summary>John and Sarah discuss their plan to locate a suspect, deducing that he is likely in the uptown area.</summary>
+At the end of each set of translations, include a one or two line summary of the input text in a <summary/> tag - do not improvise. For example:
+<summary>A police officer tells his team to get ready</summary>
 
-Use the available information to add a short synopsis of the current scene in a <scene/> tag, for example:
-<scene>John and Sarah are in their office analyzing data and planning their next steps. They deduce that the suspect is probably in the uptown area and decide to start their search there.</scene>
+Add a short synopsis of the scene so far in a <scene/> tag, for example:
+<scene>Some police officers are chasing a killer, they follow him to an apartment building and trap him on the roof.</scene>
 
 #######################
 There was an issue with the previous translation. 

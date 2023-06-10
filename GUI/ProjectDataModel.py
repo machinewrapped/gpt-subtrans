@@ -14,8 +14,8 @@ class ProjectDataModel:
 
         if project and project.options:
               self.options.update(project.options)
-    
-    def lock(self):
+
+    def GetLock(self):
         return QMutexLocker(self.mutex)
 
     @classmethod

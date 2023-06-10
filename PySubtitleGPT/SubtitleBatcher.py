@@ -31,7 +31,6 @@ class SubtitleBatcher:
 
             if batch is None or (batch.size >= max_batch_size) or (batch.size >= min_batch_size and gap > batch_threshold):
                 batch = scene.AddNewBatch()
-                batch.AddContext('summary', "New Scene")
 
             batch.AddLine(line)
 

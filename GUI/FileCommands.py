@@ -1,7 +1,7 @@
 import logging
 from GUI.Command import Command
-from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitleGPT.Helpers import GetOutputPath
 from PySubtitleGPT.Options import Options
 
 from PySubtitleGPT.SubtitleProject import SubtitleProject
@@ -36,8 +36,6 @@ class LoadSubtitleFile(Command):
 
             if project.subtitles.scenes:
                 self.datamodel.CreateViewModel()
-            else:
-                self.commands_to_queue.append(BatchSubtitlesCommand(project))
 
             return True
         
@@ -50,14 +48,18 @@ class LoadSubtitleFile(Command):
         pass
 
 class SaveProjectFile(Command):
-    def __init__(self, filepath, project : SubtitleProject):
+    def __init__(self, project : SubtitleProject, filepath = None):
         super().__init__()
-        self.filepath = filepath
         self.project = project
+        self.filepath = filepath or project.subtitles.outputpath
 
     def execute(self):
-        self.project.WriteProjectFile(self.filepath)
-        self.project.subtitles.SaveTranslation()
+        self.project.projectfile = self.project.GetProjectFilepath(self.filepath)
+        self.project.WriteProjectFile()
+
+        if self.project.subtitles.translated:
+            outputpath = GetOutputPath(self.project.projectfile)
+            self.project.subtitles.SaveTranslation(outputpath)
         return True
 
 class SaveSubtitleFile(Command):

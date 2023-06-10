@@ -13,16 +13,17 @@ from PySide6.QtWidgets import (
     QDialog
 )
 from GUI.Command import Command
-
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
+from GUI.GuiHelpers import GetResourcePath
 from GUI.MainToolbar import MainToolbar
-from GUI.ProjectActions import ProjectActions
+from GUI.SettingsDialog import SettingsDialog
+from GUI.ProjectActions import NoApiKeyError, ProjectActions
+from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
-from PySubtitleGPT.Helpers import GetResourcePath
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 from PySubtitleGPT.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
@@ -66,10 +67,12 @@ class MainWindow(QMainWindow):
         self.command_queue = CommandQueue(self)
         self.command_queue.SetMaxThreadCount(options.get('max_threads', 1))
         self.command_queue.commandExecuted.connect(self._on_command_complete)
+        self.command_queue.commandAdded.connect(self._on_command_added)
 
         # Create centralised action handler
         self.action_handler = ProjectActions(mainwindow=self)
         self.action_handler.issueCommand.connect(self.QueueCommand)
+        self.action_handler.actionError.connect(self._on_error)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -80,6 +83,7 @@ class MainWindow(QMainWindow):
 
         # Create the toolbar
         self.toolbar = MainToolbar(self.action_handler)
+        self.toolbar.SetBusyStatus(None, self.command_queue)
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -119,6 +123,23 @@ class MainWindow(QMainWindow):
         """
         self.command_queue.AddCommand(command, self.datamodel)
 
+    def ShowSettingsDialog(self):
+        """
+        Open user settings dialog and update options
+        """
+        options = self.datamodel.options
+        settings = options.GetSettings()
+        result = SettingsDialog(settings, self).exec()
+
+        if result == QDialog.Accepted:
+            options.update(settings)
+            options.Save()
+            LoadStylesheet(options.get('theme'))
+            logging.info("Settings updated")
+
+    def PrepareForSave(self):
+        self.model_viewer.CloseProjectOptions()
+
     def closeEvent(self, e):
         if self.command_queue:
             self.command_queue.Stop()
@@ -140,37 +161,70 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logging.error(f"Error in {action_name}: {str(e)}")
 
-    def _on_command_complete(self, command : Command, success):
-        if success:
-            if self.command_queue.queue_size:
-                if self.command_queue.queue_size == 1:
-                    self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
-                else:
-                    self.statusBar().showMessage(f"{type(command).__name__} was successful. {self.command_queue.queue_size} commands in queue.")
-            else:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful.")
+    def _on_command_added(self, command : Command):
+        logging.debug(f"Added a {type(command).__name__} command to the queue")
+        self._update_main_toolbar()
+        self._update_status_bar(command)
 
+    def _on_command_complete(self, command : Command, success):
+        logging.debug(f"A {type(command).__name__} command completed (success={str(success)})")
+
+        if success:
             if isinstance(command, LoadSubtitleFile):
                 self.project = command.project
+                self.datamodel = command.datamodel
+                self.model_viewer.SetDataModel(command.datamodel)
+                if not self.project.subtitles.scenes:
+                    self.QueueCommand(BatchSubtitlesCommand(self.project))
 
             if command.model_update.HasUpdate():
                 # Patch the model
                 command.model_update.UpdateModel(self.datamodel)
 
             elif command.datamodel:
-                # Shouldn't  need to do a full model rebuild often? 
+                # Shouldn't need to do a full model rebuild often? 
                 self.datamodel = command.datamodel
+                self.action_handler.datamodel = self.datamodel
                 self.model_viewer.SetDataModel(self.datamodel)
                 self.model_viewer.show()
+
             else:
                 self.model_viewer.hide()
 
+        # Auto-save if the commmand queue is empty and the project has changed
+        if self.project and self.project.needsupdate and self.datamodel.options.get('autosave'):
+            if not self.command_queue.AnyCommands():
+                self.project.WriteProjectFile()
+
+        self._update_status_bar(command, success)
+        self._update_main_toolbar()
+
+    def _update_status_bar(self, command : Command, succeeded : bool = None):
+        if not command:
+            self.statusBar().showMessage("")
+        elif succeeded is None:
+            self.statusBar().showMessage(f"{type(command).__name__} executed. {self.command_queue.queue_size} commands in queue.")
+        elif command.aborted:
+            self.statusBar().showMessage(f"{type(command).__name__} aborted.")
 
         else:
-            self.statusBar().showMessage(f"{type(command).__name__} failed.")
+            if succeeded:
+                if self.command_queue.queue_size > 1:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful. {self.command_queue.queue_size} commands in queue.")
+                elif self.command_queue.queue_size == 1:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
+                else:
+                    self.statusBar().showMessage(f"{type(command).__name__} was successful.")
+
+            else:
+                self.statusBar().showMessage(f"{type(command).__name__} failed.")
+
+    def _update_main_toolbar(self):
+        self.toolbar.SetBusyStatus(self.datamodel.project, self.command_queue)
 
     def _on_options_changed(self, options: dict):
         if options and self.project:
+            self.datamodel.options.update(options)
             self.project.UpdateProjectOptions(options)
 
     def _first_run(self, options: Options):
@@ -183,3 +237,10 @@ class MainWindow(QMainWindow):
             options.add('firstrun', False)
             options.Save()
             LoadStylesheet(options.get('theme'))
+
+    def _on_error(self, error : object):
+        logging.error(str(error))
+
+        if isinstance(error, NoApiKeyError):
+            if self.datamodel and self.datamodel.options:
+                self._first_run(self.datamodel.options)

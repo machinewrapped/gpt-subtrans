@@ -1,7 +1,8 @@
 import logging
-from PySide6.QtWidgets import QTreeView, QAbstractItemView
+from PySide6.QtWidgets import QTreeView, QAbstractItemView, QDialog
 from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelectionModel, QItemSelection, QItemSelectionRange, Signal
-from GUI.ProjectViewModel import BatchItem, SceneItem
+from GUI.ProjectViewModel import BatchItem, SceneItem, ViewModelItem
+from GUI.Widgets.Editors import EditBatchDialog, EditSceneDialog
 
 from GUI.Widgets.ScenesBatchesModel import ScenesBatchesModel
 from GUI.Widgets.ScenesBatchesDelegate import ScenesBatchesDelegate
@@ -9,17 +10,22 @@ from GUI.Widgets.ScenesBatchesDelegate import ScenesBatchesDelegate
 class ScenesView(QTreeView):
     onSelection = Signal()
 
+    onSceneEdited = Signal(int, object)
+    onBatchEdited = Signal(int, int, object)
+
     def __init__(self, parent=None, viewmodel=None):
         super().__init__(parent)
 
         self.setMinimumWidth(450)
         self.setIndentation(20)
         self.setHeaderHidden(True)
-        self.setExpandsOnDoubleClick(True)
+        self.setExpandsOnDoubleClick(False)
         self.setAnimated(True)
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+
+        self.doubleClicked.connect(self._on_double_click)
 
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.verticalScrollBar().setSingleStep(16)  # Per-pixel scrolling doesn't work unless we set a step
@@ -32,6 +38,7 @@ class ScenesView(QTreeView):
 
     def Populate(self, viewmodel):
         self.viewmodel = viewmodel
+
         model = ScenesBatchesModel(self.viewmodel)
         self.setModel(model)
         self.selectionModel().selectionChanged.connect(self._item_selected)
@@ -97,3 +104,40 @@ class ScenesView(QTreeView):
         else:
             # Call the base class method to handle other key events
             super().keyPressEvent(event)
+    
+    def _on_double_click(self, index):
+        item: ViewModelItem = index.internalPointer()
+
+        try:
+            if isinstance(item, BatchItem):
+                if self._edit_batch(item):
+                    self.model().dataChanged.emit(index, index)
+            elif isinstance(item, SceneItem):
+                if self._edit_scene(item):
+                    self.model().dataChanged.emit(index, index)
+            else:
+                logging.error("Not sure what you just double-clicked on")
+        except Exception as e:
+            logging.error(str(e))
+
+    def _edit_scene(self, item : SceneItem):
+        dialog = EditSceneDialog(item, parent = self)
+
+        if dialog.exec() == QDialog.Accepted:
+            if dialog.model:
+                item.Update(dialog.model)
+                self.onSceneEdited.emit(item.number, item.scene_model)
+                return True
+
+        return False
+
+    def _edit_batch(self, item : BatchItem):
+        dialog = EditBatchDialog(item)
+
+        if dialog.exec() == QDialog.Accepted:
+            if dialog.model:
+                item.Update(dialog.model)
+                self.onBatchEdited.emit(item.scene, item.number, item.batch_model)
+                return True
+
+        return False

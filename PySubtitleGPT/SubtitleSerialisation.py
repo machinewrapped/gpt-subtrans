@@ -68,7 +68,8 @@ class SubtitleEncoder(json.JSONEncoder):
                 "originals": obj._originals,
                 "translated": obj._translated,
                 "context": {
-                    "summary": obj.context.get('summary')
+                    "summary": obj.context.get('summary'),
+                    "summaries": obj.context.get('summaries')
                 },
                 "translation": obj.translation
             }
@@ -118,7 +119,7 @@ class SubtitleDecoder(json.JSONDecoder):
             elif class_name == classname(SubtitleBatch):
                 return SubtitleBatch(dct)
             elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-                return SubtitleLine(dct['line'], dct.get('translation'))
+                return SubtitleLine(dct.get('line'), dct.get('translation'))
             elif class_name == classname(ChatGPTTranslation):
                 response = {
                     'text' : dct.get('text'),
@@ -134,9 +135,12 @@ class SubtitleDecoder(json.JSONDecoder):
                     response['text'] = '\n'.join(response['text'])
 
                 obj = ChatGPTTranslation(response, dct.get('prompt'))
-                obj.summary = dct.get('summary', None)
-                obj.synopsis = dct.get('synopsis', None)
-                obj.characters = dct.get('characters', None)
+                obj.context = {
+                    'summary': dct.get('summary', None),
+                    'scene': dct.get('scene', None),
+                    'synopsis': dct.get('synopsis', None),
+                    'characters': dct.get('characters', None),
+                }
                 return obj
             elif class_name == classname(ChatGPTPrompt):
                 obj = ChatGPTPrompt(dct.get('instructions'))

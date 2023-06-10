@@ -32,7 +32,7 @@ class LogWindow(QTextEdit):
     def AppendLogMessage(self, message, level):
         current_scroll = self.verticalScrollBar().value()
         maximum_scroll = self.verticalScrollBar().maximum()
-        scroll_to_bottom = current_scroll == maximum_scroll
+        scroll_to_bottom = (current_scroll == maximum_scroll) or self.textCursor().atEnd()
 
         text_cursor = self.textCursor()
         text_cursor.movePosition(QTextCursor.End)

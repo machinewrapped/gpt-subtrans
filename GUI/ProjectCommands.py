@@ -1,8 +1,10 @@
 import logging
 from GUI.Command import Command, CommandError
+from GUI.FileCommands import SaveProjectFile
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
+from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
@@ -26,19 +28,15 @@ class BatchSubtitlesCommand(Command):
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
-        try:
-            project.subtitles.AutoBatch(datamodel.options)
+        project.subtitles.AutoBatch(datamodel.options)
 
-            project.WriteProjectFile()
+        project.WriteProjectFile()
 
-            datamodel.CreateViewModel()
-
-            self.datamodel = datamodel
-            return True
+        self.datamodel = datamodel
+        datamodel.project = project
+        datamodel.CreateViewModel()
+        return True
         
-        except Exception as e:
-            return False
-
     def undo(self):
         # Do we flatten, or do we cache the previous batches?
         pass    
@@ -216,24 +214,28 @@ class TranslateSceneCommand(Command):
     """
     def __init__(self, scene_number : int, batch_numbers : list[int] = None, datamodel : ProjectDataModel = None):
         super().__init__(datamodel)
+        self.translator = None
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
 
     def execute(self):
         if self.batch_numbers:
-            logging.info(f"Translating scene number {self.scene_number} batches {str(self.batch_numbers)}")        
+            logging.info(f"Translating scene number {self.scene_number} batch {','.join(str(x) for x in self.batch_numbers)}")
         else:
             logging.info(f"Translating scene number {self.scene_number}")
+
         if not self.datamodel.project:
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
         project : SubtitleProject = self.datamodel.project
 
-        project.events.batch_translated += self._on_batch_translated
+        self.translator = SubtitleTranslator(project.subtitles, project.options)
 
-        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers)
+        self.translator.events.batch_translated += self._on_batch_translated
 
-        project.events.batch_translated -= self._on_batch_translated
+        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, translator = self.translator)
+
+        self.translator.events.batch_translated -= self._on_batch_translated
 
         project.UpdateProjectFile()
 
@@ -243,27 +245,84 @@ class TranslateSceneCommand(Command):
             })
 
             for batch in scene.batches:
-                if not self.batch_numbers or batch.number in self.batch_numbers:
-                    self.model_update.batches.update((scene.number, batch.number), {
-                        'summary' : batch.summary,
-                        'context' : batch.context,
-                        'errors' : batch.errors,
-                        'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
-                    })
+                if batch.translated:
+                    if not self.batch_numbers or batch.number in self.batch_numbers:
+                        self.model_update.batches.update((scene.number, batch.number), {
+                            'summary' : batch.summary,
+                            'context' : batch.context,
+                            'errors' : batch.errors,
+                            'translation': batch.translation,
+                            'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
+                        })
 
         return True
     
+    def on_abort(self):
+        if self.translator:
+            self.translator.StopTranslating()
+    
     def _on_batch_translated(self, batch : SubtitleBatch):
         # Update viewmodel as each batch is translated 
-        if self.datamodel:
+        if self.datamodel and batch.translated:
             update = ModelUpdate()
             update.batches.update((batch.scene, batch.number), {
                 'summary' : batch.summary,
                 'context' : batch.context,
-                'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
-            })
+                'errors' : batch.errors,
+                'translation': batch.translation,
+                'translated' : { line.number : { 'text' : line.text } for line in batch.translated if line.number }
+            }
 
-            update.UpdateModel(self.datamodel)
+            self.datamodel.UpdateViewModelWithLock({ batch.scene : { 'batches' : { batch.number : update } } })
+
+#############################################################
+
+class TranslateSceneMultithreadedCommand(TranslateSceneCommand):
+    """
+    A non-blocking version of TranslateSceneCommand
+    """
+    def __init__(self, scene_number: int, batch_numbers: list[int] = None, datamodel: ProjectDataModel = None):
+        super().__init__(scene_number, batch_numbers, datamodel)
+        self.is_blocking = False
+
+#############################################################
+
+class ResumeTranslationCommand(Command):
+    def __init__(self, datamodel: ProjectDataModel = None, multithreaded = False):
+        super().__init__(datamodel)
+        self.multithreaded = multithreaded
+
+    def execute(self):
+        if not self.datamodel or not self.datamodel.project or not self.datamodel.project.subtitles:
+            raise CommandError("Nothing to translated")
+
+        subtitles = self.datamodel.project.subtitles
+
+        if subtitles.scenes and all(scene.all_translated for scene in subtitles.scenes):
+            logging.info("All scenes are fully translated")
+            return True
+
+        starting = "Resuming" if self.datamodel.project.AnyTranslated() else "Starting"
+        threaded = "multithreaded" if self.multithreaded else "single threaded"
+        logging.info(f"{starting} {threaded} translation")
+
+        translate_command : TranslateSceneCommand = self
+
+        for scene in subtitles.scenes:
+            if not scene.all_translated:
+                batch_numbers = [ batch.number for batch in scene.batches if not batch.all_translated ] if scene.any_translated else None
+
+                if self.multithreaded:
+                    # Queue scenes in parallel
+                    command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel=self.datamodel)
+                    translate_command.commands_to_queue.append(command)
+                else:
+                    # Queue scenes in series
+                    command = TranslateSceneCommand(scene.number, batch_numbers, datamodel=self.datamodel)
+                    translate_command.commands_to_queue.append(command)
+                    translate_command = command
+
+        return True
 
 #############################################################
 

@@ -2,9 +2,11 @@ import os
 import logging
 import threading
 import srt
-from PySubtitleGPT import SubtitleBatch
-from PySubtitleGPT import SubtitleError
-from PySubtitleGPT.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
+import bisect
+
+from PySubtitleGPT.SubtitleBatch import SubtitleBatch
+from PySubtitleGPT.SubtitleError import SubtitleError
+from PySubtitleGPT.Helpers import GenerateTag, GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
@@ -74,6 +76,52 @@ class SubtitleFile:
                 return batch
         
         raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
+    
+    def GetBatchContainingLine(self, line_number : int):
+        if not self.scenes:
+            raise SubtitleError("Subtitles have not been batched yet")
+        
+        for scene in self.scenes:
+            if scene.first_line_number > line_number:
+                break
+
+            if scene.last_line_number >= line_number:
+                for batch in scene.batches:
+                    if batch.first_line_number > line_number:
+                        break
+
+                    if batch.last_line_number >= line_number:
+                        return batch
+
+    def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int = None) -> list[str]:
+        """
+        Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
+        """
+        context_lines = []
+        last_summary = ""
+        for scene in self.scenes:
+            if scene.number == scene_number:
+                break
+
+            if scene.summary and scene.summary != last_summary:
+                context_lines.append(f"scene {scene.number}: {scene.summary}")
+                last_summary = scene.summary
+
+        if not scene:
+            raise SubtitleError(f"Failed to find scene {scene_number}")
+
+        for batch in scene.batches:
+            if batch.number == batch_number:
+                break
+
+            if batch.summary and batch.summary != last_summary:
+                context_lines.append(f"scene {batch.scene} batch {batch.number}: {batch.summary}")
+                last_summary = batch.summary
+
+        if max_lines:
+            context_lines = context_lines[-max_lines:]
+
+        return context_lines
 
     def LoadSubtitles(self, filepath : str = None):
         """
@@ -93,9 +141,11 @@ class SubtitleFile:
 
         with self.lock:
             self.originals = [ SubtitleLine(item) for item in source ]
-        
-    # Write original subtitles to an SRT file
+
     def SaveOriginals(self, path : str = None):
+        """
+        Write original subtitles to an SRT file
+        """
         self.sourcepath = path or self.sourcepath
         if not self.sourcepath:
             raise ValueError("No file path set")
@@ -114,11 +164,16 @@ class SubtitleFile:
             outputpath = GetOutputPath(self.sourcepath)
             if not outputpath:
                 raise Exception("I don't know where to save the translated subtitles")
+            
+        outputpath = os.path.normpath(outputpath)
 
         if not self.scenes:
             raise ValueError("No scenes in subtitles")
 
         with self.lock:
+            # Regenerate sequential line numbers
+            self.Renumber()
+
             # Linearise the translated scenes
             originals, translated, untranslated = UnbatchScenes(self.scenes)
 
@@ -155,6 +210,7 @@ class SubtitleFile:
             'max_batch_size' : None,
             'batch_threshold' : None,
             'scene_threshold' : None,
+            'match_partial_words': False
         }
 
         with self.lock:
@@ -191,6 +247,48 @@ class SubtitleFile:
         with self.lock:
             self.scenes.append(scene)
             logging.debug("Added a new scene")
+
+    def UpdateScene(self, scene_number, update):
+        with self.lock:
+            scene : SubtitleScene = self.GetScene(scene_number)
+            if not scene:
+                raise Exception(f"Scene {scene_number} does not exist")
+            
+            return scene.UpdateContext(update)
+
+    def UpdateBatch(self, scene_number, batch_number, update):
+        with self.lock:
+            batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
+            if not batch:
+                raise Exception(f"Batch ({scene_number},{batch_number}) does not exist")
+            
+            return batch.UpdateContext(update)
+        
+    def UpdateLineText(self, line_number : int, original_text : str, translated_text : str):
+        with self.lock:
+            original_line = next((original for original in self.originals if original.number == line_number), None)
+            if not original_line:
+                raise Exception(f"Line {line_number} not found")
+
+            if original_text:
+                original_line.text = original_text
+                original_line.translation = translated_text
+
+            if not translated_text:
+                return
+
+            translated_line = next((translated for translated in self.translated if translated.number == line_number), None) if self.translated else None
+            if translated_line:
+                translated_line.text = translated_text
+                return
+
+            translated_line = SubtitleLine.Construct(line_number, original_line.start, original_line.end, translated_text)
+
+            if not self.translated:
+                self.translated = []
+
+            insertIndex = bisect.bisect_left([line.number for line in self.translated], line_number)
+            self.translated.insert(insertIndex, translated_line)
 
     def MergeScenes(self, scene_numbers: list[int]):
         """
