@@ -44,7 +44,7 @@ class ModelUpdate:
         if not datamodel or not isinstance(datamodel, ProjectDataModel):
             raise Exception("Invalid datamodel")
                 
-        with datamodel.lock():
+        with datamodel.GetLock():
             viewmodel : ProjectViewModel = datamodel.viewmodel
 
             # TODO: this won't work because we need to update the keys as well
