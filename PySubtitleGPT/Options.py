@@ -193,7 +193,7 @@ def LoadInstructionsFile(filepath):
     Retry instructions can be added to the file after a line of at least 3 # characters.
     """
     if filepath and os.path.exists(filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, "r", encoding="utf-8", newline='') as f:
             lines = [l.strip() for l in f.readlines()]
 
         if lines:

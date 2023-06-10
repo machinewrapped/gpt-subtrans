@@ -133,7 +133,7 @@ class SubtitleFile:
             self.outputpath = GetOutputPath(filepath)
 
         try:
-            with open(self.sourcepath, 'r', encoding=default_encoding) as f:
+            with open(self.sourcepath, 'r', encoding=default_encoding, newline='') as f:
                 source = list(srt.parse(f))
             
         except srt.SRTParseError as e:
