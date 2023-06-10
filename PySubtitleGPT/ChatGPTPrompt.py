@@ -23,7 +23,7 @@ class ChatGPTPrompt:
             if summaries:
                 self.messages.append({'role': "user", 'content': '\n'.join(summaries)})
 
-            tag_lines = GenerateTagLines(context, ['scene', 'summary'])
+            tag_lines = GenerateTagLines(context, ['scene', 'summary', 'batch'])
 
             self.user_prompt = self.GenerateBatchPrompt(prompt, lines, tag_lines)
 
@@ -59,13 +59,15 @@ class ChatGPTPrompt:
         """
         source_lines = [ self.GetLinePrompt(line) for line in lines ]
         source_text = '\n\n'.join(source_lines)
+        text = f"\n{source_text}\n\n<summary/>\n<scene/>"
+
+        if prompt:
+            text = f"{prompt}\n\n{text}"
 
         if tag_lines:
-            return f"<context>\n{tag_lines}\n</context>\n\n{prompt}\n\n{source_text}\n\n"
-        elif prompt:
-            return f"{prompt}\n\n{source_text}\n"
-        else:
-            return f"\n{source_text}\n"
+            text = f"<context>\n{tag_lines}\n{text}"
+
+        return text
 
     def GetLinePrompt(self, line):
         if not line._item:

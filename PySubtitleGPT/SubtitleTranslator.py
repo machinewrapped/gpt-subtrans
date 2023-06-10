@@ -210,7 +210,8 @@ class SubtitleTranslator:
 
                     # Build summaries context
                     context['summaries'] = self.subtitles.GetBatchContext(batch.scene, batch.number, max_context_summaries)
-                    context['summary'] = batch.summary or f"Scene {batch.scene} batch {batch.number}"
+                    context['summary'] = batch.summary
+                    context['batch'] = f"Scene {batch.scene} batch {batch.number}"
 
                     # Ask OpenAI to do the translation
                     translation : ChatGPTTranslation = client.RequestTranslation(prompt, originals, context)
@@ -323,13 +324,14 @@ class SubtitleTranslator:
 
             # Update the context, unless it's a retranslation pass
             if not options.get('retranslate'):
-                batch_summary : str = self.SanitiseSummary(translation.summary or batch.summary)
+                batch.summary : str = self.SanitiseSummary(translation.summary or batch.summary)
                 scene_summary : str = self.SanitiseSummary(translation.scene)
 
-                context['summary'] = batch_summary
+                context['summary'] = batch.summary
                 context['scene'] = scene_summary or context['scene']
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
                 #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
+                batch.UpdateContext(context)
 
             logging.info(f"Scene {batch.scene} batch {batch.number}: {len(batch.translated or [])} lines and {len(batch.untranslated or [])} untranslated.")
 
