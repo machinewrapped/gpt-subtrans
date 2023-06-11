@@ -112,7 +112,8 @@ class ProjectOptions(QGroupBox):
 
         for key in options:
             if hasattr(self, key + "_input"):
-                self._settext(key, options.get(key))
+                value = options.get(key)
+                self._setvalue(key, value)
 
     def Clear(self):
         for key in ["movie_name", "synopsis", "characters", "substitutions", "match_partial_words"]:
@@ -124,6 +125,12 @@ class ProjectOptions(QGroupBox):
                     input.clear()
             else:
                 logging.error(f"No input found for {key}")
+
+    def _setvalue(self, key, value):
+        if isinstance(value, bool):
+            getattr(self, key + "_input").setChecked(value or False)
+        else:
+            self._settext(key, value)
 
     def _settext(self, key, value):
         if isinstance(value, list):
