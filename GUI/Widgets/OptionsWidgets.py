@@ -79,7 +79,8 @@ class IntegerOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):
         super(IntegerOptionWidget, self).__init__(key, initial_value)
         self.spin_box = QSpinBox(self)
-        self.spin_box.setMinimumWidth(50)
+        self.spin_box.setMaximum(9999)
+        self.spin_box.setMinimumWidth(100)
         self.spin_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         if initial_value:
             self.spin_box.setValue(initial_value)
@@ -91,7 +92,8 @@ class FloatOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):
         super(FloatOptionWidget, self).__init__(key, initial_value)
         self.double_spin_box = QDoubleSpinBox(self)
-        self.double_spin_box.setMinimumWidth(50)
+        self.double_spin_box.setMaximum(9999.99)
+        self.double_spin_box.setMinimumWidth(100)
         self.double_spin_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         if initial_value:
             self.double_spin_box.setValue(initial_value)
