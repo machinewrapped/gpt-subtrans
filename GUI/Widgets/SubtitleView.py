@@ -30,6 +30,7 @@ class SubtitleView(QListView):
     def SetViewModel(self, viewmodel : ProjectViewModel):
         model = SubtitleListModel(self.show_translated, viewmodel)
         self.setModel(model)
+        self.ShowSelection(ProjectSelection())
 
     def ShowSelection(self, selection : ProjectSelection):
         self.model().ShowSelection(selection)

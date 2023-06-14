@@ -16,8 +16,10 @@ class SubtitleListModel(QAbstractItemModel):
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
             batch_numbers = [(batch.scene, batch.number) for batch in selection.selected_batches]
-        else:
+        elif selection.selected_scenes:
             batch_numbers = selection.batch_numbers
+        else:
+            batch_numbers = self.viewmodel.GetBatchNumbers()
 
         self.ShowSelectedBatches(batch_numbers)
 

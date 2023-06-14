@@ -87,6 +87,16 @@ class ProjectViewModel(QStandardItemModel):
                                 if line_item.number == line_number:
                                     return line_item
 
+    def GetBatchNumbers(self):
+        """
+        Get all batch numbers for the model
+        """
+        batch_numbers = []
+        for scene_item in self.model.values():
+            for batch_item in scene_item.batches.values():
+                batch_numbers.append((batch_item.scene, batch_item.number))
+        return batch_numbers
+
     def UpdateModel(self, update):
         """
         Incrementally update the viewmodel
