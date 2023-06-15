@@ -72,7 +72,7 @@ class MultilineTextOptionWidget(OptionWidget):
         else:
             return str(value)
 
-    def _encode_content(obj):
+    def _encode_content(self, obj):
         return str(obj)
 
 class IntegerOptionWidget(OptionWidget):
