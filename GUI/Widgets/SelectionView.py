@@ -52,7 +52,7 @@ class SelectionView(QFrame):
 
         _show(self._translate_button, selection.original_lines and selection.Any() and not selection.AnyLines())
         _show(self._split_batch_button, selection.AnyLines() and not selection.MultipleSelected() and not selection.IsFirstOrLastInBatchSelected())
-        _show(self._split_scene_button, selection.AnyBatches() and not selection.MultipleSelected() and not selection.IsFirstOrLastInSceneSelected())
+        _show(self._split_scene_button, selection.AnyBatches() and not selection.MultipleSelected() and not selection.IsFirstInSceneSelected())
         _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsContiguous())
         _show(self._merge_batches_button, selection.OnlyBatches() and selection.MultipleSelected() and selection.IsContiguous())
         _show(self._merge_lines_button, selection.AnyLines() and selection.MultipleSelected(max=2) and selection.IsContiguous() and selection.AllLinesInSameBatch())
