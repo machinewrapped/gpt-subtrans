@@ -177,6 +177,7 @@ class ProjectActions(QObject):
     def _stop_translating(self):
         self._issue_command(ClearCommandQueue())
 
+    def _translate_selection(self, datamodel : ProjectDataModel, selection : ProjectSelection):
         """
         Request translation of selected scenes and batches
         """
@@ -193,8 +194,15 @@ class ProjectActions(QObject):
 
         logging.debug(f"Translate selection of {str(selection)}")
 
+        multithreaded = len(selection.scenes) > 1 and datamodel.options.allow_multithreaded_translation()
+
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
+            if multithreaded:
+                command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel)
+            else:
+                command = TranslateSceneCommand(scene.number, batch_numbers, datamodel)
+
             self._issue_command(command)
 
     def _update_scene(self, datamodel : ProjectDataModel, scene_number : int, update : dict):

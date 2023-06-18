@@ -105,6 +105,9 @@ class Options:
 
     def api_key(self):
         return self.get('api_key')
+    
+    def allow_multithreaded_translation(self):
+        return self.get('max_threads') and self.get('max_threads') > 1
 
     def ReplaceTagsWithOptions(self, text):
         """
