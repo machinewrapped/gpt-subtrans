@@ -3,13 +3,10 @@ from GUI.ProjectViewModel import ProjectViewModel
 
 class ModelUpdateSection:
     def __init__(self):
-        self.renumbered = {}
         self.removals = []
         self.additions = {}
+        self.replacements = {}
         self.updates = {}
-
-    def renumber(self, key, new_number):
-        self.renumbered[key] = new_number
 
     def add(self, key, item):
         self.additions[key] = item
@@ -21,8 +18,9 @@ class ModelUpdateSection:
         self.updates[key] = item_update
 
     def replace(self, key, item):
-        self.removals.append(key)
-        self.additions[key] = item
+        # self.removals.append(key)
+        # self.additions[key] = item
+        self.replacements[key] = item
 
     def HasUpdate(self) -> bool:
         return self.additions or self.removals or self.updates
@@ -47,23 +45,17 @@ class ModelUpdate:
         with datamodel.GetLock():
             viewmodel : ProjectViewModel = datamodel.viewmodel
 
-            # TODO: this won't work because we need to update the keys as well
-            # for scene_number, new_number in self.scenes.renumbered.items():
-            #     viewmodel.UpdateScene(scene_number, { 'number' : new_number })
-
             for scene_number in self.scenes.removals:
                 viewmodel.RemoveScene(scene_number)
 
             for scene_number, scene in self.scenes.additions.items():
                 viewmodel.AddScene(scene)
 
+            for scene_number, scene in self.scenes.replacements.items():
+                viewmodel.ReplaceScene(scene)
+
             for scene_number, scene_update in self.scenes.updates.items():
                 viewmodel.UpdateScene(scene_number, scene_update)
-
-            # TODO: this won't work because we need to update the keys as well
-            # for key, new_number in self.batches.renumbered.items():
-            #     scene_number, batch_number = key
-            #     viewmodel.UpdateBatch(scene_number, batch_number, { 'number': new_number })
 
             for key in self.batches.removals:
                 scene_number, batch_number = key
@@ -73,6 +65,10 @@ class ModelUpdate:
                 scene_number, batch_number = key
                 viewmodel.AddBatch(batch)
 
+            for key, batch in self.batches.replacements.items():
+                scene_number, batch_number = key
+                viewmodel.ReplaceBatch(batch)
+
             for key, batch_update in self.batches.updates.items():
                 scene_number, batch_number = key
                 viewmodel.UpdateBatch(scene_number, batch_number, batch_update)
@@ -80,11 +76,6 @@ class ModelUpdate:
             for key in self.originals.removals:
                 scene_number, batch_number, line_number = key
                 viewmodel.RemoveOriginalLine(scene_number, batch_number, line_number)
-
-            # TODO: this won't work because we need to update the keys as well
-            # for key, new_number in self.originals.renumbered:
-            #     scene_number, batch_number, line_number = key
-            #     viewmodel.UpdateOriginalLine(scene_number, batch_number, line_number, { 'number' : new_number })
 
             for key, line in self.originals.additions.items():
                 scene_number, batch_number, line_number = key
@@ -94,11 +85,6 @@ class ModelUpdate:
             for key, line_update in self.originals.updates.items():
                 scene_number, batch_number, line_number = key
                 viewmodel.UpdateOriginalLine(scene_number, batch_number, line_number, line_update)
-
-            # TODO: this won't work because we need to update the keys as well
-            # for key, new_number in self.translated.renumbered:
-            #     scene_number, batch_number, line_number = key
-            #     viewmodel.UpdateTranslatedLine(scene_number, batch_number, line_number, { 'number' : new_number })
 
             for key in self.translated.removals:
                 scene_number, batch_number, line_number = key
@@ -112,6 +98,9 @@ class ModelUpdate:
             for key, line_update in self.translated.updates.items():
                 scene_number, batch_number, line_number = key
                 viewmodel.UpdateTranslatedLine(scene_number, batch_number, line_number, line_update)
+
+            # Rebuild the model dictionaries
+            viewmodel.Remap()
         
         viewmodel.layoutChanged.emit()
 

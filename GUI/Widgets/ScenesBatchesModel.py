@@ -1,14 +1,19 @@
 import logging
-from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt
 
-from GUI.ProjectViewModel import BatchItem, ViewModelItem
+from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt
+from PySide6.QtGui import QStandardItem
+
+from GUI.ProjectViewModel import BatchItem, ProjectViewModel, SceneItem, ViewModelError, ViewModelItem
 from GUI.Widgets.Widgets import TreeViewItemWidget
 
 class ScenesBatchesModel(QAbstractItemModel):
-    def __init__(self, viewmodel=None, parent=None):
+    def __init__(self, viewmodel : ProjectViewModel = None, parent=None):
         super().__init__(parent)
         self.viewmodel = viewmodel
-        self.root_item = self.viewmodel.getRootItem() if self.viewmodel else None
+
+    @property
+    def root_item(self):
+        return self.viewmodel.getRootItem() if self.viewmodel else None
 
     def rowCount(self, parent=QModelIndex()):
         if not parent.isValid():
@@ -20,6 +25,9 @@ class ScenesBatchesModel(QAbstractItemModel):
         if isinstance(parent_item, BatchItem):
             return 0
         
+        if not isinstance(parent_item, SceneItem):
+            raise ViewModelError(f"Asked for a rowCount for something unexpected: {type(parent_item).__name__}")        
+    
         return parent_item.rowCount()
 
     def columnCount(self, parent=QModelIndex()):
@@ -64,14 +72,19 @@ class ScenesBatchesModel(QAbstractItemModel):
         else:
             return QModelIndex()
 
-    def parent(self, index):
+    def parent(self, index : QModelIndex):
         if not index.isValid():
             return QModelIndex()
 
         child_item = index.internalPointer()
-        parent_item = child_item.parent()
+        if not isinstance(child_item, QStandardItem):
+            raise ViewModelError(f"Asked for the parent of something unexpected: {type(child_item).__name__}")
 
+        parent_item = child_item.parent()
         if parent_item == self.root_item or parent_item is None:
             return QModelIndex()
+        
+        if not isinstance(parent_item, SceneItem) and not isinstance(parent_item, BatchItem):
+            raise ViewModelError(f"Parent of something is an unexpected type: {type(parent_item).__name__}")
 
         return self.createIndex(parent_item.row(), 0, parent_item)

@@ -1,6 +1,5 @@
 import logging
 from GUI.Command import Command, CommandError
-from GUI.FileCommands import SaveProjectFile
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
@@ -108,7 +107,7 @@ class MergeBatchesCommand(Command):
 
 class MergeLinesCommand(Command):
     """
-    Merge one or several lines together and renumber the rest
+    Merge one or several lines together
     """
     def __init__(self, selection : ProjectSelection, datamodel: ProjectDataModel = None):
         super().__init__(datamodel)
@@ -143,8 +142,6 @@ class MergeLinesCommand(Command):
                 for batch in batches_to_update:
                     self.model_update.batches.replace((scene_number, batch.number), batch)
             
-            #TODO need to renumber all subsequent lines
-
         return True
     
     def undo(self):
@@ -176,15 +173,9 @@ class SplitBatchCommand(Command):
         
         scene.SplitBatch(self.batch_number, self.line_number, self.translation_number)
 
-        self.datamodel.CreateViewModel()
-
-        # TODO: this won't work because we need to update the keys as well
-        # new_batch_number = self.batch_number + 1
-        # for batch_number in range(new_batch_number, scene.batches[-1].number + 1):
-        #     self.model_update.batches.renumber(self.scene_number, batch_number, batch_number + 1)
-
-        # self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
-        # self.model_update.batches.update((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
+        new_batch_number = self.batch_number + 1
+        self.model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
+        self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
         return True
 
@@ -201,8 +192,9 @@ class SplitBatchCommand(Command):
 
         scene.MergeBatches([self.batch_number, self.batch_number + 1])
 
-        for batch in scene.batches[self.batch_number:]:
-            self.model_update.batches.replace((self.scene_number, batch.number), batch)
+        new_batch_number = self.batch_number + 1
+        self.model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
+        self.model_update.batches.remove((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
         return True
 
