@@ -157,6 +157,21 @@ class ProjectSelection():
 
         return True
     
+    def IsFirstInBatchSelected(self) -> bool:
+        """
+        Check whether the first line of any batch is selected
+        """
+        for scene, batch in self.batch_numbers:
+            first_line = next((line for line in self.original_lines if line.scene == scene and line.batch == batch), None)
+            if first_line and first_line.selected:
+                return True
+
+            first_translated = next((line for line in self.translated_lines if line.scene == scene and line.batch == batch), None)
+            if first_translated and first_translated.selected:
+                return True
+
+        return False
+    
     def IsFirstOrLastInBatchSelected(self) -> bool:
         """
         Check whether the first or last line of any batch is selected
@@ -176,18 +191,26 @@ class ProjectSelection():
         
         return False
     
+    def IsFirstInSceneSelected(self) -> bool:
+        """
+        Check whether the first or last batch of any scene is selected
+        """
+        return next((batch.number for batch in self.selected_batches if batch.number == 1), False) and True
+    
     def IsFirstOrLastInSceneSelected(self) -> bool:
         """
         Check whether the first or last batch of any scene is selected
         """
+        scene_batches = {}
         for scene in self.scenes:
-            scene_batches = [batch for batch in self.batches if batch.scene == scene.number]
-            if scene_batches[0].selected or scene_batches[-1].selected:
+            scene_batches[scene] = [batch for batch in self.batches if batch[0] == scene]
+
+        for batch in self.selected_batches:
+            if batch.number == 1 or batch.number == scene_batches[batch][-1][1]:
                 return True
-        
+
         return False
 
-    
     def GetHierarchy(self) -> dict:
         """
         Hierarchical representation of selected lines/batches/scenes
