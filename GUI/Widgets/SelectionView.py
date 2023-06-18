@@ -50,13 +50,12 @@ class SelectionView(QFrame):
         else:
             self._label.setText(str(selection))
 
-        # TEMP - no individual line translation yet
         _show(self._translate_button, selection.original_lines and selection.Any() and not selection.AnyLines())
         _show(self._split_batch_button, selection.AnyLines() and not selection.MultipleSelected() and not selection.IsFirstOrLastInBatchSelected())
-        _show(self._split_scene_button, selection.AnyBatches() and not selection.MultipleSelected() and not selection.IsFirstOrLastInBatchSelected())
-        _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsSequential())
-        _show(self._merge_batches_button, selection.OnlyBatches() and selection.MultipleSelected() and selection.IsSequential())
-        _show(self._merge_lines_button, selection.AnyLines() and selection.MultipleSelected(max=2) and selection.IsSequential() and selection.AllLinesInSameBatch())
+        _show(self._split_scene_button, selection.AnyBatches() and not selection.MultipleSelected() and not selection.IsFirstOrLastInSceneSelected())
+        _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsContiguous())
+        _show(self._merge_batches_button, selection.OnlyBatches() and selection.MultipleSelected() and selection.IsContiguous())
+        _show(self._merge_lines_button, selection.AnyLines() and selection.MultipleSelected(max=2) and selection.IsContiguous() and selection.AllLinesInSameBatch())
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
     def _create_button(self, text, on_click):
@@ -69,7 +68,7 @@ class SelectionView(QFrame):
         dbg = []
         if selection.MultipleSelected():
             dbg.append("multiple")
-        if selection.MultipleSelected() and selection.IsSequential():
+        if selection.MultipleSelected() and selection.IsContiguous():
             dbg.append("sequential")
         if selection.MultipleSelected() and selection.AllLinesInSameBatch():
             dbg.append("in the same batch")

@@ -177,7 +177,6 @@ class ProjectActions(QObject):
     def _stop_translating(self):
         self._issue_command(ClearCommandQueue())
 
-    def _translate_selection(self, datamodel, selection : ProjectSelection):
         """
         Request translation of selected scenes and batches
         """
@@ -196,7 +195,6 @@ class ProjectActions(QObject):
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
-            command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel)
             self._issue_command(command)
 
     def _update_scene(self, datamodel : ProjectDataModel, scene_number : int, update : dict):
@@ -257,7 +255,7 @@ class ProjectActions(QObject):
         if not selection.Any():
             raise ActionError("Nothing selected to merge")
         
-        if not selection.IsSequential():
+        if not selection.IsContiguous():
             raise ActionError("Cannot merge non-sequential elements")
         
         if selection.OnlyScenes():
