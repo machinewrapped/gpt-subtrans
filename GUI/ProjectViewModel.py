@@ -200,7 +200,6 @@ class ProjectViewModel(QStandardItemModel):
         batch_index = self.indexFromItem(scene_item.batches[batch.number])
         parent_index = batch_index.parent()
         
-
         self.beginRemoveRows(parent_index, batch_index.row(), batch_index.row())
         scene_item.removeRow(batch_index.row())
         self.endRemoveRows()
