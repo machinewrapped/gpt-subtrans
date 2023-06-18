@@ -235,7 +235,7 @@ class SubtitleProject:
             with self.lock:
                 logging.info(f"Reading project data from {str(self.projectfile)}")
 
-                with open(self.projectfile, 'r', encoding=default_encoding) as f:
+                with open(self.projectfile, 'r', encoding=default_encoding, newline='') as f:
                     subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
 
                 subtitles.project = self

@@ -147,12 +147,15 @@ def ParseTranslation(text):
 
     return text, context 
 
-def ExtractTag(tagname, text):
+def ExtractTag(tagname : str, text : str):
     """
     Look for an xml-like tag in the input text, and extract the contents.
     """
     open_tag = f"<{tagname}>"
     close_tag = f"</{tagname}>"
+    empty_tag = f"<{tagname}/>"
+
+    text = text.replace(empty_tag, '')
 
     end_index = text.rfind(close_tag)
 
@@ -270,7 +273,7 @@ def ParseSubstitutions(sub_list, separator="::"):
                 substitutions[before] = after
             else:
                 try:
-                    with open(sub, "r", encoding="utf-8") as f:
+                    with open(sub, "r", encoding="utf-8", newline='') as f:
                         for line in [line.strip() for line in f if line.strip()]:
                             if "::" in line:
                                 before, after = line.split("::")

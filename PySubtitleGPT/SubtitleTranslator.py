@@ -141,9 +141,7 @@ class SubtitleTranslator:
             self.TranslateBatches(batches, context, remaining_lines)
 
             # Update the scene summary based on the best available information (we hope)
-            scene.summary = scene.summary or context.get('scene') or context.get('summary')
-            if scene.summary:
-                scene.summary = re.sub(r'^Scene\s*(\d*)\s*[:\-]\s*', '', scene.summary)
+            scene.summary = self.SanitiseSummary(scene.summary or context.get('scene') or context.get('summary'))
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
@@ -213,6 +211,7 @@ class SubtitleTranslator:
                     # Build summaries context
                     context['summaries'] = self.subtitles.GetBatchContext(batch.scene, batch.number, max_context_summaries)
                     context['summary'] = batch.summary
+                    context['batch'] = f"Scene {batch.scene} batch {batch.number}"
 
                     # Ask OpenAI to do the translation
                     translation : ChatGPTTranslation = client.RequestTranslation(prompt, originals, context)
@@ -325,13 +324,14 @@ class SubtitleTranslator:
 
             # Update the context, unless it's a retranslation pass
             if not options.get('retranslate'):
-                if translation.summary:
-                    batch.summary : str = self.SanitiseSummary(translation.summary, context)
+                batch.summary : str = self.SanitiseSummary(translation.summary or batch.summary)
+                scene_summary : str = self.SanitiseSummary(translation.scene)
 
-                context['summary'] = batch.summary or context.get('summary')
-                context['scene'] = translation.scene or context.get('scene')
+                context['summary'] = batch.summary
+                context['scene'] = scene_summary or context['scene']
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
                 #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
+                batch.UpdateContext(context)
 
             logging.info(f"Scene {batch.scene} batch {batch.number}: {len(batch.translated or [])} lines and {len(batch.untranslated or [])} untranslated.")
 
@@ -382,15 +382,15 @@ class SubtitleTranslator:
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.text}\n")
 
-    def SanitiseSummary(self, summary : str, context : dict):
+    def SanitiseSummary(self, summary : str):
         if not summary:
             return None
 
-        summary = re.sub(r'^Scene\s*(\d*)\s*[:\-]\s*', '', summary)
+        summary = re.sub(r'^(?:(?:Scene|Batch)[\s\d:\-]*)+', '', summary, flags=re.IGNORECASE)
 
         movie_name = self.options.get('movie_name')
         if movie_name:
             # Remove movie name and any connectors (-,: or whitespace)
             summary = re.sub(r'^' + re.escape(movie_name) + r'\s*[:\-]\s*', '', summary)
 
-        return summary
+        return summary.strip() if summary.strip() else None

@@ -61,7 +61,7 @@ class MultilineTextOptionWidget(OptionWidget):
         elif isinstance(value, list):
             return '\n'.join(self._get_content(x) for x in value)
         elif isinstance(value, dict):
-            jsonstring = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
+            jsonstring = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True, default=self._encode_content)
             return self._get_content(jsonstring)
         elif isinstance(value, (int, float)):
             return f'{value:,}'  # Format number with commas
@@ -72,13 +72,15 @@ class MultilineTextOptionWidget(OptionWidget):
         else:
             return str(value)
 
-
+    def _encode_content(self, obj):
+        return str(obj)
 
 class IntegerOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):
         super(IntegerOptionWidget, self).__init__(key, initial_value)
         self.spin_box = QSpinBox(self)
-        self.spin_box.setMinimumWidth(50)
+        self.spin_box.setMaximum(9999)
+        self.spin_box.setMinimumWidth(100)
         self.spin_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         if initial_value:
             self.spin_box.setValue(initial_value)
@@ -90,7 +92,8 @@ class FloatOptionWidget(OptionWidget):
     def __init__(self, key, initial_value):
         super(FloatOptionWidget, self).__init__(key, initial_value)
         self.double_spin_box = QDoubleSpinBox(self)
-        self.double_spin_box.setMinimumWidth(50)
+        self.double_spin_box.setMaximum(9999.99)
+        self.double_spin_box.setMinimumWidth(100)
         self.double_spin_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         if initial_value:
             self.double_spin_box.setValue(initial_value)

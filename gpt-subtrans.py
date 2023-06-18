@@ -29,7 +29,7 @@ parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum numb
 parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
-parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
+parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of lines(subtitles) to process in this run")
 parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
 
 args = parser.parse_args()

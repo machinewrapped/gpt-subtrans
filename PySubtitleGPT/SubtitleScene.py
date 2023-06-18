@@ -111,7 +111,7 @@ class SubtitleScene:
 
         batches = [ batch for batch in self.batches if batch.number in batch_numbers]
         if len(batches) != len(batch_numbers):
-            raise ValueError(f"Could not find batches {','.join(batch_numbers)} in scene {self.number}")
+            raise ValueError(f"Could not find batches {str(batch_numbers)} in scene {self.number}")
         
         merged_batch = SubtitleBatch()
         merged_batch.number = batches[0].number

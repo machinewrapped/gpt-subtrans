@@ -110,12 +110,13 @@ class SubtitleFile:
         if not scene:
             raise SubtitleError(f"Failed to find scene {scene_number}")
 
+        context_lines.append(f"scene {scene.number}:")
         for batch in scene.batches:
             if batch.number == batch_number:
                 break
 
             if batch.summary and batch.summary != last_summary:
-                context_lines.append(f"scene {batch.scene} batch {batch.number}: {batch.summary}")
+                context_lines.append(f"batch {batch.number}: {batch.summary}")
                 last_summary = batch.summary
 
         if max_lines:
@@ -132,7 +133,7 @@ class SubtitleFile:
             self.outputpath = GetOutputPath(filepath)
 
         try:
-            with open(self.sourcepath, 'r', encoding=default_encoding) as f:
+            with open(self.sourcepath, 'r', encoding=default_encoding, newline='') as f:
                 source = list(srt.parse(f))
             
         except srt.SRTParseError as e:

@@ -4,10 +4,9 @@ GPT-Subtrans is an open source subtitle translator built with OpenAI's ChatGPT. 
 Note: GPT-Subtrans requires an active internet connection to access the OpenAI API. Subtitles are sent to OpenAI's servers for translation, so their privacy policy applies: https://openai.com/policies/privacy-policy.
 
 ## New
-version 0.2 employs a new prompting approach that greatly reduces desyncs caused by GPT merging together source lines in the translation. This can reduce the naturalness of the translation when the source and target languages have very different grammar, but it provides a better base for a human to polish the output.
+OpenAI have released a new model that supports 4x as many input tokens, gpt-3.5-turbo-16k. Desyncs have basically been eliminated with an improved prompting strategy in v2.0 and retranslation requests, so sending batches of 100+ lines is quite feasible, and there is room for more detailed, explicit instructions.
 
-The instructions have also been made more detailed, with multiple examples of correct output for GPT to reference, and the generation of summaries has been improved so that GPT is better able to understand the context of the batch it is translating. Additionally, double-clicking a scene or batch now allows the summary to be edited by hand, which can greatly improve the results of 
-a retranslation and of subsequent batches or scenes. Individually lines can also be edited by double-clicking them.
+I haven't made this model the default yet because I'm waiting to see if larger batches actually result in better translations. In theory having more context for each line should help, but GPT doesn't always behave how you'd expect.
 
 ## Installation
 For most users the packaged release is the easiest way to use the program. Simply unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first-run.
@@ -153,6 +152,12 @@ Writing a project file allows, amongst other things, resuming a translation that
 
 Other valid options include `preview`, `reparse` and `retranslate`. These are probably only useful if you're modifying the code, in which case
 you should be able to see what they do.
+
+## Version History
+
+Version 0.2 employs a new prompting approach that greatly reduces desyncs caused by GPT merging together source lines in the translation. This can reduce the naturalness of the translation when the source and target languages have very different grammar, but it provides a better base for a human to polish the output.
+
+The instructions have also been made more detailed, with multiple examples of correct output for GPT to reference, and the generation of summaries has been improved so that GPT is better able to understand the context of the batch it is translating. Additionally, double-clicking a scene or batch now allows the summary to be edited by hand, which can greatly improve the results of a retranslation and of subsequent batches or scenes. Individually lines can also be edited by double-clicking them.
 
 
 ## Contributing

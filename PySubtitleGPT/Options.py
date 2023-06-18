@@ -38,11 +38,11 @@ default_options = {
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
     'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
     'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 30.0)),
-    'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 5.0)),
-    'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 5)),
-    'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 25)),
+    'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 7.0)),
+    'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 7)),
+    'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 30)),
     'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
-    'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
+    'max_characters': int(os.getenv('MAX_CHARACTERS', 99)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
     'match_partial_words': env_bool('MATCH_PARTIAL_WORDS', False),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
@@ -193,7 +193,7 @@ def LoadInstructionsFile(filepath):
     Retry instructions can be added to the file after a line of at least 3 # characters.
     """
     if filepath and os.path.exists(filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, "r", encoding="utf-8", newline='') as f:
             lines = [l.strip() for l in f.readlines()]
 
         if lines:
