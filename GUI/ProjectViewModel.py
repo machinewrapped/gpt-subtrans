@@ -194,10 +194,13 @@ class ProjectViewModel(QStandardItemModel):
         if not isinstance(batch, SubtitleBatch):
             raise ViewModelError(f"Wrong type for ReplaceBatch ({type(batch).__name__})")
 
+        self.modelAboutToBeReset.emit()
+
         scene_item : SceneItem = self.model[batch.scene]
         batch_index = self.indexFromItem(scene_item.batches[batch.number])
         parent_index = batch_index.parent()
         
+
         self.beginRemoveRows(parent_index, batch_index.row(), batch_index.row())
         scene_item.removeRow(batch_index.row())
         self.endRemoveRows()
@@ -205,12 +208,13 @@ class ProjectViewModel(QStandardItemModel):
         batch_item : BatchItem = self.CreateBatchItem(batch.scene, batch)
 
         self.beginInsertRows(parent_index, batch_index.row(), batch_index.row())
-        scene_item.setChild(batch_index.row(), 0, batch_item)
+        scene_item.insertRow(batch_index.row(), batch_item)
         self.endInsertRows()
 
         scene_item.batches[batch.number] = batch_item
         scene_item.emitDataChanged()
 
+        self.modelReset.emit()
 
     def UpdateBatch(self, scene_number, batch_number, batch_update : dict):
         logging.debug(f"Updating batch ({scene_number}, {batch_number})")
