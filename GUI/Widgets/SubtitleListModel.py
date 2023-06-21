@@ -9,9 +9,13 @@ class SubtitleListModel(QAbstractItemModel):
         super().__init__(parent)
         self.show_translated = show_translated
         self.viewmodel : ProjectViewModel = viewmodel
-        self.viewmodel.layoutChanged.connect(self._update_visible_batches)
         self.selected_batch_numbers = []
         self.visible = []
+
+        self.viewmodel.layoutChanged.connect(self._update_visible_batches)
+        self.viewmodel.dataChanged.connect(self.dataChanged)
+        self.viewmodel.rowsInserted.connect(self.rowsInserted)
+        self.viewmodel.rowsRemoved.connect(self.rowsRemoved)
 
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
@@ -81,3 +85,4 @@ class SubtitleListModel(QAbstractItemModel):
     def _update_visible_batches(self):
         if self.selected_batch_numbers:
             self.ShowSelectedBatches(self.selected_batch_numbers)
+            self.layoutChanged.emit()

@@ -10,6 +10,11 @@ class ScenesBatchesModel(QAbstractItemModel):
     def __init__(self, viewmodel : ProjectViewModel = None, parent=None):
         super().__init__(parent)
         self.viewmodel = viewmodel
+        if viewmodel:
+            self.viewmodel.dataChanged.connect(self.dataChanged)
+            self.viewmodel.layoutChanged.connect(self.layoutChanged)
+            self.viewmodel.rowsInserted.connect(self.rowsInserted)
+            self.viewmodel.rowsRemoved.connect(self.rowsRemoved)
 
     @property
     def root_item(self):
