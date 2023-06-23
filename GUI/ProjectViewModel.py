@@ -188,8 +188,6 @@ class ProjectViewModel(QStandardItemModel):
         scene_item.AddBatchItem(batch_item)
         scene_item.emitDataChanged()
 
-        self.layoutChanged.emit()
-
     def ReplaceBatch(self, batch):
         logging.debug(f"Replacing batch ({batch.scene}, {batch.number})")
         if not isinstance(batch, SubtitleBatch):
@@ -211,8 +209,6 @@ class ProjectViewModel(QStandardItemModel):
 
         scene_item.batches[batch.number] = batch_item
         scene_item.emitDataChanged()
-
-        self.layoutChanged.emit()
 
     def UpdateBatch(self, scene_number, batch_number, batch_update : dict):
         logging.debug(f"Updating batch ({scene_number}, {batch_number})")
