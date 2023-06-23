@@ -166,7 +166,6 @@ class SubtitleScene:
 
         self._renumber_batches()
 
-
     def _renumber_batches(self):
         for number, batch in enumerate(self._batches, start = 1):
             batch.number = number

@@ -107,24 +107,28 @@ class ProjectViewModel(QStandardItemModel):
         scene_items : list[SceneItem] = [ self.getRootItem().child(i, 0) for i in range(0, self.getRootItem().rowCount()) ]
         self.model = { item.number: item for item in scene_items }
 
-        for scene in scene_items:
-            batch_items : list[BatchItem] = [ scene.child(i, 0) for i in range(0, scene.rowCount()) ]
+        for scene_item in scene_items:
+            batch_items : list[BatchItem] = [ scene_item.child(i, 0) for i in range(0, scene_item.rowCount()) ]
 
             for batch_number, batch_item in enumerate(batch_items, start=1):
-                batch_item.scene = scene.number
-                batch_item.number = batch_number
+                if batch_item.scene != scene_item.number or batch_item.number != batch_number:
+                    logging.debug(f"Batch ({batch_item.scene}, {batch_item.number}) -> ({scene_item.number},{batch_item.number})")
+                    batch_item.scene = scene_item.number
+                    batch_item.number = batch_number
                 
-            scene.batches = { item.number: item for item in batch_items }
+            scene_item.batches = { item.number: item for item in batch_items }
 
-            for batch in batch_items:
-                line_items : list[LineItem] = [ batch.child(i, 0) for i in range(0, batch.rowCount()) ]
+            for batch_item in batch_items:
+                line_items : list[LineItem] = [ batch_item.child(i, 0) for i in range(0, batch_item.rowCount()) ]
 
                 for line_item in line_items:
-                    line_item.line_model['scene'] = scene.number
-                    line_item.line_model['batch'] = batch.number
+                    if line_item.scene != scene_item.number or line_item.batch != batch_item.number:
+                        logging.debug(f"Batch ({line_item.scene},{line_item.batch}) Line {line_item.number} -> Batch ({scene_item.number},{batch_item.number})")
+                        line_item.line_model['scene'] = scene_item.number
+                        line_item.line_model['batch'] = batch_item.number
 
-                batch.translated = { item.number: item for item in line_items if item.is_translation }
-                batch.originals = { item.number: item for item in line_items if not item.is_translation }
+                batch_item.translated = { item.number: item for item in line_items if item.is_translation }
+                batch_item.originals = { item.number: item for item in line_items if not item.is_translation }
 
     #############################################################################
 
@@ -569,8 +573,6 @@ class SceneItem(ViewModelItem):
 
         batch_items = [ self.child(i, 0) for i in range(0, self.rowCount()) ]
         self.batches = { item.number: item for item in batch_items }
-
-        logging.debug(f"Scene {self.number} batches = {str(self.batches.keys())}")
 
     @property
     def batch_count(self):
