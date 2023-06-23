@@ -1,6 +1,6 @@
 import logging
 import os
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QModelIndex
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySubtitleGPT import SubtitleLine
@@ -104,7 +104,7 @@ class ProjectViewModel(QStandardItemModel):
         """
         Rebuild the dictionary keys for the model
         """
-        scene_items = [ self.root_item.child(i, 0) for i in range(0, self.root_item.rowCount()) ]
+        scene_items = [ self.getRootItem().child(i, 0) for i in range(0, self.getRootItem().rowCount()) ]
         self.model = { item.number: item for item in scene_items }
 
         for scene in scene_items:
@@ -128,9 +128,9 @@ class ProjectViewModel(QStandardItemModel):
 
         #TODO: insert row at appropriate position
         scene_item = SceneItem(scene)
-        self.root_item.insertRow(scene_item, scene.number)
+        self.getRootItem().insertRow(scene_item, scene.number)
 
-        scene_items = [ self.data(self.index(i, 0, self.root_item)) for i in range(0, self.root_item.rowCount()) ]
+        scene_items = [ self.data(self.index(i, 0, self.getRootItem())) for i in range(0, self.getRootItem().rowCount()) ]
         self.model = { item.number: item for item in scene_items  }
 
     def ReplaceScene(self, scene):
@@ -168,7 +168,7 @@ class ProjectViewModel(QStandardItemModel):
         
         scene_item = self.model.get(scene_number)
         scene_index = self.indexFromItem(scene_item)
-        self.root_item.removeRow(scene_index.row())
+        self.getRootItem().removeRow(scene_index.row())
 
         del self.model[scene_number]
 
@@ -179,39 +179,37 @@ class ProjectViewModel(QStandardItemModel):
         if not isinstance(batch, SubtitleBatch):
             raise ViewModelError(f"Wrong type for AddBatch ({type(batch).__name__})")
 
-        scene_item : SceneItem = self.model.get(batch.scene)
-        if batch.number in scene_item.batches.keys():
-            raise ViewModelError(f"Scene {batch.scene} batch {batch.number} already exists")
-
         batch_item : BatchItem = self.CreateBatchItem(batch.scene, batch)
+
+        scene_item : SceneItem = self.model.get(batch.scene)
         scene_item.AddBatchItem(batch_item)
         scene_item.emitDataChanged()
 
+        self.layoutChanged.emit()
+
     def ReplaceBatch(self, batch):
-        logging.debug(f"Replacing batch {batch.number}")
+        logging.debug(f"Replacing batch ({batch.scene}, {batch.number})")
         if not isinstance(batch, SubtitleBatch):
             raise ViewModelError(f"Wrong type for ReplaceBatch ({type(batch).__name__})")
 
-        self.modelAboutToBeReset.emit()
-
         scene_item : SceneItem = self.model[batch.scene]
+        scene_index = self.indexFromItem(scene_item)
         batch_index = self.indexFromItem(scene_item.batches[batch.number])
-        parent_index = batch_index.parent()
         
-        self.beginRemoveRows(parent_index, batch_index.row(), batch_index.row())
+        self.beginRemoveRows(scene_index, batch_index.row(), batch_index.row())
         scene_item.removeRow(batch_index.row())
         self.endRemoveRows()
 
         batch_item : BatchItem = self.CreateBatchItem(batch.scene, batch)
 
-        self.beginInsertRows(parent_index, batch_index.row(), batch_index.row())
+        self.beginInsertRows(scene_index, batch_index.row(), batch_index.row())
         scene_item.insertRow(batch_index.row(), batch_item)
         self.endInsertRows()
 
         scene_item.batches[batch.number] = batch_item
         scene_item.emitDataChanged()
 
-        self.modelReset.emit()
+        self.layoutChanged.emit()
 
     def UpdateBatch(self, scene_number, batch_number, batch_update : dict):
         logging.debug(f"Updating batch ({scene_number}, {batch_number})")
@@ -557,7 +555,7 @@ class SceneItem(ViewModelItem):
 
     def AddBatchItem(self, batch_item : BatchItem):
         self.batches[batch_item.number] = batch_item
-        if batch_item.number >= len(self.batches):
+        if batch_item.number > len(self.batches):
             self.appendRow(batch_item)
         else:
             self.insertRow(batch_item.number - 1, batch_item)

@@ -12,10 +12,8 @@ class SubtitleListModel(QAbstractItemModel):
         self.selected_batch_numbers = []
         self.visible = []
 
-        self.viewmodel.layoutChanged.connect(self._update_visible_batches)
-        self.viewmodel.dataChanged.connect(self.dataChanged)
-        self.viewmodel.rowsInserted.connect(self.rowsInserted)
-        self.viewmodel.rowsRemoved.connect(self.rowsRemoved)
+        # self.viewmodel.layoutChanged.connect(self._update_visible_batches)
+        self.viewmodel.layoutChanged.connect(self._reset_visible_batches)
 
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
@@ -37,6 +35,9 @@ class SubtitleListModel(QAbstractItemModel):
             scene_item : SceneItem = root_item.child(scene_index, 0)
             for batch_index in range (0, scene_item.rowCount()):
                 batch_item : BatchItem = scene_item.child(batch_index, 0)
+                if not batch_item or not isinstance(batch_item, BatchItem):
+                    logging.error(f"Scene Item {scene_index} has invalid child {batch_index}: {type(batch_item).__name__}")
+                    break
                 
                 if (scene_item.number, batch_item.number) in batch_numbers:
                     lines = batch_item.translated if self.show_translated else batch_item.originals
@@ -86,3 +87,8 @@ class SubtitleListModel(QAbstractItemModel):
         if self.selected_batch_numbers:
             self.ShowSelectedBatches(self.selected_batch_numbers)
             self.layoutChanged.emit()
+
+    def _reset_visible_batches(self):
+        self.ShowSelection(ProjectSelection())
+
+
