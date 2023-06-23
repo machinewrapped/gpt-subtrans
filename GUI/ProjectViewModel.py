@@ -104,18 +104,25 @@ class ProjectViewModel(QStandardItemModel):
         """
         Rebuild the dictionary keys for the model
         """
-        scene_items = [ self.getRootItem().child(i, 0) for i in range(0, self.getRootItem().rowCount()) ]
+        scene_items : list[SceneItem] = [ self.getRootItem().child(i, 0) for i in range(0, self.getRootItem().rowCount()) ]
         self.model = { item.number: item for item in scene_items }
 
         for scene in scene_items:
-            batch_items = [ scene.child(i, 0) for i in range(0, scene.rowCount()) ]
-            for batch_number, batch_item in enumerate(batch_items):
+            batch_items : list[BatchItem] = [ scene.child(i, 0) for i in range(0, scene.rowCount()) ]
+
+            for batch_number, batch_item in enumerate(batch_items, start=1):
+                batch_item.scene = scene.number
                 batch_item.number = batch_number
                 
             scene.batches = { item.number: item for item in batch_items }
 
             for batch in batch_items:
-                line_items = [ batch.child(i, 0) for i in range(0, batch.rowCount()) ]
+                line_items : list[LineItem] = [ batch.child(i, 0) for i in range(0, batch.rowCount()) ]
+
+                for line_item in line_items:
+                    line_item.line_model['scene'] = scene.number
+                    line_item.line_model['batch'] = batch.number
+
                 batch.translated = { item.number: item for item in line_items if item.is_translation }
                 batch.originals = { item.number: item for item in line_items if not item.is_translation }
 
