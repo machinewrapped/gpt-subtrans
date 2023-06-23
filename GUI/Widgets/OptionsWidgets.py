@@ -1,16 +1,21 @@
 import json
 from datetime import datetime
 
+from PySide6.QtCore import Slot, Signal
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
 
 MULTILINE_OPTION = 'multiline'
 
 class OptionWidget(QWidget):
-    def __init__(self, key, initial_value, parent=None):
+    contentChanged = Signal()
+
+    def __init__(self, key, initial_value, parent=None, tooltip = None):
         super(OptionWidget, self).__init__(parent)
         self.key = key
         self.name = self.GenerateName(key)
         self.initial_value = initial_value
+        if tooltip:
+            self.setToolTip(tooltip)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
     @staticmethod
@@ -21,21 +26,22 @@ class OptionWidget(QWidget):
         raise NotImplementedError
 
 class TextOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value):
-        super(TextOptionWidget, self).__init__(key, initial_value)
+    def __init__(self, key, initial_value, tooltip = None):
+        super(TextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0,0,0,0)
         self.text_field = QLineEdit(self)
         self.text_field.setText(initial_value)
         self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
+        self.text_field.textChanged.connect(self.contentChanged)
         self.layout.addWidget(self.text_field)
 
     def GetValue(self):
         return self.text_field.text()
 
 class MultilineTextOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value):
-        super(MultilineTextOptionWidget, self).__init__(key, initial_value)
+    def __init__(self, key, initial_value, tooltip = None):
+        super(MultilineTextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         content = self._get_content(initial_value)
 
         self.layout = QVBoxLayout(self)
@@ -44,6 +50,7 @@ class MultilineTextOptionWidget(OptionWidget):
         self.text_field.setAcceptRichText(False)
         self.text_field.setPlainText(content)
         self.text_field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
+        self.text_field.textChanged.connect(self.contentChanged)
         self.layout.addWidget(self.text_field)
 
     def GetValue(self):
@@ -76,12 +83,13 @@ class MultilineTextOptionWidget(OptionWidget):
         return str(obj)
 
 class IntegerOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value):
-        super(IntegerOptionWidget, self).__init__(key, initial_value)
+    def __init__(self, key, initial_value, tooltip = None):
+        super(IntegerOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.spin_box = QSpinBox(self)
         self.spin_box.setMaximum(9999)
         self.spin_box.setMinimumWidth(100)
         self.spin_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+        self.spin_box.valueChanged.connect(self.contentChanged)
         if initial_value:
             self.spin_box.setValue(initial_value)
 
@@ -89,12 +97,13 @@ class IntegerOptionWidget(OptionWidget):
         return self.spin_box.value()
 
 class FloatOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value):
-        super(FloatOptionWidget, self).__init__(key, initial_value)
+    def __init__(self, key, initial_value, tooltip = None):
+        super(FloatOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.double_spin_box = QDoubleSpinBox(self)
         self.double_spin_box.setMaximum(9999.99)
         self.double_spin_box.setMinimumWidth(100)
         self.double_spin_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+        self.double_spin_box.valueChanged.connect(self.contentChanged)
         if initial_value:
             self.double_spin_box.setValue(initial_value)
 
@@ -102,9 +111,10 @@ class FloatOptionWidget(OptionWidget):
         return self.double_spin_box.value()
 
 class CheckboxOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value):
-        super(CheckboxOptionWidget, self).__init__(key, initial_value)
+    def __init__(self, key, initial_value, tooltip = None):
+        super(CheckboxOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.check_box = QCheckBox(self)
+        self.check_box.stateChanged.connect(self.contentChanged)
         if initial_value:
             self.check_box.setChecked(initial_value)
 
@@ -112,8 +122,8 @@ class CheckboxOptionWidget(OptionWidget):
         return self.check_box.isChecked()
 
 class DropdownOptionWidget(OptionWidget):
-    def __init__(self, key, values, initial_value):
-        super(DropdownOptionWidget, self).__init__(key, initial_value)
+    def __init__(self, key, values, initial_value, tooltip = None):
+        super(DropdownOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.combo_box = QComboBox(self)
         for value in values:
             self.combo_box.addItem(value)
@@ -121,22 +131,24 @@ class DropdownOptionWidget(OptionWidget):
         if initial_value:
             self.combo_box.setCurrentIndex(self.combo_box.findText(initial_value))
 
+        self.combo_box.currentTextChanged.connect(self.contentChanged)
+
     def GetValue(self):
         return self.combo_box.currentText()
 
-def CreateOptionWidget(key, initial_value, key_type):
+def CreateOptionWidget(key, initial_value, key_type, tooltip = None) -> OptionWidget:
     # Helper function to create an OptionWidget based on the specified type
     if isinstance(key_type, list):
-        return DropdownOptionWidget(key, key_type, initial_value)
+        return DropdownOptionWidget(key, key_type, initial_value, tooltip=tooltip)
     elif key_type == MULTILINE_OPTION:
-        return MultilineTextOptionWidget(key, initial_value)
+        return MultilineTextOptionWidget(key, initial_value, tooltip=tooltip)
     elif key_type == str:
-        return TextOptionWidget(key, initial_value)
+        return TextOptionWidget(key, initial_value, tooltip=tooltip)
     elif key_type == int:
-        return IntegerOptionWidget(key, initial_value)
+        return IntegerOptionWidget(key, initial_value, tooltip=tooltip)
     elif key_type == float:
-        return FloatOptionWidget(key, initial_value)
+        return FloatOptionWidget(key, initial_value, tooltip=tooltip)
     elif key_type == bool:
-        return CheckboxOptionWidget(key, initial_value)
+        return CheckboxOptionWidget(key, initial_value, tooltip=tooltip)
     else:
         raise ValueError('Unsupported option type: ' + str(type(initial_value)))
