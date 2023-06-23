@@ -28,11 +28,9 @@ class ProjectViewModel(QStandardItemModel):
     def __init__(self):
         super().__init__()
         self.model = {}
-        self.root_item = QStandardItem()
-        self.invisibleRootItem().appendRow(self.root_item)
 
     def getRootItem(self):
-        return self.root_item
+        return self.invisibleRootItem()
 
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):
@@ -43,7 +41,7 @@ class ProjectViewModel(QStandardItemModel):
         for scene in data.scenes:
             scene_item = self.CreateSceneItem(scene)
             self.model[scene.number] = scene_item
-            self.root_item.appendRow(scene_item)
+            self.getRootItem().appendRow(scene_item)
 
     def CreateSceneItem(self, scene : SubtitleScene):
         scene_item = SceneItem(scene)
