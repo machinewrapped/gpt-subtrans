@@ -109,6 +109,9 @@ class ProjectViewModel(QStandardItemModel):
 
         for scene in scene_items:
             batch_items = [ scene.child(i, 0) for i in range(0, scene.rowCount()) ]
+            for batch_number, batch_item in enumerate(batch_items):
+                batch_item.number = batch_number
+                
             scene.batches = { item.number: item for item in batch_items }
 
             for batch in batch_items:
@@ -554,11 +557,17 @@ class SceneItem(ViewModelItem):
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
 
     def AddBatchItem(self, batch_item : BatchItem):
-        self.batches[batch_item.number] = batch_item
         if batch_item.number > len(self.batches):
             self.appendRow(batch_item)
         else:
             self.insertRow(batch_item.number - 1, batch_item)
+            for i in range(0, self.rowCount()):
+                self.child(i, 0).number = i
+
+        batch_items = [ self.child(i, 0) for i in range(0, self.rowCount()) ]
+        self.batches = { item.number: item for item in batch_items }
+
+        logging.debug(f"Scene {self.number} batches = {str(self.batches.keys())}")
 
     @property
     def batch_count(self):
