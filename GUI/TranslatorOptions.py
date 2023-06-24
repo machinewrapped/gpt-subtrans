@@ -106,7 +106,7 @@ class TranslatorOptionsDialog(QDialog):
         if file_name:
             if not file_name.endswith('.txt'):
                 file_name += '.txt'
-            with open(file_name, "w") as file:
+            with open(file_name, "w", encoding='utf-8') as file:
                 content = self.instructions_edit.toPlainText()
                 file.write(content)
 

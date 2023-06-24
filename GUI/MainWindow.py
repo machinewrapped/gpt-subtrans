@@ -24,6 +24,7 @@ from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
+from GUI.Widgets.NewProjectSettings import NewProjectSettings
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 from PySubtitleGPT.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
@@ -175,7 +176,7 @@ class MainWindow(QMainWindow):
                 self.datamodel = command.datamodel
                 self.model_viewer.SetDataModel(command.datamodel)
                 if not self.project.subtitles.scenes:
-                    self.QueueCommand(BatchSubtitlesCommand(self.project))
+                    self._show_new_project_Settings(self.project)
 
             if command.model_update.HasUpdate():
                 # Patch the model
@@ -237,6 +238,13 @@ class MainWindow(QMainWindow):
             options.add('firstrun', False)
             options.Save()
             LoadStylesheet(options.get('theme'))
+
+    def _show_new_project_Settings(self, project : SubtitleProject):
+        result = NewProjectSettings(project, self).exec()
+
+        if result == QDialog.Accepted:
+            logging.info("Project settings set")
+            self.QueueCommand(BatchSubtitlesCommand(project))
 
     def _on_error(self, error : object):
         logging.error(str(error))

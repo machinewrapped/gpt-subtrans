@@ -27,7 +27,7 @@ class BatchSubtitlesCommand(Command):
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
-        project.subtitles.AutoBatch(datamodel.options)
+        project.subtitles.AutoBatch(project.options)
 
         project.WriteProjectFile()
 

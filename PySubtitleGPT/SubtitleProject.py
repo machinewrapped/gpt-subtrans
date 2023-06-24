@@ -238,6 +238,7 @@ class SubtitleProject:
                 with open(self.projectfile, 'r', encoding=default_encoding, newline='') as f:
                     subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
 
+                # subtitles.Sanitise()
                 subtitles.project = self
                 self.subtitles = subtitles
                 self.subtitles.UpdateContext(self.options)

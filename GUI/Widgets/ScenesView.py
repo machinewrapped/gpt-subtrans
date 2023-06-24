@@ -106,7 +106,8 @@ class ScenesView(QTreeView):
             super().keyPressEvent(event)
     
     def _on_double_click(self, index):
-        item: ViewModelItem = index.internalPointer()
+        model : QAbstractItemModel = self.model()
+        item: ViewModelItem = model.data(index, role=Qt.ItemDataRole.UserRole)
 
         try:
             if isinstance(item, BatchItem):

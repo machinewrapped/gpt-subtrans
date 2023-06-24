@@ -17,4 +17,7 @@ def GetThemeNames():
     themes.sort()
     return themes 
 
-
+def GetInstructionFiles():
+    instruction_path = GetResourcePath("")
+    files = os.listdir(instruction_path)
+    return [ file for file in files if file.lower().startswith("instructions") ]

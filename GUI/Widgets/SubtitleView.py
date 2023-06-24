@@ -106,7 +106,8 @@ class SubtitleView(QListView):
             self.verticalScrollBar().setValue(value)
 
     def _on_double_click(self, index):
-        item: LineItem = index.internalPointer()
+        model = self.model()
+        item: LineItem = model.data(index, role=Qt.ItemDataRole.UserRole)
         self.editLine.emit(item)
 
     def selectionChanged(self, selected, deselected):

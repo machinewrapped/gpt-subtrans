@@ -59,7 +59,7 @@ class ChatGPTPrompt:
         """
         source_lines = [ self.GetLinePrompt(line) for line in lines ]
         source_text = '\n\n'.join(source_lines)
-        text = f"\n{source_text}\n\n<summary/>\n<scene/>"
+        text = f"\n{source_text}\n\n<summary></summary>\n<scene></scene>"
 
         if prompt:
             text = f"{prompt}\n\n{text}"

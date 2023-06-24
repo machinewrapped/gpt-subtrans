@@ -368,3 +368,18 @@ class SubtitleFile:
                     del translated_map[line.number]
 
                 line.number = number
+
+    def Sanitise(self):
+        """
+        Remove blank lines, empty batches and empty scenes
+        """
+        with self.lock:
+            for scene in self.scenes:
+                scene.batches = [batch for batch in scene.batches if batch.originals]
+
+                for batch in scene.batches:
+                    batch.originals = [line for line in batch.originals if line.number and line.text]
+                    if batch.translated:
+                        batch.translated = [line for line in batch.translated if line.number and line.text]
+
+        self.scenes = [scene for scene in self.scenes if scene.batches]
