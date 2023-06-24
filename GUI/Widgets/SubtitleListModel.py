@@ -13,7 +13,7 @@ class SubtitleListModel(QAbstractItemModel):
         self.visible = []
 
         # self.viewmodel.layoutChanged.connect(self._update_visible_batches)
-        self.viewmodel.layoutChanged.connect(self._reset_visible_batches)
+        # self.viewmodel.layoutChanged.connect(self._reset_visible_batches)
 
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
@@ -31,10 +31,13 @@ class SubtitleListModel(QAbstractItemModel):
         visible = []
 
         root_item = viewmodel.getRootItem()
+
         for scene_index in range(0, root_item.rowCount()):
             scene_item : SceneItem = root_item.child(scene_index, 0)
+
             for batch_index in range (0, scene_item.rowCount()):
                 batch_item : BatchItem = scene_item.child(batch_index, 0)
+
                 if not batch_item or not isinstance(batch_item, BatchItem):
                     logging.error(f"Scene Item {scene_index} has invalid child {batch_index}: {type(batch_item).__name__}")
                     break
@@ -58,12 +61,12 @@ class SubtitleListModel(QAbstractItemModel):
             return None
 
         line_index = index.row()
-        if line_index >= len(self.visible):
-            return None
-        
-        scene, batch, line = self.visible[line_index]
+        if line_index < len(self.visible):
+            scene, batch, line = self.visible[line_index]
 
-        item = self.viewmodel.GetLineItem(line, get_translated=self.show_translated)
+            item = self.viewmodel.GetLineItem(line, get_translated=self.show_translated)
+        else:
+            item = LineItem()
 
         if role == Qt.ItemDataRole.UserRole:
             return item
@@ -92,7 +95,8 @@ class SubtitleListModel(QAbstractItemModel):
     def _update_visible_batches(self):
         if self.selected_batch_numbers:
             self.ShowSelectedBatches(self.selected_batch_numbers)
-            self.layoutChanged.emit()
+        else:
+            self.ShowSelection(ProjectSelection())
 
     def _reset_visible_batches(self):
         self.ShowSelection(ProjectSelection())
