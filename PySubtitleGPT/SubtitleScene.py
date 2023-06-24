@@ -1,4 +1,5 @@
 from os import linesep
+from PySubtitleGPT import SubtitleError
 
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 
@@ -50,6 +51,13 @@ class SubtitleScene:
     @summary.setter
     def summary(self, value):
         self.AddContext('summary', value)
+
+    @batches.setter
+    def batches(self, value : list[SubtitleBatch]):
+        if not isinstance(value, list) or not all(isinstance(v, SubtitleBatch) for v in value):
+            raise SubtitleError("Batches must be a list of SubtitleBatch")
+
+        self._batches = value
 
     def GetBatch(self, batch_number) -> SubtitleBatch:
         for batch in self.batches:
