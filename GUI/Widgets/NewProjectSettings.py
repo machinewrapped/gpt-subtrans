@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
+from GUI.GuiHelpers import GetInstructionFiles
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitleGPT import SubtitleProject
@@ -25,6 +26,10 @@ class NewProjectSettings(QDialog):
         self.project : SubtitleProject = project
         self.settings : dict = project.options.GetSettings()
 
+        instruction_files = GetInstructionFiles()
+        if instruction_files:
+            self.SETTINGS['instruction_file'] = (instruction_files, "Detailed instructions for the translator")
+
         settings_widget = QFrame(self)
 
         self.form_layout = QFormLayout(settings_widget)
@@ -48,6 +53,13 @@ class NewProjectSettings(QDialog):
 
         self._preview_batches()
 
+    def accept(self):
+        self._update_settings()
+
+        self.project.options.update(self.settings)
+
+        super(NewProjectSettings, self).accept()
+
     def _update_settings(self):
         layout = self.form_layout.layout()
 
@@ -62,14 +74,3 @@ class NewProjectSettings(QDialog):
         batch_count = sum(scene.size for scene in scenes)
         line_count = sum(scene.linecount for scene in scenes)
         self.preview_widget.setText(f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches")
-
-    def accept(self):
-        self._update_settings()
-
-        self.project.options.update(self.settings)
-
-        super(NewProjectSettings, self).accept()
-
-    def reject(self):
-        super(NewProjectSettings, self).reject()
-
