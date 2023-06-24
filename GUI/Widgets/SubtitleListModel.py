@@ -52,7 +52,13 @@ class SubtitleListModel(QAbstractItemModel):
         if not index.isValid():
             return None
 
-        item = index.internalPointer()
+        line_index = index.row()
+        if line_index >= len(self.visible):
+            return None
+        
+        scene, batch, line = self.visible[line_index]
+
+        item = self.viewmodel.GetLineItem(line, get_translated=self.show_translated)
 
         if role == Qt.ItemDataRole.UserRole:
             return item
