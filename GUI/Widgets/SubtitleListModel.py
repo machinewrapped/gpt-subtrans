@@ -13,7 +13,10 @@ class SubtitleListModel(QAbstractItemModel):
         self.visible = []
 
         # self.viewmodel.layoutChanged.connect(self._update_visible_batches)
+<<<<<<< HEAD
         # self.viewmodel.layoutChanged.connect(self._reset_visible_batches)
+=======
+>>>>>>> main
 
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
