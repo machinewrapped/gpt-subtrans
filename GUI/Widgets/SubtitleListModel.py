@@ -82,8 +82,16 @@ class SubtitleListModel(QAbstractItemModel):
             return QModelIndex()
         
         scene_number, batch_number, line_number = self.visible[row]
-        batches : list[BatchItem] = self.viewmodel.model[scene_number].batches
+        batches : dict = self.viewmodel.model[scene_number].batches
+        if not batch_number in batches.keys():
+            logging.debug(f"Visible subtitles list has invalid batch number ({scene_number},{batch_number})")
+            return QModelIndex()
+
         lines = batches[batch_number].translated if self.show_translated else batches[batch_number].originals
+        if not line_number in lines:
+            logging.debug(f"Visible subtitles list has invalid line number ({scene_number},{batch_number},{line_number})")
+            return QModelIndex()
+
         line : LineItem = lines [line_number]
         return self.createIndex(row, column, line)
 
