@@ -190,13 +190,69 @@ class SplitBatchCommand(Command):
         if not scene or not scene.GetBatch(self.batch_number):
             raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
 
-        scene.MergeBatches([self.batch_number, self.batch_number + 1])
+        try:
+            scene.MergeBatches([self.batch_number, self.batch_number + 1])
 
-        new_batch_number = self.batch_number + 1
-        self.model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
-        self.model_update.batches.remove((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+            new_batch_number = self.batch_number + 1
+            self.model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
+            self.model_update.batches.remove((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+
+            return True
+
+        except Exception as e:
+            raise CommandError(f"Unable to undo SplitBatchCommand command: {str(e)}")
+
+#############################################################
+
+class SplitSceneCommand(Command):
+    def __init__(self, scene_number : int, batch_number : int, datamodel: ProjectDataModel = None):
+        super().__init__(datamodel)
+        self.scene_number = scene_number
+        self.batch_number = batch_number
+
+    def execute(self):
+        logging.info(f"Splitting batch {str(self.scene_number)} at batch {str(self.batch_number)}")
+
+        project : SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+        
+        scene = project.subtitles.GetScene(self.scene_number)
+        if not scene:
+            raise CommandError(f"Cannot split scene {self.scene_number} because it doesn't exist")
+        
+        batch_count = len(scene.batches)
+
+        project.subtitles.SplitScene(self.scene_number, self.batch_number)
+
+        for scene_number in range(self.scene_number + 1, len(project.subtitles.scenes)):
+             self.model_update.scenes.update(scene_number, { 'number' : scene_number + 1})
+
+        for batch_removed in range(self.batch_number, batch_count):
+            self.model_update.batches.remove((self.scene_number, batch_removed))
+
+        self.model_update.scenes.add(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
 
         return True
+
+    def undo(self):
+        project: SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+
+        try:
+            project.subtitles.MergeScenes([self.scene_number, self.scene_number + 1])
+
+            self.model_update.scenes.replace(self.scene_number, project.subtitles.GetScene(self.scene_number))
+            self.model_update.scenes.remove(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
+
+            return True
+        
+        except Exception as e:
+            raise CommandError(f"Unable to undo SplitScene command: {str(e)}")
+
 
 #############################################################
 

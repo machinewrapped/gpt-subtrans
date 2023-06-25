@@ -346,6 +346,33 @@ class SubtitleFile:
                     batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
                     batch.MergeLines(original_lines, translated_lines)
 
+    def SplitScene(self, scene_number : int, batch_number : int):
+        """
+        Split a scene into two at the specified batch number 
+        """
+        with self.lock:
+            scene : SubtitleScene = self.GetScene(scene_number)
+            batch : SubtitleBatch = scene.GetBatch(batch_number) if scene else None
+
+            if not batch:
+                raise ValueError(f"Scene {scene_number} batch {batch_number} does not exist")
+
+            batch_index : int = scene.batches.index(batch)
+
+            new_scene = SubtitleScene({ 'number' : scene_number + 1})
+            new_scene.batches = scene.batches[batch_index:]
+            scene.batches = scene.batches[:batch_index + 1]
+
+            for number, batch in enumerate(new_scene.batches, start=1):
+                batch.scene = new_scene.number
+                batch.number = number
+
+            split_index = self.scenes.index(scene) + 1
+            if split_index < len(self.scenes):
+                self.scenes = self.scenes[:split_index] + [new_scene] + self.scenes[split_index:]
+            else:
+                self.scenes.append(new_scene)
+
     def Renumber(self):
         """
         Force monotonic numbering of scenes, batches, lines and translated lines

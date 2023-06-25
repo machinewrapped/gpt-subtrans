@@ -136,16 +136,19 @@ class ProjectViewModel(QStandardItemModel):
         logging.debug(f"Adding scene {scene.number}")
         if not isinstance(scene, SubtitleScene):
             raise ViewModelError(f"Wrong type for AddScene ({type(scene).__name__})")
+
+        scene_item = self.CreateSceneItem(scene)
+
+        root_item = self.getRootItem()
+        if scene_item.number > len(self.model):
+            root_item.appendRow(scene_item)
+        else:
+            root_item.insertRow(scene_item.number - 1, scene_item)
+            for i in range(0, self.rowCount()):
+                root_item.child(i, 0).number = i + 1
         
-        if scene.number in self.model.keys():
-            raise ViewModelError(f"Scene number {scene.number} already exists")
-
-        #TODO: insert row at appropriate position
-        scene_item = SceneItem(scene)
-        self.getRootItem().insertRow(scene_item, scene.number)
-
-        scene_items = [ self.data(self.index(i, 0, self.getRootItem())) for i in range(0, self.getRootItem().rowCount()) ]
-        self.model = { item.number: item for item in scene_items  }
+        scene_items = [ root_item.child(i, 0) for i in range(0, root_item.rowCount()) ]
+        self.model = { item.number: item for item in scene_items }
 
     def ReplaceScene(self, scene):
         logging.debug(f"Replacing scene {scene.number}")
@@ -154,9 +157,18 @@ class ProjectViewModel(QStandardItemModel):
         
         scene_item = SceneItem(scene)
         scene_index = self.indexFromItem(self.model[scene.number]) 
-        self.setData(scene_index, scene_item, Qt.ItemDataRole.UserRole)
+
+        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
+        scene_item.removeRow(scene_index.row())
+        self.endRemoveRows()
+
+        self.beginInsertRows(QModelIndex(), scene_index.row(), scene_index.row())
+        scene_item.insertRow(scene_index.row(), scene_item)
+        self.endInsertRows()
 
         self.model[scene.number] = scene_item
+
+        self.getRootItem().emitDataChanged()
 
     def UpdateScene(self, scene_number, scene_update : dict):
         logging.debug(f"Updating scene {scene_number}")
@@ -165,6 +177,9 @@ class ProjectViewModel(QStandardItemModel):
             raise ViewModelError(f"Model update for unknown scene {scene_number}")
 
         scene_item.Update(scene_update)
+
+        if scene_update.get('number'):
+            scene_item.number = scene_update['number']
 
         if scene_update.get('batches'):
             for batch_number, batch_update in scene_update['batches'].items():
@@ -233,6 +248,9 @@ class ProjectViewModel(QStandardItemModel):
             return False
 
         batch_item.Update(batch_update)
+
+        if batch_update.get('number'):
+            batch_item.number = batch_update['number']
 
         if batch_update.get('originals'):
             self.UpdateOriginalLines(scene_number, batch_number, batch_update['originals'])
@@ -391,6 +409,10 @@ class LineItem(QStandardItem):
             raise ViewModelError(f"Expected a dictionary, got a {type(line_update).__name__}")
 
         UpdateFields(self.line_model, line_update, ['start', 'end', 'text'])
+
+        if line_update.get('number'):
+            self.number = line_update['number']
+
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
     def __str__(self) -> str:
@@ -503,7 +525,7 @@ class BatchItem(ViewModelItem):
         if not isinstance(update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
-        UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])
+        UpdateFields(self.batch_model, update, ['number', 'summary', 'context', 'start', 'end'])
 
         if 'errors' in update.keys():
             self.batch_model['errors'] = self._get_errors(update['errors'])

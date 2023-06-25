@@ -9,7 +9,8 @@ from GUI.ProjectCommands import (
     MergeLinesCommand, 
     MergeScenesCommand,
     SplitBatchCommand, 
-    ResumeTranslationCommand, 
+    ResumeTranslationCommand,
+    SplitSceneCommand, 
     SwapTextAndTranslations, 
     TranslateSceneCommand, 
     TranslateSceneMultithreadedCommand
@@ -61,6 +62,7 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Update Line', self._update_line)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
+        ProjectDataModel.RegisterActionHandler('Split Scene', self._split_scene)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
     def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
@@ -293,7 +295,21 @@ class ProjectActions(QObject):
         selected_line = selection.selected_originals[0]
 
         self._issue_command(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
+
+    def _split_scene(self, datamodel, selection : ProjectSelection):
+        """
+        Split a batch in two at the specified index (optionally, using a different index for translated lines)
+        """
+        if not selection.AnyBatches():
+            raise ActionError("Please select a batch to split the scene at")
         
+        if selection.MultipleSelected():
+            raise ActionError("Please select a single split point")
+        
+        selected_batch = selection.selected_batches[0]
+
+        self._issue_command(SplitSceneCommand(selected_batch.scene, selected_batch.number))
+
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
         """

@@ -46,52 +46,52 @@ class ModelUpdate:
             for scene_number, scene_update in self.scenes.updates.items():
                 viewmodel.UpdateScene(scene_number, scene_update)
 
-            for scene_number, scene in self.scenes.replacements.items():
-                viewmodel.ReplaceScene(scene)
-
-            for scene_number in self.scenes.removals:
-                viewmodel.RemoveScene(scene_number)
-
-            for scene_number, scene in self.scenes.additions.items():
-                viewmodel.AddScene(scene)
-
             for key, batch_update in self.batches.updates.items():
                 scene_number, batch_number = key
                 viewmodel.UpdateBatch(scene_number, batch_number, batch_update)
-
-            for key, batch in self.batches.replacements.items():
-                scene_number, batch_number = key
-                viewmodel.ReplaceBatch(batch)
-
-            for key in self.batches.removals:
-                scene_number, batch_number = key
-                viewmodel.RemoveBatch(scene_number, batch_number)
-
-            for key, batch in self.batches.additions.items():
-                scene_number, batch_number = key
-                viewmodel.AddBatch(batch)
 
             #TODO: Use UpdateOriginalLines
             for key, line_update in self.originals.updates.items():
                 scene_number, batch_number, line_number = key
                 viewmodel.UpdateOriginalLine(scene_number, batch_number, line_number, line_update)
 
-            for key in self.originals.removals:
-                scene_number, batch_number, line_number = key
-                viewmodel.RemoveOriginalLine(scene_number, batch_number, line_number)
-
-            for key, line in self.originals.additions.items():
-                scene_number, batch_number, line_number = key
-                viewmodel.AddOriginalLine(scene_number, batch_number, line_number, line)
-
             #TODO: Use UpdateTranslatedLines
             for key, line_update in self.translated.updates.items():
                 scene_number, batch_number, line_number = key
                 viewmodel.UpdateTranslatedLine(scene_number, batch_number, line_number, line_update)
 
+            for scene_number, scene in self.scenes.replacements.items():
+                viewmodel.ReplaceScene(scene)
+
+            for key, batch in self.batches.replacements.items():
+                scene_number, batch_number = key
+                viewmodel.ReplaceBatch(batch)
+
+            for scene_number in self.scenes.removals:
+                viewmodel.RemoveScene(scene_number)
+
+            for key in self.batches.removals:
+                scene_number, batch_number = key
+                viewmodel.RemoveBatch(scene_number, batch_number)
+
+            for key in self.originals.removals:
+                scene_number, batch_number, line_number = key
+                viewmodel.RemoveOriginalLine(scene_number, batch_number, line_number)
+
             for key in self.translated.removals:
                 scene_number, batch_number, line_number = key
                 viewmodel.RemoveTranslatedLine(scene_number, batch_number, line_number)
+
+            for scene_number, scene in self.scenes.additions.items():
+                viewmodel.AddScene(scene)
+
+            for key, batch in self.batches.additions.items():
+                scene_number, batch_number = key
+                viewmodel.AddBatch(batch)
+
+            for key, line in self.originals.additions.items():
+                scene_number, batch_number, line_number = key
+                viewmodel.AddOriginalLine(scene_number, batch_number, line_number, line)
 
             for key, line in self.translated.additions.items():
                 scene_number, batch_number, line_number = key
