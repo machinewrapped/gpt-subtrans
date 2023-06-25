@@ -13,10 +13,6 @@ class SubtitleListModel(QAbstractItemModel):
         self.visible = []
 
         # self.viewmodel.layoutChanged.connect(self._update_visible_batches)
-<<<<<<< HEAD
-        # self.viewmodel.layoutChanged.connect(self._reset_visible_batches)
-=======
->>>>>>> main
 
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
@@ -65,8 +61,7 @@ class SubtitleListModel(QAbstractItemModel):
 
         line_index = index.row()
         if line_index < len(self.visible):
-            scene, batch, line = self.visible[line_index]
-
+            _, _, line = self.visible[line_index]
             item = self.viewmodel.GetLineItem(line, get_translated=self.show_translated)
         else:
             item = LineItem()
