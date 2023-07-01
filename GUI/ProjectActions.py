@@ -16,6 +16,7 @@ from GUI.ProjectCommands import (
     TranslateSceneMultithreadedCommand
 )
 from GUI.ProjectSelection import ProjectSelection
+from GUI.ProjectViewModelUpdate import ModelUpdate
 from GUI.Widgets.ModelView import ModelView
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 
@@ -256,7 +257,7 @@ class ProjectActions(QObject):
                 'errors' : batch.errors,
             }
 
-            datamodel.UpdateViewModel({ batch.scene : { 'batches' : { batch.number : update } } })
+            datamodel.viewmodel.UpdateBatch(batch.scene, batch.number, update)
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
         """
