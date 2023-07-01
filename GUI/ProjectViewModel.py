@@ -140,25 +140,31 @@ class ProjectViewModel(QStandardItemModel):
         scene_item = self.CreateSceneItem(scene)
 
         root_item = self.getRootItem()
+        insert_row = scene_item.number - 1
+
+        self.beginInsertRows(QModelIndex(), insert_row, insert_row)
         if scene_item.number > len(self.model):
             root_item.appendRow(scene_item)
         else:
-            root_item.insertRow(scene_item.number - 1, scene_item)
+            root_item.insertRow(insert_row, scene_item)
             for i in range(0, self.rowCount()):
                 root_item.child(i, 0).number = i + 1
         
         scene_items = [ root_item.child(i, 0) for i in range(0, root_item.rowCount()) ]
         self.model = { item.number: item for item in scene_items }
 
+        self.endInsertRows()
+
     def ReplaceScene(self, scene):
         logging.debug(f"Replacing scene {scene.number}")
         if not isinstance(scene, SubtitleScene):
             raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")
         
+        root_item = self.getRootItem()
         scene_item = SceneItem(scene)
         scene_index = self.indexFromItem(self.model[scene.number]) 
 
-        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
+        self.beginRemoveRows(root_item, scene_index.row(), scene_index.row())
         scene_item.removeRow(scene_index.row())
         self.endRemoveRows()
 
@@ -197,7 +203,11 @@ class ProjectViewModel(QStandardItemModel):
         
         scene_item = self.model.get(scene_number)
         scene_index = self.indexFromItem(scene_item)
-        self.getRootItem().removeRow(scene_index.row())
+
+        root_item = self.getRootItem()
+        self.beginRemoveRows(root_item, scene_index.row(), scene_index.row())
+        root_item.removeRow(scene_index.row())
+        self.endRemoveRows()
 
         del self.model[scene_number]
 
@@ -211,7 +221,13 @@ class ProjectViewModel(QStandardItemModel):
         batch_item : BatchItem = self.CreateBatchItem(batch.scene, batch)
 
         scene_item : SceneItem = self.model.get(batch.scene)
+        scene_index = self.indexFromItem(scene_item)
+        insert_row = batch_item.number - 1
+
+        self.beginInsertRows(scene_index, insert_row, insert_row)
         scene_item.AddBatchItem(batch_item)
+        self.endInsertRows()
+
         scene_item.emitDataChanged()
 
     def ReplaceBatch(self, batch):
@@ -272,9 +288,12 @@ class ProjectViewModel(QStandardItemModel):
         
         batch_item = scene_item.batches[batch_number]
         batch_index = self.indexFromItem(batch_item)
-        scene_item.removeRow(batch_index.row())
+        scene_index = self.indexFromItem(scene_item)
 
-        del scene_item.batches[batch_number]
+        batch_row = batch_index.row()
+        self.beginRemoveRows(scene_index, batch_row, batch_row)
+        scene_item.removeRow(batch_row)
+        self.endRemoveRows()
 
     #############################################################################
 

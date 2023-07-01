@@ -42,6 +42,8 @@ class ModelUpdate:
                 
         with datamodel.GetLock():
             viewmodel : ProjectViewModel = datamodel.viewmodel
+            viewmodel.beginResetModel()
+            viewmodel.blockSignals(True)
 
             for scene_number, scene_update in self.scenes.updates.items():
                 viewmodel.UpdateScene(scene_number, scene_update)
@@ -99,6 +101,8 @@ class ModelUpdate:
 
             # Rebuild the model dictionaries
             viewmodel.Remap()
+            viewmodel.blockSignals(False)
+            viewmodel.endResetModel()
         
         viewmodel.layoutChanged.emit()
 
