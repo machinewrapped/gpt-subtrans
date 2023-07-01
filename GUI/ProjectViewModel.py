@@ -530,11 +530,11 @@ class BatchItem(ViewModelItem):
     
     @property
     def first_line_number(self):
-        return min(self.originals.keys()) if self.originals else None
+        return min(num for num in self.originals.keys() if num) if self.originals else None
 
     @property
     def last_line_number(self):
-        return max(self.originals.keys()) if self.originals else None    
+        return max(num for num in self.originals.keys() if num) if self.originals else None    
 
     @property
     def has_errors(self):
