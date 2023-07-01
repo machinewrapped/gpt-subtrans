@@ -123,7 +123,7 @@ class ProjectViewModel(QStandardItemModel):
 
                 for line_item in line_items:
                     if line_item.scene != scene_item.number or line_item.batch != batch_item.number:
-                        logging.debug(f"Batch ({line_item.scene},{line_item.batch}) Line {line_item.number} -> Batch ({scene_item.number},{batch_item.number})")
+                        # logging.debug(f"Batch ({line_item.scene},{line_item.batch}) Line {line_item.number} -> Batch ({scene_item.number},{batch_item.number})")
                         line_item.line_model['scene'] = scene_item.number
                         line_item.line_model['batch'] = batch_item.number
 
@@ -286,14 +286,16 @@ class ProjectViewModel(QStandardItemModel):
         if batch_number not in scene_item.batches.keys():
             raise ViewModelError(f"Scene {scene_number} batch {batch_number} does not exist")
         
-        batch_item = scene_item.batches[batch_number]
-        batch_index = self.indexFromItem(batch_item)
         scene_index = self.indexFromItem(scene_item)
 
-        batch_row = batch_index.row()
-        self.beginRemoveRows(scene_index, batch_row, batch_row)
-        scene_item.removeRow(batch_row)
-        self.endRemoveRows()
+        for i in range(0, scene_item.rowCount()):
+            batch_item : BatchItem = scene_item.child(i, 0)
+            if batch_item.number == batch_number:
+                self.beginRemoveRows(scene_index, i, i)
+                scene_item.removeRow(i)
+                self.endRemoveRows()
+                logging.debug(f"Removed row {i} from scene {scene_item.number}, rowCount={scene_item.rowCount()}")
+                break
 
     #############################################################################
 

@@ -361,7 +361,7 @@ class SubtitleFile:
 
             new_scene = SubtitleScene({ 'number' : scene_number + 1})
             new_scene.batches = scene.batches[batch_index:]
-            scene.batches = scene.batches[:batch_index + 1]
+            scene.batches = scene.batches[:batch_index]
 
             for number, batch in enumerate(new_scene.batches, start=1):
                 batch.scene = new_scene.number

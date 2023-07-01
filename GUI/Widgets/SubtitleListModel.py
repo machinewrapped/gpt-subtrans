@@ -56,7 +56,7 @@ class SubtitleListModel(QAbstractProxyModel):
         item : ViewModelItem = self.viewmodel.itemFromIndex(source_index)
 
         if isinstance(item, LineItem):
-            for row, key in self.visible:
+            for row, key in enumerate(self.visible):
                 scene, batch, line = key
                 if line == item.number:
                     return self.index(row, 0, QModelIndex())

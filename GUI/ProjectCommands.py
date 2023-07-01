@@ -168,13 +168,28 @@ class SplitBatchCommand(Command):
 
         scene = project.subtitles.GetScene(self.scene_number)
 
-        if not scene or not scene.GetBatch(self.batch_number):
+        split_batch = scene.GetBatch(self.batch_number) if scene else None
+
+        if not split_batch:
             raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
-        
+
         scene.SplitBatch(self.batch_number, self.line_number, self.translation_number)
 
         new_batch_number = self.batch_number + 1
-        self.model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
+
+        split_batch = scene.GetBatch(self.batch_number)
+        new_batch = scene.GetBatch(new_batch_number)
+
+        # Remove lines from the original batch that are in the new batch now
+        for line_removed in range(self.line_number, split_batch.last_line_number + 1):
+            if line_removed in new_batch.originals:
+                self.model_update.originals.remove((self.scene_number, self.batch_number, line_removed))
+            if line_removed in new_batch.translated:
+                self.model_update.translated.remove((self.scene_number, self.batch_number, line_removed))
+
+        for batch_number in range(self.batch_number + 1, len(scene.batches)):
+             self.model_update.batches.update(batch_number, { 'number' : batch_number + 1})
+
         self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
         return True
@@ -222,14 +237,14 @@ class SplitSceneCommand(Command):
         if not scene:
             raise CommandError(f"Cannot split scene {self.scene_number} because it doesn't exist")
         
-        batch_count = len(scene.batches)
+        last_batch = scene.batches[-1].number
 
         project.subtitles.SplitScene(self.scene_number, self.batch_number)
 
         for scene_number in range(self.scene_number + 1, len(project.subtitles.scenes)):
              self.model_update.scenes.update(scene_number, { 'number' : scene_number + 1})
 
-        for batch_removed in range(self.batch_number, batch_count):
+        for batch_removed in range(self.batch_number, last_batch + 1):
             self.model_update.batches.remove((self.scene_number, batch_removed))
 
         self.model_update.scenes.add(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
@@ -244,9 +259,7 @@ class SplitSceneCommand(Command):
 
         try:
             project.subtitles.MergeScenes([self.scene_number, self.scene_number + 1])
-
-            self.model_update.scenes.replace(self.scene_number, project.subtitles.GetScene(self.scene_number))
-            self.model_update.scenes.remove(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
+            self.model_update.rebuild = True
 
             return True
         

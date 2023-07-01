@@ -25,6 +25,7 @@ class ModelUpdateSection:
 
 class ModelUpdate:
     def __init__(self):
+        self.rebuild = False
         self.scenes = ModelUpdateSection()
         self.batches = ModelUpdateSection()
         self.originals = ModelUpdateSection()
@@ -39,6 +40,10 @@ class ModelUpdate:
         """
         if not datamodel or not isinstance(datamodel, ProjectDataModel):
             raise Exception("Invalid datamodel")
+        
+        if self.rebuild:
+            datamodel.CreateViewModel()
+            return
                 
         with datamodel.GetLock():
             viewmodel : ProjectViewModel = datamodel.viewmodel
@@ -69,18 +74,18 @@ class ModelUpdate:
                 scene_number, batch_number = key
                 viewmodel.ReplaceBatch(batch)
 
-            for scene_number in self.scenes.removals:
+            for scene_number in reversed(self.scenes.removals):
                 viewmodel.RemoveScene(scene_number)
 
-            for key in self.batches.removals:
+            for key in reversed(self.batches.removals):
                 scene_number, batch_number = key
                 viewmodel.RemoveBatch(scene_number, batch_number)
 
-            for key in self.originals.removals:
+            for key in reversed(self.originals.removals):
                 scene_number, batch_number, line_number = key
                 viewmodel.RemoveOriginalLine(scene_number, batch_number, line_number)
 
-            for key in self.translated.removals:
+            for key in reversed(self.translated.removals):
                 scene_number, batch_number, line_number = key
                 viewmodel.RemoveTranslatedLine(scene_number, batch_number, line_number)
 
