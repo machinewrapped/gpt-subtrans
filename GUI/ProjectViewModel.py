@@ -160,11 +160,10 @@ class ProjectViewModel(QStandardItemModel):
         if not isinstance(scene, SubtitleScene):
             raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")
         
-        root_item = self.getRootItem()
         scene_item = SceneItem(scene)
         scene_index = self.indexFromItem(self.model[scene.number]) 
 
-        self.beginRemoveRows(root_item, scene_index.row(), scene_index.row())
+        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
         scene_item.removeRow(scene_index.row())
         self.endRemoveRows()
 
@@ -204,8 +203,7 @@ class ProjectViewModel(QStandardItemModel):
         scene_item = self.model.get(scene_number)
         scene_index = self.indexFromItem(scene_item)
 
-        root_item = self.getRootItem()
-        self.beginRemoveRows(root_item, scene_index.row(), scene_index.row())
+        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
         root_item.removeRow(scene_index.row())
         self.endRemoveRows()
 

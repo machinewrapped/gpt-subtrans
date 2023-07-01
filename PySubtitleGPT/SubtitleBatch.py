@@ -85,6 +85,12 @@ class SubtitleBatch:
     def AddTranslatedLine(self, line):
         self._translated.append(SubtitleLine(line))
 
+    def HasTranslatedLine(self, line_number):
+        if line_number < self.first_line_number or line_number > self.last_line_number:
+            return False
+        
+        return any(line for line in self._translated if line.number == line_number)
+
     def AddContext(self, key, value):
         self.context[key] = value
 

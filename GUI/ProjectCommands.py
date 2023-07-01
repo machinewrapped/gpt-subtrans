@@ -177,18 +177,17 @@ class SplitBatchCommand(Command):
 
         new_batch_number = self.batch_number + 1
 
-        split_batch = scene.GetBatch(self.batch_number)
-        new_batch = scene.GetBatch(new_batch_number)
+        split_batch : SubtitleBatch = scene.GetBatch(self.batch_number)
+        new_batch : SubtitleBatch = scene.GetBatch(new_batch_number)
 
         # Remove lines from the original batch that are in the new batch now
-        for line_removed in range(self.line_number, split_batch.last_line_number + 1):
-            if line_removed in new_batch.originals:
-                self.model_update.originals.remove((self.scene_number, self.batch_number, line_removed))
-            if line_removed in new_batch.translated:
+        for line_removed in range(self.line_number, new_batch.last_line_number + 1):
+            self.model_update.originals.remove((self.scene_number, self.batch_number, line_removed))
+            if new_batch.HasTranslatedLine(line_removed):
                 self.model_update.translated.remove((self.scene_number, self.batch_number, line_removed))
 
         for batch_number in range(self.batch_number + 1, len(scene.batches)):
-             self.model_update.batches.update(batch_number, { 'number' : batch_number + 1})
+             self.model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
 
         self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
