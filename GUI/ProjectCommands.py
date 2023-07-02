@@ -22,7 +22,6 @@ class BatchSubtitlesCommand(Command):
         logging.info("Executing BatchSubtitlesCommand")
 
         project : SubtitleProject = self.project
-        datamodel : ProjectDataModel = self.datamodel or ProjectDataModel(project)
 
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
@@ -31,9 +30,10 @@ class BatchSubtitlesCommand(Command):
 
         project.WriteProjectFile()
 
-        self.datamodel = datamodel
-        datamodel.project = project
-        datamodel.CreateViewModel()
+        self.datamodel : ProjectDataModel = self.datamodel or ProjectDataModel(project)
+        self.datamodel.project = project
+        self.datamodel.options = project.options
+        self.datamodel.CreateViewModel()
         return True
         
     def undo(self):

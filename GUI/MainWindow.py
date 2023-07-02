@@ -24,7 +24,7 @@ from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
-from GUI.Widgets.NewProjectSettings import NewProjectSettings
+from GUI.NewProjectSettings import NewProjectSettings
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 from PySubtitleGPT.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired

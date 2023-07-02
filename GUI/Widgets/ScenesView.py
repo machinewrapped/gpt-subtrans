@@ -4,8 +4,8 @@ from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelectionMo
 from GUI.ProjectViewModel import BatchItem, SceneItem, ViewModelItem
 from GUI.Widgets.Editors import EditBatchDialog, EditSceneDialog
 
-from GUI.Widgets.ScenesBatchesModel import ScenesBatchesModel
-from GUI.Widgets.ScenesBatchesDelegate import ScenesBatchesDelegate
+from GUI.ScenesBatchesModel import ScenesBatchesModel
+from GUI.ScenesBatchesDelegate import ScenesBatchesDelegate
 
 class ScenesView(QTreeView):
     onSelection = Signal()

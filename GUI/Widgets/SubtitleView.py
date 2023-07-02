@@ -4,8 +4,8 @@ from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSig
 from GUI.ProjectSelection import ProjectSelection, SelectionLine
 
 from GUI.ProjectViewModel import ProjectViewModel, LineItem
-from GUI.Widgets.SubtitleItemDelegate import SubtitleItemDelegate
-from GUI.Widgets.SubtitleListModel import SubtitleListModel
+from GUI.SubtitleItemDelegate import SubtitleItemDelegate
+from GUI.SubtitleListModel import SubtitleListModel
 
 class SubtitleView(QListView):
     linesSelected = Signal(list)
