@@ -7,13 +7,16 @@ from GUI.FileCommands import *
 from GUI.ProjectCommands import (
     MergeBatchesCommand, 
     MergeLinesCommand, 
-    MergeScenesCommand, 
-    ResumeTranslationCommand, 
+    MergeScenesCommand,
+    SplitBatchCommand, 
+    ResumeTranslationCommand,
+    SplitSceneCommand, 
     SwapTextAndTranslations, 
     TranslateSceneCommand, 
     TranslateSceneMultithreadedCommand
 )
 from GUI.ProjectSelection import ProjectSelection
+from GUI.ProjectViewModelUpdate import ModelUpdate
 from GUI.Widgets.ModelView import ModelView
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 
@@ -60,6 +63,7 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Update Line', self._update_line)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
+        ProjectDataModel.RegisterActionHandler('Split Scene', self._split_scene)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
     def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
@@ -176,7 +180,7 @@ class ProjectActions(QObject):
     def _stop_translating(self):
         self._issue_command(ClearCommandQueue())
 
-    def _translate_selection(self, datamodel, selection : ProjectSelection):
+    def _translate_selection(self, datamodel : ProjectDataModel, selection : ProjectSelection):
         """
         Request translation of selected scenes and batches
         """
@@ -193,9 +197,15 @@ class ProjectActions(QObject):
 
         logging.debug(f"Translate selection of {str(selection)}")
 
+        multithreaded = len(selection.scenes) > 1 and datamodel.options.allow_multithreaded_translation()
+
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
-            command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel)
+            if multithreaded:
+                command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel)
+            else:
+                command = TranslateSceneCommand(scene.number, batch_numbers, datamodel)
+
             self._issue_command(command)
 
     def _update_scene(self, datamodel : ProjectDataModel, scene_number : int, update : dict):
@@ -247,7 +257,7 @@ class ProjectActions(QObject):
                 'errors' : batch.errors,
             }
 
-            datamodel.UpdateViewModel({ batch.scene : { 'batches' : { batch.number : update } } })
+            datamodel.viewmodel.UpdateBatch(batch.scene, batch.number, update)
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
         """
@@ -256,7 +266,7 @@ class ProjectActions(QObject):
         if not selection.Any():
             raise ActionError("Nothing selected to merge")
         
-        if not selection.IsSequential():
+        if not selection.IsContiguous():
             raise ActionError("Cannot merge non-sequential elements")
         
         if selection.OnlyScenes():
@@ -283,10 +293,24 @@ class ProjectActions(QObject):
         if selection.MultipleSelected():
             raise ActionError("Please select a single split point")
         
-        scene_number, batch_number = selection.selected_batches[0]
-        line_number = selection.selected_lines[0]
+        selected_line = selection.selected_originals[0]
 
-        raise ActionError("I need to finish implementing this")
+        self._issue_command(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
+
+    def _split_scene(self, datamodel, selection : ProjectSelection):
+        """
+        Split a batch in two at the specified index (optionally, using a different index for translated lines)
+        """
+        if not selection.AnyBatches():
+            raise ActionError("Please select a batch to split the scene at")
+        
+        if selection.MultipleSelected():
+            raise ActionError("Please select a single split point")
+        
+        selected_batch = selection.selected_batches[0]
+
+        self._issue_command(SplitSceneCommand(selected_batch.scene, selected_batch.number))
+
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
         """

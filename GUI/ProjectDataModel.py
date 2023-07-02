@@ -39,15 +39,4 @@ class ProjectDataModel:
             self.viewmodel.CreateModel(self.project.subtitles)
         return self.viewmodel
 
-    def UpdateViewModel(self, update : dict):
-        if not self.viewmodel:
-            raise Exception("Cannot update view model because it doesn't exist")
-        
-        self.viewmodel.UpdateModel(update)
-
-    def UpdateViewModelWithLock(self, update : dict):
-        if not self.viewmodel:
-            raise Exception("Cannot update view model because it doesn't exist")
-
-        with self.GetLock():
-            self.viewmodel.UpdateModel(update)
+ 

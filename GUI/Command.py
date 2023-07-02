@@ -4,6 +4,7 @@ import logging
 from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitleGPT.SubtitleError import TranslationAbortedError
 
 if os.environ.get("DEBUG_MODE") == "1":
@@ -25,7 +26,7 @@ class Command(QRunnable, QObject):
         self.aborted : bool = False
         self.callback = None
         self.undo_callback = None
-        self.datamodel_update = {}
+        self.model_update = ModelUpdate()
         self.commands_to_queue : list = []
 
     def SetDataModel(self, datamodel):

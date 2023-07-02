@@ -178,8 +178,9 @@ class MainWindow(QMainWindow):
                 if not self.project.subtitles.scenes:
                     self._show_new_project_Settings(self.project)
 
-            if command.datamodel_update:
-                self.datamodel.UpdateViewModelWithLock(command.datamodel_update)
+            if command.model_update.HasUpdate():
+                # Patch the model
+                command.model_update.UpdateModel(self.datamodel)
 
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often? 

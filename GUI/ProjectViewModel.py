@@ -1,11 +1,12 @@
 import logging
 import os
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QModelIndex
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySubtitleGPT import SubtitleLine
 
 from PySubtitleGPT.Helpers import FormatMessages, Linearise, UpdateFields
-from PySubtitleGPT.SubtitleError import TranslationError
+from PySubtitleGPT.SubtitleError import SubtitleError
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
@@ -18,6 +19,10 @@ class ViewModelItem(QStandardItem):
             'body': "Body Content",
             'properties': {}
         }
+
+class ViewModelError(SubtitleError):
+    def __init__(self, message, error = None):
+        super().__init__(message, error)
 
 class ProjectViewModel(QStandardItemModel):
     def __init__(self):
@@ -42,17 +47,17 @@ class ProjectViewModel(QStandardItemModel):
         scene_item = SceneItem(scene)
 
         for batch in scene.batches:
-            batch_item : BatchItem = self.CreateBatchItem(scene, batch)
+            batch_item : BatchItem = self.CreateBatchItem(scene.number, batch)
             scene_item.AddBatchItem(batch_item)
 
         return scene_item
 
-    def CreateBatchItem(self, scene : SubtitleScene, batch : SubtitleBatch):
-        batch_item = BatchItem(scene.number, batch)
+    def CreateBatchItem(self, scene_number : int, batch : SubtitleBatch):
+        batch_item = BatchItem(scene_number, batch)
 
         for line in batch.originals:
             batch_item.AddLineItem(False, line.number, {
-                'scene': scene.number,
+                'scene': scene_number,
                 'batch': batch.number,
                 'start': line.srt_start,
                 'end': line.srt_end,
@@ -62,7 +67,7 @@ class ProjectViewModel(QStandardItemModel):
         if batch.translated:
             for line in batch.translated:
                 batch_item.AddLineItem(True, line.number,  {
-                    'scene': scene.number,
+                    'scene': scene_number,
                     'batch': batch.number,
                     'start': line.srt_start,
                     'end': line.srt_end,
@@ -95,25 +100,91 @@ class ProjectViewModel(QStandardItemModel):
                 batch_numbers.append((batch_item.scene, batch_item.number))
         return batch_numbers
 
-    def UpdateModel(self, update):
+    def Remap(self):
         """
-        Incrementally update the viewmodel
+        Rebuild the dictionary keys for the model
         """
-        if not self.model:
-            raise Exception("Unable to update ProjectViewModel - no model")
+        scene_items : list[SceneItem] = [ self.getRootItem().child(i, 0) for i in range(0, self.getRootItem().rowCount()) ]
+        self.model = { item.number: item for item in scene_items }
 
-        for scene_number, scene_update in update.items():
-            self.UpdateScene(scene_number, scene_update)
+        for scene_item in scene_items:
+            batch_items : list[BatchItem] = [ scene_item.child(i, 0) for i in range(0, scene_item.rowCount()) ]
 
-        self.layoutChanged.emit()
+            for batch_number, batch_item in enumerate(batch_items, start=1):
+                if batch_item.scene != scene_item.number or batch_item.number != batch_number:
+                    logging.debug(f"Batch ({batch_item.scene}, {batch_item.number}) -> ({scene_item.number},{batch_item.number})")
+                    batch_item.scene = scene_item.number
+                    batch_item.number = batch_number
+                
+            scene_item.batches = { item.number: item for item in batch_items }
 
-    def UpdateScene(self, scene_number, scene_update):
-        scene_item = self.model.get(scene_number)
+            for batch_item in batch_items:
+                line_items : list[LineItem] = [ batch_item.child(i, 0) for i in range(0, batch_item.rowCount()) ]
+
+                for line_item in line_items:
+                    if line_item.scene != scene_item.number or line_item.batch != batch_item.number:
+                        # logging.debug(f"Batch ({line_item.scene},{line_item.batch}) Line {line_item.number} -> Batch ({scene_item.number},{batch_item.number})")
+                        line_item.line_model['scene'] = scene_item.number
+                        line_item.line_model['batch'] = batch_item.number
+
+                batch_item.translated = { item.number: item for item in line_items if item.is_translation }
+                batch_item.originals = { item.number: item for item in line_items if not item.is_translation }
+
+    #############################################################################
+
+    def AddScene(self, scene : SubtitleScene):
+        logging.debug(f"Adding scene {scene.number}")
+        if not isinstance(scene, SubtitleScene):
+            raise ViewModelError(f"Wrong type for AddScene ({type(scene).__name__})")
+
+        scene_item = self.CreateSceneItem(scene)
+
+        root_item = self.getRootItem()
+        insert_row = scene_item.number - 1
+
+        self.beginInsertRows(QModelIndex(), insert_row, insert_row)
+        if scene_item.number > len(self.model):
+            root_item.appendRow(scene_item)
+        else:
+            root_item.insertRow(insert_row, scene_item)
+            for i in range(0, self.rowCount()):
+                root_item.child(i, 0).number = i + 1
+        
+        scene_items = [ root_item.child(i, 0) for i in range(0, root_item.rowCount()) ]
+        self.model = { item.number: item for item in scene_items }
+
+        self.endInsertRows()
+
+    def ReplaceScene(self, scene):
+        logging.debug(f"Replacing scene {scene.number}")
+        if not isinstance(scene, SubtitleScene):
+            raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")
+        
+        scene_item = SceneItem(scene)
+        scene_index = self.indexFromItem(self.model[scene.number]) 
+
+        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
+        scene_item.removeRow(scene_index.row())
+        self.endRemoveRows()
+
+        self.beginInsertRows(QModelIndex(), scene_index.row(), scene_index.row())
+        scene_item.insertRow(scene_index.row(), scene_item)
+        self.endInsertRows()
+
+        self.model[scene.number] = scene_item
+
+        self.getRootItem().emitDataChanged()
+
+    def UpdateScene(self, scene_number, scene_update : dict):
+        logging.debug(f"Updating scene {scene_number}")
+        scene_item : SceneItem = self.model.get(scene_number)
         if not scene_item:
-            logging.error(f"Model update for unknown scene {scene_number}")
-            return False
+            raise ViewModelError(f"Model update for unknown scene {scene_number}")
 
         scene_item.Update(scene_update)
+
+        if scene_update.get('number'):
+            scene_item.number = scene_update['number']
 
         if scene_update.get('batches'):
             for batch_number, batch_update in scene_update['batches'].items():
@@ -124,7 +195,66 @@ class ProjectViewModel(QStandardItemModel):
 
         return True
 
-    def UpdateBatch(self, scene_number, batch_number, batch_update):
+    def RemoveScene(self, scene_number):
+        logging.debug(f"Removing scene {scene_number}")
+        if scene_number not in self.model.keys():
+            raise ViewModelError(f"Scene number {scene_number} does not exist")
+        
+        scene_item = self.model.get(scene_number)
+        scene_index = self.indexFromItem(scene_item)
+
+        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
+        root_item.removeRow(scene_index.row())
+        self.endRemoveRows()
+
+        del self.model[scene_number]
+
+    #############################################################################
+
+    def AddBatch(self, batch : SubtitleBatch):
+        logging.debug(f"Adding new batch ({batch.scene}, {batch.number})")
+        if not isinstance(batch, SubtitleBatch):
+            raise ViewModelError(f"Wrong type for AddBatch ({type(batch).__name__})")
+
+        batch_item : BatchItem = self.CreateBatchItem(batch.scene, batch)
+
+        scene_item : SceneItem = self.model.get(batch.scene)
+        scene_index = self.indexFromItem(scene_item)
+        insert_row = batch_item.number - 1
+
+        self.beginInsertRows(scene_index, insert_row, insert_row)
+        scene_item.AddBatchItem(batch_item)
+        self.endInsertRows()
+
+        scene_item.emitDataChanged()
+
+    def ReplaceBatch(self, batch):
+        logging.debug(f"Replacing batch ({batch.scene}, {batch.number})")
+        if not isinstance(batch, SubtitleBatch):
+            raise ViewModelError(f"Wrong type for ReplaceBatch ({type(batch).__name__})")
+
+        scene_item : SceneItem = self.model[batch.scene]
+        scene_index = self.indexFromItem(scene_item)
+        batch_index = self.indexFromItem(scene_item.batches[batch.number])
+        
+        self.beginRemoveRows(scene_index, batch_index.row(), batch_index.row())
+        scene_item.removeRow(batch_index.row())
+        self.endRemoveRows()
+
+        batch_item : BatchItem = self.CreateBatchItem(batch.scene, batch)
+
+        self.beginInsertRows(scene_index, batch_index.row(), batch_index.row())
+        scene_item.insertRow(batch_index.row(), batch_item)
+        self.endInsertRows()
+
+        scene_item.batches[batch.number] = batch_item
+        scene_item.emitDataChanged()
+
+    def UpdateBatch(self, scene_number, batch_number, batch_update : dict):
+        logging.debug(f"Updating batch ({scene_number}, {batch_number})")
+        if not isinstance(batch_update, dict):
+            raise ViewModelError("Expected a patch dictionary")
+        
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number] if scene_number else None
         if not batch_item:
@@ -133,25 +263,130 @@ class ProjectViewModel(QStandardItemModel):
 
         batch_item.Update(batch_update)
 
+        if batch_update.get('number'):
+            batch_item.number = batch_update['number']
+
         if batch_update.get('originals'):
-            self._update_originals(scene_number, batch_number, batch_update['originals'])
+            self.UpdateOriginalLines(scene_number, batch_number, batch_update['originals'])
 
         if batch_update.get('translated'):
-            self._update_translated(scene_number, batch_number, batch_update['translated'])
+            self.UpdateTranslatedLines(scene_number, batch_number, batch_update['translated'])
 
         batch_index = self.indexFromItem(batch_item)
         self.setData(batch_index, batch_item, Qt.ItemDataRole.UserRole)
 
+        scene_item.emitDataChanged()
         return True
 
-    def _update_originals(self, scene_number, batch_number, lines):
+    def RemoveBatch(self, scene_number, batch_number):
+        logging.debug(f"Removing batch ({scene_number}, {batch_number})")
+        scene_item : SceneItem = self.model.get(scene_number)
+        if batch_number not in scene_item.batches.keys():
+            raise ViewModelError(f"Scene {scene_number} batch {batch_number} does not exist")
+        
+        scene_index = self.indexFromItem(scene_item)
+
+        for i in range(0, scene_item.rowCount()):
+            batch_item : BatchItem = scene_item.child(i, 0)
+            if batch_item.number == batch_number:
+                self.beginRemoveRows(scene_index, i, i)
+                scene_item.removeRow(i)
+                self.endRemoveRows()
+                logging.debug(f"Removed row {i} from scene {scene_item.number}, rowCount={scene_item.rowCount()}")
+                break
+
+    #############################################################################
+
+    def AddOriginalLine(self, scene_number, batch_number, line : SubtitleLine):
+        if not isinstance(line, SubtitleLine):
+            raise ViewModelError(f"Wrong type for AddOriginalLine ({type(line).__name__})")
+
+        logging.debug(f"Adding original line ({scene_number}, {batch_number}, {line.number})")
+
+        scene_item : SceneItem = self.model.get(scene_number)
+        batch_item : BatchItem = scene_item.batches[batch_number]
+        if line.number in batch_item.originals.keys():
+            raise ViewModelError(f"Line {line.number} already exists in {scene_number} batch {batch_number}")
+
+        batch_item.AddLineItem(False, line.number, {
+                'scene': scene_number,
+                'batch': batch_number,
+                'start': line.srt_start,
+                'end': line.srt_end,
+                'text': line.text
+            })
+
+    def UpdateOriginalLine(self, scene_number, batch_number, line_number, line_update : dict):
+        logging.debug(f"Updating original line ({scene_number}, {batch_number}, {line_number})")
+        if not isinstance(line_update, dict):
+            raise ViewModelError("Expected a patch dictionary")
+
+        scene_item : SceneItem = self.model.get(scene_number)
+        batch_item : BatchItem = scene_item.batches[batch_number]
+        if line_number not in batch_item.originals.keys():
+            raise ViewModelError(f"Line {line_number} not found in {scene_number} batch {batch_number}")
+        
+        line_item : LineItem = batch_item.originals[line_number]
+        line_item.Update(line_update)
+
+    def UpdateOriginalLines(self, scene_number, batch_number, lines):
+        logging.debug(f"Updating original lines in ({scene_number}, {batch_number})")
         scene_item : SceneItem = self.model[scene_number]
         batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
             line_item : LineItem = batch_item.originals[line_number]
             line_item.Update(line_update)            
 
-    def _update_translated(self, scene_number, batch_number, lines):
+    def RemoveOriginalLine(self, scene_number, batch_number, line_number):
+        logging.debug(f"Removing original line ({scene_number}, {batch_number}, {line_number})")
+
+        scene_item : SceneItem = self.model.get(scene_number)
+        batch_item : BatchItem = scene_item.batches[batch_number]
+        if line_number not in batch_item.originals.keys():
+            raise ViewModelError(f"Line {line_number} not found in {scene_number} batch {batch_number}")
+        
+        line_item = batch_item.originals[line_number]
+        line_index = self.indexFromItem(line_item)
+        batch_item.removeRow(line_index.row())
+
+        del batch_item.originals[line_number]
+
+    #############################################################################
+
+    def AddTranslatedLine(self, scene_number, batch_number, line : SubtitleLine):
+        if not isinstance(line, SubtitleLine):
+            raise ViewModelError(f"Wrong type for AddTranslatedLine ({type(line).__name__})")
+
+        logging.debug(f"Adding translated line ({scene_number}, {batch_number}, {line.number})")
+
+        scene_item : SceneItem = self.model.get(scene_number)
+        batch_item : BatchItem = scene_item.batches[batch_number]
+        if line.number in batch_item.translated.keys():
+            # Not too worried if this happens, TBH
+            raise ViewModelError(f"Line {line.number} already exists in {scene_number} batch {batch_number}")
+
+        batch_item.AddLineItem(True, line.number, {
+                'scene': scene_number,
+                'batch': batch_number,
+                'start': line.srt_start,
+                'end': line.srt_end,
+                'text': line.text
+            })
+
+    def UpdateTranslatedLine(self, scene_number, batch_number, line_number, line_update):
+        logging.debug(f"Updating translated line ({scene_number}, {batch_number}, {line_number})")
+
+        scene_item : SceneItem = self.model.get(scene_number)
+        batch_item : BatchItem = scene_item.batches[batch_number]
+        if line_number not in batch_item.translated.keys():
+            raise ViewModelError(f"Translated line {line_number} not found in {scene_number} batch {batch_number}")
+        
+        line_item : LineItem = batch_item.translated[line_number]
+        line_item.Update(line_update)
+
+    def UpdateTranslatedLines(self, scene_number, batch_number, lines):
+        logging.debug(f"Updating translated lines in ({scene_number}, {batch_number})")
+
         scene_item : SceneItem = self.model[scene_number]
         batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
@@ -162,6 +397,20 @@ class ProjectViewModel(QStandardItemModel):
                 line_model = batch_item.originals[line_number].line_model.copy()
                 UpdateFields(line_model, line_update, [ 'text' ])
                 batch_item.AddLineItem(True, line_number, line_model)
+
+    def RemoveTranslatedLine(self, scene_number, batch_number, line_number):
+        logging.debug(f"Removing translated line ({scene_number}, {batch_number}, {line_number})")
+
+        scene_item : SceneItem = self.model.get(scene_number)
+        batch_item : BatchItem = scene_item.batches[batch_number]
+        if line_number not in batch_item.translated.keys():
+            raise ViewModelError(f"Translated line {line_number} not found in {scene_number} batch {batch_number}")
+        
+        line_item = batch_item.translated[line_number]
+        line_index = self.indexFromItem(line_item)
+        batch_item.removeRow(line_index.row())
+
+        del batch_item.translated[line_number]
 
 ###############################################
 
@@ -175,7 +424,14 @@ class LineItem(QStandardItem):
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
     def Update(self, line_update):
+        if not isinstance(line_update, dict):
+            raise ViewModelError(f"Expected a dictionary, got a {type(line_update).__name__}")
+
         UpdateFields(self.line_model, line_update, ['start', 'end', 'text'])
+
+        if line_update.get('number'):
+            self.number = line_update['number']
+
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
     def __str__(self) -> str:
@@ -274,18 +530,21 @@ class BatchItem(ViewModelItem):
     
     @property
     def first_line_number(self):
-        return min(self.originals.keys()) if self.originals else None
+        return min(num for num in self.originals.keys() if num) if self.originals else None
 
     @property
     def last_line_number(self):
-        return max(self.originals.keys()) if self.originals else None    
+        return max(num for num in self.originals.keys() if num) if self.originals else None    
 
     @property
     def has_errors(self):
         return True if self.batch_model.get('errors') else False
 
     def Update(self, update : dict):
-        UpdateFields(self.batch_model, update, ['summary', 'context', 'start', 'end'])
+        if not isinstance(update, dict):
+            raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
+
+        UpdateFields(self.batch_model, update, ['number', 'summary', 'context', 'start', 'end'])
 
         if 'errors' in update.keys():
             self.batch_model['errors'] = self._get_errors(update['errors'])
@@ -346,8 +605,15 @@ class SceneItem(ViewModelItem):
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
 
     def AddBatchItem(self, batch_item : BatchItem):
-        self.batches[batch_item.number] = batch_item
-        self.appendRow(batch_item)
+        if batch_item.number > len(self.batches):
+            self.appendRow(batch_item)
+        else:
+            self.insertRow(batch_item.number - 1, batch_item)
+            for i in range(0, self.rowCount()):
+                self.child(i, 0).number = i
+
+        batch_items = [ self.child(i, 0) for i in range(0, self.rowCount()) ]
+        self.batches = { item.number: item for item in batch_items }
 
     @property
     def batch_count(self):
@@ -390,6 +656,9 @@ class SceneItem(ViewModelItem):
         return self.scene_model['summary']
 
     def Update(self, update):
+        if not isinstance(update, dict):
+            raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
+
         UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration'])
 
     def GetContent(self):

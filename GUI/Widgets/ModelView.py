@@ -92,9 +92,6 @@ class ModelView(QWidget):
             self.project_options.hide()
 
     def GetSelection(self) -> ProjectSelection:
-        """
-        Retrieve the current project selection
-        """
         selection = ProjectSelection()
         model = self.scenes_view.model()
 

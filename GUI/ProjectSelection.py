@@ -1,3 +1,4 @@
+from itertools import groupby
 from PySide6.QtCore import Qt
 
 from GUI.ProjectViewModel import BatchItem, SceneItem
@@ -106,17 +107,32 @@ class ProjectSelection():
         return self.selected_originals or self.selected_translated
     
     def AllLinesInSameBatch(self) -> bool:
+        """
+        Are all selected lines part of the same batch?
+        """
         originals = self.selected_originals
         translated = self.selected_translated
         return all(line.batch == originals[0].batch for line in originals) and all(line.batch == translated[0].batch for line in translated)
 
     def MatchingLines(self) -> bool:
+        """
+        Are the same original and translated lines selected?
+        """
         return self.selected_originals == self.selected_translated
 
-    def MultipleSelected(self) -> bool:
+    def MultipleSelected(self, max = None) -> bool:
+        """
+        Is more than one scene, batch or line selected?
+        """
+        if max and len(self.selected_scenes) > max and len(self.selected_batches) > max and len(self.selected_originals) > max and len(self.selected_translated) > max:
+            return False
+
         return len(self.selected_scenes) > 1 or len(self.selected_batches) > 1 or len(self.selected_originals) > 1 or len(self.selected_translated) > 1
 
-    def IsSequential(self) -> bool:
+    def IsContiguous(self) -> bool:
+        """
+        Are all selected scenes, batches and lines contiguous?
+        """
         scene_numbers = sorted(scene.number for scene in self.selected_scenes)
         if scene_numbers and scene_numbers != list(range(scene_numbers[0], scene_numbers[0] + len(scene_numbers))):
             return False
@@ -141,6 +157,60 @@ class ProjectSelection():
 
         return True
     
+    def IsFirstInBatchSelected(self) -> bool:
+        """
+        Check whether the first line of any batch is selected
+        """
+        for scene, batch in self.batch_numbers:
+            first_line = next((line for line in self.original_lines if line.scene == scene and line.batch == batch), None)
+            if first_line and first_line.selected:
+                return True
+
+            first_translated = next((line for line in self.translated_lines if line.scene == scene and line.batch == batch), None)
+            if first_translated and first_translated.selected:
+                return True
+
+        return False
+    
+    def IsFirstOrLastInBatchSelected(self) -> bool:
+        """
+        Check whether the first or last line of any batch is selected
+        """
+        line_dict = {}
+        for line in list(self.originals.values()) + list(self.translated.values()):
+            key = (line.scene, line.batch, line.number)
+            if key in line_dict:
+                line_dict[key].selected = line_dict[key].selected or line.selected
+            else:
+                line_dict[key] = line
+        
+        for batch_lines in groupby(sorted(line_dict.values(), key=lambda x: (x.scene, x.batch, x.number)), key=lambda x: (x.scene, x.batch)):
+            batch_lines = list(batch_lines[1])
+            if batch_lines[0].selected or batch_lines[-1].selected:
+                return True
+        
+        return False
+    
+    def IsFirstInSceneSelected(self) -> bool:
+        """
+        Check whether the first or last batch of any scene is selected
+        """
+        return next((batch.number for batch in self.selected_batches if batch.number == 1), False) and True
+    
+    def IsFirstOrLastInSceneSelected(self) -> bool:
+        """
+        Check whether the first or last batch of any scene is selected
+        """
+        scene_batches = {}
+        for scene in self.scenes:
+            scene_batches[scene] = [batch for batch in self.batches if batch[0] == scene]
+
+        for batch in self.selected_batches:
+            if batch.number == 1 or batch.number == scene_batches[batch][-1][1]:
+                return True
+
+        return False
+
     def GetHierarchy(self) -> dict:
         """
         Hierarchical representation of selected lines/batches/scenes
@@ -193,6 +263,9 @@ class ProjectSelection():
                     self.translated[line] = SelectionLine(batch.scene, batch.number, line, False)
 
     def AddSelectedLines(self, selected_originals : list[SelectionLine], selected_translations : list[SelectionLine]):
+        """
+        Added selected and/or translated lines to the selection
+        """
         for line in selected_originals:
             self.originals[line.number] = line
         for line in selected_translations:

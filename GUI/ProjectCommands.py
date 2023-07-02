@@ -1,8 +1,8 @@
 import logging
 from GUI.Command import Command, CommandError
-from GUI.FileCommands import SaveProjectFile
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
+from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
@@ -69,28 +69,45 @@ class MergeBatchesCommand(Command):
     """
     Combine multiple batches into one
     """
-    def __init__(self, scene_number : int, batch_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, scene_number: int, batch_numbers: list[int], datamodel: ProjectDataModel = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
+        self.original_first_line_numbers = None
 
     def execute(self):
         logging.info(f"Merging scene {str(self.scene_number)} batches: {','.join(str(x) for x in self.batch_numbers)}")
 
-        project : SubtitleProject = self.datamodel.project
+        project: SubtitleProject = self.datamodel.project
+        scene = project.subtitles.GetScene(self.scene_number)
 
-        # First merge selected batches in each scene
         if len(self.batch_numbers) > 1:
+            self.original_first_line_numbers = [scene.GetBatch(batch_number).first_line_number for batch_number in self.batch_numbers]
+
             project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
-        #TODO: incremental updates to the data/view model
-        self.datamodel.CreateViewModel()
+        # TODO: Only replace the merged batches and renumber the rest
+        self.model_update.scenes.replace(scene.number, scene)
+
+        return True
+    
+    def undo(self):
+        project: SubtitleProject = self.datamodel.project
+        scene = project.subtitles.GetScene(self.scene_number)
+
+        # Split the merged batch back into the original batches using the stored first line numbers
+        for i in range(1, len(self.original_first_line_numbers)):
+            scene.SplitBatch(self.batch_numbers[0], self.original_first_line_numbers[i])
+
+        self.model_update.scenes.replace(scene.number, scene)
 
         return True
 
+#############################################################
+
 class MergeLinesCommand(Command):
     """
-    Merge one or several lines together and renumber the rest
+    Merge one or several lines together
     """
     def __init__(self, selection : ProjectSelection, datamodel: ProjectDataModel = None):
         super().__init__(datamodel)
@@ -119,22 +136,135 @@ class MergeLinesCommand(Command):
         if selected:
             project.subtitles.MergeLines(selected)
             
-            # TODO: maybe MergeLines should return the update (need a model update builder anyway)
             for scene_number in selected.keys():
-                self.datamodel_update[scene_number] = { 'batches' : {} }
-                for batch_number in selected[scene_number].keys():
-                    batch = project.subtitles.GetBatch(scene_number, batch_number)
+                batches_to_update : list[SubtitleBatch] = [ project.subtitles.GetBatch(scene_number, batch_number) for batch_number in selected[scene_number].keys() ]
 
-                    self.datamodel_update[scene_number]['batches'][batch_number] = {
-                        'originals' : { line.number : { 'text' : line.text } for line in batch.originals },
-                        'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
-                    }
-
+                for batch in batches_to_update:
+                    self.model_update.batches.replace((scene_number, batch.number), batch)
+            
         return True
     
     def undo(self):
-        # Really need to implement undo for this!
-        return super().undo()
+        # TODO: Really need to implement undo for this!
+        raise CommandError("Undo not supported for MergeLinesCommand yet")
+
+#############################################################
+
+class SplitBatchCommand(Command):
+    def __init__(self, scene_number : int, batch_number : int, line_number : int, translation_number : int = None, datamodel: ProjectDataModel = None):
+        super().__init__(datamodel)
+        self.scene_number = scene_number
+        self.batch_number = batch_number
+        self.line_number = line_number
+        self.translation_number = translation_number
+
+    def execute(self):
+        logging.info(f"Splitting scene {str(self.scene_number)} batch: {str(self.batch_number)} at line {self.line_number}")
+
+        project : SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+
+        scene = project.subtitles.GetScene(self.scene_number)
+
+        split_batch = scene.GetBatch(self.batch_number) if scene else None
+
+        if not split_batch:
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
+
+        scene.SplitBatch(self.batch_number, self.line_number, self.translation_number)
+
+        new_batch_number = self.batch_number + 1
+
+        split_batch : SubtitleBatch = scene.GetBatch(self.batch_number)
+        new_batch : SubtitleBatch = scene.GetBatch(new_batch_number)
+
+        # Remove lines from the original batch that are in the new batch now
+        for line_removed in range(self.line_number, new_batch.last_line_number + 1):
+            self.model_update.originals.remove((self.scene_number, self.batch_number, line_removed))
+            if new_batch.HasTranslatedLine(line_removed):
+                self.model_update.translated.remove((self.scene_number, self.batch_number, line_removed))
+
+        for batch_number in range(self.batch_number + 1, len(scene.batches)):
+             self.model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
+
+        self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+
+        return True
+
+    def undo(self):
+        project: SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+
+        scene = project.subtitles.GetScene(self.scene_number)
+
+        if not scene or not scene.GetBatch(self.batch_number):
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
+
+        try:
+            scene.MergeBatches([self.batch_number, self.batch_number + 1])
+
+            new_batch_number = self.batch_number + 1
+            self.model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
+            self.model_update.batches.remove((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+
+            return True
+
+        except Exception as e:
+            raise CommandError(f"Unable to undo SplitBatchCommand command: {str(e)}")
+
+#############################################################
+
+class SplitSceneCommand(Command):
+    def __init__(self, scene_number : int, batch_number : int, datamodel: ProjectDataModel = None):
+        super().__init__(datamodel)
+        self.scene_number = scene_number
+        self.batch_number = batch_number
+
+    def execute(self):
+        logging.info(f"Splitting batch {str(self.scene_number)} at batch {str(self.batch_number)}")
+
+        project : SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+        
+        scene = project.subtitles.GetScene(self.scene_number)
+        if not scene:
+            raise CommandError(f"Cannot split scene {self.scene_number} because it doesn't exist")
+        
+        last_batch = scene.batches[-1].number
+
+        project.subtitles.SplitScene(self.scene_number, self.batch_number)
+
+        for scene_number in range(self.scene_number + 1, len(project.subtitles.scenes)):
+             self.model_update.scenes.update(scene_number, { 'number' : scene_number + 1})
+
+        for batch_removed in range(self.batch_number, last_batch + 1):
+            self.model_update.batches.remove((self.scene_number, batch_removed))
+
+        self.model_update.scenes.add(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
+
+        return True
+
+    def undo(self):
+        project: SubtitleProject = self.datamodel.project
+
+        if not project.subtitles:
+            raise Exception("No subtitles")
+
+        try:
+            project.subtitles.MergeScenes([self.scene_number, self.scene_number + 1])
+            self.model_update.rebuild = True
+
+            return True
+        
+        except Exception as e:
+            raise CommandError(f"Unable to undo SplitScene command: {str(e)}")
+
 
 #############################################################
 
@@ -147,9 +277,6 @@ class TranslateSceneCommand(Command):
         self.translator = None
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
-        self.datamodel_update = { scene_number : {
-
-        }}
 
     def execute(self):
         if self.batch_numbers:
@@ -173,20 +300,20 @@ class TranslateSceneCommand(Command):
         project.UpdateProjectFile()
 
         if scene:
-            self.datamodel_update[scene.number].update({
+            self.model_update.scenes.update(scene.number, {
                 'summary' : scene.summary
             })
 
             for batch in scene.batches:
                 if batch.translated:
                     if not self.batch_numbers or batch.number in self.batch_numbers:
-                        self.datamodel_update[self.scene_number][batch.number] = {
+                        self.model_update.batches.update((scene.number, batch.number), {
                             'summary' : batch.summary,
                             'context' : batch.context,
                             'errors' : batch.errors,
                             'translation': batch.translation,
                             'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
-                        }
+                        })
 
         return True
     
@@ -195,16 +322,18 @@ class TranslateSceneCommand(Command):
             self.translator.StopTranslating()
     
     def _on_batch_translated(self, batch : SubtitleBatch):
+        # Update viewmodel as each batch is translated 
         if self.datamodel and batch.translated:
-            update = {
+            update = ModelUpdate()
+            update.batches.update((batch.scene, batch.number), {
                 'summary' : batch.summary,
                 'context' : batch.context,
                 'errors' : batch.errors,
                 'translation': batch.translation,
                 'translated' : { line.number : { 'text' : line.text } for line in batch.translated if line.number }
-            }
+            })
 
-            self.datamodel.UpdateViewModelWithLock({ batch.scene : { 'batches' : { batch.number : update } } })
+            update.UpdateModel(self.datamodel)
 
 #############################################################
 
@@ -277,15 +406,9 @@ class SwapTextAndTranslations(Command):
         batch : SubtitleBatch = scene.GetBatch(self.batch_number)
 
         # Swap original and translated text (only in the viewmodel)
-        self.datamodel_update  = {
-            self.scene_number : {
-                'batches' : {
-                    self.batch_number : {
-                        'originals' : { line.number : { 'text' : line.text } for line in batch.translated },
-                        'translated' : { line.number : { 'text' : line.text } for line in batch.originals }
-                    }           
-                }
-            }
-        }
+        for original, translated in zip(batch.originals, batch.translated):
+            if original and translated:
+                self.model_update.originals.update((scene.number, batch.number, original.number), { 'text': translated.text } )
+                self.model_update.translated.update((scene.number, batch.number, translated.number), { 'text': original.text } )
 
         return True
