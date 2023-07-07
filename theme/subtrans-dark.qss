@@ -25,7 +25,8 @@ QComboBox::drop-down QAbstractItemView {
 }
 
 .MainToolbar, .ProjectToolbar {
-    background-color: #909090;
+    background-color: #808080;
+    border: none;
 }
 
 .LogWindow {
