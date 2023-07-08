@@ -11,6 +11,16 @@ QStatusBar {
     color: black;
 }
 
+.MainToolbar, .ProjectToolbar {
+    background-color: #808080;
+    border: none;
+}
+
+QTreeView:item:selected {
+    border: 2px solid #800000;
+    font-weight: bold;
+}
+
 .MainWindow {
     background-color: aliceblue;
     color: black;
@@ -31,7 +41,7 @@ QStatusBar {
     border-width: 2;
     border-style: solid;
     border-color: lightgray;
-    border-radius 12;
+    border-radius: 12;
     background-color: white;
 }
 

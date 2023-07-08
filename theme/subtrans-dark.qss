@@ -25,7 +25,8 @@ QComboBox::drop-down QAbstractItemView {
 }
 
 .MainToolbar, .ProjectToolbar {
-    background-color: #909090;
+    background-color: #808080;
+    border: none;
 }
 
 .LogWindow {
@@ -43,8 +44,13 @@ QComboBox::drop-down QAbstractItemView {
     border-width: 2;
     border-style: solid;
     border-color: black;
-    border-radius 12;
+    border-radius: 12;
     background-color: #121212;
+}
+
+QTreeView:item:selected {
+    border: 2px solid #800000;
+    font-weight: bold;
 }
 
 .WidgetHeader { 
@@ -128,7 +134,7 @@ QTabWidget::pane, QTabWidget::pane QWidget {
 
 QTabWidget::pane QFrame {
     background-color: #363636;
-    border 2px solid #121212;
+    border: 2px solid #121212;
 }
 
 QTabBar::tab {
