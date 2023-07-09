@@ -136,6 +136,7 @@ class DropdownOptionWidget(OptionWidget):
     def __init__(self, key, values, initial_value, tooltip = None):
         super(DropdownOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.combo_box = QComboBox(self)
+        self.combo_box.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         for value in values:
             self.combo_box.addItem(value)
 

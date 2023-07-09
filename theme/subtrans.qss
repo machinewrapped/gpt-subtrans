@@ -5,6 +5,14 @@ QWidget {
 
 QLabel {
     color: black;
+    padding-top: 2px;
+    padding-bottom: 6px;
+}
+
+QComboBox {
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+    min-height: 1em;
 }
 
 QStatusBar {
@@ -12,13 +20,17 @@ QStatusBar {
 }
 
 .MainToolbar, .ProjectToolbar {
-    background-color: #808080;
+    background-color: #a0a0a0;
     border: none;
 }
 
+QTreeView:item {
+    border-radius: 12;
+}
+
 QTreeView:item:selected {
-    border: 2px solid #800000;
-    font-weight: bold;
+    border: 2px solid black;
+    border-radius: 12;
 }
 
 .MainWindow {
