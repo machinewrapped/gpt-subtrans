@@ -48,7 +48,7 @@ class MergeScenesCommand(Command):
     """
     def __init__(self, scene_numbers : list[int], datamodel: ProjectDataModel = None):
         super().__init__(datamodel)
-        self.scene_numbers = scene_numbers
+        self.scene_numbers = sorted(scene_numbers)
 
     def execute(self):
         logging.info(f"Merging scenes {','.join(str(x) for x in self.scene_numbers)}")
