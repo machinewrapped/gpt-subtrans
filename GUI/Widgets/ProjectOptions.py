@@ -27,7 +27,7 @@ class ProjectOptions(QGroupBox):
         # Add options
         self.AddSingleLineOption(0, "Movie Name", options, 'movie_name')
         self.AddSingleLineOption(1, "Target Language", options, 'target_language')
-        self.AddMultiLineOption(2, "Synopsis", options, 'synopsis')
+        self.AddMultiLineOption(2, "Description", options, 'description')
         self.AddMultiLineOption(3, "Characters", options, 'characters')
         self.AddMultiLineOption(4, "Substitutions", options, 'substitutions')
         self.AddCheckboxOption(5, "Match Partial Words", options, 'match_partial_words')
@@ -44,7 +44,7 @@ class ProjectOptions(QGroupBox):
         options = {
             "movie_name": self.movie_name_input.text(),
             "target_language": self.target_language_input.text(),
-            "synopsis": self.synopsis_input.toPlainText(),
+            "description": self.description_input.toPlainText(),
             "characters": ParseCharacters(self.characters_input.toPlainText()),
             "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText()),
             "match_partial_words": self.match_partial_words_input.isChecked()
@@ -119,7 +119,7 @@ class ProjectOptions(QGroupBox):
                 self._setvalue(key, value)
 
     def Clear(self):
-        for key in ["movie_name", "synopsis", "characters", "substitutions", "match_partial_words"]:
+        for key in ["movie_name", "description", "characters", "substitutions", "match_partial_words"]:
             input = getattr(self, key + "_input")
             if input:
                 if isinstance(input, QCheckBox):

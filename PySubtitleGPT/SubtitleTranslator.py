@@ -342,7 +342,7 @@ class SubtitleTranslator:
 
                 context['summary'] = batch.summary
                 context['scene'] = scene_summary or context['scene']
-                context['synopsis'] = translation.synopsis or context.get('synopsis', "") or options.get('synopsis')
+                context['synopsis'] = translation.synopsis or context.get('synopsis', "")
                 #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
                 batch.UpdateContext(context)
 

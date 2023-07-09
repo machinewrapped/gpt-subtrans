@@ -58,7 +58,7 @@ class ChatGPTTranslation:
 
     def PerformSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
-        Apply any text substitutions to summary, characters and synopsis if they exist.
+        Apply any text substitutions to summary, scene, characters and synopsis if they exist.
 
         Does NOT apply them to the translation text. 
         """

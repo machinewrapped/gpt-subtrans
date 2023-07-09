@@ -204,7 +204,7 @@ class SubtitleFile:
             'gpt_prompt': "",
             'instructions': "",
             'movie_name': "",
-            'synopsis': "",
+            'description': "",
             'characters': None,
             'substitutions': None,
             'min_batch_size' : None,
@@ -230,6 +230,10 @@ class SubtitleFile:
                     context[key] = options[key]
                 elif context[key]:
                     options[key] = context[key]
+
+            # Fill description from synopsis for backward compatibility
+            if not context.get('description') and context.get('synopsis'):
+                context['description'] = context.get('synopsis')
 
             self.context = context
 

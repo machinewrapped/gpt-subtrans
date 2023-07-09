@@ -88,8 +88,8 @@ along with some other configuration options. See Options.py for the full list. A
 - `-m`, `--moviename`:
   Optionally specify the name of the movie to give context to the translator.
 
-- `--synopsis`:
-  A brief synopsis of the film to give context. Less is more here, otherwise ChatGPT can start improvising.
+- `--description`:
+  A brief description of the film to give context. Less is more here, otherwise ChatGPT can start improvising.
 
 - `-c`, `--character`, `--characters`:
   Optionally provide (a list of) character names to use in the translation.

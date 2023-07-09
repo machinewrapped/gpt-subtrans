@@ -23,7 +23,7 @@ parser.add_argument('-c', '--character', action='append', type=str, default=None
 parser.add_argument('-s', '--substitution', action='append', type=str, default=None, help="A pair of strings separated by ::, to subsitute in source or translation")
 parser.add_argument('-i', '--instruction', action='append', type=str, default=None, help="An instruction for Chat GPT about the translation")
 parser.add_argument('-f', '--instructionfile', type=str, default=None, help="Name/path of a file to load GPT instructions from")
-parser.add_argument('--synopsis', type=str, default=None, help="A brief synopsis of the film to give context")
+parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
 parser.add_argument('--characters', type=str, default=None, help="A list of character names")
 parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum number of lines to consider starting a new batch")
 parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
@@ -41,7 +41,7 @@ try:
         'rate_limit': args.ratelimit,
         'target_language': args.target_language,
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
-        'synopsis': args.synopsis,
+        'description': args.description,
         'characters': ParseCharacters(args.characters or args.character),
         'substitutions': ParseSubstitutions(args.substitution),
         'match_partial_words': args.matchpartialwords,

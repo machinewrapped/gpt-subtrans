@@ -15,7 +15,7 @@ class ChatGPTPrompt:
             self.messages.append({'role': "system", 'content': self.instructions})
 
         if context:
-            context_tags = GenerateTagLines(context, ['synopsis', 'characters'])
+            context_tags = GenerateTagLines(context, ['description', 'characters'])
             if context_tags:
                 self.messages.append({'role': "user", 'content': context_tags})
 
