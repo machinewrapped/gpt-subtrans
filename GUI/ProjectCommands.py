@@ -72,7 +72,7 @@ class MergeBatchesCommand(Command):
     def __init__(self, scene_number: int, batch_numbers: list[int], datamodel: ProjectDataModel = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
-        self.batch_numbers = batch_numbers
+        self.batch_numbers = sorted(batch_numbers)
         self.original_first_line_numbers = None
 
     def execute(self):
@@ -82,12 +82,15 @@ class MergeBatchesCommand(Command):
         scene = project.subtitles.GetScene(self.scene_number)
 
         if len(self.batch_numbers) > 1:
+            merged_batch_number = self.batch_numbers[0]
+
             self.original_first_line_numbers = [scene.GetBatch(batch_number).first_line_number for batch_number in self.batch_numbers]
 
             project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
-        # TODO: Only replace the merged batches and renumber the rest
-        self.model_update.scenes.replace(scene.number, scene)
+            self.model_update.batches.replace((scene.number, merged_batch_number), scene.GetBatch(merged_batch_number))
+            for batch_number in self.batch_numbers[1:]:
+                self.model_update.batches.remove((scene.number, batch_number))
 
         return True
     
