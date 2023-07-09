@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
-from PySide6.QtCore import Slot, Signal
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
+from PySide6.QtGui import QTextOption
 
 MULTILINE_OPTION = 'multiline'
 
@@ -24,6 +25,9 @@ class OptionWidget(QWidget):
 
     def GetValue(self):
         raise NotImplementedError
+    
+    def SetValue(self, value):
+        raise NotImplementedError
 
 class TextOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
@@ -39,6 +43,9 @@ class TextOptionWidget(OptionWidget):
     def GetValue(self):
         return self.text_field.text()
 
+    def SetValue(self, value):
+        self.text_field.setText(value)
+
 class MultilineTextOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
         super(MultilineTextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
@@ -51,11 +58,15 @@ class MultilineTextOptionWidget(OptionWidget):
         self.text_field.setPlainText(content)
         self.text_field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
         self.text_field.textChanged.connect(self.contentChanged)
+        self.text_field.setWordWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
         self.layout.addWidget(self.text_field)
 
     def GetValue(self):
         return self.text_field.toPlainText()
     
+    def SetValue(self, value):
+        self.text_field.setPlainText(value)
+
     def SetReadOnly(self, is_read_only : bool):
         self.text_field.setReadOnly(is_read_only)
 
