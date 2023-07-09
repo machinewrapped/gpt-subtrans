@@ -19,6 +19,7 @@ class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
+    @classmethod
     def __init__(self, subtitles : SubtitleFile, options : Options):
         """
         Initialise a SubtitleTranslator with translation options
@@ -48,6 +49,18 @@ class SubtitleTranslator:
 
         context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]
         logging.debug(f"Translation context:\n{linesep.join(context_values)}")
+
+    @classmethod
+    def GetAvailableModels(cls, api_key : str):
+        """
+        Returns a list of possible values for the LLM model 
+        """
+        response = openai.Model.list(api_key) if api_key else None
+        if not response or not response.data:
+            return []
+
+        model_list = [ model.openai_id for model in response.data if model.openai_id.startswith('gpt') ]
+        return sorted(model_list)
 
     def StopTranslating(self):
         self.aborted = True

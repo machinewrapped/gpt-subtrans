@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtWidgets import (
     QStyle, 
     QApplication, 
@@ -13,29 +14,24 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox, 
     QSpinBox 
     )
-from PySide6.QtGui import QTextOption
+from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
 from PySubtitleGPT.Options import Options
+from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
 class TranslatorOptionsDialog(QDialog):
-    def __init__(self, data, parent=None):
+    def __init__(self, data : dict, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Translator Options")
         self.setMinimumWidth(800)
 
         self.data = data
-
-        layout = QVBoxLayout()
+        self.models = SubtitleTranslator.GetAvailableModels(data.get('api_key'))
 
         self.form_layout = QFormLayout()
-
-        self.model_edit = self._create_input("Model", QLineEdit, "Enter Model", self.data.get('gpt_model', ''))
-
-        self.prompt_edit = self._create_input("Prompt", QLineEdit, "Enter Prompt", self.data.get('gpt_prompt', ''))
-
-        self.instructions_edit = self._create_input("Instructions", QTextEdit, "Enter Instructions", self.data.get('instructions', ''), QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
-
-        layout.addLayout(self.form_layout)
+        self.model_edit = self._add_form_option("model", self.data.get('gpt_model', ''), self.models, tooltip="Model to use for translation")
+        self.prompt_edit = self._add_form_option("prompt", self.data.get('gpt_prompt', ''), str, "Prompt for each user translation request")
+        self.instructions_edit = self._add_form_option("instructions", self.data.get('instructions', ''), MULTILINE_OPTION, "System instructions for the translator")
 
         self.button_layout = QHBoxLayout()
 
@@ -45,28 +41,16 @@ class TranslatorOptionsDialog(QDialog):
         self.ok_button = self._create_button("OK", self.accept)
         self.cancel_button = self._create_button("Cancel", self.reject)
 
+        layout = QVBoxLayout()
+        layout.addLayout(self.form_layout)
         layout.addLayout(self.button_layout)
 
         self.setLayout(layout)
 
-    def _create_input(self, label_text, input_type, placeholder=None, default_value=None, word_wrap_mode=None):
-        label = QLabel(label_text)
-        input_widget = input_type()
-
-        if placeholder:
-            input_widget.setPlaceholderText(placeholder)
-
-        if default_value is not None:
-            if isinstance(input_widget, QLineEdit):
-                input_widget.setText(default_value)
-            elif isinstance(input_widget, QTextEdit):
-                input_widget.setPlainText(default_value)
-                input_widget.setWordWrapMode(word_wrap_mode)
-            elif isinstance(input_widget, QSpinBox) or isinstance(input_widget, QDoubleSpinBox):
-                input_widget.setValue(default_value)
-
-        self.form_layout.addRow(label, input_widget)
-        return input_widget
+    def _add_form_option(self, key, initial_value, key_type, tooltip = None):
+        input = CreateOptionWidget(key, initial_value, key_type, tooltip)
+        self.form_layout.addRow(key, input)
+        return input
 
     def _create_button(self, text, on_click):
         button = QPushButton(text)
@@ -75,11 +59,10 @@ class TranslatorOptionsDialog(QDialog):
         return button
 
     def accept(self):
-        self.data['gpt_model'] = self.model_edit.text()
-        self.data['gpt_prompt'] = self.prompt_edit.text()
-        self.data['instructions'] = self.instructions_edit.toPlainText()
+        self.data['gpt_model'] = self.model_edit.GetValue()
+        self.data['gpt_prompt'] = self.prompt_edit.GetValue()
+        self.data['instructions'] = self.instructions_edit.GetValue()
         super().accept()
-
 
     def reject(self):
         super().reject()
@@ -96,9 +79,12 @@ class TranslatorOptionsDialog(QDialog):
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getOpenFileName(self, "Load Instructions", "", "Text Files (*.txt);;All Files (*)", options=options)
         if file_name:
-            with open(file_name, "r") as file:
-                content = file.read()
-                self.instructions_edit.setPlainText(content)
+            try:
+                with open(file_name, "r", encoding='utf-8') as file:
+                    content = file.read()
+                    self.instructions_edit.SetValue(content)
+            except Exception as e:
+                logging.error(f"Unable to read instruction file: {str(e)}")
 
     def _save_instructions(self):
         options = QFileDialog.Options()
@@ -112,6 +98,6 @@ class TranslatorOptionsDialog(QDialog):
 
     def set_defaults(self):
         options = Options()
-        self.model_edit.setText(options.get('gpt_model'))
-        self.prompt_edit.setText(options.get('gpt_prompt'))
-        self.instructions_edit.setPlainText(options.get('instructions'))
+        self.model_edit.SetValue(options.get('gpt_model'))
+        self.prompt_edit.SetValue(options.get('gpt_prompt'))
+        self.instructions_edit.SetValue(options.get('instructions'))

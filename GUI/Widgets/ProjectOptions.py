@@ -99,7 +99,10 @@ class ProjectOptions(QGroupBox):
         if isinstance(options, Options):
             return self.Populate(options.options)
 
+        self.api_key = options.get('api_key')
+
         self._gpt_options = {
+            'api_key': options.get('api_key'),
             'gpt_model': options.get('gpt_model'),
             'gpt_prompt': options.get('gpt_prompt'),
             'instructions': options.get('instructions'),
@@ -145,7 +148,7 @@ class ProjectOptions(QGroupBox):
         self.optionsChanged.emit(options)
 
     def _gpt_settings(self):
-        dialog = TranslatorOptionsDialog(self._gpt_options, self)
+        dialog = TranslatorOptionsDialog(self._gpt_options, parent=self)
         result = dialog.exec()
 
         if result == QDialog.Accepted:

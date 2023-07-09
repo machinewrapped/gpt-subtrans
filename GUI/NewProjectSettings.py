@@ -6,6 +6,7 @@ from PySubtitleGPT import SubtitleProject
 from PySubtitleGPT.Options import LoadInstructionsFile, Options
 from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
 from PySubtitleGPT.SubtitleScene import SubtitleScene
+from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
 class NewProjectSettings(QDialog):
     SETTINGS = {
@@ -14,6 +15,7 @@ class NewProjectSettings(QDialog):
         'max_batch_size': (int, "Most lines to send in each batch"),
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch"),
+        'gpt_model': (str, "AI model to use as the translator"),
         'gpt_prompt': (str, "High-level instructions for the translator"),
         'instruction_file': (str, "Detailed instructions for the translator")
     }
@@ -25,10 +27,15 @@ class NewProjectSettings(QDialog):
 
         self.project : SubtitleProject = project
         self.settings : dict = project.options.GetSettings()
+        api_key = project.options.api_key()
+
+        if api_key:
+            models = SubtitleTranslator.GetAvailableModels(api_key)
+            self.SETTINGS['gpt_model'] = (models, self.SETTINGS['gpt_model'][1])
 
         instruction_files = GetInstructionFiles()
         if instruction_files:
-            self.SETTINGS['instruction_file'] = (instruction_files, "Detailed instructions for the translator")
+            self.SETTINGS['instruction_file'] = (instruction_files, self.SETTINGS['instruction_file'][1])
 
         settings_widget = QFrame(self)
 
