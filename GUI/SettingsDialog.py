@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
-from GUI.GuiHelpers import GetThemeNames
+from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
+from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
 class SettingsDialog(QDialog):
     SECTIONS = {
@@ -48,6 +49,14 @@ class SettingsDialog(QDialog):
         self.options = options
 
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
+
+        models = SubtitleTranslator.GetAvailableModels(options.get('api_key'))
+        if models:
+            self.SECTIONS['GPT']['gpt_model'] = models
+
+        instruction_files = GetInstructionFiles()
+        if instruction_files:
+            self.SECTIONS['Translation']['instruction_file'] = instruction_files
 
         self.layout = QVBoxLayout(self)
 
