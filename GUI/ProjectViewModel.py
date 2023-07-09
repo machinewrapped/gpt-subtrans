@@ -199,7 +199,8 @@ class ProjectViewModel(QStandardItemModel):
         logging.debug(f"Removing scene {scene_number}")
         if scene_number not in self.model.keys():
             raise ViewModelError(f"Scene number {scene_number} does not exist")
-        
+
+        root_item = self.getRootItem()        
         scene_item = self.model.get(scene_number)
         scene_index = self.indexFromItem(scene_item)
 
