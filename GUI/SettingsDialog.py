@@ -15,6 +15,7 @@ class SettingsDialog(QDialog):
         },
         'GPT': {
             'api_key': str,
+            'api_base': str,
             'gpt_model': str,
             'temperature': float,
             'rate_limit': float

@@ -32,7 +32,10 @@ class SubtitleTranslator:
         if not openai.api_key:
             raise ValueError('API key must be set in .env or provided as an argument')
         
-        logging.debug(f"Using API Key: {openai.api_key}")
+        if options.api_base():
+            openai.api_base = options.api_base()
+        
+        logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.api_base}")
 
         self.subtitles = subtitles
         self.options = options
@@ -51,11 +54,14 @@ class SubtitleTranslator:
         logging.debug(f"Translation context:\n{linesep.join(context_values)}")
 
     @classmethod
-    def GetAvailableModels(cls, api_key : str):
+    def GetAvailableModels(cls, api_key : str, api_base : str):
         """
         Returns a list of possible values for the LLM model 
         """
-        response = openai.Model.list(api_key) if api_key else None
+        if api_base:
+            response = openai.Model.list(api_key, api_base = api_base) if api_key else None
+        else:
+            response = openai.Model.list(api_key) if api_key else None 
         if not response or not response.data:
             return []
 

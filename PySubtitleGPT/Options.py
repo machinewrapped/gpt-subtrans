@@ -31,6 +31,7 @@ def env_bool(key, default=False):
 default_options = {
     'version': __version__,
     'api_key': os.getenv('API_KEY', None),
+    'api_base': os.getenv('API_BASE', 'https://api.openai.com/v1'),
     'gpt_model': os.getenv('GPT_MODEL', 'gpt-3.5-turbo'),
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
     'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
@@ -105,6 +106,9 @@ class Options:
 
     def api_key(self):
         return self.get('api_key')
+
+    def api_base(self):
+        return self.get('api_base')    
     
     def allow_multithreaded_translation(self):
         return self.get('max_threads') and self.get('max_threads') > 1
