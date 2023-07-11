@@ -26,7 +26,7 @@ class TranslatorOptionsDialog(QDialog):
         self.setMinimumWidth(800)
 
         self.data = data
-        self.models = SubtitleTranslator.GetAvailableModels(data.get('api_key'))
+        self.models = SubtitleTranslator.GetAvailableModels(data.get('api_key'), data.get('api_base'))
 
         self.form_layout = QFormLayout()
         self.model_edit = self._add_form_option("model", self.data.get('gpt_model', ''), self.models, tooltip="Model to use for translation")
