@@ -117,6 +117,9 @@ along with some other configuration options. See Options.py for the full list. A
 - `-k`, `--apikey`:
   Your OpenAI API Key (https://platform.openai.com/account/api-keys). Not required if it is set in .env
 
+- `-b`, `--apibase`:
+  API base address. Used for third-party API, if it is not set, it will be the default openai official API base address.
+
 - `-t`, `--temperature`:
   A higher temperature increases the random variance of translations. Default 0.
 
