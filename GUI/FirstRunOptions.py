@@ -11,7 +11,8 @@ from PySide6.QtWidgets import (
     QCheckBox, 
     QDoubleSpinBox, 
     QComboBox,
-    QSpinBox 
+    QSpinBox,
+    QSizePolicy 
     )
 from PySide6.QtGui import QTextOption
 
@@ -29,6 +30,7 @@ class FirstRunOptions(QDialog):
         layout = QVBoxLayout()
 
         self.form_layout = QFormLayout()
+        self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
         api_key = self.data.get('api_key', '')
         self.api_key = self._create_input("API Key", QLineEdit, "Enter API Key", api_key)
@@ -41,7 +43,7 @@ class FirstRunOptions(QDialog):
 
         self.model = self._create_input("Model", QLineEdit, "Default Model", self.data.get('gpt_model', ''))
 
-        self.free_plan = self._create_input("OpenAI Free Plan", QCheckBox, default_value=self.data.get('rate_limit', False) and True)
+        self.free_plan = self._create_input("OpenAI Free Plan", QCheckBox, default_value = 'rate_limit' in self.data and self.data.get('rate_limit') > 0.0)
 
         self.max_threads = self._create_input("Max Threads", QSpinBox, default_value=self.data.get('max_threads', 1))
         self.max_threads.setRange(1, 16)
@@ -81,6 +83,7 @@ class FirstRunOptions(QDialog):
         if default_value is not None:
             if isinstance(input_widget, QLineEdit) or isinstance(input_widget, QTextOption):
                 input_widget.setText(default_value)
+                input_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
             elif isinstance(input_widget, QSpinBox):
                 input_widget.setValue(int(default_value))
             elif isinstance(input_widget, QDoubleSpinBox):
