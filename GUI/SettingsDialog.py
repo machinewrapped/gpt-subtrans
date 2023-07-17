@@ -51,7 +51,7 @@ class SettingsDialog(QDialog):
 
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
 
-        models = SubtitleTranslator.GetAvailableModels(options.get('api_key'))
+        models = SubtitleTranslator.GetAvailableModels(options.get('api_key'), options.get('api_base'))
         if models:
             self.SECTIONS['GPT']['gpt_model'] = models
 
