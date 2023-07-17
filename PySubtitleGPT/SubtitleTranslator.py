@@ -58,15 +58,19 @@ class SubtitleTranslator:
         """
         Returns a list of possible values for the LLM model 
         """
-        if api_base:
-            response = openai.Model.list(api_key, api_base = api_base) if api_key else None
-        else:
-            response = openai.Model.list(api_key) if api_key else None 
-        if not response or not response.data:
-            return []
+        try:
+            if api_base:
+                response = openai.Model.list(api_key, api_base = api_base) if api_key else None
+            else:
+                response = openai.Model.list(api_key) if api_key else None 
+            if not response or not response.data:
+                return []
 
-        model_list = [ model.openai_id for model in response.data if model.openai_id.startswith('gpt') ]
-        return sorted(model_list)
+            model_list = [ model.openai_id for model in response.data if model.openai_id.startswith('gpt') ]
+            return sorted(model_list)
+        except Exception as e:
+            logging.error(f"Unable to retrieve available AI models: {str(e)}")
+            return []
 
     def StopTranslating(self):
         self.aborted = True
