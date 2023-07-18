@@ -1,136 +1,112 @@
-import os
 from PySide6.QtWidgets import (
     QFormLayout, 
     QDialog, 
     QVBoxLayout, 
-    QHBoxLayout, 
-    QLabel, 
-    QLineEdit, 
-    QTextEdit, 
-    QPushButton, 
-    QCheckBox, 
-    QDoubleSpinBox, 
-    QComboBox,
-    QSpinBox,
+    QDialogButtonBox,
+    QFrame,
+    QMessageBox,
     QSizePolicy 
     )
-from PySide6.QtGui import QTextOption
 
-from GUI.GuiHelpers import GetResourcePath
+from GUI.GuiHelpers import GetThemeNames
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, CheckboxOptionWidget, IntegerOptionWidget, OptionWidget, TextOptionWidget
+from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
 
 class FirstRunOptions(QDialog):
+    SETTINGS = {
+        'api_key': (str, "An OpenAI API Key is required to use this program"),
+        'gpt_model': (str, "AI model to use as the translator"),
+        'target_language': (str, "Default language to translate the subtitles to"),
+        'theme': ([], "Customise the appearance of gui-subtrans"),
+        'api_base': (str, "Base URL for OpenAI API calls (if unsure, do not change)"),
+        'free_plan': (bool, "Select this if your OpenAI API Key is for a trial version"),
+        'max_threads': (int, "Maximum simultaneous translation threads"),
+        'rate_limit': (int, "Rate-limit OpenAI API requests per minute (heavily restricted on trial plans)")
+    }
+
     def __init__(self, data, parent=None):
         super().__init__(parent)
         self.setWindowTitle("First Run Options")
         self.setMinimumWidth(600)
 
+        on_free_plan = 'rate_limit' in data and (data.get('rate_limit') or 0.0) > 0.0
+        data['free_plan'] = on_free_plan
+
         self.data = data
 
-        layout = QVBoxLayout()
+        api_key = self.data.get('api_key', '')
+        api_base = self.data.get('api_base', '')
 
-        self.form_layout = QFormLayout()
+        if api_key:
+            models = SubtitleTranslator.GetAvailableModels(api_key, api_base)
+            self.SETTINGS['gpt_model'] = (models, self.SETTINGS['gpt_model'][1])
+
+        self.SETTINGS['theme'] = (['default'] + GetThemeNames(), self.SETTINGS['theme'][1])
+
+        self.controls = {}
+
+        settings_widget = QFrame(self)
+
+        self.form_layout = QFormLayout(settings_widget)
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        api_key = self.data.get('api_key', '')
-        self.api_key = self._create_input("API Key", QLineEdit, "Enter API Key", api_key)
-        self.api_key.textChanged.connect(self._api_key_changed)
+        for key, setting in self.SETTINGS.items():
+            key_type, tooltip = setting
+            field : OptionWidget = CreateOptionWidget(key, self.data[key], key_type, tooltip=tooltip)
+            self.form_layout.addRow(field.name, field)
+            self.controls[key] = field
 
-        self.language = self._create_input("Language", QLineEdit, "Target Language", self.data.get('target_language', ''))
+        self.layout = QVBoxLayout(self)
+        self.layout.addWidget(settings_widget)
 
-        self.theme_path = GetResourcePath("theme")
-        self.theme = self._add_theme_input("Theme", self.data.get('theme', 'default'))
+        self.api_key_edit : TextOptionWidget = self.controls.get('api_key')
 
-        self.model = self._create_input("Model", QLineEdit, "Default Model", self.data.get('gpt_model', ''))
+        self.free_plan_edit : CheckboxOptionWidget = self.controls.get('free_plan')
+        if self.free_plan_edit:
+            self.free_plan_edit.SetValue(on_free_plan)
+            self.free_plan_edit.contentChanged.connect(self._on_free_plan_changed)
 
-        self.free_plan = self._create_input("OpenAI Free Plan", QCheckBox, default_value = 'rate_limit' in self.data and self.data.get('rate_limit') > 0.0)
+        self.max_threads_edit : IntegerOptionWidget = self.controls.get('max_threads')
+        if self.max_threads_edit:
+            self.max_threads_edit.SetRange(1, 16)
 
-        self.max_threads = self._create_input("Max Threads", QSpinBox, default_value=self.data.get('max_threads', 1))
-        self.max_threads.setRange(1, 16)
+        self.rate_limit_edit : IntegerOptionWidget = self.controls.get('rate_limit')
+        if self.rate_limit_edit:
+            self.rate_limit_edit.SetRange(0, 999)
 
-        self.rate_limit = self._create_input("Rate Limit", QSpinBox, default_value=self.data.get('rate_limit', None))
-        self.rate_limit.setRange(0, 999)
+        # Add Ok and Cancel buttons
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok, self)
+        self.buttonBox.accepted.connect(self.accept)
+        self.layout.addWidget(self.buttonBox)
 
-        layout.addLayout(self.form_layout)
+        self.setLayout(self.layout)
 
-        self.button_layout = QHBoxLayout()
-
-        self.ok_button = self._create_button("OK", self.accept)
-        self.ok_button.setEnabled(True if api_key else False)
-
-        layout.addLayout(self.button_layout)
-
-        self.setLayout(layout)
-
-        self.free_plan.stateChanged.connect(self._on_free_plan_changed)
+        self._on_free_plan_changed()
 
     def accept(self):
-        self.data['api_key'] = self.api_key.text()
-        self.data['gpt_model'] = self.model.text()
-        self.data['target_language'] = self.language.text()
-        self.data['max_threads'] = self.max_threads.value()
-        self.data['rate_limit'] = self.rate_limit.value()
-        self.data['theme'] = self.theme.currentText()
-        super().accept()
+        key = self.api_key_edit.GetValue()
+        if key:
+            for row in range(self.form_layout.rowCount()):
+                field = self.form_layout.itemAt(row, QFormLayout.FieldRole).widget()
+                self.data[field.key] = field.GetValue()
 
-    def _create_input(self, label_text, input_type, placeholder=None, default_value=None):
-        label = QLabel(label_text)
-        input_widget = input_type()
-
-        if placeholder:
-            input_widget.setPlaceholderText(placeholder)
-
-        if default_value is not None:
-            if isinstance(input_widget, QLineEdit) or isinstance(input_widget, QTextOption):
-                input_widget.setText(default_value)
-                input_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-            elif isinstance(input_widget, QSpinBox):
-                input_widget.setValue(int(default_value))
-            elif isinstance(input_widget, QDoubleSpinBox):
-                input_widget.setValue(float(default_value))
-            elif isinstance(input_widget, QCheckBox):
-                input_widget.setChecked(default_value)
-
-        self.form_layout.addRow(label, input_widget)
-        return input_widget
-
-    def _create_button(self, text, on_click):
-        button = QPushButton(text)
-        button.clicked.connect(on_click)
-        self.button_layout.addWidget(button)
-        return button
-    
-    def _api_key_changed(self, text):
-        self.ok_button.setEnabled(text != "")
-
-    def _on_free_plan_changed(self, state):
-        if state:
-            self.max_threads.setValue(1)
-            self.rate_limit.setValue(5)
-            self.max_threads.setEnabled(False)
-            self.rate_limit.setEnabled(False)
+            super().accept()
         else:
-            self.max_threads.setValue(self.data.get('max_threads', 1))
-            self.rate_limit.setValue(self.data.get('rate_limit', None))
-            self.max_threads.setEnabled(True)
-            self.rate_limit.setEnabled(False)
+            QMessageBox.warning(self, "API Key Required", "You must provide an OpenAI API Key.")
 
-    def _add_theme_input(self, label_text, current_theme):
-        theme = QComboBox()
-        theme.addItem('default')
-        for file in os.listdir(self.theme_path):
-            if file.endswith(".qss"):
-                theme_name = os.path.splitext(file)[0]
-                theme.addItem(theme_name)
+    def _on_free_plan_changed(self):
+        is_free_plan = self.free_plan_edit.GetValue()
+        if is_free_plan:
+            self.max_threads_edit.SetValue(1)
+            self.max_threads_edit.SetEnabled(False)
 
-        if current_theme is None:
-            theme.setCurrentIndex(0)
+            self.rate_limit_edit.SetValue(5)
+            self.rate_limit_edit.SetEnabled(True)
         else:
-            index = theme.findText(current_theme)
-            if index != -1:
-                theme.setCurrentIndex(index)
+            max_threads = self.data.get('max_threads') or 4
+            self.max_threads_edit.SetValue(max_threads)
+            self.max_threads_edit.SetEnabled(True)
 
-        self.form_layout.addRow(label_text, theme)
-
-        return theme
-
+            rate_limit = self.data.get('rate_limit') or 0.0
+            self.rate_limit_edit.SetValue(rate_limit)

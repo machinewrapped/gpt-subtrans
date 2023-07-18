@@ -140,7 +140,7 @@ class Options:
         return settings
 
     def Load(self):
-        if not os.path.exists(settings_path):
+        if not os.path.exists(settings_path) or self.get('firstrun'):
             return False
         
         try:

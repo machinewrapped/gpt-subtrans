@@ -106,6 +106,15 @@ class IntegerOptionWidget(OptionWidget):
 
     def GetValue(self):
         return self.spin_box.value()
+    
+    def SetValue(self, value : int):
+        self.spin_box.setValue(value)
+    
+    def SetRange(self, min : int, max : int):
+        self.spin_box.setRange(min, max)
+
+    def SetEnabled(self, enabled : bool):
+        self.spin_box.setEnabled(enabled)
 
 class FloatOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
@@ -121,6 +130,15 @@ class FloatOptionWidget(OptionWidget):
     def GetValue(self):
         return self.double_spin_box.value()
 
+    def SetValue(self, value : float):
+        self.double_spin_box.setValue(value)
+    
+    def SetRange(self, min : float, max : float):
+        self.double_spin_box.setRange(min, max)
+
+    def SetEnabled(self, enabled : bool):
+        self.double_spin_box.setEnabled(enabled)
+
 class CheckboxOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
         super(CheckboxOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
@@ -131,6 +149,13 @@ class CheckboxOptionWidget(OptionWidget):
 
     def GetValue(self):
         return self.check_box.isChecked()
+    
+    def SetValue(self, checked : bool):
+        self.check_box.setChecked(checked)
+
+    def SetEnabled(self, enabled : bool):
+        self.check_box.setEnabled(enabled)
+
 
 class DropdownOptionWidget(OptionWidget):
     def __init__(self, key, values, initial_value, tooltip = None):
