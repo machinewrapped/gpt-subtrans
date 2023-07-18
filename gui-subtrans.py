@@ -22,6 +22,7 @@ def parse_arguments():
     parser.add_argument('-r', '--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
     parser.add_argument('-k', '--apikey', type=str, default=None, help="Your OpenAI API Key (https://platform.openai.com/account/api-keys)")
     parser.add_argument('-p', '--project', type=str, default=None, help="Read or Write project file to working directory")
+    parser.add_argument('-b', '--apibase', type=str, default=None, help="API backend base address, the default value is https://api.openai.com/v1")
     parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum number of lines to consider starting a new batch")
     parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
     parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
@@ -38,6 +39,7 @@ def parse_arguments():
 
     arguments = {
         'api_key': args.apikey,
+        'api_base': args.apibase,
         'max_lines': args.maxlines,
         'rate_limit': args.ratelimit,
         'target_language': args.target_language,
