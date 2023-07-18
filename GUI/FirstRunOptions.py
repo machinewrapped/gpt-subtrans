@@ -43,7 +43,9 @@ class FirstRunOptions(QDialog):
 
         self.model = self._create_input("Model", QLineEdit, "Default Model", self.data.get('gpt_model', ''))
 
-        self.free_plan = self._create_input("OpenAI Free Plan", QCheckBox, default_value = 'rate_limit' in self.data and self.data.get('rate_limit') > 0.0)
+        self.free_plan = self._create_input("OpenAI Free Plan", QCheckBox,
+                                            default_value=self.data.get('rate_limit') is not None and self.data.get(
+                                                'rate_limit') > 0.0)
 
         self.max_threads = self._create_input("Max Threads", QSpinBox, default_value=self.data.get('max_threads', 1))
         self.max_threads.setRange(1, 16)
