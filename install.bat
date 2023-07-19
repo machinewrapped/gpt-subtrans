@@ -29,6 +29,14 @@ if not "!api_key!"=="" (
     echo API key saved to .env
 )
 
+echo Please enter your OpenAI API host(Leave blank for default: https://api.openai.com/v1):
+set /p api_base=API_BASE:
+
+if not "!api_base!"=="" (
+    echo API_BASE=!api_base! >> .env
+    echo API base saved to .env
+)
+
 echo Are you on the free plan? (Y/N)
 set /p free_plan=Free plan?:
 
