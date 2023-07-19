@@ -13,10 +13,12 @@ QStatusBar {
 QComboBox::drop-down {
     border: none;
     color: white;
+    background-color: #363636;
 }
 
 QComboBox::drop-down QAbstractItemView {
-    color: white
+    background-color: #363636;
+    color: white;
 }
 
 .MainWindow, QLabel, QDialog {
