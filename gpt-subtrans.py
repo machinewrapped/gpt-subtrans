@@ -48,6 +48,7 @@ try:
         'characters': ParseCharacters(args.characters or args.character),
         'substitutions': ParseSubstitutions(args.substitution),
         'match_partial_words': args.matchpartialwords,
+        'include_original': args.includeoriginal,
         'instruction_file': args.instructionfile,
         'instruction_args': args.instruction,
         'min_batch_size': args.minbatchsize,
