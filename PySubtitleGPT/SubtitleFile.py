@@ -230,9 +230,9 @@ class SubtitleFile:
 
             # Update the context dictionary with matching fields from options, and vice versa
             for key in context.keys():
-                if options.get(key):
+                if key in options:
                     context[key] = options[key]
-                elif context[key]:
+                elif key in context:
                     options[key] = context[key]
 
             # Fill description from synopsis for backward compatibility
