@@ -30,6 +30,7 @@ def parse_arguments():
     parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
     parser.add_argument('--theme', type=str, default=None, help="Stylesheet to load")
     parser.add_argument('--firstrun', action='store_true', help="Show the first-run options dialog on launch")
+    parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
 
     try:
         args = parser.parse_args()
