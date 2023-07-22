@@ -66,6 +66,9 @@ class Options:
         # Initialise from defaults settings
         self.options = default_options.copy()
 
+        if hasattr(options, 'options'):
+            options = options.options
+
         if options:
             # Remove None values from options and merge with defaults
             options = {k: v for k, v in options.items() if v}

@@ -3,6 +3,7 @@ from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
+from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 from PySubtitleGPT.SubtitleFile import SubtitleFile
 from PySubtitleGPT.SubtitleScene import SubtitleScene
@@ -32,7 +33,7 @@ class BatchSubtitlesCommand(Command):
 
         self.datamodel : ProjectDataModel = self.datamodel or ProjectDataModel(project)
         self.datamodel.project = project
-        self.datamodel.options = project.options
+        self.datamodel.options = Options(project.options)
         self.datamodel.CreateViewModel()
         return True
         
