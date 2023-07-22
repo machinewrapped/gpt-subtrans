@@ -32,6 +32,7 @@ parser.add_argument('--batchthreshold', type=float, default=None, help="Number o
 parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
 parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of lines(subtitles) to process in this run")
 parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
+parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
 
 args = parser.parse_args()
 

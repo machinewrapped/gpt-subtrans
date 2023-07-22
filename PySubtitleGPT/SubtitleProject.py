@@ -111,7 +111,7 @@ class SubtitleProject:
 
             translator.TranslateSubtitles()
 
-            self.subtitles.SaveTranslation()
+            self.SaveSubtitles()
 
         except TranslationAbortedError:
             logging.warning(f"Translation aborted")
@@ -119,10 +119,17 @@ class SubtitleProject:
 
         except Exception as e:
             if self.subtitles and self.options.get('stop_on_error'):
-                self.subtitles.SaveTranslation()
+                self.SaveSubtitles()
 
             logging.error(f"Failed to translate subtitles")
             raise
+
+    def SaveSubtitles(self, outputpath : str = None):
+        """
+        Write output file
+        """
+        include_original = self.options.get('include_original', False)
+        self.subtitles.SaveTranslation(outputpath, include_original=include_original)
 
     def TranslateScene(self, scene_number, batch_numbers = None, translator : SubtitleTranslator = None):
         """
@@ -142,7 +149,7 @@ class SubtitleProject:
 
             translator.TranslateScene(scene, batch_numbers=batch_numbers)
 
-            self.subtitles.SaveTranslation()
+            self.SaveSubtitles()
 
             return scene
         
@@ -151,7 +158,7 @@ class SubtitleProject:
 
         except Exception as e:
             if self.subtitles and self.options.get('stop_on_error'):
-                self.subtitles.SaveTranslation()
+                self.SaveSubtitles()
 
             logging.error(f"Failed to translate subtitles")
             raise
@@ -311,6 +318,6 @@ class SubtitleProject:
 
     def _on_scene_translated(self, scene):
         logging.debug("Scene translated")
-        self.subtitles.SaveTranslation()
+        self.SaveSubtitles()
         self.needsupdate = self.update_project
         self.events.scene_translated(scene)

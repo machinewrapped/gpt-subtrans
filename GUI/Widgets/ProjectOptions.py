@@ -1,6 +1,6 @@
 import logging
 from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QDialog
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QSignalBlocker
 from GUI.TranslatorOptions import TranslatorOptionsDialog
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
@@ -27,11 +27,12 @@ class ProjectOptions(QGroupBox):
         # Add options
         self.AddSingleLineOption(0, "Movie Name", options, 'movie_name')
         self.AddSingleLineOption(1, "Target Language", options, 'target_language')
-        self.AddMultiLineOption(2, "Description", options, 'description')
-        self.AddMultiLineOption(3, "Characters", options, 'characters')
-        self.AddMultiLineOption(4, "Substitutions", options, 'substitutions')
-        self.AddCheckboxOption(5, "Match Partial Words", options, 'match_partial_words')
-        self.AddButtonOption(6, "", "GPT Settings", self._gpt_settings)
+        self.AddCheckboxOption(2, "Include Original Text", options, 'include_original')
+        self.AddMultiLineOption(3, "Description", options, 'description')
+        self.AddMultiLineOption(4, "Characters", options, 'characters')
+        self.AddMultiLineOption(5, "Substitutions", options, 'substitutions')
+        self.AddCheckboxOption(6, "Match Partial Words", options, 'match_partial_words')
+        self.AddButtonOption(7, "", "GPT Settings", self._gpt_settings)
 
         self.Populate(options)
 
@@ -44,6 +45,7 @@ class ProjectOptions(QGroupBox):
         options = {
             "movie_name": self.movie_name_input.text(),
             "target_language": self.target_language_input.text(),
+            "include_original": self.include_original_input.isChecked(),
             "description": self.description_input.toPlainText(),
             "characters": ParseCharacters(self.characters_input.toPlainText()),
             "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText()),
@@ -83,6 +85,7 @@ class ProjectOptions(QGroupBox):
         input_widget = QCheckBox(self)
         value = options.get(key, False)
         input_widget.setChecked(value)
+        input_widget.stateChanged.connect(self._check_changed)
 
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
@@ -113,22 +116,24 @@ class ProjectOptions(QGroupBox):
             'scene_threshold' : options.get('scene_threshold'),
         }
 
-        for key in options:
-            if hasattr(self, key + "_input"):
-                value = options.get(key)
-                self._setvalue(key, value)
+        with QSignalBlocker(self):
+            for key in options:
+                if hasattr(self, key + "_input"):
+                    value = options.get(key)
+                    self._setvalue(key, value)
 
     def Clear(self):
-        for key in ["movie_name", "description", "characters", "substitutions", "match_partial_words"]:
-            input = getattr(self, key + "_input")
-            if input:
-                if isinstance(input, QCheckBox):
-                    input.setChecked(False)
+        with QSignalBlocker(self):
+            for key in ["movie_name", "description", "characters", "substitutions", "match_partial_words", "include_original"]:
+                input = getattr(self, key + "_input")
+                if input:
+                    if isinstance(input, QCheckBox):
+                        input.setChecked(False)
+                    else:
+                        input.clear()
                 else:
-                    input.clear()
-            else:
-                logging.error(f"No input found for {key}")
-
+                    logging.error(f"No input found for {key}")
+        
     def _setvalue(self, key, value):
         if isinstance(value, bool):
             getattr(self, key + "_input").setChecked(value or False)
@@ -144,6 +149,10 @@ class ProjectOptions(QGroupBox):
         getattr(self, key + "_input").setText(value or "")
 
     def _text_changed(self, text = None):
+        options = self.GetOptions()
+        self.optionsChanged.emit(options)
+
+    def _check_changed(self, int = None):
         options = self.GetOptions()
         self.optionsChanged.emit(options)
 

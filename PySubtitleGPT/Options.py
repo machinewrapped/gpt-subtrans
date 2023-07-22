@@ -36,6 +36,7 @@ default_options = {
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
     'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
+    'include_original': env_bool('INCLUDE_ORIGINAL', False),
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
     'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
     'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 30.0)),
