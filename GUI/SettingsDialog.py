@@ -11,32 +11,33 @@ class SettingsDialog(QDialog):
             'autosave': bool,
             'write_backup': bool,
             'stop_on_error': bool,
-            'max_threads': int
+            'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation")
         },
         'GPT': {
-            'api_key': str,
-            'api_base': str,
+            'api_key': (str, "An OpenAI API key is required to use this program (https://platform.openai.com/account/api-keys)"),
+            'api_base': (str, "The base URI to use for requests - leave as default unless you know you need something else"),
             'gpt_model': str,
-            'temperature': float,
-            'rate_limit': float
+            'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
+            'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan")
         },
         'Translation': {
-            'gpt_prompt': str,
+            'gpt_prompt': (str, "The (brief) instruction to give GPT for each batch of subtitles. [movie_name] and [to_language] are automatically filled in"),
             'target_language': str,
-            'instruction_file': str,
-            'allow_retranslations': bool,
-            'enforce_line_parity': bool
+            'include_original': (bool, "Include original text in translated subtitles"),
+            'instruction_file': (str, "Detailed instructions for GPT about how to approach translation, and the required response format"),
+            'allow_retranslations': (bool, "If true, translations that fail validation will be sent to GPT again with a note to allow it to correct the mistake"),
+            'enforce_line_parity': (bool, "Validator: If true, require one translated line for each source line")
         },
         'Advanced': {
             'min_batch_size': int,
             'max_batch_size': int,
             'scene_threshold': float,
             'batch_threshold': float,
-            'match_partial_words': bool,
-            'whitespaces_to_newline': bool,
-            'max_context_summaries': int,
-            'max_characters': int,
-            'max_newlines': int,
+            'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
+            'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
+            'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
+            'max_characters': (int, "Validator: Maximum number of characters to allow in a single translated line"),
+            'max_newlines': (int, "Validator: Maximum number of newlines to allow in a single translated line"),
             'max_retries': int,
             'backoff_time': float
         }
@@ -82,7 +83,8 @@ class SettingsDialog(QDialog):
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
         for key, key_type in settings.items():
-            field = CreateOptionWidget(key, self.options[key], key_type)
+            key_type, tooltip = key_type if isinstance(key_type, tuple) else (key_type, None)
+            field = CreateOptionWidget(key, self.options[key], key_type, tooltip=tooltip)
             layout.addRow(field.name, field)
 
         return section_widget
