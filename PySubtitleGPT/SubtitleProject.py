@@ -285,7 +285,6 @@ class SubtitleProject:
         with self.lock:
             # Update "self.options"
             self.options.update(options)
-            self.options.Save()
 
             if self.subtitles:
                 self.subtitles.UpdateContext(self.options)
