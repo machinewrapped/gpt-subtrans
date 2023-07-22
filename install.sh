@@ -27,6 +27,13 @@ if [ ! -f ".env" ]; then
     echo "API key saved to .env"
 fi
 
+echo "Please enter your OpenAI API host(Leave blank for default: https://api.openai.com/v1):"
+read -r api_base
+if [ ! -z "$api_base" ]; then
+    echo "API_BASE=$api_base" >> .env
+    echo "API base saved to .env"
+fi
+
 echo "Are you on the free plan? (Y/N)"
 read -r free_plan
 
