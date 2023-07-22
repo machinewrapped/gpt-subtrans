@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
+from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectToolbar import ProjectToolbar
@@ -54,9 +55,9 @@ class ModelView(QWidget):
         self.scenes_view.onBatchEdited.connect(self._on_batch_edited)
         self.scenes_view.onSceneEdited.connect(self._on_scene_edited)
 
-    def SetDataModel(self, datamodel):
+    def SetDataModel(self, datamodel : ProjectDataModel):
         self.SetViewModel(datamodel.viewmodel)
-        self.SetProjectOptions(datamodel.options)
+        self.SetProjectOptions(datamodel.project.options)
 
     def SetViewModel(self, viewmodel):
         self.content_view.Clear()
