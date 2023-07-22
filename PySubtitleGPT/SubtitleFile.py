@@ -156,7 +156,7 @@ class SubtitleFile:
             with open(self.sourcepath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
-    def SaveTranslation(self, outputpath : str = None):
+    def SaveTranslation(self, outputpath : str = None, include_original : bool = False):
         """
         Write translated subtitles to an SRT file
         """
@@ -181,6 +181,9 @@ class SubtitleFile:
             if not translated:
                 logging.error("No subtitles translated")
                 return
+            
+            if include_original:
+                translated = self._merge_original_and_translated(originals, translated)
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
@@ -211,7 +214,8 @@ class SubtitleFile:
             'max_batch_size' : None,
             'batch_threshold' : None,
             'scene_threshold' : None,
-            'match_partial_words': False
+            'match_partial_words': False,
+            'include_original': False
         }
 
         with self.lock:
@@ -226,9 +230,9 @@ class SubtitleFile:
 
             # Update the context dictionary with matching fields from options, and vice versa
             for key in context.keys():
-                if options.get(key):
+                if key in options:
                     context[key] = options[key]
-                elif context[key]:
+                elif key in context:
                     options[key] = context[key]
 
             # Fill description from synopsis for backward compatibility
@@ -414,3 +418,13 @@ class SubtitleFile:
                         batch.translated = [line for line in batch.translated if line.number and line.text]
 
         self.scenes = [scene for scene in self.scenes if scene.batches]
+
+    def _merge_original_and_translated(self, originals : list[SubtitleLine], translated : list[SubtitleLine]):
+        lines = {item.key: SubtitleLine(item.line) for item in originals if item.key}
+
+        for item in translated:
+            if item.key in lines:
+                line = lines[item.key]
+                line.text = f"{line.text}\n{item.text}"
+
+        return sorted(lines.values(), key=lambda item: item.key)
