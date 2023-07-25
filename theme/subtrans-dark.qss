@@ -10,6 +10,16 @@ QStatusBar {
     color: white;
 }
 
+QLabel {
+    color: black;
+    padding-top: 2px;
+    padding-bottom: 6px;
+}
+
+QComboBox {
+    color: white;
+}
+
 QComboBox::drop-down {
     border: none;
     color: white;
