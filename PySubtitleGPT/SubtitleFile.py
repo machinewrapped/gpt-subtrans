@@ -215,7 +215,8 @@ class SubtitleFile:
             'batch_threshold' : None,
             'scene_threshold' : None,
             'match_partial_words': False,
-            'include_original': False
+            'include_original': False,
+            'instructions_edited': False
         }
 
         with self.lock:

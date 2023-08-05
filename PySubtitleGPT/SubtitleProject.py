@@ -82,13 +82,15 @@ class SubtitleProject:
         if self.load_subtitles:
             # (re)load the source subtitle file if required
             subtitles = self.LoadSubtitleFile(filepath)
-
-            self.options.InitialiseInstructions()
-
             subtitles.UpdateContext(self.options)
 
+        if self.subtitles and not self.subtitles.context.get('instructions_edited'):
+            # Update instructions from the source file
+            self.options.InitialiseInstructions()
+            self.subtitles.UpdateContext(self.options)
+
         if outputpath:
-            subtitles.outputpath = outputpath
+            self.subtitles.outputpath = outputpath
 
         if not subtitles.has_subtitles:
             raise ValueError(f"No subtitles to translate in {filepath}")

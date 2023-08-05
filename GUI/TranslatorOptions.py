@@ -23,6 +23,7 @@ class TranslatorOptionsDialog(QDialog):
         self.data = data
         self.models = SubtitleTranslator.GetAvailableModels(data.get('api_key'), data.get('api_base'))
 
+        self.source_prompt = self.data.get('gpt_prompt')
         self.source_instructions = self.data.get('instructions')
 
         self.form_layout = QFormLayout()
@@ -59,12 +60,20 @@ class TranslatorOptionsDialog(QDialog):
         self.data['gpt_model'] = self.model_edit.GetValue()
         self.data['gpt_prompt'] = self.prompt_edit.GetValue()
         self.data['instructions'] = self.instructions_edit.GetValue()
-        if self.data['instructions'] != self.source_instructions:
-            self.data['instruction_file'] = ""
+
+        self._check_for_edited_instructions()
+
         super().accept()
 
     def reject(self):
         super().reject()
+
+    def _check_for_edited_instructions(self):
+        if self.data['instructions'] != self.source_instructions:
+            self.data['instruction_file'] = ""
+            self.data['instructions_edited'] = True
+        if self.data['gpt_prompt'] != self.source_prompt:
+            self.data['instructions_edited'] = True
 
     @property
     def load_icon(self):
