@@ -65,15 +65,13 @@ class SubtitleProject:
             self.read_project = False
             self.load_subtitles = True
 
-        options : Options = self.options
-
         if self.read_project:
             # Try to load the project file
             subtitles = self.ReadProjectFile()
 
             if subtitles and subtitles.scenes:
                 self.load_subtitles = False
-                write_backup = options.get('write_backup', False)
+                write_backup = self.options.get('write_backup', False)
                 logging.info("Project file loaded, saving backup copy" if write_backup else "Project file loaded")
                 if write_backup:
                     self.WriteBackupFile()
@@ -84,6 +82,10 @@ class SubtitleProject:
         if self.load_subtitles:
             # (re)load the source subtitle file if required
             subtitles = self.LoadSubtitleFile(filepath)
+
+            self.options.InitialiseInstructions()
+
+            subtitles.UpdateContext(self.options)
 
         if outputpath:
             subtitles.outputpath = outputpath
@@ -248,7 +250,7 @@ class SubtitleProject:
                 subtitles.Sanitise()
                 subtitles.project = self
                 self.subtitles = subtitles
-                self.subtitles.UpdateContext(self.options)
+                self.options.update(subtitles.context)
                 return subtitles
 
         except FileNotFoundError:

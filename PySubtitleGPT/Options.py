@@ -79,21 +79,6 @@ class Options:
         self.options.update(kwargs)
 
         options = self.options
-        
-        # If instructions file exists load the instructions from that
-        instructions, retry_instructions = LoadInstructionsFile(options.get('instruction_file'))
-        instructions = instructions if instructions else default_instructions
-        retry_instructions = retry_instructions if retry_instructions else options.get('retry_instructions')
-
-        # Add any additional instructions from the command line
-        if options.get('instruction_args'):
-            instructions.extend(options['instruction_args'])
-
-        instructions = self.ReplaceTagsWithOptions(instructions)
-        retry_instructions = self.ReplaceTagsWithOptions(retry_instructions)
-
-        options['instructions'] = instructions
-        options['retry_instructions'] = retry_instructions
 
     def get(self, option, default=None):
         return self.options.get(option, default)
@@ -190,6 +175,23 @@ class Options:
         except Exception as e:
             logging.error(f"Error saving settings to {settings_path}")
             return False
+
+    def InitialiseInstructions(self):        
+        # If instructions file exists load the instructions from that
+        if self.get('instruction_file'):
+            instructions, retry_instructions = LoadInstructionsFile(self.get('instruction_file'))
+            instructions = instructions if instructions else default_instructions
+            retry_instructions = retry_instructions if retry_instructions else default_retry_instructions
+
+        # Add any additional instructions from the command line
+        if self.get('instruction_args'):
+            instructions.extend(self['instruction_args'])
+
+        instructions = self.ReplaceTagsWithOptions(instructions)
+        retry_instructions = self.ReplaceTagsWithOptions(retry_instructions)
+
+        self.add('instructions', instructions)
+        self.add('retry_instructions', retry_instructions)
 
     def _update_settings_version(self, settings):
         """
