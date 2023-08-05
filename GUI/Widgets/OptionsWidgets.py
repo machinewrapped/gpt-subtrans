@@ -172,6 +172,9 @@ class DropdownOptionWidget(OptionWidget):
 
     def GetValue(self):
         return self.combo_box.currentText()
+    
+    def SetValue(self, value):
+        self.combo_box.setCurrentIndex(self.combo_box.findText(value))
 
 def CreateOptionWidget(key, initial_value, key_type, tooltip = None) -> OptionWidget:
     # Helper function to create an OptionWidget based on the specified type
