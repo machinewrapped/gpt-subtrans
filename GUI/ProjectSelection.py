@@ -162,11 +162,11 @@ class ProjectSelection():
         Check whether the first line of any batch is selected
         """
         for scene, batch in self.batch_numbers:
-            first_line = next((line for line in self.original_lines if line.scene == scene and line.batch == batch), None)
+            first_line = next((line for line in self.originals.values() if line.scene == scene and line.batch == batch), None)
             if first_line and first_line.selected:
                 return True
 
-            first_translated = next((line for line in self.translated_lines if line.scene == scene and line.batch == batch), None)
+            first_translated = next((line for line in self.translated.values() if line.scene == scene and line.batch == batch), None)
             if first_translated and first_translated.selected:
                 return True
 
