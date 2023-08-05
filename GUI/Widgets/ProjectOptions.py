@@ -110,6 +110,7 @@ class ProjectOptions(QGroupBox):
             'gpt_prompt': options.get('gpt_prompt'),
             'instructions': options.get('instructions'),
             'retry_instructions': options.get('retry_instructions'),
+            'instruction_file': options.get('instruction_file'),
             'min_batch_size' : options.get('min_batch_size'),
             'max_batch_size' : options.get('max_batch_size'),
             'batch_threshold' : options.get('batch_threshold'),

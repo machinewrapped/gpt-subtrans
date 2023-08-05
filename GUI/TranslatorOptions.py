@@ -6,13 +6,8 @@ from PySide6.QtWidgets import (
     QDialog, 
     QVBoxLayout, 
     QHBoxLayout, 
-    QLabel, 
-    QLineEdit, 
-    QTextEdit, 
     QPushButton, 
     QFileDialog, 
-    QDoubleSpinBox, 
-    QSpinBox 
     )
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
@@ -27,6 +22,8 @@ class TranslatorOptionsDialog(QDialog):
 
         self.data = data
         self.models = SubtitleTranslator.GetAvailableModels(data.get('api_key'), data.get('api_base'))
+
+        self.source_instructions = self.data.get('instructions')
 
         self.form_layout = QFormLayout()
         self.model_edit = self._add_form_option("model", self.data.get('gpt_model', ''), self.models, tooltip="Model to use for translation")
@@ -62,6 +59,8 @@ class TranslatorOptionsDialog(QDialog):
         self.data['gpt_model'] = self.model_edit.GetValue()
         self.data['gpt_prompt'] = self.prompt_edit.GetValue()
         self.data['instructions'] = self.instructions_edit.GetValue()
+        if self.data['instructions'] != self.source_instructions:
+            self.data['instruction_file'] = ""
         super().accept()
 
     def reject(self):
@@ -83,6 +82,10 @@ class TranslatorOptionsDialog(QDialog):
                 with open(file_name, "r", encoding='utf-8') as file:
                     content = file.read()
                     self.instructions_edit.SetValue(content)
+
+                self.source_instructions = content
+                self.data['instruction_file'] = file_name
+
             except Exception as e:
                 logging.error(f"Unable to read instruction file: {str(e)}")
 
@@ -90,14 +93,22 @@ class TranslatorOptionsDialog(QDialog):
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getSaveFileName(self, "Save Instructions", "", "Text Files (*.txt);;All Files (*)", options=options)
         if file_name:
-            if not file_name.endswith('.txt'):
-                file_name += '.txt'
-            with open(file_name, "w", encoding='utf-8') as file:
-                content = self.instructions_edit.toPlainText()
-                file.write(content)
+            content = self.instructions_edit.GetValue()
+            try:
+                if not file_name.endswith('.txt'):
+                    file_name += '.txt'
+                with open(file_name, "w", encoding='utf-8') as file:
+                    file.write(content)
+
+                self.source_instructions = content
+                self.data['instruction_file'] = file_name
+
+            except Exception as e:
+                logging.error(f"Unable to write instruction file: {str(e)}")
 
     def set_defaults(self):
         options = Options()
         self.model_edit.SetValue(options.get('gpt_model'))
         self.prompt_edit.SetValue(options.get('gpt_prompt'))
         self.instructions_edit.SetValue(options.get('instructions'))
+        self.data['instruction_file'] = options.get('instruction_file')
