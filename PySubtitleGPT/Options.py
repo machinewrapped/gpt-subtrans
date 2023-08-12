@@ -176,7 +176,10 @@ class Options:
             logging.error(f"Error saving settings to {settings_path}")
             return False
 
-    def InitialiseInstructions(self):        
+    def InitialiseInstructions(self):
+        instructions = self.get('instructions')
+        retry_instructions = self.get('retry_instructions')
+
         # If instructions file exists load the instructions from that
         if self.get('instruction_file'):
             instructions, retry_instructions = LoadInstructionsFile(self.get('instruction_file'))
