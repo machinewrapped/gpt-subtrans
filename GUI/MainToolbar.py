@@ -7,7 +7,7 @@ from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 class MainToolbar(QToolBar):
     # _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Stop Translating"], ["Quit"] ]
-    _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Start Translating Fast", "Stop Translating"], ['Settings'], ["Quit"] ]
+    _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Start Translating Fast", "Stop Translating"], ["Settings"], ["About", "Quit"] ]
 
     def __init__(self,  handler : ProjectActions):
         super().__init__("Main Toolbar")

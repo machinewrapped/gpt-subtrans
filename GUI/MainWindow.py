@@ -4,6 +4,7 @@ import dotenv
 import darkdetect
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -12,6 +13,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QDialog
 )
+from GUI.AboutDialog import AboutDialog
 from GUI.Command import Command
 from GUI.CommandQueue import CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
@@ -53,6 +55,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("GUI-Subtrans")
         self.setGeometry(100, 100, 1600, 900)
+        self._load_icon("gui-subtrans")
 
         if not options:
             options = Options()
@@ -138,6 +141,9 @@ class MainWindow(QMainWindow):
             LoadStylesheet(options.get('theme'))
             logging.info("Settings updated")
 
+    def ShowAboutDialog(self):
+        result = AboutDialog(self).exec()
+
     def PrepareForSave(self):
         self.model_viewer.CloseProjectOptions()
 
@@ -149,6 +155,12 @@ class MainWindow(QMainWindow):
             self.project.UpdateProjectFile()
 
         super().closeEvent(e)
+
+    def _load_icon(self, name):
+        if not name or name == "default":
+            name = "subtrans64"
+        filepath = GetResourcePath(f"{name}.ico")
+        self.setWindowIcon(QIcon(filepath))
 
     def _on_action_requested(self, action_name, params):
         if not self.datamodel:

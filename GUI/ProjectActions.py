@@ -53,6 +53,7 @@ class ProjectActions(QObject):
         self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
         self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
         self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
+        self.AddAction('About', self._show_about_dialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
         #TODO: Mixing different concepts of "action" here, is there a better separation?
         # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
@@ -143,6 +144,9 @@ class ProjectActions(QObject):
     
     def _show_settings_dialog(self):
         self._mainwindow.ShowSettingsDialog()
+
+    def _show_about_dialog(self):
+        self._mainwindow.ShowAboutDialog()
 
     def _validate_datamodel(self, datamodel : ProjectDataModel):
         """

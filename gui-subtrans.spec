@@ -8,7 +8,7 @@ a = Analysis(
     ['gui-subtrans.py'],
     pathex=[],
     binaries=[],
-    datas=[('theme/*', 'theme/'), ('instructions*', '.'), ('LICENSE', '.')],
+    datas=[('theme/*', 'theme/'), ('instructions*', '.'), ('LICENSE', '.'), ('gui-subtrans.ico', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
