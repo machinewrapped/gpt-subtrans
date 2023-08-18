@@ -53,7 +53,8 @@ class AboutDialog(QDialog):
         # Author Information and GitHub link
         author_label = QLabel("Developed by: MachineWrapped<br>"
                               "Contact: machinewrapped@gmail.com<br>"
-                              '<a href="https://github.com/machinewrapped/gpt-subtrans">GitHub Repository</a>')
+                              '<a href="https://github.com/machinewrapped/gpt-subtrans">GitHub Repository</a><br>'
+                              'Thanks to all contributors and those who have reported issues.')
         author_label.setOpenExternalLinks(True)
         author_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
 
