@@ -210,10 +210,6 @@ class SubtitleFile:
             'description': "",
             'characters': None,
             'substitutions': None,
-            'min_batch_size' : None,
-            'max_batch_size' : None,
-            'batch_threshold' : None,
-            'scene_threshold' : None,
             'match_partial_words': False,
             'include_original': False,
             'instructions_edited': False

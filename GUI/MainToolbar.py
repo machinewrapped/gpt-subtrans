@@ -3,6 +3,7 @@ from GUI.CommandQueue import CommandQueue
 
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectCommands import ResumeTranslationCommand, TranslateSceneCommand, TranslateSceneMultithreadedCommand
+from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 class MainToolbar(QToolBar):
@@ -32,8 +33,8 @@ class MainToolbar(QToolBar):
             if action.text() in action_list:
                 action.setEnabled(False) 
 
-    def SetBusyStatus(self, project : SubtitleProject, command_queue : CommandQueue):
-        if not project or not project.subtitles:
+    def SetBusyStatus(self, datamodel : ProjectDataModel, command_queue : CommandQueue):
+        if not datamodel or not datamodel.IsProjectInitialised():
             self.DisableActions([ "Save Project", "Start Translating", "Start Translating Fast", "Stop Translating" ])
             self.EnableActions([ "Load Subtitles" ])
             return
