@@ -29,10 +29,11 @@ class SettingsDialog(QDialog):
             'enforce_line_parity': (bool, "Validator: If true, require one translated line for each source line")
         },
         'Advanced': {
-            'min_batch_size': int,
-            'max_batch_size': int,
-            'scene_threshold': float,
-            'batch_threshold': float,
+            'min_batch_size': (int, "Avoid creating a new batch smaller than this"),
+            'max_batch_size': (int, "Divide any batches larger than this into multiple batches"),
+            'scene_threshold': (float, "Consider a new scene to have started after this many seconds without subtitles"),
+            'batch_threshold': (float, "Consider starting a new batch after a gap of this many seconds (simple batcher only)"),
+            'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
             'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
             'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
