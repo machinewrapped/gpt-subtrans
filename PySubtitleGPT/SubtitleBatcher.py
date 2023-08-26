@@ -109,11 +109,12 @@ class SubtitleBatcher(BaseSubtitleBatcher):
         split_index = self.min_batch_size
         last_split_index = len(lines) - self.min_batch_size
 
-        for i in range(split_index, last_split_index):
-            gap = lines[i].start - lines[i - 1].end
-            if gap > longest_gap:
-                longest_gap = gap
-                split_index = i
+        if last_split_index > split_index:
+            for i in range(split_index, last_split_index):
+                gap = lines[i].start - lines[i - 1].end
+                if gap > longest_gap:
+                    longest_gap = gap
+                    split_index = i
 
         # Split the batch into two
         left = lines[:split_index]
