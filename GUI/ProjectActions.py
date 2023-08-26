@@ -40,11 +40,12 @@ class ProjectActions(QObject):
 
     _actions = {}
 
-    def __init__(self, mainwindow : QMainWindow = None):
+    def __init__(self, mainwindow : QMainWindow = None, datamodel : ProjectDataModel = None):
         super().__init__()
         # TODO: add a proxy interface for ProjectActions to communicate with the main window
         self._mainwindow = mainwindow
-        self.datamodel = mainwindow.project.datamodel if mainwindow.project else None
+        self.SetDataModel(datamodel)
+
         self.AddAction('Quit', self._quit, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
         self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project')
@@ -66,6 +67,9 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Split Scene', self._split_scene)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
+
+    def SetDataModel(self, datamodel : ProjectDataModel):
+        self.datamodel = datamodel
 
     def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
         action = QAction(name)
@@ -97,9 +101,8 @@ class ProjectActions(QObject):
         self.issueCommand.emit(command)
 
     def _check_api_key(self):
-        if self._mainwindow and self._mainwindow.datamodel and self._mainwindow.datamodel.options:
-            options: Options = self._mainwindow.datamodel.options
-            if options.api_key():
+        if self.datamodel and self.datamodel.options:
+            if self.datamodel.options.api_key():
                 return True
         
         self.actionError.emit(NoApiKeyError())
@@ -112,7 +115,8 @@ class ProjectActions(QObject):
         filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")
 
         if filepath:
-            command = LoadSubtitleFile(filepath)
+            options : Options = self.datamodel.options.GetNonProjectSpecificOptions()
+            command = LoadSubtitleFile(filepath, options)
             self._issue_command(command)
 
     def _save_project_file(self):

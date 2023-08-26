@@ -15,6 +15,30 @@ class ProjectDataModel:
         if project and project.options:
               self.options.update(project.options)
 
+    def UpdateOptions(self, options : Options):
+        """ Update any options that have changed """
+        self.options.update(options)
+
+        #TODO: only store options in project that are non-default
+        self.project.UpdateProjectOptions(options)
+        self.options.update(self.project.options)
+
+    def IsProjectInitialised(self):
+        """Check whether the project has been initialised (subtitles loaded and batched)"""
+        return self.project and self.project.subtitles and self.project.subtitles.scenes
+    
+    def NeedsSave(self):
+        """Does the project have changes that should be saved"""
+        return self.IsProjectInitialised() and self.project.needsupdate
+
+    def NeedsAutosave(self):
+        """Does the project have changes that should be auto-saved"""
+        return self.NeedsSave() and self.options.get('autosave')
+    
+    def SaveProject(self):
+        if self.NeedsSave():
+            self.project.WriteProjectFile()
+
     def GetLock(self):
         return QMutexLocker(self.mutex)
 

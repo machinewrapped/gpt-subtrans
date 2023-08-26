@@ -47,9 +47,6 @@ def LoadStylesheet(name):
     return stylesheet
 
 class MainWindow(QMainWindow):
-    datamodel : ProjectDataModel = None
-    project : SubtitleProject = None
-
     def __init__(self, parent=None, options : Options = None, filepath : str = None):
         super().__init__(parent)
 
@@ -60,6 +57,8 @@ class MainWindow(QMainWindow):
         if not options:
             options = Options()
             options.Load()
+
+        self.options = options
 
         theme = options.get('theme', 'default')
         LoadStylesheet(theme)
@@ -74,7 +73,7 @@ class MainWindow(QMainWindow):
         self.command_queue.commandAdded.connect(self._on_command_added)
 
         # Create centralised action handler
-        self.action_handler = ProjectActions(mainwindow=self)
+        self.action_handler = ProjectActions(mainwindow=self, datamodel=self.datamodel)
         self.action_handler.issueCommand.connect(self.QueueCommand)
         self.action_handler.actionError.connect(self._on_error)
 
@@ -95,7 +94,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(splitter)
 
         self.model_viewer = ModelView(splitter)
-        self.model_viewer.optionsChanged.connect(self._on_options_changed)
+        self.model_viewer.optionsChanged.connect(self._on_project_options_changed)
         self.model_viewer.actionRequested.connect(self._on_action_requested)
         splitter.addWidget(self.model_viewer)
 
@@ -111,7 +110,7 @@ class MainWindow(QMainWindow):
             self._first_run(options)
         elif filepath:
             # Load file if we were opened with one
-            self.QueueCommand(LoadSubtitleFile(filepath))
+            self.QueueCommand(LoadSubtitleFile(filepath), self.options)
 
         logging.info(f"GPT-Subtrans {__version__}")
 
@@ -131,13 +130,18 @@ class MainWindow(QMainWindow):
         """
         Open user settings dialog and update options
         """
-        options = self.datamodel.options
+        options = self.options
         settings = options.GetSettings()
         result = SettingsDialog(settings, self).exec()
 
         if result == QDialog.Accepted:
+            # Update and save global settings
             options.update(settings)
             options.Save()
+
+            # Update project options
+            self.datamodel.UpdateOptions()
+
             LoadStylesheet(options.get('theme'))
             logging.info("Settings updated")
 
@@ -151,8 +155,9 @@ class MainWindow(QMainWindow):
         if self.command_queue:
             self.command_queue.Stop()
 
-        if self.project and self.project.subtitles:
-            self.project.UpdateProjectFile()
+        project = self.datamodel.project
+        if project and project.subtitles:
+            project.UpdateProjectFile()
 
         super().closeEvent(e)
 
@@ -184,11 +189,10 @@ class MainWindow(QMainWindow):
 
         if success:
             if isinstance(command, LoadSubtitleFile):
-                self.project = command.project
                 self.datamodel = command.datamodel
                 self.model_viewer.SetDataModel(command.datamodel)
-                if not self.project.subtitles.scenes:
-                    self._show_new_project_Settings(self.project)
+                if not self.datamodel.IsProjectInitialised():
+                    self._show_new_project_Settings(self.datamodel.project)
 
             if command.model_update.HasUpdate():
                 # Patch the model
@@ -197,7 +201,7 @@ class MainWindow(QMainWindow):
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often? 
                 self.datamodel = command.datamodel
-                self.action_handler.datamodel = self.datamodel
+                self.action_handler.SetDataModel(self.datamodel)
                 self.model_viewer.SetDataModel(self.datamodel)
                 self.model_viewer.show()
 
@@ -205,9 +209,9 @@ class MainWindow(QMainWindow):
                 self.model_viewer.hide()
 
         # Auto-save if the commmand queue is empty and the project has changed
-        if self.project and self.project.needsupdate and self.datamodel.options.get('autosave'):
+        if self.datamodel and self.datamodel.NeedsAutosave():
             if not self.command_queue.AnyCommands():
-                self.project.WriteProjectFile()
+                self.datamodel.SaveProject()
 
         self._update_status_bar(command, success)
         self._update_main_toolbar()
@@ -233,12 +237,11 @@ class MainWindow(QMainWindow):
                 self.statusBar().showMessage(f"{type(command).__name__} failed.")
 
     def _update_main_toolbar(self):
-        self.toolbar.SetBusyStatus(self.datamodel.project, self.command_queue)
+        self.toolbar.SetBusyStatus(self.datamodel, self.command_queue)
 
-    def _on_options_changed(self, options: dict):
-        if options and self.project:
-            self.datamodel.options.update(options)
-            self.project.UpdateProjectOptions(options)
+    def _on_project_options_changed(self, options: dict):
+        if options and self.datamodel:
+            self.datamodel.UpdateOptions(options)
 
     def _first_run(self, options: Options):
         settings = options.GetSettings()
@@ -249,6 +252,7 @@ class MainWindow(QMainWindow):
             options.update(settings)
             options.add('firstrun', False)
             options.Save()
+            self.options = options
             LoadStylesheet(options.get('theme'))
 
     def _show_new_project_Settings(self, project : SubtitleProject):

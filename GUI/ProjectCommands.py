@@ -32,8 +32,6 @@ class BatchSubtitlesCommand(Command):
         project.WriteProjectFile()
 
         self.datamodel : ProjectDataModel = self.datamodel or ProjectDataModel(project)
-        self.datamodel.project = project
-        self.datamodel.options = Options(project.options)
         self.datamodel.CreateViewModel()
         return True
         
@@ -292,8 +290,9 @@ class TranslateSceneCommand(Command):
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
         project : SubtitleProject = self.datamodel.project
+        options = self.datamodel.options
 
-        self.translator = SubtitleTranslator(project.subtitles, project.options)
+        self.translator = SubtitleTranslator(project.subtitles, options)
 
         self.translator.events.batch_translated += self._on_batch_translated
 
