@@ -86,7 +86,8 @@ class NewProjectSettings(QDialog):
     def _preview_batches(self):
         self._update_settings()
         batcher = SubtitleBatcher(self.settings)
-        scenes : list[SubtitleScene] = batcher.BatchSubtitles(self.project.subtitles.originals)
-        batch_count = sum(scene.size for scene in scenes)
-        line_count = sum(scene.linecount for scene in scenes)
-        self.preview_widget.setText(f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches")
+        if batcher.min_batch_size < batcher.max_batch_size:
+            scenes : list[SubtitleScene] = batcher.BatchSubtitles(self.project.subtitles.originals)
+            batch_count = sum(scene.size for scene in scenes)
+            line_count = sum(scene.linecount for scene in scenes)
+            self.preview_widget.setText(f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches")
