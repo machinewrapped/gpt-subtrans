@@ -7,10 +7,11 @@ from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
 class LoadSubtitleFile(Command):
-    def __init__(self, filepath):
+    def __init__(self, filepath, options : Options):
         super().__init__()
         self.filepath = filepath
         self.project : SubtitleProject = None
+        self.options : Options = options
 
     def execute(self):
         logging.debug(f"Executing LoadSubtitleFile {self.filepath}")
@@ -19,7 +20,7 @@ class LoadSubtitleFile(Command):
             return False
 
         try:
-            options = self.datamodel.options if self.datamodel else None
+            options = self.options
             if not options:
                 options = Options()
                 options.Load()
@@ -32,9 +33,9 @@ class LoadSubtitleFile(Command):
                 return False
             
             self.project = project
-            self.datamodel = ProjectDataModel(project)
+            self.datamodel = ProjectDataModel(project, options)
 
-            if project.subtitles.scenes:
+            if self.datamodel.IsProjectInitialised():
                 self.datamodel.CreateViewModel()
 
             return True

@@ -177,14 +177,15 @@ class Options:
             return False
 
     def InitialiseInstructions(self):
-        instructions = self.get('instructions')
-        retry_instructions = self.get('retry_instructions')
+        instructions = self.get('instructions') or default_instructions
+        retry_instructions = self.get('retry_instructions') or default_retry_instructions
 
         # If instructions file exists load the instructions from that
         if self.get('instruction_file'):
-            instructions, retry_instructions = LoadInstructionsFile(self.get('instruction_file'))
-            instructions = instructions if instructions else default_instructions
-            retry_instructions = retry_instructions if retry_instructions else default_retry_instructions
+            file_instructions, file_retry_instructions = LoadInstructionsFile(self.get('instruction_file'))
+            if file_instructions and file_retry_instructions:
+                instructions = file_instructions
+                retry_instructions = file_retry_instructions
 
         # Add any additional instructions from the command line
         if self.get('instruction_args'):
