@@ -33,7 +33,7 @@ class LoadSubtitleFile(Command):
                 return False
             
             self.project = project
-            self.datamodel = ProjectDataModel(project)
+            self.datamodel = ProjectDataModel(project, options)
 
             if self.datamodel.IsProjectInitialised():
                 self.datamodel.CreateViewModel()
