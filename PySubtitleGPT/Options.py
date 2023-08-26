@@ -39,6 +39,7 @@ default_options = {
     'include_original': env_bool('INCLUDE_ORIGINAL', False),
     'temperature': float(os.getenv('TEMPERATURE', 0.0)),
     'allow_retranslations': env_bool('ALLOW_RETRANSLATIONS', True),
+    'use_simple_batcher': env_bool('USE_SIMPLE_BATCHER', False),
     'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 30.0)),
     'batch_threshold': float(os.getenv('BATCH_THRESHOLD', 7.0)),
     'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 7)),

@@ -6,10 +6,10 @@ import bisect
 
 from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleError import SubtitleError
-from PySubtitleGPT.Helpers import GenerateTag, GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitleGPT.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
-from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
+from PySubtitleGPT.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitleGPT.SubtitleError import TranslationError
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
@@ -244,7 +244,7 @@ class SubtitleFile:
         """
         Divide subtitles into scenes and batches based on threshold options
         """
-        batcher = SubtitleBatcher(options)
+        batcher = CreateSubtitleBatcher(options)
 
         with self.lock:
             self.scenes = batcher.BatchSubtitles(self.originals)

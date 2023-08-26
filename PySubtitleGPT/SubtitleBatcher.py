@@ -3,17 +3,25 @@ from PySubtitleGPT.SubtitleBatch import SubtitleBatch
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 
-class OldSubtitleBatcher:
+class BaseSubtitleBatcher:
     def __init__(self, options):
         self.options = options
 
-    def BatchSubtitles(self, lines : list[SubtitleLine]):
-        options = self.options
-        max_batch_size = options.get('max_batch_size')
-        min_batch_size = options.get('min_batch_size')
+        self.min_batch_size = self.options.get('min_batch_size', 0)
+        self.max_batch_size = self.options.get('max_batch_size', 99)
 
         scene_threshold_seconds = options.get('scene_threshold', 30.0)
-        scene_threshold = timedelta(seconds=scene_threshold_seconds)
+        self.scene_threshold = timedelta(seconds=scene_threshold_seconds)
+
+    def BatchSubtitles(self, lines : list[SubtitleLine]):
+        raise NotImplementedError()
+
+class OldSubtitleBatcher(BaseSubtitleBatcher):
+    def __init__(self, options):
+        super().__init__(options)
+
+    def BatchSubtitles(self, lines : list[SubtitleLine]):
+        options = self.options
 
         batch_threshold_seconds = options.get('batch_threshold', 2.0)
         batch_threshold = timedelta(seconds=batch_threshold_seconds)
@@ -24,13 +32,13 @@ class OldSubtitleBatcher:
         for line in lines:
             gap = line.start - last_endtime if last_endtime else None 
 
-            if gap is None or gap > scene_threshold:
+            if gap is None or gap > self.scene_threshold:
                 scene = SubtitleScene()
                 scenes.append(scene)
                 scene.number = len(scenes)
                 batch = None
 
-            if batch is None or (batch.size >= max_batch_size) or (batch.size >= min_batch_size and gap > batch_threshold):
+            if batch is None or (batch.size >= self.max_batch_size) or (batch.size >= self.min_batch_size and gap > batch_threshold):
                 batch = scene.AddNewBatch()
 
             batch.AddLine(line)
@@ -39,19 +47,13 @@ class OldSubtitleBatcher:
 
         return scenes
 
-class SubtitleBatcher:
+class SubtitleBatcher(BaseSubtitleBatcher):
     def __init__(self, options):
-        self.options = options
-
-        self.min_batch_size = self.options.get('min_batch_size', 0)
-        self.max_batch_size = self.options.get('max_batch_size', 99)
+        super().__init__(options)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]):
         if self.min_batch_size >= self.max_batch_size:
             raise ValueError("min_batch_size must be less than max_batch_size.")
-
-        scene_threshold_seconds = self.options.get('scene_threshold', 30.0)
-        scene_threshold = timedelta(seconds=scene_threshold_seconds)
 
         scenes = []
         current_lines = []
@@ -64,7 +66,7 @@ class SubtitleBatcher:
 
             gap = line.start - last_endtime if last_endtime else None
 
-            if gap is not None and gap > scene_threshold:
+            if gap is not None and gap > self.scene_threshold:
                 if current_lines:
                     scene = self._create_scene(current_lines)
                     
@@ -120,3 +122,11 @@ class SubtitleBatcher:
         # Recursively split the batches and concatenate the lists
         return self._split_lines(left) + self._split_lines(right)
 
+def CreateSubtitleBatcher(options):
+    """
+    Helper to create an appropriate batcher for the options
+    """
+    if options.get('use_simple_batcher'):
+        return OldSubtitleBatcher(options)
+    
+    return SubtitleBatcher(options)

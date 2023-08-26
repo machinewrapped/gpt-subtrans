@@ -4,7 +4,7 @@ from GUI.GuiHelpers import GetInstructionFiles
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitleGPT import SubtitleProject
 from PySubtitleGPT.Options import LoadInstructionsFile, Options
-from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
+from PySubtitleGPT.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitleGPT.SubtitleScene import SubtitleScene
 from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
 
@@ -15,6 +15,7 @@ class NewProjectSettings(QDialog):
         'max_batch_size': (int, "Most lines to send in each batch"),
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch"),
+        'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
         'gpt_model': (str, "AI model to use as the translator"),
         'gpt_prompt': (str, "High-level instructions for the translator"),
         'instruction_file': (str, "Detailed instructions for the translator")
@@ -85,7 +86,7 @@ class NewProjectSettings(QDialog):
 
     def _preview_batches(self):
         self._update_settings()
-        batcher = SubtitleBatcher(self.settings)
+        batcher = CreateSubtitleBatcher(self.settings)
         if batcher.min_batch_size < batcher.max_batch_size:
             scenes : list[SubtitleScene] = batcher.BatchSubtitles(self.project.subtitles.originals)
             batch_count = sum(scene.size for scene in scenes)
