@@ -14,8 +14,8 @@ class NewProjectSettings(QDialog):
         'min_batch_size': (int, "Fewest lines to send in separate batch"),
         'max_batch_size': (int, "Most lines to send in each batch"),
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
-        'batch_threshold': (float, "Number of seconds gap to consider starting a new batch"),
         'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
+        'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
         'gpt_model': (str, "AI model to use as the translator"),
         'gpt_prompt': (str, "High-level instructions for the translator"),
         'instruction_file': (str, "Detailed instructions for the translator")
@@ -86,9 +86,21 @@ class NewProjectSettings(QDialog):
 
     def _preview_batches(self):
         self._update_settings()
+        self._update_inputs()
+
         batcher = CreateSubtitleBatcher(self.settings)
         if batcher.min_batch_size < batcher.max_batch_size:
             scenes : list[SubtitleScene] = batcher.BatchSubtitles(self.project.subtitles.originals)
             batch_count = sum(scene.size for scene in scenes)
             line_count = sum(scene.linecount for scene in scenes)
             self.preview_widget.setText(f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches")
+
+    def _update_inputs(self):
+        layout : QFormLayout = self.form_layout.layout()
+
+        for row in range(layout.rowCount()):
+            field = layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
+            if field.key == 'batch_threshold':
+                use_simple_batcher = self.settings.get('use_simple_batcher')
+                field.setEnabled(use_simple_batcher)
+
