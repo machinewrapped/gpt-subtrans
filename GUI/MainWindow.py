@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
             self._first_run(options)
         elif filepath:
             # Load file if we were opened with one
-            self.QueueCommand(LoadSubtitleFile(filepath))
+            self.QueueCommand(LoadSubtitleFile(filepath, options))
 
         logging.info(f"GPT-Subtrans {__version__}")
 
