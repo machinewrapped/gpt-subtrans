@@ -120,8 +120,7 @@ class ProjectActions(QObject):
             self._issue_command(command)
 
     def _save_project_file(self):
-        # TODO: Shouldn't have to ask the main window for the project
-        project : SubtitleProject = self._mainwindow.project
+        project : SubtitleProject = self.datamodel.project
         if not project:
             raise ActionError("Nothing to save!")
         
