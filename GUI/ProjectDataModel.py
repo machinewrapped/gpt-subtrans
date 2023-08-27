@@ -17,8 +17,6 @@ class ProjectDataModel:
 
     def UpdateOptions(self, options : Options):
         """ Update any options that have changed """
-        self.options.update(options)
-
         #TODO: only store options in project that are non-default
         self.project.UpdateProjectOptions(options)
         self.options.update(self.project.options)

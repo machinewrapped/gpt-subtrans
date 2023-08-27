@@ -73,7 +73,7 @@ class NewProjectSettings(QDialog):
             if retry_instructions:
                 self.settings['retry_instructions'] = retry_instructions
 
-        self.project.options.update(self.settings)
+        self.project.UpdateProjectOptions(self.settings)
 
         super(NewProjectSettings, self).accept()
 

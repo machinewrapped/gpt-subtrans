@@ -292,7 +292,8 @@ class SubtitleProject:
             if self.subtitles:
                 self.subtitles.UpdateContext(self.options)
 
-        self.WriteProjectFile()
+        if self.subtitles.scenes:
+            self.WriteProjectFile()
 
     def _start_autosave_thread(self):
         self.stop_event = threading.Event()
