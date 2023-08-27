@@ -139,9 +139,6 @@ class MainWindow(QMainWindow):
             options.update(settings)
             options.Save()
 
-            # Update project options
-            self.datamodel.UpdateOptions()
-
             LoadStylesheet(options.get('theme'))
             logging.info("Settings updated")
 
