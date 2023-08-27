@@ -8,19 +8,14 @@ from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
 from PySubtitleGPT.SubtitleError import NoTranslationError
 from PySubtitleGPT.SubtitleValidator import SubtitleValidator
 
-#template = re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE)
-template = re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE)
 
-#TODO: update fallback patterns with start and end groups
-fallback_patterns = [
-    re.compile(r"<translation\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>[\s\r\n]*(?P<body>[\s\S]*?)<\/translation>", re.MULTILINE),
-    re.compile(r"<translation\s+number='(?P<number>.+?)'\s+start='(?P<start>[\d:,]+)'\s+end='(?P<end>[\d:,]+)'>\s*(?P<body>.*?)\s*<\/translation>", re.MULTILINE),
-    re.compile(r'<translation\s*line=(\d+)\s*>(?:")?(.*?)(?:")?\s*(?:" /)?</translation>', re.MULTILINE),
-    re.compile(r'<original\s*line=(\d+)\s*>(?:")?(.*?)(?:")?\s*(?:" /)?</original>', re.MULTILINE),
-    re.compile(r'<line\s*number=(\d+).+?translation=(?:")?(.*?)(?:")?\s*(?:" /)?>', re.MULTILINE),
-    re.compile(r'<line number=(\d+)>(?:")?(.*?)(?:")?</line>', re.MULTILINE),
-    re.compile(r'(\d+)[:.]\s*"(.+?)"',  re.MULTILINE),
-    re.compile(r'(?:^|\n|\\n)(\d+)[:.]\s*(.+?)(?:$|\n|\\n)', re.MULTILINE),
+
+default_pattern = re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE)
+
+regex_patterns = [
+    default_pattern,
+    re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation[>:](?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE),
+    re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z)", re.MULTILINE)  # Just the number and translation
     ]
 
 
@@ -44,8 +39,12 @@ class ChatGPTTranslationParser:
 
         if not self.text:
             raise ValueError("No translated text provided")
+        
+        for template in regex_patterns:
+            matches = self.FindMatches(f"{self.text}\n\n", template)
 
-        matches = self.FindMatches(f"{self.text}\n\n")
+            if matches:
+                break
 
         logging.debug(f"Matches: {str(matches)}")
 
@@ -61,7 +60,7 @@ class ChatGPTTranslationParser:
         
         return self.translated
 
-    def FindMatches(self, text):
+    def FindMatches(self, text, template):
         """
         re.findall has some very unhelpful behaviour, so we use finditer instead.
         """
