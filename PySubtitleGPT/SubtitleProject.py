@@ -72,9 +72,11 @@ class SubtitleProject:
             if subtitles and subtitles.scenes:
                 self.load_subtitles = False
                 write_backup = self.options.get('write_backup', False)
-                logging.info("Project file loaded, saving backup copy" if write_backup else "Project file loaded")
                 if write_backup:
+                    logging.info("Project file loaded, saving backup copy")
                     self.WriteBackupFile()
+                else:
+                    logging.info("Project file loaded")
             else:
                 logging.warning(f"Unable to read project file, starting afresh")
                 self.load_subtitles = True
@@ -82,15 +84,9 @@ class SubtitleProject:
         if self.load_subtitles:
             # (re)load the source subtitle file if required
             subtitles = self.LoadSubtitleFile(filepath)
-            subtitles.UpdateContext(self.options)
-
-        if self.subtitles and not self.subtitles.context.get('instructions_edited'):
-            # Update instructions from the source file
-            self.options.InitialiseInstructions()
-            self.subtitles.UpdateContext(self.options)
 
         if outputpath:
-            self.subtitles.outputpath = outputpath
+            subtitles.outputpath = outputpath
 
         if not subtitles.has_subtitles:
             raise ValueError(f"No subtitles to translate in {filepath}")
@@ -189,8 +185,11 @@ class SubtitleProject:
         with self.lock:
             self.subtitles = SubtitleFile(filepath)
             self.subtitles.LoadSubtitles()
-            self.subtitles.UpdateContext(self.options)
             self.subtitles.project = self
+
+            self.options.InitialiseInstructions()
+            self.subtitles.UpdateContext(self.options)
+
         return self.subtitles
 
     def WriteProjectFile(self, projectfile = None):
