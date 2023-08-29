@@ -56,6 +56,7 @@ class MainWindow(QMainWindow):
 
         if not options:
             options = Options()
+            options.InitialiseInstructions()
             options.Load()
 
         self.options = options

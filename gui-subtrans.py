@@ -62,6 +62,7 @@ if __name__ == "__main__":
 
     # Load default options and update with any explicit arguments
     options = Options()
+    options.InitialiseInstructions()
     if not arguments.get('firstrun') and options.Load():
         logging.info(f"Loaded settings from {settings_path}")
     options.update(arguments)

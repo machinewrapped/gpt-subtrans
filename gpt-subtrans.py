@@ -58,6 +58,8 @@ try:
         'project': args.project and args.project.lower()
     })
 
+    options.InitialiseInstructions()
+
     # Process the project options
     project = SubtitleProject(options)
 
