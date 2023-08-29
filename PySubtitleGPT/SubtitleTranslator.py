@@ -400,7 +400,7 @@ class SubtitleTranslator:
 
             logging.info("Retranslation passed validation")
 
-            batch.translated = MergeTranslations(batch.translated, retranslated)
+            batch.translated = MergeTranslations(batch.translated or {}, retranslated)
 
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.text}\n")
