@@ -206,6 +206,7 @@ class SubtitleFile:
             'gpt_model': "",
             'gpt_prompt': "",
             'instructions': "",
+            'retry_instructions': "",
             'movie_name': "",
             'description': "",
             'characters': None,
