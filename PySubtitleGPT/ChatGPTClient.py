@@ -64,6 +64,10 @@ class ChatGPTClient:
 
         retry_instructions = options.get('retry_instructions')
 
+        if not retry_instructions:
+            logging.warning("No retry instructions found, using defaults")
+            retry_instructions = Options().get('retry_instructions') or "Try again"
+
         messages = []
         for message in prompt.messages:
             # Trim retry messages to keep tokens down
