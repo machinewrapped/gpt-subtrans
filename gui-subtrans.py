@@ -2,10 +2,13 @@ import argparse
 import logging
 import os
 import sys
+import cProfile
+from pstats import Stats
 
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
-from PySubtitleGPT.Options import Options, settings_path
+from PySubtitleGPT.Options import Options, settings_path, config_dir
+
 
 # This seems insane but ChatGPT told me to do it.
 project_dir = os.path.abspath(os.path.dirname(__file__))
@@ -31,6 +34,7 @@ def parse_arguments():
     parser.add_argument('--theme', type=str, default=None, help="Stylesheet to load")
     parser.add_argument('--firstrun', action='store_true', help="Show the first-run options dialog on launch")
     parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
+    parser.add_argument('--profile', action='store_true', help="Profile execution and write stats to the console")
 
     try:
         args = parser.parse_args()
@@ -50,10 +54,27 @@ def parse_arguments():
         'scene_threshold': args.scenethreshold,
         'project': args.project and args.project.lower() or 'true',
         'theme': args.theme,
-        'firstrun': args.firstrun
+        'firstrun': args.firstrun,
+        'profile': args.profile
     }
     
     return arguments, args.filepath
+
+def run_with_profiler(app):
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    app.exec()
+
+    profiler.disable()
+
+    profile_path = os.path.join(config_dir, 'profile_guisubtrans.txt')
+    with open(profile_path, 'w') as stream:
+        stats = Stats(profiler, stream=stream)
+        stats.sort_stats('tottime')
+        stats.print_stats(100)
+
+    logging.info(f"Profiling stats written to {profile_path}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -71,4 +92,7 @@ if __name__ == "__main__":
     app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()
 
-    app.exec()
+    if arguments.get('profile'):
+        run_with_profiler(app)
+    else:
+        app.exec()
