@@ -3,6 +3,7 @@ import os
 from PySide6.QtCore import Qt, QModelIndex
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
+from GUI.GuiHelpers import GetLineHeight
 from PySubtitleGPT import SubtitleLine
 
 from PySubtitleGPT.Helpers import FormatMessages, Linearise, UpdateFields
@@ -420,6 +421,7 @@ class LineItem(QStandardItem):
         self.is_translation = is_translation
         self.number = line_number
         self.line_model = model
+        self.height = GetLineHeight(model.get('text'))
 
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
@@ -431,6 +433,8 @@ class LineItem(QStandardItem):
 
         if line_update.get('number'):
             self.number = line_update['number']
+
+        self.height = GetLineHeight(self.line_model.get('text'))
 
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 

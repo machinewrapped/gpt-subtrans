@@ -1,5 +1,5 @@
 import logging
-from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt
+from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt, QSize
 from GUI.ProjectViewModel import BatchItem, ProjectViewModel, SceneItem, LineItem, ViewModelItem
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.Widgets import LineItemView
@@ -144,7 +144,15 @@ class SubtitleListModel(QAbstractProxyModel):
             return LineItemView(item)
         
         if role == Qt.ItemDataRole.SizeHintRole:
-            return LineItemView(item).sizeHint()
+            if not item.height:
+                return LineItemView(item).sizeHint()
+
+            if item.height in self.size_map:
+                return self.size_map[item.height]
+
+            size = LineItemView(item).sizeHint()
+            self.size_map[item.height] = size
+            return size
 
         return None
 
