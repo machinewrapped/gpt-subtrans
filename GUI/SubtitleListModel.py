@@ -11,6 +11,8 @@ class SubtitleListModel(QAbstractProxyModel):
         self.viewmodel : ProjectViewModel = viewmodel
         self.selected_batch_numbers = []
         self.visible = []
+        self.visible_row_map : dict(int, int) = {}
+        self.size_map : dict(int, QSize ) = {}
 
         # Connect signals to update mapping when source model changes
         if self.viewmodel:
@@ -50,16 +52,16 @@ class SubtitleListModel(QAbstractProxyModel):
                     visible.extend(visible_lines)
         
         self.visible = visible
+        self.visible_row_map = { item[2] : row for row, item in enumerate(self.visible) }
         self.layoutChanged.emit()
 
     def mapFromSource(self, source_index : QModelIndex):
         item : ViewModelItem = self.viewmodel.itemFromIndex(source_index)
 
         if isinstance(item, LineItem):
-            for row, key in enumerate(self.visible):
-                scene, batch, line = key
-                if line == item.number:
-                    return self.index(row, 0, QModelIndex())
+            row = self.visible_row_map.get(item.number, None)
+            if row is not None:
+                return self.index(row, 0, QModelIndex())
 
         return QModelIndex()
 
