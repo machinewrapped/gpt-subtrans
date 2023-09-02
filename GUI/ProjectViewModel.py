@@ -85,10 +85,9 @@ class ProjectViewModel(QStandardItemModel):
                     
                     if batch_item.last_line_number >= line_number:
                         lines = batch_item.translated if get_translated else batch_item.originals
-                        if lines:
-                            for line_item in lines.values():
-                                if line_item.number == line_number:
-                                    return line_item
+                        line = lines.get(line_number, None) if lines else None
+                        if line:
+                            return line
 
     def GetBatchNumbers(self):
         """
@@ -477,6 +476,10 @@ class BatchItem(ViewModelItem):
             'errors': self._get_errors(batch.errors)
         }
 
+        # cache on demand
+        self._first_line_num = None
+        self._last_line_num = None
+
         if batch.translation and os.environ.get("DEBUG_MODE") == "1":
             self.batch_model.update({
                 'response': batch.translation.text,
@@ -484,7 +487,6 @@ class BatchItem(ViewModelItem):
             })
             if batch.translation.prompt:
                 self.batch_model['messages'] = FormatMessages(batch.translation.prompt.messages)
-
 
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
@@ -496,6 +498,8 @@ class BatchItem(ViewModelItem):
             self.translated[line_number] = line_item
         else:
             self.originals[line_number] = line_item
+
+        self._invalidate_first_and_last()
 
     @property
     def original_count(self):
@@ -531,11 +535,15 @@ class BatchItem(ViewModelItem):
     
     @property
     def first_line_number(self):
-        return min(num for num in self.originals.keys() if num) if self.originals else None
+        if not self._first_line_num:
+            self._update_first_and_last()
+        return self._first_line_num
 
     @property
     def last_line_number(self):
-        return max(num for num in self.originals.keys() if num) if self.originals else None    
+        if not self._last_line_num:
+            self._update_first_and_last()
+        return self._last_line_num    
 
     @property
     def has_errors(self):
@@ -575,7 +583,16 @@ class BatchItem(ViewModelItem):
                 'errors' : self.has_errors
             }
         }
-    
+
+    def _update_first_and_last(self):
+        line_numbers = [ num for num in self.originals.keys() if num ] if self.originals else None
+        self._first_line_num = min(line_numbers) if line_numbers else None
+        self._last_line_num = max(line_numbers)
+
+    def _invalidate_first_and_last(self):
+        self._first_line_num = None
+        self._last_line_num = None
+
     def _get_errors(self, errors):
         if errors:
             if all(isinstance(e, Exception) for e in errors):
