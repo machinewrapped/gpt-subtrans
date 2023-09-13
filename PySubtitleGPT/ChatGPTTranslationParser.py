@@ -88,7 +88,7 @@ class ChatGPTTranslationParser:
                 translation.start = item.start
                 translation.end = item.end
 
-                if IsTextContentEqual(translation.text, item.text):
+                if translation.original and IsTextContentEqual(translation.text, item.text):
                     # Check for swapped original & translation
                     translation.text = translation.original
                     translation.original = item.text

@@ -187,7 +187,7 @@ class SubtitleFile:
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
-            srtfile = srt.compose([ line.item for line in translated ])
+            srtfile = srt.compose([ line.item for line in translated if line.text ])
             with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 

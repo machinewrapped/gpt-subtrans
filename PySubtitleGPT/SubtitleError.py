@@ -46,6 +46,11 @@ class UnmatchedLinesError(TranslationError):
         super().__init__(message)
         self.lines = lines
 
+class EmptyLinesError(TranslationError):
+    def __init__(self, message, lines):
+        super().__init__(message)
+        self.lines = lines
+
 class TooManyNewlinesError(TranslationError):
     def __init__(self, message, lines):
         super().__init__(message)
