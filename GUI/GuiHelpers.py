@@ -22,7 +22,7 @@ def GetInstructionFiles():
     files = os.listdir(instruction_path)
     return [ file for file in files if file.lower().startswith("instructions") ]
 
-def GetLineHeight(text: str, wrap_length: int = 60) -> int:
+def GetLineHeight(text: str, wrap_length: int = 100) -> int:
     """
     Calculate the number of lines for a given text with wrapping and newline characters.
 
