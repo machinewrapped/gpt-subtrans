@@ -106,12 +106,14 @@ QTreeView:item:selected {
 .LineItemHeader {
     font-weight: bold;
     margin: 0px;
+    padding: 2px;
     background-color: aliceblue;
     color: black;
 }
 
 .LineItemBody {
     margin: 0px;
+    padding: 0px;
     background-color: white;
     color: black;
 }

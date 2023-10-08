@@ -72,7 +72,7 @@ class LineItemView(QWidget):
 class LineItemHeader(QLabel):
     def __init__(self, line: LineItem, parent=None):
         super(LineItemHeader, self).__init__(parent)
-        self.setText(f"{str(line.number)}, {str(line.start)} --> {str(line.end)}")
+        self.setText(f"[{str(line.number)}] {str(line.start)} --> {str(line.end)}")
 
 class LineItemBody(QLabel):
     def __init__(self, line: LineItem, parent=None):

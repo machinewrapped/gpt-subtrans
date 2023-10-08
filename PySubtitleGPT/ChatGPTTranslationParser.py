@@ -15,6 +15,7 @@ default_pattern = re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P
 regex_patterns = [
     default_pattern,
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation[>:](?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE),
+    re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]+(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)", re.MULTILINE),
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z)", re.MULTILINE)  # Just the number and translation
     ]
 
@@ -88,7 +89,7 @@ class ChatGPTTranslationParser:
                 translation.start = item.start
                 translation.end = item.end
 
-                if IsTextContentEqual(translation.text, item.text):
+                if translation.original and IsTextContentEqual(translation.text, item.text):
                     # Check for swapped original & translation
                     translation.text = translation.original
                     translation.original = item.text

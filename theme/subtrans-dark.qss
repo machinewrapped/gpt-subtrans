@@ -124,11 +124,13 @@ QTreeView:item:selected {
     font-weight: bold;
     font-size: 10pt;
     margin: 0px;
+    padding: 2px;
 }
 
 .LineItemBody {
     font-size: 10pt;
     margin: 0px;
+    padding: 0px;
 }
 
 .SelectionView {

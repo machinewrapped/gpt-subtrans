@@ -1,5 +1,5 @@
 from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleError import LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError
+from PySubtitleGPT.SubtitleError import EmptyLinesError, LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError
 from PySubtitleGPT.SubtitleLine import SubtitleLine
 
 class SubtitleValidator:
@@ -17,12 +17,17 @@ class SubtitleValidator:
         max_newlines = self.options.get('max_newlines')
 
         no_number = []
+        no_text = []
         too_long = []
         too_many_newlines = []
 
         for line in translated:
             if not line.number:
                 no_number.append(line)
+
+            if not line.text:
+                no_text.append(line)
+                continue
 
             if len(line.text) > max_characters:
                 too_long.append(line)
@@ -32,6 +37,9 @@ class SubtitleValidator:
 
         if no_number:
             raise UnmatchedLinesError(f"{len(no_number)} translations could not be matched with a source line", no_number)
+
+        if no_text:
+            raise EmptyLinesError(f"{len(no_text)} translations returned a blank line", no_text)
 
         if too_long:
             raise LineTooLongError(f"One or more lines exceeded {max_characters} characters", too_long)
