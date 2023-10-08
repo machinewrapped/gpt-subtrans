@@ -336,7 +336,7 @@ class TranslateSceneCommand(Command):
                 'translated' : { line.number : { 'text' : line.text } for line in batch.translated if line.number }
             })
 
-            update.UpdateModel(self.datamodel)
+            self.datamodel.UpdateViewModel(update)
 
 #############################################################
 

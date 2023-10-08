@@ -193,8 +193,7 @@ class MainWindow(QMainWindow):
                     self._show_new_project_Settings(self.datamodel.project)
 
             if command.model_update.HasUpdate():
-                # Patch the model
-                command.model_update.UpdateModel(self.datamodel)
+                self.datamodel.UpdateViewModel(command.model_update)
 
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often? 

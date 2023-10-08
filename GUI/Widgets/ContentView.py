@@ -1,6 +1,6 @@
 import logging
 from PySide6.QtWidgets import QSplitter, QVBoxLayout, QWidget, QSizePolicy, QDialog
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QMutexLocker, Signal, Slot
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModel import LineItem, ProjectViewModel
 from GUI.Widgets.Editors import EditSubtitleDialog
@@ -50,8 +50,9 @@ class ContentView(QWidget):
         self.translation_view.ShowSelection(selection)
         self.selection_view.ShowSelection(selection)
 
-    def Populate(self, viewmodel):
+    def Populate(self, viewmodel : ProjectViewModel):
         self.viewmodel = viewmodel
+        self.viewmodel.updatesPending.connect(self._update_view_model)
         self.subtitle_view.SetViewModel(viewmodel)
         self.translation_view.SetViewModel(viewmodel)
         self.selection_view.ShowSelection(ProjectSelection())
@@ -107,3 +108,7 @@ class ContentView(QWidget):
 
                 self.actionRequested.emit('Update Line', (item.number, original_text, translated_text,))
 
+    @Slot()
+    def _update_view_model(self):
+        if self.viewmodel:
+            self.viewmodel.ProcessUpdates()
