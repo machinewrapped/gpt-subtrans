@@ -1,9 +1,10 @@
 import logging
 import os
-from PySide6.QtCore import Qt, QModelIndex
+from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from GUI.GuiHelpers import GetLineHeight
+from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitleGPT import SubtitleLine
 
 from PySubtitleGPT.Helpers import FormatMessages, Linearise, UpdateFields
@@ -26,12 +27,29 @@ class ViewModelError(SubtitleError):
         super().__init__(message, error)
 
 class ProjectViewModel(QStandardItemModel):
+    updatesPending = Signal()
+
     def __init__(self):
         super().__init__()
         self.model = {}
+        self.updates = []
+        self.update_lock = QMutex()
 
     def getRootItem(self):
         return self.invisibleRootItem()
+    
+    def AddUpdate(self, update):
+        with QMutexLocker(self.update_lock):
+            self.updates.append(update)
+        self.updatesPending.emit()
+
+    def ProcessUpdates(self):
+        with QMutexLocker(self.update_lock):
+            for update in self.updates:
+                self.ApplyUpdate(update)
+            self.updates = []
+
+        self.layoutChanged.emit()
 
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):
@@ -129,6 +147,74 @@ class ProjectViewModel(QStandardItemModel):
 
                 batch_item.translated = { item.number: item for item in line_items if item.is_translation }
                 batch_item.originals = { item.number: item for item in line_items if not item.is_translation }
+
+    def ApplyUpdate(self, update : ModelUpdate):
+        """
+        Patch the viewmodel
+        """
+        self.beginResetModel()
+        self.blockSignals(True)
+
+        for scene_number, scene_update in update.scenes.updates.items():
+            self.UpdateScene(scene_number, scene_update)
+
+        for key, batch_update in update.batches.updates.items():
+            scene_number, batch_number = key
+            self.UpdateBatch(scene_number, batch_number, batch_update)
+
+        #TODO: Use UpdateOriginalLines
+        for key, line_update in update.originals.updates.items():
+            scene_number, batch_number, line_number = key
+            self.UpdateOriginalLine(scene_number, batch_number, line_number, line_update)
+
+        #TODO: Use UpdateTranslatedLines
+        for key, line_update in update.translated.updates.items():
+            scene_number, batch_number, line_number = key
+            self.UpdateTranslatedLine(scene_number, batch_number, line_number, line_update)
+
+        for scene_number, scene in update.scenes.replacements.items():
+            self.ReplaceScene(scene)
+
+        for key, batch in update.batches.replacements.items():
+            scene_number, batch_number = key
+            self.ReplaceBatch(batch)
+
+        for scene_number in reversed(update.scenes.removals):
+            self.RemoveScene(scene_number)
+
+        for key in reversed(update.batches.removals):
+            scene_number, batch_number = key
+            self.RemoveBatch(scene_number, batch_number)
+
+        for key in reversed(update.originals.removals):
+            scene_number, batch_number, line_number = key
+            self.RemoveOriginalLine(scene_number, batch_number, line_number)
+
+        for key in reversed(update.translated.removals):
+            scene_number, batch_number, line_number = key
+            self.RemoveTranslatedLine(scene_number, batch_number, line_number)
+
+        for scene_number, scene in update.scenes.additions.items():
+            self.AddScene(scene)
+
+        for key, batch in update.batches.additions.items():
+            scene_number, batch_number = key
+            self.AddBatch(batch)
+
+        for key, line in update.originals.additions.items():
+            scene_number, batch_number, line_number = key
+            self.AddOriginalLine(scene_number, batch_number, line_number, line)
+
+        for key, line in update.translated.additions.items():
+            scene_number, batch_number, line_number = key
+            self.AddTranslatedLine(scene_number, batch_number, line_number, line)
+
+        # Rebuild the model dictionaries
+        self.Remap()
+        self.blockSignals(False)
+        self.endResetModel()
+    
+
 
     #############################################################################
 

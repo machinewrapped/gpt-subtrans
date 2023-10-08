@@ -1,5 +1,6 @@
 from PySide6.QtCore import QMutex, QMutexLocker
 from GUI.ProjectViewModel import ProjectViewModel
+from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitleGPT.Options import Options
 from PySubtitleGPT.SubtitleProject import SubtitleProject
 
@@ -56,9 +57,23 @@ class ProjectDataModel:
                 raise ValueError(f"No handler defined for action {action_name}")
 
     def CreateViewModel(self):
+        """
+        Create a viewmodel for the subtitles
+        """
         with QMutexLocker(self.mutex):
             self.viewmodel = ProjectViewModel()
             self.viewmodel.CreateModel(self.project.subtitles)
         return self.viewmodel
 
- 
+    def UpdateViewModel(self, update : ModelUpdate):
+        """
+        Patch the viewmodel
+        """
+        if not isinstance(update, ModelUpdate):
+            raise Exception("Invalid model update")
+
+        if update.rebuild:
+            # TODO: rebuild on the main thread
+            self.CreateViewModel()
+        elif self.viewmodel:
+            self.viewmodel.AddUpdate(update)
