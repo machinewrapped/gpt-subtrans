@@ -164,7 +164,7 @@ class SubtitleTranslator:
             self.TranslateBatches(batches, context, remaining_lines)
 
             # Update the scene summary based on the best available information (we hope)
-            scene.summary = self.SanitiseSummary(scene.summary or context.get('scene') or context.get('summary'))
+            scene.summary = self.SanitiseSummary(scene.summary) or self.SanitiseSummary(context.get('scene')) or self.SanitiseSummary(context.get('summary'))
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
