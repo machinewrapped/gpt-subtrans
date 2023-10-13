@@ -1,6 +1,6 @@
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleError import EmptyLinesError, LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError
-from PySubtitleGPT.SubtitleLine import SubtitleLine
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleError import EmptyLinesError, LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError
+from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleValidator:
     def __init__(self, options : Options) -> None:

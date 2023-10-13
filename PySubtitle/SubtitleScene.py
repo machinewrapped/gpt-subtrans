@@ -1,9 +1,9 @@
 import logging
 from os import linesep
-from PySubtitleGPT import SubtitleError
-from PySubtitleGPT.Helpers import ResyncTranslatedLines
+from PySubtitle import SubtitleError
+from PySubtitle.Helpers import ResyncTranslatedLines
 
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleBatch import SubtitleBatch
 
 class SubtitleScene:
     def __init__(self, dct = None):

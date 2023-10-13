@@ -5,7 +5,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 from GUI.GuiHelpers import GetResourcePath
 
-from PySubtitleGPT.version import __version__
+from PySubtitle.version import __version__
 
 class AboutDialog(QDialog):
     """

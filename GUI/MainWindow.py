@@ -27,10 +27,10 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
 from GUI.NewProjectSettings import NewProjectSettings
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleProject import SubtitleProject
-from PySubtitleGPT.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
-from PySubtitleGPT.version import __version__
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
+from PySubtitle.version import __version__
 
 # Load environment variables from .env file
 dotenv.load_dotenv()

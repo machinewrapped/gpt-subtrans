@@ -4,7 +4,7 @@ import os
 import dotenv
 import appdirs
 
-from PySubtitleGPT.version import __version__
+from PySubtitle.version import __version__
 
 linesep = '\n'
 

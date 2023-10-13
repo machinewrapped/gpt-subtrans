@@ -2,11 +2,11 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayo
 from GUI.GuiHelpers import GetInstructionFiles
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
-from PySubtitleGPT import SubtitleProject
-from PySubtitleGPT.Options import LoadInstructionsFile, Options
-from PySubtitleGPT.SubtitleBatcher import CreateSubtitleBatcher
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
+from PySubtitle import SubtitleProject
+from PySubtitle.Options import LoadInstructionsFile, Options
+from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class NewProjectSettings(QDialog):
     SETTINGS = {

@@ -1,10 +1,10 @@
 import logging
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitleGPT.Helpers import GetOutputPath
-from PySubtitleGPT.Options import Options
+from PySubtitle.Helpers import GetOutputPath
+from PySubtitle.Options import Options
 
-from PySubtitleGPT.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleProject import SubtitleProject
 
 class LoadSubtitleFile(Command):
     def __init__(self, filepath, options : Options):

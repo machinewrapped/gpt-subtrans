@@ -7,8 +7,7 @@ from pstats import Stats
 
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
-from PySubtitleGPT.Options import Options, settings_path, config_dir
-
+from PySubtitle.Options import Options, settings_path, config_dir
 
 # This seems insane but ChatGPT told me to do it.
 project_dir = os.path.abspath(os.path.dirname(__file__))
@@ -19,7 +18,7 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
 
 def parse_arguments():
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Translates an SRT file using ChatGPT')
+    parser = argparse.ArgumentParser(description='Translates an SRT file using GPT')
     parser.add_argument('filepath', nargs='?', help="Optional file to load on startup")
     parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
     parser.add_argument('-r', '--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")

@@ -1,9 +1,9 @@
 from datetime import timedelta
 import re
-from PySubtitleGPT.SubtitleValidator import SubtitleValidator
-from PySubtitleGPT.SubtitleError import SubtitleError, TranslationError
-from PySubtitleGPT.Helpers import PerformSubstitutions
-from PySubtitleGPT.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleValidator import SubtitleValidator
+from PySubtitle.SubtitleError import SubtitleError, TranslationError
+from PySubtitle.Helpers import PerformSubstitutions
+from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleBatch:
     def __init__(self, dct = None):

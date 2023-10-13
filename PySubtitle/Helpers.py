@@ -5,7 +5,7 @@ import regex
 import unicodedata
 import srt
 
-from PySubtitleGPT.Options import Options
+from PySubtitle.Options import Options
 
 def Linearise(lines):
     if not isinstance(lines, list):

@@ -5,7 +5,7 @@ from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
-from PySubtitleGPT.SubtitleError import TranslationAbortedError
+from PySubtitle.SubtitleError import TranslationAbortedError
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:

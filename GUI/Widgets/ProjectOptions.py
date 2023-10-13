@@ -4,8 +4,8 @@ from PySide6.QtCore import Signal, QSignalBlocker
 from GUI.TranslatorOptions import TranslatorOptionsDialog
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions
+from PySubtitle.Options import Options
+from PySubtitle.Helpers import ParseCharacters, ParseSubstitutions
 
 class ProjectOptions(QGroupBox):
     """

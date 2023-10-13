@@ -2,15 +2,15 @@ import os
 import argparse
 import logging
 
-from PySubtitleGPT.Helpers import ParseCharacters, ParseSubstitutions
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleProject import SubtitleProject
+from PySubtitle.Helpers import ParseCharacters, ParseSubstitutions
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleProject import SubtitleProject
 
 logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Translates an SRT file using ChatGPT')
+parser = argparse.ArgumentParser(description='Translates an SRT file using GPT')
 parser.add_argument('input', help="Input SRT file path")
 parser.add_argument('-o', '--output', help="Output SRT file path")
 parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")

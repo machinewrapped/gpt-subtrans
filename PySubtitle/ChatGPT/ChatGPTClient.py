@@ -2,60 +2,45 @@ import logging
 import time
 import openai
 import openai.error
+from PySubtitle.ChatGPT.ChatGPTPrompt import ChatGPTPrompt
+from PySubtitle.ChatGPT.ChatGPTTranslation import ChatGPTTranslation
 
-from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
-from PySubtitleGPT.Helpers import FormatMessages, ParseDelayFromHeader
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
+from PySubtitle.Helpers import FormatMessages, ParseDelayFromHeader
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
+from PySubtitle.Translation import Translation
+from PySubtitle.TranslationClient import TranslationClient
+from PySubtitle.TranslationParser import TranslationParser
 
 linesep = '\n'
 
-class ChatGPTClient:
+class ChatGPTClient(TranslationClient):
     """
     Handles communication with OpenAI to request translations
     """
     def __init__(self, options : Options, instructions=None):
-        self.options = options
-        self.instructions = instructions or options.get('instructions', "")
+        super().__init__(options, instructions)
 
-        if not self.instructions:
-            raise TranslationError("No instructions provided for the translator")
+    def GetParser(self):
+        return TranslationParser(self.options)
 
-    def RequestTranslation(self, prompt : str, lines : list, context : dict):
+    def _request_translation(self, prompt, lines, context):
         """
-        Generate the messages to send to OpenAI to request a translation
+        Generate the prompt and send to OpenAI to request a translation
         """
-        options = self.options
-
-        start_time = time.monotonic()
-
         gpt_prompt = ChatGPTPrompt(self.instructions)
 
         gpt_prompt.GenerateMessages(prompt, lines, context)
 
         logging.debug(f"Messages:\n{FormatMessages(gpt_prompt.messages)}")
 
-        gpt_translation = self.SendMessages(gpt_prompt.messages)
+        gpt_translation = self._send_messages(gpt_prompt.messages)
 
         translation = ChatGPTTranslation(gpt_translation, gpt_prompt)
 
-        if translation.text:
-            logging.debug(f"Response:\n{translation.text}")
-
-        # If a rate limit is replied ensure a minimum duration for each request
-        rate_limit = options.get('rate_limit')
-        if rate_limit and rate_limit > 0.0:
-            minimum_duration = 60.0 / rate_limit
-
-            elapsed_time = time.monotonic() - start_time
-            if elapsed_time < minimum_duration:
-                sleep_time = minimum_duration - elapsed_time
-                time.sleep(sleep_time)
-
         return translation
 
-    def RequestRetranslation(self, translation : ChatGPTTranslation, errors : list[TranslationError]):
+    def RequestRetranslation(self, translation : Translation, errors : list[TranslationError]):
         """
         Generate the messages to send to OpenAI to request a retranslation
         """
@@ -81,12 +66,12 @@ class ChatGPTClient:
 
         # Let's raise the temperature a little bit
         temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
-        gpt_retranslation = self.SendMessages(prompt.messages, temperature)
+        gpt_retranslation = self._send_messages(prompt.messages, temperature)
 
-        retranslation = ChatGPTTranslation(gpt_retranslation, prompt)
+        retranslation = Translation(gpt_retranslation, prompt)
         return retranslation
 
-    def SendMessages(self, messages : list[str], temperature : float = None):
+    def _send_messages(self, messages : list[str], temperature : float = None):
         """
         Make a request to the OpenAI API to provide a translation
         """
@@ -98,6 +83,8 @@ class ChatGPTClient:
 
         translation = {}
         retries = 0
+
+        #TODO If the model is an -instruct version, need to send a non-chat completion request and concatenate the messages (probably worth subclassing the client)
 
         while retries <= max_retries:
             try:

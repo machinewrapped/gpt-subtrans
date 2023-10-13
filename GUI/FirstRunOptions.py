@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 
 from GUI.GuiHelpers import GetThemeNames
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, CheckboxOptionWidget, IntegerOptionWidget, OptionWidget, TextOptionWidget
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 
 class FirstRunOptions(QDialog):

@@ -1,12 +1,12 @@
 import json
 
-from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.SubtitleLine import SubtitleLine
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.SubtitleError import TranslationError
-from PySubtitleGPT.SubtitleFile import SubtitleFile
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitle.ChatGPT.ChatGPTPrompt import ChatGPTPrompt
+from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.ChatGPT.ChatGPTTranslation import ChatGPTTranslation
 
 # Serialisation helpers
 def classname(obj):

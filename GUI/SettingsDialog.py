@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBo
 from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class SettingsDialog(QDialog):
     SECTIONS = {

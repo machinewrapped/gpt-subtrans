@@ -2,8 +2,8 @@ import logging
 import os
 from datetime import datetime
 
-from PySubtitleGPT.SubtitleBatcher import OldSubtitleBatcher, SubtitleBatcher
-from PySubtitleGPT.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleBatcher import OldSubtitleBatcher, SubtitleBatcher
+from PySubtitle.SubtitleFile import SubtitleFile
 
 def configure_logger(filename, logger_name):
     """

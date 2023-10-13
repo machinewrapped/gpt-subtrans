@@ -1,8 +1,8 @@
 from PySide6.QtCore import QMutex, QMutexLocker
 from GUI.ProjectViewModel import ProjectViewModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleProject import SubtitleProject
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleProject import SubtitleProject
 
 class ProjectDataModel:
     _action_handlers = {}
