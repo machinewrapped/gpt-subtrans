@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
 from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames
 
@@ -91,15 +92,32 @@ class SettingsDialog(QDialog):
         return section_widget
 
     def accept(self):
-        for section_name in self.SECTIONS.keys():
-            section_widget = self.sections.findChild(QWidget, section_name)
-            layout = section_widget.layout()
+        try:
+            for section_name in self.SECTIONS.keys():
+                section_widget = self.sections.findChild(QWidget, section_name)
 
-            for row in range(layout.rowCount()):
-                field = layout.itemAt(row, QFormLayout.FieldRole).widget()
-                self.options[field.key] = field.GetValue()
+                if section_widget is None:
+                    logging.warning(f"No widget found for section {section_name}")
+                    continue
 
-        super(SettingsDialog, self).accept()
+                layout = section_widget.layout()
+                if layout is None:
+                    logging.warning(f"No layout found for section {section_name}")
+                    continue
+
+                for row in range(layout.rowCount()):
+                    field = layout.itemAt(row, QFormLayout.FieldRole).widget()
+                    self.options[field.key] = field.GetValue()
+
+        except Exception as e:
+            logging.error(f"Unable to update settings: {e}")
+
+        try:
+            super(SettingsDialog, self).accept()
+
+        except Exception as e:
+            logging.error(f"Error in settings dialog handler: {e}")
+            self.reject()
 
     def reject(self):
         super(SettingsDialog, self).reject()

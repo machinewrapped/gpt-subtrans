@@ -67,8 +67,10 @@ class SubtitleTranslator:
             if not response or not response.data:
                 return []
 
-            model_list = [ model.openai_id for model in response.data if model.openai_id.startswith('gpt') ]
+            model_list = [model.openai_id for model in response.data if model.openai_id.startswith('gpt') and model.openai_id.find('instruct') < 0]
+
             return sorted(model_list)
+
         except Exception as e:
             logging.error(f"Unable to retrieve available AI models: {str(e)}")
             return []

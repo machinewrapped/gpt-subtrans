@@ -6,4 +6,5 @@ events
 pyside6
 darkdetect
 appdirs
+setuptools
 

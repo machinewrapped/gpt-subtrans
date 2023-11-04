@@ -142,7 +142,7 @@ class SubtitleScene:
 
         first_line = batch.originals[0]
         last_line = batch.originals[-1]
-        if line_number <= first_line.number or line_number >= last_line.number:
+        if line_number <= first_line.number or line_number > last_line.number:
             raise ValueError(f"Cannot split batch {batch_number} at line {line_number}")
 
         split_index = next((i for i, line in enumerate(batch.originals) if line.number == line_number), -1)
