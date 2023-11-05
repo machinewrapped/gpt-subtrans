@@ -1,12 +1,14 @@
 import json
 
-from PySubtitle.ChatGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
-from PySubtitle.ChatGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitle.TranslationPrompt import TranslationPrompt
+
+from PySubtitle.OpenAI.ChatGPTPrompt import ChatGPTPrompt
+from PySubtitle.OpenAI.ChatGPTTranslation import ChatGPTTranslation
 
 # Serialisation helpers
 def classname(obj):
@@ -91,7 +93,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "characters": obj.characters,
                 "prompt": obj.prompt,
             }
-        elif isinstance(obj, ChatGPTPrompt):
+        elif isinstance(obj, TranslationPrompt) or isinstance(obj, ChatGPTPrompt):
             return {
                 "instructions": obj.instructions,
                 "messages": obj.messages
@@ -142,8 +144,8 @@ class SubtitleDecoder(json.JSONDecoder):
                     'characters': dct.get('characters', None),
                 }
                 return obj
-            elif class_name == classname(ChatGPTPrompt):
-                obj = ChatGPTPrompt(dct.get('instructions'))
+            elif class_name == classname(TranslationPrompt) or class_name == classname(ChatGPTPrompt):
+                obj = TranslationPrompt(dct.get('instructions'))
                 obj.user_prompt = dct.get('user_prompt')
                 obj.messages = dct.get('messages')
                 return obj

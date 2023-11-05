@@ -4,6 +4,7 @@ from PySubtitle.Helpers import GenerateTagLines, ParseTranslation, PerformSubsti
 class Translation:
     def __init__(self, response, prompt : TranslationPrompt):
         self.prompt = prompt
+        self.response = response
         self._text = response.get('text') if response else None
         self.context = None
 
