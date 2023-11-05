@@ -2,27 +2,32 @@ import logging
 import time
 import openai
 import openai.error
-from PySubtitle.ChatGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitle.ChatGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitle.OpenAI.ChatGPTPrompt import ChatGPTPrompt
+from PySubtitle.OpenAI.ChatGPTTranslation import ChatGPTTranslation
 
 from PySubtitle.Helpers import FormatMessages, ParseDelayFromHeader
+from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
 from PySubtitle.Translation import Translation
-from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
 
 linesep = '\n'
 
-class ChatGPTClient(TranslationClient):
+class ChatGPTClient(OpenAIClient):
     """
-    Handles communication with OpenAI to request translations
+    Handles chat communication with OpenAI to request translations
     """
     def __init__(self, options : Options, instructions=None):
         super().__init__(options, instructions)
 
     def GetParser(self):
         return TranslationParser(self.options)
+    
+    def SupportedModels(self):
+        models = OpenAIClient.GetAvailableModels(self.options.api_key, self.options.api_base)
+        # Filter instruct models
+        return [ model for model in models if model.find("instruct") < 0]
 
     def _request_translation(self, prompt, lines, context):
         """
