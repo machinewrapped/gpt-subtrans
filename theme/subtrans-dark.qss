@@ -16,8 +16,13 @@ QLabel {
     padding-bottom: 6px;
 }
 
-QComboBox {
+QTextEdit {
+    background-color: #242424;
     color: white;
+}
+
+QComboBox {
+    color: #363636;
 }
 
 QComboBox::drop-down {
