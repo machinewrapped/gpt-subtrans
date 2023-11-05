@@ -572,7 +572,7 @@ class BatchItem(ViewModelItem):
 
         if batch.translation and os.environ.get("DEBUG_MODE") == "1":
             self.batch_model.update({
-                'response': batch.translation.text,
+                'response': batch.translation.full_text,
                 'context': batch.context
             })
             if batch.translation.prompt:
