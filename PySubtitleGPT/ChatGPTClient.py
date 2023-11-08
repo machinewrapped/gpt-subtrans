@@ -1,7 +1,6 @@
 import logging
 import time
 import openai
-import openai.error
 
 from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
 from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
@@ -99,9 +98,11 @@ class ChatGPTClient:
         translation = {}
         retries = 0
 
+        client = openai.OpenAI(api_key=options.api_key(), base_url=options.api_base())
+
         while retries <= max_retries:
             try:
-                response = openai.ChatCompletion.create(
+                response = client.chat.completions.create(
                     model=model,
                     messages=messages,
                     temperature=temperature
@@ -127,7 +128,7 @@ class ChatGPTClient:
                 # Return the response if the API call succeeds
                 return translation
             
-            except openai.error.RateLimitError as e:
+            except openai.RateLimitError as e:
                 retry_after = e.headers.get('x-ratelimit-reset-requests') or e.headers.get('Retry-After')
                 if retry_after:
                     retry_seconds = ParseDelayFromHeader(retry_after)
@@ -138,8 +139,8 @@ class ChatGPTClient:
                     logging.warning("Rate limit hit, quota exceeded. Please wait until the quota resets.")
                     raise
 
-            except (openai.error.APIConnectionError, openai.error.Timeout, openai.error.ServiceUnavailableError) as e:
-                if isinstance(e, openai.error.APIConnectionError) and not e.should_retry:
+            except (openai.APIConnectionError, openai.APITimeoutError) as e:
+                if isinstance(e, openai.APIConnectionError) and not e.should_retry:
                     raise TranslationImpossibleError(str(e), translation)
                 if retries == max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
