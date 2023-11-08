@@ -35,7 +35,7 @@ class SubtitleTranslator:
         if options.api_base():
             openai.base_url = options.api_base()
         
-        logging.info(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
+        logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
 
         self.subtitles = subtitles
         self.options = options
