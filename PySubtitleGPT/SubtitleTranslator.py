@@ -33,9 +33,9 @@ class SubtitleTranslator:
             raise ValueError('API key must be set in .env or provided as an argument')
         
         if options.api_base():
-            openai.api_base = options.api_base()
+            openai.base_url = options.api_base()
         
-        logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.api_base}")
+        logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
 
         self.subtitles = subtitles
         self.options = options
@@ -59,14 +59,16 @@ class SubtitleTranslator:
         Returns a list of possible values for the LLM model 
         """
         try:
-            if api_base:
-                response = openai.Model.list(api_key, api_base = api_base) if api_key else None
-            else:
-                response = openai.Model.list(api_key) if api_key else None 
+            client = openai.OpenAI(
+                api_key=api_key,
+                base_url=api_base
+            )
+            response = client.models.list()
+
             if not response or not response.data:
                 return []
 
-            model_list = [model.openai_id for model in response.data if model.openai_id.startswith('gpt') and model.openai_id.find('instruct') < 0]
+            model_list = [model.id for model in response.data if model.id.startswith('gpt') and model.id.find('instruct') < 0 and model.id.find('vision') < 0]
 
             return sorted(model_list)
 
