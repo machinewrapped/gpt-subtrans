@@ -15,6 +15,7 @@ fi
 
 echo "Creating and activating virtual environment 'envsubtrans'..."
 python3 -m venv envsubtrans
+chmod +x envsubtrans/bin/activate 
 source envsubtrans/bin/activate
 
 echo "Installing requirements from 'requirements.txt'..."
