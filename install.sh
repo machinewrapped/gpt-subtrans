@@ -37,7 +37,7 @@ fi
 echo "Are you on the free plan? (Y/N)"
 read -r free_plan
 
-if [[ "${free_plan^^}" == "Y" ]] || [[ "${free_plan^^}" == "YES" ]]; then
+if [[ "$(echo "${free_plan}" | tr '[:lower:]' '[:upper:]')" == "Y" ]] || [[ "$(echo "${free_plan}" | tr '[:lower:]' '[:upper:]')" == "YES" ]]; then
     echo "MAX_THREADS=1" >> .env
     echo "RATE_LIMIT=5" >> .env
     echo "Warning: Translation speed will be severely limited due to the free plan limitations."
