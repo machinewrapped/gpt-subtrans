@@ -15,6 +15,7 @@ fi
 
 echo "Creating and activating virtual environment 'envsubtrans'..."
 python3 -m venv envsubtrans
+chmod +x envsubtrans/bin/activate 
 source envsubtrans/bin/activate
 
 echo "Installing requirements from 'requirements.txt'..."
@@ -37,7 +38,7 @@ fi
 echo "Are you on the free plan? (Y/N)"
 read -r free_plan
 
-if [[ "${free_plan^^}" == "Y" ]] || [[ "${free_plan^^}" == "YES" ]]; then
+if [[ "$(echo "${free_plan}" | tr '[:lower:]' '[:upper:]')" == "Y" ]] || [[ "$(echo "${free_plan}" | tr '[:lower:]' '[:upper:]')" == "YES" ]]; then
     echo "MAX_THREADS=1" >> .env
     echo "RATE_LIMIT=5" >> .env
     echo "Warning: Translation speed will be severely limited due to the free plan limitations."

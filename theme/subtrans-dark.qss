@@ -22,18 +22,19 @@ QTextEdit {
 }
 
 QComboBox {
+    background-color: white;
     color: #363636;
 }
 
 QComboBox::drop-down {
     border: none;
-    color: white;
-    background-color: #363636;
+    background-color: white;
+    color: #363636;
 }
 
 QComboBox::drop-down QAbstractItemView {
-    background-color: #363636;
-    color: white;
+    background-color: white;
+    color: #363636;
 }
 
 .MainWindow, QLabel, QDialog {
@@ -71,7 +72,7 @@ QTreeView:item:selected {
 }
 
 .WidgetHeader { 
-    font-size: 12pt;
+    font-size:large;
     background-color: blanchedalmond;
     padding: 4;
     padding-left: 10;
@@ -91,7 +92,7 @@ QTreeView:item:selected {
 }
 
 .WidgetSubheading {
-    font-size: 11pt;
+    font-size:medium;
     padding: 3;
     padding-left: 10;
     background-color: #363636;
@@ -99,7 +100,7 @@ QTreeView:item:selected {
 }
 
 .WidgetBody {
-    font-size: 10pt;
+    font-size: small;
     padding: 2;
     padding-left: 10;
     background-color: #242424;
@@ -127,13 +128,11 @@ QTreeView:item:selected {
 
 .LineItemHeader {
     font-weight: bold;
-    font-size: 10pt;
     margin: 0px;
     padding: 2px;
 }
 
 .LineItemBody {
-    font-size: 10pt;
     margin: 0px;
     padding: 0px;
 }
