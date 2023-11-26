@@ -12,10 +12,10 @@ class SubtitleBatch:
         self.number = dct.get('batch') or dct.get('number')
         self.summary = dct.get('summary')
         self.context = dct.get('context', {})
-        self.translation = dct.get('translation')
         self.errors = dct.get('errors', [])
         self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', []) 
         self._translated : list[SubtitleLine] = dct.get('translated', [])
+        self.translation = None
 
     def __str__(self) -> str:
         return f"SubtitleBatch: {str(self.number)} in scene {str(self.scene)} with {self.size} lines"
