@@ -52,14 +52,16 @@ class OpenAIClient(TranslationClient):
         Returns a list of possible values for the LLM model 
         """
         try:
-            if api_base:
-                response = openai.Model.list(api_key, api_base = api_base) if api_key else None
-            else:
-                response = openai.Model.list(api_key) if api_key else None 
+            client = openai.OpenAI(
+                api_key=api_key,
+                base_url=api_base
+            )
+            response = client.models.list()
+
             if not response or not response.data:
                 return []
 
-            model_list = [ model.openai_id for model in response.data if model.openai_id.startswith('gpt') ]
+            model_list = [ model.id for model in response.data if model.id.startswith('gpt') ]
             
             return sorted(model_list)
 
