@@ -15,6 +15,9 @@ class OpenAIClient(TranslationClient):
     def __init__(self, options : Options, instructions=None):
         super().__init__(options, instructions)
 
+        if not hasattr(openai, "OpenAI"):
+            raise Exception("The OpenAI library is out of date and must be updated")
+
         openai.api_key = options.api_key() or openai.api_key
 
         if not openai.api_key:
@@ -52,6 +55,9 @@ class OpenAIClient(TranslationClient):
         Returns a list of possible values for the LLM model 
         """
         try:
+            if not hasattr(openai, "OpenAI"):
+                raise Exception("The OpenAI library is out of date and must be updated")
+
             client = openai.OpenAI(
                 api_key=api_key,
                 base_url=api_base
