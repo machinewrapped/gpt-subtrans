@@ -396,8 +396,6 @@ class SubtitleTranslator:
             # return
         
         try:
-            batch.errors = []
-
             parser.MatchTranslations(batch.originals)
 
             parser.ValidateTranslations()
@@ -405,6 +403,8 @@ class SubtitleTranslator:
             logging.info("Retranslation passed validation")
 
             batch.translated = MergeTranslations(batch.translated or {}, retranslated)
+
+            batch.Validate(self.options)
 
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.text}\n")
