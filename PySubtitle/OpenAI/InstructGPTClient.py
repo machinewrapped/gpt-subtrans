@@ -21,6 +21,7 @@ class InstructGPTClient(OpenAIClient):
         Make a request to the OpenAI API to provide a translation
         """
         options = self.options
+        max_tokens = options.get('max_instruct_tokens', 2048)
         max_retries = options.get('max_retries', 3.0)
         backoff_time = options.get('backoff_time', 5.0)
         model = options.get('gpt_model')
@@ -36,7 +37,9 @@ class InstructGPTClient(OpenAIClient):
                 response = self.client.completions.create(
                     model=model,
                     prompt=prompt,
-                    temperature=temperature
+                    temperature=temperature,
+                    n=1,
+                    max_tokens=max_tokens
                 )
 
                 translation['response_time'] = getattr(response, 'response_ms', 0)
@@ -49,10 +52,11 @@ class InstructGPTClient(OpenAIClient):
                 # We only expect one choice to be returned as we have 0 temperature
                 if response.choices:
                     choice = response.choices[0]
-                    reply = choice.text
+                    if not isinstance(choice.text, str):
+                        raise NoTranslationError("Instruct model completion text is not a string")
 
                     translation['finish_reason'] = getattr(choice, 'finish_reason', None)
-                    translation['text'] = getattr(reply, 'content', None)
+                    translation['text'] = choice.text
                 else:
                     raise NoTranslationError("No choices returned in the response", response)
 
@@ -89,4 +93,4 @@ class InstructGPTClient(OpenAIClient):
         return None
 
     def _build_prompt(self, messages : list):
-        return "/n/n".join([ f"{m.get('role')}###/n{m.get('content')}" for m in messages ])
+        return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in messages ])
