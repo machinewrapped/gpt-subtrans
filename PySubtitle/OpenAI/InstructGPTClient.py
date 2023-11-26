@@ -9,15 +9,15 @@ from PySubtitle.SubtitleError import NoTranslationError, TranslationImpossibleEr
 
 linesep = '\n'
 
-class ChatGPTClient(OpenAIClient):
+class InstructGPTClient(OpenAIClient):
     """
-    Handles chat communication with OpenAI to request translations
+    Handles communication with GPT instruct models to request translations
     """
     def SupportedModels(self):
         models = OpenAIClient.GetAvailableModels(self.options.api_key, self.options.api_base)
-        return [ model for model in models if model.find("instruct") < 0]
+        return [ model for model in models if model.find("instruct") >= 0]
 
-    def _send_messages(self, messages : list[str], temperature : float = None):
+    def _send_messages(self, messages : list, temperature : float = None):
         """
         Make a request to the OpenAI API to provide a translation
         """
@@ -30,11 +30,13 @@ class ChatGPTClient(OpenAIClient):
         translation = {}
         retries = 0
 
+        prompt = self._build_prompt(messages)
+
         while retries <= max_retries:
             try:
-                response = openai.ChatCompletion.create(
+                response = openai.Completion.create(
                     model=model,
-                    messages=messages,
+                    prompt=prompt,
                     temperature=temperature
                 )
 
@@ -48,7 +50,7 @@ class ChatGPTClient(OpenAIClient):
                 # We only expect one choice to be returned as we have 0 temperature
                 if response.choices:
                     choice = response.choices[0]
-                    reply = response.choices[0].message
+                    reply = choice.text
 
                     translation['finish_reason'] = getattr(choice, 'finish_reason', None)
                     translation['text'] = getattr(reply, 'content', None)
@@ -87,3 +89,5 @@ class ChatGPTClient(OpenAIClient):
 
         return None
 
+    def _build_prompt(self, messages : list):
+        return "/n/n".join([ f"{m.get('role')}###/n{m.get('content')}" for m in messages ])

@@ -2,6 +2,7 @@ import logging
 import re
 from os import linesep
 from PySubtitle.OpenAI.ChatGPTClient import ChatGPTClient
+from PySubtitle.OpenAI.InstructGPTClient import InstructGPTClient
 
 from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.Translation import Translation
@@ -393,7 +394,15 @@ class SubtitleTranslator:
 
     def _create_client(self, options, context):
         """ Create an appropriate client for the model (TODO: client registration by regex) """
-        return ChatGPTClient(options, context.get('instructions'))
+        model = options.get('model') or options.get('gpt_model')
+
+        if model.startswith("gpt"):
+            if model.find("instruct") >= 0:
+                return InstructGPTClient(options, context.get('instructions'))
+            else:
+                return ChatGPTClient(options, context.get('instructions'))
+        else:
+            raise Exception("Model not supported (yet)")
 
     @classmethod
     def GetAvailableModels(cls, api_key : str, api_base : str):

@@ -2,10 +2,8 @@ from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.Helpers import GenerateTagLines
 
-class ChatGPTPrompt(TranslationPrompt):
-    def __init__(self, instructions):
-        super().__init__(instructions)
-        
+class GPTPrompt(TranslationPrompt):
+    """ Prompt format tailored to OpenAI endpoints """
     def GenerateMessages(self, prompt, lines, context):
         if self.instructions:
             self.messages.append({'role': "system", 'content': self.instructions})

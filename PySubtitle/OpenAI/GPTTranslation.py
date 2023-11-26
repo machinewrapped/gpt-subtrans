@@ -1,6 +1,6 @@
 from PySubtitle.Translation import Translation
 
-class ChatGPTTranslation(Translation):
+class GPTTranslation(Translation):
     """ Wraps a translation response from the OpenAI Chat endpoint """
     @property
     def finish_reason(self):

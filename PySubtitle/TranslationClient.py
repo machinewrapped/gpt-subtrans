@@ -47,7 +47,7 @@ class TranslationClient:
 
         return translation
 
-    def RequestRetranslation(self, translation : Translation, errors : list[TranslationError]) -> Translation:
+    def RequestRetranslation(self, translation : Translation, errors : list[TranslationError]):
         """
         Generate the messages to send to OpenAI to request a retranslation
         """
@@ -73,9 +73,9 @@ class TranslationClient:
 
         # Let's raise the temperature a little bit
         temperature = min(options.get('temperature', 0.0) + 0.1, 1.0)
-        gpt_retranslation = self._send_messages(prompt.messages, temperature)
+        retranslation_response = self._send_messages(prompt.messages, temperature)
 
-        retranslation = Translation(gpt_retranslation, prompt)
+        retranslation = Translation(retranslation_response, prompt)
         return retranslation
 
     def _request_translation(self, prompt, lines, context):

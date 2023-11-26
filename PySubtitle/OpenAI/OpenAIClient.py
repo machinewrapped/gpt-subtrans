@@ -1,9 +1,12 @@
-
-
 import logging
 import openai
+
+from PySubtitle.Helpers import FormatMessages
+from PySubtitle.OpenAI.GPTPrompt import GPTPrompt
+from PySubtitle.OpenAI.GPTTranslation import GPTTranslation
 from PySubtitle.Options import Options
 from PySubtitle.TranslationClient import TranslationClient
+from PySubtitle.TranslationParser import TranslationParser
 
 class OpenAIClient(TranslationClient):
     """
@@ -22,6 +25,25 @@ class OpenAIClient(TranslationClient):
         
         logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.api_base}")
 
+    def _request_translation(self, prompt, lines, context):
+        """
+        Generate the prompt and send to OpenAI to request a translation
+        """
+        gpt_prompt = GPTPrompt(self.instructions)
+
+        gpt_prompt.GenerateMessages(prompt, lines, context)
+
+        logging.debug(f"Messages:\n{FormatMessages(gpt_prompt.messages)}")
+
+        gpt_translation = self._send_messages(gpt_prompt.messages)
+
+        translation = GPTTranslation(gpt_translation, gpt_prompt)
+
+        return translation
+
+    def GetParser(self):
+        return TranslationParser(self.options)
+    
     @classmethod
     def GetAvailableModels(cls, api_key : str, api_base : str):
         """
