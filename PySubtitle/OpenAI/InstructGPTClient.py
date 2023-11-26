@@ -1,7 +1,6 @@
 import logging
 import time
 import openai
-import openai.error
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
@@ -34,7 +33,7 @@ class InstructGPTClient(OpenAIClient):
 
         while retries <= max_retries:
             try:
-                response = openai.Completion.create(
+                response = self.client.completions.create(
                     model=model,
                     prompt=prompt,
                     temperature=temperature
@@ -60,7 +59,7 @@ class InstructGPTClient(OpenAIClient):
                 # Return the response if the API call succeeds
                 return translation
             
-            except openai.error.RateLimitError as e:
+            except openai.RateLimitError as e:
                 retry_after = e.headers.get('x-ratelimit-reset-requests') or e.headers.get('Retry-After')
                 if retry_after:
                     retry_seconds = ParseDelayFromHeader(retry_after)
@@ -71,8 +70,8 @@ class InstructGPTClient(OpenAIClient):
                     logging.warning("Rate limit hit, quota exceeded. Please wait until the quota resets.")
                     raise
 
-            except (openai.error.APIConnectionError, openai.error.Timeout, openai.error.ServiceUnavailableError) as e:
-                if isinstance(e, openai.error.APIConnectionError) and not e.should_retry:
+            except (openai.APIConnectionError, openai.APITimeoutError) as e:
+                if isinstance(e, openai.APIConnectionError) and not e.should_retry:
                     raise TranslationImpossibleError(str(e), translation)
                 if retries == max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")

@@ -21,9 +21,11 @@ class OpenAIClient(TranslationClient):
             raise ValueError('API key must be set in .env or provided as an argument')
         
         if options.api_base():
-            openai.api_base = options.api_base()
+            openai.base_url = options.api_base()
         
-        logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.api_base}")
+        logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
+
+        self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url)
 
     def _request_translation(self, prompt, lines, context):
         """

@@ -1,11 +1,8 @@
 import logging
 import time
-import openai
-import openai.error
 
-from PySubtitle.Helpers import FormatMessages, ParseDelayFromHeader
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleError import NoTranslationError, TranslationError, TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.Translation import Translation
 
 linesep = '\n'

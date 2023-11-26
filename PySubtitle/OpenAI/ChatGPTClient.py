@@ -29,11 +29,9 @@ class ChatGPTClient(OpenAIClient):
         translation = {}
         retries = 0
 
-        client = openai.OpenAI(api_key=options.api_key(), base_url=options.api_base())
-
         while retries <= max_retries:
             try:
-                response = client.chat.completions.create(
+                response = self.client.chat.completions.create(
                     model=model,
                     messages=messages,
                     temperature=temperature
