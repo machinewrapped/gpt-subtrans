@@ -8,6 +8,17 @@ if errorlevel 1 (
     exit /b 1
 )
 
+for /f "tokens=2" %%i in ('python --version') do set PYTHON_VERSION=%%i
+set MIN_VERSION=3.10.0
+
+python -c "import sys; sys.exit(not (tuple(map(int, '%PYTHON_VERSION%'.split('.'))) >= tuple(map(int, '%MIN_VERSION%'.split('.')))))"
+if errorlevel 1 (
+    echo Detected Python version is less than 3.10.0. Please upgrade your Python version.
+    exit /b 1
+)
+
+echo Python version is compatible.
+
 echo Checking if "envsubtrans" folder exists...
 if exist envsubtrans (
     echo "envsubtrans" folder exists. Please delete it to continue with the installation.
