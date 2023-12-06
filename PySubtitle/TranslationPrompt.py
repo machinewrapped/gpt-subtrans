@@ -27,7 +27,7 @@ class TranslationPrompt:
             text = f"{prompt}\n\n{text}"
 
         if tag_lines:
-            text = f"<context>\n{tag_lines}\n{text}"
+            text = f"<context>\n{tag_lines}\n{text}</context>"
 
         return text
 
