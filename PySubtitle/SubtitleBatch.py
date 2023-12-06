@@ -1,9 +1,9 @@
 from datetime import timedelta
 import re
-from PySubtitleGPT.SubtitleValidator import SubtitleValidator
-from PySubtitleGPT.SubtitleError import SubtitleError, TranslationError
-from PySubtitleGPT.Helpers import PerformSubstitutions
-from PySubtitleGPT.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleValidator import SubtitleValidator
+from PySubtitle.SubtitleError import SubtitleError, TranslationError
+from PySubtitle.Helpers import PerformSubstitutions
+from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleBatch:
     def __init__(self, dct = None):
@@ -12,10 +12,10 @@ class SubtitleBatch:
         self.number = dct.get('batch') or dct.get('number')
         self.summary = dct.get('summary')
         self.context = dct.get('context', {})
-        self.translation = dct.get('translation')
         self.errors = dct.get('errors', [])
         self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', []) 
         self._translated : list[SubtitleLine] = dct.get('translated', [])
+        self.translation = None
 
     def __str__(self) -> str:
         return f"SubtitleBatch: {str(self.number)} in scene {str(self.scene)} with {self.size} lines"

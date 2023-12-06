@@ -1,14 +1,12 @@
 import logging
 import re
 
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.Helpers import IsTextContentEqual, MergeTranslations
-from PySubtitleGPT.SubtitleLine import SubtitleLine
-from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
-from PySubtitleGPT.SubtitleError import NoTranslationError
-from PySubtitleGPT.SubtitleValidator import SubtitleValidator
-
-
+from PySubtitle.Options import Options
+from PySubtitle.Helpers import IsTextContentEqual, MergeTranslations
+from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleError import NoTranslationError
+from PySubtitle.SubtitleValidator import SubtitleValidator
+from PySubtitle.Translation import Translation
 
 default_pattern = re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE)
 
@@ -21,9 +19,9 @@ regex_patterns = [
     ]
 
 
-class ChatGPTTranslationParser:
+class TranslationParser:
     """
-    Extract translated subtitles from a ChatGPT completion 
+    Extract translated subtitles from a completion 
     """
     def __init__(self, options : Options):
         self.options = options
@@ -31,13 +29,13 @@ class ChatGPTTranslationParser:
         self.translations = {}
         self.translated = []
 
-    def ProcessChatGPTResponse(self, translation : ChatGPTTranslation):
+    def ProcessTranslation(self, translation : Translation):
         """
         Extract lines from a batched translation, using the
         pre-defined pattern to match each line, or a list of fallbacks
         if the match fails.
         """
-        self.text = translation.text if isinstance(translation, ChatGPTTranslation) else str(translation) 
+        self.text = translation.text if isinstance(translation, Translation) else str(translation) 
 
         if not self.text:
             raise ValueError("No translated text provided")

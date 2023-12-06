@@ -11,8 +11,8 @@ from PySide6.QtWidgets import (
     )
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class TranslatorOptionsDialog(QDialog):
     def __init__(self, data : dict, parent=None):

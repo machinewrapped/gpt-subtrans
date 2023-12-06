@@ -4,13 +4,13 @@ import threading
 import srt
 import bisect
 
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.SubtitleError import SubtitleError
-from PySubtitleGPT.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.SubtitleLine import SubtitleLine
-from PySubtitleGPT.SubtitleBatcher import CreateSubtitleBatcher
-from PySubtitleGPT.SubtitleError import TranslationError
+from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleError import SubtitleError
+from PySubtitle.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleError import TranslationError
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')

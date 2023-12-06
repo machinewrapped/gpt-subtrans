@@ -4,7 +4,7 @@ import logging
 import requests
 import appdirs
 
-from PySubtitleGPT.version import __version__
+from PySubtitle.version import __version__
 
 repo_name = "gpt-subtrans"
 repo_owner = "machinewrapped"

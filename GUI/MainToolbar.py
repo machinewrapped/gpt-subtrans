@@ -4,7 +4,7 @@ from GUI.CommandQueue import CommandQueue
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectCommands import ResumeTranslationCommand, TranslateSceneCommand, TranslateSceneMultithreadedCommand
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitleGPT.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleProject import SubtitleProject
 
 class MainToolbar(QToolBar):
     # _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Stop Translating"], ["Quit"] ]

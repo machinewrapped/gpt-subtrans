@@ -1,15 +1,11 @@
-from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.Helpers import GenerateTagLines, ParseTranslation, PerformSubstitutions
+from PySubtitle.TranslationPrompt import TranslationPrompt
+from PySubtitle.Helpers import GenerateTagLines, ParseTranslation, PerformSubstitutions
 
-class ChatGPTTranslation:
-    def __init__(self, response, prompt : ChatGPTPrompt):
+class Translation:
+    def __init__(self, response, prompt : TranslationPrompt):
         self.prompt = prompt
+        self.response = response
         self._text = response.get('text') if response else None
-        self.finish_reason = response.get('finish_reason') if response else None
-        self.response_time = response.get('response_time') if response else None
-        self.prompt_tokens = response.get('prompt_tokens') if response else None
-        self.completion_tokens = response.get('completion_tokens') if response else None
-        self.total_tokens = response.get('total_tokens') if response else None
         self.context = None
 
     def ParseResponse(self):
@@ -47,14 +43,6 @@ class ChatGPTTranslation:
     def full_text(self):
         tag_lines = GenerateTagLines(self.context, ['summary', 'scene', 'synopsis', 'characters']) if self.context else None
         return f"{tag_lines}\n\n{self._text}" if tag_lines else self._text
-
-    @property
-    def reached_token_limit(self):
-        return self.finish_reason == "length"
-    
-    @property
-    def quota_reached(self):
-        return self.finish_reason == "quota_reached"
 
     def PerformSubstitutions(self, substitutions, match_partial_words : bool = False):
         """

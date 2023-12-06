@@ -5,13 +5,13 @@ from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from GUI.GuiHelpers import GetLineHeight
 from GUI.ProjectViewModelUpdate import ModelUpdate
-from PySubtitleGPT import SubtitleLine
+from PySubtitle import SubtitleLine
 
-from PySubtitleGPT.Helpers import FormatMessages, Linearise, UpdateFields
-from PySubtitleGPT.SubtitleError import SubtitleError
-from PySubtitleGPT.SubtitleFile import SubtitleFile
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
+from PySubtitle.Helpers import FormatMessages, Linearise, UpdateFields
+from PySubtitle.SubtitleError import SubtitleError
+from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.SubtitleBatch import SubtitleBatch
 
 class ViewModelItem(QStandardItem):
     def GetContent(self):
@@ -572,7 +572,7 @@ class BatchItem(ViewModelItem):
 
         if batch.translation and os.environ.get("DEBUG_MODE") == "1":
             self.batch_model.update({
-                'response': batch.translation.full_text,
+                'response': batch.translation.text,
                 'context': batch.context
             })
             if batch.translation.prompt:

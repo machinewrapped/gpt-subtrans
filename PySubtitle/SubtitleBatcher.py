@@ -1,7 +1,7 @@
 from datetime import timedelta
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.SubtitleLine import SubtitleLine
 
 class BaseSubtitleBatcher:
     def __init__(self, options):

@@ -4,7 +4,7 @@ import os
 import dotenv
 import appdirs
 
-from PySubtitleGPT.version import __version__
+from PySubtitle.version import __version__
 
 linesep = '\n'
 
@@ -54,6 +54,7 @@ default_options = {
     'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 5)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
+    'max_instruct_tokens': int(os.getenv('MAX_INSTRUCT_TOKENS', 2048)),
     'project' : os.getenv('PROJECT', None),
     'autosave': env_bool('AUTOSAVE', True),
     'enforce_line_parity': env_bool('ENFORCE_LINE_PARITY', True),

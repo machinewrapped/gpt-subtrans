@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBo
 from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class SettingsDialog(QDialog):
     SECTIONS = {
@@ -19,7 +19,8 @@ class SettingsDialog(QDialog):
             'api_base': (str, "The base URI to use for requests - leave as default unless you know you need something else"),
             'gpt_model': str,
             'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
-            'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan")
+            'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"),
+            'max_instruct_tokens': (int, "Maximum tokens a completion can contain (only applicable for -instruct models)")
         },
         'Translation': {
             'gpt_prompt': (str, "The (brief) instruction to give GPT for each batch of subtitles. [movie_name] and [to_language] are automatically filled in"),

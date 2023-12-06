@@ -18,7 +18,7 @@ from GUI.ProjectCommands import (
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from GUI.Widgets.ModelView import ModelView
-from PySubtitleGPT.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleFile import SubtitleFile
 
 class ActionError(Exception):
     def __init__(self, message, error = None):

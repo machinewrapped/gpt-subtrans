@@ -1,44 +1,32 @@
 import logging
 import re
-import openai
 from os import linesep
-from PySubtitleGPT.ChatGPTClient import ChatGPTClient
-from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
-from PySubtitleGPT.ChatGPTTranslationParser import ChatGPTTranslationParser
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.SubtitleBatcher import SubtitleBatcher
+from PySubtitle.OpenAI.ChatGPTClient import ChatGPTClient
+from PySubtitle.OpenAI.InstructGPTClient import InstructGPTClient
 
-from PySubtitleGPT.SubtitleError import TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
-from PySubtitleGPT.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, UnbatchScenes
-from PySubtitleGPT.SubtitleFile import SubtitleFile
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.TranslationEvents import TranslationEvents
+from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
+from PySubtitle.Translation import Translation
+from PySubtitle.TranslationClient import TranslationClient
+from PySubtitle.TranslationParser import TranslationParser
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleBatch import SubtitleBatch
+
+from PySubtitle.SubtitleError import TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
+from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, UnbatchScenes
+from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.TranslationEvents import TranslationEvents
 
 class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
-    @classmethod
     def __init__(self, subtitles : SubtitleFile, options : Options):
         """
         Initialise a SubtitleTranslator with translation options
         """
         if not options:
             raise Exception("No translation options provided")
-
-        if not hasattr(openai, "OpenAI"):
-            raise Exception("The OpenAI library is out of date and must be updated")
-        
-        openai.api_key = options.api_key() or openai.api_key
-
-        if not openai.api_key:
-            raise ValueError('API key must be set in .env or provided as an argument')
-        
-        if options.api_base():
-            openai.base_url = options.api_base()
-        
-        logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
 
         self.subtitles = subtitles
         self.options = options
@@ -56,31 +44,8 @@ class SubtitleTranslator:
         context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]
         logging.debug(f"Translation context:\n{linesep.join(context_values)}")
 
-    @classmethod
-    def GetAvailableModels(cls, api_key : str, api_base : str):
-        """
-        Returns a list of possible values for the LLM model 
-        """
-        try:
-            if not hasattr(openai, "OpenAI"):
-                raise Exception("The OpenAI library is out of date and must be updated")
-        
-            client = openai.OpenAI(
-                api_key=api_key,
-                base_url=api_base
-            )
-            response = client.models.list()
-
-            if not response or not response.data:
-                return []
-
-            model_list = [model.id for model in response.data if model.id.startswith('gpt') and model.id.find('instruct') < 0 and model.id.find('vision') < 0]
-
-            return sorted(model_list)
-
-        except Exception as e:
-            logging.error(f"Unable to retrieve available AI models: {str(e)}")
-            return []
+        # Initialise the client
+        self.client = self._create_client(options, self.context)
 
     def StopTranslating(self):
         self.aborted = True
@@ -153,7 +118,7 @@ class SubtitleTranslator:
 
     def TranslateScene(self, scene : SubtitleScene, batch_numbers = None, remaining_lines=None):
         """
-        Present a scene to ChatGPT for translation
+        Send a scene for translation
         """
         options : Options = self.options
         
@@ -171,7 +136,7 @@ class SubtitleTranslator:
             context = scene.context.copy()
             context['scene'] = f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}"
 
-            self.TranslateBatches(batches, context, remaining_lines)
+            self.TranslateBatches(self.client, batches, context, remaining_lines)
 
             # Update the scene summary based on the best available information (we hope)
             scene.summary = self.SanitiseSummary(scene.summary) or self.SanitiseSummary(context.get('scene')) or self.SanitiseSummary(context.get('summary'))
@@ -185,20 +150,19 @@ class SubtitleTranslator:
             else:
                 logging.warning(f"Failed to translate scene {scene.number} ({str(e)})... finishing")
 
-    def TranslateBatches(self, batches : list[SubtitleBatch], context : dict, remaining_lines=None):
+    def TranslateBatches(self, client : TranslationClient, batches : list[SubtitleBatch], context : dict, remaining_lines=None):
         """
-        Pass batches of subtitles ChatGPT for translation, building up context.
+        Send batches of subtitles for translation, building up context.
         """
         options : Options = self.options
 
         substitutions = ParseSubstitutions(context.get('substitutions', {}))
         match_partial_words = options.get('match_partial_words')
 
-        # Initialise the ChatGPT client
-        client = ChatGPTClient(options, context.get('instructions'))
-
         prompt = options.get('prompt')
         max_context_summaries = options.get('max_context_summaries')
+
+        client = self.client
 
         for batch in batches:
             if self.aborted:
@@ -246,8 +210,8 @@ class SubtitleTranslator:
                     context['summary'] = batch.summary
                     context['batch'] = f"Scene {batch.scene} batch {batch.number}"
 
-                    # Ask OpenAI to do the translation
-                    translation : ChatGPTTranslation = client.RequestTranslation(prompt, originals, context)
+                    # Ask the client to do the translation
+                    translation : Translation = client.RequestTranslation(prompt, originals, context)
 
                     if self.aborted:
                         raise TranslationAbortedError()
@@ -292,7 +256,7 @@ class SubtitleTranslator:
             # Notify observers the batch was translated
             self.events.batch_translated(batch)
 
-    def ProcessTranslation(self, batch : SubtitleBatch, context : dict, client : ChatGPTClient):
+    def ProcessTranslation(self, batch : SubtitleBatch, context : dict, client : TranslationClient):
         """
         Attempt to extract translation from the API response
         """
@@ -300,7 +264,7 @@ class SubtitleTranslator:
         substitutions = options.get('substitutions')
         match_partial_words = options.get('match_partial_words')
 
-        translation : ChatGPTTranslation = batch.translation
+        translation : Translation = batch.translation
 
         if not translation.has_translation:
             raise ValueError("Translation contains no translated text")
@@ -309,13 +273,13 @@ class SubtitleTranslator:
 
         try:
             # Apply the translation to the subtitles
-            parser = ChatGPTTranslationParser(options)
+            parser : TranslationParser = client.GetParser()
             
             # Reset error list, hopefully they're obsolete
             batch.errors = []
 
             try:
-                parser.ProcessChatGPTResponse(translation)
+                parser.ProcessTranslation(translation)
 
                 # Try to match the translations with the original lines
                 batch.translated, unmatched = parser.MatchTranslations(batch.originals)
@@ -378,20 +342,20 @@ class SubtitleTranslator:
                 logging.warning(f"Error translating batch: {str(te)}")
 
 
-    def RequestRetranslations(self, client : ChatGPTClient, batch : SubtitleBatch, translation : str):
+    def RequestRetranslations(self, client : TranslationClient, batch : SubtitleBatch, translation : str):
         """
-        Ask ChatGPT to retranslate any missing lines
+        Ask the client to retranslate the input and correct errors
         """
-        retranslation : ChatGPTTranslation = client.RequestRetranslation(translation, batch.errors)
+        retranslation : Translation = client.RequestRetranslation(translation, batch.errors)
 
-        if not isinstance(retranslation, ChatGPTTranslation):
+        if not isinstance(retranslation, Translation):
             raise TranslationError("Retranslation is not the expected type")
 
         logging.debug(f"Scene {batch.scene} batch {batch.number} retranslation:\n{retranslation.text}\n")
 
-        parser = ChatGPTTranslationParser(self.options)
+        parser = client.GetParser()
 
-        retranslated = parser.ProcessChatGPTResponse(retranslation)
+        retranslated = parser.ProcessTranslation(retranslation)
 
         if retranslated:
             batch.AddContext('retranslated_lines', [f"{item.key}. {item.text}" for item in retranslated])
@@ -402,6 +366,8 @@ class SubtitleTranslator:
             # return
         
         try:
+            batch.errors = []
+
             parser.MatchTranslations(batch.originals)
 
             parser.ValidateTranslations()
@@ -409,8 +375,6 @@ class SubtitleTranslator:
             logging.info("Retranslation passed validation")
 
             batch.translated = MergeTranslations(batch.translated or {}, retranslated)
-
-            batch.Validate(self.options)
 
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.text}\n")
@@ -427,3 +391,24 @@ class SubtitleTranslator:
             summary = re.sub(r'^' + re.escape(movie_name) + r'\s*[:\-]\s*', '', summary)
 
         return summary.strip() if summary.strip() else None
+
+    def _create_client(self, options, context):
+        """ Create an appropriate client for the model (TODO: client registration by regex) """
+        model = options.get('model') or options.get('gpt_model')
+
+        if model.startswith("gpt"):
+            if model.find("instruct") >= 0:
+                return InstructGPTClient(options, context.get('instructions'))
+            else:
+                return ChatGPTClient(options, context.get('instructions'))
+        else:
+            raise Exception("Model not supported (yet)")
+
+    @classmethod
+    def GetAvailableModels(cls, api_key : str, api_base : str):
+        """
+        Returns a list of possible values for the LLM model 
+        """
+        #TODO - parameterise the client/endpoint
+        return OpenAIClient.GetAvailableModels(api_key, api_base)
+

@@ -2,14 +2,14 @@ import json
 import os
 import logging
 import threading
-from PySubtitleGPT.Helpers import GetOutputPath
-from PySubtitleGPT.SubtitleError import TranslationAbortedError
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleFile import SubtitleFile
+from PySubtitle.Helpers import GetOutputPath
+from PySubtitle.SubtitleError import TranslationAbortedError
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleFile import SubtitleFile
 
-from PySubtitleGPT.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
-from PySubtitleGPT.TranslationEvents import TranslationEvents
+from PySubtitle.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
+from PySubtitle.TranslationEvents import TranslationEvents
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 

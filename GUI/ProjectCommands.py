@@ -3,13 +3,13 @@ from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
-from PySubtitleGPT.Options import Options
-from PySubtitleGPT.SubtitleTranslator import SubtitleTranslator
-from PySubtitleGPT.SubtitleFile import SubtitleFile
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.SubtitleProject import SubtitleProject
-from PySubtitleGPT.SubtitleError import TranslationError
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleError import TranslationError
 
 class BatchSubtitlesCommand(Command):
     """
@@ -272,7 +272,7 @@ class SplitSceneCommand(Command):
 
 class TranslateSceneCommand(Command):
     """
-    Ask ChatGPT to translate a scene (optionally just select batches in the scene)
+    Ask the translator to translate a scene (optionally just select batches in the scene)
     """
     def __init__(self, scene_number : int, batch_numbers : list[int] = None, datamodel : ProjectDataModel = None):
         super().__init__(datamodel)

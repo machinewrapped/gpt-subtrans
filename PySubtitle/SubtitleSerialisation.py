@@ -1,12 +1,12 @@
 import json
 
-from PySubtitleGPT.ChatGPTPrompt import ChatGPTPrompt
-from PySubtitleGPT.SubtitleLine import SubtitleLine
-from PySubtitleGPT.SubtitleBatch import SubtitleBatch
-from PySubtitleGPT.SubtitleError import TranslationError
-from PySubtitleGPT.SubtitleFile import SubtitleFile
-from PySubtitleGPT.SubtitleScene import SubtitleScene
-from PySubtitleGPT.ChatGPTTranslation import ChatGPTTranslation
+from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.Translation import Translation
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 # Serialisation helpers
 def classname(obj):
@@ -78,20 +78,20 @@ class SubtitleEncoder(json.JSONEncoder):
                 "line": obj.line,
                 "translation": getattr(obj, 'translation'),
             }
-        elif isinstance(obj, ChatGPTTranslation):
+        elif isinstance(obj, Translation):
             return {
-                "finish_reason": obj.finish_reason,
-                "response_time": getattr(obj, 'response_time'),
-                'prompt_tokens': getattr(obj, 'prompt_tokens'),
-                'completion_tokens': getattr(obj, 'completion_tokens'),
-                'total_tokens': getattr(obj, 'total_tokens'),
                 "text": obj._text,
                 "summary": obj.summary,
                 "synopsis": obj.synopsis,
                 "characters": obj.characters,
                 "prompt": obj.prompt,
+                "finish_reason": obj.response.get('finish_reason') if obj.response else None,
+                "response_time": obj.response.get('response_time') if obj.response else None,
+                "prompt_tokens": obj.response.get('prompt_tokens') if obj.response else None,
+                "completion_tokens": obj.response.get('completion_tokens') if obj.response else None,
+                "total_tokens": obj.response.get('total_tokens') if obj.response else None
             }
-        elif isinstance(obj, ChatGPTPrompt):
+        elif isinstance(obj, TranslationPrompt):
             return {
                 "instructions": obj.instructions,
                 "messages": obj.messages
@@ -119,8 +119,8 @@ class SubtitleDecoder(json.JSONDecoder):
             elif class_name == classname(SubtitleBatch):
                 return SubtitleBatch(dct)
             elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-                return SubtitleLine(dct.get('line'), dct.get('translation'))
-            elif class_name == classname(ChatGPTTranslation):
+                return SubtitleLine(dct.get('line'), translation=dct.get('translation'))
+            elif class_name == classname(Translation) or class_name == "ChatGPTTranslation":
                 response = {
                     'text' : dct.get('text'),
                     'finish_reason' : dct.get('finish_reason'),
@@ -134,7 +134,7 @@ class SubtitleDecoder(json.JSONDecoder):
                     # This shouldn't happen, but try to recover if it does
                     response['text'] = '\n'.join(response['text'])
 
-                obj = ChatGPTTranslation(response, dct.get('prompt'))
+                obj = Translation(response, dct.get('prompt'))
                 obj.context = {
                     'summary': dct.get('summary', None),
                     'scene': dct.get('scene', None),
@@ -142,8 +142,8 @@ class SubtitleDecoder(json.JSONDecoder):
                     'characters': dct.get('characters', None),
                 }
                 return obj
-            elif class_name == classname(ChatGPTPrompt):
-                obj = ChatGPTPrompt(dct.get('instructions'))
+            elif class_name == classname(TranslationPrompt) or class_name == "ChatGPTPrompt" or class_name == "GPTPrompt":
+                obj = TranslationPrompt(dct.get('instructions'))
                 obj.user_prompt = dct.get('user_prompt')
                 obj.messages = dct.get('messages')
                 return obj
