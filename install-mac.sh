@@ -30,7 +30,7 @@ chmod +x ./envsubtrans/bin/activate
 source ./envsubtrans/bin/activate
 
 echo "Installing requirements from 'requirements.txt'..."
-pip install -r requirements.txt
+pip install --platform=universal2 --no-deps --upgrade --target ./envsubtrans/lib -r requirements.txt
 
 if [ ! -f ".env" ]; then
     echo "Please enter your OpenAI API key:"

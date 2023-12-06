@@ -2,10 +2,9 @@ python-dotenv
 openai>=1.1.0
 srt
 regex
+appdirs
 events
 requests
-pyside6
 darkdetect
-appdirs
 setuptools
-
+pyside6==6.6.0
