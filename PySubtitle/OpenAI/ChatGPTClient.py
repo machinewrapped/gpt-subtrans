@@ -58,7 +58,7 @@ class ChatGPTClient(OpenAIClient):
                 return translation
             
             except openai.RateLimitError as e:
-                retry_after = e.headers.get('x-ratelimit-reset-requests') or e.headers.get('Retry-After')
+                retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
                 if retry_after:
                     retry_seconds = ParseDelayFromHeader(retry_after)
                     logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
@@ -69,9 +69,9 @@ class ChatGPTClient(OpenAIClient):
                     raise
 
             except (openai.APIConnectionError, openai.APITimeoutError) as e:
-                if isinstance(e, openai.APIConnectionError) and not e.should_retry:
+                if isinstance(e, openai.APIConnectionError):
                     raise TranslationImpossibleError(str(e), translation)
-                if retries == max_retries:
+                elif retries == max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
                     raise
                 else:
