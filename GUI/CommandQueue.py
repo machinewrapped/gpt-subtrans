@@ -54,6 +54,8 @@ class CommandQueue(QObject):
         """
         Shut the background thread down
         """
+        if self.queue_size > 0:
+            self._clear_command_queue()
         self.command_pool.waitForDone()
 
     def AddCommand(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
@@ -123,7 +125,7 @@ class CommandQueue(QObject):
             for queued_command in command.commands_to_queue:
                 self.commandAdded.emit(queued_command)
 
-            self._start_command_queue()
+        self._start_command_queue()
             
     def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
         """

@@ -45,6 +45,10 @@ class OpenAIClient(TranslationClient):
         translation = GPTTranslation(gpt_translation, gpt_prompt)
 
         return translation
+    
+    def _abort(self):
+        self.client.close()
+        return super()._abort()
 
     def GetParser(self):
         return TranslationParser(self.options)

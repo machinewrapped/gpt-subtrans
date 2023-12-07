@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.FileCommands import *
+from GUI.GUICommands import ExitProgramCommand
 from GUI.ProjectCommands import (
     MergeBatchesCommand, 
     MergeLinesCommand, 
@@ -109,7 +110,9 @@ class ProjectActions(QObject):
         return False
 
     def _quit(self):
-        QApplication.instance().quit()
+        logging.info("Application will exit...")
+        self._stop_translating()
+        self._issue_command(ExitProgramCommand())
 
     def _load_subtitle_file(self):
         filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")

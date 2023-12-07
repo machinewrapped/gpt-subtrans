@@ -2,7 +2,7 @@ import logging
 import time
 
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.SubtitleError import TranslationAbortedError, TranslationError
 from PySubtitle.Translation import Translation
 
 linesep = '\n'
@@ -14,6 +14,7 @@ class TranslationClient:
     def __init__(self, options : Options, instructions=None):
         self.options = options
         self.instructions = instructions or options.get('instructions', "")
+        self.aborted = False
 
         if not self.instructions:
             raise TranslationError("No instructions provided for the translator")
@@ -23,6 +24,9 @@ class TranslationClient:
         Generate the messages to request a translation
         """
         options = self.options
+
+        if self.aborted:
+            raise TranslationAbortedError()
 
         start_time = time.monotonic()
 
@@ -74,6 +78,11 @@ class TranslationClient:
 
         retranslation = Translation(retranslation_response, prompt)
         return retranslation
+    
+    def AbortTranslation(self):
+        self.aborted = True
+        self._abort()
+        pass
 
     def _request_translation(self, prompt, lines, context):
         """
@@ -87,3 +96,6 @@ class TranslationClient:
         """
         raise NotImplementedError("Not implemented in the base class")
 
+    def _abort(self):
+        # Try to terminate ongoing requests
+        pass

@@ -49,6 +49,7 @@ class SubtitleTranslator:
 
     def StopTranslating(self):
         self.aborted = True
+        self.client.AbortTranslation()
 
     def TranslateSubtitles(self):
         """
@@ -143,6 +144,9 @@ class SubtitleTranslator:
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
+
+        except TranslationAbortedError:
+            raise
 
         except Exception as e:
             if options.get('stop_on_error'):
@@ -240,6 +244,9 @@ class SubtitleTranslator:
                 else:
                     logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
 
+            except TranslationAbortedError:
+                raise
+                    
             except TranslationError as e:
                 if options.get('stop_on_error') or isinstance(e, TranslationImpossibleError):
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
@@ -302,7 +309,7 @@ class SubtitleTranslator:
                     batch.errors.append(e)
 
             # Consider retrying if there were errors
-            if batch.errors and options.get('allow_retranslations'):
+            if batch.errors and options.get('allow_retranslations') and not self.aborted:
                 logging.warn(f"Scene {batch.scene} batch {batch.number} failed validation, requesting retranslation")
                 self.RequestRetranslations(client, batch, translation)
 

@@ -15,9 +15,10 @@ from PySide6.QtWidgets import (
 )
 from GUI.AboutDialog import AboutDialog
 from GUI.Command import Command
-from GUI.CommandQueue import CommandQueue
+from GUI.CommandQueue import ClearCommandQueue, CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
+from GUI.GUICommands import ExitProgramCommand
 from GUI.GuiHelpers import GetResourcePath
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
@@ -144,13 +145,15 @@ class MainWindow(QMainWindow):
             logging.info("Settings updated")
 
     def ShowAboutDialog(self):
-        result = AboutDialog(self).exec()
+        _ = AboutDialog(self).exec()
 
     def PrepareForSave(self):
         self.model_viewer.CloseProjectOptions()
 
     def closeEvent(self, e):
-        if self.command_queue:
+        if self.command_queue and self.command_queue.AnyCommands():
+            self.QueueCommand(ClearCommandQueue())
+            self.QueueCommand(ExitProgramCommand())
             self.command_queue.Stop()
 
         project = self.datamodel.project
@@ -183,7 +186,11 @@ class MainWindow(QMainWindow):
         self._update_status_bar(command)
 
     def _on_command_complete(self, command : Command, success):
-        logging.debug(f"A {type(command).__name__} command completed (success={str(success)})")
+        if isinstance(command, ExitProgramCommand):
+            QApplication.instance().quit()
+            return
+
+        logging.debug(f"A {type(command).__name__} command {"succeeded" if success else "failed"})")
 
         if success:
             if isinstance(command, LoadSubtitleFile):

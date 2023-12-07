@@ -4,7 +4,7 @@ import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import NoTranslationError, TranslationImpossibleError
+from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
 
 linesep = '\n'
 
@@ -29,13 +29,16 @@ class ChatGPTClient(OpenAIClient):
         translation = {}
         retries = 0
 
-        while retries <= max_retries:
+        while retries <= max_retries and not self.aborted:
             try:
                 response = self.client.chat.completions.create(
                     model=model,
                     messages=messages,
                     temperature=temperature
                 )
+
+                if self.aborted:
+                    raise TranslationAbortedError()
 
                 translation['response_time'] = getattr(response, 'response_ms', 0)
 
@@ -69,6 +72,9 @@ class ChatGPTClient(OpenAIClient):
                     raise
 
             except (openai.APIConnectionError, openai.APITimeoutError) as e:
+                if self.aborted:
+                    raise TranslationAbortedError()
+                
                 if isinstance(e, openai.APIConnectionError):
                     raise TranslationImpossibleError(str(e), translation)
                 elif retries == max_retries:

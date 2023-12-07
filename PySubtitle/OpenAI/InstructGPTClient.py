@@ -4,7 +4,7 @@ import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import NoTranslationError, TranslationImpossibleError
+from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
 
 linesep = '\n'
 
@@ -32,7 +32,7 @@ class InstructGPTClient(OpenAIClient):
 
         prompt = self._build_prompt(messages)
 
-        while retries <= max_retries:
+        while retries <= max_retries and not self.aborted:
             try:
                 response = self.client.completions.create(
                     model=model,
@@ -41,6 +41,9 @@ class InstructGPTClient(OpenAIClient):
                     n=1,
                     max_tokens=max_tokens
                 )
+
+                if self.aborted:
+                    raise TranslationAbortedError()
 
                 translation['response_time'] = getattr(response, 'response_ms', 0)
 
@@ -75,6 +78,9 @@ class InstructGPTClient(OpenAIClient):
                     raise
 
             except (openai.APIConnectionError, openai.APITimeoutError) as e:
+                if self.aborted:
+                    raise TranslationAbortedError()
+                
                 if isinstance(e, openai.APIConnectionError):
                     raise TranslationImpossibleError(str(e), translation)
                 elif retries == max_retries:
