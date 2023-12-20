@@ -27,6 +27,7 @@ class OpenAIClient(TranslationClient):
             openai.base_url = options.api_base()
         
         logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
+        logging.info(f"Translating with OpenAI model {options.get('gpt_model') or 'default'}")
 
         self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url)
 
