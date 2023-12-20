@@ -78,7 +78,7 @@ class SubtitleProject:
                 else:
                     logging.info("Project file loaded")
             else:
-                logging.warning(f"Unable to read project file, starting afresh")
+                logging.error(f"Unable to read project file, starting afresh")
                 self.load_subtitles = True
 
         if self.load_subtitles:
@@ -228,6 +228,8 @@ class SubtitleProject:
             with open(projectfile, 'w', encoding=default_encoding) as f:
                 project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
                 f.write(project_json)
+            
+            self.needsupdate = False
 
     def WriteBackupFile(self):
         """
