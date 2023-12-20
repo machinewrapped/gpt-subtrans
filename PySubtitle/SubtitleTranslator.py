@@ -375,7 +375,11 @@ class SubtitleTranslator:
         try:
             batch.errors = []
 
-            parser.MatchTranslations(batch.originals)
+            _, unmatched = parser.MatchTranslations(batch.originals)
+
+            if unmatched:
+                logging.warning(f"Still unable to match {len(unmatched)} lines with a source line")
+                batch.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", unmatched))
 
             parser.ValidateTranslations()
 
