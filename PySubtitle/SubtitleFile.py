@@ -213,7 +213,6 @@ class SubtitleFile:
             'substitutions': None,
             'match_partial_words': False,
             'include_original': False,
-            'instructions_edited': False,
             'instruction_file': None
         }
 
