@@ -17,7 +17,7 @@ class Translation:
 
     @property
     def has_translation(self):
-        return self.text
+        return True if self.text else False
         
     @property
     def user_prompt(self):
