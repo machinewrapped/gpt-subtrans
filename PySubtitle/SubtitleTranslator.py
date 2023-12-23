@@ -368,7 +368,7 @@ class SubtitleTranslator:
             batch.AddContext('retranslated_lines', [f"{item.key}. {item.text}" for item in retranslated])
             logging.info(f"Retranslated {len(retranslated)} of {len(retranslated) + len(batch.untranslated)} lines")
         else:
-            #TODO line-by-line retranslation?
+            #TODO line-by-line retranslation? Automatic batch splitting?
             logging.error("Retranslation request did not produce a useful result")
             # return
         
@@ -378,7 +378,7 @@ class SubtitleTranslator:
             _, unmatched = parser.MatchTranslations(batch.originals)
 
             if unmatched:
-                logging.warning(f"Still unable to match {len(unmatched)} lines with a source line")
+                logging.warning(f"Still unable to match {len(unmatched)} lines with a source line - try splitting the batch")
                 batch.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", unmatched))
 
             parser.ValidateTranslations()
