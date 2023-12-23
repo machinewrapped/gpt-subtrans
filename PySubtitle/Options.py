@@ -104,7 +104,7 @@ class Options:
         """
         Return a dictionary of generic options
         """
-        exclusions = [ 'instructions', 'retry_instructions', 'gpt_prompt', 'prompt' ]
+        exclusions = [ 'instructions', 'retry_instructions' ]
         keys = [ key for key in default_options.keys() if key not in exclusions]
         settings = { key: self.get(key) for key in keys if key in self.options.keys() }
         return settings
