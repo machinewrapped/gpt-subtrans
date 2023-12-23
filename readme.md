@@ -1,23 +1,23 @@
 # GPT-Subtrans
-GPT-Subtrans is an open source subtitle translator built with OpenAI's GPT. It can translate subtitles between any language pairs supported by the GPT language model. You will need an OpenAI API key from https://platform.openai.com/account/api-keys to use the translator. If you are on the free trial the speed will be severely restricted.
+GPT-Subtrans is an open source subtitle translator that uses OpenAI's LLMs as a translation service. It can translate subtitles between any language pairs supported by the language model. You will need an OpenAI API key from https://platform.openai.com/account/api-keys to use the translator. If you are on the free trial the speed will be severely restricted.
 
 Note: GPT-Subtrans requires an active internet connection to access the OpenAI API. Subtitles are sent to OpenAI's servers for translation, so their privacy policy applies: https://openai.com/policies/privacy-policy.
 
 ## New
-I have been unable to get PyInstaller to build universal binaries on MacOS for several recent versions, so I can only provide releases for Apple Silicon. The latest version should still work on Intel Macs if you install from source.
+I have been unable to get PyInstaller to build universal binaries on MacOS for several recent versions, so I can only provide releases for Apple Silicon. The latest code should still run on Intel Macs if you install from source.
 
 ## Installation
-For most users the packaged release is the easiest way to use the program. Simply unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first-run.
+For most users the packaged release is the easiest way to use the program. Simply unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first run.
 
-### Source code installation
-For other platforms, or if you want to modify the program, you will need to have Python 3.x and pip installed on your system, then follow these steps.
+### Installing from source
+For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
 1. Clone the GPT-Subtrans repository onto your local machine using the following command:
 ```
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-**The easiest setup method for most users is to run `install.bat` or `install.sh` and enter your OpenAI API key when prompted. You can then skip the remaining steps.**
+**The easiest setup method for most users is to run `install.bat` or `install.sh`/`install-mac.sh` at this point and enter your API key when prompted. You can then skip the remaining steps.**
 
 2. Create a new file named .env in the root directory of the project. Add your OpenAI API key to the .env file like this:
 ```
@@ -29,9 +29,10 @@ For other platforms, or if you want to modify the program, you will need to have
     python -m venv envsubtrans
 ```
 
-4. Activate the virtual environment by running the following command:
+4. Activate the virtual environment by running the appropriate command for your OS:
 ```
     .\envsubtrans\Scripts\activate
+    .\envsubtrans\bin\activate
 ```
 
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
@@ -45,7 +46,7 @@ Note that steps 3 and 4 are optional, but they can help prevent conflicts with o
 
 ### GUI
 
-The easiest way for most people to use GPT-Subtrans is with the [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans). After installation launch the GUI with the `gui-subtrans` command or shell script, and in theory the rest should be self-explanatory. See the wiki for details on usage.
+The easiest way for most people to use GPT-Subtrans is with the [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans). After installation launch the GUI with the `gui-subtrans` command or shell script, and in theory the rest should be self-explanatory. See the project wiki for details on how to use the program.
 
 ### Command Line
 
@@ -81,13 +82,13 @@ along with some other configuration options. See Options.py for the full list. A
   Read or Write a project file for the subtitles being translated. More on this below.
 
 - `-r`, `--ratelimit`:
-  Maximum number of batches per minute to process. If you're on the OpenAI free trial this to about 10.
+  Maximum number of batches per minute to process. If you're on the OpenAI free trial this to 2 or 3.
 
 - `-m`, `--moviename`:
   Optionally specify the name of the movie to give context to the translator.
 
 - `--description`:
-  A brief description of the film to give context. Less is more here, otherwise GPT can start improvising.
+  A brief description of the film to give context. Less is more here, otherwise the AI can start improvising.
 
 - `-c`, `--character`, `--characters`:
   Optionally provide (a list of) character names to use in the translation.
@@ -99,35 +100,36 @@ along with some other configuration options. See Options.py for the full list. A
   Number of seconds between lines to consider it a new scene.
 
 - `--batchthreshold`:
-  Number of seconds between lines to consider starting a new batch of subtitles to translate.
-  Smaller batches take longer and cost more, but introduce more sync points and reduce the scope for GPT to drift.
+  Number of seconds between lines to consider starting a new batch of subtitles to translate. Not used by the new batcher.
+  Smaller batches take longer and cost more, but introduce more sync points and reduce the scope for the AI to drift.
 
 - `--minbatchsize`:
-  Minimum number of lines to consider starting a new batch to send to GPT. Higher values result in
-  faster and cheaper translations but increase the risk of GPT desyncing.
+  Minimum number of lines to consider starting a new batch to send to the AI. Higher values result in
+  faster and cheaper translations but increase the risk of desyncs.
+
+- `--maxbatchsize`:
+  Maximum number of lines before starting a new batch is compulsory.
+  This needs to take into account the token limit for the model being used, but the "optimal" value depends on many factors, so some experimentation is encouraged.
+  Higher values make the translation more cost-effective, but increase the risk of the AI getting confused or improvising, triggering expensive retries.
 
 - `--maxbatchsize`:
   Maximum number of lines before starting a new batch is compulsory. Higher values make the translation
-  faster and cheaper, but increase the risk of GPT getting confused or improvising.
-
-- `--maxbatchsize`:
-  Maximum number of lines before starting a new batch is compulsory. Higher values make the translation
-  faster and cheaper, but increase the risk of GPT getting confused or improvising.
+  faster and cheaper, but increase the risk of the AI getting confused or improvising.
 
 - `-k`, `--apikey`:
   Your OpenAI API Key (https://platform.openai.com/account/api-keys). Not required if it is set in .env
 
 - `-b`, `--apibase`:
-  API base address. Used for third-party API, if it is not set, it will be the default openai official API base address.
+  API base URL. Used for third-party API endpoints. if it is not set, the default URL for the model will be used.
 
 - `-t`, `--temperature`:
   A higher temperature increases the random variance of translations. Default 0.
 
 - `-i`, `--instruction`:
-  An additional instruction for Chat GPT about how it should approach the translation.
+  An additional instruction for the AI indicating how it should approach the translation.
 
 - `-f`, `--instructionfile`:
-  Name/path of a file to load GPT instructions from (otherwise the default instructions.text is used).
+  Name/path of a file to load AI system instructions from (otherwise the default instructions.txt is used).
 
 - `--maxlines`:
   Maximum number of batches to process. To end the translation after a certain number of lines, e.g. to check the results.
@@ -140,7 +142,7 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 
 ## Project File
 
-**Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and the project is generally updated automatically when anything changes, so you shouldn't need to use the project argument.
+**Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and the project is generally updated automatically when anything changes.
 
 The `--project` argument or `PROJECT` .env setting can take a number of values, which control whether and when an intermediate file will be written to disc.
 
@@ -156,7 +158,7 @@ you should be able to see what they do.
 
 ## Version History
 
-Version 0.5 adds support for the gpt-instruct models and a refactored code base to support different translation engines. For most users, the recommendation is still to use the **gpt-3.5-turbo-16k** model with batch sizes of between (10,100) lines, for the best combination of performance/cost and translation quality.
+Version 0.5 adds support for gpt-instruct models and a refactored code base to support different translation engines. For most users, the recommendation is still to use the **gpt-3.5-turbo-16k** model with batch sizes of between (10,100) lines, for the best combination of performance/cost and translation quality.
 
 Version 0.4 features significant optimisations to the GUI making it more responsive and usable, along with numerous bug fixes.
 
@@ -165,7 +167,6 @@ Version 0.3 featured a major effort to bring the GUI up to full functionality an
 Version 0.2 employs a new prompting approach that greatly reduces desyncs caused by GPT merging together source lines in the translation. This can reduce the naturalness of the translation when the source and target languages have very different grammar, but it provides a better base for a human to polish the output.
 
 The instructions have also been made more detailed, with multiple examples of correct output for GPT to reference, and the generation of summaries has been improved so that GPT is better able to understand the context of the batch it is translating. Additionally, double-clicking a scene or batch now allows the summary to be edited by hand, which can greatly improve the results of a retranslation and of subsequent batches or scenes. Individually lines can also be edited by double-clicking them.
-
 
 ## Contributing
 Contributions from the community are welcome! To contribute to GPT-Subtrans, follow these steps:
