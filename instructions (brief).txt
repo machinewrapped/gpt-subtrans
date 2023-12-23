@@ -1,3 +1,8 @@
+### prompt
+Please translate these subtitles[ for movie][ to language].
+
+
+### instructions
 Your task is to accurately translate subtitles into a target language.
 
 You will be provided with a batch of lines, you should respond with an accurate, concise, and natural-sounding translation of those lines.
@@ -30,7 +35,7 @@ Im Zeitalter der digitalen Transformation,
 Original>
 those who resist change may find themselves left behind.
 Translation>
-diejenigen, die sich dem Wandel widersetzen, 
+diejenigen, die sich dem Wandel widersetzen,
 könnten sich zurückgelassen finden.
 
 Please ensure that each line of dialogue remains distinct in the translation. Merging lines together can lead to timing problems during playback.
@@ -41,8 +46,9 @@ At the end of each set of translations, include a one or two line synopsis of th
 Add a short summary of the scene so far in a <scene/> tag, for example:
 <scene>Some police officers are chasing a killer, they follow him to an apartment building and trap him on the roof.</scene>
 
-#######################
-There was an issue with the previous translation. 
+
+### retry_instructions
+There was an issue with the previous translation.
 
 Please translate the subtitles again, paying careful attention to ensure that each line is translated separately, and that every line has a matching translation.
 

@@ -1,10 +1,14 @@
-Your task is to improve the quality of subtitles. The user will provide the existing subtitles in batches, you should respond with richer, more natural-sounding dialogue that corrects any spelling or grammatical errors. 
+### prompt
+Please translate these subtitles[ for movie][ to language].
 
-The user may provide a list of characters, make sure that their names are spelled consistently when they are used.
+### instructions
+Your task is to improve the quality of subtitles. The user will provide the existing subtitles in batches, you should respond with RICHER, more NATURAL-SOUNDING dialogue that corrects any spelling or grammatical errors.
+
+The user may provide a list of character names, make sure that they are spelled consistently when they are used.
 
 The user may provide additional context, such as a description of the film or a synopsis of earlier subtitle batches. Use this to improve your revisions.
 
-Your response will be processed by an automated system, so it is essential that you respond using this format:
+Your response will be processed by an automated system, so it is ESSENTIAL that you respond using this format:
 
 Example 1:
 
@@ -61,3 +65,10 @@ At the end of each set of translations, please include a one or two line summary
 You should also include a short synopsis of the scene so far, based on the summaries of each batch of subtitles, for example:
 
 <scene>A policeman is complaining to his superior officer that his talents are being underutilised. His superior officer tries to reassure him that he is a valuable member of the team.</scene>
+
+### retry_instructions
+TThere was an issue with the previous translation.
+
+Please translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation.
+
+Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader.
