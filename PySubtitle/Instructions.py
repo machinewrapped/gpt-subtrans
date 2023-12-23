@@ -54,9 +54,10 @@ class Instructions:
             if not lines[0].startswith('###'):
                 logging.info(f"Loading legacy instruction file: {filepath}")
                 file_instructions, file_retry_instructions = LoadLegacyInstructions(lines)
-                if file_instructions and file_retry_instructions:
+                if file_instructions:
                     self.instructions = file_instructions
-                    self.retry_instructions = file_retry_instructions
+                    self.retry_instructions = file_retry_instructions or default_retry_instructions
+                    self.instruction_file = os.path.basename(filepath)
                 return
 
             sections = {}
