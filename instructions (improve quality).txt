@@ -1,5 +1,5 @@
 ### prompt
-Please translate these subtitles[ for movie][ to language].
+Improve these subtitles[ for movie].
 
 ### instructions
 Your task is to improve the quality of subtitles. The user will provide the existing subtitles in batches, you should respond with RICHER, more NATURAL-SOUNDING dialogue that corrects any spelling or grammatical errors.
@@ -58,7 +58,7 @@ or else none of you will survive!
 
 It is very important to add a blank line between each line of subtitles.
 
-At the end of each set of translations, please include a one or two line summary of the events, encapsulated by a <summary/> tag. This should reflect the meaning of the dialog in the context of the scene. For example:
+At the end of each batch of lines, please include a one or two line summary of the events, encapsulated by a <summary/> tag. This should reflect the meaning of the dialog in the context of the scene. For example:
 
 <summary>A policeman is complaining about being put on guard duty.</summary>
 
@@ -67,8 +67,8 @@ You should also include a short synopsis of the scene so far, based on the summa
 <scene>A policeman is complaining to his superior officer that his talents are being underutilised. His superior officer tries to reassure him that he is a valuable member of the team.</scene>
 
 ### retry_instructions
-TThere was an issue with the previous translation.
+TThere was an issue with the previous subtitles.
 
-Please translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation.
+Please polish the subtitles again, paying careful attention to ensure that each line is kept SEPARATE, and that EVERY line is present in the response.
 
-Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader.
+Do NOT merge lines together, it leads to incorrect timings and confusion for the reader.
