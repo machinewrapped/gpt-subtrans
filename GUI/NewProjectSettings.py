@@ -74,6 +74,9 @@ class NewProjectSettings(QDialog):
         self.settings['instructions'] = instructions.instructions
         self.settings['retry_instructions'] = instructions.retry_instructions
 
+        # Legacy
+        self.settings['gpt_prompt'] = instructions.prompt
+
         self.project.UpdateProjectOptions(self.settings)
 
         super(NewProjectSettings, self).accept()
