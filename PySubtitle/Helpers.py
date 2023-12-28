@@ -123,7 +123,7 @@ def BuildPrompt(options : Options):
     """
     target_language = options.get('target_language')
     movie_name = options.get('movie_name')
-    prompt = options.get('gpt_prompt')
+    prompt = options.get('prompt') or options.get('gpt_prompt')
     prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
     prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
     options.add('prompt', prompt)
@@ -271,7 +271,7 @@ def ParseSubstitutions(sub_list, separator="::"):
             if "::" in sub:
                 before, after = sub.split(separator)
                 substitutions[before] = after
-            else:
+            elif sub.trim():
                 try:
                     with open(sub, "r", encoding="utf-8", newline='') as f:
                         for line in [line.strip() for line in f if line.strip()]:

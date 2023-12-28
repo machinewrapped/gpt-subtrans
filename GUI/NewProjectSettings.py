@@ -3,7 +3,7 @@ from GUI.GuiHelpers import GetInstructionFiles
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle import SubtitleProject
-from PySubtitle.Options import LoadInstructionsFile, Options
+from PySubtitle.Instructions import Instructions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
@@ -65,13 +65,17 @@ class NewProjectSettings(QDialog):
     def accept(self):
         self._update_settings()
 
+        instructions = Instructions(self.settings)
         instructions_file = self.settings.get('instruction_file')
         if instructions_file:
-            instructions, retry_instructions = LoadInstructionsFile(instructions_file)
-            if instructions:
-                self.settings['instructions'] = instructions
-            if retry_instructions:
-                self.settings['retry_instructions'] = retry_instructions
+            instructions.LoadInstructionsFile(instructions_file)
+
+        self.settings['prompt'] = instructions.prompt
+        self.settings['instructions'] = instructions.instructions
+        self.settings['retry_instructions'] = instructions.retry_instructions
+
+        # Legacy
+        self.settings['gpt_prompt'] = instructions.prompt
 
         self.project.UpdateProjectOptions(self.settings)
 

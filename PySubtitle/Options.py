@@ -3,26 +3,15 @@ import logging
 import os
 import dotenv
 import appdirs
+from PySubtitle.Instructions import Instructions
 
 from PySubtitle.version import __version__
-
-linesep = '\n'
 
 config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
 settings_path = os.path.join(config_dir, 'settings.json')
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
-
-default_instructions = linesep.join([
-    "You are to translate subtitles to a target language",
-    "Be concise but try to make the dialogue sound natural.",
-    "Translations should be as accurate as possible, do not improvise!",
-])
-
-default_retry_instructions = linesep.join([
-    'Translate the subtitles again, making sure every line has a translation that matches the dialog.'
-])
 
 def env_bool(key, default=False):
     var = os.getenv(key, default)
@@ -104,16 +93,6 @@ class Options:
     def allow_multithreaded_translation(self):
         return self.get('max_threads') and self.get('max_threads') > 1
 
-    def ReplaceTagsWithOptions(self, text):
-        """
-        Replace option tags in a string with the value of the corresponding option.
-        """
-        if text:
-            for name, value in self.options.items():
-                if value:
-                    text = text.replace(f"[{name}]", str(value))
-        return text
-    
     def GetNonProjectSpecificOptions(self):
         """
         Get a copy of the options with only the default keys included
@@ -177,27 +156,21 @@ class Options:
         except Exception as e:
             logging.error(f"Error saving settings to {settings_path}")
             return False
-
+        
     def InitialiseInstructions(self):
-        instructions = self.get('instructions') or default_instructions
-        retry_instructions = self.get('retry_instructions') or default_retry_instructions
+        instructions = Instructions(self.options)
+        instruction_file = self.get('instruction_file')
+        if instruction_file:
+            try:
+                instructions.LoadInstructionsFile(instruction_file)
+                self.options['prompt'] = instructions.prompt
+                self.options['instructions'] = instructions.instructions
+                self.options['retry_instructions'] = instructions.retry_instructions
+                #Legacy options
+                self.options['gpt_prompt'] = instructions.prompt
 
-        # If instructions file exists load the instructions from that
-        if self.get('instruction_file'):
-            file_instructions, file_retry_instructions = LoadInstructionsFile(self.get('instruction_file'))
-            if file_instructions and file_retry_instructions:
-                instructions = file_instructions
-                retry_instructions = file_retry_instructions
-
-        # Add any additional instructions from the command line
-        if self.get('instruction_args'):
-            instructions.extend(self['instruction_args'])
-
-        instructions = self.ReplaceTagsWithOptions(instructions)
-        retry_instructions = self.ReplaceTagsWithOptions(retry_instructions)
-
-        self.add('instructions', instructions)
-        self.add('retry_instructions', retry_instructions)
+            except Exception as e:
+                logging.error(f"Unable to load instructions from {instruction_file}: {e}")
 
     def _update_settings_version(self, settings):
         """
@@ -205,22 +178,3 @@ class Options:
         """
         current_version = default_options['version']
         settings['version'] = current_version    
-
-def LoadInstructionsFile(filepath):
-    """
-    Try to load instructions from a text file.
-    Retry instructions can be added to the file after a line of at least 3 # characters.
-    """
-    if filepath and os.path.exists(filepath):
-        with open(filepath, "r", encoding="utf-8", newline='') as f:
-            lines = [l.strip() for l in f.readlines()]
-
-        if lines:
-            for idx, item in enumerate(lines):
-                if len(item) >= 3 and all(c == '#' for c in item):
-                    return linesep.join(lines[:idx]), linesep.join(lines[idx + 1:])
-
-            return linesep.join(lines), []
-        
-    return None, None
-

@@ -13,7 +13,7 @@ class ProjectOptions(QGroupBox):
     """
     optionsChanged = Signal(dict)
 
-    _gpt_options = {}
+    _translator_options = {}
 
     def __init__(self, options=None):
         super().__init__()
@@ -32,7 +32,7 @@ class ProjectOptions(QGroupBox):
         self.AddMultiLineOption(4, "Characters", options, 'characters')
         self.AddMultiLineOption(5, "Substitutions", options, 'substitutions')
         self.AddCheckboxOption(6, "Match Partial Words", options, 'match_partial_words')
-        self.AddButtonOption(7, "", "GPT Settings", self._gpt_settings)
+        self.AddButtonOption(7, "", "Translator Settings", self._translator_settings)
 
         self.Populate(options)
 
@@ -52,7 +52,7 @@ class ProjectOptions(QGroupBox):
             "match_partial_words": self.match_partial_words_input.isChecked()
         }
 
-        options.update(self._gpt_options)
+        options.update(self._translator_options)
         return options
 
     def AddSingleLineOption(self, row, label, options, key):
@@ -104,17 +104,14 @@ class ProjectOptions(QGroupBox):
 
         self.api_key = options.get('api_key')
 
-        self._gpt_options = {
+        self._translator_options = {
             'api_key': options.get('api_key'),
-            'gpt_model': options.get('gpt_model'),
-            'gpt_prompt': options.get('gpt_prompt'),
+            'api_base': options.get('api_base'),
+            'model': options.get('model') or options.get('gpt_model'),
+            'prompt': options.get('prompt') or options.get('gpt_prompt'),
             'instructions': options.get('instructions'),
             'retry_instructions': options.get('retry_instructions'),
             'instruction_file': options.get('instruction_file'),
-            'min_batch_size' : options.get('min_batch_size'),
-            'max_batch_size' : options.get('max_batch_size'),
-            'batch_threshold' : options.get('batch_threshold'),
-            'scene_threshold' : options.get('scene_threshold'),
         }
 
         with QSignalBlocker(self):
@@ -157,10 +154,20 @@ class ProjectOptions(QGroupBox):
         options = self.GetOptions()
         self.optionsChanged.emit(options)
 
-    def _gpt_settings(self):
-        dialog = TranslatorOptionsDialog(self._gpt_options, parent=self)
+    def _translator_settings(self):
+        dialog = TranslatorOptionsDialog(self._translator_options, parent=self)
         result = dialog.exec()
 
         if result == QDialog.Accepted:
-            logging.info("GPT Options for this project updated")
-            self.optionsChanged.emit(self._gpt_options)
+            logging.info("Translation settings for this project updated")
+            self._translator_options['model'] = dialog.model
+            self._translator_options['prompt'] = dialog.instructions.prompt
+            self._translator_options['instructions'] = dialog.instructions.instructions
+            self._translator_options['retry_instructions'] = dialog.instructions.retry_instructions
+            self._translator_options['instruction_file'] = dialog.instructions.instruction_file
+
+            # Legacy options
+            self._translator_options['gpt_model'] = dialog.model
+            self._translator_options['gpt_prompt'] = dialog.instructions.prompt
+
+            self.optionsChanged.emit(self._translator_options)
