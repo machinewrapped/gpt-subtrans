@@ -73,11 +73,11 @@ class SubtitleBatch:
 
     @originals.setter
     def originals(self, value):
-        self._originals = [ SubtitleLine(line) for line in value if line.number ] if value else None
+        self._originals = [ SubtitleLine(line) for line in value if line.number ] if value else []
 
     @translated.setter
     def translated(self, value):
-        self._translated = [ SubtitleLine(line) for line in value if line.number ] if value else None
+        self._translated = [ SubtitleLine(line) for line in value if line.number ] if value else []
 
     def AddLine(self, line):
         self._originals.append(SubtitleLine(line))
