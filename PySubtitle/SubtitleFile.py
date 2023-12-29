@@ -207,6 +207,7 @@ class SubtitleFile:
         context = {
             'gpt_model': "",
             'gpt_prompt': "",
+            'target_language': "",
             'instructions': "",
             'retry_instructions': "",
             'movie_name': "",
