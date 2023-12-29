@@ -19,3 +19,4 @@ get-pip.py
 /test_subtitles/hidden
 /test_subtitles
 *.mkv
+*.log

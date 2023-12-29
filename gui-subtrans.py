@@ -14,7 +14,12 @@ project_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, project_dir)
 
 logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
+logging.basicConfig(
+    format='%(levelname)s: %(message)s', 
+    level=logging_level,
+    filename='gui-subtrans.log',
+    filemode='w',
+    )
 
 def parse_arguments():
     # Parse command line arguments
