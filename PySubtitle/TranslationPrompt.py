@@ -21,7 +21,7 @@ class TranslationPrompt:
         """
         source_lines = [ self.GetLinePrompt(line) for line in lines ]
         source_text = '\n\n'.join(source_lines)
-        text = f"\n{source_text}\n\n<summary></summary>\n<scene></scene>"
+        text = f"\n{source_text}\n\n<summary>Summary of the batch</summary>\n<scene>Summary of the scene</scene>"
 
         if prompt:
             text = f"{prompt}\n\n{text}"
