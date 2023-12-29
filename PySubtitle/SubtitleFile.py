@@ -22,6 +22,7 @@ class SubtitleFile:
     def __init__(self, filepath = None, outputpath = None):
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
+        self.start_line_number = 1
         self.context = {}
         self._scenes : list[SubtitleScene] = []
         self.lock = threading.RLock()
@@ -52,6 +53,7 @@ class SubtitleFile:
         with self.lock:
             self._scenes = scenes
             self.originals, self.translated, _ = UnbatchScenes(scenes)
+            self.start_line_number = self.originals[0].number if self.originals else 1
             self.Renumber()
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
@@ -152,7 +154,7 @@ class SubtitleFile:
             raise ValueError("No file path set")
 
         with self.lock:
-            srtfile = srt.compose([ line.item for line in self.originals ])
+            srtfile = srt.compose([ line.item for line in self.originals ], reindex=False)
             with open(self.sourcepath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
@@ -187,7 +189,7 @@ class SubtitleFile:
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
-            srtfile = srt.compose([ line.item for line in translated if line.text ])
+            srtfile = srt.compose([ line.item for line in translated if line.text ], reindex=False)
             with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
@@ -393,7 +395,7 @@ class SubtitleFile:
             # Renumber lines sequentially and remap translated indexes
             translated_map = { translated.number: translated for translated in self.translated } if self.translated else None
 
-            for number, line in enumerate(self.originals, start=1):
+            for number, line in enumerate(self.originals, start=self.start_line_number):
                 # If there is a matching translation, remap its number
                 if translated_map and line.number in translated_map:
                     translated = translated_map[line.number]
