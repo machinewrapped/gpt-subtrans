@@ -163,7 +163,8 @@ class SubtitleFile:
         """
         outputpath = outputpath or self.outputpath 
         if not outputpath:
-            outputpath = GetOutputPath(self.sourcepath)
+            if os.path.exists(self.sourcepath):
+                outputpath = GetOutputPath(self.sourcepath)
             if not outputpath:
                 raise Exception("I don't know where to save the translated subtitles")
             

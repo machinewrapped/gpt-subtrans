@@ -108,8 +108,9 @@ class SubtitleDecoder(json.JSONDecoder):
         if '_class' in dct:
             class_name = dct.pop('_class')
             if class_name == classname(SubtitleFile):
-                obj = SubtitleFile(dct.get('outputpath') or dct.get('filename'))
-                obj.sourcepath = dct.get('sourcepath') or obj.sourcepath
+                sourcepath = dct.get('sourcepath')
+                outpath = dct.get('outputpath') or dct.get('filename')
+                obj = SubtitleFile(sourcepath, outpath)
                 obj.context = dct.get('context', {})
                 obj.scenes = dct.get('scenes', [])
                 obj.UpdateContext({}) # Force update of context for legacy files
