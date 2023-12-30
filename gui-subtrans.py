@@ -13,11 +13,13 @@ from PySubtitle.Options import Options, settings_path, config_dir
 project_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, project_dir)
 
+log_path = os.path.join(config_dir, 'gui-subtrans.log')
+
 logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
 logging.basicConfig(
     format='%(levelname)s: %(message)s', 
     level=logging_level,
-    filename='gui-subtrans.log',
+    filename=log_path,
     filemode='w',
     )
 
@@ -95,6 +97,8 @@ if __name__ == "__main__":
     # Launch the GUI
     app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()
+
+    logging.info(f"Logging to {log_path}")
 
     if arguments.get('profile'):
         run_with_profiler(app)
