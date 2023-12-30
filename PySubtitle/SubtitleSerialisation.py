@@ -83,7 +83,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "text": obj._text,
                 "summary": obj.summary,
                 "synopsis": obj.synopsis,
-                "characters": obj.characters,
+                "names": obj.names,
                 "prompt": obj.prompt,
                 "finish_reason": obj.response.get('finish_reason') if obj.response else None,
                 "response_time": obj.response.get('response_time') if obj.response else None,
@@ -110,8 +110,9 @@ class SubtitleDecoder(json.JSONDecoder):
             if class_name == classname(SubtitleFile):
                 obj = SubtitleFile(dct.get('outputpath') or dct.get('filename'))
                 obj.sourcepath = dct.get('sourcepath') or obj.sourcepath
-                obj.context = dct.get('context')
+                obj.context = dct.get('context', {})
                 obj.scenes = dct.get('scenes', [])
+                obj.UpdateContext({}) # Force update of context for legacy files
                 return obj
             elif class_name == classname(SubtitleScene):
                 obj = SubtitleScene(dct)
@@ -139,7 +140,7 @@ class SubtitleDecoder(json.JSONDecoder):
                     'summary': dct.get('summary', None),
                     'scene': dct.get('scene', None),
                     'synopsis': dct.get('synopsis', None),
-                    'characters': dct.get('characters', None),
+                    'names': dct.get('names', None) or dct.get('characters', None)
                 }
                 return obj
             elif class_name == classname(TranslationPrompt) or class_name == "ChatGPTPrompt" or class_name == "GPTPrompt":

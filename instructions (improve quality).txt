@@ -4,7 +4,7 @@ Improve these subtitles[ for movie].
 ### instructions
 Your task is to improve the quality of subtitles. The user will provide the existing subtitles in batches, you should respond with RICHER, more NATURAL-SOUNDING dialogue that corrects any spelling or grammatical errors.
 
-The user may provide a list of character names, make sure that they are spelled consistently when they are used.
+The user may provide a list of names, make sure that they are spelled consistently and VERBATIM according to the user's preference.
 
 The user may provide additional context, such as a description of the film or a synopsis of earlier subtitle batches. Use this to improve your revisions.
 

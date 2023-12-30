@@ -5,7 +5,7 @@ from GUI.TranslatorOptions import TranslatorOptionsDialog
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Options import Options
-from PySubtitle.Helpers import ParseCharacters, ParseSubstitutions
+from PySubtitle.Helpers import ParseNames, ParseSubstitutions
 
 class ProjectOptions(QGroupBox):
     """
@@ -29,7 +29,7 @@ class ProjectOptions(QGroupBox):
         self.AddSingleLineOption(1, "Target Language", options, 'target_language')
         self.AddCheckboxOption(2, "Include Original Text", options, 'include_original')
         self.AddMultiLineOption(3, "Description", options, 'description')
-        self.AddMultiLineOption(4, "Characters", options, 'characters')
+        self.AddMultiLineOption(4, "Names", options, 'names')
         self.AddMultiLineOption(5, "Substitutions", options, 'substitutions')
         self.AddCheckboxOption(6, "Match Partial Words", options, 'match_partial_words')
         self.AddButtonOption(7, "", "Translator Settings", self._translator_settings)
@@ -47,7 +47,7 @@ class ProjectOptions(QGroupBox):
             "target_language": self.target_language_input.text(),
             "include_original": self.include_original_input.isChecked(),
             "description": self.description_input.toPlainText(),
-            "characters": ParseCharacters(self.characters_input.toPlainText()),
+            "names": ParseNames(self.names_input.toPlainText()),
             "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText()),
             "match_partial_words": self.match_partial_words_input.isChecked()
         }
@@ -122,7 +122,7 @@ class ProjectOptions(QGroupBox):
 
     def Clear(self):
         with QSignalBlocker(self):
-            for key in ["movie_name", "description", "characters", "substitutions", "match_partial_words", "include_original"]:
+            for key in ["movie_name", "description", "names", "substitutions", "match_partial_words", "include_original"]:
                 input = getattr(self, key + "_input")
                 if input:
                     if isinstance(input, QCheckBox):

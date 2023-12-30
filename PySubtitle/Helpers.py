@@ -136,13 +136,13 @@ def ParseTranslation(text):
     text, summary = ExtractTag("summary", text)
     text, synopsis = ExtractTag("synopsis", text)
     text, scene = ExtractTag("scene", text)
-    text, characters = ExtractTagList("characters", text)
+    text, names = ExtractTagList("names", text)
 
     context = {
         'summary': summary,
         'scene': scene,
         'synopsis': synopsis,
-        'characters': characters
+        'names': names
     }
 
     return text, context 
@@ -238,12 +238,12 @@ def ResyncTranslatedLines(original_lines, translated_lines):
         logging.warning(f"Number of lines in original and translated subtitles don't match. Synced {min_lines} lines.")
 
 
-def ParseCharacters(character_list):
-    if isinstance(character_list, str):
-        character_list = regex.split("[\n,]", character_list)
+def ParseNames(name_list):
+    if isinstance(name_list, str):
+        name_list = regex.split("[\n,]", name_list)
 
-    if isinstance(character_list, list):
-        return [ name.strip() for name in character_list ]
+    if isinstance(name_list, list):
+        return [ name.strip() for name in name_list ]
     
     return []
 

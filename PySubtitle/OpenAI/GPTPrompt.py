@@ -9,15 +9,11 @@ class GPTPrompt(TranslationPrompt):
             self.messages.append({'role': "system", 'content': self.instructions})
 
         if context:
-            context_tags = GenerateTagLines(context, ['description', 'characters'])
-            if context_tags:
-                self.messages.append({'role': "user", 'content': context_tags})
-
             summaries = context.get('summaries')
             if summaries:
                 self.messages.append({'role': "user", 'content': '\n'.join(summaries)})
 
-            tag_lines = GenerateTagLines(context, ['scene', 'summary', 'batch'])
+            tag_lines = GenerateTagLines(context, ['description', 'names','scene', 'summary', 'batch'])
 
             self.user_prompt = self.GenerateBatchPrompt(prompt, lines, tag_lines)
 

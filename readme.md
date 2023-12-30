@@ -90,8 +90,8 @@ along with some other configuration options. See Options.py for the full list. A
 - `--description`:
   A brief description of the film to give context. Less is more here, otherwise the AI can start improvising.
 
-- `-c`, `--character`, `--characters`:
-  Optionally provide (a list of) character names to use in the translation.
+- `-n`, `--name`, `--names`:
+  Optionally provide (a list of) names to use verbatim in the translation.
 
 - `-s`, `--substitution`:
   A pair of strings separated by `::`, to substitute in either source or translation, or the name of a file containing a list of such pairs.

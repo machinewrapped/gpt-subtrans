@@ -334,7 +334,7 @@ class SubtitleTranslator:
                 context['summary'] = batch.summary
                 context['scene'] = scene_summary or context['scene']
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "")
-                #context['characters'] = translation.characters or context.get('characters', []) or options.get('characters')
+                #context['names'] = translation.names or context.get('names', []) or options.get('names')
                 batch.UpdateContext(context)
 
             logging.info(f"Scene {batch.scene} batch {batch.number}: {len(batch.translated or [])} lines and {len(batch.untranslated or [])} untranslated.")

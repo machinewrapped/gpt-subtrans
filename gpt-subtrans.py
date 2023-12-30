@@ -2,7 +2,7 @@ import os
 import argparse
 import logging
 
-from PySubtitle.Helpers import ParseCharacters, ParseSubstitutions
+from PySubtitle.Helpers import ParseNames, ParseSubstitutions
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 
@@ -24,13 +24,13 @@ parser.add_argument('-r', '--ratelimit', type=int, default=None, help="Maximum n
 parser.add_argument('-k', '--apikey', type=str, default=None, help="Your OpenAI API Key (https://platform.openai.com/account/api-keys)")
 parser.add_argument('-t', '--temperature', type=float, default=0.0, help="A higher temperature increases the random variance of translations.")
 parser.add_argument('-p', '--project', type=str, default=None, help="Read or Write project file to working directory")
-parser.add_argument('-c', '--character', action='append', type=str, default=None, help="Read or Write project file to working directory")
+parser.add_argument('-n', '--name', action='append', type=str, default=None, help="A name to use verbatim in the translation")
 parser.add_argument('-s', '--substitution', action='append', type=str, default=None, help="A pair of strings separated by ::, to subsitute in source or translation")
 parser.add_argument('-i', '--instruction', action='append', type=str, default=None, help="An instruction for Chat GPT about the translation")
 parser.add_argument('-f', '--instructionfile', type=str, default=None, help="Name/path of a file to load GPT instructions from")
 parser.add_argument('-b', '--apibase', type=str, default=None, help="API backend base address, the default value is https://api.openai.com/v1")
 parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
-parser.add_argument('--characters', type=str, default=None, help="A list of character names")
+parser.add_argument('--names', type=str, default=None, help="A list of names to use verbatim")
 parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum number of lines to consider starting a new batch")
 parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
@@ -50,7 +50,7 @@ try:
         'target_language': args.target_language,
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'description': args.description,
-        'characters': ParseCharacters(args.characters or args.character),
+        'names': ParseNames(args.names or args.name),
         'substitutions': ParseSubstitutions(args.substitution),
         'match_partial_words': args.matchpartialwords,
         'include_original': args.includeoriginal,

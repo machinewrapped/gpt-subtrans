@@ -6,11 +6,10 @@ import bisect
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers import GetInputPath, GetOutputPath, ParseCharacters, ParseSubstitutions, UnbatchScenes
+from PySubtitle.Helpers import GetInputPath, GetOutputPath, ParseNames, ParseSubstitutions, UnbatchScenes
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
-from PySubtitle.SubtitleError import TranslationError
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
@@ -212,7 +211,7 @@ class SubtitleFile:
             'retry_instructions': "",
             'movie_name': "",
             'description': "",
-            'characters': None,
+            'names': None,
             'substitutions': None,
             'match_partial_words': False,
             'include_original': False,
@@ -223,11 +222,13 @@ class SubtitleFile:
             if self.context:
                 context = {**context, **self.context}
 
-            context['characters'] = ParseCharacters(context.get('characters'))
-            options['characters'] = ParseCharacters(options.get('characters'))
+            context['names'] = ParseNames(context.get('names'))
+            if options.get('names'):
+                options['names'] = ParseNames(options.get('names'))
 
             context['substitutions'] = ParseSubstitutions(context.get('substitutions'))
-            options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
+            if options.get('substitutions'):
+                options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
 
             # Update the context dictionary with matching fields from options, and vice versa
             for key in context.keys():
@@ -239,6 +240,11 @@ class SubtitleFile:
             # Fill description from synopsis for backward compatibility
             if not context.get('description') and context.get('synopsis'):
                 context['description'] = context.get('synopsis')
+
+            # Move characters to names for backward compatibility
+            if context.get('characters'):
+                context['names'].extend(context.get('characters'))
+                del context['characters']
 
             self.context = context
 
