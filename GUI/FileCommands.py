@@ -61,6 +61,7 @@ class SaveProjectFile(Command):
         if self.project.subtitles.translated:
             outputpath = GetOutputPath(self.project.projectfile)
             self.project.SaveSubtitles(outputpath)
+            self.project.subtitles.outputpath = outputpath
         return True
 
 class SaveSubtitleFile(Command):
