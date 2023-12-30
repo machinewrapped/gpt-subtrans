@@ -9,7 +9,7 @@ The user will provide a batch of subtitles for translation, that contain the Chi
 
 You should respond with an accurate, concise, and natural-sounding translation of the Chinese text.
 
-You may reference the English text in the source to help disambiguate the context of the subtitles.
+You may reference the English text in the source to help disambiguate the context of the subtitles, such as the speaker.
 
 Your response will be processed by an automated system, so it is imperative that you adhere to the required output format.
 
