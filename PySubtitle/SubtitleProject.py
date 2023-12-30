@@ -129,7 +129,11 @@ class SubtitleProject:
         Write output file
         """
         include_original = self.options.get('include_original', False)
-        self.subtitles.SaveTranslation(outputpath, include_original=include_original)
+        try:
+            self.subtitles.SaveTranslation(outputpath, include_original=include_original)
+
+        except Exception as e:
+            logging.error(f"Unable to save translation: {e}")
 
     def TranslateScene(self, scene_number, batch_numbers = None, translator : SubtitleTranslator = None):
         """
