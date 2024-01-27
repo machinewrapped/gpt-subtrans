@@ -18,10 +18,15 @@ log_path = os.path.join(config_dir, 'gui-subtrans.log')
 logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
 logging.basicConfig(
     format='%(levelname)s: %(message)s', 
-    level=logging_level,
-    filename=log_path,
-    filemode='w',
+    level=logging_level
     )
+
+# Create file handler with the same logging level
+file_handler = logging.FileHandler(log_path, mode='w')
+formatter = logging.Formatter('%(levelname)s: %(message)s')
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging_level)
+logging.getLogger('').addHandler(file_handler)
 
 def parse_arguments():
     # Parse command line arguments
