@@ -395,6 +395,8 @@ class SubtitleTranslator:
             return None
 
         summary = re.sub(r'^(?:(?:Scene|Batch)[\s\d:\-]*)+', '', summary, flags=re.IGNORECASE)
+        summary = summary.replace("Summary of the batch", "")
+        summary = summary.replace("Summary of the scene", "")
 
         movie_name = self.options.get('movie_name')
         if movie_name:
