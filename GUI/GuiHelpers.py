@@ -1,5 +1,8 @@
+import logging
 import os
 import sys
+
+from PySubtitle.Instructions import Instructions
 
 def GetResourcePath(relative_path):
     if hasattr(sys, "_MEIPASS"):
@@ -19,8 +22,16 @@ def GetThemeNames():
 
 def GetInstructionFiles():
     instruction_path = GetResourcePath("")
+    logging.debug(f"Looking for instruction files in {instruction_path}")
     files = os.listdir(instruction_path)
     return [ file for file in files if file.lower().startswith("instructions") ]
+
+def LoadInstructionsResource(resource_name):
+    filepath = GetResourcePath(resource_name)
+    logging.debug(f"Loading instructions from {filepath}")
+    instructions = Instructions({})
+    instructions.LoadInstructionsFile(filepath)
+    return instructions
 
 def GetLineHeight(text: str, wrap_length: int = 100) -> int:
     """

@@ -1,6 +1,6 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
-from GUI.GuiHelpers import GetInstructionFiles
+from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle import SubtitleProject
@@ -69,21 +69,31 @@ class NewProjectSettings(QDialog):
         self._preview_batches()
 
     def accept(self):
-        self._update_settings()
+        try:
+            self._update_settings()
 
-        instructions = Instructions(self.settings)
-        instructions_file = self.settings.get('instruction_file')
-        if instructions_file:
-            instructions.LoadInstructionsFile(instructions_file)
+            instructions_file = self.settings.get('instruction_file')
+            if instructions_file:
+                logging.info(f"Project instructions set from {instructions_file}")
+                try:
+                    instructions = LoadInstructionsResource(instructions_file)
 
-        self.settings['prompt'] = instructions.prompt
-        self.settings['instructions'] = instructions.instructions
-        self.settings['retry_instructions'] = instructions.retry_instructions
+                    self.settings['prompt'] = instructions.prompt
+                    self.settings['instructions'] = instructions.instructions
+                    self.settings['retry_instructions'] = instructions.retry_instructions
+                    # Legacy
+                    self.settings['gpt_prompt'] = instructions.prompt
 
-        # Legacy
-        self.settings['gpt_prompt'] = instructions.prompt
+                    logging.debug(f"Prompt: {instructions.prompt}")
+                    logging.debug(f"Instructions: {instructions.instructions}")
 
-        self.project.UpdateProjectOptions(self.settings)
+                except Exception as e:
+                    logging.error(f"Unable to load instructions from {instructions_file}: {e}")
+
+            self.project.UpdateProjectOptions(self.settings)
+
+        except Exception as e:
+            logging.error(f"Unable to update settings: {e}")
 
         super(NewProjectSettings, self).accept()
 
@@ -119,8 +129,7 @@ class NewProjectSettings(QDialog):
         instruction_file = self.fields['instruction_file'].GetValue()
         if instruction_file:
             try:
-                instructions = Instructions(self.settings)
-                instructions.LoadInstructionsFile(instruction_file)
+                instructions = LoadInstructionsResource(instruction_file)
                 self.fields['gpt_prompt'].SetValue(instructions.prompt)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")

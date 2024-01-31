@@ -3,6 +3,7 @@ import logging
 import os
 import dotenv
 import appdirs
+from GUI.GuiHelpers import LoadInstructionsResource
 from PySubtitle.Instructions import Instructions
 
 from PySubtitle.version import __version__
@@ -158,11 +159,10 @@ class Options:
             return False
         
     def InitialiseInstructions(self):
-        instructions = Instructions(self.options)
         instruction_file = self.get('instruction_file')
         if instruction_file:
             try:
-                instructions.LoadInstructionsFile(instruction_file)
+                instructions = LoadInstructionsResource(instruction_file)
                 self.options['prompt'] = instructions.prompt
                 self.options['instructions'] = instructions.instructions
                 self.options['retry_instructions'] = instructions.retry_instructions

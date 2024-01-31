@@ -1,6 +1,6 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
-from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames
+from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames, LoadInstructionsResource
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.Instructions import Instructions
@@ -133,8 +133,7 @@ class SettingsDialog(QDialog):
         instruction_file = self.widgets['instruction_file'].GetValue()
         if instruction_file:
             try:
-                instructions = Instructions(self.settings)
-                instructions.LoadInstructionsFile(instruction_file)
+                instructions = LoadInstructionsResource(instruction_file)
                 self.widgets['gpt_prompt'].SetValue(instructions.prompt)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
