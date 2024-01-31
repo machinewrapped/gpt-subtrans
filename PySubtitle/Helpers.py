@@ -271,7 +271,7 @@ def ParseSubstitutions(sub_list, separator="::"):
             if "::" in sub:
                 before, after = sub.split(separator)
                 substitutions[before] = after
-            elif sub.trim():
+            elif sub.strip():
                 try:
                     with open(sub, "r", encoding="utf-8", newline='') as f:
                         for line in [line.strip() for line in f if line.strip()]:
