@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBo
 from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
+from PySubtitle.Instructions import Instructions
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class SettingsDialog(QDialog):
@@ -46,16 +47,17 @@ class SettingsDialog(QDialog):
         }
     }
 
-    def __init__(self, options, parent=None):
+    def __init__(self, settings, parent=None):
         super(SettingsDialog, self).__init__(parent)
         self.setWindowTitle("GUI-Subtrans Settings")
         self.setMinimumWidth(800)
 
-        self.options = options
+        self.settings = settings
+        self.widgets = {}
 
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
 
-        models = SubtitleTranslator.GetAvailableModels(options.get('api_key'), options.get('api_base'))
+        models = SubtitleTranslator.GetAvailableModels(settings.get('api_key'), settings.get('api_base'))
         if models:
             self.SECTIONS['GPT']['gpt_model'] = models
 
@@ -68,9 +70,11 @@ class SettingsDialog(QDialog):
         self.sections = QTabWidget(self)
         self.layout.addWidget(self.sections)
 
-        for section_name, settings in self.SECTIONS.items():
-            section_widget = self.create_section_widget(settings, section_name)
+        for section_name, section_options in self.SECTIONS.items():
+            section_widget = self.create_section_widget(section_options, section_name)
             self.sections.addTab(section_widget, section_name)
+
+        self.widgets['instruction_file'].contentChanged.connect(self._update_instruction_file)
 
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
@@ -87,8 +91,9 @@ class SettingsDialog(QDialog):
 
         for key, key_type in settings.items():
             key_type, tooltip = key_type if isinstance(key_type, tuple) else (key_type, None)
-            field = CreateOptionWidget(key, self.options[key], key_type, tooltip=tooltip)
+            field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
             layout.addRow(field.name, field)
+            self.widgets[key] = field
 
         return section_widget
 
@@ -108,7 +113,7 @@ class SettingsDialog(QDialog):
 
                 for row in range(layout.rowCount()):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
-                    self.options[field.key] = field.GetValue()
+                    self.settings[field.key] = field.GetValue()
 
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
@@ -122,3 +127,11 @@ class SettingsDialog(QDialog):
 
     def reject(self):
         super(SettingsDialog, self).reject()
+
+    def _update_instruction_file(self):
+        """ Update the prompt when the instruction file is changed """
+        instruction_file = self.widgets['instruction_file'].GetValue()
+        if instruction_file:
+            instructions = Instructions(self.settings)
+            instructions.LoadInstructionsFile(instruction_file)
+            self.widgets['gpt_prompt'].SetValue(instructions.prompt)
