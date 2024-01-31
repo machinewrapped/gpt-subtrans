@@ -67,7 +67,7 @@ You should also include a short synopsis of the scene so far, based on the summa
 <scene>A policeman is complaining to his superior officer that his talents are being underutilised. His superior officer tries to reassure him that he is a valuable member of the team.</scene>
 
 ### retry_instructions
-TThere was an issue with the previous subtitles.
+There was an issue with the previous subtitles.
 
 Please polish the subtitles again, paying careful attention to ensure that each line is kept SEPARATE, and that EVERY line is present in the response.
 
