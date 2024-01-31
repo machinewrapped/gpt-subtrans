@@ -25,7 +25,7 @@ logging.basicConfig(
 file_handler = logging.FileHandler(log_path, mode='w')
 formatter = logging.Formatter('%(levelname)s: %(message)s')
 file_handler.setFormatter(formatter)
-file_handler.setLevel(logging_level)
+file_handler.setLevel(logging.INFO)
 logging.getLogger('').addHandler(file_handler)
 
 def parse_arguments():
@@ -46,6 +46,7 @@ def parse_arguments():
     parser.add_argument('--firstrun', action='store_true', help="Show the first-run options dialog on launch")
     parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
     parser.add_argument('--profile', action='store_true', help="Profile execution and write stats to the console")
+    parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
 
     try:
         args = parser.parse_args()
@@ -63,12 +64,18 @@ def parse_arguments():
         'max_batch_size': args.maxbatchsize,
         'batch_threshold': args.batchthreshold,
         'scene_threshold': args.scenethreshold,
+        'include_original': args.includeoriginal,
         'project': args.project and args.project.lower() or 'true',
         'theme': args.theme,
         'firstrun': args.firstrun,
         'profile': args.profile
     }
     
+    if args.debug:
+        file_handler.setLevel(logging.DEBUG)
+        logging.getLogger('').setLevel(logging.DEBUG)
+        logging.debug("Debug logging enabled")
+
     return arguments, args.filepath
 
 def run_with_profiler(app):
