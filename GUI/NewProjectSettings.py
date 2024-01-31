@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
 from GUI.GuiHelpers import GetInstructionFiles
 
@@ -26,6 +27,8 @@ class NewProjectSettings(QDialog):
         self.setWindowTitle("Project Settings")
         self.setMinimumWidth(800)
 
+        self.fields = {}
+
         self.project : SubtitleProject = project
         self.settings : dict = project.options.GetSettings()
         api_key = project.options.api_key()
@@ -49,6 +52,7 @@ class NewProjectSettings(QDialog):
             field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
             field.contentChanged.connect(self._preview_batches)
             self.form_layout.addRow(field.name, field)
+            self.fields[key] = field
 
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(settings_widget)
@@ -59,6 +63,8 @@ class NewProjectSettings(QDialog):
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok, self)
         self.buttonBox.accepted.connect(self.accept)
         self.layout.addWidget(self.buttonBox)
+
+        self.fields['instruction_file'].contentChanged.connect(self._update_instruction_file)
 
         self._preview_batches()
 
@@ -108,3 +114,13 @@ class NewProjectSettings(QDialog):
                 use_simple_batcher = self.settings.get('use_simple_batcher')
                 field.setEnabled(use_simple_batcher)
 
+    def _update_instruction_file(self):
+        """ Update the prompt when the instruction file is changed """
+        instruction_file = self.fields['instruction_file'].GetValue()
+        if instruction_file:
+            try:
+                instructions = Instructions(self.settings)
+                instructions.LoadInstructionsFile(instruction_file)
+                self.fields['gpt_prompt'].SetValue(instructions.prompt)
+            except Exception as e:
+                logging.error(f"Unable to load instructions from {instruction_file}: {e}")

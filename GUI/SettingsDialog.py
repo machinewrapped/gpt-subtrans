@@ -132,6 +132,9 @@ class SettingsDialog(QDialog):
         """ Update the prompt when the instruction file is changed """
         instruction_file = self.widgets['instruction_file'].GetValue()
         if instruction_file:
-            instructions = Instructions(self.settings)
-            instructions.LoadInstructionsFile(instruction_file)
-            self.widgets['gpt_prompt'].SetValue(instructions.prompt)
+            try:
+                instructions = Instructions(self.settings)
+                instructions.LoadInstructionsFile(instruction_file)
+                self.widgets['gpt_prompt'].SetValue(instructions.prompt)
+            except Exception as e:
+                logging.error(f"Unable to load instructions from {instruction_file}: {e}")
