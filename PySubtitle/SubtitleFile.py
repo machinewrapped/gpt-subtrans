@@ -205,8 +205,7 @@ class SubtitleFile:
             return self.UpdateContext(options.options)
     
         context = {
-            'gpt_model': "",
-            'gpt_prompt': "",
+            'prompt': "",
             'target_language': "",
             'instructions': "",
             'retry_instructions': "",
@@ -246,6 +245,13 @@ class SubtitleFile:
             if context.get('characters'):
                 context['names'].extend(context.get('characters'))
                 del context['characters']
+
+            # Copy prompt to gpt_prompt for backward compatibility
+            if context.get('prompt'):
+                options['gpt_prompt'] = context['prompt']
+            elif context.get('gpt_prompt'):
+                context['prompt'] = context['gpt_prompt']
+                del context['gpt_prompt']
 
             self.context = context
 

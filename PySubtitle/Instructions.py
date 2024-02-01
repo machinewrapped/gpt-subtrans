@@ -44,6 +44,16 @@ class Instructions:
     def __init__(self, settings):
         self.InitialiseInstructions(settings)
 
+    def GetSettings(self):
+        """ Generate the settings for these instructions """
+        return {
+            'prompt': self.prompt,
+            'instructions': self.instructions,
+            'retry_instructions': self.retry_instructions,
+            'instruction_file': self.instruction_file,
+            'gpt_prompt': self.prompt,  # Legacy settings
+        }
+
     def InitialiseInstructions(self, settings : dict):
         self.prompt = settings.get('prompt') or settings.get('gpt_prompt')
         self.instructions = settings.get('instructions') or default_instructions

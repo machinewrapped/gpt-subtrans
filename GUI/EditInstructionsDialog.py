@@ -1,4 +1,5 @@
 import logging
+import os
 from PySide6.QtWidgets import (
     QStyle, 
     QApplication, 
@@ -14,21 +15,16 @@ from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
 from PySubtitle.Options import Options
 from PySubtitle.Instructions import Instructions
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
-class TranslatorOptionsDialog(QDialog):
-    def __init__(self, data : dict, parent=None):
+class EditInstructionsDialog(QDialog):
+    def __init__(self, settings : dict, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Translator Options")
+        self.setWindowTitle("Edit Instructions")
         self.setMinimumWidth(800)
 
-        self.model = data.get('model', '')
-        self.models = SubtitleTranslator.GetAvailableModels(data.get('api_key'), data.get('api_base'))
-
-        self.instructions : Instructions = Instructions(data)
+        self.instructions : Instructions = Instructions(settings)
 
         self.form_layout = QFormLayout()
-        self.model_edit = self._add_form_option("model", self.model, self.models, tooltip="Model to use for translation")
         self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, "Prompt for each translation request")
         self.instructions_edit = self._add_form_option("instructions", self.instructions.instructions, MULTILINE_OPTION, "System instructions for the translator")
         self.retry_instructions_edit = self._add_form_option("retry_instructions", self.instructions.retry_instructions, MULTILINE_OPTION, "Supplementary instructions when retrying")
@@ -48,6 +44,9 @@ class TranslatorOptionsDialog(QDialog):
         self.setLayout(layout)
 
     def _add_form_option(self, key, initial_value, key_type, tooltip = None):
+        if initial_value:
+            initial_value = initial_value.replace('\r\n', '\n').replace('\n', os.linesep)
+
         input = CreateOptionWidget(key, initial_value, key_type, tooltip)
         self.form_layout.addRow(key, input)
         return input
@@ -59,8 +58,6 @@ class TranslatorOptionsDialog(QDialog):
         return button
 
     def accept(self):
-        self.model = self.model_edit.GetValue()
-
         if self._check_for_edited_instructions():
             self.instructions.prompt = self.prompt_edit.GetValue()
             self.instructions.instructions = self.instructions_edit.GetValue()
@@ -80,6 +77,8 @@ class TranslatorOptionsDialog(QDialog):
             return True
         if self.retry_instructions_edit.GetValue() != self.instructions.retry_instructions:
             return True
+        
+        return False
 
     @property
     def load_icon(self):
@@ -122,7 +121,6 @@ class TranslatorOptionsDialog(QDialog):
 
     def set_defaults(self):
         options = Options()
-        self.model_edit.SetValue(options.get('model'))
         self.prompt_edit.SetValue(options.get('prompt'))
         self.instructions_edit.SetValue(options.get('instructions'))
         self.retry_instructions_edit.SetValue(options.get('retry_instructions'))
