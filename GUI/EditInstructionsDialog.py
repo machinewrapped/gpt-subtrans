@@ -45,7 +45,7 @@ class EditInstructionsDialog(QDialog):
 
     def _add_form_option(self, key, initial_value, key_type, tooltip = None):
         if initial_value:
-            initial_value = initial_value.replace('\r\n', '\n').replace('\n', os.linesep)
+            initial_value = initial_value.replace('\r\n', '\n')
 
         input = CreateOptionWidget(key, initial_value, key_type, tooltip)
         self.form_layout.addRow(key, input)

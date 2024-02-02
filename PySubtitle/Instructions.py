@@ -1,7 +1,9 @@
 import logging
 import os
 
-default_instructions = os.linesep.join([
+linesep = '\n'
+
+default_instructions = linesep.join([
 	"Your task is to accurately translate subtitles into a target language."
 	"The user will provide a batch of lines for translation, you should respond with an ACCURATE, CONCISE, and NATURAL-SOUNDING translation for EACH LINE in the batch."
 	"The user may provide additional information, such as a list of names or a synopsis of earlier batches. Use this to improve your translation."
@@ -34,7 +36,7 @@ default_instructions = os.linesep.join([
 	"könnten sich zurückgelassen finden."
     ])
 
-default_retry_instructions = os.linesep.join([
+default_retry_instructions = linesep.join([
 	"There was an issue with the previous translation."
 	"Translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation."
 	"Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader."
@@ -62,9 +64,9 @@ class Instructions:
 
         # Add any additional instructions from the command line
         if settings.get('instruction_args'):
-            additional_instructions = os.linesep.join(settings['instruction_args'])
+            additional_instructions = linesep.join(settings['instruction_args'])
             if additional_instructions:
-                self.instructions = os.linesep.join([self.instructions, additional_instructions])
+                self.instructions = linesep.join([self.instructions, additional_instructions])
 
         tags = {
             "[ for movie]": f" for {settings.get('movie_name')}" if settings.get('movie_name') else "",
@@ -107,9 +109,9 @@ class Instructions:
             elif line.strip() or sections[section_name]:
                 sections[section_name].append(line)
 
-        self.prompt = os.linesep.join(sections.get('prompt', []))
-        self.instructions = os.linesep.join(sections.get('instructions', []))
-        self.retry_instructions = os.linesep.join(sections.get('retry_instructions', [])) or default_retry_instructions
+        self.prompt = linesep.join(sections.get('prompt', []))
+        self.instructions = linesep.join(sections.get('instructions', []))
+        self.retry_instructions = linesep.join(sections.get('retry_instructions', [])) or default_retry_instructions
         self.instruction_file = os.path.basename(filepath)
 
         if not self.prompt or not self.instructions:
@@ -143,9 +145,9 @@ def LoadLegacyInstructions(lines):
     if lines:
         for idx, item in enumerate(lines):
             if len(item) >= 3 and all(c == '#' for c in item):
-                return os.linesep.join(lines[:idx]), os.linesep.join(lines[idx + 1:])
+                return linesep.join(lines[:idx]), linesep.join(lines[idx + 1:])
 
-        return os.linesep.join(lines), []
+        return linesep.join(lines), []
         
     return None, None
 
