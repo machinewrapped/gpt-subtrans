@@ -1,11 +1,22 @@
 import logging
-from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QDialog
+from PySide6.QtWidgets import (
+    QGroupBox,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QCheckBox,
+    QPushButton,
+    QDialog,
+    QFileDialog
+)
 from PySide6.QtCore import Signal, QSignalBlocker
 from GUI.EditInstructionsDialog import EditInstructionsDialog
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Options import Options
 from PySubtitle.Helpers import ParseNames, ParseSubstitutions
+from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleProject import SubtitleProject
 
 class ProjectOptions(QGroupBox):
     """
@@ -29,8 +40,9 @@ class ProjectOptions(QGroupBox):
         self.AddMultiLineOption(3, "Description", self.settings, 'description')
         self.AddMultiLineOption(4, "Names", self.settings, 'names')
         self.AddMultiLineOption(5, "Substitutions", self.settings, 'substitutions')
-        self.AddCheckboxOption(6, "Match Partial Words", self.settings, 'match_partial_words')
+        self.AddCheckboxOption(6, "Substitute Partial Words", self.settings, 'match_partial_words')
         self.AddButtonOption(7, "", "Edit Instructions", self._edit_instructions)
+        self.AddButtonOption(8, "", "Copy From Another Project", self._copy_from_another_project)
 
         self.Populate(self.settings)
 
@@ -50,7 +62,6 @@ class ProjectOptions(QGroupBox):
             "match_partial_words": self.match_partial_words_input.isChecked()
         }
 
-        options.update(self._translator_options)
         return options
 
     def AddSingleLineOption(self, row, label, settings, key):
@@ -150,3 +161,22 @@ class ProjectOptions(QGroupBox):
             logging.info("Instructions for this project updated")
             self.settings.update(dialog.instructions.GetSettings())
             self.optionsChanged.emit(dialog.instructions.GetSettings())
+
+    def _copy_from_another_project(self):
+        '''
+        Copy project settings from another project file
+        '''
+        dialog_options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select project to copy settings from", "", "Subtrans Files (*.subtrans);;All Files (*)", options=dialog_options)
+        if file_name:
+            try:
+                project_options = Options({"project": 'read'})
+                source : SubtitleProject = SubtitleProject(project_options)
+                subtitles : SubtitleFile = source.ReadProjectFile(file_name)
+                if not subtitles:
+                    raise Exception("Invalid project file")
+
+                self.Populate(subtitles.context)
+
+            except Exception as e:
+                logging.error(f"Unable to read project file: {str(e)}")
