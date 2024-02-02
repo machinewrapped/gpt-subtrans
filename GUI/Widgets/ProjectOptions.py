@@ -1,11 +1,22 @@
 import logging
-from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QDialog
+from PySide6.QtWidgets import (
+    QGroupBox,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QCheckBox,
+    QPushButton,
+    QDialog,
+    QFileDialog
+)
 from PySide6.QtCore import Signal, QSignalBlocker
-from GUI.TranslatorOptions import TranslatorOptionsDialog
+from GUI.EditInstructionsDialog import EditInstructionsDialog
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Options import Options
 from PySubtitle.Helpers import ParseNames, ParseSubstitutions
+from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleProject import SubtitleProject
 
 class ProjectOptions(QGroupBox):
     """
@@ -13,28 +24,27 @@ class ProjectOptions(QGroupBox):
     """
     optionsChanged = Signal(dict)
 
-    _translator_options = {}
-
-    def __init__(self, options=None):
+    def __init__(self, settings=None):
         super().__init__()
         self.setTitle("Project Options")
         self.setMinimumWidth(450)
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
 
-        options = options if options else {}
+        self.settings = settings or {}
 
         # Add options
-        self.AddSingleLineOption(0, "Movie Name", options, 'movie_name')
-        self.AddSingleLineOption(1, "Target Language", options, 'target_language')
-        self.AddCheckboxOption(2, "Include Original Text", options, 'include_original')
-        self.AddMultiLineOption(3, "Description", options, 'description')
-        self.AddMultiLineOption(4, "Names", options, 'names')
-        self.AddMultiLineOption(5, "Substitutions", options, 'substitutions')
-        self.AddCheckboxOption(6, "Match Partial Words", options, 'match_partial_words')
-        self.AddButtonOption(7, "", "Translator Settings", self._translator_settings)
+        self.AddSingleLineOption(0, "Movie Name", self.settings, 'movie_name')
+        self.AddSingleLineOption(1, "Target Language", self.settings, 'target_language')
+        self.AddCheckboxOption(2, "Include Original Text", self.settings, 'include_original')
+        self.AddMultiLineOption(3, "Description", self.settings, 'description')
+        self.AddMultiLineOption(4, "Names", self.settings, 'names')
+        self.AddMultiLineOption(5, "Substitutions", self.settings, 'substitutions')
+        self.AddCheckboxOption(6, "Substitute Partial Words", self.settings, 'match_partial_words')
+        self.AddButtonOption(7, "", "Edit Instructions", self._edit_instructions)
+        self.AddButtonOption(8, "", "Copy From Another Project", self._copy_from_another_project)
 
-        self.Populate(options)
+        self.Populate(self.settings)
 
         self.layout.addLayout(self.grid_layout)
 
@@ -52,25 +62,24 @@ class ProjectOptions(QGroupBox):
             "match_partial_words": self.match_partial_words_input.isChecked()
         }
 
-        options.update(self._translator_options)
         return options
 
-    def AddSingleLineOption(self, row, label, options, key):
+    def AddSingleLineOption(self, row, label, settings, key):
         # Add label and input field for a single-line option
         label_widget = QLabel(label)
         input_widget = QLineEdit()
-        input_widget.setText(options.get(key, ""))
+        input_widget.setText(settings.get(key, ""))
         input_widget.editingFinished.connect(self._text_changed)
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
 
-    def AddMultiLineOption(self, row, label, options, key):
+    def AddMultiLineOption(self, row, label, settings, key):
         # Add label and input field for a multi-line option
         label_widget = QLabel(label)
         input_widget = TextBoxEditor()
         input_widget.setAcceptRichText(False)
-        value = options.get(key, "")
+        value = settings.get(key, "")
         if isinstance(value, list):
             value = '\n'.join(value)
         input_widget.setPlainText(value)
@@ -98,26 +107,14 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(button_widget, row, 1)        
 
-    def Populate(self, options):
-        if isinstance(options, Options):
-            return self.Populate(options.options)
-
-        self.api_key = options.get('api_key')
-
-        self._translator_options = {
-            'api_key': options.get('api_key'),
-            'api_base': options.get('api_base'),
-            'model': options.get('model') or options.get('gpt_model'),
-            'prompt': options.get('prompt') or options.get('gpt_prompt'),
-            'instructions': options.get('instructions'),
-            'retry_instructions': options.get('retry_instructions'),
-            'instruction_file': options.get('instruction_file'),
-        }
+    def Populate(self, settings):
+        if isinstance(settings, Options):
+            return self.Populate(settings.options)
 
         with QSignalBlocker(self):
-            for key in options:
+            for key in settings:
                 if hasattr(self, key + "_input"):
-                    value = options.get(key)
+                    value = settings.get(key)
                     self._setvalue(key, value)
 
     def Clear(self):
@@ -154,20 +151,30 @@ class ProjectOptions(QGroupBox):
         options = self.GetOptions()
         self.optionsChanged.emit(options)
 
-    def _translator_settings(self):
-        dialog = TranslatorOptionsDialog(self._translator_options, parent=self)
+    def _edit_instructions(self):
+        dialog = EditInstructionsDialog(self.settings, parent=self)
         result = dialog.exec()
 
         if result == QDialog.Accepted:
-            logging.info("Translation settings for this project updated")
-            self._translator_options['model'] = dialog.model
-            self._translator_options['prompt'] = dialog.instructions.prompt
-            self._translator_options['instructions'] = dialog.instructions.instructions
-            self._translator_options['retry_instructions'] = dialog.instructions.retry_instructions
-            self._translator_options['instruction_file'] = dialog.instructions.instruction_file
+            logging.info("Instructions for this project updated")
+            self.settings.update(dialog.instructions.GetSettings())
+            self.optionsChanged.emit(dialog.instructions.GetSettings())
 
-            # Legacy options
-            self._translator_options['gpt_model'] = dialog.model
-            self._translator_options['gpt_prompt'] = dialog.instructions.prompt
+    def _copy_from_another_project(self):
+        '''
+        Copy project settings from another project file
+        '''
+        dialog_options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select project to copy settings from", "", "Subtrans Files (*.subtrans);;All Files (*)", options=dialog_options)
+        if file_name:
+            try:
+                project_options = Options({"project": 'read'})
+                source : SubtitleProject = SubtitleProject(project_options)
+                subtitles : SubtitleFile = source.ReadProjectFile(file_name)
+                if not subtitles:
+                    raise Exception("Invalid project file")
 
-            self.optionsChanged.emit(self._translator_options)
+                self.Populate(subtitles.context)
+
+            except Exception as e:
+                logging.error(f"Unable to read project file: {str(e)}")

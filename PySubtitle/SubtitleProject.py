@@ -67,7 +67,7 @@ class SubtitleProject:
 
         if self.read_project:
             # Try to load the project file
-            subtitles = self.ReadProjectFile()
+            subtitles = self.ReadProjectFile(self.projectfile)
 
             if subtitles and subtitles.scenes:
                 self.load_subtitles = False
@@ -243,15 +243,16 @@ class SubtitleProject:
             backupfile = self.GetBackupFilepath(self.projectfile)
             self.WriteProjectFile(backupfile)
 
-    def ReadProjectFile(self):
+    def ReadProjectFile(self, filepath = None):
         """
         Load scenes, subtitles and context from a project file
         """
         try:
+            filepath = filepath or self.projectfile
             with self.lock:
-                logging.info(f"Reading project data from {str(self.projectfile)}")
+                logging.info(f"Reading project data from {str(filepath)}")
 
-                with open(self.projectfile, 'r', encoding=default_encoding, newline='') as f:
+                with open(filepath, 'r', encoding=default_encoding, newline='') as f:
                     subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
 
                 subtitles.Sanitise()
@@ -261,7 +262,7 @@ class SubtitleProject:
                 return subtitles
 
         except FileNotFoundError:
-            logging.error(f"Project file {self.projectfile} not found")
+            logging.error(f"Project file {filepath} not found")
             return None
 
         except json.JSONDecodeError as e:
