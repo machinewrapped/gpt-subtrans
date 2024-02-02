@@ -111,8 +111,6 @@ class ProjectOptions(QGroupBox):
         if isinstance(settings, Options):
             return self.Populate(settings.options)
 
-        self.api_key = settings.get('api_key')
-
         with QSignalBlocker(self):
             for key in settings:
                 if hasattr(self, key + "_input"):
