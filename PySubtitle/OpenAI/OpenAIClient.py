@@ -72,7 +72,7 @@ class OpenAIClient(TranslationClient):
             if not response or not response.data:
                 return []
 
-            model_list = [ model.id for model in response.data if model.id.startswith('gpt') ]
+            model_list = [ model.id for model in response.data if model.id.startswith('gpt') and model.id.find('vision') < 0 ]
             
             return sorted(model_list)
 
