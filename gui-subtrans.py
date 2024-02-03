@@ -22,11 +22,15 @@ logging.basicConfig(
     )
 
 # Create file handler with the same logging level
-file_handler = logging.FileHandler(log_path, mode='w')
-formatter = logging.Formatter('%(levelname)s: %(message)s')
-file_handler.setFormatter(formatter)
-file_handler.setLevel(logging.INFO)
-logging.getLogger('').addHandler(file_handler)
+try:
+    os.makedirs(config_dir, exist_ok=True)
+    file_handler = logging.FileHandler(log_path, mode='w')
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
+    logging.getLogger('').addHandler(file_handler)
+except Exception as e:
+    logging.warn(f"Unable to create log file at {log_path}: {e}")
 
 def parse_arguments():
     # Parse command line arguments
