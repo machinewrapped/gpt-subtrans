@@ -176,6 +176,13 @@ class DropdownOptionWidget(OptionWidget):
     def SetValue(self, value):
         self.combo_box.setCurrentIndex(self.combo_box.findText(value))
 
+    def SetOptions(self, values, selected_value = None):
+        self.combo_box.clear()
+        for value in values:
+            self.combo_box.addItem(value)
+            if selected_value and value == selected_value:
+                self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
+
 def CreateOptionWidget(key, initial_value, key_type, tooltip = None) -> OptionWidget:
     # Helper function to create an OptionWidget based on the specified type
     if isinstance(key_type, list):
