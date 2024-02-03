@@ -117,6 +117,8 @@ class ProjectOptions(QGroupBox):
                     value = settings.get(key)
                     self._setvalue(key, value)
 
+            self.settings = settings
+
     def Clear(self):
         with QSignalBlocker(self):
             for key in ["movie_name", "description", "names", "substitutions", "match_partial_words", "include_original"]:
