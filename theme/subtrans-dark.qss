@@ -21,18 +21,12 @@ QTextEdit {
     color: white;
 }
 
-QComboBox {
+QComboBox, QComboBox::drop-down{
     background-color: white;
     color: #363636;
 }
 
-QComboBox::drop-down {
-    border: none;
-    background-color: white;
-    color: #363636;
-}
-
-QComboBox::drop-down QAbstractItemView {
+QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
     background-color: white;
     color: #363636;
 }
