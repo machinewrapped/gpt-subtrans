@@ -78,6 +78,7 @@ class MainWindow(QMainWindow):
         self.action_handler = ProjectActions(mainwindow=self, datamodel=self.datamodel)
         self.action_handler.issueCommand.connect(self.QueueCommand)
         self.action_handler.actionError.connect(self._on_error)
+        self.action_handler.saveSettings.connect(self.PrepareForSave)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -148,13 +149,16 @@ class MainWindow(QMainWindow):
         _ = AboutDialog(self).exec()
 
     def PrepareForSave(self):
-        self.model_viewer.CloseProjectOptions()
+        if self.model_viewer and self.datamodel:
+            self.model_viewer.CloseProjectOptions()
 
     def closeEvent(self, e):
         if self.command_queue and self.command_queue.AnyCommands():
             self.QueueCommand(ClearCommandQueue())
             self.QueueCommand(ExitProgramCommand())
             self.command_queue.Stop()
+
+        self.PrepareForSave()
 
         project = self.datamodel.project
         if project and project.subtitles:

@@ -39,6 +39,7 @@ class NoApiKeyError(ActionError):
 class ProjectActions(QObject):
     issueCommand = Signal(object)
     actionError = Signal(object)
+    saveSettings = Signal()
 
     _actions = {}
 
@@ -172,6 +173,8 @@ class ProjectActions(QObject):
         datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel(datamodel)
 
+        self.saveSettings.emit()
+
         if datamodel.project.needsupdate:
             datamodel.project.WriteProjectFile()
 
@@ -181,6 +184,8 @@ class ProjectActions(QObject):
     def _start_translating_fast(self):
         datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel(datamodel)
+
+        self.saveSettings.emit()
 
         if datamodel.project.needsupdate:
             datamodel.project.WriteProjectFile()
