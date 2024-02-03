@@ -20,7 +20,7 @@ class ModelView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self._toolbar = ProjectToolbar(self)
-        self._toolbar.toggleOptions.connect(self.ToggleProjectOptions)
+        self._toolbar.toggleOptions.connect(self.ToggleProjectSettings)
         self._toolbar.setVisible(False)
         layout.addWidget(self._toolbar)
 
@@ -81,7 +81,7 @@ class ModelView(QWidget):
             if self._toolbar.show_options:
                 self.project_options.show()
 
-    def ToggleProjectOptions(self, show = None):
+    def ToggleProjectSettings(self, show = None):
         if self.project_options.isVisible() and not show:
             self.CloseProjectOptions()
         else:

@@ -40,6 +40,9 @@ class ProjectActions(QObject):
     issueCommand = Signal(object)
     actionError = Signal(object)
     saveSettings = Signal()
+    showSettings = Signal()
+    toggleProjectSettings = Signal()
+    showAboutDialog = Signal()
 
     _actions = {}
 
@@ -52,12 +55,12 @@ class ProjectActions(QObject):
         self.AddAction('Quit', self._quit, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
         self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
         self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold Shift to save as...)')
-        self.AddAction('Project Options', self._toggle_project_options, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Options')
-        self.AddAction('Settings', self._show_settings_dialog, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
+        self.AddAction('Project Settings', self.toggleProjectSettings, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Settings')
+        self.AddAction('Settings', self.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
         self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
         self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
         self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
-        self.AddAction('About', self._show_about_dialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
+        self.AddAction('About', self.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
         #TODO: Mixing different concepts of "action" here, is there a better separation?
         # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
@@ -129,7 +132,7 @@ class ProjectActions(QObject):
         if not project:
             raise ActionError("Nothing to save!")
         
-        self._mainwindow.PrepareForSave()
+        self.saveSettings.emit()
 
         filepath = project.projectfile
         if not filepath or not os.path.exists(filepath) or self._is_shift_pressed():
@@ -142,19 +145,8 @@ class ProjectActions(QObject):
     def _is_shift_pressed(self):
         return QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
 
-    def _toggle_project_options(self):
-        """
-        Hide or show the project options panel
-        """
-        # TODO: Route GUI actions with signals and events or something
-        model_viewer: ModelView = self._mainwindow.model_viewer
-        model_viewer.ToggleProjectOptions()
-    
     def _show_settings_dialog(self):
-        self._mainwindow.ShowSettingsDialog()
-
-    def _show_about_dialog(self):
-        self._mainwindow.ShowAboutDialog()
+        self.showSettings.emit()
 
     def _validate_datamodel(self, datamodel : ProjectDataModel):
         """

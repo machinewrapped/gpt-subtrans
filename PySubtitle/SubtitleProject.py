@@ -280,7 +280,7 @@ class SubtitleProject:
             self.needsupdate = True
             # self.WriteProjectFile()
 
-    def UpdateProjectOptions(self, options: dict):
+    def UpdateProjectSettings(self, options: dict):
         """
         Replace options if the provided dictionary has an entry with the same key
         """

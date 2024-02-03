@@ -16,10 +16,10 @@ class ProjectDataModel:
         if project and project.options:
               self.options.update(project.options)
 
-    def UpdateOptions(self, options : Options):
+    def UpdateSettings(self, options : Options):
         """ Update any options that have changed """
         #TODO: only store options in project that are non-default
-        self.project.UpdateProjectOptions(options)
+        self.project.UpdateProjectSettings(options)
         self.options.update(self.project.options)
 
     def IsProjectInitialised(self):

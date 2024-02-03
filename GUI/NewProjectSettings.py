@@ -90,7 +90,7 @@ class NewProjectSettings(QDialog):
                 except Exception as e:
                     logging.error(f"Unable to load instructions from {instructions_file}: {e}")
 
-            self.project.UpdateProjectOptions(self.settings)
+            self.project.UpdateProjectSettings(self.settings)
 
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")

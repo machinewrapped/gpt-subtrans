@@ -79,6 +79,9 @@ class MainWindow(QMainWindow):
         self.action_handler.issueCommand.connect(self.QueueCommand)
         self.action_handler.actionError.connect(self._on_error)
         self.action_handler.saveSettings.connect(self.PrepareForSave)
+        self.action_handler.showSettings.connect(self.ShowSettingsDialog)
+        self.action_handler.toggleProjectSettings.connect(self._toggle_project_settings)
+        self.action_handler.showAboutDialog.connect(self.ShowAboutDialog)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -97,7 +100,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(splitter)
 
         self.model_viewer = ModelView(splitter)
-        self.model_viewer.optionsChanged.connect(self._on_project_options_changed)
+        self.model_viewer.optionsChanged.connect(self._on_project_settings_changed)
         self.model_viewer.actionRequested.connect(self._on_action_requested)
         splitter.addWidget(self.model_viewer)
 
@@ -247,9 +250,12 @@ class MainWindow(QMainWindow):
     def _update_main_toolbar(self):
         self.toolbar.SetBusyStatus(self.datamodel, self.command_queue)
 
-    def _on_project_options_changed(self, options: dict):
+    def _toggle_project_settings(self, show = None):
+        self.model_viewer.ToggleProjectSettings(show)
+
+    def _on_project_settings_changed(self, options: dict):
         if options and self.datamodel:
-            self.datamodel.UpdateOptions(options)
+            self.datamodel.UpdateSettings(options)
 
     def _first_run(self, options: Options):
         settings = options.GetSettings()
