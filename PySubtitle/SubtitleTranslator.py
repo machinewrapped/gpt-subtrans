@@ -33,10 +33,9 @@ class SubtitleTranslator:
         self.events = TranslationEvents()
         self.aborted = False
 
-        if not options.get('reparse') or not options.get('prompt'):
-            options.add('prompt', BuildPrompt(options))
+        self.prompt = BuildPrompt(options)
 
-        logging.debug(f"Translation prompt: {options.get('prompt')}")
+        logging.debug(f"Translation prompt: {self.prompt}")
  
         # Update subtitle context from options and make our own copy of it
         self.context = subtitles.UpdateContext(options).copy()
@@ -162,8 +161,6 @@ class SubtitleTranslator:
 
         substitutions = ParseSubstitutions(context.get('substitutions', {}))
         match_partial_words = options.get('match_partial_words')
-
-        prompt = options.get('prompt')
         max_context_summaries = options.get('max_context_summaries')
 
         client = self.client
@@ -215,7 +212,7 @@ class SubtitleTranslator:
                     context['batch'] = f"Scene {batch.scene} batch {batch.number}"
 
                     # Ask the client to do the translation
-                    translation : Translation = client.RequestTranslation(prompt, originals, context)
+                    translation : Translation = client.RequestTranslation(self.prompt, originals, context)
 
                     if self.aborted:
                         raise TranslationAbortedError()
@@ -226,7 +223,7 @@ class SubtitleTranslator:
                     if translation.reached_token_limit:
                         # Try again without the context to keep the tokens down
                         logging.warning("Hit API token limit, retrying batch without context...")
-                        translation = client.RequestTranslation(prompt, originals, None)
+                        translation = client.RequestTranslation(self.prompt, originals, None)
 
                         if translation.reached_token_limit:
                             raise TranslationError(f"Too many tokens in translation", translation)

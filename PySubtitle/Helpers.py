@@ -126,7 +126,6 @@ def BuildPrompt(options : Options):
     prompt = options.get('prompt') or options.get('gpt_prompt')
     prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
     prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
-    options.add('prompt', prompt)
     return prompt
 
 def ParseTranslation(text):
