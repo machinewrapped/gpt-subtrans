@@ -310,12 +310,12 @@ class SubtitleTranslator:
                 logging.warn(f"Scene {batch.scene} batch {batch.number} failed validation, requesting retranslation")
                 retranslated = self.RequestRetranslations(client, batch, translation)
 
-                translated = MergeTranslations(translated or {}, retranslated)
+                translated = MergeTranslations(translated or [], retranslated)
 
             # Assign the translated lines to the batch
             if line_numbers:
                 translated = [line for line in translated if line.number in line_numbers]
-                batch.translated = MergeTranslations(batch.translated, translated)
+                batch.translated = MergeTranslations(batch.translated or [], translated)
             else:
                 batch.translated = translated
 
