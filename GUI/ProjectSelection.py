@@ -4,8 +4,8 @@ from PySide6.QtCore import Qt
 from GUI.ProjectViewModel import BatchItem, SceneItem
 
 class SelectionScene:
-    def __init__(self, scene : SceneItem, selected : bool = True) -> None:
-        self.number = scene.number
+    def __init__(self, number : int, selected : bool = True) -> None:
+        self.number = number
         self.selected = selected
 
     def __getitem__(self, index):
@@ -21,9 +21,8 @@ class SelectionScene:
         return str(self)
 
 class SelectionBatch:
-    def __init__(self, batch : BatchItem, selected : bool = True) -> None:
-        self.scene = batch.scene
-        self.number = batch.number
+    def __init__(self, batch_number : (int, int), selected : bool = True) -> None:
+        self.scene, self.number = batch_number
         self.selected = selected
 
     def __str__(self) -> str:
@@ -243,7 +242,7 @@ class ProjectSelection():
 
         if isinstance(item, SceneItem):
             if selected or not item.number in self.scenes.keys():
-                self.scenes[item.number] = SelectionScene(item, selected)
+                self.scenes[item.number] = SelectionScene(item.number, selected)
 
                 children = [ model.index(i, 0, index) for i in range(model.rowCount(index))]
                 for child_index in children:
@@ -252,7 +251,7 @@ class ProjectSelection():
         elif isinstance(item, BatchItem):
             key = (item.scene, item.number)
             if selected or not key in self.batches:
-                batch = SelectionBatch(item, selected)
+                batch = SelectionBatch((item.scene, item.number), selected)
                 self.batches[key] = batch
                 if not self.scenes.get(item.scene):
                     self.AppendItem(model, model.parent(index), False)
@@ -268,8 +267,17 @@ class ProjectSelection():
         """
         for line in selected_originals:
             self.originals[line.number] = line
+            if line.scene not in self.scenes:
+                self.scenes[line.scene] = SelectionScene(line.scene, False)
+            if (line.scene, line.batch) not in self.batches:
+                self.batches[(line.scene, line.batch)] = SelectionBatch((line.scene, line.batch), False)
+
         for line in selected_translations:
             self.translated[line.number] = line
+            if line.scene not in self.scenes:
+                self.scenes[line.scene] = SelectionScene(line.scene, False)
+            if (line.scene, line.batch) not in self.batches:
+                self.batches[(line.scene, line.batch)] = SelectionBatch((line.scene, line.batch), False)
 
     def __str__(self):
         if self.selected_originals or self.selected_translated:

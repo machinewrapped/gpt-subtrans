@@ -50,7 +50,7 @@ class SelectionView(QFrame):
         else:
             self._label.setText(str(selection))
 
-        _show(self._translate_button, selection.original_lines and selection.Any() and not selection.AnyLines())
+        _show(self._translate_button, selection.original_lines and selection.Any())
         _show(self._split_batch_button, selection.AnyLines() and not selection.MultipleSelected() and not selection.IsFirstInBatchSelected())
         _show(self._split_scene_button, selection.AnyBatches() and not selection.MultipleSelected() and not selection.IsFirstInSceneSelected())
         _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsContiguous())
