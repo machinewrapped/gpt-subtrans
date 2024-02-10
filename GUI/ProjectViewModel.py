@@ -668,7 +668,7 @@ class SceneItem(ViewModelItem):
     
     @property
     def translated_batch_count(self):
-        return sum(1 if batch.translated else 0 for batch in self.batches.values())
+        return sum(1 if batch.translated_count else 0 for batch in self.batches.values())
 
     @property
     def line_count(self):
