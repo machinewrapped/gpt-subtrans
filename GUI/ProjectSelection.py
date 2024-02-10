@@ -21,7 +21,7 @@ class SelectionScene:
         return str(self)
 
 class SelectionBatch:
-    def __init__(self, batch_number : (int, int), selected : bool = True) -> None:
+    def __init__(self, batch_number : tuple, selected : bool = True) -> None:
         self.scene, self.number = batch_number
         self.selected = selected
 
