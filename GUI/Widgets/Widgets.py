@@ -64,7 +64,7 @@ class WidgetBody(QLabel):
         self.setWordWrap(True)
 
 class LineItemView(QWidget):
-    def __init__(self, line, parent=None):
+    def __init__(self, line : LineItem, parent=None):
         super(LineItemView, self).__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
@@ -77,11 +77,23 @@ class LineItemView(QWidget):
 
         self.setLayout(layout)
 
-class LineItemHeader(QLabel):
-    def __init__(self, line: LineItem, parent=None):
+class LineItemHeader(QFrame):
+    def __init__(self, line : LineItem, parent=None):
         super(LineItemHeader, self).__init__(parent)
-        self.setText(f"[{str(line.number)}] {str(line.start)} --> {str(line.end)}   ({str(line.duration)})")
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        layout = QHBoxLayout()
+        leftLabel = QLabel(f"[{str(line.number)}] {str(line.start)} --> {str(line.end)}")
+        leftLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        leftLabel.setObjectName("line-header-left")
+
+        rightLabel = QLabel(f"(Gap: {str(line.gap)}, Length: {str(line.duration)})" if line.gap else f"Length: {str(line.duration)})")
+        rightLabel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        rightLabel.setObjectName("line-header-right")
+
+        layout.addWidget(leftLabel)
+        layout.addWidget(rightLabel)
+        self.setLayout(layout)
 
 class LineItemBody(QLabel):
     def __init__(self, text: str, parent=None):

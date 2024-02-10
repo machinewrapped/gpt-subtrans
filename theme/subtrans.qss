@@ -108,11 +108,24 @@ QListView:item {
 }
 
 .LineItemHeader {
-    font-weight: bold;
     margin: 0px;
-    padding: 2px;
+    padding: 0px;
     background-color: aliceblue;
     color: black;
+}
+
+.LineItemHeader QLabel {
+    margin: 0px;
+    padding: 0px;
+}
+
+#line-header-left {
+    font-weight: bold;
+}
+
+#line-header-right {
+    color: peru;
+    font-size: 9pt;
 }
 
 .LineItemBody {

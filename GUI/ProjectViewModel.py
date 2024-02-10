@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from GUI.GuiHelpers import GetLineHeight
+from GUI.GuiHelpers import GetLineHeight, TimeDeltaToText
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle import SubtitleLine
 
@@ -74,6 +74,7 @@ class ProjectViewModel(QStandardItemModel):
     def CreateBatchItem(self, scene_number : int, batch : SubtitleBatch):
         batch_item = BatchItem(scene_number, batch)
 
+        gap_start = None
         for line in batch.originals:
             batch_item.AddLineItem(line.number, {
                 'scene': scene_number,
@@ -81,8 +82,11 @@ class ProjectViewModel(QStandardItemModel):
                 'start': line.srt_start,
                 'end': line.srt_end,
                 'duration': line.srt_duration,
+                'gap': TimeDeltaToText(line.start - gap_start) if gap_start else "",
                 'text': line.text
             })
+
+            gap_start = line.end
 
         if batch.translated:
             for line in batch.translated:
@@ -379,6 +383,7 @@ class ProjectViewModel(QStandardItemModel):
                 'start': line.srt_start,
                 'end': line.srt_end,
                 'duration': line.srt_duration,
+                'gap': None,
                 'text': line.text
             })
 
@@ -437,6 +442,7 @@ class ProjectViewModel(QStandardItemModel):
                 'start': line.srt_start,
                 'end': line.srt_end,
                 'duration': line.srt_duration,
+                'gap': None,
                 'text': line.text
             })
 
@@ -516,6 +522,10 @@ class LineItem(QStandardItem):
     @property
     def duration(self):
         return self.line_model['duration']
+    
+    @property
+    def gap(self):
+        return self.line_model['gap']
 
     @property
     def text(self):
@@ -694,6 +704,7 @@ class SceneItem(ViewModelItem):
             'start': scene.batches[0].srt_start,
             'end': scene.batches[-1].srt_end,
             'duration': None,
+            'gap': None,
             'summary': scene.summary
         }
         self.setText(f"Scene {scene.number}")
@@ -754,7 +765,7 @@ class SceneItem(ViewModelItem):
         if not isinstance(update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
-        UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration'])
+        UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration', 'gap'])
 
     def GetContent(self):
         str_translated = "All batches translated" if self.translated_batch_count == self.batch_count else f"{self.translated_batch_count} of {self.batch_count} batches translated"
