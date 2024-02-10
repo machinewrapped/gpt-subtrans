@@ -239,8 +239,8 @@ class ProjectSelection():
             self.lines[line.number] = line
             key = (line.scene, line.batch)
             if key not in self.batches:
-                self.batches[key] = SelectionBatch(line, False)
-                self.scenes[line.scene] = SelectionScene(line, False)
+                self.batches[key] = SelectionBatch(key, False)
+                self.scenes[line.scene] = SelectionScene(line.scene, False)
 
     def __str__(self):
         if self.selected_lines:
