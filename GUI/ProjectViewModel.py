@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from GUI.GuiHelpers import GetLineHeight
+from GUI.GuiHelpers import GetLineHeight, TimeDeltaToText
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle import SubtitleLine
 
@@ -74,28 +74,27 @@ class ProjectViewModel(QStandardItemModel):
     def CreateBatchItem(self, scene_number : int, batch : SubtitleBatch):
         batch_item = BatchItem(scene_number, batch)
 
+        gap_start = None
         for line in batch.originals:
-            batch_item.AddLineItem(False, line.number, {
+            batch_item.AddLineItem(line.number, {
                 'scene': scene_number,
                 'batch': batch.number,
                 'start': line.srt_start,
                 'end': line.srt_end,
+                'duration': line.srt_duration,
+                'gap': TimeDeltaToText(line.start - gap_start) if gap_start else "",
                 'text': line.text
             })
 
+            gap_start = line.end
+
         if batch.translated:
             for line in batch.translated:
-                batch_item.AddLineItem(True, line.number,  {
-                    'scene': scene_number,
-                    'batch': batch.number,
-                    'start': line.srt_start,
-                    'end': line.srt_end,
-                    'text': line.text
-                })
+                batch_item.AddTranslation(line.number, line.text)
 
         return batch_item
     
-    def GetLineItem(self, line_number, get_translated):
+    def GetLineItem(self, line_number):
         if line_number and self.model:
             for scene_item in self.model.values():
                 for batch_item in scene_item.batches.values():
@@ -103,7 +102,7 @@ class ProjectViewModel(QStandardItemModel):
                         return None
                     
                     if batch_item.last_line_number >= line_number:
-                        lines = batch_item.translated if get_translated else batch_item.originals
+                        lines = batch_item.lines
                         line = lines.get(line_number, None) if lines else None
                         if line:
                             return line
@@ -145,8 +144,7 @@ class ProjectViewModel(QStandardItemModel):
                         line_item.line_model['scene'] = scene_item.number
                         line_item.line_model['batch'] = batch_item.number
 
-                batch_item.translated = { item.number: item for item in line_items if item.is_translation }
-                batch_item.originals = { item.number: item for item in line_items if not item.is_translation }
+                batch_item.lines = { item.number: item for item in line_items }
 
     def ApplyUpdate(self, update : ModelUpdate):
         """
@@ -162,15 +160,10 @@ class ProjectViewModel(QStandardItemModel):
             scene_number, batch_number = key
             self.UpdateBatch(scene_number, batch_number, batch_update)
 
-        #TODO: Use UpdateOriginalLines
-        for key, line_update in update.originals.updates.items():
+        #TODO: Use UpdateLines
+        for key, line_update in update.lines.updates.items():
             scene_number, batch_number, line_number = key
-            self.UpdateOriginalLine(scene_number, batch_number, line_number, line_update)
-
-        #TODO: Use UpdateTranslatedLines
-        for key, line_update in update.translated.updates.items():
-            scene_number, batch_number, line_number = key
-            self.UpdateTranslatedLine(scene_number, batch_number, line_number, line_update)
+            self.UpdateLine(scene_number, batch_number, line_number, line_update)
 
         for scene_number, scene in update.scenes.replacements.items():
             self.ReplaceScene(scene)
@@ -186,13 +179,9 @@ class ProjectViewModel(QStandardItemModel):
             scene_number, batch_number = key
             self.RemoveBatch(scene_number, batch_number)
 
-        for key in reversed(update.originals.removals):
+        for key in reversed(update.lines.removals):
             scene_number, batch_number, line_number = key
-            self.RemoveOriginalLine(scene_number, batch_number, line_number)
-
-        for key in reversed(update.translated.removals):
-            scene_number, batch_number, line_number = key
-            self.RemoveTranslatedLine(scene_number, batch_number, line_number)
+            self.RemoveLine(scene_number, batch_number, line_number)
 
         for scene_number, scene in update.scenes.additions.items():
             self.AddScene(scene)
@@ -201,13 +190,9 @@ class ProjectViewModel(QStandardItemModel):
             scene_number, batch_number = key
             self.AddBatch(batch)
 
-        for key, line in update.originals.additions.items():
+        for key, line in update.lines.additions.items():
             scene_number, batch_number, line_number = key
-            self.AddOriginalLine(scene_number, batch_number, line_number, line)
-
-        for key, line in update.translated.additions.items():
-            scene_number, batch_number, line_number = key
-            self.AddTranslatedLine(scene_number, batch_number, line_number, line)
+            self.AddLine(scene_number, batch_number, line_number, line)
 
         # Rebuild the model dictionaries
         self.Remap()
@@ -353,11 +338,8 @@ class ProjectViewModel(QStandardItemModel):
         if batch_update.get('number'):
             batch_item.number = batch_update['number']
 
-        if batch_update.get('originals'):
-            self.UpdateOriginalLines(scene_number, batch_number, batch_update['originals'])
-
-        if batch_update.get('translated'):
-            self.UpdateTranslatedLines(scene_number, batch_number, batch_update['translated'])
+        if batch_update.get('lines'):
+            self.UpdateLines(scene_number, batch_number, batch_update['lines'])
 
         batch_index = self.indexFromItem(batch_item)
         self.setData(batch_index, batch_item, Qt.ItemDataRole.UserRole)
@@ -384,59 +366,61 @@ class ProjectViewModel(QStandardItemModel):
 
     #############################################################################
 
-    def AddOriginalLine(self, scene_number, batch_number, line : SubtitleLine):
+    def AddLine(self, scene_number, batch_number, line : SubtitleLine):
         if not isinstance(line, SubtitleLine):
-            raise ViewModelError(f"Wrong type for AddOriginalLine ({type(line).__name__})")
+            raise ViewModelError(f"Wrong type for AddLine ({type(line).__name__})")
 
-        logging.debug(f"Adding original line ({scene_number}, {batch_number}, {line.number})")
+        logging.debug(f"Adding line ({scene_number}, {batch_number}, {line.number})")
 
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
-        if line.number in batch_item.originals.keys():
+        if line.number in batch_item.lines.keys():
             raise ViewModelError(f"Line {line.number} already exists in {scene_number} batch {batch_number}")
 
-        batch_item.AddLineItem(False, line.number, {
+        batch_item.AddLineItem(line.number, {
                 'scene': scene_number,
                 'batch': batch_number,
                 'start': line.srt_start,
                 'end': line.srt_end,
+                'duration': line.srt_duration,
+                'gap': None,
                 'text': line.text
             })
 
-    def UpdateOriginalLine(self, scene_number, batch_number, line_number, line_update : dict):
-        logging.debug(f"Updating original line ({scene_number}, {batch_number}, {line_number})")
+    def UpdateLine(self, scene_number, batch_number, line_number, line_update : dict):
+        logging.debug(f"Updating line ({scene_number}, {batch_number}, {line_number})")
         if not isinstance(line_update, dict):
             raise ViewModelError("Expected a patch dictionary")
 
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
-        if line_number not in batch_item.originals.keys():
+        if line_number not in batch_item.lines.keys():
             raise ViewModelError(f"Line {line_number} not found in {scene_number} batch {batch_number}")
         
-        line_item : LineItem = batch_item.originals[line_number]
+        line_item : LineItem = batch_item.lines[line_number]
         line_item.Update(line_update)
 
-    def UpdateOriginalLines(self, scene_number, batch_number, lines):
-        logging.debug(f"Updating original lines in ({scene_number}, {batch_number})")
+    def UpdateLines(self, scene_number, batch_number, lines):
+        logging.debug(f"Updating lines in ({scene_number}, {batch_number})")
         scene_item : SceneItem = self.model[scene_number]
         batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
-            line_item : LineItem = batch_item.originals[line_number]
+            line_item : LineItem = batch_item.lines[line_number]
             line_item.Update(line_update)            
 
-    def RemoveOriginalLine(self, scene_number, batch_number, line_number):
-        logging.debug(f"Removing original line ({scene_number}, {batch_number}, {line_number})")
+    def RemoveLine(self, scene_number, batch_number, line_number):
+        logging.debug(f"Removing line ({scene_number}, {batch_number}, {line_number})")
 
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
-        if line_number not in batch_item.originals.keys():
+        if line_number not in batch_item.lines.keys():
             raise ViewModelError(f"Line {line_number} not found in {scene_number} batch {batch_number}")
         
-        line_item = batch_item.originals[line_number]
+        line_item = batch_item.lines[line_number]
         line_index = self.indexFromItem(line_item)
         batch_item.removeRow(line_index.row())
 
-        del batch_item.originals[line_number]
+        del batch_item.lines[line_number]
 
     #############################################################################
 
@@ -457,6 +441,8 @@ class ProjectViewModel(QStandardItemModel):
                 'batch': batch_number,
                 'start': line.srt_start,
                 'end': line.srt_end,
+                'duration': line.srt_duration,
+                'gap': None,
                 'text': line.text
             })
 
@@ -480,10 +466,6 @@ class ProjectViewModel(QStandardItemModel):
             line_item : LineItem = batch_item.translated.get(line_number)
             if line_item:
                 line_item.Update(line_update)
-            elif line_number in batch_item.originals.keys():
-                line_model = batch_item.originals[line_number].line_model.copy()
-                UpdateFields(line_model, line_update, [ 'text' ])
-                batch_item.AddLineItem(True, line_number, line_model)
 
     def RemoveTranslatedLine(self, scene_number, batch_number, line_number):
         logging.debug(f"Removing translated line ({scene_number}, {batch_number}, {line_number})")
@@ -502,12 +484,11 @@ class ProjectViewModel(QStandardItemModel):
 ###############################################
 
 class LineItem(QStandardItem):
-    def __init__(self, is_translation, line_number, model):
-        super(LineItem, self).__init__(f"Translation {line_number}" if is_translation else f"Line {line_number}")
-        self.is_translation = is_translation
+    def __init__(self, line_number, model):
+        super(LineItem, self).__init__(f"Line {line_number}")
         self.number = line_number
         self.line_model = model
-        self.height = GetLineHeight(model.get('text'))
+        self.height = max(GetLineHeight(self.text), GetLineHeight(self.translation)) if self.translation else GetLineHeight(self.text)
 
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
@@ -515,7 +496,7 @@ class LineItem(QStandardItem):
         if not isinstance(line_update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(line_update).__name__}")
 
-        UpdateFields(self.line_model, line_update, ['start', 'end', 'text'])
+        UpdateFields(self.line_model, line_update, ['start', 'end', 'text', 'translation'])
 
         if line_update.get('number'):
             self.number = line_update['number']
@@ -537,10 +518,22 @@ class LineItem(QStandardItem):
     @property
     def end(self):
         return self.line_model['end']
+    
+    @property
+    def duration(self):
+        return self.line_model['duration']
+    
+    @property
+    def gap(self):
+        return self.line_model['gap']
 
     @property
     def text(self):
         return self.line_model['text']
+    
+    @property
+    def translation(self):
+        return self.line_model.get('translation') or ""
     
     @property
     def scene(self):
@@ -557,7 +550,7 @@ class BatchItem(ViewModelItem):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
         self.scene = scene_number
         self.number = batch.number
-        self.originals = {}
+        self.lines = {}
         self.translated = {}
         self.batch_model = {
             'start': batch.srt_start,
@@ -580,28 +573,32 @@ class BatchItem(ViewModelItem):
 
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
-    def AddLineItem(self, is_translation : bool, line_number : int, model : dict):
-        line_item : LineItem = LineItem(is_translation, line_number, model)
+    def AddLineItem(self, line_number : int, model : dict):
+        line_item : LineItem = LineItem(line_number, model)
         self.appendRow(line_item)
 
-        if line_item.is_translation:
-            self.translated[line_number] = line_item
-        else:
-            self.originals[line_number] = line_item
+        self.lines[line_number] = line_item
 
         self._invalidate_first_and_last()
+    
+    def AddTranslation(self, line_number : int, text : str):
+        if line_number in self.lines.keys():
+            line_item : LineItem = self.lines[line_number]
+            line_item.Update({ 'translation': text })
+        else:
+            logging.warning(f"Original line {line_number} not found in batch {self.number}")
 
     @property
-    def original_count(self):
-        return len(self.originals)
+    def line_count(self):
+        return len(self.lines)
     
     @property
     def translated_count(self):
-        return len(self.translated)
+        return len([line for line in self.lines.values() if line.translation])
     
     @property
     def all_translated(self):
-        return self.translated_count == self.original_count
+        return self.translated_count == self.line_count
     
     @property
     def start(self):
@@ -660,13 +657,13 @@ class BatchItem(ViewModelItem):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \
             else self.summary if self.summary \
             else "\n".join([ 
-                "1 line" if self.original_count == 1 else f"{self.original_count} lines",
+                "1 line" if self.line_count == 1 else f"{self.line_count} lines",
                 f"{self.translated_count} translated" if self.translated_count > 0 else "" 
             ])
 
         return {
             'heading': f"Batch {self.number}",
-            'subheading': f"{str(self.start)} -> {str(self.end)} ({self.original_count} lines)",   # ({end - start})
+            'subheading': f"{str(self.start)} -> {str(self.end)} ({self.line_count} lines)",   # ({end - start})
             'body': body,
             'properties': {
                 'all_translated' : self.all_translated,
@@ -675,7 +672,7 @@ class BatchItem(ViewModelItem):
         }
 
     def _update_first_and_last(self):
-        line_numbers = [ num for num in self.originals.keys() if num ] if self.originals else None
+        line_numbers = [ num for num in self.lines.keys() if num ] if self.lines else None
         self._first_line_num = min(line_numbers) if line_numbers else None
         self._last_line_num = max(line_numbers)
 
@@ -707,6 +704,7 @@ class SceneItem(ViewModelItem):
             'start': scene.batches[0].srt_start,
             'end': scene.batches[-1].srt_end,
             'duration': None,
+            'gap': None,
             'summary': scene.summary
         }
         self.setText(f"Scene {scene.number}")
@@ -732,8 +730,8 @@ class SceneItem(ViewModelItem):
         return sum(1 if batch.translated else 0 for batch in self.batches.values())
 
     @property
-    def original_count(self):
-        return sum(batch.original_count for batch in self.batches.values())
+    def line_count(self):
+        return sum(batch.line_count for batch in self.batches.values())
     
     @property
     def translated_count(self):
@@ -767,18 +765,18 @@ class SceneItem(ViewModelItem):
         if not isinstance(update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
-        UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration'])
+        UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration', 'gap'])
 
     def GetContent(self):
         str_translated = "All batches translated" if self.translated_batch_count == self.batch_count else f"{self.translated_batch_count} of {self.batch_count} batches translated"
         metadata = [ 
-            "1 line" if self.original_count == 1 else f"{self.original_count} lines in {self.batch_count} batches", 
+            "1 line" if self.line_count == 1 else f"{self.line_count} lines in {self.batch_count} batches", 
             str_translated if self.translated_batch_count > 0 else None,
         ]
 
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"{self.start} -> {self.end} ({self.original_count} lines)",   # ({self.duration})
+            'subheading': f"{self.start} -> {self.end} ({self.line_count} lines)",   # ({self.duration})
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'properties': {
                 'all_translated' : self.all_translated,

@@ -39,6 +39,12 @@ class EditDialog(QDialog):
         widget.setLayout(layout)
         tab_widget.addTab(widget, title)
 
+    def AddDescription(self, form_layout : QFormLayout, description: str):
+        """
+        Add a description to the form layout
+        """
+        form_layout.addRow(QLabel(description))
+
     def AddMultilineEdit(self, form_layout : QFormLayout, key : str, read_only=False):
         """
         Add an editable field supporting multiline plaintext, optionally making it read-only
@@ -127,26 +133,24 @@ class EditBatchDialog(EditDialog):
 
 
 class EditSubtitleDialog(EditDialog):
-    def __init__(self, original : LineItem, translated : LineItem, parent=None) -> None:
-        self.original = original
-        self.translated = translated
-        self.number = self.original.number if original else self.translated.number
+    def __init__(self, line : LineItem, parent=None) -> None:
+        self.line = line
         self.model = {
-            'original_text' : original.text if original else "",
-            'translated_text'  : translated.text if translated else ""
+            'original' : self.line.text if line else "",
+            'translated'  : self.line.translation if line else ""
         }
-        super().__init__(self.model, parent, title=f"Line {self.number}")
+        super().__init__(self.model, parent, title=f"Line {self.line.number}: {self.line.start} --> {self.line.end}")
 
     def CreateEditor(self) -> QWidget:
         form_layout = self.GetFormLayout()
-        self.AddMultilineEdit(form_layout, 'original_text')
-        self.AddMultilineEdit(form_layout, 'translated_text')
+        self.AddMultilineEdit(form_layout, 'original')
+        self.AddMultilineEdit(form_layout, 'translated')
 
         editor_widget = QWidget()
         editor_widget.setLayout(form_layout)
         return editor_widget
 
     def UpdateModel(self):
-        self.UpdateModelFromEditor('original_text')
-        self.UpdateModelFromEditor('translated_text')
+        self.UpdateModelFromEditor('original')
+        self.UpdateModelFromEditor('translated')
         

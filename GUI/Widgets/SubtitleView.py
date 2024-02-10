@@ -11,12 +11,8 @@ class SubtitleView(QListView):
     linesSelected = Signal(list)
     editLine = Signal(object)
 
-    synchronise_scrolling = True    # TODO: Make this an option on the toolbar
-
-    def __init__(self, show_translated, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-
-        self.show_translated = show_translated
 
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setSelectionMode(QListView.SelectionMode.ExtendedSelection)
@@ -28,7 +24,7 @@ class SubtitleView(QListView):
         self.doubleClicked.connect(self._on_double_click)
 
     def SetViewModel(self, viewmodel : ProjectViewModel):
-        model = SubtitleListModel(self.show_translated, viewmodel)
+        model = SubtitleListModel(viewmodel)
         self.setModel(model)
         self.ShowSelection(ProjectSelection())
 
@@ -97,13 +93,6 @@ class SubtitleView(QListView):
 
         # Update the viewport to refresh the list view
         self.viewport().update()
-
-    def SynchroniseScrollbar(self, scrollbar):
-        scrollbar.valueChanged.connect(self._partner_scrolled)
-
-    def _partner_scrolled(self, value):
-        if self.synchronise_scrolling:
-            self.verticalScrollBar().setValue(value)
 
     def _on_double_click(self, index):
         model = self.model()
