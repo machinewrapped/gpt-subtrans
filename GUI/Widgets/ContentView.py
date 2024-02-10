@@ -34,7 +34,8 @@ class ContentView(QWidget):
         self.setLayout(layout)
 
     def ShowSelection(self, selection : ProjectSelection):
-        self.subtitle_view.ShowSelection(selection)
+        if selection.AnyScenes() or selection.AnyBatches():
+            self.subtitle_view.ShowSelection(selection)
         self.selection_view.ShowSelection(selection)
 
     def Populate(self, viewmodel : ProjectViewModel):

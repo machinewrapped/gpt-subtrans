@@ -422,65 +422,6 @@ class ProjectViewModel(QStandardItemModel):
 
         del batch_item.lines[line_number]
 
-    #############################################################################
-
-    def AddTranslatedLine(self, scene_number, batch_number, line : SubtitleLine):
-        if not isinstance(line, SubtitleLine):
-            raise ViewModelError(f"Wrong type for AddTranslatedLine ({type(line).__name__})")
-
-        logging.debug(f"Adding translated line ({scene_number}, {batch_number}, {line.number})")
-
-        scene_item : SceneItem = self.model.get(scene_number)
-        batch_item : BatchItem = scene_item.batches[batch_number]
-        if line.number in batch_item.translated.keys():
-            # Not too worried if this happens, TBH
-            raise ViewModelError(f"Line {line.number} already exists in {scene_number} batch {batch_number}")
-
-        batch_item.AddLineItem(True, line.number, {
-                'scene': scene_number,
-                'batch': batch_number,
-                'start': line.srt_start,
-                'end': line.srt_end,
-                'duration': line.srt_duration,
-                'gap': None,
-                'text': line.text
-            })
-
-    def UpdateTranslatedLine(self, scene_number, batch_number, line_number, line_update):
-        logging.debug(f"Updating translated line ({scene_number}, {batch_number}, {line_number})")
-
-        scene_item : SceneItem = self.model.get(scene_number)
-        batch_item : BatchItem = scene_item.batches[batch_number]
-        if line_number not in batch_item.translated.keys():
-            raise ViewModelError(f"Translated line {line_number} not found in {scene_number} batch {batch_number}")
-        
-        line_item : LineItem = batch_item.translated[line_number]
-        line_item.Update(line_update)
-
-    def UpdateTranslatedLines(self, scene_number, batch_number, lines):
-        logging.debug(f"Updating translated lines in ({scene_number}, {batch_number})")
-
-        scene_item : SceneItem = self.model[scene_number]
-        batch_item : BatchItem = scene_item.batches[batch_number]
-        for line_number, line_update in lines.items():
-            line_item : LineItem = batch_item.translated.get(line_number)
-            if line_item:
-                line_item.Update(line_update)
-
-    def RemoveTranslatedLine(self, scene_number, batch_number, line_number):
-        logging.debug(f"Removing translated line ({scene_number}, {batch_number}, {line_number})")
-
-        scene_item : SceneItem = self.model.get(scene_number)
-        batch_item : BatchItem = scene_item.batches[batch_number]
-        if line_number not in batch_item.translated.keys():
-            raise ViewModelError(f"Translated line {line_number} not found in {scene_number} batch {batch_number}")
-        
-        line_item = batch_item.translated[line_number]
-        line_index = self.indexFromItem(line_item)
-        batch_item.removeRow(line_index.row())
-
-        del batch_item.translated[line_number]
-
 ###############################################
 
 class LineItem(QStandardItem):
@@ -727,7 +668,7 @@ class SceneItem(ViewModelItem):
     
     @property
     def translated_batch_count(self):
-        return sum(1 if batch.translated else 0 for batch in self.batches.values())
+        return sum(1 if batch.translated_count else 0 for batch in self.batches.values())
 
     @property
     def line_count(self):

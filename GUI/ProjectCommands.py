@@ -267,11 +267,12 @@ class TranslateSceneCommand(Command):
     """
     Ask the translator to translate a scene (optionally just select batches in the scene)
     """
-    def __init__(self, scene_number : int, batch_numbers : list[int] = None, datamodel : ProjectDataModel = None):
+    def __init__(self, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None, datamodel : ProjectDataModel = None):
         super().__init__(datamodel)
         self.translator = None
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
+        self.line_numbers = line_numbers
 
     def execute(self):
         if self.batch_numbers:
@@ -289,7 +290,7 @@ class TranslateSceneCommand(Command):
 
         self.translator.events.batch_translated += self._on_batch_translated
 
-        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, translator = self.translator)
+        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers, translator = self.translator)
 
         self.translator.events.batch_translated -= self._on_batch_translated
 
@@ -337,8 +338,8 @@ class TranslateSceneMultithreadedCommand(TranslateSceneCommand):
     """
     A non-blocking version of TranslateSceneCommand
     """
-    def __init__(self, scene_number: int, batch_numbers: list[int] = None, datamodel: ProjectDataModel = None):
-        super().__init__(scene_number, batch_numbers, datamodel)
+    def __init__(self, scene_number: int, batch_numbers: list[int] = None, line_numbers : list[int] = None, datamodel: ProjectDataModel = None):
+        super().__init__(scene_number, batch_numbers, line_numbers, datamodel)
         self.is_blocking = False
 
 #############################################################

@@ -54,8 +54,6 @@ class Translation:
             self.context['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
         if self.scene:
             self.context['scene'] = PerformSubstitutions(substitutions, self.scene, match_partial_words)
-        if self.names:
-            self.context['names'], _ = PerformSubstitutions(substitutions, self.names, match_partial_words)
         if self.synopsis:
             self.context['synopsis'] = PerformSubstitutions(substitutions, self.synopsis, match_partial_words)
 
