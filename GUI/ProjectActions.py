@@ -301,7 +301,7 @@ class ProjectActions(QObject):
         if selection.MultipleSelected():
             raise ActionError("Please select a single split point")
         
-        selected_line = selection.selected_originals[0]
+        selected_line = selection.selected_lines[0]
 
         self._issue_command(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
 

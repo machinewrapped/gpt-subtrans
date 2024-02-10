@@ -100,9 +100,9 @@ class ModelView(QWidget):
         for index in selected_indexes:
             selection.AppendItem(model, index)
 
-        selected_lines, selected_translations = self.content_view.GetSelectedLines()
-        if selected_lines or selected_translations:
-            selection.AddSelectedLines(selected_lines, selected_translations)
+        selected_lines = self.content_view.GetSelectedLines()
+        if selected_lines:
+            selection.AddSelectedLines(selected_lines)
 
         return selection
 

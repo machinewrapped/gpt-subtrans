@@ -1,6 +1,9 @@
+from datetime import timedelta
 import logging
 import os
 import sys
+
+from srt import timedelta_to_srt_timestamp
 
 from PySubtitle.Instructions import Instructions
 
@@ -46,3 +49,7 @@ def GetLineHeight(text: str, wrap_length: int = 100) -> int:
 
     wraps = -(-len(text) // wrap_length) if wrap_length else None  # Ceiling division
     return text.count('\n') + wraps
+
+def TimeDeltaToText(time: timedelta) -> str:
+    return timedelta_to_srt_timestamp(time).replace('00:', '') if time is not None else None
+

@@ -5,9 +5,8 @@ from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.Widgets import LineItemView
 
 class SubtitleListModel(QAbstractProxyModel):
-    def __init__(self, show_translated, viewmodel=None, parent=None):
+    def __init__(self, viewmodel=None, parent=None):
         super().__init__(parent)
-        self.show_translated = show_translated
         self.viewmodel : ProjectViewModel = viewmodel
         self.selected_batch_numbers = []
         self.visible = []
@@ -47,7 +46,7 @@ class SubtitleListModel(QAbstractProxyModel):
                     break
                 
                 if (scene_item.number, batch_item.number) in batch_numbers:
-                    lines = batch_item.translated if self.show_translated else batch_item.originals
+                    lines = batch_item.lines
                     visible_lines = [ (scene_item.number, batch_item.number, line) for line in lines.keys() ]
                     visible.extend(visible_lines)
         
@@ -80,7 +79,7 @@ class SubtitleListModel(QAbstractProxyModel):
         key = self.visible[row]
         _, _, line = key
 
-        item = self.viewmodel.GetLineItem(line, self.show_translated)
+        item = self.viewmodel.GetLineItem(line)
         return self.viewmodel.indexFromItem(item)
 
     def rowCount(self, parent=QModelIndex()):
@@ -114,7 +113,7 @@ class SubtitleListModel(QAbstractProxyModel):
             logging.debug(f"Invalid batch number in SubtitleListModel ({scene_number},{batch_number})")
             return QModelIndex()
 
-        lines = batches[batch_number].translated if self.show_translated else batches[batch_number].originals
+        lines = batches[batch_number].lines
 
         if line_number not in lines:
             logging.debug(f"Visible subtitles list has invalid line number ({scene_number},{batch_number},{line_number})")
@@ -137,7 +136,7 @@ class SubtitleListModel(QAbstractProxyModel):
             item = None
 
         if not item:
-            item = LineItem(self.show_translated, -1, { 'start' : "0:00:00,000", 'end' : "0:00:00,000",  'text' : "Invalid index" })
+            item = LineItem(-1, { 'start' : "0:00:00,000", 'end' : "0:00:00,000",  'text' : "Invalid index" })
 
         if role == Qt.ItemDataRole.UserRole:
             return item

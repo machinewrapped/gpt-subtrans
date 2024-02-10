@@ -25,9 +25,8 @@ class ModelUpdate:
         self.rebuild = False
         self.scenes = ModelUpdateSection()
         self.batches = ModelUpdateSection()
-        self.originals = ModelUpdateSection()
-        self.translated = ModelUpdateSection()
+        self.lines = ModelUpdateSection()
 
     def HasUpdate(self) -> bool:
-        return self.scenes.HasUpdate() or self.batches.HasUpdate() or self.originals.HasUpdate() or self.translated.HasUpdate()
+        return self.scenes.HasUpdate() or self.batches.HasUpdate() or self.lines.HasUpdate()
 
