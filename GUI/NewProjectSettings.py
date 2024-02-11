@@ -31,11 +31,11 @@ class NewProjectSettings(QDialog):
 
         self.project : SubtitleProject = project
         self.settings : dict = project.options.GetSettings()
-        api_key = project.options.api_key()
-        api_base = project.options.api_base()
+        api_key = project.options.api_key
+        api_base = project.options.api_base
 
         if api_key:
-            models = SubtitleTranslator.GetAvailableModels(api_key, api_base)
+            models = SubtitleTranslator.GetAvailableModels(self.settings)
             self.SETTINGS['gpt_model'] = (models, self.SETTINGS['gpt_model'][1])
 
         instruction_files = GetInstructionFiles()

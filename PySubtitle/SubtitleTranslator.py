@@ -1,10 +1,6 @@
 import logging
 import re
 from os import linesep
-from PySubtitle.OpenAI.ChatGPTClient import ChatGPTClient
-from PySubtitle.OpenAI.InstructGPTClient import InstructGPTClient
-
-from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
@@ -16,6 +12,7 @@ from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseS
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.TranslationEvents import TranslationEvents
+from PySubtitle.TranslationProvider import TranslationProvider
 
 class SubtitleTranslator:
     """
@@ -40,12 +37,14 @@ class SubtitleTranslator:
  
         # Update subtitle context from options and make our own copy of it
         self.context = subtitles.UpdateContext(options).copy()
+        options.update(self.context)
 
         context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]
         logging.debug(f"Translation context:\n{linesep.join(context_values)}")
 
-        # Initialise the client
-        self.client = self._create_client(options, self.context)
+        # Initialise the translation provider
+        self.provider : TranslationProvider = TranslationProvider.create_provider("OpenAI", self.options)
+        self.client = self.provider.GetTranslationClient(options)
 
     def StopTranslating(self):
         self.aborted = True
@@ -405,23 +404,10 @@ class SubtitleTranslator:
 
         return summary.strip() if summary.strip() else None
 
-    def _create_client(self, options, context):
-        """ Create an appropriate client for the model (TODO: client registration by regex) """
-        model = options.get('model') or options.get('gpt_model')
-
-        if model.startswith("gpt"):
-            if model.find("instruct") >= 0:
-                return InstructGPTClient(options, context.get('instructions'))
-            else:
-                return ChatGPTClient(options, context.get('instructions'))
-        else:
-            raise Exception("Model not supported (yet)")
-
     @classmethod
-    def GetAvailableModels(cls, api_key : str, api_base : str):
+    def GetAvailableModels(cls, settings : dict):
         """
         Returns a list of possible values for the LLM model 
         """
-        #TODO - parameterise the client/endpoint
-        return OpenAIClient.GetAvailableModels(api_key, api_base)
-
+        provider_class = TranslationProvider.create_provider("OpenAI", settings)
+        return provider_class.available_models

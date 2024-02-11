@@ -16,7 +16,7 @@ class FirstRunOptions(QDialog):
     SETTINGS = {
         'api_key': (str, "An OpenAI API Key is required to use this program"),
         'api_base': (str, "Base URL for OpenAI API calls (if unsure, do not change)"),
-        'gpt_model': ([], "AI model to use as the translator"),
+        'model': ([], "AI model to use as the translator"),
         'target_language': (str, "Default language to translate the subtitles to"),
         'theme': ([], "Customise the appearance of gui-subtrans"),
         'free_plan': (bool, "Select this if your OpenAI API Key is for a trial version"),
@@ -34,12 +34,8 @@ class FirstRunOptions(QDialog):
 
         self.data = data
 
-        api_key = self.data.get('api_key', '')
-        api_base = self.data.get('api_base', '')
-
-        if api_key:
-            models = SubtitleTranslator.GetAvailableModels(api_key, api_base)
-            self.SETTINGS['gpt_model'] = (models, self.SETTINGS['gpt_model'][1])
+        models = SubtitleTranslator.GetAvailableModels(self.data)
+        self.SETTINGS['model'] = (models, self.SETTINGS['model'][1])
 
         self.SETTINGS['theme'] = (['default'] + GetThemeNames(), self.SETTINGS['theme'][1])
 
@@ -59,7 +55,7 @@ class FirstRunOptions(QDialog):
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(settings_widget)
 
-        self.model_edit : OptionWidget = self.controls.get('gpt_model')
+        self.model_edit : OptionWidget = self.controls.get('model')
 
         self.api_key_edit : TextOptionWidget = self.controls.get('api_key')
         self.api_key_edit.contentChanged.connect(self._update_models)
@@ -117,9 +113,9 @@ class FirstRunOptions(QDialog):
             self.rate_limit_edit.SetValue(rate_limit)
 
     def _update_models(self):
-        api_key = self.api_key_edit.GetValue()
-        api_base = self.api_base_edit.GetValue()
-        if api_key and api_base:
-            models = SubtitleTranslator.GetAvailableModels(api_key, api_base)
-            self.model_edit.SetOptions(models, self.data.get('gpt_model'))
+        self.data['api_key'] = self.api_key_edit.GetValue()
+        self.data['api_base'] = self.api_base_edit.GetValue()
+        if self.data['api_key'] and self.data['api_base']:
+            models = SubtitleTranslator.GetAvailableModels(self.data)
+            self.model_edit.SetOptions(models, self.data.get('model'))
             self.model_edit.SetValue(models[0])

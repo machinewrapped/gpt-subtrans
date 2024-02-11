@@ -3,7 +3,7 @@ import time
 import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
-from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
+from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
 
 linesep = '\n'
@@ -12,9 +12,8 @@ class InstructGPTClient(OpenAIClient):
     """
     Handles communication with GPT instruct models to request translations
     """
-    def SupportedModels(self):
-        models = OpenAIClient.GetAvailableModels(self.options.api_key, self.options.api_base)
-        return [ model for model in models if model.find("instruct") >= 0]
+    def GetSupportedModels(self, available_models : list[str]):
+        return [ model for model in available_models if model.find("instruct") >= 0]
 
     def _send_messages(self, messages : list, temperature : float = None):
         """
@@ -24,7 +23,7 @@ class InstructGPTClient(OpenAIClient):
         max_tokens = options.get('max_instruct_tokens', 2048)
         max_retries = options.get('max_retries', 3.0)
         backoff_time = options.get('backoff_time', 5.0)
-        model = options.get('gpt_model')
+        model = options.get('model')
         temperature = temperature or options.get('temperature', 0.0)
 
         translation = {}

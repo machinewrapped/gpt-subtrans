@@ -258,7 +258,7 @@ class SubtitleProject:
                 subtitles.Sanitise()
                 subtitles.project = self
                 self.subtitles = subtitles
-                self.options.update(subtitles.context)
+                self.options.update({ key : value for key, value in subtitles.context.items() if value })
                 return subtitles
 
         except FileNotFoundError:

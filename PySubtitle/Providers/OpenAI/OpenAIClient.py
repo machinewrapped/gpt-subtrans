@@ -2,8 +2,8 @@ import logging
 import openai
 
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.OpenAI.GPTPrompt import GPTPrompt
-from PySubtitle.OpenAI.GPTTranslation import GPTTranslation
+from PySubtitle.Providers.OpenAI.GPTPrompt import GPTPrompt
+from PySubtitle.Providers.OpenAI.GPTTranslation import GPTTranslation
 from PySubtitle.Options import Options
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
@@ -12,22 +12,22 @@ class OpenAIClient(TranslationClient):
     """
     Handles communication with OpenAI to request translations
     """
-    def __init__(self, options : Options, instructions=None):
-        super().__init__(options, instructions)
+    def __init__(self, options : Options):
+        super().__init__(options)
 
         if not hasattr(openai, "OpenAI"):
             raise Exception("The OpenAI library is out of date and must be updated")
 
-        openai.api_key = options.api_key() or openai.api_key
+        openai.api_key = options.api_key or openai.api_key
 
         if not openai.api_key:
             raise ValueError('API key must be set in .env or provided as an argument')
         
-        if options.api_base():
-            openai.base_url = options.api_base()
+        if options.api_base:
+            openai.base_url = options.api_base
         
         # logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
-        logging.info(f"Translating with OpenAI model {options.get('gpt_model') or 'default'}, Using API Base: {openai.base_url}")
+        logging.info(f"Translating with OpenAI model {options.get('model') or 'default'}, Using API Base: {openai.base_url}")
 
         self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url)
 
@@ -62,6 +62,10 @@ class OpenAIClient(TranslationClient):
         try:
             if not hasattr(openai, "OpenAI"):
                 raise Exception("The OpenAI library is out of date and must be updated")
+
+            if not api_key:
+                logging.debug("No OpenAI API key provided")
+                return []
 
             client = openai.OpenAI(
                 api_key=api_key,

@@ -108,7 +108,7 @@ class ProjectActions(QObject):
 
     def _check_api_key(self):
         if self.datamodel and self.datamodel.options:
-            if self.datamodel.options.api_key():
+            if self.datamodel.options.api_key:
                 return True
         
         self.actionError.emit(NoApiKeyError())
@@ -205,7 +205,7 @@ class ProjectActions(QObject):
 
         logging.debug(f"Translate selection of {str(selection)}")
 
-        multithreaded = len(selection.scenes) > 1 and datamodel.options.allow_multithreaded_translation()
+        multithreaded = len(selection.scenes) > 1 and datamodel.options.allow_multithreaded_translation
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
