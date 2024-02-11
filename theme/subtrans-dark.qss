@@ -48,15 +48,15 @@ QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
 }
 
 .ScenesView {
-    background-color: darkslategrey;
+    background-color: #242424;
 }
 
 .TreeViewItemWidget {
-    padding: 1px;
-    margin: 0px;
-    border: 2px solid black;
+    padding: 4px;
+    margin: 2px;
+    border: 2px solid darkslateblue;
     border-radius: 12px;
-    background-color: #121212;
+    background-color: #363636;
 }
 
 QTreeView:item {
@@ -75,7 +75,7 @@ QListView:item {
 }
 
 .WidgetHeader { 
-    font-size:large;
+    font-size: 12pt;
     font-weight: bold;
     background-color: blanchedalmond;
     padding: 4px;
@@ -97,11 +97,10 @@ QListView:item {
 }
 
 .WidgetSubheading {
-    font-size:medium;
     margin: 0px;
     padding: 3px;
     padding-left: 10px;
-    background-color: darkslateblue;
+    background-color: darkslategrey;
     color: blanchedalmond;
 }
 
@@ -109,13 +108,13 @@ QListView:item {
     margin: 0px;
     padding: 2px;
     padding-right: 10px;
-    background-color: navy;
+    background-color: #242424;
 }
 
 .WidgetFooter QLabel {
     margin: 0px;
     padding: 0px;
-    background-color: navy;
+    background-color: #242424;
 }
 
 .WidgetFooter[all_translated=true] QLabel {
@@ -127,7 +126,7 @@ QListView:item {
 }
 
 .WidgetBody {
-    font-size: small;
+    font-size: 10pt;
     padding: 2px;
     padding-left: 10px;
     color: white;
@@ -162,10 +161,6 @@ QListView:item {
 .LineItemHeader QLabel {
     margin: 0px;
     padding-bottom: 6px;
-}
-
-#line-header-left {
-    font-weight: bold;
 }
 
 #line-header-right {
