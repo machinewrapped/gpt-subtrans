@@ -604,7 +604,7 @@ class BatchItem(ViewModelItem):
         
         return {
             'heading': f"Batch {self.number}",
-            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} [{self.start} -> {self.end}]",
+            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} ({self.start} -> {self.end})",
             'body': body,
             'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
@@ -733,7 +733,7 @@ class SceneItem(ViewModelItem):
 
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} [{self.start} -> {self.end}]",
+            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} ({self.start} -> {self.end})",
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
