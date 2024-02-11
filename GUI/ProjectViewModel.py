@@ -602,12 +602,11 @@ class BatchItem(ViewModelItem):
                 f"{self.translated_count} translated" if self.translated_count > 0 else "" 
             ])
         
-        subheading = f"{self.start} -> {self.end} ({ DescribeLineCount(self.line_count, self.translated_count) })"
-
         return {
             'heading': f"Batch {self.number}",
-            'subheading': subheading,
+            'subheading': f"{self.start} -> {self.end}",
             'body': body,
+            'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
                 'all_translated' : self.all_translated,
                 'errors' : self.has_errors
@@ -717,12 +716,11 @@ class SceneItem(ViewModelItem):
             str_translated if self.translated_batch_count > 0 else None,
         ]
 
-        subheading = f"{self.start} -> {self.end} ({ DescribeLineCount(self.line_count, self.translated_count) })"
-
         return {
             'heading': f"Scene {self.number}",
-            'subheading': subheading,
+            'subheading': f"{self.start} -> {self.end}",
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
+            'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
                 'all_translated' : self.all_translated,
                 'errors' : self.has_errors

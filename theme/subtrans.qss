@@ -83,16 +83,36 @@ QListView:item {
 
 .WidgetSubheading {
     font-size: 10pt;
-    padding: 3;
-    padding-left: 10;
+    margin: 0px;
+    padding: 3px;
+    padding-left: 10px;
     background-color: lavenderblush;
     color: black;
 }
 
+.WidgetFooter {
+    margin: 0px;
+    padding: 2px;
+    padding-right: 10px;
+}
+
+.WidgetFooter QLabel {
+    margin: 0px;
+    padding: 0px;
+}
+
+.WidgetFooter[all_translated=true] QLabel {
+    color: peru;
+}
+
+.WidgetFooter[all_translated=false] QLabel {
+    color: saddlebrown;
+}
+
 .WidgetBody {
     font-size: 10pt;
-    padding: 2;
-    padding-left: 10;
+    padding: 2px;
+    padding-left: 10px;
     background-color: white;
     color: black;
 }
@@ -109,14 +129,14 @@ QListView:item {
 
 .LineItemHeader {
     margin: 0px;
-    padding: 0px;
+    padding: 2px;
     background-color: aliceblue;
     color: black;
 }
 
 .LineItemHeader QLabel {
     margin: 0px;
-    padding: 0px;
+    padding-bottom: 6px;
 }
 
 #line-header-left {
@@ -129,8 +149,8 @@ QListView:item {
 }
 
 .LineItemBody {
-    margin: 0px;
-    padding: 0px 1em;
+    margin: 2px;
+    padding: 2px 1em;
     background-color: white;
     color: black;
     border-left: 2px dotted lightgray;    

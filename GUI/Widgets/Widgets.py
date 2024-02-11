@@ -21,6 +21,9 @@ class TreeViewItemWidget(QFrame):
         properties = content.get('properties', {})
 
         layout = QVBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(4, 4, 8, 8)
+
         if content.get('heading'):
             header_widget = WidgetHeader(content['heading'], parent=self)
             self._set_properties(header_widget, properties)
@@ -35,6 +38,11 @@ class TreeViewItemWidget(QFrame):
             body_widget = WidgetBody(content['body'], parent=self)
             self._set_properties(body_widget, properties)
             layout.addWidget(body_widget)
+        
+        if content.get('footer'):
+            footer_widget = WidgetFooter(content['footer'], parent=self)
+            self._set_properties(footer_widget, properties)
+            layout.addWidget(footer_widget)
 
         self._set_properties(self, properties)
         self.setLayout(layout)
@@ -56,11 +64,28 @@ class WidgetSubheading(QLabel):
         self.setText(text)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
+class WidgetFooter(QFrame):
+    def __init__(self, text, parent=None):
+        super(WidgetFooter, self).__init__(parent)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        padding = QLabel("")
+        padding.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        layout.addWidget(padding)
+
+        textlabel = QLabel(text)
+        textlabel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        layout.addWidget(textlabel)
+
+        self.setLayout(layout)
+
 class WidgetBody(QLabel):
     def __init__(self, text, parent=None):
         super(WidgetBody, self).__init__(parent)
         self.setText(text)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
         self.setWordWrap(True)
 
 class LineItemView(QWidget):
@@ -69,6 +94,8 @@ class LineItemView(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         layout = QVBoxLayout()
+        layout.setSpacing(2)
+        layout.setContentsMargins(4, 4, 4, 4)
         layout.addWidget(LineItemHeader(line, parent=self))
         h_layout = QHBoxLayout()
         h_layout.addWidget(LineItemBody(line.text, parent=self))
@@ -83,6 +110,7 @@ class LineItemHeader(QFrame):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
         layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         leftLabel = QLabel(f"[{str(line.number)}] {str(line.start)} --> {str(line.end)}")
         leftLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         leftLabel.setObjectName("line-header-left")

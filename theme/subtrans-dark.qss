@@ -54,16 +54,18 @@ QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
 .TreeViewItemWidget {
     padding: 1px;
     margin: 0px;
-    border-width: 2px solid black;
-    border-radius: 12;
+    border: 2px solid black;
+    border-radius: 12px;
     background-color: #121212;
 }
 
 QTreeView:item {
-    border-radius: 12;
+    border: 1px solid black;
+    border-radius: 12px;
 }
 
 QTreeView:item:selected {
+    border-radius: 12px;
     border: 2px solid #800000;
     font-weight: bold;
 }
@@ -74,9 +76,11 @@ QListView:item {
 
 .WidgetHeader { 
     font-size:large;
+    font-weight: bold;
     background-color: blanchedalmond;
-    padding: 4;
-    padding-left: 10;
+    padding: 4px;
+    padding-left: 10px;
+    margin: 0px;
     color: black;
 }
 
@@ -94,18 +98,39 @@ QListView:item {
 
 .WidgetSubheading {
     font-size:medium;
-    padding: 3;
-    padding-left: 10;
-    background-color: #363636;
-    color: lavenderblush;
+    margin: 0px;
+    padding: 3px;
+    padding-left: 10px;
+    background-color: saddlebrown;
+    color: blanchedalmond;
+}
+
+.WidgetFooter {
+    margin: 0px;
+    padding: 2px;
+    padding-right: 10px;
+}
+
+.WidgetFooter QLabel {
+    margin: 0px;
+    padding: 0px;
+    background-color: #242424;
+}
+
+.WidgetFooter[all_translated=true] QLabel {
+    color: blanchedalmond;
+}
+
+.WidgetFooter[all_translated=false] QLabel {
+    color: burlywood;
 }
 
 .WidgetBody {
     font-size: small;
-    padding: 2;
-    padding-left: 10;
-    background-color: #242424;
+    padding: 2px;
+    padding-left: 10px;
     color: white;
+    background-color: #363636;
 }
 
 .ContentView {
@@ -129,13 +154,13 @@ QListView:item {
 
 .LineItemHeader {
     margin: 0px;
-    padding: 0px;
+    padding: 2px;
     background-color: #363636;
 }
 
 .LineItemHeader QLabel {
     margin: 0px;
-    padding: 0px;
+    padding-bottom: 6px;
 }
 
 #line-header-left {
@@ -148,8 +173,8 @@ QListView:item {
 }
 
 .LineItemBody {
-    margin: 0px;
-    padding: 0px 1em;
+    margin: 2px;
+    padding: 2px 1em;
     background-color: #242424;
     border-left: 2px dotted burlywood;    
 }
