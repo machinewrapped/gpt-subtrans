@@ -1,6 +1,6 @@
 QWidget {
     font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 12pt;
+    font-size: large;
 }
 
 QSplitter::handle {
@@ -54,14 +54,14 @@ QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
 .TreeViewItemWidget {
     padding: 1px;
     margin: 0px;
-    border: 2px solid black;
-    border-radius: 12px;
+    border: 1px solid black;
+    border-radius: 6px;
     background-color: #121212;
 }
 
 QTreeView:item {
     border: 1px solid black;
-    border-radius: 12px;
+    border-radius: 6px;
 }
 
 QTreeView:item:selected {
@@ -75,10 +75,10 @@ QListView:item {
 }
 
 .WidgetHeader { 
-    font-size:larger;
+    font-size:x-large;
     font-weight: bold;
     background-color: blanchedalmond;
-    padding: 4px;
+    padding: 8px;
     padding-left: 10px;
     margin: 0px;
     color: black;
@@ -99,7 +99,7 @@ QListView:item {
 .WidgetSubheading {
     font-size:medium;
     margin: 0px;
-    padding: 3px;
+    padding: 6px;
     padding-left: 10px;
     background-color: darkslateblue;
     color: blanchedalmond;
@@ -109,7 +109,9 @@ QListView:item {
     margin: 0px;
     padding: 2px;
     padding-right: 10px;
+    padding-bottom: 8px;
     background-color: navy;
+    font-size: small;
 }
 
 .WidgetFooter QLabel {
@@ -170,7 +172,7 @@ QListView:item {
 
 #line-header-right {
     color: burlywood;
-    font-size: 10pt;
+    font-size: smaller;
 }
 
 .LineItemBody {
