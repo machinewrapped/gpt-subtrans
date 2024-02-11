@@ -101,7 +101,7 @@ QListView:item {
     margin: 0px;
     padding: 3px;
     padding-left: 10px;
-    background-color: maroon;
+    background-color: darkslateblue;
     color: blanchedalmond;
 }
 
