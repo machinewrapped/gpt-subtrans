@@ -162,12 +162,7 @@ class DropdownOptionWidget(OptionWidget):
         super(DropdownOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.combo_box = QComboBox(self)
         self.combo_box.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-        for value in values:
-            self.combo_box.addItem(value)
-
-        if initial_value:
-            self.combo_box.setCurrentIndex(self.combo_box.findText(initial_value))
-
+        self.SetOptions(values, initial_value)
         self.combo_box.currentTextChanged.connect(self.contentChanged)
 
     def GetValue(self):
