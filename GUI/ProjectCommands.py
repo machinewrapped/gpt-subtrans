@@ -116,15 +116,10 @@ class MergeLinesCommand(Command):
         self.selection = selection
 
     def execute(self):
-        originals = [line.number for line in self.selection.selected_originals]
-        translated = [line.number for line in self.selection.selected_translated]
+        lines = [line.number for line in self.selection.selected_lines]
 
-        if originals and translated and originals != translated:
-            logging.info(f"Merging original lines {str(originals)} and translated lines {str(translated)}")
-        elif originals:
-            logging.info(f"Merging lines {str(originals)}")
-        elif translated:
-            logging.info(f"Merging translated lines {str(translated)}")
+        if lines:
+            logging.info(f"Merging lines {str(lines)}")
         else:
             raise CommandError("No lines selected to merge")
 
@@ -184,9 +179,7 @@ class SplitBatchCommand(Command):
 
         # Remove lines from the original batch that are in the new batch now
         for line_removed in range(self.line_number, new_batch.last_line_number + 1):
-            self.model_update.originals.remove((self.scene_number, self.batch_number, line_removed))
-            if new_batch.HasTranslatedLine(line_removed):
-                self.model_update.translated.remove((self.scene_number, self.batch_number, line_removed))
+            self.model_update.lines.remove((self.scene_number, self.batch_number, line_removed))
 
         for batch_number in range(self.batch_number + 1, len(scene.batches)):
              self.model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
@@ -274,11 +267,12 @@ class TranslateSceneCommand(Command):
     """
     Ask the translator to translate a scene (optionally just select batches in the scene)
     """
-    def __init__(self, scene_number : int, batch_numbers : list[int] = None, datamodel : ProjectDataModel = None):
+    def __init__(self, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None, datamodel : ProjectDataModel = None):
         super().__init__(datamodel)
         self.translator = None
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
+        self.line_numbers = line_numbers
 
     def execute(self):
         if self.batch_numbers:
@@ -296,7 +290,7 @@ class TranslateSceneCommand(Command):
 
         self.translator.events.batch_translated += self._on_batch_translated
 
-        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, translator = self.translator)
+        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers, translator = self.translator)
 
         self.translator.events.batch_translated -= self._on_batch_translated
 
@@ -315,7 +309,7 @@ class TranslateSceneCommand(Command):
                             'context' : batch.context,
                             'errors' : batch.errors,
                             'translation': batch.translation,
-                            'translated' : { line.number : { 'text' : line.text } for line in batch.translated } 
+                            'lines' : { line.number : { 'translation' : line.text } for line in batch.translated } 
                         })
 
         return True
@@ -333,7 +327,7 @@ class TranslateSceneCommand(Command):
                 'context' : batch.context,
                 'errors' : batch.errors,
                 'translation': batch.translation,
-                'translated' : { line.number : { 'text' : line.text } for line in batch.translated if line.number }
+                'lines' : { line.number : { 'translation' : line.text } for line in batch.translated if line.number }
             })
 
             self.datamodel.UpdateViewModel(update)
@@ -344,8 +338,8 @@ class TranslateSceneMultithreadedCommand(TranslateSceneCommand):
     """
     A non-blocking version of TranslateSceneCommand
     """
-    def __init__(self, scene_number: int, batch_numbers: list[int] = None, datamodel: ProjectDataModel = None):
-        super().__init__(scene_number, batch_numbers, datamodel)
+    def __init__(self, scene_number: int, batch_numbers: list[int] = None, line_numbers : list[int] = None, datamodel: ProjectDataModel = None):
+        super().__init__(scene_number, batch_numbers, line_numbers, datamodel)
         self.is_blocking = False
 
 #############################################################
@@ -411,7 +405,6 @@ class SwapTextAndTranslations(Command):
         # Swap original and translated text (only in the viewmodel)
         for original, translated in zip(batch.originals, batch.translated):
             if original and translated:
-                self.model_update.originals.update((scene.number, batch.number, original.number), { 'text': translated.text } )
-                self.model_update.translated.update((scene.number, batch.number, translated.number), { 'text': original.text } )
+                self.model_update.lines.update((scene.number, batch.number, original.number), { 'text': translated.text, 'translation': original.text } )
 
         return True

@@ -7,7 +7,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QTextEdit,
-    QGridLayout
+    QGridLayout,
+    QSizePolicy
 )
 
 from GUI.ProjectViewModel import LineItem
@@ -15,6 +16,7 @@ from GUI.ProjectViewModel import LineItem
 class TreeViewItemWidget(QFrame):
     def __init__(self, content, parent=None):
         super(TreeViewItemWidget, self).__init__(parent)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         properties = content.get('properties', {})
 
@@ -46,11 +48,13 @@ class WidgetHeader(QLabel):
     def __init__(self, text, parent=None):
         super(WidgetHeader, self).__init__(parent)
         self.setText(text)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
 class WidgetSubheading(QLabel):
     def __init__(self, text, parent=None):
         super(WidgetSubheading, self).__init__(parent)
         self.setText(text)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
 class WidgetBody(QLabel):
     def __init__(self, text, parent=None):
@@ -60,25 +64,43 @@ class WidgetBody(QLabel):
         self.setWordWrap(True)
 
 class LineItemView(QWidget):
-    def __init__(self, line, parent=None):
+    def __init__(self, line : LineItem, parent=None):
         super(LineItemView, self).__init__(parent)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         layout = QVBoxLayout()
         layout.addWidget(LineItemHeader(line, parent=self))
-        layout.addWidget(LineItemBody(line, parent=self))
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(LineItemBody(line.text, parent=self))
+        h_layout.addWidget(LineItemBody(line.translation or "", parent=self))
+        layout.addLayout(h_layout)
 
         self.setLayout(layout)
 
-class LineItemHeader(QLabel):
-    def __init__(self, line: LineItem, parent=None):
+class LineItemHeader(QFrame):
+    def __init__(self, line : LineItem, parent=None):
         super(LineItemHeader, self).__init__(parent)
-        self.setText(f"[{str(line.number)}] {str(line.start)} --> {str(line.end)}")
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        layout = QHBoxLayout()
+        leftLabel = QLabel(f"[{str(line.number)}] {str(line.start)} --> {str(line.end)}")
+        leftLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        leftLabel.setObjectName("line-header-left")
+
+        rightLabel = QLabel(f"(Gap: {str(line.gap)}, Length: {str(line.duration)})" if line.gap else f"Length: {str(line.duration)})")
+        rightLabel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        rightLabel.setObjectName("line-header-right")
+
+        layout.addWidget(leftLabel)
+        layout.addWidget(rightLabel)
+        self.setLayout(layout)
 
 class LineItemBody(QLabel):
-    def __init__(self, line: LineItem, parent=None):
+    def __init__(self, text: str, parent=None):
         super(LineItemBody, self).__init__(parent)
-        self.setText(line.text)
+        self.setText(text)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setWordWrap(True)
 
 class OptionsGrid(QGridLayout):

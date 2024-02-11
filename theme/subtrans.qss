@@ -33,6 +33,10 @@ QTreeView:item:selected {
     border-radius: 12;
 }
 
+QListView:item {
+    padding: 0px;
+}
+
 .MainWindow {
     background-color: aliceblue;
     color: black;
@@ -104,17 +108,31 @@ QTreeView:item:selected {
 }
 
 .LineItemHeader {
-    font-weight: bold;
     margin: 0px;
-    padding: 2px;
+    padding: 0px;
     background-color: aliceblue;
     color: black;
 }
 
-.LineItemBody {
+.LineItemHeader QLabel {
     margin: 0px;
     padding: 0px;
+}
+
+#line-header-left {
+    font-weight: bold;
+}
+
+#line-header-right {
+    color: peru;
+    font-size: 9pt;
+}
+
+.LineItemBody {
+    margin: 0px;
+    padding: 0px 1em;
     background-color: white;
     color: black;
+    border-left: 2px dotted lightgray;    
 }
 

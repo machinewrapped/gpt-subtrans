@@ -253,6 +253,10 @@ class SubtitleFile:
                 context['prompt'] = context['gpt_prompt']
                 del context['gpt_prompt']
 
+            # Remove model from project context (TEMP)
+            if 'model' in context:
+                del context['model']
+
             self.context = context
 
         return context

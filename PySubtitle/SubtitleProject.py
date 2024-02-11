@@ -135,7 +135,7 @@ class SubtitleProject:
         except Exception as e:
             logging.error(f"Unable to save translation: {e}")
 
-    def TranslateScene(self, scene_number, batch_numbers = None, translator : SubtitleTranslator = None):
+    def TranslateScene(self, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None, translator : SubtitleTranslator = None):
         """
         Pass batches of subtitles to the translation engine.
         """
@@ -151,7 +151,7 @@ class SubtitleProject:
 
             scene = self.subtitles.GetScene(scene_number)
 
-            translator.TranslateScene(scene, batch_numbers=batch_numbers)
+            translator.TranslateScene(scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
 
             self.SaveTranslation()
 

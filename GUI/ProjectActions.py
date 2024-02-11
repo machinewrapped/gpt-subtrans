@@ -209,10 +209,12 @@ class ProjectActions(QObject):
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
+            line_numbers = [ line.number for line in selection.selected_lines if line.scene == scene.number ]
+            
             if multithreaded:
-                command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, datamodel)
+                command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, line_numbers, datamodel)
             else:
-                command = TranslateSceneCommand(scene.number, batch_numbers, datamodel)
+                command = TranslateSceneCommand(scene.number, batch_numbers, line_numbers, datamodel)
 
             self._issue_command(command)
 
@@ -301,7 +303,7 @@ class ProjectActions(QObject):
         if selection.MultipleSelected():
             raise ActionError("Please select a single split point")
         
-        selected_line = selection.selected_originals[0]
+        selected_line = selection.selected_lines[0]
 
         self._issue_command(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
 
