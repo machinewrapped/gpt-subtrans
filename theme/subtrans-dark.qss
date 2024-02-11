@@ -48,7 +48,7 @@ QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
 }
 
 .ScenesView {
-    background-color: #121212;
+    background-color: darkslategrey;
 }
 
 .TreeViewItemWidget {
@@ -101,7 +101,7 @@ QListView:item {
     margin: 0px;
     padding: 3px;
     padding-left: 10px;
-    background-color: saddlebrown;
+    background-color: maroon;
     color: blanchedalmond;
 }
 
@@ -109,12 +109,13 @@ QListView:item {
     margin: 0px;
     padding: 2px;
     padding-right: 10px;
+    background-color: navy;
 }
 
 .WidgetFooter QLabel {
     margin: 0px;
     padding: 0px;
-    background-color: #242424;
+    background-color: navy;
 }
 
 .WidgetFooter[all_translated=true] QLabel {
@@ -130,7 +131,7 @@ QListView:item {
     padding: 2px;
     padding-left: 10px;
     color: white;
-    background-color: #363636;
+    background-color: #242424;
 }
 
 .ContentView {
@@ -168,7 +169,7 @@ QListView:item {
 }
 
 #line-header-right {
-    color: peru;
+    color: burlywood;
     font-size: 9pt;
 }
 
@@ -176,7 +177,7 @@ QListView:item {
     margin: 2px;
     padding: 2px 1em;
     background-color: #242424;
-    border-left: 2px dotted burlywood;    
+    border-left: 2px dotted peru;    
 }
 
 .SelectionView {
