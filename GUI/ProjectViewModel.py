@@ -604,7 +604,7 @@ class BatchItem(ViewModelItem):
         
         return {
             'heading': f"Batch {self.number}",
-            'subheading': f"{self.start} -> {self.end}",
+            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} [{self.start} -> {self.end}]",
             'body': body,
             'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
@@ -649,6 +649,11 @@ class SceneItem(ViewModelItem):
             'gap': None,
             'summary': scene.summary
         }
+
+        # cache on demand
+        self._first_line_num = None
+        self._last_line_num = None
+
         self.setText(f"Scene {scene.number}")
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
 
@@ -682,6 +687,16 @@ class SceneItem(ViewModelItem):
     @property
     def all_translated(self):
         return self.batches and all(b.all_translated for b in self.batches.values())
+    
+    @property
+    def first_line_number(self):
+        batch_number = sorted(self.batches.keys())[0]
+        return self.batches[batch_number].first_line_number if self.batches else None
+    
+    @property
+    def last_line_number(self): 
+        batch_number = sorted(self.batches.keys())[-1]
+        return self.batches[batch_number].last_line_number if self.batches else None
 
     @property
     def has_errors(self):
@@ -718,7 +733,7 @@ class SceneItem(ViewModelItem):
 
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"{self.start} -> {self.end}",
+            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} [{self.start} -> {self.end}]",
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
