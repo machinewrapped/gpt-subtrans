@@ -3,7 +3,7 @@ import os
 from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from GUI.GuiHelpers import GetLineHeight, TimeDeltaToText
+from GUI.GuiHelpers import DescribeLineCount, GetLineHeight, TimeDeltaToText
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle import SubtitleLine
 
@@ -601,10 +601,12 @@ class BatchItem(ViewModelItem):
                 "1 line" if self.line_count == 1 else f"{self.line_count} lines",
                 f"{self.translated_count} translated" if self.translated_count > 0 else "" 
             ])
+        
+        subheading = f"{self.start} -> {self.end} ({ DescribeLineCount(self.line_count, self.translated_count) })"
 
         return {
             'heading': f"Batch {self.number}",
-            'subheading': f"{str(self.start)} -> {str(self.end)} ({self.line_count} lines)",   # ({end - start})
+            'subheading': subheading,
             'body': body,
             'properties': {
                 'all_translated' : self.all_translated,
@@ -715,9 +717,11 @@ class SceneItem(ViewModelItem):
             str_translated if self.translated_batch_count > 0 else None,
         ]
 
+        subheading = f"{self.start} -> {self.end} ({ DescribeLineCount(self.line_count, self.translated_count) })"
+
         return {
             'heading': f"Scene {self.number}",
-            'subheading': f"{self.start} -> {self.end} ({self.line_count} lines)",   # ({self.duration})
+            'subheading': subheading,
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'properties': {
                 'all_translated' : self.all_translated,
