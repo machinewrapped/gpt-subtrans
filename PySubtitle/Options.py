@@ -35,7 +35,7 @@ default_options = {
     'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 7)),
     'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 30)),
     'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
-    'max_characters': int(os.getenv('MAX_CHARACTERS', 99)),
+    'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
     'match_partial_words': env_bool('MATCH_PARTIAL_WORDS', False),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
@@ -85,12 +85,15 @@ class Options:
         options = {k: v for k, v in options.items() if v is not None}
         self.options.update(options)
 
+    @property
     def api_key(self):
         return self.get('api_key')
 
+    @property
     def api_base(self):
         return self.get('api_base')    
     
+    @property
     def allow_multithreaded_translation(self):
         return self.get('max_threads') and self.get('max_threads') > 1
 
