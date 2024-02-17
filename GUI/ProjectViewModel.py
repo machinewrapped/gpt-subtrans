@@ -47,9 +47,8 @@ class ProjectViewModel(QStandardItemModel):
         with QMutexLocker(self.update_lock):
             for update in self.updates:
                 self.ApplyUpdate(update)
-            self.updates = []
 
-        self.layoutChanged.emit()
+            self.updates = []
 
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):

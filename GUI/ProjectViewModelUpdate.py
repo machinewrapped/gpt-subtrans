@@ -19,6 +19,10 @@ class ModelUpdateSection:
 
     def HasUpdate(self) -> bool:
         return self.updates or self.replacements or self.additions or self.removals
+    
+    @property
+    def size_changed(self) -> bool:
+        return self.removals or self.additions
 
 class ModelUpdate:
     def __init__(self):
