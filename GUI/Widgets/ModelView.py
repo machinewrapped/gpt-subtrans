@@ -85,7 +85,7 @@ class ModelView(QWidget):
         if self.project_options.isVisible() and not show:
             self.CloseProjectOptions()
         else:
-            self.project_options.show()
+            self.project_options.OpenOptions()
 
     def CloseProjectOptions(self):
         if self.project_options.isVisible():

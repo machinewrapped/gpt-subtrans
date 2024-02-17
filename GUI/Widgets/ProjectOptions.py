@@ -126,19 +126,30 @@ class ProjectOptions(QGroupBox):
         button_widget = QPushButton(text)
         button_widget.clicked.connect(callable)
         self.grid_layout.addWidget(label_widget, row, 0)
-        self.grid_layout.addWidget(button_widget, row, 1)        
+        self.grid_layout.addWidget(button_widget, row, 1)
+
+    def OpenOptions(self):
+        api_key = self.settings.get('api_key')
+        api_base = self.settings.get('api_base')
+        self.settings['model'] = self.settings.get('model') or self.settings.get('gpt_model')
+
+        if api_key and api_base:
+            self.model_list = SubtitleTranslator.GetAvailableModels(api_key, api_base)
+        
+            model_input = getattr(self, "model_input")
+            if model_input:
+                model_input.clear()
+                model_input.addItems(self.model_list)
+                self._update_combo_box(model_input, self.settings['model'])
+
+        self.show()
 
     def Populate(self, settings):
         if isinstance(settings, Options):
             return self.Populate(settings.options)
 
-        #TODO: should only update the model list if a relevant setting changes
-        api_key = settings.get('api_key')
-        api_base = settings.get('api_base')
-        settings['model'] = settings.get('model') or settings.get('gpt_model')
-
-        if api_key and api_base:
-            self.model_list = SubtitleTranslator.GetAvailableModels(api_key, api_base)
+        if not self.model_list:
+            self.model_list = [ settings.get('model') or settings.get('gpt_model') ]
 
         with QSignalBlocker(self):
             for key in settings:
@@ -165,7 +176,7 @@ class ProjectOptions(QGroupBox):
         if isinstance(widget, QCheckBox):
             widget.setChecked(value or False)
         elif isinstance(widget, QComboBox):
-            self._update_combo_box(widget, key, value)
+            self._update_combo_box(widget, value)
         else:
             self._settext(widget, value)
 
@@ -177,11 +188,7 @@ class ProjectOptions(QGroupBox):
             value = '\n'.join(items)
         widget.setText(value or "")
 
-    def _update_combo_box(self, widget, key, value):
-        if key == 'model':
-            widget.clear()
-            widget.addItems(self.model_list)
-
+    def _update_combo_box(self, widget, value):
         index = widget.findText(value)
         if index >= 0:
             widget.setCurrentIndex(index)
