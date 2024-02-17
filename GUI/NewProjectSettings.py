@@ -17,7 +17,7 @@ class NewProjectSettings(QDialog):
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
-        'gpt_model': (str, "AI model to use as the translator"),
+        # 'gpt_model': (str, "AI model to use as the translator"),
         'gpt_prompt': (str, "High-level instructions for the translator"),
         'instruction_file': (str, "Detailed instructions for the translator")
     }
