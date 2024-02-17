@@ -303,6 +303,7 @@ class SubtitleProject:
                 self.subtitles.UpdateContext(self.options)
 
         if self.subtitles.scenes:
+            self.subtitles.UpdateOutputPath()
             self.WriteProjectFile()
 
     def _start_autosave_thread(self):

@@ -266,6 +266,14 @@ class SubtitleFile:
 
         return context
 
+    def UpdateOutputPath(self, outputpath : str = None):
+        """
+        Set or generate the output path for the translated subtitles
+        """
+        if not outputpath:
+            outputpath = GetOutputPath(self.sourcepath, self.target_language)
+        self.outputpath = outputpath
+
     def AutoBatch(self, options):
         """
         Divide subtitles into scenes and batches based on threshold options

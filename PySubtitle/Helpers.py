@@ -95,7 +95,7 @@ def GetOutputPath(filepath, language="translated"):
         basename = basename[0:basename.index("-ChatGPT")]
     if basename.endswith("-GPT"):
         basename = basename[0:basename.index("-GPT")]
-    language_suffix = f"-{language}"
+    language_suffix = f".{language}"
     if not basename.endswith(language_suffix):
         basename = basename + language_suffix
 
