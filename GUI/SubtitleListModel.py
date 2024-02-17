@@ -1,5 +1,5 @@
 import logging
-from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt, QSize
+from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt
 from GUI.ProjectViewModel import BatchItem, ProjectViewModel, SceneItem, LineItem, ViewModelItem
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.Widgets import LineItemView
@@ -10,8 +10,8 @@ class SubtitleListModel(QAbstractProxyModel):
         self.viewmodel : ProjectViewModel = viewmodel
         self.selected_batch_numbers = []
         self.visible = []
-        self.visible_row_map : dict(int, int) = {}
-        self.size_map : dict(int, QSize ) = {}
+        self.visible_row_map : dict = {}
+        self.size_map : dict = {}
 
         # Connect signals to update mapping when source model changes
         if self.viewmodel:
