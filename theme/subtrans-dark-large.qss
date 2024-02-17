@@ -1,6 +1,6 @@
 QWidget {
     font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 10pt;
+    font-size: large;
 }
 
 QSplitter::handle {
@@ -48,20 +48,20 @@ QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
 }
 
 .ScenesView {
-    background-color: #242424;
+    background-color: darkslategrey;
 }
 
 .TreeViewItemWidget {
-    padding: 4px;
-    margin: 2px;
-    border: 2px solid darkslateblue;
-    border-radius: 12px;
-    background-color: #363636;
+    padding: 1px;
+    margin: 0px;
+    border: 1px solid black;
+    border-radius: 6px;
+    background-color: #121212;
 }
 
 QTreeView:item {
     border: 1px solid black;
-    border-radius: 12px;
+    border-radius: 6px;
 }
 
 QTreeView:item:selected {
@@ -75,10 +75,10 @@ QListView:item {
 }
 
 .WidgetHeader { 
-    font-size: 12pt;
+    font-size:x-large;
     font-weight: bold;
     background-color: blanchedalmond;
-    padding: 4px;
+    padding: 8px;
     padding-left: 10px;
     margin: 0px;
     color: black;
@@ -97,10 +97,11 @@ QListView:item {
 }
 
 .WidgetSubheading {
+    font-size:medium;
     margin: 0px;
-    padding: 3px;
+    padding: 6px;
     padding-left: 10px;
-    background-color: darkslategrey;
+    background-color: darkslateblue;
     color: blanchedalmond;
 }
 
@@ -108,13 +109,15 @@ QListView:item {
     margin: 0px;
     padding: 2px;
     padding-right: 10px;
-    background-color: #242424;
+    padding-bottom: 8px;
+    background-color: navy;
+    font-size: small;
 }
 
 .WidgetFooter QLabel {
     margin: 0px;
     padding: 0px;
-    background-color: #242424;
+    background-color: navy;
 }
 
 .WidgetFooter[all_translated=true] QLabel {
@@ -126,7 +129,7 @@ QListView:item {
 }
 
 .WidgetBody {
-    font-size: 10pt;
+    font-size: small;
     padding: 2px;
     padding-left: 10px;
     color: white;
@@ -163,9 +166,13 @@ QListView:item {
     padding-bottom: 6px;
 }
 
+#line-header-left {
+    font-weight: bold;
+}
+
 #line-header-right {
     color: burlywood;
-    font-size: 9pt;
+    font-size: smaller;
 }
 
 .LineItemBody {

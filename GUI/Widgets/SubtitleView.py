@@ -17,6 +17,8 @@ class SubtitleView(QListView):
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setSelectionMode(QListView.SelectionMode.ExtendedSelection)
         self.setSelectionBehavior(QListView.SelectionBehavior.SelectRows)
+        self.setSpacing(1)
+        self.setContentsMargins(0, 0, 0, 0)
 
         item_delegate = SubtitleItemDelegate()
         self.setItemDelegate(item_delegate)

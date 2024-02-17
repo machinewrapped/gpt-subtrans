@@ -53,3 +53,11 @@ def GetLineHeight(text: str, wrap_length: int = 100) -> int:
 def TimeDeltaToText(time: timedelta) -> str:
     return timedelta_to_srt_timestamp(time).replace('00:', '') if time is not None else None
 
+def DescribeLineCount(line_count, translated_count):
+    if translated_count == 0:
+        return f"{line_count} lines" 
+    elif line_count == translated_count:
+        return f"{translated_count} lines translated" 
+    else:
+        return f"{translated_count} of {line_count} lines translated"
+
