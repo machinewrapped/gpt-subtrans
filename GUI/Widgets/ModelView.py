@@ -79,7 +79,7 @@ class ModelView(QWidget):
             self._toolbar.show()
             self._toolbar.show_options = not options.get('movie_name', None)
             if self._toolbar.show_options:
-                self.project_options.show()
+                self.project_options.OpenOptions()
 
     def ToggleProjectSettings(self, show = None):
         if self.project_options.isVisible() and not show:
