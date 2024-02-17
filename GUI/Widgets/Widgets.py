@@ -11,8 +11,6 @@ from PySide6.QtWidgets import (
     QSizePolicy
 )
 
-from GUI.ProjectViewModel import LineItem
-
 class TreeViewItemWidget(QFrame):
     def __init__(self, content, parent=None):
         super(TreeViewItemWidget, self).__init__(parent)
@@ -85,11 +83,11 @@ class WidgetBody(QLabel):
         super(WidgetBody, self).__init__(parent)
         self.setText(text)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setWordWrap(True)
 
 class LineItemView(QWidget):
-    def __init__(self, line : LineItem, parent=None):
+    def __init__(self, line, parent=None):
         super(LineItemView, self).__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
@@ -105,7 +103,7 @@ class LineItemView(QWidget):
         self.setLayout(layout)
 
 class LineItemHeader(QFrame):
-    def __init__(self, line : LineItem, parent=None):
+    def __init__(self, line, parent=None):
         super(LineItemHeader, self).__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
