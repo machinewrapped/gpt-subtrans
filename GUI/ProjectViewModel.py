@@ -50,6 +50,8 @@ class ProjectViewModel(QStandardItemModel):
 
             self.updates = []
 
+        self.layoutChanged.emit()
+
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):
             raise Exception("Can only model subtitle files")

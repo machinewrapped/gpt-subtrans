@@ -16,6 +16,7 @@ class SubtitleListModel(QAbstractProxyModel):
         # Connect signals to update mapping when source model changes
         if self.viewmodel:
             self.setSourceModel(viewmodel)
+            viewmodel.layoutChanged.connect(self._update_visible_batches)
 
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
