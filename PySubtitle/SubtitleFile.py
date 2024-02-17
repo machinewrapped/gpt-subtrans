@@ -205,6 +205,7 @@ class SubtitleFile:
             return self.UpdateContext(options.options)
     
         context = {
+            'model': "",
             'prompt': "",
             'target_language': "",
             'instructions': "",
@@ -253,9 +254,9 @@ class SubtitleFile:
                 context['prompt'] = context['gpt_prompt']
                 del context['gpt_prompt']
 
-            # Remove model from project context (TEMP)
-            if 'model' in context:
-                del context['model']
+            # Copy model to gpt_model for backward compatibility
+            if context.get('model'):
+                context['gpt_model'] = context['model']
 
             self.context = context
 
