@@ -129,18 +129,15 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(button_widget, row, 1)
 
     def OpenOptions(self):
-        api_key = self.settings.get('api_key')
-        api_base = self.settings.get('api_base')
         self.settings['model'] = self.settings.get('model') or self.settings.get('gpt_model')
 
-        if api_key and api_base:
-            self.model_list = SubtitleTranslator.GetAvailableModels(api_key, api_base)
-        
-            model_input = getattr(self, "model_input")
-            if model_input:
-                model_input.clear()
-                model_input.addItems(self.model_list)
-                self._update_combo_box(model_input, self.settings['model'])
+        self.model_list = SubtitleTranslator.GetAvailableModels(self.settings)
+    
+        model_input = getattr(self, "model_input")
+        if model_input:
+            model_input.clear()
+            model_input.addItems(self.model_list)
+            self._update_combo_box(model_input, self.settings['model'])
 
         self.show()
 
