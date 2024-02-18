@@ -45,6 +45,10 @@ class SubtitleProject:
             self.stop_event.set()
             self.periodic_update_thread.join()
 
+    @property
+    def target_language(self):
+        return self.subtitles.target_language if self.subtitles else self.options.get('target_language')
+
     def Initialise(self, filepath, outputpath = None):
         """
         Initialize the project by either loading an existing project file or creating a new one.
@@ -217,10 +221,9 @@ class SubtitleProject:
 
             if not projectfile:
                 projectfile = self.projectfile
-
             elif projectfile and not self.projectfile:
                 self.projectfile = self.GetProjectFilepath(projectfile)
-                self.subtitles.outputpath = GetOutputPath(projectfile)
+                self.subtitles.outputpath = GetOutputPath(projectfile, self.subtitles.target_language)
 
             if not projectfile:
                 raise Exception("No file path provided")
@@ -300,6 +303,7 @@ class SubtitleProject:
                 self.subtitles.UpdateContext(self.options)
 
         if self.subtitles.scenes:
+            self.subtitles.UpdateOutputPath()
             self.WriteProjectFile()
 
     def _start_autosave_thread(self):

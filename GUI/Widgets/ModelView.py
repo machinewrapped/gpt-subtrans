@@ -33,7 +33,7 @@ class ModelView(QWidget):
         # Project Options
         self.project_options = ProjectOptions()
         self.project_options.hide()
-        self.project_options.optionsChanged.connect(self.optionsChanged)
+        self.project_options.settingsChanged.connect(self.optionsChanged)
 
         # Splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -79,17 +79,17 @@ class ModelView(QWidget):
             self._toolbar.show()
             self._toolbar.show_options = not options.get('movie_name', None)
             if self._toolbar.show_options:
-                self.project_options.show()
+                self.project_options.OpenOptions()
 
     def ToggleProjectSettings(self, show = None):
         if self.project_options.isVisible() and not show:
             self.CloseProjectOptions()
         else:
-            self.project_options.show()
+            self.project_options.OpenOptions()
 
     def CloseProjectOptions(self):
         if self.project_options.isVisible():
-            self.optionsChanged.emit(self.project_options.GetOptions())
+            self.optionsChanged.emit(self.project_options.GetSettings())
             self.project_options.hide()
 
     def GetSelection(self) -> ProjectSelection:

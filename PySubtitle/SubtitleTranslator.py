@@ -333,8 +333,8 @@ class SubtitleTranslator:
 
             # Update the context, unless it's a retranslation pass
             if not options.get('retranslate'):
-                batch.summary : str = self.SanitiseSummary(translation.summary or batch.summary)
-                scene_summary : str = self.SanitiseSummary(translation.scene)
+                batch.summary = self.SanitiseSummary(translation.summary or batch.summary)
+                scene_summary = self.SanitiseSummary(translation.scene)
 
                 context['summary'] = batch.summary
                 context['scene'] = scene_summary or context['scene']

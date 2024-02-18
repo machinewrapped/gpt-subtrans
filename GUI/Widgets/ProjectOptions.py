@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QCheckBox,
     QPushButton,
+    QComboBox,
     QDialog,
     QFileDialog
 )
@@ -17,21 +18,23 @@ from PySubtitle.Options import Options
 from PySubtitle.Helpers import ParseNames, ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class ProjectOptions(QGroupBox):
     """
     Allow the user to edit project-specific options
     """
-    optionsChanged = Signal(dict)
+    settingsChanged = Signal(dict)
 
     def __init__(self, settings=None):
         super().__init__()
-        self.setTitle("Project Options")
+        self.setTitle("Project Settings")
         self.setMinimumWidth(450)
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
 
         self.settings = settings or {}
+        self.model_list = []
 
         # Add options
         self.AddSingleLineOption(0, "Movie Name", self.settings, 'movie_name')
@@ -41,28 +44,31 @@ class ProjectOptions(QGroupBox):
         self.AddMultiLineOption(4, "Names", self.settings, 'names')
         self.AddMultiLineOption(5, "Substitutions", self.settings, 'substitutions')
         self.AddCheckboxOption(6, "Substitute Partial Words", self.settings, 'match_partial_words')
-        self.AddButtonOption(7, "", "Edit Instructions", self._edit_instructions)
-        self.AddButtonOption(8, "", "Copy From Another Project", self._copy_from_another_project)
+        self.AddDropdownOption(7, "Model", self.settings, 'model', self.model_list)
+        self.AddButtonOption(8, "", "Edit Instructions", self._edit_instructions)
+        self.AddButtonOption(9, "", "Copy From Another Project", self._copy_from_another_project)
 
         self.Populate(self.settings)
 
         self.layout.addLayout(self.grid_layout)
 
-    def GetOptions(self):
+    def GetSettings(self):
         """
-        Get a dictionary of the user's options
+        Get a dictionary of the user's settings
         """
-        options = {
+        settings = {
             "movie_name": self.movie_name_input.text(),
             "target_language": self.target_language_input.text(),
             "include_original": self.include_original_input.isChecked(),
             "description": self.description_input.toPlainText(),
             "names": ParseNames(self.names_input.toPlainText()),
             "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText()),
-            "match_partial_words": self.match_partial_words_input.isChecked()
+            "match_partial_words": self.match_partial_words_input.isChecked(),
+            "model": self.model_input.currentText(),
+            "gpt_model": self.model_input.currentText() #TODO: remove "gpt_model" when all references are updated to "model
         }
 
-        return options
+        return settings
 
     def AddSingleLineOption(self, row, label, settings, key):
         # Add label and input field for a single-line option
@@ -89,10 +95,10 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
 
-    def AddCheckboxOption(self, row, label, options, key):
+    def AddCheckboxOption(self, row, label, settings, key):
         label_widget = QLabel(label)
         input_widget = QCheckBox(self)
-        value = options.get(key, False)
+        value = settings.get(key, False)
         input_widget.setChecked(value)
         input_widget.stateChanged.connect(self._check_changed)
 
@@ -100,16 +106,50 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(input_widget, row, 1)
         setattr(self, key + "_input", input_widget)
 
+    def AddDropdownOption(self, row, label, settings, key, values):
+        label_widget = QLabel(label)
+        combo_box = QComboBox(self)
+        combo_box.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        for value in values:
+            combo_box.addItem(value)
+
+        if key in settings:
+            initial_value = settings[key]
+            combo_box.setCurrentIndex(combo_box.findText(initial_value))
+
+        self.grid_layout.addWidget(label_widget, row, 0)
+        self.grid_layout.addWidget(combo_box, row, 1)
+        setattr(self, key + "_input", combo_box)
+
     def AddButtonOption(self, row, label, text, callable):
         label_widget = QLabel(label)
         button_widget = QPushButton(text)
         button_widget.clicked.connect(callable)
         self.grid_layout.addWidget(label_widget, row, 0)
-        self.grid_layout.addWidget(button_widget, row, 1)        
+        self.grid_layout.addWidget(button_widget, row, 1)
+
+    def OpenOptions(self):
+        api_key = self.settings.get('api_key')
+        api_base = self.settings.get('api_base')
+        self.settings['model'] = self.settings.get('model') or self.settings.get('gpt_model')
+
+        if api_key and api_base:
+            self.model_list = SubtitleTranslator.GetAvailableModels(api_key, api_base)
+        
+            model_input = getattr(self, "model_input")
+            if model_input:
+                model_input.clear()
+                model_input.addItems(self.model_list)
+                self._update_combo_box(model_input, self.settings['model'])
+
+        self.show()
 
     def Populate(self, settings):
         if isinstance(settings, Options):
             return self.Populate(settings.options)
+
+        if not self.model_list:
+            self.model_list = [ settings.get('model') or settings.get('gpt_model') ]
 
         with QSignalBlocker(self):
             for key in settings:
@@ -117,11 +157,11 @@ class ProjectOptions(QGroupBox):
                     value = settings.get(key)
                     self._setvalue(key, value)
 
-            self.settings = settings
+        self.settings = settings
 
     def Clear(self):
         with QSignalBlocker(self):
-            for key in ["movie_name", "description", "names", "substitutions", "match_partial_words", "include_original"]:
+            for key in ["movie_name", "description", "names", "substitutions", "match_partial_words", "include_original", "model"]:
                 input = getattr(self, key + "_input")
                 if input:
                     if isinstance(input, QCheckBox):
@@ -132,26 +172,34 @@ class ProjectOptions(QGroupBox):
                     logging.error(f"No input found for {key}")
         
     def _setvalue(self, key, value):
-        if isinstance(value, bool):
-            getattr(self, key + "_input").setChecked(value or False)
+        widget = getattr(self, key + "_input")
+        if isinstance(widget, QCheckBox):
+            widget.setChecked(value or False)
+        elif isinstance(widget, QComboBox):
+            self._update_combo_box(widget, value)
         else:
-            self._settext(key, value)
+            self._settext(widget, value)
 
-    def _settext(self, key, value):
+    def _settext(self, widget, value):
         if isinstance(value, list):
             value = '\n'.join(value)
         elif isinstance(value, dict):
             items = [ f"{k}::{v}" for k, v in value.items() ]
             value = '\n'.join(items)
-        getattr(self, key + "_input").setText(value or "")
+        widget.setText(value or "")
+
+    def _update_combo_box(self, widget, value):
+        index = widget.findText(value)
+        if index >= 0:
+            widget.setCurrentIndex(index)
 
     def _text_changed(self, text = None):
-        options = self.GetOptions()
-        self.optionsChanged.emit(options)
+        settings = self.GetSettings()
+        self.settingsChanged.emit(settings)
 
     def _check_changed(self, int = None):
-        options = self.GetOptions()
-        self.optionsChanged.emit(options)
+        settings = self.GetSettings()
+        self.settingsChanged.emit(settings)
 
     def _edit_instructions(self):
         dialog = EditInstructionsDialog(self.settings, parent=self)
@@ -160,7 +208,7 @@ class ProjectOptions(QGroupBox):
         if result == QDialog.Accepted:
             logging.info("Instructions for this project updated")
             self.settings.update(dialog.instructions.GetSettings())
-            self.optionsChanged.emit(dialog.instructions.GetSettings())
+            self.settingsChanged.emit(dialog.instructions.GetSettings())
 
     def _copy_from_another_project(self):
         '''

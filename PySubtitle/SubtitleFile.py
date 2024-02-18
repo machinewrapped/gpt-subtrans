@@ -30,6 +30,10 @@ class SubtitleFile:
         self.outputpath = outputpath or None
 
     @property
+    def target_language(self):
+        return self.context.get('target_language')
+
+    @property
     def has_subtitles(self):
         return self.linecount > 0 or self.scenecount > 0
     
@@ -164,7 +168,7 @@ class SubtitleFile:
         outputpath = outputpath or self.outputpath 
         if not outputpath:
             if os.path.exists(self.sourcepath):
-                outputpath = GetOutputPath(self.sourcepath)
+                outputpath = GetOutputPath(self.sourcepath, self.target_language)
             if not outputpath:
                 raise Exception("I don't know where to save the translated subtitles")
             
@@ -205,6 +209,7 @@ class SubtitleFile:
             return self.UpdateContext(options.options)
     
         context = {
+            'model': "",
             'prompt': "",
             'target_language': "",
             'instructions': "",
@@ -253,13 +258,21 @@ class SubtitleFile:
                 context['prompt'] = context['gpt_prompt']
                 del context['gpt_prompt']
 
-            # Remove model from project context (TEMP)
-            if 'model' in context:
-                del context['model']
+            # Copy model to gpt_model for backward compatibility
+            if context.get('model'):
+                context['gpt_model'] = context['model']
 
             self.context = context
 
         return context
+
+    def UpdateOutputPath(self, outputpath : str = None):
+        """
+        Set or generate the output path for the translated subtitles
+        """
+        if not outputpath:
+            outputpath = GetOutputPath(self.sourcepath, self.target_language)
+        self.outputpath = outputpath
 
     def AutoBatch(self, options):
         """

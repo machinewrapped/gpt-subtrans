@@ -47,6 +47,7 @@ class ProjectViewModel(QStandardItemModel):
         with QMutexLocker(self.update_lock):
             for update in self.updates:
                 self.ApplyUpdate(update)
+
             self.updates = []
 
         self.layoutChanged.emit()
@@ -442,7 +443,7 @@ class LineItem(QStandardItem):
         if line_update.get('number'):
             self.number = line_update['number']
 
-        self.height = GetLineHeight(self.line_model.get('text'))
+        self.height = max(GetLineHeight(self.text), GetLineHeight(self.translation)) if self.translation else GetLineHeight(self.text)
 
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 

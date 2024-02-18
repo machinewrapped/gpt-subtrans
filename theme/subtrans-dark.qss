@@ -65,8 +65,8 @@ QTreeView:item {
 }
 
 QTreeView:item:selected {
-    border-radius: 12px;
     border: 2px solid #800000;
+    border-radius: 12px;
     font-weight: bold;
 }
 
@@ -78,8 +78,7 @@ QListView:item {
     font-size: 12pt;
     font-weight: bold;
     background-color: blanchedalmond;
-    padding: 4px;
-    padding-left: 10px;
+    padding: 10px 4px 4px 4px;
     margin: 0px;
     color: black;
 }

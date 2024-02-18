@@ -85,7 +85,7 @@ def GetInputPath(filepath):
         basename = basename[0:basename.index("-GPT")]
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def GetOutputPath(filepath):
+def GetOutputPath(filepath, language="translated"):
     if not filepath:
         return None
     
@@ -93,8 +93,12 @@ def GetOutputPath(filepath):
 
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
-    if not basename.endswith("-GPT"):
-        basename = basename + "-GPT"
+    if basename.endswith("-GPT"):
+        basename = basename[0:basename.index("-GPT")]
+    language_suffix = f".{language}"
+    if not basename.endswith(language_suffix):
+        basename = basename + language_suffix
+
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
 def GenerateTagLines(context, tags):

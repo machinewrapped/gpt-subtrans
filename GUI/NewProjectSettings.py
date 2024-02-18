@@ -4,7 +4,6 @@ from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle import SubtitleProject
-from PySubtitle.Instructions import Instructions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
@@ -12,12 +11,12 @@ from PySubtitle.SubtitleTranslator import SubtitleTranslator
 class NewProjectSettings(QDialog):
     SETTINGS = {
         'target_language': (str, "Language to translate the subtitles to"),
+        'model': (str, "AI model to use as the translator"),
         'min_batch_size': (int, "Fewest lines to send in separate batch"),
         'max_batch_size': (int, "Most lines to send in each batch"),
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
-        'gpt_model': (str, "AI model to use as the translator"),
         'gpt_prompt': (str, "High-level instructions for the translator"),
         'instruction_file': (str, "Detailed instructions for the translator")
     }
@@ -31,12 +30,10 @@ class NewProjectSettings(QDialog):
 
         self.project : SubtitleProject = project
         self.settings : dict = project.options.GetSettings()
-        api_key = project.options.api_key
-        api_base = project.options.api_base
+        self.settings['model'] = self.settings.get('model') or self.settings.get('gpt_model')
 
-        if api_key:
-            models = SubtitleTranslator.GetAvailableModels(self.settings)
-            self.SETTINGS['gpt_model'] = (models, self.SETTINGS['gpt_model'][1])
+        models = SubtitleTranslator.GetAvailableModels(self.settings)
+        self.SETTINGS['model'] = (models, self.SETTINGS['model'][1])
 
         instruction_files = GetInstructionFiles()
         if instruction_files:
