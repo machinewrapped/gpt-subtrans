@@ -18,7 +18,7 @@ class SettingsDialog(QDialog):
         'GPT': {
             'api_key': (str, "An OpenAI API key is required to use this program (https://platform.openai.com/account/api-keys)"),
             'api_base': (str, "The base URI to use for requests - leave as default unless you know you need something else"),
-            'gpt_model': str,
+            'model': str,
             'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
             'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"),
             'max_instruct_tokens': (int, "Maximum tokens a completion can contain (only applicable for -instruct models)")
@@ -59,7 +59,7 @@ class SettingsDialog(QDialog):
 
         models = SubtitleTranslator.GetAvailableModels(settings)
         if models:
-            self.SECTIONS['GPT']['gpt_model'] = models
+            self.SECTIONS['GPT']['model'] = models
 
         instruction_files = GetInstructionFiles()
         if instruction_files:

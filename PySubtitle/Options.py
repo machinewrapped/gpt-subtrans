@@ -22,7 +22,7 @@ default_options = {
     'version': __version__,
     'api_key': os.getenv('API_KEY', None),
     'api_base': os.getenv('API_BASE', 'https://api.openai.com/v1'),
-    'gpt_model': os.getenv('GPT_MODEL', 'gpt-3.5-turbo'),
+    'model': os.getenv('MODEL', 'gpt-3.5-turbo'),
     'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
     'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
@@ -70,7 +70,9 @@ class Options:
         # Apply any explicit parameters
         self.options.update(kwargs)
 
-        options = self.options
+        if 'gpt_model' in self.options:
+            self.options['model'] = self.options['gpt_model']
+            del self.options['gpt_model']
 
     def get(self, option, default=None):
         return self.options.get(option, default)

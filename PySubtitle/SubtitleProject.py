@@ -196,7 +196,7 @@ class SubtitleProject:
             self.subtitles.project = self
 
             self.options.InitialiseInstructions()
-            self.subtitles.UpdateContext(self.options)
+            self.subtitles.UpdateProjectSettings(self.options)
 
         return self.subtitles
 
@@ -261,7 +261,7 @@ class SubtitleProject:
                 subtitles.Sanitise()
                 subtitles.project = self
                 self.subtitles = subtitles
-                self.options.update({ key : value for key, value in subtitles.context.items() if value })
+                self.options.update({ key : value for key, value in subtitles.settings.items() if value })
                 return subtitles
 
         except FileNotFoundError:
@@ -300,7 +300,7 @@ class SubtitleProject:
             self.options.update(options)
 
             if self.subtitles:
-                self.subtitles.UpdateContext(self.options)
+                self.subtitles.UpdateProjectSettings(self.options)
 
         if self.subtitles.scenes:
             self.subtitles.UpdateOutputPath()

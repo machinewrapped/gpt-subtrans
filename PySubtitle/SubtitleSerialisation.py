@@ -42,7 +42,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "sourcepath": obj.sourcepath,
                 "outputpath": obj.outputpath,
                 "scenecount": len(obj.scenes),
-                "context": getattr(obj, 'context'),
+                "settings": getattr(obj, 'settings') or getattr(obj, 'context'),
                 "scenes": obj.scenes,
             }
         elif isinstance(obj, SubtitleScene):
@@ -111,9 +111,9 @@ class SubtitleDecoder(json.JSONDecoder):
                 sourcepath = dct.get('sourcepath')
                 outpath = dct.get('outputpath') or dct.get('filename')
                 obj = SubtitleFile(sourcepath, outpath)
-                obj.context = dct.get('context', {})
+                obj.settings = dct.get('settings', {}) or dct.get('context', {})
                 obj.scenes = dct.get('scenes', [])
-                obj.UpdateContext({}) # Force update of context for legacy files
+                obj.UpdateProjectSettings({}) # Force update of context for legacy files
                 return obj
             elif class_name == classname(SubtitleScene):
                 obj = SubtitleScene(dct)

@@ -35,7 +35,7 @@ class SubtitleTranslator:
         logging.debug(f"Translation prompt: {self.prompt}")
  
         # Update subtitle context from options and make our own copy of it
-        self.context = subtitles.UpdateContext(options).copy()
+        self.context = subtitles.UpdateProjectSettings(options).copy()
         options.update(self.context)
 
         context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]

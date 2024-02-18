@@ -22,7 +22,7 @@ class SubtitleFile:
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.start_line_number = 1
-        self.context = {}
+        self.settings = {}
         self._scenes : list[SubtitleScene] = []
         self.lock = threading.RLock()
 
@@ -31,7 +31,7 @@ class SubtitleFile:
 
     @property
     def target_language(self):
-        return self.context.get('target_language')
+        return self.settings.get('target_language')
 
     @property
     def has_subtitles(self):
@@ -200,15 +200,15 @@ class SubtitleFile:
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateContext(self, options):
+    def UpdateProjectSettings(self, options):
         """
-        Update the project context from options,
-        and set any unspecified options from the project context.
+        Update the project settings from options,
+        and set any unspecified options from the project settings.
         """
         if hasattr(options, 'options'):
-            return self.UpdateContext(options.options)
+            return self.UpdateProjectSettings(options.options)
     
-        context = {
+        settings = {
             'model': "",
             'prompt': "",
             'target_language': "",
@@ -224,47 +224,29 @@ class SubtitleFile:
         }
 
         with self.lock:
-            if self.context:
-                context = {**context, **self.context}
+            if self.settings:
+                settings = {**settings, **self.settings}
 
-            context['names'] = ParseNames(context.get('names'))
+            settings['names'] = ParseNames(settings.get('names'))
             if options.get('names'):
                 options['names'] = ParseNames(options.get('names'))
 
-            context['substitutions'] = ParseSubstitutions(context.get('substitutions'))
+            settings['substitutions'] = ParseSubstitutions(settings.get('substitutions'))
             if options.get('substitutions'):
                 options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
 
-            # Update the context dictionary with matching fields from options, and vice versa
-            for key in context.keys():
+            # Update the settings dictionary with matching fields from options, and vice versa
+            for key in settings.keys():
                 if key in options:
-                    context[key] = options[key]
-                elif key in context:
-                    options[key] = context[key]
+                    settings[key] = options[key]
+                elif key in settings:
+                    options[key] = settings[key]
 
-            # Fill description from synopsis for backward compatibility
-            if not context.get('description') and context.get('synopsis'):
-                context['description'] = context.get('synopsis')
+            self._update_compatibility(settings)
 
-            # Move characters to names for backward compatibility
-            if context.get('characters'):
-                context['names'].extend(context.get('characters'))
-                del context['characters']
+            self.settings = settings
 
-            # Copy prompt to gpt_prompt for backward compatibility
-            if context.get('prompt'):
-                options['gpt_prompt'] = context['prompt']
-            elif context.get('gpt_prompt'):
-                context['prompt'] = context['gpt_prompt']
-                del context['gpt_prompt']
-
-            # Copy model to gpt_model for backward compatibility
-            if context.get('model'):
-                context['gpt_model'] = context['model']
-
-            self.context = context
-
-        return context
+        return settings
 
     def UpdateOutputPath(self, outputpath : str = None):
         """
@@ -459,3 +441,21 @@ class SubtitleFile:
                 line.text = f"{line.text}\n{item.text}"
 
         return sorted(lines.values(), key=lambda item: item.key)
+
+    def _update_compatibility(self, settings):
+        """ Update settings for compatibility with older versions """
+        if not settings.get('description') and settings.get('synopsis'):
+            settings['description'] = settings.get('synopsis')
+
+        if settings.get('characters'):
+            settings['names'].extend(settings.get('characters'))
+            del settings['characters']
+
+        if settings.get('gpt_prompt'):
+            settings['prompt'] = settings['gpt_prompt']
+            del settings['gpt_prompt']
+
+        if settings.get('gpt_model'):
+            settings['model'] = settings['gpt_model']
+            del settings['gpt_model']
+

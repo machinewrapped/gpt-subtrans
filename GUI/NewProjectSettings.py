@@ -30,7 +30,7 @@ class NewProjectSettings(QDialog):
 
         self.project : SubtitleProject = project
         self.settings : dict = project.options.GetSettings()
-        self.settings['model'] = self.settings.get('model') or self.settings.get('gpt_model')
+        self.settings['model'] = self.settings.get('model')
 
         models = SubtitleTranslator.GetAvailableModels(self.settings)
         self.SETTINGS['model'] = (models, self.SETTINGS['model'][1])

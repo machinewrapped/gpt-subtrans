@@ -9,11 +9,10 @@ class OpenAiProvider(TranslationProvider):
     name = "OpenAI"
 
     def __init__(self, settings : dict):
-        #TODO: Eliminate the gpt_model setting
         super().__init__(self.name, {
             "api_key": settings.get('api_key') or os.getenv('OPENAI_API_KEY'),
             "api_base": settings.get('api_base') or os.getenv('OPENAI_API_BASE'),
-            "model": settings.get('model') or settings.get('gpt_model') or os.getenv('OPENAI_MODEL'),
+            "model": settings.get('model') or os.getenv('OPENAI_MODEL'),
             "free_plan": settings.get('free_plan') or os.getenv('OPENAI_FREE_PLAN') == "True",
             'max_instruct_tokens': int(os.getenv('MAX_INSTRUCT_TOKENS', 2048)),
         })

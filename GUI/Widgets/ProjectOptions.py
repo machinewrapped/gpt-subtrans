@@ -65,7 +65,6 @@ class ProjectOptions(QGroupBox):
             "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText()),
             "match_partial_words": self.match_partial_words_input.isChecked(),
             "model": self.model_input.currentText(),
-            "gpt_model": self.model_input.currentText() #TODO: remove "gpt_model" when all references are updated to "model
         }
 
         return settings
@@ -129,7 +128,7 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(button_widget, row, 1)
 
     def OpenOptions(self):
-        self.settings['model'] = self.settings.get('model') or self.settings.get('gpt_model')
+        self.settings['model'] = self.settings.get('model')
 
         self.model_list = SubtitleTranslator.GetAvailableModels(self.settings)
     
@@ -146,7 +145,7 @@ class ProjectOptions(QGroupBox):
             return self.Populate(settings.options)
 
         if not self.model_list:
-            self.model_list = [ settings.get('model') or settings.get('gpt_model') ]
+            self.model_list = [ settings.get('model') ]
 
         with QSignalBlocker(self):
             for key in settings:
@@ -221,7 +220,7 @@ class ProjectOptions(QGroupBox):
                 if not subtitles:
                     raise Exception("Invalid project file")
 
-                self.Populate(subtitles.context)
+                self.Populate(subtitles.settings)
 
             except Exception as e:
                 logging.error(f"Unable to read project file: {str(e)}")
