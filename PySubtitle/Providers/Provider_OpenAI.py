@@ -42,6 +42,9 @@ class OpenAiProvider(TranslationProvider):
         }
 
     def _get_available_models(self) -> list[str]:
+        if not self.api_key:
+            return "No API key set"
+        
         models = OpenAIClient.GetAvailableModels(self.api_key, self.api_base)
         return models or "Unable to retrieve model list"
     
