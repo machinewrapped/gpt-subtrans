@@ -23,7 +23,7 @@ default_options = {
     'api_key': os.getenv('API_KEY', None),
     'api_base': os.getenv('API_BASE', 'https://api.openai.com/v1'),
     'model': os.getenv('MODEL', 'gpt-3.5-turbo'),
-    'gpt_prompt': os.getenv('GPT_PROMPT', "Please translate these subtitles[ for movie][ to language]."),
+    'prompt': os.getenv('PROMPT', "Please translate these subtitles[ for movie][ to language]."),
     'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'include_original': env_bool('INCLUDE_ORIGINAL', False),
@@ -171,8 +171,6 @@ class Options:
                 self.options['prompt'] = instructions.prompt
                 self.options['instructions'] = instructions.instructions
                 self.options['retry_instructions'] = instructions.retry_instructions
-                #Legacy options
-                self.options['gpt_prompt'] = instructions.prompt
 
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")

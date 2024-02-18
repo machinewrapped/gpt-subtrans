@@ -24,7 +24,7 @@ class SettingsDialog(QDialog):
             'max_instruct_tokens': (int, "Maximum tokens a completion can contain (only applicable for -instruct models)")
         },
         'Translation': {
-            'gpt_prompt': (str, "The (brief) instruction to give GPT for each batch of subtitles. [movie_name] and [to_language] are automatically filled in"),
+            'prompt': (str, "The (brief) instruction to give GPT for each batch of subtitles. [movie_name] and [to_language] are automatically filled in"),
             'target_language': str,
             'include_original': (bool, "Include original text in translated subtitles"),
             'instruction_file': (str, "Detailed instructions for GPT about how to approach translation, and the required response format"),
@@ -134,6 +134,6 @@ class SettingsDialog(QDialog):
         if instruction_file:
             try:
                 instructions = LoadInstructionsResource(instruction_file)
-                self.widgets['gpt_prompt'].SetValue(instructions.prompt)
+                self.widgets['prompt'].SetValue(instructions.prompt)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")

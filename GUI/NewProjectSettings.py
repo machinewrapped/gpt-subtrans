@@ -17,7 +17,7 @@ class NewProjectSettings(QDialog):
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
-        'gpt_prompt': (str, "High-level instructions for the translator"),
+        'prompt': (str, "High-level instructions for the translator"),
         'instruction_file': (str, "Detailed instructions for the translator")
     }
 
@@ -78,8 +78,6 @@ class NewProjectSettings(QDialog):
                     self.settings['prompt'] = instructions.prompt
                     self.settings['instructions'] = instructions.instructions
                     self.settings['retry_instructions'] = instructions.retry_instructions
-                    # Legacy
-                    self.settings['gpt_prompt'] = instructions.prompt
 
                     logging.debug(f"Prompt: {instructions.prompt}")
                     logging.debug(f"Instructions: {instructions.instructions}")
@@ -127,6 +125,6 @@ class NewProjectSettings(QDialog):
         if instruction_file:
             try:
                 instructions = LoadInstructionsResource(instruction_file)
-                self.fields['gpt_prompt'].SetValue(instructions.prompt)
+                self.fields['prompt'].SetValue(instructions.prompt)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")

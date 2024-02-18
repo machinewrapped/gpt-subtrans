@@ -127,7 +127,7 @@ def BuildPrompt(options : Options):
     """
     target_language = options.get('target_language')
     movie_name = options.get('movie_name')
-    prompt = options.get('prompt') or options.get('gpt_prompt')
+    prompt = options.get('prompt')
     prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
     prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
     return prompt
