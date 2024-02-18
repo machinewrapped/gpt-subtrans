@@ -177,6 +177,13 @@ class SubtitleScene:
             else:
                 logging.warning(f"Expected line number {translated_number} not found in batch translations")
 
+        for error in batch.errors:
+            if hasattr(error, 'type') and error.type == 'UntranslatedlinesError':
+                if not new_batch.all_translated:
+                    new_batch.errors.append(error)
+                if batch.all_translated:
+                    batch.errors.remove(error)
+
         batch_index = self._batches.index(batch)
         self._batches = self._batches[:batch_index + 1] + [new_batch] + self._batches[batch_index + 1:]
 

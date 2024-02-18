@@ -11,6 +11,7 @@ class SubtitleError(Exception):
 class TranslationError(SubtitleError):
     def __init__(self, message, error = None):
         super().__init__(message)
+        self.type = type(error).__name__ if error else "TranslationError"
         self.error = error
     
 class TranslationImpossibleError(TranslationError):
