@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 import re
 from os import linesep
 from PySubtitle.OpenAI.ChatGPTClient import ChatGPTClient

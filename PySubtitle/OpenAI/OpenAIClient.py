@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 import openai
 
 from PySubtitle.Helpers import FormatMessages

@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 import os
 from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
 

@@ -17,7 +17,8 @@ log_path = os.path.join(config_dir, 'gui-subtrans.log')
 
 logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
 logging.basicConfig(
-    format='%(levelname)s: %(message)s', 
+    format='%(levelname)s: %(message)s',
+    encoding='utf-8', 
     level=logging_level
     )
 

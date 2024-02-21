@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+logging.basicConfig(encoding='utf-8')
 import threading
 from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.SubtitleError import TranslationAbortedError

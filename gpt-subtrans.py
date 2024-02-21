@@ -1,6 +1,7 @@
 import os
 import argparse
 import logging
+logging.basicConfig(encoding='utf-8')
 
 from PySubtitle.Helpers import ParseNames, ParseSubstitutions
 from PySubtitle.Options import Options
@@ -10,6 +11,7 @@ logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
 logging.basicConfig(
     format='%(levelname)s: %(message)s', 
     level=logging_level,
+    encoding='utf-8',
     filename='gpt-subtrans.log',
     filemode='w',
     )

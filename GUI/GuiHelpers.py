@@ -1,5 +1,6 @@
 from datetime import timedelta
 import logging
+logging.basicConfig(encoding='utf-8')
 import os
 import sys
 

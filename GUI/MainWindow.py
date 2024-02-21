@@ -1,5 +1,6 @@
 import os
 import logging
+logging.basicConfig(encoding='utf-8')
 import dotenv
 import darkdetect
 

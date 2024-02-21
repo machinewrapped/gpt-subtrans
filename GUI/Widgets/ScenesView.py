@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 from PySide6.QtWidgets import QTreeView, QAbstractItemView, QDialog
 from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelectionModel, QItemSelection, QItemSelectionRange, Signal
 from GUI.ProjectViewModel import BatchItem, SceneItem, ViewModelItem

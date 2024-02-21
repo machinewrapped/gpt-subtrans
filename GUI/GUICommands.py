@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 from GUI.Command import Command
 
 class ExitProgramCommand(Command):

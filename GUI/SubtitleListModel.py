@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt
 from GUI.ProjectViewModel import BatchItem, ProjectViewModel, SceneItem, LineItem, ViewModelItem
 from GUI.ProjectSelection import ProjectSelection

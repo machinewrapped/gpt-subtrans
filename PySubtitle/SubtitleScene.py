@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 from os import linesep
 from PySubtitle import SubtitleError
 from PySubtitle.Helpers import ResyncTranslatedLines

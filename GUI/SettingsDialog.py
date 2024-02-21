@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
 from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames, LoadInstructionsResource
 

@@ -1,6 +1,7 @@
 import os
 import datetime
 import logging
+logging.basicConfig(encoding='utf-8')
 import requests
 import appdirs
 

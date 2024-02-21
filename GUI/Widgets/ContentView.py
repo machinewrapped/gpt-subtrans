@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(encoding='utf-8')
 from PySide6.QtWidgets import QSplitter, QVBoxLayout, QWidget, QSizePolicy, QDialog
 from PySide6.QtCore import Qt, QMutexLocker, Signal, Slot
 from GUI.ProjectSelection import ProjectSelection

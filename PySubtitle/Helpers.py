@@ -1,6 +1,7 @@
 import datetime
 import os
 import logging
+logging.basicConfig(encoding='utf-8')
 import regex
 import unicodedata
 import srt
