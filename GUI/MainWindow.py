@@ -22,13 +22,14 @@ from GUI.GUICommands import ExitProgramCommand
 from GUI.GuiHelpers import GetResourcePath
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
-from GUI.ProjectActions import NoApiKeyError, ProjectActions
+from GUI.ProjectActions import ProjectActions
 from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
 from GUI.NewProjectSettings import NewProjectSettings
 from PySubtitle.Options import Options
+from PySubtitle.SubtitleError import NoApiKeyError
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__
@@ -58,7 +59,7 @@ class MainWindow(QMainWindow):
         if not options:
             options = Options()
             options.InitialiseInstructions()
-            options.Load()
+            options.LoadSettings()
 
         self.options = options
 
@@ -111,15 +112,15 @@ class MainWindow(QMainWindow):
         # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
 
-        if not options.api_key or options.get('firstrun'):
-            # Make sure we have an API key
+        if options.provider is None or options.get('firstrun'):
+            # Initialise the provider and settings
             self._first_run(options)
         elif filepath:
             # Load file if we were opened with one
             filepath = os.path.abspath(filepath)
             self.QueueCommand(LoadSubtitleFile(filepath, options))
 
-        logging.info(f"GPT-Subtrans {__version__}")
+        logging.info(f"GUI-Subtrans {__version__}")
 
         # Check if there is a more recent version on Github (TODO: make this optional)
         if CheckIfUpdateCheckIsRequired():
@@ -137,14 +138,13 @@ class MainWindow(QMainWindow):
         """
         Open user settings dialog and update options
         """
-        options = self.options
-        settings = options.GetSettings()
-        result = SettingsDialog(settings, self).exec()
+        options = Options(self.options)
+        result = SettingsDialog(options, self).exec()
 
         if result == QDialog.Accepted:
             # Update and save global settings
-            options.update(settings)
-            options.Save()
+            options.update(options.GetSettings())
+            options.SaveSettings()
 
             LoadStylesheet(options.get('theme'))
             logging.info("Settings updated")
@@ -259,14 +259,14 @@ class MainWindow(QMainWindow):
             self.datamodel.UpdateSettings(options)
 
     def _first_run(self, options: Options):
-        settings = options.GetSettings()
-        result = FirstRunOptions(settings, self).exec()
+        first_run_options = FirstRunOptions(options, self)
+        result = first_run_options.exec()
 
         if result == QDialog.Accepted:
             logging.info("First run options set")
-            options.update(settings)
+            options.update(first_run_options.GetSettings())
             options.add('firstrun', False)
-            options.Save()
+            options.SaveSettings()
             self.options = options
             LoadStylesheet(options.get('theme'))
 

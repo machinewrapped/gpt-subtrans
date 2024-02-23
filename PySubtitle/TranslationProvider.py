@@ -1,6 +1,7 @@
 import importlib
 import logging
 import pkgutil
+from PySubtitle.Options import Options
 from PySubtitle.TranslationClient import TranslationClient
 
 class TranslationProvider:
@@ -11,34 +12,7 @@ class TranslationProvider:
         self.name : str = name
         self.settings : dict = settings
         self._available_models : list[str] = []
-
-    @property
-    def needs_api_key(self) -> bool:
-        """
-        Whether the provider requires an API key to be set
-        """
-        return 'api_key' in self.settings
-    
-    @property
-    def api_key(self) -> str:
-        """
-        The API key for the provider
-        """
-        return self.settings.get('api_key')
-
-    @property
-    def has_configurable_api_base(self) -> bool:
-        """
-        Whether the provider allows the API base to be configured
-        """
-        return 'api_base' in self.settings
-
-    @property
-    def api_base(self) -> str:
-        """
-        The API base URL for the provider
-        """
-        return self.settings.get('api_base')
+        self.validation_message = None
 
     @property
     def available_models(self) -> list[str]:
@@ -46,7 +20,7 @@ class TranslationProvider:
         list of available models for the provider
         """
         if not self._available_models:
-            self._available_models = self._get_available_models()
+            self._available_models = self.GetAvailableModels()
         
         return self._available_models
     
@@ -57,17 +31,23 @@ class TranslationProvider:
         """
         return self.settings.get('model')
     
+    def GetAvailableModels(self) -> list[str]:
+        """
+        Returns a list of possible model for the provider
+        """
+        raise NotImplementedError()
+
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         """
         Returns a new instance of the translation client for this provider
         """
         raise NotImplementedError()
     
-    def _get_available_models(self) -> list[str]:
+    def ValidateSettings(self) -> bool:
         """
-        Returns a list of possible model for the provider
+        Validate the settings for the provider
         """
-        raise NotImplementedError()
+        return True
     
     @classmethod
     def get_providers(cls) -> dict:
@@ -86,13 +66,20 @@ class TranslationProvider:
         return providers
 
     @classmethod
-    def create_provider(cls, name : str, settings : dict):
+    def create_provider(cls, options : Options):
         """
         Create a new instance of the provider with the given name
         """
+        if not isinstance(options, Options):
+            raise ValueError("Options object required")
+
+        name = options.provider
+        if not name:
+            raise ValueError("No provider set")
+
         for provider_name, provider in cls.get_providers().items():
             if provider_name == name:
-                return provider(settings)
+                return provider(options.current_provider_settings)
         
         raise ValueError(f"Unknown translation provider: {name}")    
 
@@ -106,3 +93,32 @@ class TranslationProvider:
             logging.debug(f"Importing provider: {module_name}")
             importlib.import_module(module_name)
 
+    @classmethod
+    def update_provider_settings(cls, options : Options):
+        """ Update the provider settings from the main options """
+        provider = options.provider
+        if not provider:
+            raise ValueError("No provider set")
+        
+        if provider not in options.provider_settings:
+            options.provider_settings[provider] = {}
+
+        provider_class : TranslationProvider = cls.create_provider(options)
+
+        for setting in provider_class.settings.keys():
+            options.MoveSettingToProvider(provider, setting)
+    
+    @classmethod
+    def get_available_models(cls, options : Options):
+        """ Get the available models for the selected provider """
+        if not isinstance(options, Options):
+            raise ValueError("Options object required")
+
+        if not options.provider:
+            return []
+
+        provider_class = cls.create_provider(options)
+        if not provider_class:
+            return []
+
+        return provider_class.available_models

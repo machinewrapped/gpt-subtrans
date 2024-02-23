@@ -3,8 +3,7 @@ from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
-from PySubtitle.Options import Options
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -27,7 +26,8 @@ class BatchSubtitlesCommand(Command):
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
-        project.subtitles.AutoBatch(project.options)
+        batcher = CreateSubtitleBatcher(project.options)
+        project.subtitles.AutoBatch(batcher)
 
         project.WriteProjectFile()
 
@@ -284,15 +284,12 @@ class TranslateSceneCommand(Command):
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
         project : SubtitleProject = self.datamodel.project
-        options = self.datamodel.options
 
-        self.translator = SubtitleTranslator(project.subtitles, options)
+        project.events.batch_translated += self._on_batch_translated
 
-        self.translator.events.batch_translated += self._on_batch_translated
+        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers)
 
-        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers, translator = self.translator)
-
-        self.translator.events.batch_translated -= self._on_batch_translated
+        project.events.batch_translated -= self._on_batch_translated
 
         project.UpdateProjectFile()
 

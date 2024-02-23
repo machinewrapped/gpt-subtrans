@@ -18,7 +18,7 @@ from PySubtitle.Options import Options
 from PySubtitle.Helpers import ParseNames, ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.TranslationProvider import TranslationProvider
 
 class ProjectOptions(QGroupBox):
     """
@@ -26,14 +26,15 @@ class ProjectOptions(QGroupBox):
     """
     settingsChanged = Signal(dict)
 
-    def __init__(self, settings=None):
+    def __init__(self, options=None):
         super().__init__()
         self.setTitle("Project Settings")
         self.setMinimumWidth(450)
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
 
-        self.settings = settings or {}
+        self.settings = options.GetSettings() if options else {}
+        self.provider_list = sorted(TranslationProvider.get_providers())
         self.model_list = []
 
         # Add options
@@ -44,9 +45,10 @@ class ProjectOptions(QGroupBox):
         self.AddMultiLineOption(4, "Names", self.settings, 'names')
         self.AddMultiLineOption(5, "Substitutions", self.settings, 'substitutions')
         self.AddCheckboxOption(6, "Substitute Partial Words", self.settings, 'match_partial_words')
-        self.AddDropdownOption(7, "Model", self.settings, 'model', self.model_list)
-        self.AddButtonOption(8, "", "Edit Instructions", self._edit_instructions)
-        self.AddButtonOption(9, "", "Copy From Another Project", self._copy_from_another_project)
+        self.AddDropdownOption(7, "Provider", self.settings, 'provider', self.provider_list)
+        self.AddDropdownOption(8, "Model", self.settings, 'model', self.model_list)
+        self.AddButtonOption(9, "", "Edit Instructions", self._edit_instructions)
+        self.AddButtonOption(10, "", "Copy From Another Project", self._copy_from_another_project)
 
         self.Populate(self.settings)
 
@@ -115,6 +117,8 @@ class ProjectOptions(QGroupBox):
         if key in settings:
             initial_value = settings[key]
             combo_box.setCurrentIndex(combo_box.findText(initial_value))
+        
+        combo_box.currentTextChanged.connect(lambda x: self._option_changed(key, x))
 
         self.grid_layout.addWidget(label_widget, row, 0)
         self.grid_layout.addWidget(combo_box, row, 1)
@@ -128,15 +132,7 @@ class ProjectOptions(QGroupBox):
         self.grid_layout.addWidget(button_widget, row, 1)
 
     def OpenOptions(self):
-        self.settings['model'] = self.settings.get('model')
-
-        self.model_list = SubtitleTranslator.GetAvailableModels(self.settings)
-    
-        model_input = getattr(self, "model_input")
-        if model_input:
-            model_input.clear()
-            model_input.addItems(self.model_list)
-            self._update_combo_box(model_input, self.settings['model'])
+        self._update_available_models()
 
         self.show()
 
@@ -196,6 +192,21 @@ class ProjectOptions(QGroupBox):
     def _check_changed(self, int = None):
         settings = self.GetSettings()
         self.settingsChanged.emit(settings)
+
+    def _option_changed(self, key, value):
+        if key == 'provider':
+            self.settings['key'] = value
+            self._update_available_models()
+
+    def _update_available_models(self):
+        options = Options(self.settings)
+        self.model_list = TranslationProvider.get_available_models(options)
+    
+        model_input = getattr(self, "model_input")
+        if model_input:
+            model_input.clear()
+            model_input.addItems(self.model_list)
+            self._update_combo_box(model_input, self.settings['model'])
 
     def _edit_instructions(self):
         dialog = EditInstructionsDialog(self.settings, parent=self)

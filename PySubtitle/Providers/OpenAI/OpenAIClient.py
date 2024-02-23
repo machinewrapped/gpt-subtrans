@@ -4,7 +4,6 @@ import openai
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Providers.OpenAI.GPTPrompt import GPTPrompt
 from PySubtitle.Providers.OpenAI.GPTTranslation import GPTTranslation
-from PySubtitle.Options import Options
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
 
@@ -12,24 +11,51 @@ class OpenAIClient(TranslationClient):
     """
     Handles communication with OpenAI to request translations
     """
-    def __init__(self, options : Options):
-        super().__init__(options)
+    def __init__(self, settings : dict):
+        super().__init__(settings)
 
         if not hasattr(openai, "OpenAI"):
             raise Exception("The OpenAI library is out of date and must be updated")
 
-        openai.api_key = options.api_key or openai.api_key
+        openai.api_key = self.api_key or openai.api_key
 
         if not openai.api_key:
             raise ValueError('API key must be set in .env or provided as an argument')
         
-        if options.api_base:
-            openai.base_url = options.api_base
+        if self.api_base:
+            openai.base_url = self.api_base
         
-        # logging.debug(f"Using API Key: {openai.api_key}, Using API Base: {openai.base_url}")
-        logging.info(f"Translating with OpenAI model {options.get('model') or 'default'}, Using API Base: {openai.base_url}")
+        logging.info(f"Translating with OpenAI model {self.model or 'default'}, Using API Base: {openai.base_url}")
 
         self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url)
+
+    @property
+    def api_key(self):
+        return self.settings.get('api_key')
+    
+    @property
+    def api_base(self):
+        return self.settings.get('api_base')
+    
+    @property
+    def model(self):
+        return self.settings.get('model')
+    
+    @property
+    def temperature(self):
+        return self.settings.get('temperature', 0.0)
+    
+    @property
+    def rate_limit(self):
+        return self.settings.get('rate_limit')
+    
+    @property
+    def max_retries(self):
+        return self.settings.get('max_retries', 3.0)
+    
+    @property
+    def backoff_time(self):
+        return self.settings.get('backoff_time', 5.0)
 
     def _request_translation(self, prompt, lines, context):
         """
@@ -52,7 +78,7 @@ class OpenAIClient(TranslationClient):
         return super()._abort()
 
     def GetParser(self):
-        return TranslationParser(self.options)
+        return TranslationParser(self.settings)
     
     @classmethod
     def GetAvailableModels(cls, api_key : str, api_base : str):

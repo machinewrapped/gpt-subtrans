@@ -32,10 +32,6 @@ class ActionError(Exception):
             return str(self.error)
         return super().__str__()
 
-class NoApiKeyError(ActionError):
-    def __init__(self):
-        super().__init__("Cannot translate without a valid OpenAI API Key")
-
 class ProjectActions(QObject):
     issueCommand = Signal(object)
     actionError = Signal(object)
@@ -106,14 +102,6 @@ class ProjectActions(QObject):
     def _issue_command(self, command : Command):
         self.issueCommand.emit(command)
 
-    def _check_api_key(self):
-        if self.datamodel and self.datamodel.options:
-            if self.datamodel.options.api_key:
-                return True
-        
-        self.actionError.emit(NoApiKeyError())
-        return False
-
     def _quit(self):
         logging.info("Application will exit...")
         self._stop_translating()
@@ -123,8 +111,8 @@ class ProjectActions(QObject):
         filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")
 
         if filepath:
-            options : Options = self.datamodel.options.GetNonProjectSpecificOptions()
-            command = LoadSubtitleFile(filepath, options)
+            settings : Options = self.datamodel.options.GetSettings()
+            command = LoadSubtitleFile(filepath, settings)
             self._issue_command(command)
 
     def _save_project_file(self):
@@ -170,8 +158,7 @@ class ProjectActions(QObject):
         if datamodel.project.needsupdate:
             datamodel.project.WriteProjectFile()
 
-        if self._check_api_key():
-            self._issue_command(ResumeTranslationCommand(multithreaded=False))
+        self._issue_command(ResumeTranslationCommand(multithreaded=False))
 
     def _start_translating_fast(self):
         datamodel : ProjectDataModel = self.datamodel
@@ -182,8 +169,7 @@ class ProjectActions(QObject):
         if datamodel.project.needsupdate:
             datamodel.project.WriteProjectFile()
 
-        if self._check_api_key():
-            self._issue_command(ResumeTranslationCommand(multithreaded=True))
+        self._issue_command(ResumeTranslationCommand(multithreaded=True))
 
     def _stop_translating(self):
         self._issue_command(ClearCommandQueue())
@@ -194,9 +180,6 @@ class ProjectActions(QObject):
         """
         if not selection.Any():
             raise ActionError("Nothing selected to translate")
-
-        if not self._check_api_key():
-            return
 
         self._validate_datamodel(datamodel)
 

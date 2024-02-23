@@ -3,22 +3,23 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayo
 from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
-from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.TranslationProvider import TranslationProvider
 
 class NewProjectSettings(QDialog):
-    SETTINGS = {
+    OPTIONS = {
         'target_language': (str, "Language to translate the subtitles to"),
+        'provider': ([], "The AI translation service to use"),
         'model': (str, "AI model to use as the translator"),
         'min_batch_size': (int, "Fewest lines to send in separate batch"),
         'max_batch_size': (int, "Most lines to send in each batch"),
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
-        'prompt': (str, "High-level instructions for the translator"),
-        'instruction_file': (str, "Detailed instructions for the translator")
+        'instruction_file': (str, "Detailed instructions for the translator"),
+        'prompt': (str, "High-level instructions for the translator")
     }
 
     def __init__(self, project : SubtitleProject, parent=None):
@@ -29,22 +30,27 @@ class NewProjectSettings(QDialog):
         self.fields = {}
 
         self.project : SubtitleProject = project
-        self.settings : dict = project.options.GetSettings()
-        self.settings['model'] = self.settings.get('model')
+        self.settings = project.options.GetSettings()
+ 
+        self.providers = sorted(TranslationProvider.get_providers())
+        self.OPTIONS['provider'] = (self.providers, self.OPTIONS['provider'][1])
 
-        models = SubtitleTranslator.GetAvailableModels(self.settings)
-        self.SETTINGS['model'] = (models, self.SETTINGS['model'][1])
+        provider_class = TranslationProvider.create_provider(project.options)
+        if provider_class:
+            available_models = provider_class.available_models
+            self.OPTIONS['model'] = (available_models, self.OPTIONS['model'][1])
+            self.settings['model'] = provider_class.selected_model
 
         instruction_files = GetInstructionFiles()
         if instruction_files:
-            self.SETTINGS['instruction_file'] = (instruction_files, self.SETTINGS['instruction_file'][1])
+            self.OPTIONS['instruction_file'] = (instruction_files, self.OPTIONS['instruction_file'][1])
 
         settings_widget = QFrame(self)
 
         self.form_layout = QFormLayout(settings_widget)
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        for key, setting in self.SETTINGS.items():
+        for key, setting in self.OPTIONS.items():
             key_type, tooltip = setting
             field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
             field.contentChanged.connect(self._preview_batches)

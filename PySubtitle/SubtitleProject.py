@@ -3,12 +3,12 @@ import os
 import logging
 import threading
 from PySubtitle.Helpers import GetOutputPath
-from PySubtitle.SubtitleError import TranslationAbortedError
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.Options import Options
+from PySubtitle.SubtitleError import TranslationAbortedError
 from PySubtitle.SubtitleFile import SubtitleFile
 
 from PySubtitle.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationEvents import TranslationEvents
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
@@ -95,39 +95,6 @@ class SubtitleProject:
         if not subtitles.has_subtitles:
             raise ValueError(f"No subtitles to translate in {filepath}")
 
-    def TranslateSubtitles(self):
-        """
-        Pass the subtitles to the translation engine.
-        """
-        if not self.subtitles:
-            raise Exception("No subtitles to translate")
-        
-        # Prime new project files
-        if self.write_project:
-            self.WriteProjectFile()
-
-        try:
-            translator : SubtitleTranslator = SubtitleTranslator(self.subtitles, self.options)
-
-            translator.events.preprocessed += self._on_preprocessed
-            translator.events.batch_translated += self._on_batch_translated
-            translator.events.scene_translated += self._on_scene_translated
-
-            translator.TranslateSubtitles()
-
-            self.SaveTranslation()
-
-        except TranslationAbortedError:
-            logging.warning(f"Translation aborted")
-            raise
-
-        except Exception as e:
-            if self.subtitles and self.options.get('stop_on_error'):
-                self.SaveTranslation()
-
-            logging.error(f"Failed to translate subtitles")
-            raise
-
     def SaveTranslation(self, outputpath : str = None):
         """
         Write output file
@@ -138,38 +105,6 @@ class SubtitleProject:
 
         except Exception as e:
             logging.error(f"Unable to save translation: {e}")
-
-    def TranslateScene(self, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None, translator : SubtitleTranslator = None):
-        """
-        Pass batches of subtitles to the translation engine.
-        """
-        if not self.subtitles:
-            raise Exception("No subtitles to translate")
-
-        try:
-            if not translator:
-                translator = SubtitleTranslator(self.subtitles, self.options)
-
-            translator.events.preprocessed += self._on_preprocessed
-            translator.events.batch_translated += self._on_batch_translated
-
-            scene = self.subtitles.GetScene(scene_number)
-
-            translator.TranslateScene(scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
-
-            self.SaveTranslation()
-
-            return scene
-        
-        except TranslationAbortedError:
-            raise
-
-        except Exception as e:
-            if self.subtitles and self.options.get('stop_on_error'):
-                self.SaveTranslation()
-
-            logging.error(f"Failed to translate subtitles")
-            raise
 
     def AnyTranslated(self):
         """
@@ -305,6 +240,70 @@ class SubtitleProject:
         if self.subtitles.scenes:
             self.subtitles.UpdateOutputPath()
             self.WriteProjectFile()
+
+    def TranslateSubtitles(self):
+        """
+        Use the translation provider to translate a project
+        """
+        if not self.subtitles:
+            raise Exception("No subtitles to translate")
+        
+        # Prime new project files
+        if self.write_project:
+            self.WriteProjectFile()
+
+        try:
+            translator : SubtitleTranslator = SubtitleTranslator(self.subtitles, self.options)
+
+            translator.events.preprocessed += self._on_preprocessed
+            translator.events.batch_translated += self._on_batch_translated
+            translator.events.scene_translated += self._on_scene_translated
+
+            translator.TranslateSubtitles()
+
+            self.SaveTranslation()
+
+        except TranslationAbortedError:
+            logging.warning(f"Translation aborted")
+            raise
+
+        except Exception as e:
+            if self.subtitles and self.options.get('stop_on_error'):
+                self.SaveTranslation()
+
+            logging.error(f"Failed to translate subtitles")
+            raise
+
+    def TranslateScene(self, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
+        """
+        Pass batches of subtitles to the translation engine.
+        """
+        if not self.subtitles:
+            raise Exception("No subtitles to translate")
+
+        try:
+            translator = SubtitleTranslator(self.subtitles, self.options)
+
+            translator.events.preprocessed += self._on_preprocessed
+            translator.events.batch_translated += self._on_batch_translated
+
+            scene = self.subtitles.GetScene(scene_number)
+
+            translator.TranslateScene(scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
+
+            self.SaveTranslation()
+
+            return scene
+        
+        except TranslationAbortedError:
+            raise
+
+        except Exception as e:
+            if self.subtitles and self.options.get('stop_on_error'):
+                self.SaveTranslation()
+
+            logging.error(f"Failed to translate subtitles")
+            raise
 
     def _start_autosave_thread(self):
         self.stop_event = threading.Event()

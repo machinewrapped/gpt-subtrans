@@ -15,30 +15,27 @@ class InstructGPTClient(OpenAIClient):
     def GetSupportedModels(self, available_models : list[str]):
         return [ model for model in available_models if model.find("instruct") >= 0]
 
+    @property
+    def max_instruct_tokens(self):
+        return self.settings.get('max_instruct_tokens', 2048)
+
     def _send_messages(self, messages : list, temperature : float = None):
         """
         Make a request to the OpenAI API to provide a translation
         """
-        options = self.options
-        max_tokens = options.get('max_instruct_tokens', 2048)
-        max_retries = options.get('max_retries', 3.0)
-        backoff_time = options.get('backoff_time', 5.0)
-        model = options.get('model')
-        temperature = temperature or options.get('temperature', 0.0)
-
         translation = {}
         retries = 0
 
         prompt = self._build_prompt(messages)
 
-        while retries <= max_retries and not self.aborted:
+        while retries <= self.max_retries and not self.aborted:
             try:
                 response = self.client.completions.create(
-                    model=model,
+                    model=self.model,
                     prompt=prompt,
                     temperature=temperature,
                     n=1,
-                    max_tokens=max_tokens
+                    max_tokens=self.max_tokens
                 )
 
                 if self.aborted:
@@ -82,12 +79,12 @@ class InstructGPTClient(OpenAIClient):
                 
                 if isinstance(e, openai.APIConnectionError):
                     raise TranslationImpossibleError(str(e), translation)
-                elif retries == max_retries:
+                elif retries == self.max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
                     raise
                 else:
                     retries += 1
-                    sleep_time = backoff_time * 2.0**retries
+                    sleep_time = self.backoff_time * 2.0**retries
                     logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                     continue

@@ -9,7 +9,7 @@ from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath, ParseNames, ParseSubstitutions, UnbatchScenes
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher, SubtitleBatcher
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
@@ -256,12 +256,10 @@ class SubtitleFile:
             outputpath = GetOutputPath(self.sourcepath, self.target_language)
         self.outputpath = outputpath
 
-    def AutoBatch(self, options):
+    def AutoBatch(self, batcher : SubtitleBatcher):
         """
         Divide subtitles into scenes and batches based on threshold options
         """
-        batcher = CreateSubtitleBatcher(options)
-
         with self.lock:
             self.scenes = batcher.BatchSubtitles(self.originals)
 
@@ -408,7 +406,7 @@ class SubtitleFile:
             # Renumber lines sequentially and remap translated indexes
             translated_map = { translated.number: translated for translated in self.translated } if self.translated else None
 
-            for number, line in enumerate(self.originals, start=self.start_line_number):
+            for number, line in enumerate(self.originals, start=self.start_line_number or 1):
                 # If there is a matching translation, remap its number
                 if translated_map and line.number in translated_map:
                     translated = translated_map[line.number]

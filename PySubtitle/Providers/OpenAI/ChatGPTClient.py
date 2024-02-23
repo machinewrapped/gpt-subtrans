@@ -19,21 +19,15 @@ class ChatGPTClient(OpenAIClient):
         """
         Make a request to the OpenAI API to provide a translation
         """
-        options = self.options
-        max_retries = options.get('max_retries', 3.0)
-        backoff_time = options.get('backoff_time', 5.0)
-        model = options.get('model')
-        temperature = temperature or options.get('temperature', 0.0)
-
         translation = {}
         retries = 0
 
-        while retries <= max_retries and not self.aborted:
+        while retries <= self.max_retries and not self.aborted:
             try:
                 response = self.client.chat.completions.create(
-                    model=model,
+                    model=self.model,
                     messages=messages,
-                    temperature=temperature
+                    temperature=self.temperature
                 )
 
                 if self.aborted:
@@ -76,12 +70,12 @@ class ChatGPTClient(OpenAIClient):
                 
                 if isinstance(e, openai.APIConnectionError):
                     raise TranslationImpossibleError(str(e), translation)
-                elif retries == max_retries:
+                elif retries == self.max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
                     raise
                 else:
                     retries += 1
-                    sleep_time = backoff_time * 2.0**retries
+                    sleep_time = self.backoff_time * 2.0**retries
                     logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                     continue

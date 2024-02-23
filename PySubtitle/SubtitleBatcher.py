@@ -4,27 +4,23 @@ from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class BaseSubtitleBatcher:
-    def __init__(self, options):
-        self.options = options
+    def __init__(self, settings):
+        self.min_batch_size = settings.get('min_batch_size', 0)
+        self.max_batch_size = settings.get('max_batch_size', 99)
 
-        self.min_batch_size = self.options.get('min_batch_size', 0)
-        self.max_batch_size = self.options.get('max_batch_size', 99)
-
-        scene_threshold_seconds = options.get('scene_threshold', 30.0)
+        scene_threshold_seconds = settings.get('scene_threshold', 30.0)
         self.scene_threshold = timedelta(seconds=scene_threshold_seconds)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]):
         raise NotImplementedError()
 
 class OldSubtitleBatcher(BaseSubtitleBatcher):
-    def __init__(self, options):
-        super().__init__(options)
+    def __init__(self, settings):
+        super().__init__(settings)
+        self.batch_threshold_seconds = settings.get('batch_threshold', 2.0)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]):
-        options = self.options
-
-        batch_threshold_seconds = options.get('batch_threshold', 2.0)
-        batch_threshold = timedelta(seconds=batch_threshold_seconds)
+        batch_threshold = timedelta(seconds=self.batch_threshold_seconds)
 
         scenes = []
         last_endtime = None
@@ -48,8 +44,8 @@ class OldSubtitleBatcher(BaseSubtitleBatcher):
         return scenes
 
 class SubtitleBatcher(BaseSubtitleBatcher):
-    def __init__(self, options):
-        super().__init__(options)
+    def __init__(self, settings):
+        super().__init__(settings)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]):
         if self.min_batch_size >= self.max_batch_size:
@@ -91,7 +87,7 @@ class SubtitleBatcher(BaseSubtitleBatcher):
         split_lines = self._split_lines(current_lines)
 
         for lines in split_lines:
-            batch = scene.AddNewBatch()
+            batch : SubtitleBatch = scene.AddNewBatch()
             batch.originals = lines
 
         return scene
@@ -123,11 +119,11 @@ class SubtitleBatcher(BaseSubtitleBatcher):
         # Recursively split the batches and concatenate the lists
         return self._split_lines(left) + self._split_lines(right)
 
-def CreateSubtitleBatcher(options):
+def CreateSubtitleBatcher(settings : dict):
     """
-    Helper to create an appropriate batcher for the options
+    Helper to create an appropriate batcher for the settings
     """
-    if options.get('use_simple_batcher'):
-        return OldSubtitleBatcher(options)
+    if settings.get('use_simple_batcher'):
+        return OldSubtitleBatcher(settings)
     
-    return SubtitleBatcher(options)
+    return SubtitleBatcher(settings)
