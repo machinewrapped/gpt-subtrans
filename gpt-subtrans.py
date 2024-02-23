@@ -51,6 +51,7 @@ parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum numb
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
 parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of lines(subtitles) to process in this run")
+parser.add_argument('--maxsummaries', type=int, default=None, help="Maximum number of context summaries to provide with each batch")
 parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
 parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
 parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
@@ -73,6 +74,8 @@ try:
         'names': ParseNames(args.names or args.name),
         'substitutions': ParseSubstitutions(args.substitution),
         'match_partial_words': args.matchpartialwords,
+        'max_context_summaries': args.maxsummaries,
+        'temperature': args.temperature,
         'include_original': args.includeoriginal,
         'instruction_file': args.instructionfile,
         'instruction_args': args.instruction,
