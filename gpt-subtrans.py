@@ -35,12 +35,12 @@ parser = argparse.ArgumentParser(description='Translates an SRT file using GPT')
 parser.add_argument('input', help="Input SRT file path")
 parser.add_argument('-o', '--output', help="Output SRT file path")
 parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
-parser.add_argument('-p', '--provider', type=str, default=None, help="The translation provider to use")
 parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
 parser.add_argument('-k', '--apikey', type=str, default=None, help="Your OpenAI API Key (https://platform.openai.com/account/api-keys)")
 parser.add_argument('-b', '--apibase', type=str, default=None, help="API backend base address, the default value is https://api.openai.com/v1")
 
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
+parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
 parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
 parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
 parser.add_argument('--instruction', action='append', type=str, default=None, help="An instruction for Chat GPT about the translation")
@@ -48,6 +48,7 @@ parser.add_argument('--instructionfile', type=str, default=None, help="Name/path
 parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
 parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
 parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of lines(subtitles) to process in this run")
+parser.add_argument('--maxsummaries', type=int, default=None, help="Maximum number of context summaries to provide with each batch")
 parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum number of lines to consider starting a new batch")
 parser.add_argument('--moviename', type=str, default=None, help="Optionally specify the name of the movie to help the translator")
 parser.add_argument('--name', action='append', type=str, default=None, help="A name to use verbatim in the translation")
@@ -55,11 +56,6 @@ parser.add_argument('--names', type=str, default=None, help="A list of names to 
 parser.add_argument('--project', type=str, default=None, help="Read or Write project file to working directory")
 parser.add_argument('--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
 parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
-parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of lines(subtitles) to process in this run")
-parser.add_argument('--maxsummaries', type=int, default=None, help="Maximum number of context summaries to provide with each batch")
-parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
-parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
-parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
 
 args = parser.parse_args()
 
@@ -73,24 +69,24 @@ try:
         'api_key': args.apikey,
         'batch_threshold': args.batchthreshold,
         'description': args.description,
-        'max_context_summaries': args.maxsummaries,
-        'temperature': args.temperature,
         'include_original': args.includeoriginal,
         'instruction_args': args.instruction,
         'instruction_file': args.instructionfile,
         'match_partial_words': args.matchpartialwords,
         'max_batch_size': args.maxbatchsize,
+        'max_context_summaries': args.maxsummaries,
         'max_lines': args.maxlines,
         'min_batch_size': args.minbatchsize,
         'model': args.model,
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'names': ParseNames(args.names or args.name),
         'project': args.project and args.project.lower(),
-        'provider': args.provider,
+        'provider': "OpenAI",
         'rate_limit': args.ratelimit,
         'scene_threshold': args.scenethreshold,
         'substitutions': ParseSubstitutions(args.substitution),
         'target_language': args.target_language
+        'temperature': args.temperature,
     })
 
     # Create the translation provider
