@@ -7,13 +7,28 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 
-logging_level = eval(f"logging.{os.getenv('LOG_LEVEL', 'INFO')}")
-logging.basicConfig(
-    format='%(levelname)s: %(message)s', 
-    level=logging_level,
-    filename='gpt-subtrans.log',
-    filemode='w',
-    )
+log_path = os.path.join(os.getcwd(), 'gpt-subtrans.log')
+level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
+logging_level = getattr(logging, level_name, logging.INFO)
+
+# Create console logger
+try:
+    logging.basicConfig(format='%(levelname)s: %(message)s', encoding='utf-8', level=logging_level)
+    logging.info("Initialising log")
+
+except Exception as e:
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
+    logging.info("Unable to write to utf-8 log, falling back to default encoding")
+
+# Create file handler with the same logging level
+try:
+    file_handler = logging.FileHandler(log_path, encoding='utf-8', mode='w')
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
+    logging.getLogger('').addHandler(file_handler)
+except Exception as e:
+    logging.warning(f"Unable to create log file at {log_path}: {e}")
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Translates an SRT file using GPT')
@@ -40,10 +55,17 @@ parser.add_argument('--names', type=str, default=None, help="A list of names to 
 parser.add_argument('--project', type=str, default=None, help="Read or Write project file to working directory")
 parser.add_argument('--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
 parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
-parser.add_argument('--substitution', action='append', type=str, default=None, help="A pair of strings separated by ::, to subsitute in source or translation")
-parser.add_argument('--temperature', type=float, default=0.0, help="A higher temperature increases the random variance of translations.")
+parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of lines(subtitles) to process in this run")
+parser.add_argument('--maxsummaries', type=int, default=None, help="Maximum number of context summaries to provide with each batch")
+parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
+parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
+parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
 
 args = parser.parse_args()
+
+if args.debug:
+    logging.getLogger('').setLevel(logging.DEBUG)
+    logging.debug("Debug logging enabled")
 
 try:
     options = Options({
@@ -51,6 +73,8 @@ try:
         'api_key': args.apikey,
         'batch_threshold': args.batchthreshold,
         'description': args.description,
+        'max_context_summaries': args.maxsummaries,
+        'temperature': args.temperature,
         'include_original': args.includeoriginal,
         'instruction_args': args.instruction,
         'instruction_file': args.instructionfile,
