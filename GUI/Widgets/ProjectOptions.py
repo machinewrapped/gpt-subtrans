@@ -206,7 +206,7 @@ class ProjectOptions(QGroupBox):
         if model_input:
             model_input.clear()
             model_input.addItems(self.model_list)
-            self._update_combo_box(model_input, self.settings['model'])
+            self._update_combo_box(model_input, options.model)
 
     def _edit_instructions(self):
         dialog = EditInstructionsDialog(self.settings, parent=self)

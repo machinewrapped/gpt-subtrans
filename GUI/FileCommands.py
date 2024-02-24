@@ -7,11 +7,11 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 
 class LoadSubtitleFile(Command):
-    def __init__(self, filepath, settings : dict):
+    def __init__(self, filepath, options : Options):
         super().__init__()
         self.filepath = filepath
         self.project : SubtitleProject = None
-        self.settings : dict = settings
+        self.options : Options = options
 
     def execute(self):
         logging.debug(f"Executing LoadSubtitleFile {self.filepath}")
@@ -20,8 +20,7 @@ class LoadSubtitleFile(Command):
             return False
 
         try:
-            options = Options(self.settings)
-            project = SubtitleProject(options)
+            project = SubtitleProject(self.options)
             project.Initialise(self.filepath)
 
             if not project.subtitles:

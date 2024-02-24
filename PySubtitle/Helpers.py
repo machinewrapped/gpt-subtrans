@@ -83,7 +83,8 @@ def GetInputPath(filepath):
         basename = basename[0:basename.index("-ChatGPT")]
     if basename.endswith("-GPT"):
         basename = basename[0:basename.index("-GPT")]
-    return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
+    path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
+    return os.path.normpath(path)
 
 def GetOutputPath(filepath, language="translated"):
     if not filepath:

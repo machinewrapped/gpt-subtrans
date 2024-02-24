@@ -63,7 +63,7 @@ def DescribeLineCount(line_count, translated_count):
         return f"{translated_count} of {line_count} lines translated"
 
 def ClearForm(layout : QFormLayout):
-    """ 
+    """
     Clear the widgets from a layout
     """
     while layout.rowCount():

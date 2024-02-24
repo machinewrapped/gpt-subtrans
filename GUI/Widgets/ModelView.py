@@ -8,6 +8,7 @@ from GUI.ProjectToolbar import ProjectToolbar
 from GUI.Widgets.ScenesView import ScenesView
 from GUI.Widgets.ContentView import ContentView
 from GUI.Widgets.ProjectOptions import ProjectOptions
+from PySubtitle.Options import Options
 
 class ModelView(QWidget):
     optionsChanged = Signal(dict)
@@ -57,7 +58,8 @@ class ModelView(QWidget):
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.SetViewModel(datamodel.viewmodel)
-        self.SetProjectOptions(datamodel.project.options)
+        if datamodel.project:
+            self.SetProjectOptions(datamodel.project.options)
 
     def SetViewModel(self, viewmodel):
         self.content_view.Clear()
@@ -89,7 +91,8 @@ class ModelView(QWidget):
 
     def CloseProjectOptions(self):
         if self.project_options.isVisible():
-            self.optionsChanged.emit(self.project_options.GetSettings())
+            options = Options(self.project_options.GetSettings())
+            self.optionsChanged.emit(options)
             self.project_options.hide()
 
     def GetSelection(self) -> ProjectSelection:

@@ -8,9 +8,10 @@ class SubtitleError(Exception):
             return str(self.error)
         return super().__str__()
 
-class NoApiKeyError(SubtitleError):
-    def __init__(self):
-        super().__init__("Cannot translate without a valid API Key")
+class ProviderConfigurationError(SubtitleError):
+    def __init__(self, message, error = None):
+        super().__init__(message, error)
+        self.error = error
 
 class TranslationError(SubtitleError):
     def __init__(self, message, error = None):

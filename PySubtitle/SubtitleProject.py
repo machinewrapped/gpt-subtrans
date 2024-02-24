@@ -25,7 +25,7 @@ class SubtitleProject:
         
         project_mode = self.options.get('project', '')
         if project_mode:
-            project_mode = project_mode.lower() 
+            project_mode = project_mode.lower()
 
         self.read_project = project_mode in ["true", "read", "resume", "retranslate", "reparse"]
         self.write_project = project_mode in ["true", "write", "preview", "resume", "retranslate", "reparse"]
@@ -56,7 +56,8 @@ class SubtitleProject:
 
         :param filepath: the path to the project or a source subtitle file (in .srt format) to be translated
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
-        """ 
+        """
+        filepath = os.path.normpath(filepath)
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
         if self.projectfile == filepath and not self.read_project:
             self.read_project = True
@@ -218,21 +219,16 @@ class SubtitleProject:
             self.needsupdate = True
             # self.WriteProjectFile()
 
-    def UpdateProjectSettings(self, options: dict):
+    def UpdateProjectSettings(self, settings: dict):
         """
         Replace options if the provided dictionary has an entry with the same key
         """
-        if not self.options:
-            self.options = options
-            return
-
         # Check if all values in "options" are the same as existing values in "self.options"
-        if all(options.get(key) == self.options.get(key) for key in options.keys()):
+        if all(settings.get(key) == self.options.get(key) for key in settings.keys()):
             return
 
         with self.lock:
-            # Update "self.options"
-            self.options.update(options)
+            self.options.update(settings)
 
             if self.subtitles:
                 self.subtitles.UpdateProjectSettings(self.options)

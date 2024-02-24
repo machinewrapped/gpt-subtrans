@@ -1,3 +1,4 @@
+from copy import deepcopy
 import json
 import logging
 import os
@@ -36,7 +37,7 @@ default_options = {
     'max_newlines': int(os.getenv('MAX_NEWLINES', 3)),
     'match_partial_words': env_bool('MATCH_PARTIAL_WORDS', False),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
-    'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None, 
+    'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None,
     'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 5)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 4.0)),
@@ -52,7 +53,7 @@ default_options = {
 class Options:
     def __init__(self, options=None, **kwargs):
         # Initialise from defaults settings
-        self.options = default_options.copy()
+        self.options = deepcopy(default_options)
 
         if hasattr(options, 'options'):
             options = options.options
@@ -79,6 +80,14 @@ class Options:
         self.options.update(options)
 
     @property
+    def theme(self) -> str:
+        return self.get('theme')
+
+    @property
+    def version(self) -> str:
+        return self.get('version')
+
+    @property
     def provider(self) -> str:
         """ the name of the translation provider """
         return self.get('provider')
@@ -92,7 +101,7 @@ class Options:
         """ settings sections for each provider """
         return self.get('provider_settings', {})
 
-    @property    
+    @property
     def current_provider_settings(self) -> dict:
         if not self.provider:
             return None
@@ -118,7 +127,7 @@ class Options:
         """
         Get a copy of the settings dictionary with only the default keys included
         """
-        settings = { key: self.get(key) for key in self.options.keys() & default_options.keys() }
+        settings = { key: deepcopy(self.get(key)) for key in self.options.keys() & default_options.keys() }
         return settings
     
     def LoadSettings(self):
@@ -133,7 +142,7 @@ class Options:
                 return False
             
             if not self.options:
-                self.options = default_options.copy()
+                self.options = deepcopy(default_options)
 
             self.options.update(settings)
 
@@ -161,7 +170,7 @@ class Options:
                 save_dict['version'] = default_options['version']
 
                 with open(settings_path, "w", encoding="utf-8") as settings_file:
-                    json.dump(save_dict, settings_file, ensure_ascii=False)
+                    json.dump(save_dict, settings_file, ensure_ascii=False, indent=4)
 
             return True
 
@@ -202,4 +211,4 @@ class Options:
                 self.MoveSettingToProvider('OpenAI', setting)
 
         current_version = default_options['version']
-        self.options['version'] = current_version    
+        self.options['version'] = current_version

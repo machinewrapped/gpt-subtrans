@@ -5,21 +5,19 @@ from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.FileCommands import *
-from GUI.GUICommands import ExitProgramCommand
+from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
 from GUI.ProjectCommands import (
-    MergeBatchesCommand, 
-    MergeLinesCommand, 
+    MergeBatchesCommand,
+    MergeLinesCommand,
     MergeScenesCommand,
-    SplitBatchCommand, 
+    SplitBatchCommand,
     ResumeTranslationCommand,
-    SplitSceneCommand, 
-    SwapTextAndTranslations, 
-    TranslateSceneCommand, 
+    SplitSceneCommand,
+    SwapTextAndTranslations,
+    TranslateSceneCommand,
     TranslateSceneMultithreadedCommand
 )
 from GUI.ProjectSelection import ProjectSelection
-from GUI.ProjectViewModelUpdate import ModelUpdate
-from GUI.Widgets.ModelView import ModelView
 from PySubtitle.SubtitleFile import SubtitleFile
 
 class ActionError(Exception):
@@ -37,6 +35,7 @@ class ProjectActions(QObject):
     actionError = Signal(object)
     saveSettings = Signal()
     showSettings = Signal()
+    showProviderSettings = Signal()
     toggleProjectSettings = Signal()
     showAboutDialog = Signal()
 
@@ -61,6 +60,8 @@ class ProjectActions(QObject):
         #TODO: Mixing different concepts of "action" here, is there a better separation?
         # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
         # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
+        ProjectDataModel.RegisterActionHandler('Validate Provider Settings', self._check_provider_settings)
+        ProjectDataModel.RegisterActionHandler('Show Provider Settings', self._show_provider_settings)
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Update Scene', self._update_scene)
         ProjectDataModel.RegisterActionHandler('Update Batch', self._update_batch)
@@ -111,8 +112,7 @@ class ProjectActions(QObject):
         filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")
 
         if filepath:
-            settings : Options = self.datamodel.options.GetSettings()
-            command = LoadSubtitleFile(filepath, settings)
+            command = LoadSubtitleFile(filepath, self.datamodel.options)
             self._issue_command(command)
 
     def _save_project_file(self):
@@ -135,6 +135,18 @@ class ProjectActions(QObject):
 
     def _show_settings_dialog(self):
         self.showSettings.emit()
+
+    def _check_provider_settings(self, datamodel : ProjectDataModel):
+        """
+        Check if the translation provider is configured correctly.
+        """
+        self._issue_command(CheckProviderSettings(datamodel.options))
+
+    def _show_provider_settings(self, datamodel : ProjectDataModel):
+        """
+        Show the settings dialog for the translation provider
+        """
+        self.showProviderSettings.emit()
 
     def _validate_datamodel(self, datamodel : ProjectDataModel):
         """

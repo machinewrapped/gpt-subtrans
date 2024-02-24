@@ -3,6 +3,7 @@ from GUI.ProjectViewModel import ProjectViewModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.TranslationProvider import TranslationProvider
 
 class ProjectDataModel:
     _action_handlers = {}
@@ -18,9 +19,21 @@ class ProjectDataModel:
 
     def UpdateSettings(self, options : Options):
         """ Update any options that have changed """
-        #TODO: only store options in project that are non-default
-        self.project.UpdateProjectSettings(options)
-        self.options.update(self.project.options)
+        if options.provider:
+            # TODO: cache the current translation provider
+            TranslationProvider.update_provider_settings(options)
+
+        settings = options.GetSettings()
+        updated_settings = {k: v for k, v in settings.items() if v != self.options.get(k)}
+
+        self.options.update(options)
+
+        if self.project:
+            # Update project settings if any values have changed
+            self.project.UpdateProjectSettings(updated_settings)
+
+            # Copy back any project settings that were not updated
+            self.options.update(self.project.options)
 
     def IsProjectInitialised(self):
         """Check whether the project has been initialised (subtitles loaded and batched)"""
@@ -41,11 +54,15 @@ class ProjectDataModel:
     def GetLock(self):
         return QMutexLocker(self.mutex)
 
-    @classmethod
-    def RegisterActionHandler(cls, action_name : str, handler : callable):
-        handlers = cls._action_handlers.get(action_name) or []
-        handlers.append(handler)
-        cls._action_handlers[action_name] = handlers
+    def ValidateProviderSettings(self):
+        """Check if the translation provider is configured correctly."""
+        #TODO: cache the current translation provider
+        translation_provider : TranslationProvider = TranslationProvider.get_provider(self.options)
+        if not translation_provider or not translation_provider.ValidateSettings():
+            self.PerformModelAction('Show Provider Settings', {})
+            return False
+
+        return True
 
     def PerformModelAction(self, action_name : str, params):
         with QMutexLocker(self.mutex):
@@ -77,3 +94,10 @@ class ProjectDataModel:
             self.CreateViewModel()
         elif self.viewmodel:
             self.viewmodel.AddUpdate(update)
+
+    @classmethod
+    def RegisterActionHandler(cls, action_name : str, handler : callable):
+        handlers = cls._action_handlers.get(action_name) or []
+        handlers.append(handler)
+        cls._action_handlers[action_name] = handlers
+

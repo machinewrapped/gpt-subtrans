@@ -166,7 +166,7 @@ class SubtitleFile:
         """
         Write translated subtitles to an SRT file
         """
-        outputpath = outputpath or self.outputpath 
+        outputpath = outputpath or self.outputpath
         if not outputpath:
             if os.path.exists(self.sourcepath):
                 outputpath = GetOutputPath(self.sourcepath, self.target_language)

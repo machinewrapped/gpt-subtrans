@@ -42,7 +42,7 @@ class SettingsDialog(QDialog):
         }
     }
 
-    def __init__(self, options : Options, parent=None):
+    def __init__(self, options : Options, parent=None, focus_provider_settings : bool = False):
         super(SettingsDialog, self).__init__(parent)
         self.setWindowTitle("GUI-Subtrans Settings")
         self.setMinimumWidth(800)
@@ -77,6 +77,9 @@ class SettingsDialog(QDialog):
             section_widget = self._create_section_widget(section_name)
             self.tabs.addTab(section_widget, section_name)
 
+        if focus_provider_settings:
+            self.tabs.setCurrentWidget(self.sections[self.PROVIDER_SECTION])
+
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
         self.buttonBox.accepted.connect(self.accept)
@@ -97,11 +100,6 @@ class SettingsDialog(QDialog):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
                     self.settings[field.key] = field.GetValue()
             
-            # Update the provider settings
-            options = Options(self.settings)
-            if options.provider:
-                TranslationProvider.update_provider_settings(options)            
-
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
 
@@ -152,7 +150,10 @@ class SettingsDialog(QDialog):
         """
         provider = self.settings.get('provider')
         if provider:
-            provider_settings = self.provider_settings.get(provider, {})
+            if provider not in self.provider_settings:
+                self.provider_settings[provider] = {}
+
+            provider_settings = self.provider_settings.get(provider)
             self.translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
 
     def _add_provider_options(self, section_name : str, layout : QFormLayout):
@@ -205,8 +206,7 @@ class SettingsDialog(QDialog):
 
         elif section_name == self.PROVIDER_SECTION:
             provider = self.settings.get('provider')
-            provider_settings = self.provider_settings.get(provider, {})
-            provider_settings[key] = value
+            self.provider_settings[provider][key] = value
 
             # TODO: Ask the provider class for a list of settings that should trigger a refresh
             if key in ['api_key', 'api_base', 'model']:
