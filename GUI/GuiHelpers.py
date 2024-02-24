@@ -4,6 +4,7 @@ import os
 import sys
 
 from srt import timedelta_to_srt_timestamp
+from PySide6.QtWidgets import (QFormLayout)
 
 from PySubtitle.Instructions import Instructions
 
@@ -61,3 +62,17 @@ def DescribeLineCount(line_count, translated_count):
     else:
         return f"{translated_count} of {line_count} lines translated"
 
+def ClearForm(layout : QFormLayout):
+    """ 
+    Clear the widgets from a layout
+    """
+    while layout.rowCount():
+        row = layout.takeRow(0)
+        if row.fieldItem:
+            widget = row.fieldItem.widget()
+            if widget:
+                widget.deleteLater()
+        if row.labelItem:
+            widget = row.labelItem.widget()
+            if widget:
+                widget.deleteLater()

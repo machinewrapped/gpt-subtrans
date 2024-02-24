@@ -54,7 +54,7 @@ class SubtitleTranslator:
         context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]
         logging.debug(f"Translation context:\n{linesep.join(context_values)}")
 
-        self.provider_class : TranslationProvider = TranslationProvider.create_provider(options)
+        self.provider_class : TranslationProvider = TranslationProvider.get_provider(options)
         if not self.provider_class:
             raise Exception("Unable to create translation provider")
 

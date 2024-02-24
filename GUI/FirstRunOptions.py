@@ -81,7 +81,7 @@ class FirstRunOptions(QDialog):
     def accept(self):
         self._update_provider_settings()
 
-        provider_class : TranslationProvider = TranslationProvider.create_provider(self.options)
+        provider_class : TranslationProvider = TranslationProvider.get_provider(self.options)
 
         if provider_class.ValidateSettings():
             super().accept()
@@ -99,7 +99,7 @@ class FirstRunOptions(QDialog):
 
     def _get_provider_settings(self):
         """ Get the settings for the selected provider and disable the settings that are not available """
-        provider_class : TranslationProvider = TranslationProvider.create_provider(self.options)
+        provider_class : TranslationProvider = TranslationProvider.get_provider(self.options)
 
         if provider_class:
             for key, value in provider_class.settings.items():

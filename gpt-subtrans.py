@@ -72,7 +72,7 @@ try:
     # Create the translation provider
     TranslationProvider.update_provider_settings(options)
 
-    translation_provider = TranslationProvider.create_provider(options)
+    translation_provider = TranslationProvider.get_provider(options)
     if not translation_provider:
         raise ValueError(f"Unable to create translation provider {options.provider}")
 

@@ -3,13 +3,14 @@ import logging
 import threading
 import srt
 import bisect
+from PySubtitle.Options import Options
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath, ParseNames, ParseSubstitutions, UnbatchScenes
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher, SubtitleBatcher
+from PySubtitle.SubtitleBatcher import SubtitleBatcher
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
@@ -205,10 +206,11 @@ class SubtitleFile:
         Update the project settings from options,
         and set any unspecified options from the project settings.
         """
-        if hasattr(options, 'options'):
+        if isinstance(options, Options):
             return self.UpdateProjectSettings(options.options)
     
         settings = {
+            'provider': "",
             'model': "",
             'prompt': "",
             'target_language': "",

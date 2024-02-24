@@ -35,7 +35,7 @@ class NewProjectSettings(QDialog):
         self.providers = sorted(TranslationProvider.get_providers())
         self.OPTIONS['provider'] = (self.providers, self.OPTIONS['provider'][1])
 
-        provider_class = TranslationProvider.create_provider(project.options)
+        provider_class = TranslationProvider.get_provider(project.options)
         if provider_class:
             available_models = provider_class.available_models
             self.OPTIONS['model'] = (available_models, self.OPTIONS['model'][1])

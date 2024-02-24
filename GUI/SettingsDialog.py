@@ -1,15 +1,15 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
-from GUI.GuiHelpers import GetInstructionFiles, GetThemeNames, LoadInstructionsResource
+from GUI.GuiHelpers import ClearForm, GetInstructionFiles, GetThemeNames, LoadInstructionsResource
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.Options import Options
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SettingsDialog(QDialog):
+    PROVIDER_SECTION = 'Provider Settings'
     SECTIONS = {
         'General': {
-            'provider': ([], "The AI translation service to use"),
             'target_language': (str, "The default language to translate the subtitles to"),
             'include_original': (bool, "Include original text in translated subtitles"),
             'instruction_file': (str, "Instructions for the translation provider to follow"),
@@ -21,7 +21,9 @@ class SettingsDialog(QDialog):
             'write_backup': (bool, "Save a backup copy of the project when opening it"),
             'stop_on_error': (bool, "Stop translating if an error is encountered")
         },
-        'Provider Settings': {
+        PROVIDER_SECTION: {
+            'provider': ([], "The AI translation service to use"),
+            'provider_settings': TranslationProvider,
         },
         'Advanced': {
             'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation"),
@@ -45,32 +47,35 @@ class SettingsDialog(QDialog):
         self.setWindowTitle("GUI-Subtrans Settings")
         self.setMinimumWidth(800)
 
+        self.translation_provider : TranslationProvider = None
         self.settings = options.GetSettings()
         self.widgets = {}
 
-        self.providers = sorted(TranslationProvider.get_providers())
-        self.SECTIONS['General']['provider'] = (self.providers, self.SECTIONS['General']['provider'][1])
-
+        # Qyery available themes
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
 
+        # Query available instruction files
         instruction_files = GetInstructionFiles()
         if instruction_files:
             self.SECTIONS['General']['instruction_file'] = instruction_files
 
+        # Query available providers
+        self.providers = sorted(TranslationProvider.get_providers())
+        self.SECTIONS[self.PROVIDER_SECTION]['provider'] = (self.providers, self.SECTIONS[self.PROVIDER_SECTION]['provider'][1])
+
+        # Initialise the current translation provider
+        self._initialise_translation_provider()
+
+        # Initalise the tabs
         self.layout = QVBoxLayout(self)
 
         self.tabs = QTabWidget(self)
         self.layout.addWidget(self.tabs)
         self.sections = {}
 
-        for section_name, section_options in self.SECTIONS.items():
-            section_widget = self._create_section_widget(section_name, section_options)
+        for section_name in self.SECTIONS.keys():
+            section_widget = self._create_section_widget(section_name)
             self.tabs.addTab(section_widget, section_name)
-
-        if options.provider:
-            self._populate_provider_options()
-
-        self.widgets['instruction_file'].contentChanged.connect(self._update_instruction_file)
 
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
@@ -86,15 +91,7 @@ class SettingsDialog(QDialog):
         try:
             for section_name in self.SECTIONS.keys():
                 section_widget = self.tabs.findChild(QWidget, section_name)
-
-                if section_widget is None:
-                    logging.warning(f"No widget found for section {section_name}")
-                    continue
-
                 layout = section_widget.layout()
-                if layout is None:
-                    logging.warning(f"No layout found for section {section_name}")
-                    continue
 
                 for row in range(layout.rowCount()):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
@@ -118,29 +115,102 @@ class SettingsDialog(QDialog):
     def reject(self):
         super(SettingsDialog, self).reject()
 
-    def _create_section_widget(self, section_name, options):
+    def _create_section_widget(self, section_name):
         section_widget = QFrame(self)
         section_widget.setObjectName(section_name)
 
         layout = QFormLayout(section_widget)
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         
-        self.sections[section_name] = section_widget
+        self._populate_form(section_name, layout)
 
-        self._populate_form(section_name, options, self.settings)
+        self.sections[section_name] = section_widget
 
         return section_widget
 
-    def _populate_form(self, section_name : str, options : dict, settings : dict):
-        section_widget = self.sections.get(section_name)
-        if section_widget:
-            layout = section_widget.layout()
-            for key, key_type in options.items():
-                key_type, tooltip = key_type if isinstance(key_type, tuple) else (key_type, None)
-                field = CreateOptionWidget(key, settings[key], key_type, tooltip=tooltip)
+    def _populate_form(self, section_name : str, layout : QFormLayout):
+        """
+        Create the form fields for the options 
+        """
+        ClearForm(layout)
+
+        options = self.SECTIONS[section_name]
+
+        for key, key_type in options.items():
+            key_type, tooltip = key_type if isinstance(key_type, tuple) else (key_type, None)
+            if key_type == TranslationProvider:
+                self._add_provider_options(section_name, layout)
+            else:
+                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
                 field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
                 layout.addRow(field.name, field)
                 self.widgets[key] = field
+
+    def _initialise_translation_provider(self):
+        """
+        Initialise translation provider
+        """
+        provider = self.settings.get('provider')
+        if provider:
+            provider_settings = self.provider_settings.get(provider, {})
+            self.translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
+
+    def _add_provider_options(self, section_name : str, layout : QFormLayout):
+        """
+        Add the options for a translation provider to a form
+        """
+        if not self.translation_provider:
+            logging.warning("Translation provider is not configured")
+            return
+
+        provider_options = self.translation_provider.GetOptions()
+        provider_settings = self.provider_settings.get(self.translation_provider.name, {})
+
+        for key, key_type in provider_options.items():
+            key_type, tooltip = key_type if isinstance(key_type, tuple) else (key_type, None)
+            field = CreateOptionWidget(key, provider_settings.get(key), key_type, tooltip=tooltip)
+            field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
+            layout.addRow(field.name, field)
+            self.widgets[key] = field
+
+    def _refresh_provider_options(self):
+        """
+        Populate the provider-specific options
+        """
+        if not self.translation_provider:
+            logging.warning("Translation provider is not configured")
+            return
+        
+        provider_settings = self.provider_settings.get(self.translation_provider.name, {})
+        self.translation_provider.settings.update(provider_settings)
+
+        section_name = self.PROVIDER_SECTION
+        section_widget = self.sections.get(section_name)
+        if section_widget:
+            section_layout = section_widget.layout()
+            self._populate_form(section_name, section_layout)
+
+    def _on_setting_changed(self, section_name, key, value):
+        """
+        Update the settings when a field is changed
+        """
+        self.settings[key] = value
+
+        if key == 'provider':
+            self._initialise_translation_provider()
+            self._refresh_provider_options()
+
+        elif key == 'instruction_file':
+            self._update_instruction_file()
+
+        elif section_name == self.PROVIDER_SECTION:
+            provider = self.settings.get('provider')
+            provider_settings = self.provider_settings.get(provider, {})
+            provider_settings[key] = value
+
+            # TODO: Ask the provider class for a list of settings that should trigger a refresh
+            if key in ['api_key', 'api_base', 'model']:
+                self._refresh_provider_options()
 
     def _update_instruction_file(self):
         """
@@ -154,50 +224,4 @@ class SettingsDialog(QDialog):
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
     
-    def _populate_provider_options(self):
-        """
-        Get the options for the selected provider and disable the settings that are not available
-        """
-        options = Options(self.settings)
-        provider_class : TranslationProvider = TranslationProvider.create_provider(options)
 
-        if provider_class:
-            provider_settings = self.provider_settings.get(provider_class.name, {})
-            self._clear_section('Provider Settings')
-            self._populate_form('Provider Settings', provider_class.GetOptions(), provider_settings)
-
-    def _on_setting_changed(self, section_name, key, value):
-        """
-        Update the settings when a field is changed
-        """
-        self.settings[key] = value
-
-        if key == 'provider':
-            self._populate_provider_options()
-
-        elif section_name == 'Provider Settings':
-            provider = self.settings.get('provider')
-            provider_settings = self.provider_settings.get(provider, {})
-            provider_settings[key] = value
-
-            # TODO: Ask the provider class for a list of settings that should trigger a refresh
-            if key in ['api_key', 'api_base', 'model']:
-                self._populate_provider_options()
-
-    def _clear_section(self, section_name):
-        """ 
-        Clear the widgets from a section 
-        """
-        section_widget = self.sections.get(section_name)
-        if section_widget:
-            layout = section_widget.layout()
-            while layout.rowCount():
-                row = layout.takeRow(0)
-                if row.fieldItem:
-                    widget = row.fieldItem.widget()
-                    if widget:
-                        widget.deleteLater()
-                if row.labelItem:
-                    widget = row.labelItem.widget()
-                    if widget:
-                        widget.deleteLater()

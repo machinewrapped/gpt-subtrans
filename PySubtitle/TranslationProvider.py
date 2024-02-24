@@ -66,7 +66,7 @@ class TranslationProvider:
         return providers
 
     @classmethod
-    def create_provider(cls, options : Options):
+    def get_provider(cls, options : Options):
         """
         Create a new instance of the provider with the given name
         """
@@ -77,11 +77,17 @@ class TranslationProvider:
         if not name:
             raise ValueError("No provider set")
 
+        provider_settings = options.current_provider_settings
+
+        return cls.create_provider(name, provider_settings)
+
+    @classmethod
+    def create_provider(cls, name, provider_settings):
         for provider_name, provider in cls.get_providers().items():
             if provider_name == name:
-                return provider(options.current_provider_settings)
+                return provider(provider_settings)
         
-        raise ValueError(f"Unknown translation provider: {name}")    
+        raise ValueError(f"Unknown translation provider: {name}")
 
     @classmethod
     def import_providers(cls, package_name):
@@ -103,7 +109,7 @@ class TranslationProvider:
         if provider not in options.provider_settings:
             options.provider_settings[provider] = {}
 
-        provider_class : TranslationProvider = cls.create_provider(options)
+        provider_class : TranslationProvider = cls.get_provider(options)
 
         for setting in provider_class.settings.keys():
             options.MoveSettingToProvider(provider, setting)
@@ -117,7 +123,7 @@ class TranslationProvider:
         if not options.provider:
             return []
 
-        provider_class = cls.create_provider(options)
+        provider_class = cls.get_provider(options)
         if not provider_class:
             return []
 
