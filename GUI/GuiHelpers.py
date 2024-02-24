@@ -37,7 +37,7 @@ def LoadInstructionsResource(resource_name):
     instructions.LoadInstructionsFile(filepath)
     return instructions
 
-def GetLineHeight(text: str, wrap_length: int = 100) -> int:
+def GetLineHeight(text: str, wrap_length: int = 60) -> int:
     """
     Calculate the number of lines for a given text with wrapping and newline characters.
 
