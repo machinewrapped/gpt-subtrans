@@ -7,6 +7,9 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 
+# We'll write separate scripts for other providers
+provider = "OpenAI"
+
 log_path = os.path.join(os.getcwd(), 'gpt-subtrans.log')
 level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
 logging_level = getattr(logging, level_name, logging.INFO)
@@ -81,7 +84,7 @@ try:
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'names': ParseNames(args.names or args.name),
         'project': args.project and args.project.lower(),
-        'provider': "OpenAI",
+        'provider': provider,
         'rate_limit': args.ratelimit,
         'scene_threshold': args.scenethreshold,
         'substitutions': ParseSubstitutions(args.substitution),
@@ -89,7 +92,7 @@ try:
         'temperature': args.temperature,
     })
 
-    # Create the translation provider
+    # Update provider settings with any relevant command line arguments
     TranslationProvider.update_provider_settings(options)
 
     translation_provider = TranslationProvider.get_provider(options)
@@ -108,7 +111,7 @@ try:
 
     logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
 
-    translation_provider.TranslateSubtitles(project)
+    project.TranslateSubtitles()
 
     if project.write_project:
         logging.info(f"Writing project data to {str(project.projectfile)}")
