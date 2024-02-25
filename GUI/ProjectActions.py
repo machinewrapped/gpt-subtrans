@@ -262,8 +262,7 @@ class ProjectActions(QObject):
                 batch.Validate(datamodel.options)
 
             update = {
-                'originals' : { line_number : { 'text' : original_text }},
-                'translated' : { line_number : { 'text' : translated_text }},
+                'lines' : { line_number : { 'text' : original_text, 'translation' : translated_text}},
                 'errors' : batch.errors,
             }
 
