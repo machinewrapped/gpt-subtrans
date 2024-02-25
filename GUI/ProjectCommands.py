@@ -9,6 +9,7 @@ from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class BatchSubtitlesCommand(Command):
     """
@@ -285,9 +286,11 @@ class TranslateSceneCommand(Command):
 
         project : SubtitleProject = self.datamodel.project
 
+        translator = SubtitleTranslator(self.datamodel.project_options)
+
         project.events.batch_translated += self._on_batch_translated
 
-        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers)
+        scene = project.TranslateScene(translator, self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers)
 
         project.events.batch_translated -= self._on_batch_translated
 
