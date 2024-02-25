@@ -316,6 +316,8 @@ def PerformSubstitutions(substitutions : dict, input, match_partial_words : bool
         
     return result
 
+def RemoveEmptyLines(lines):
+    return [line for line in lines if line.text and line.text.strip()]
 
 def RemoveWhitespaceAndPunctuation(string):
     # Matches any punctuation, separator, or other Unicode character

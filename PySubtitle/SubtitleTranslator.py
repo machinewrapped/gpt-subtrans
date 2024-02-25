@@ -1,3 +1,4 @@
+from copy import deepcopy
 import logging
 import re
 from os import linesep
@@ -10,7 +11,7 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
-from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, UnbatchScenes
+from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, UnbatchScenes
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.TranslationEvents import TranslationEvents
@@ -42,6 +43,7 @@ class SubtitleTranslator:
         self.settings = options.GetSettings()
         self.instructions : Instructions = options.GetInstructions()
         self.prompt : str = BuildPrompt(options)
+        self.substitutions = ParseSubstitutions(options.get('substitutions', {}))
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 
@@ -127,21 +129,19 @@ class SubtitleTranslator:
         """
         Send a scene for translation
         """
-        if not scene.context:
-            scene.context = self.context.copy()
-        else:
-            scene.context = {**scene.context, **self.context}
-
         try:
+            context = deepcopy(scene.context)
+
             if batch_numbers:
                 batches = [ batch for batch in scene.batches if batch.number in batch_numbers ]
+                context['summaries'] = subtitles.GetBatchContext(scene.number, batch_numbers[-1], self.max_context_summaries)
             else:
                 batches = scene.batches
+                context['summaries'] = subtitles.GetBatchContext(scene.number, 1, self.max_context_summaries)
 
-            context = scene.context.copy()
             context['scene'] = f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}"
 
-            self.TranslateBatches(subtitles, batches, line_numbers, context, remaining_lines)
+            self.TranslateBatches(batches, line_numbers, context, remaining_lines)
 
             # Update the scene summary based on the best available information (we hope)
             scene.summary = self.SanitiseSummary(scene.summary) or self.SanitiseSummary(context.get('scene')) or self.SanitiseSummary(context.get('summary'))
@@ -158,12 +158,10 @@ class SubtitleTranslator:
             else:
                 logging.warning(f"Failed to translate scene {scene.number} ({str(e)})... finishing")
 
-    def TranslateBatches(self, subtitles : SubtitleFile, batches : list[SubtitleBatch], line_numbers : list[int], context : dict, remaining_lines=None):
+    def TranslateBatches(self, batches : list[SubtitleBatch], line_numbers : list[int], context : dict, remaining_lines=None):
         """
         Send batches of subtitles for translation, building up context.
         """
-        substitutions = ParseSubstitutions(context.get('substitutions', {}))
-
         for batch in batches:
             if self.aborted:
                 raise TranslationAbortedError()
@@ -172,43 +170,26 @@ class SubtitleTranslator:
                 logging.info(f"Scene {batch.scene} batch {batch.number} already translated {batch.size} lines...")
                 continue
 
-            if batch.context and (self.retranslate or self.reparse):
-                # If it's a retranslation, restore context from the batch
-                context = {**context, **batch.context}
-
-            # Apply any substitutions to the input
-            replacements = batch.PerformInputSubstitutions(substitutions, self.match_partial_words)
-
-            # Split single lines with blocks of whitespace
-            if self.whitespaces_to_newline:
-                batch.ConvertWhitespaceBlocksToNewlines()
-
-            # Filter out empty lines
-            originals = [line for line in batch.originals if line.text and line.text.strip()]
+            originals, context = self.PreprocessBatch(batch, context)
 
             if remaining_lines and len(originals) > remaining_lines:
                 logging.info("Truncating batch to remain within max_lines")
                 originals = originals[:remaining_lines]
 
             try:
-                if  self.reparse and batch.translation:
+                if self.reparse and batch.translation:
                     logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(originals)} lines...")
                     translation = batch.translation
                 else:
                     logging.debug(f"Translating scene {batch.scene} batch {batch.number} with {len(originals)} lines...")
-
-                    if replacements:
-                        replaced = [f"{Linearise(k)} -> {Linearise(v)}" for k,v in replacements.items()]
-                        logging.info(f"Made substitutions in input:\n{linesep.join(replaced)}")
 
                     if self.preview:
                         self.events.batch_translated(batch)
                         continue
 
                     # Build summaries context
-                    context['summaries'] = subtitles.GetBatchContext(batch.scene, batch.number, self.max_context_summaries)
-                    context['summary'] = batch.summary
                     context['batch'] = f"Scene {batch.scene} batch {batch.number}"
+                    context['summary'] = batch.summary
 
                     # Ask the client to do the translation
                     translation : Translation = self.client.RequestTranslation(self.prompt, originals, context)
@@ -231,11 +212,13 @@ class SubtitleTranslator:
                     translation.ParseResponse()
 
                     batch.translation = translation
-                    batch.AddContext('summary', context.get('summary'))
-                    batch.AddContext('summaries', context.get('summaries'))
 
                     # Process the response
                     self.ProcessTranslation(batch, line_numbers, context)
+
+                    if batch.summary:
+                        context['summaries'].append(batch.summary)  # TODO: may be out of order
+                        context['summaries'] = context['summaries'][-self.max_context_summaries:]
 
                 else:
                     logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
@@ -254,17 +237,39 @@ class SubtitleTranslator:
                 if not remaining_lines:
                     break
 
-            context['previous_batch'] = batch
-
             # Notify observers the batch was translated
             self.events.batch_translated(batch)
+
+    def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
+        """
+        Preprocess the batch before translation
+        """
+        if batch.context and (self.retranslate or self.reparse):
+            # If it's a retranslation, restore context from the batch
+            for key, value in batch.context.items():
+                context[key] = value
+
+        # Apply any substitutions to the input
+        replacements = batch.PerformInputSubstitutions(self.substitutions, self.match_partial_words)
+
+        if replacements:
+            replaced = [f"{Linearise(k)} -> {Linearise(v)}" for k,v in replacements.items()]
+            logging.info(f"Made substitutions in input:\n{linesep.join(replaced)}")
+            batch.AddContext('replacements', replaced)
+
+        # Split single lines with blocks of whitespace
+        if self.whitespaces_to_newline:
+            batch.ConvertWhitespaceBlocksToNewlines()
+
+        # Filter out empty lines
+        originals = RemoveEmptyLines(batch.originals)
+
+        return originals, context
 
     def ProcessTranslation(self, batch : SubtitleBatch, line_numbers : list[int], context : dict):
         """
         Attempt to extract translation from the API response
         """
-        substitutions = self.context.get('substitutions')
-
         translation : Translation = batch.translation
 
         if not translation.has_translation:
@@ -320,14 +325,14 @@ class SubtitleTranslator:
                 batch.AddContext('untranslated_lines', [f"{item.number}. {item.text}" for item in batch.untranslated])
 
             # Apply any word/phrase substitutions to the translation 
-            replacements = batch.PerformOutputSubstitutions(substitutions, self.match_partial_words)
+            replacements = batch.PerformOutputSubstitutions(self.substitutions, self.match_partial_words)
 
             if replacements:
                 replaced = [f"{k} -> {v}" for k,v in replacements.items()]
                 logging.info(f"Made substitutions in output:\n{linesep.join(replaced)}")
 
             # Perform substitutions on the output
-            translation.PerformSubstitutions(substitutions, self.match_partial_words)
+            translation.PerformSubstitutions(self.substitutions, self.match_partial_words)
 
             # Update the context, unless it's a retranslation pass
             if not self.retranslate:
@@ -398,7 +403,7 @@ class SubtitleTranslator:
         summary = summary.replace("Summary of the batch", "")
         summary = summary.replace("Summary of the scene", "")
 
-        movie_name = self.context.get('movie_name')
+        movie_name = self.settings.get('movie_name')
         if movie_name:
             # Remove movie name and any connectors (-,: or whitespace)
             summary = re.sub(r'^' + re.escape(movie_name) + r'\s*[:\-]\s*', '', summary)
