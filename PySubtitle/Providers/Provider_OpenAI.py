@@ -1,5 +1,4 @@
 import os
-from PySubtitle.Instructions import Instructions
 from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
 from PySubtitle.Providers.OpenAI.InstructGPTClient import InstructGPTClient
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
