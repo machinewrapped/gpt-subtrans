@@ -15,15 +15,16 @@ default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
     def __init__(self, options : Options):
-        self.options : Options = options or Options()
         self.subtitles : SubtitleFile = None
         self.events = TranslationEvents()
         self.projectfile = None
         self.needsupdate = False
         self.lock = threading.Lock()
         self.stop_event = None
+
+        self.include_original = options.get('include_original', False)
         
-        project_mode = self.options.get('project', '')
+        project_mode = options.get('project', '')
         if project_mode:
             project_mode = project_mode.lower()
 
@@ -32,10 +33,10 @@ class SubtitleProject:
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
 
-        self.options.add('preview', project_mode in ["preview"])
-        self.options.add('resume', project_mode in ["resume"])   #, "true"
-        self.options.add('reparse', project_mode in ["reparse"])
-        self.options.add('retranslate', project_mode in ["retranslate"])
+        self.preview = project_mode in ["preview"]
+        self.resume = project_mode in ["resume"]
+        self.reparse = project_mode in ["reparse"]
+        self.retranslate = project_mode in ["retranslate"]
 
         if self.update_project and options.get('autosave'):
             self._start_autosave_thread
@@ -47,9 +48,9 @@ class SubtitleProject:
 
     @property
     def target_language(self):
-        return self.subtitles.target_language if self.subtitles else self.options.get('target_language')
+        return self.subtitles.target_language if self.subtitles else None
 
-    def Initialise(self, filepath, outputpath = None):
+    def InitialiseProject(self, filepath, outputpath = None, write_backup = False):
         """
         Initialize the project by either loading an existing project file or creating a new one.
         Load the subtitles to be translated, either from the project file or the source file.
@@ -62,7 +63,6 @@ class SubtitleProject:
         if self.projectfile == filepath and not self.read_project:
             self.read_project = True
             self.write_project = True
-            self.options.add('project', 'true')
 
         # Check if the project file exists
         if self.read_project and not os.path.exists(self.projectfile):
@@ -76,7 +76,6 @@ class SubtitleProject:
 
             if subtitles and subtitles.scenes:
                 self.load_subtitles = False
-                write_backup = self.options.get('write_backup', False)
                 if write_backup:
                     logging.info("Project file loaded, saving backup copy")
                     self.WriteBackupFile()
@@ -89,8 +88,6 @@ class SubtitleProject:
         if self.load_subtitles:
             # (re)load the source subtitle file if required
             subtitles = self.LoadSubtitleFile(filepath)
-            self.options.InitialiseInstructions()
-            self.subtitles.UpdateProjectSettings(self.options)
 
         if outputpath:
             subtitles.outputpath = outputpath
@@ -102,9 +99,8 @@ class SubtitleProject:
         """
         Write output file
         """
-        include_original = self.options.get('include_original', False)
         try:
-            self.subtitles.SaveTranslation(outputpath, include_original=include_original)
+            self.subtitles.SaveTranslation(outputpath)
 
         except Exception as e:
             logging.error(f"Unable to save translation: {e}")
@@ -152,7 +148,6 @@ class SubtitleProject:
             if projectfile and not self.write_project:
                 self.write_project = True
                 self.read_project = True
-                self.options.add('project', 'true')
 
             if not projectfile:
                 projectfile = self.projectfile
@@ -196,7 +191,6 @@ class SubtitleProject:
                 subtitles.Sanitise()
                 subtitles.project = self
                 self.subtitles = subtitles
-                self.options.update({ key : value for key, value in subtitles.settings.items() if value })
                 return subtitles
 
         except FileNotFoundError:
@@ -225,23 +219,25 @@ class SubtitleProject:
 
     def UpdateProjectSettings(self, settings: dict):
         """
-        Replace options if the provided dictionary has an entry with the same key
+        Replace settings if the provided dictionary has an entry with the same key
         """
-        # Check if all values in "options" are the same as existing values in "self.options"
-        if all(settings.get(key) == self.options.get(key) for key in settings.keys()):
-            return
+        if isinstance(settings, Options):
+            settings = settings.options
 
         with self.lock:
-            self.options.update(settings)
+            if not self.subtitles:
+                return
 
-            if self.subtitles:
-                self.subtitles.UpdateProjectSettings(self.options)
+            if all(settings.get(key) == self.subtitles.settings.get(key) for key in settings):
+                return
+
+            self.subtitles.UpdateProjectSettings(settings)
 
         if self.subtitles.scenes:
             self.subtitles.UpdateOutputPath()
             self.WriteProjectFile()
 
-    def TranslateSubtitles(self):
+    def TranslateSubtitles(self, translator : SubtitleTranslator):
         """
         Use the translation provider to translate a project
         """
@@ -253,13 +249,15 @@ class SubtitleProject:
             self.WriteProjectFile()
 
         try:
-            translator : SubtitleTranslator = SubtitleTranslator(self.subtitles, self.options)
-
             translator.events.preprocessed += self._on_preprocessed
             translator.events.batch_translated += self._on_batch_translated
             translator.events.scene_translated += self._on_scene_translated
 
-            translator.TranslateSubtitles()
+            translator.TranslateSubtitles(self.subtitles)
+
+            translator.events.preprocessed -= self._on_preprocessed
+            translator.events.batch_translated -= self._on_batch_translated
+            translator.events.scene_translated -= self._on_scene_translated
 
             self.SaveTranslation()
 
@@ -268,13 +266,13 @@ class SubtitleProject:
             raise
 
         except Exception as e:
-            if self.subtitles and self.options.get('stop_on_error'):
+            if self.subtitles and translator.stop_on_error:
                 self.SaveTranslation()
 
             logging.error(f"Failed to translate subtitles")
             raise
 
-    def TranslateScene(self, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
+    def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
         """
         Pass batches of subtitles to the translation engine.
         """
@@ -282,14 +280,15 @@ class SubtitleProject:
             raise Exception("No subtitles to translate")
 
         try:
-            translator = SubtitleTranslator(self.subtitles, self.options)
-
             translator.events.preprocessed += self._on_preprocessed
             translator.events.batch_translated += self._on_batch_translated
 
             scene = self.subtitles.GetScene(scene_number)
 
-            translator.TranslateScene(scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
+            translator.TranslateScene(self.subtitles, scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
+
+            translator.events.preprocessed -= self._on_preprocessed
+            translator.events.batch_translated -= self._on_batch_translated
 
             self.SaveTranslation()
 
@@ -299,7 +298,7 @@ class SubtitleProject:
             raise
 
         except Exception as e:
-            if self.subtitles and self.options.get('stop_on_error'):
+            if self.subtitles and translator.stop_on_error:
                 self.SaveTranslation()
 
             logging.error(f"Failed to translate subtitles")

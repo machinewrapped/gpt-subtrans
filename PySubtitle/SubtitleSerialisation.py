@@ -113,7 +113,7 @@ class SubtitleDecoder(json.JSONDecoder):
                 obj = SubtitleFile(sourcepath, outpath)
                 obj.settings = dct.get('settings', {}) or dct.get('context', {})
                 obj.scenes = dct.get('scenes', [])
-                obj.UpdateProjectSettings({}) # Force update of context for legacy files
+                obj.UpdateProjectSettings({}) # Force update for legacy files
                 return obj
             elif class_name == classname(SubtitleScene):
                 obj = SubtitleScene(dct)

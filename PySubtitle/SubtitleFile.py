@@ -23,12 +23,27 @@ class SubtitleFile:
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.start_line_number = 1
-        self.settings = {}
         self._scenes : list[SubtitleScene] = []
         self.lock = threading.RLock()
 
         self.sourcepath = GetInputPath(filepath)
         self.outputpath = outputpath or None
+
+        self.settings = {
+            'provider': "",
+            'model': "",
+            'prompt': "",
+            'target_language': "",
+            'instructions': "",
+            'retry_instructions': "",
+            'movie_name': "",
+            'description': "",
+            'names': None,
+            'substitutions': None,
+            'match_partial_words': False,
+            'include_original': False,
+            'instruction_file': None
+        }
 
     @property
     def target_language(self):
@@ -162,7 +177,7 @@ class SubtitleFile:
             with open(self.sourcepath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
-    def SaveTranslation(self, outputpath : str = None, include_original : bool = False):
+    def SaveTranslation(self, outputpath : str = None):
         """
         Write translated subtitles to an SRT file
         """
@@ -189,7 +204,7 @@ class SubtitleFile:
                 logging.error("No subtitles translated")
                 return
             
-            if include_original:
+            if self.settings.get('include_original'):
                 translated = self._merge_original_and_translated(originals, translated)
 
             logging.info(f"Saving translation to {str(outputpath)}")
@@ -201,54 +216,20 @@ class SubtitleFile:
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateProjectSettings(self, options):
+    def UpdateProjectSettings(self, settings):
         """
-        Update the project settings from options,
-        and set any unspecified options from the project settings.
+        Update the project settings
         """
-        if isinstance(options, Options):
-            return self.UpdateProjectSettings(options.options)
+        if isinstance(settings, Options):
+            return self.UpdateProjectSettings(settings.options)
     
-        settings = {
-            'provider': "",
-            'model': "",
-            'prompt': "",
-            'target_language': "",
-            'instructions': "",
-            'retry_instructions': "",
-            'movie_name': "",
-            'description': "",
-            'names': None,
-            'substitutions': None,
-            'match_partial_words': False,
-            'include_original': False,
-            'instruction_file': None
-        }
-
         with self.lock:
-            if self.settings:
-                settings = {**settings, **self.settings}
+            self.settings.update({key: self.settings[key] for key in settings if key in self.settings})
 
-            settings['names'] = ParseNames(settings.get('names'))
-            if options.get('names'):
-                options['names'] = ParseNames(options.get('names'))
+            self.settings['names'] = ParseNames(self.settings.get('names'))
+            self.settings['substitutions'] = ParseSubstitutions(self.settings.get('substitutions'))
 
-            settings['substitutions'] = ParseSubstitutions(settings.get('substitutions'))
-            if options.get('substitutions'):
-                options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
-
-            # Update the settings dictionary with matching fields from options, and vice versa
-            for key in settings.keys():
-                if key in options:
-                    settings[key] = options[key]
-                elif key in settings:
-                    options[key] = settings[key]
-
-            self._update_compatibility(settings)
-
-            self.settings = settings
-
-        return settings
+            self._update_compatibility(self.settings)
 
     def UpdateOutputPath(self, outputpath : str = None):
         """

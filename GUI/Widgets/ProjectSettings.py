@@ -21,9 +21,9 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 
-class ProjectOptions(QGroupBox):
+class ProjectSettings(QGroupBox):
     """
-    Allow the user to edit project-specific options
+    Allow the user to edit project-specific settings
     """
     settingsChanged = Signal(dict)
 
@@ -58,7 +58,7 @@ class ProjectOptions(QGroupBox):
 
         return settings
 
-    def OpenOptions(self):
+    def OpenSettings(self):
         self._update_available_models()
 
         self.show()

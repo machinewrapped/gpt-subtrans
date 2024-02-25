@@ -52,10 +52,10 @@ default_options = {
 
 class Options:
     def __init__(self, options=None, **kwargs):
-        # Initialise from defaults settings
+        # Initialise from defaults
         self.options = deepcopy(default_options)
 
-        if hasattr(options, 'options'):
+        if isinstance(options, Options):
             options = options.options
 
         if options:

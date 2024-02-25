@@ -5,6 +5,7 @@ import logging
 from PySubtitle.Helpers import ParseNames, ParseSubstitutions
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
 
 # We'll write separate scripts for other providers
@@ -59,6 +60,7 @@ parser.add_argument('--names', type=str, default=None, help="A list of names to 
 parser.add_argument('--project', type=str, default=None, help="Read or Write project file to working directory")
 parser.add_argument('--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
 parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
+parser.add_argument('--writebackup', action='store_true', help="Write a backup of the project file when it is loaded (if it exists)")
 
 args = parser.parse_args()
 
@@ -90,6 +92,7 @@ try:
         'substitutions': ParseSubstitutions(args.substitution),
         'target_language': args.target_language,
         'temperature': args.temperature,
+        'write_backup': args.writebackup,
     })
 
     # Update provider settings with any relevant command line arguments
@@ -107,11 +110,14 @@ try:
     # Process the project options
     project = SubtitleProject(options)
 
-    project.Initialise(args.input, args.output)
+    project.InitialiseProject(args.input, args.output, args.writebackup)
+    project.UpdateProjectSettings(options)
 
     logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
 
-    project.TranslateSubtitles()
+    translator = SubtitleTranslator(options)
+
+    project.TranslateSubtitles(translator)
 
     if project.write_project:
         logging.info(f"Writing project data to {str(project.projectfile)}")

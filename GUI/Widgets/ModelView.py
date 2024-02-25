@@ -7,11 +7,11 @@ from GUI.ProjectToolbar import ProjectToolbar
 
 from GUI.Widgets.ScenesView import ScenesView
 from GUI.Widgets.ContentView import ContentView
-from GUI.Widgets.ProjectOptions import ProjectOptions
+from GUI.Widgets.ProjectSettings import ProjectSettings
 from PySubtitle.Options import Options
 
 class ModelView(QWidget):
-    optionsChanged = Signal(dict)
+    settingsChanged = Signal(dict)
     actionRequested = Signal(str, object)
 
     def __init__(self, parent=None):
@@ -31,14 +31,14 @@ class ModelView(QWidget):
         # Main Content Area
         self.content_view = ContentView(self)
 
-        # Project Options
-        self.project_options = ProjectOptions()
-        self.project_options.hide()
-        self.project_options.settingsChanged.connect(self.optionsChanged)
+        # Project Settings
+        self.project_settings = ProjectSettings()
+        self.project_settings.hide()
+        self.project_settings.settingsChanged.connect(self.settingsChanged)
 
         # Splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.addWidget(self.project_options)
+        splitter.addWidget(self.project_settings)
         splitter.addWidget(self.scenes_view)
         splitter.addWidget(self.content_view)
         splitter.setStretchFactor(0, 2)
@@ -59,15 +59,15 @@ class ModelView(QWidget):
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.SetViewModel(datamodel.viewmodel)
         if datamodel.project:
-            self.project_options.SetDataModel(datamodel)
+            self.project_settings.SetDataModel(datamodel)
             self._toolbar.show()
             self._toolbar.show_options = not datamodel.project_options.get('movie_name', None)
 
             if self._toolbar.show_options:
-                self.project_options.OpenOptions()
+                self.project_settings.OpenSettings()
         else:
-            self.project_options.ClearForm()
-            self.project_options.hide()
+            self.project_settings.ClearForm()
+            self.project_settings.hide()
             self._toolbar.hide()
 
     def SetViewModel(self, viewmodel):
@@ -80,16 +80,16 @@ class ModelView(QWidget):
             self.content_view.Populate(viewmodel)
 
     def ToggleProjectSettings(self, show = None):
-        if self.project_options.isVisible() and not show:
-            self.CloseProjectOptions()
+        if self.project_settings.isVisible() and not show:
+            self.CloseSettings()
         else:
-            self.project_options.OpenOptions()
+            self.project_settings.OpenSettings()
 
-    def CloseProjectOptions(self):
-        if self.project_options.isVisible():
-            options = Options(self.project_options.GetSettings())
-            self.optionsChanged.emit(options)
-            self.project_options.hide()
+    def CloseSettings(self):
+        if self.project_settings.isVisible():
+            settings = self.project_settings.GetSettings()
+            self.settingsChanged.emit(settings)
+            self.project_settings.hide()
 
     def GetSelection(self) -> ProjectSelection:
         selection = ProjectSelection()

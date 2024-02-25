@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(splitter)
 
         self.model_viewer = ModelView(splitter)
-        self.model_viewer.optionsChanged.connect(self._on_project_settings_changed)
+        self.model_viewer.settingsChanged.connect(self._on_project_settings_changed)
         self.model_viewer.actionRequested.connect(self._on_action_requested)
         splitter.addWidget(self.model_viewer)
 
@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
 
     def _prepare_for_save(self):
         if self.model_viewer and self.datamodel:
-            self.model_viewer.CloseProjectOptions()
+            self.model_viewer.CloseSettings()
 
     def closeEvent(self, e):
         if self.command_queue and self.command_queue.AnyCommands():
@@ -291,7 +291,7 @@ class MainWindow(QMainWindow):
 
     def _on_project_settings_changed(self, settings: dict):
         if settings and self.datamodel:
-            self.datamodel.UpdateSettings(settings)
+            self.datamodel.UpdateProjectSettings(settings)
 
     def _first_run(self, options: Options):
         first_run_options = FirstRunOptions(options, self)

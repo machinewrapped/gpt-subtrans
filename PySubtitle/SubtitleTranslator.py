@@ -20,11 +20,10 @@ class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
-    def __init__(self, subtitles : SubtitleFile, options: Options):
+    def __init__(self, options: Options):
         """
         Initialise a SubtitleTranslator with translation options
         """
-        self.subtitles = subtitles
         self.events = TranslationEvents()
         self.aborted = False
 
@@ -48,12 +47,6 @@ class SubtitleTranslator:
 
         logging.debug(f"Translation prompt: {self.prompt}")
  
-        # Update subtitle context from options and make our own copy of it
-        self.context = subtitles.UpdateProjectSettings(options).copy()
-
-        context_values = [f"{key}: {Linearise(value)}" for key, value in self.context.items()]
-        logging.debug(f"Translation context:\n{linesep.join(context_values)}")
-
         self.provider_class : TranslationProvider = TranslationProvider.get_provider(options)
         if not self.provider_class:
             raise Exception("Unable to create translation provider")
@@ -62,19 +55,16 @@ class SubtitleTranslator:
         if not self.client:
             raise Exception("Unable to create translation client")
         
-        if not subtitles.scenes:
-            self.batcher = CreateSubtitleBatcher(options)
+        self.batcher = CreateSubtitleBatcher(options)
 
     def StopTranslating(self):
         self.aborted = True
         self.client.AbortTranslation()
 
-    def TranslateSubtitles(self):
+    def TranslateSubtitles(self, subtitles : SubtitleFile):
         """
         Translate a SubtitleFile
         """
-        subtitles : SubtitleFile = self.subtitles 
-
         if self.aborted:
             raise TranslationAbortedError()
 
@@ -88,7 +78,7 @@ class SubtitleTranslator:
             if self.retranslate or self.resume:
                 logging.warning(f"Previous subtitles not found, starting fresh...")
 
-            self.subtitles.AutoBatch(self.batcher)
+            subtitles.AutoBatch(self.batcher)
 
         if not subtitles.scenes:
             raise Exception("No scenes to translate")
@@ -111,7 +101,7 @@ class SubtitleTranslator:
             logging.debug(f"Translating scene {scene.number} of {subtitles.scenecount}")
             batch_numbers = [ batch.number for batch in scene.batches if not batch.translated ] if self.resume else None
 
-            self.TranslateScene(scene, batch_numbers=batch_numbers, remaining_lines=remaining_lines)
+            self.TranslateScene(subtitles, scene, batch_numbers=batch_numbers, remaining_lines=remaining_lines)
 
             if remaining_lines:
                 remaining_lines = max(0, remaining_lines - scene.linecount)
@@ -133,7 +123,7 @@ class SubtitleTranslator:
         subtitles.originals = originals
         subtitles.translated = translations
 
-    def TranslateScene(self, scene : SubtitleScene, batch_numbers = None, line_numbers = None, remaining_lines=None):
+    def TranslateScene(self, subtitles : SubtitleFile, scene : SubtitleScene, batch_numbers = None, line_numbers = None, remaining_lines=None):
         """
         Send a scene for translation
         """
@@ -151,7 +141,7 @@ class SubtitleTranslator:
             context = scene.context.copy()
             context['scene'] = f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}"
 
-            self.TranslateBatches(batches, line_numbers, context, remaining_lines)
+            self.TranslateBatches(subtitles, batches, line_numbers, context, remaining_lines)
 
             # Update the scene summary based on the best available information (we hope)
             scene.summary = self.SanitiseSummary(scene.summary) or self.SanitiseSummary(context.get('scene')) or self.SanitiseSummary(context.get('summary'))
@@ -168,7 +158,7 @@ class SubtitleTranslator:
             else:
                 logging.warning(f"Failed to translate scene {scene.number} ({str(e)})... finishing")
 
-    def TranslateBatches(self, batches : list[SubtitleBatch], line_numbers : list[int], context : dict, remaining_lines=None):
+    def TranslateBatches(self, subtitles : SubtitleFile, batches : list[SubtitleBatch], line_numbers : list[int], context : dict, remaining_lines=None):
         """
         Send batches of subtitles for translation, building up context.
         """
@@ -216,7 +206,7 @@ class SubtitleTranslator:
                         continue
 
                     # Build summaries context
-                    context['summaries'] = self.subtitles.GetBatchContext(batch.scene, batch.number, self.max_context_summaries)
+                    context['summaries'] = subtitles.GetBatchContext(batch.scene, batch.number, self.max_context_summaries)
                     context['summary'] = batch.summary
                     context['batch'] = f"Scene {batch.scene} batch {batch.number}"
 
