@@ -88,7 +88,7 @@ try:
         'rate_limit': args.ratelimit,
         'scene_threshold': args.scenethreshold,
         'substitutions': ParseSubstitutions(args.substitution),
-        'target_language': args.target_language
+        'target_language': args.target_language,
         'temperature': args.temperature,
     })
 
