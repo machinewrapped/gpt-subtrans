@@ -224,7 +224,7 @@ class SubtitleFile:
             return self.UpdateProjectSettings(settings.options)
     
         with self.lock:
-            self.settings.update({key: self.settings[key] for key in settings if key in self.settings})
+            self.settings.update({key: settings[key] for key in settings if key in self.settings})
 
             self.settings['names'] = ParseNames(self.settings.get('names'))
             self.settings['substitutions'] = ParseSubstitutions(self.settings.get('substitutions'))
