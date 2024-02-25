@@ -60,7 +60,7 @@ class Options:
 
         if options:
             # Remove None values from options and merge with defaults
-            options = {k: v for k, v in options.items() if v}
+            options = {k: deepcopy(v) for k, v in options.items() if v}
             self.options = {**self.options, **options}
 
         # Apply any explicit parameters
@@ -107,6 +107,10 @@ class Options:
             return None
         
         return self.provider_settings.get(self.provider, {})
+    
+    @property
+    def available_providers(self) -> list:
+        return self.get('available_providers', [])
 
     @property
     def model(self) -> str:

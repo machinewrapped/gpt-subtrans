@@ -29,8 +29,7 @@ class FirstRunOptions(QDialog):
         if not options.provider:
             options.provider = "OpenAI"
 
-        self.providers = sorted(TranslationProvider.get_providers())
-        self.OPTIONS['provider'] = (self.providers, self.OPTIONS['provider'][1])
+        self.OPTIONS['provider'] = (options.available_providers, self.OPTIONS['provider'][1])
 
         self.OPTIONS['theme'] = (['default'] + GetThemeNames(), self.OPTIONS['theme'][1])
 

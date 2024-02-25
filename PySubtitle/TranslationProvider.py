@@ -12,6 +12,7 @@ class TranslationProvider:
         self.name : str = name
         self.settings : dict = settings
         self._available_models : list[str] = []
+        self.refresh_when_changed = []
         self.validation_message = None
 
     @property
@@ -48,6 +49,14 @@ class TranslationProvider:
         Validate the settings for the provider
         """
         return True
+    
+    def UpdateSettings(self, settings : dict):
+        """
+        Update the settings for the provider
+        """
+        for k, v in settings.items():
+            if k in self.settings:
+                self.settings[k] = v
     
     @classmethod
     def get_providers(cls) -> dict:

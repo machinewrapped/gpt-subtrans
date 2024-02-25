@@ -59,9 +59,8 @@ class SettingsDialog(QDialog):
         if instruction_files:
             self.SECTIONS['General']['instruction_file'] = instruction_files
 
-        # Query available providers
-        self.providers = sorted(TranslationProvider.get_providers())
-        self.SECTIONS[self.PROVIDER_SECTION]['provider'] = (self.providers, self.SECTIONS[self.PROVIDER_SECTION]['provider'][1])
+        # Populate available providers
+        self.SECTIONS[self.PROVIDER_SECTION]['provider'] = (options.available_providers, self.SECTIONS[self.PROVIDER_SECTION]['provider'][1])
 
         # Initialise the current translation provider
         self._initialise_translation_provider()
@@ -98,7 +97,11 @@ class SettingsDialog(QDialog):
 
                 for row in range(layout.rowCount()):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
-                    self.settings[field.key] = field.GetValue()
+                    if section_name == self.PROVIDER_SECTION:
+                        provider = self.settings.get('provider')
+                        self.provider_settings[provider][field.key] = field.GetValue()
+                    else:
+                        self.settings[field.key] = field.GetValue()
             
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
@@ -109,9 +112,6 @@ class SettingsDialog(QDialog):
         except Exception as e:
             logging.error(f"Error in settings dialog handler: {e}")
             self.reject()
-
-    def reject(self):
-        super(SettingsDialog, self).reject()
 
     def _create_section_widget(self, section_name):
         section_widget = QFrame(self)
@@ -195,22 +195,23 @@ class SettingsDialog(QDialog):
         """
         Update the settings when a field is changed
         """
-        self.settings[key] = value
-
         if key == 'provider':
+            self.settings[key] = value
             self._initialise_translation_provider()
             self._refresh_provider_options()
 
         elif key == 'instruction_file':
+            self.settings[key] = value
             self._update_instruction_file()
 
         elif section_name == self.PROVIDER_SECTION:
             provider = self.settings.get('provider')
             self.provider_settings[provider][key] = value
 
-            # TODO: Ask the provider class for a list of settings that should trigger a refresh
-            if key in ['api_key', 'api_base', 'model']:
+            if self.translation_provider and key in self.translation_provider.refresh_when_changed:
                 self._refresh_provider_options()
+        else:
+            self.settings[key] = value
 
     def _update_instruction_file(self):
         """

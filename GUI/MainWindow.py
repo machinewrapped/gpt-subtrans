@@ -31,6 +31,7 @@ from GUI.NewProjectSettings import NewProjectSettings
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import ProviderConfigurationError
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__
 
@@ -61,7 +62,9 @@ class MainWindow(QMainWindow):
             options.InitialiseInstructions()
             options.LoadSettings()
 
-        self.options = options
+        options.add('available_providers', sorted(TranslationProvider.get_providers()))
+
+        self.global_options = options
 
         LoadStylesheet(options.theme)
 
@@ -83,6 +86,7 @@ class MainWindow(QMainWindow):
         self.action_handler.showProviderSettings.connect(self._show_provider_settings_dialog)
         self.action_handler.toggleProjectSettings.connect(self._toggle_project_settings)
         self.action_handler.showAboutDialog.connect(self._show_about_dialog)
+        self.action_handler.loadSubtitleFile.connect(self._load_subtitle_file)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -141,31 +145,47 @@ class MainWindow(QMainWindow):
         """
         Open user settings dialog and update options
         """
-        dialog = SettingsDialog(self.options, self, focus_provider_settings=True)
+        dialog = SettingsDialog(self.global_options, self)
         result = dialog.exec()
 
         if result == QDialog.Accepted:
-            # Update and save global settings
-            self.options.update(dialog.settings)
-            self.datamodel.UpdateSettings(self.options)
-            self.options.SaveSettings()
+            self._update_settings(dialog.settings)
 
-            LoadStylesheet(self.options.theme)
             logging.info("Settings updated")
 
     def _show_provider_settings_dialog(self):
         """
         Open the settings dialog with the provider settings focused
         """
-        dialog = SettingsDialog(self.options, self, focus_provider_settings=True)
+        dialog = SettingsDialog(self.global_options, self, focus_provider_settings=True)
         result = dialog.exec()
         if result == QDialog.Accepted:
-            self.options.update(dialog.settings)
-            self.datamodel.UpdateSettings(self.options)
-            self.options.SaveSettings()
+            self._update_settings(dialog.settings)
+
+            if not self.datamodel.ValidateProviderSettings():
+                logging.warning("Translation provider settings are not valid. Please check the settings.")
 
     def _show_about_dialog(self):
         _ = AboutDialog(self).exec()
+
+    def _update_settings(self, settings):
+        updated_settings = {k: v for k, v in settings.items() if v != self.global_options.get(k)}
+
+        if not updated_settings:
+            return
+
+        # Update and save global settings
+        self.global_options.update(updated_settings)
+        self.global_options.SaveSettings()
+
+        # Update the project and provider settings
+        self.datamodel.UpdateSettings(updated_settings)
+
+        if 'theme' in updated_settings:
+            LoadStylesheet(self.global_options.theme)
+    
+    def _load_subtitle_file(self, filepath):
+        self.QueueCommand(LoadSubtitleFile(filepath, self.global_options))
 
     def _prepare_for_save(self):
         if self.model_viewer and self.datamodel:
@@ -282,7 +302,7 @@ class MainWindow(QMainWindow):
             options.update(first_run_options.GetSettings())
             options.add('firstrun', False)
             options.SaveSettings()
-            self.options = options
+            self.global_options = options
             LoadStylesheet(options.theme)
 
             self.QueueCommand(CheckProviderSettings(options))
@@ -299,12 +319,6 @@ class MainWindow(QMainWindow):
         logging.error(str(error))
 
         if isinstance(error, ProviderConfigurationError):
-            if self.datamodel and self.datamodel.options:
+            if self.datamodel and self.datamodel.project_options:
                 logging.warning("Please configure the translation provider settings")
-
-                settings_dialog = SettingsDialog(self.datamodel.options, self, focus_provider_settings=True)
-                result = settings_dialog.exec()
-
-                if result == QDialog.Accepted:
-                    self.datamodel.options.SaveSettings()
-                    return True
+                self._show_provider_settings_dialog()

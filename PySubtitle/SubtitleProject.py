@@ -89,6 +89,8 @@ class SubtitleProject:
         if self.load_subtitles:
             # (re)load the source subtitle file if required
             subtitles = self.LoadSubtitleFile(filepath)
+            self.options.InitialiseInstructions()
+            self.subtitles.UpdateProjectSettings(self.options)
 
         if outputpath:
             subtitles.outputpath = outputpath
@@ -130,9 +132,6 @@ class SubtitleProject:
             self.subtitles = SubtitleFile(filepath)
             self.subtitles.LoadSubtitles()
             self.subtitles.project = self
-
-            self.options.InitialiseInstructions()
-            self.subtitles.UpdateProjectSettings(self.options)
 
         return self.subtitles
 
@@ -217,7 +216,12 @@ class SubtitleProject:
                 raise Exception("Unable to update project file, no subtitles")
             
             self.needsupdate = True
-            # self.WriteProjectFile()
+
+    def GetProjectSettings(self):
+        """
+        Return a dictionary of non-empty settings from the project file
+        """
+        return { key : value for key, value in self.subtitles.settings.items() if value }
 
     def UpdateProjectSettings(self, settings: dict):
         """

@@ -20,6 +20,8 @@ class OpenAiProvider(TranslationProvider):
             'max_instruct_tokens': int(os.getenv('MAX_INSTRUCT_TOKENS', 2048)),
         })
 
+        self.refresh_when_changed = ['api_key', 'api_base', 'model']
+
     @property
     def api_key(self):
         return self.settings.get('api_key')

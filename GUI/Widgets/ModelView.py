@@ -59,7 +59,16 @@ class ModelView(QWidget):
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.SetViewModel(datamodel.viewmodel)
         if datamodel.project:
-            self.SetProjectOptions(datamodel.project.options)
+            self.project_options.SetDataModel(datamodel)
+            self._toolbar.show()
+            self._toolbar.show_options = not datamodel.project_options.get('movie_name', None)
+
+            if self._toolbar.show_options:
+                self.project_options.OpenOptions()
+        else:
+            self.project_options.ClearForm()
+            self.project_options.hide()
+            self._toolbar.hide()
 
     def SetViewModel(self, viewmodel):
         self.content_view.Clear()
@@ -69,19 +78,6 @@ class ModelView(QWidget):
         else:
             self.scenes_view.Populate(viewmodel)
             self.content_view.Populate(viewmodel)
-
-    def SetProjectOptions(self, options):
-        self.project_options.Clear()
-        if not options:
-            self.project_options.hide()
-            self._toolbar.hide()
-        else:
-            self.project_options.Populate(options)
-
-            self._toolbar.show()
-            self._toolbar.show_options = not options.get('movie_name', None)
-            if self._toolbar.show_options:
-                self.project_options.OpenOptions()
 
     def ToggleProjectSettings(self, show = None):
         if self.project_options.isVisible() and not show:

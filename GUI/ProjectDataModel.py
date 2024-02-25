@@ -11,29 +11,48 @@ class ProjectDataModel:
     def __init__(self, project = None, options = None):
         self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
-        self.options = options or Options()
+        self.project_options = Options(options)
         self.mutex = QMutex()
 
-        if project and project.options:
-              self.options.update(project.options)
+        if project:
+            project_settings = project.GetProjectSettings()
+            self.project_options.update(project_settings)
 
-    def UpdateSettings(self, options : Options):
+        self.translation_provider : TranslationProvider = self.CreateTranslationProvider()
+
+    @property
+    def provider(self):
+        return self.translation_provider.name if self.translation_provider else None
+    
+    @property
+    def provider_settings(self):
+        return self.project_options.current_provider_settings
+    
+    @property
+    def available_models(self):
+        return self.translation_provider.available_models if self.translation_provider else []
+    
+    @property
+    def selected_model(self):
+        return self.translation_provider.selected_model if self.translation_provider else None
+
+    def UpdateSettings(self, settings : dict):
         """ Update any options that have changed """
-        if options.provider:
-            # TODO: cache the current translation provider
-            TranslationProvider.update_provider_settings(options)
-
-        settings = options.GetSettings()
-        updated_settings = {k: v for k, v in settings.items() if v != self.options.get(k)}
-
-        self.options.update(options)
+        self.project_options.update(settings)
 
         if self.project:
-            # Update project settings if any values have changed
-            self.project.UpdateProjectSettings(updated_settings)
+            # Restore project-specific settings
+            project_settings = self.project.GetProjectSettings()
+            self.project_options.update(project_settings)
+            TranslationProvider.update_provider_settings(self.project_options)
 
-            # Copy back any project settings that were not updated
-            self.options.update(self.project.options)
+        self._update_translation_provider()
+
+    def UpdateProjectSettings(self, settings : dict):
+        """ Update the project settings """
+        if self.project:
+            self.project.UpdateProjectSettings(settings)
+            self.project_options.update(self.project.GetProjectSettings())
 
     def IsProjectInitialised(self):
         """Check whether the project has been initialised (subtitles loaded and batched)"""
@@ -45,7 +64,7 @@ class ProjectDataModel:
 
     def NeedsAutosave(self):
         """Does the project have changes that should be auto-saved"""
-        return self.NeedsSave() and self.options.get('autosave')
+        return self.NeedsSave() and self.project_options.get('autosave')
     
     def SaveProject(self):
         if self.NeedsSave():
@@ -54,11 +73,23 @@ class ProjectDataModel:
     def GetLock(self):
         return QMutexLocker(self.mutex)
 
+    def CreateTranslationProvider(self):
+        """ Create a translation provider for the current settings """
+        TranslationProvider.update_provider_settings(self.project_options)
+        if not self.project_options.provider:
+            return None
+
+        return TranslationProvider.get_provider(self.project_options)
+    
+    def UpdateProviderSettings(self, settings : dict):
+        """ Update the settings for the translation provider """
+        self.provider_settings.update(settings)
+        if self.translation_provider:
+            self.translation_provider.UpdateSettings(settings)
+
     def ValidateProviderSettings(self):
         """Check if the translation provider is configured correctly."""
-        #TODO: cache the current translation provider
-        translation_provider : TranslationProvider = TranslationProvider.get_provider(self.options)
-        if not translation_provider or not translation_provider.ValidateSettings():
+        if not self.translation_provider or not self.translation_provider.ValidateSettings():
             self.PerformModelAction('Show Provider Settings', {})
             return False
 
@@ -94,6 +125,18 @@ class ProjectDataModel:
             self.CreateViewModel()
         elif self.viewmodel:
             self.viewmodel.AddUpdate(update)
+
+    def _update_translation_provider(self):
+        """
+        Create or update translation provider based on settings
+        """
+        if self.project_options.provider:
+            if self.provider and self.provider == self.project_options.provider:
+                self.translation_provider.UpdateSettings(self.provider_settings)
+            else:
+                self.translation_provider = self.CreateTranslationProvider()
+        else:
+            self.translation_provider = None
 
     @classmethod
     def RegisterActionHandler(cls, action_name : str, handler : callable):

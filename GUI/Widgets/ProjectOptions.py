@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal, QSignalBlocker
 from GUI.EditInstructionsDialog import EditInstructionsDialog
+from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Options import Options
@@ -26,31 +27,17 @@ class ProjectOptions(QGroupBox):
     """
     settingsChanged = Signal(dict)
 
-    def __init__(self, options=None):
+    def __init__(self):
         super().__init__()
         self.setTitle("Project Settings")
         self.setMinimumWidth(450)
-        self.layout = QVBoxLayout(self)
-        self.grid_layout = OptionsGrid()
 
-        self.settings = options.GetSettings() if options else {}
         self.provider_list = sorted(TranslationProvider.get_providers())
         self.model_list = []
+        self.widgets = {}
 
-        # Add options
-        self.AddSingleLineOption(0, "Movie Name", self.settings, 'movie_name')
-        self.AddSingleLineOption(1, "Target Language", self.settings, 'target_language')
-        self.AddCheckboxOption(2, "Include Original Text", self.settings, 'include_original')
-        self.AddMultiLineOption(3, "Description", self.settings, 'description')
-        self.AddMultiLineOption(4, "Names", self.settings, 'names')
-        self.AddMultiLineOption(5, "Substitutions", self.settings, 'substitutions')
-        self.AddCheckboxOption(6, "Substitute Partial Words", self.settings, 'match_partial_words')
-        self.AddDropdownOption(7, "Provider", self.settings, 'provider', self.provider_list)
-        self.AddDropdownOption(8, "Model", self.settings, 'model', self.model_list)
-        self.AddButtonOption(9, "", "Edit Instructions", self._edit_instructions)
-        self.AddButtonOption(10, "", "Copy From Another Project", self._copy_from_another_project)
-
-        self.Populate(self.settings)
+        self.layout = QVBoxLayout(self)
+        self.grid_layout = OptionsGrid()
 
         self.layout.addLayout(self.grid_layout)
 
@@ -59,55 +46,90 @@ class ProjectOptions(QGroupBox):
         Get a dictionary of the user's settings
         """
         settings = {
-            "movie_name": self.movie_name_input.text(),
-            "target_language": self.target_language_input.text(),
-            "include_original": self.include_original_input.isChecked(),
-            "description": self.description_input.toPlainText(),
-            "names": ParseNames(self.names_input.toPlainText()),
-            "substitutions": ParseSubstitutions(self.substitutions_input.toPlainText()),
-            "match_partial_words": self.match_partial_words_input.isChecked(),
-            "model": self.model_input.currentText(),
+            "movie_name": self.widgets["movie_name"].text(),
+            "target_language": self.widgets["target_language"].text(),
+            "include_original": self.widgets["include_original"].isChecked(),
+            "description": self.widgets["description"].toPlainText(),
+            "names": ParseNames(self.widgets["names"].toPlainText()),
+            "substitutions": ParseSubstitutions(self.widgets["substitutions"].toPlainText()),
+            "match_partial_words": self.widgets["match_partial_words"].isChecked(),
+            "model": self.widgets["model"].currentText(),
         }
 
         return settings
 
-    def AddSingleLineOption(self, row, label, settings, key):
+    def OpenOptions(self):
+        self._update_available_models()
+
+        self.show()
+
+    def SetDataModel(self, datamodel : ProjectDataModel):
+        self.model_list = datamodel.available_models
+
+        self.settings = datamodel.project.GetProjectSettings()
+        self.settings['model'] = datamodel.selected_model
+        self.settings['provider'] = datamodel.provider
+        self.BuildForm(self.settings)
+
+    def Populate(self):
+        with QSignalBlocker(self):
+            for key in self.settings:
+                if key in self.widgets:
+                    value = self.settings.get(key)
+                    self._setvalue(key, value)
+
+    def BuildForm(self, settings : dict):
+        self.ClearForm()
+        with QSignalBlocker(self):
+            self.AddSingleLineOption("Movie Name", settings, 'movie_name')
+            self.AddSingleLineOption("Target Language", settings, 'target_language')
+            self.AddCheckboxOption("Include Original Text", settings, 'include_original')
+            self.AddMultiLineOption("Description", settings, 'description')
+            self.AddMultiLineOption("Names", settings, 'names')
+            self.AddMultiLineOption("Substitutions", settings, 'substitutions')
+            self.AddCheckboxOption("Substitute Partial Words", settings, 'match_partial_words')
+            self.AddDropdownOption("Provider", settings, 'provider', self.provider_list)
+            self.AddDropdownOption("Model", settings, 'model', self.model_list)
+            self.AddButton("", "Edit Instructions", self._edit_instructions)
+            self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
+
+    def ClearForm(self):
+        self.current_row = 0
+        self.widgets = {}
+        with QSignalBlocker(self):
+            # Remove and delete all widgets from the form layout
+            for i in reversed(range(self.grid_layout.count())): 
+                widget = self.grid_layout.itemAt(i).widget()
+                if widget is not None:
+                    widget.deleteLater()
+
+    def AddSingleLineOption(self, label, settings, key):
         # Add label and input field for a single-line option
         label_widget = QLabel(label)
         input_widget = QLineEdit()
-        input_widget.setText(settings.get(key, ""))
+        self._settext(input_widget, settings.get(key, ""))
+        self._add_row(key, label_widget, input_widget)
         input_widget.editingFinished.connect(self._text_changed)
-        self.grid_layout.addWidget(label_widget, row, 0)
-        self.grid_layout.addWidget(input_widget, row, 1)
-        setattr(self, key + "_input", input_widget)
 
-    def AddMultiLineOption(self, row, label, settings, key):
+    def AddMultiLineOption(self, label, settings, key):
         # Add label and input field for a multi-line option
         label_widget = QLabel(label)
         input_widget = TextBoxEditor()
         input_widget.setAcceptRichText(False)
-        value = settings.get(key, "")
-        if isinstance(value, list):
-            value = '\n'.join(value)
-        input_widget.setPlainText(value)
+        self._settext(input_widget, settings.get(key, ""))
 
+        self._add_row(key, label_widget, input_widget)
         input_widget.editingFinished.connect(self._text_changed)
-        self.grid_layout.addWidget(label_widget, row, 0)
-        self.grid_layout.addWidget(input_widget, row, 1)
-        setattr(self, key + "_input", input_widget)
 
-    def AddCheckboxOption(self, row, label, settings, key):
+    def AddCheckboxOption(self, label, settings, key):
         label_widget = QLabel(label)
         input_widget = QCheckBox(self)
         value = settings.get(key, False)
         input_widget.setChecked(value)
+        self._add_row(key, label_widget, input_widget)
         input_widget.stateChanged.connect(self._check_changed)
 
-        self.grid_layout.addWidget(label_widget, row, 0)
-        self.grid_layout.addWidget(input_widget, row, 1)
-        setattr(self, key + "_input", input_widget)
-
-    def AddDropdownOption(self, row, label, settings, key, values):
+    def AddDropdownOption(self, label, settings, key, values):
         label_widget = QLabel(label)
         combo_box = QComboBox(self)
         combo_box.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
@@ -119,58 +141,32 @@ class ProjectOptions(QGroupBox):
             combo_box.setCurrentIndex(combo_box.findText(initial_value))
         
         combo_box.currentTextChanged.connect(lambda x: self._option_changed(key, x))
+        self._add_row(key, label_widget, combo_box)
 
-        self.grid_layout.addWidget(label_widget, row, 0)
-        self.grid_layout.addWidget(combo_box, row, 1)
-        setattr(self, key + "_input", combo_box)
-
-    def AddButtonOption(self, row, label, text, callable):
+    def AddButton(self, label, text, callable):
         label_widget = QLabel(label)
         button_widget = QPushButton(text)
         button_widget.clicked.connect(callable)
-        self.grid_layout.addWidget(label_widget, row, 0)
-        self.grid_layout.addWidget(button_widget, row, 1)
+        self.grid_layout.addWidget(label_widget, self.current_row, 0)
+        self.grid_layout.addWidget(button_widget, self.current_row, 1)
+        self.current_row += 1
 
-    def OpenOptions(self):
-        self._update_available_models()
+    def _add_row(self, key, label_widget, input_widget):
+        self.grid_layout.addWidget(label_widget, self.current_row, 0)
+        self.grid_layout.addWidget(input_widget, self.current_row, 1)
+        self.widgets[key] = input_widget
+        self.current_row += 1
 
-        self.show()
-
-    def Populate(self, settings):
-        if isinstance(settings, Options):
-            return self.Populate(settings.options)
-
-        if not self.model_list:
-            self.model_list = [ settings.get('model') ]
-
-        with QSignalBlocker(self):
-            for key in settings:
-                if hasattr(self, key + "_input"):
-                    value = settings.get(key)
-                    self._setvalue(key, value)
-
-        self.settings = settings
-
-    def Clear(self):
-        with QSignalBlocker(self):
-            for key in ["movie_name", "description", "names", "substitutions", "match_partial_words", "include_original", "model"]:
-                input = getattr(self, key + "_input")
-                if input:
-                    if isinstance(input, QCheckBox):
-                        input.setChecked(False)
-                    else:
-                        input.clear()
-                else:
-                    logging.error(f"No input found for {key}")
-        
     def _setvalue(self, key, value):
-        widget = getattr(self, key + "_input")
+        widget = self.widgets.get(key)
         if isinstance(widget, QCheckBox):
             widget.setChecked(value or False)
         elif isinstance(widget, QComboBox):
             self._update_combo_box(widget, value)
-        else:
+        elif widget is not None:
             self._settext(widget, value)
+        else:
+            raise ValueError(f"No widget for key {key}")
 
     def _settext(self, widget, value):
         if isinstance(value, list):
@@ -199,14 +195,11 @@ class ProjectOptions(QGroupBox):
             self._update_available_models()
 
     def _update_available_models(self):
-        options = Options(self.settings)
-        self.model_list = TranslationProvider.get_available_models(options)
-    
-        model_input = getattr(self, "model_input")
+        model_input = self.widgets.get('model')
         if model_input:
             model_input.clear()
             model_input.addItems(self.model_list)
-            self._update_combo_box(model_input, options.model)
+            self._update_combo_box(model_input, self.settings.get('model'))
 
     def _edit_instructions(self):
         dialog = EditInstructionsDialog(self.settings, parent=self)
@@ -231,7 +224,8 @@ class ProjectOptions(QGroupBox):
                 if not subtitles:
                     raise Exception("Invalid project file")
 
-                self.Populate(subtitles.settings)
+                self.settings.update(subtitles.settings)
+                self.Populate()
 
             except Exception as e:
                 logging.error(f"Unable to read project file: {str(e)}")

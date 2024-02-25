@@ -11,7 +11,7 @@ class LoadSubtitleFile(Command):
         super().__init__()
         self.filepath = filepath
         self.project : SubtitleProject = None
-        self.options : Options = options
+        self.options : Options = Options(options)
 
     def execute(self):
         logging.debug(f"Executing LoadSubtitleFile {self.filepath}")
@@ -28,7 +28,7 @@ class LoadSubtitleFile(Command):
                 return False
             
             self.project = project
-            self.datamodel = ProjectDataModel(project, project.options)
+            self.datamodel = ProjectDataModel(project, self.options)
 
             if self.datamodel.IsProjectInitialised():
                 self.datamodel.CreateViewModel()

@@ -38,6 +38,7 @@ class ProjectActions(QObject):
     showProviderSettings = Signal()
     toggleProjectSettings = Signal()
     showAboutDialog = Signal()
+    loadSubtitleFile = Signal(str)
 
     _actions = {}
 
@@ -112,8 +113,7 @@ class ProjectActions(QObject):
         filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")
 
         if filepath:
-            command = LoadSubtitleFile(filepath, self.datamodel.options)
-            self._issue_command(command)
+            self.loadSubtitleFile.emit(filepath)
 
     def _save_project_file(self):
         project : SubtitleProject = self.datamodel.project
@@ -140,7 +140,7 @@ class ProjectActions(QObject):
         """
         Check if the translation provider is configured correctly.
         """
-        self._issue_command(CheckProviderSettings(datamodel.options))
+        self._issue_command(CheckProviderSettings(datamodel.project_options))
 
     def _show_provider_settings(self, datamodel : ProjectDataModel):
         """
@@ -200,7 +200,7 @@ class ProjectActions(QObject):
 
         logging.debug(f"Translate selection of {str(selection)}")
 
-        multithreaded = len(selection.scenes) > 1 and datamodel.options.allow_multithreaded_translation
+        multithreaded = len(selection.scenes) > 1 and datamodel.project_options.allow_multithreaded_translation
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
@@ -254,7 +254,7 @@ class ProjectActions(QObject):
         if batch:
             if batch.errors:
                 # re-run validations to clear errors
-                batch.Validate(datamodel.options)
+                batch.Validate(datamodel.project_options)
 
             update = {
                 'originals' : { line_number : { 'text' : original_text }},
