@@ -1,6 +1,7 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
 from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
+from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
@@ -22,24 +23,23 @@ class NewProjectSettings(QDialog):
         'prompt': (str, "High-level instructions for the translator")
     }
 
-    def __init__(self, project : SubtitleProject, parent=None):
+    def __init__(self, datamodel : ProjectDataModel, parent=None):
         super(NewProjectSettings, self).__init__(parent)
         self.setWindowTitle("Project Settings")
         self.setMinimumWidth(800)
 
         self.fields = {}
 
-        self.project : SubtitleProject = project
-        self.settings = project.options.GetSettings()
+        self.project : SubtitleProject = datamodel.project
+        self.settings = datamodel.project_options.GetSettings()
  
-        self.providers = sorted(TranslationProvider.get_providers())
+        self.providers = datamodel.available_providers
         self.OPTIONS['provider'] = (self.providers, self.OPTIONS['provider'][1])
+        self.settings['provider'] = datamodel.provider
 
-        provider_class = TranslationProvider.get_provider(project.options)
-        if provider_class:
-            available_models = provider_class.available_models
-            self.OPTIONS['model'] = (available_models, self.OPTIONS['model'][1])
-            self.settings['model'] = provider_class.selected_model
+        available_models = datamodel.available_models
+        self.OPTIONS['model'] = (available_models, self.OPTIONS['model'][1])
+        self.settings['model'] = datamodel.selected_model
 
         instruction_files = GetInstructionFiles()
         if instruction_files:
@@ -90,8 +90,6 @@ class NewProjectSettings(QDialog):
 
                 except Exception as e:
                     logging.error(f"Unable to load instructions from {instructions_file}: {e}")
-
-            self.project.UpdateProjectSettings(self.settings)
 
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")

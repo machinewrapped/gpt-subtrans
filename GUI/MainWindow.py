@@ -240,7 +240,7 @@ class MainWindow(QMainWindow):
                 self.datamodel = command.datamodel
                 self.model_viewer.SetDataModel(command.datamodel)
                 if not self.datamodel.IsProjectInitialised():
-                    self._show_new_project_Settings(self.datamodel.project)
+                    self._show_new_project_Settings(self.datamodel)
 
             if command.model_update.HasUpdate():
                 self.datamodel.UpdateViewModel(command.model_update)
@@ -307,13 +307,18 @@ class MainWindow(QMainWindow):
 
             self.QueueCommand(CheckProviderSettings(options))
 
-    def _show_new_project_Settings(self, project : SubtitleProject):
-        result = NewProjectSettings(project, self).exec()
+    def _show_new_project_Settings(self, datamodel : ProjectDataModel):
+        try:
+            dialog = NewProjectSettings(datamodel, self)
 
-        if result == QDialog.Accepted:
-            logging.info("Project settings set")
-            self.QueueCommand(CheckProviderSettings(project.options))
-            self.QueueCommand(BatchSubtitlesCommand(project))
+            if dialog.exec() == QDialog.Accepted:
+                datamodel.UpdateProjectSettings(dialog.settings)
+                self.QueueCommand(CheckProviderSettings(datamodel.project_options))
+                self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
+                logging.info("Project settings set")
+
+        except Exception as e:
+            logging.error(f"Error initialising project settings: {str(e)}")
 
     def _on_error(self, error : object):
         logging.error(str(error))

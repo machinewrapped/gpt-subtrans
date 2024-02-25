@@ -29,6 +29,10 @@ class ProjectDataModel:
         return self.project_options.current_provider_settings
     
     @property
+    def available_providers(self):
+        return self.project_options.available_providers if self.project_options else []
+    
+    @property
     def available_models(self):
         return self.translation_provider.available_models if self.translation_provider else []
     

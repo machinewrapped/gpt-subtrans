@@ -3,6 +3,7 @@ from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
+from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -15,9 +16,10 @@ class BatchSubtitlesCommand(Command):
     """
     Attempt to partition subtitles into scenes and batches based on thresholds and limits.
     """
-    def __init__(self, project : SubtitleProject):
+    def __init__(self, project : SubtitleProject, options : Options):
         super().__init__()
         self.project : SubtitleProject = project
+        self.options : Options = options
 
     def execute(self):
         logging.info("Executing BatchSubtitlesCommand")
@@ -27,7 +29,7 @@ class BatchSubtitlesCommand(Command):
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
-        batcher = CreateSubtitleBatcher(project.options)
+        batcher = CreateSubtitleBatcher(self.options)
         project.subtitles.AutoBatch(batcher)
 
         project.WriteProjectFile()
