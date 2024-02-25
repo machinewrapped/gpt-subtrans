@@ -35,7 +35,7 @@ class InstructGPTClient(OpenAIClient):
                     prompt=prompt,
                     temperature=temperature,
                     n=1,
-                    max_tokens=self.max_tokens
+                    max_tokens=self.max_instruct_tokens
                 )
 
                 if self.aborted:
