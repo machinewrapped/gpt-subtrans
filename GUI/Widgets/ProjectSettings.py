@@ -35,6 +35,7 @@ class ProjectSettings(QGroupBox):
         self.provider_list = sorted(TranslationProvider.get_providers())
         self.model_list = []
         self.widgets = {}
+        self.settings = {}
 
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
@@ -46,14 +47,15 @@ class ProjectSettings(QGroupBox):
         Get a dictionary of the user's settings
         """
         settings = {
-            "movie_name": self.widgets["movie_name"].text(),
-            "target_language": self.widgets["target_language"].text(),
-            "include_original": self.widgets["include_original"].isChecked(),
-            "description": self.widgets["description"].toPlainText(),
-            "names": ParseNames(self.widgets["names"].toPlainText()),
-            "substitutions": ParseSubstitutions(self.widgets["substitutions"].toPlainText()),
-            "match_partial_words": self.widgets["match_partial_words"].isChecked(),
-            "model": self.widgets["model"].currentText(),
+            'movie_name': self.widgets['movie_name'].text(),
+            'target_language': self.widgets['target_language'].text(),
+            'include_original': self.widgets['include_original'].isChecked(),
+            'description': self.widgets['description'].toPlainText(),
+            'names': ParseNames(self.widgets['names'].toPlainText()),
+            'substitutions': ParseSubstitutions(self.widgets['substitutions'].toPlainText()),
+            'match_partial_words': self.widgets['match_partial_words'].isChecked(),
+            'model': self.widgets['model'].currentText() if 'model' in self.widgets else self.settings.get('model'),
+            'provider': self.widgets['provider'].currentText() if 'provider' in self.widgets else self.settings.get('provider'),
         }
 
         return settings
@@ -88,8 +90,10 @@ class ProjectSettings(QGroupBox):
             self.AddMultiLineOption("Names", settings, 'names')
             self.AddMultiLineOption("Substitutions", settings, 'substitutions')
             self.AddCheckboxOption("Substitute Partial Words", settings, 'match_partial_words')
-            self.AddDropdownOption("Provider", settings, 'provider', self.provider_list)
-            self.AddDropdownOption("Model", settings, 'model', self.model_list)
+            if len(self.provider_list) > 1:
+                self.AddDropdownOption("Provider", settings, 'provider', self.provider_list)
+            if len(self.model_list) > 1:
+                self.AddDropdownOption("Model", settings, 'model', self.model_list)
             self.AddButton("", "Edit Instructions", self._edit_instructions)
             self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
 
