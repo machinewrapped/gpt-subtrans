@@ -174,7 +174,7 @@ class Options:
                 save_dict['version'] = default_options['version']
 
                 with open(settings_path, "w", encoding="utf-8") as settings_file:
-                    json.dump(save_dict, settings_file, ensure_ascii=False, indent=4)
+                    json.dump(save_dict, settings_file, ensure_ascii=False, indent=4, sort_keys=True)
 
             return True
 
