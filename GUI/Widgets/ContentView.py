@@ -1,6 +1,6 @@
 import logging
-from PySide6.QtWidgets import QSplitter, QVBoxLayout, QWidget, QSizePolicy, QDialog
-from PySide6.QtCore import Qt, QMutexLocker, Signal, Slot
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QDialog
+from PySide6.QtCore import Signal, Slot
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModel import LineItem, ProjectViewModel
 from GUI.Widgets.Editors import EditSubtitleDialog

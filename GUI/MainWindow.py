@@ -30,7 +30,6 @@ from GUI.Widgets.ModelView import ModelView
 from GUI.NewProjectSettings import NewProjectSettings
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import ProviderConfigurationError
-from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__

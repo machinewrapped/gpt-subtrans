@@ -8,7 +8,6 @@ from GUI.ProjectToolbar import ProjectToolbar
 from GUI.Widgets.ScenesView import ScenesView
 from GUI.Widgets.ContentView import ContentView
 from GUI.Widgets.ProjectSettings import ProjectSettings
-from PySubtitle.Options import Options
 
 class ModelView(QWidget):
     settingsChanged = Signal(dict)
