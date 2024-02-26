@@ -197,6 +197,8 @@ class DropdownOptionWidget(OptionWidget):
             self.combo_box.addItem(value)
             if selected_value and value == selected_value:
                 self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
+
+        self.combo_box.setEnabled(len(values) > 1)
     
     def SetEnabled(self, enabled : bool):
         self.combo_box.setEnabled(enabled)
