@@ -7,7 +7,6 @@ from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
-from PySubtitle.TranslationProvider import TranslationProvider
 
 class NewProjectSettings(QDialog):
     OPTIONS = {
