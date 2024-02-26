@@ -4,13 +4,11 @@ from PySide6.QtWidgets import (
     QVBoxLayout, 
     QDialogButtonBox,
     QFrame,
-    QMessageBox 
     )
 
 from GUI.GuiHelpers import GetThemeNames
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget, TextOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget
 from PySubtitle.Options import Options
-from PySubtitle.TranslationProvider import TranslationProvider
 
 class FirstRunOptions(QDialog):
     OPTIONS = {
@@ -40,8 +38,8 @@ class FirstRunOptions(QDialog):
         self.form_layout = QFormLayout(settings_widget)
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        for key, setting in self.OPTIONS.items():
-            key_type, tooltip = setting
+        for key, option in self.OPTIONS.items():
+            key_type, tooltip = option
             field : OptionWidget = CreateOptionWidget(key, options.get(key), key_type, tooltip=tooltip)
             self.form_layout.addRow(field.name, field)
             self.controls[key] = field
