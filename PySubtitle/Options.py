@@ -211,7 +211,7 @@ class Options:
 
         if not self.provider_settings:
             self.options['provider_settings'] = {'OpenAI': {}} if self.options.get('api_key') else {}
-            self.MoveSettingsToProvider('OpenAI', ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens', 'rate_limit'])
+            self.MoveSettingsToProvider('OpenAI', ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens', 'temperature', 'rate_limit'])
 
         current_version = default_options['version']
         self.options['version'] = current_version
