@@ -98,8 +98,11 @@ class SettingsDialog(QDialog):
                 for row in range(layout.rowCount()):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
                     if section_name == self.PROVIDER_SECTION:
-                        provider = self.settings.get('provider')
-                        self.provider_settings[provider][field.key] = field.GetValue()
+                        if field.key == 'provider':
+                            self.settings[field.key] = field.GetValue()
+                        else:
+                            provider = self.settings.get('provider')
+                            self.provider_settings[provider][field.key] = field.GetValue()
                     else:
                         self.settings[field.key] = field.GetValue()
             
