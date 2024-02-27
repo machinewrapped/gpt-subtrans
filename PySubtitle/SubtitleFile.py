@@ -30,8 +30,8 @@ class SubtitleFile:
         self.outputpath = outputpath or None
 
         self.settings = {
-            'provider': "",
-            'model': "",
+            'provider': None,
+            'model': None,
             'prompt': "",
             'target_language': "",
             'instructions': "",
