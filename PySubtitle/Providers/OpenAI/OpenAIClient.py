@@ -95,7 +95,7 @@ class OpenAIClient(TranslationClient):
 
             client = openai.OpenAI(
                 api_key=api_key,
-                base_url=api_base
+                base_url=api_base or None
             )
             response = client.models.list()
 
