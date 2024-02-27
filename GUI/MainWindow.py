@@ -63,6 +63,7 @@ class MainWindow(QMainWindow):
 
         options.add('available_providers', sorted(TranslationProvider.get_providers()))
 
+        # TODO: move global_options to the datamodel?
         self.global_options = options
 
         LoadStylesheet(options.theme)
