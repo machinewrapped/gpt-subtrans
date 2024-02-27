@@ -59,9 +59,6 @@ class TranslationProvider:
             settings.MoveSettingsToProvider(self.name, self.settings.keys())
             settings = settings.provider_settings.get(self.name, {})
 
-        if "provider" in settings:
-            raise ValueError("Why are you telling the provider who it is?")
-
         # Update the settings
         for k, v in settings.items():
             if k in self.settings:
