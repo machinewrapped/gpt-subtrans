@@ -50,10 +50,19 @@ class TranslationProvider:
         """
         return True
     
-    def UpdateSettings(self, settings : dict):
+    def UpdateSettings(self, settings : dict | Options):
         """
         Update the settings for the provider
         """
+        if isinstance(settings, Options):
+            # Move provider-specific settings from the main options to the provider_settings section
+            settings.MoveSettingsToProvider(self.name, self.settings.keys())
+            settings = settings.provider_settings.get(self.name, {})
+
+        if "provider" in settings:
+            raise ValueError("Why are you telling the provider who it is?")
+
+        # Update the settings
         for k, v in settings.items():
             if k in self.settings:
                 self.settings[k] = v
@@ -82,13 +91,18 @@ class TranslationProvider:
         if not isinstance(options, Options):
             raise ValueError("Options object required")
 
-        name = options.provider
-        if not name:
+        if not options.provider:
             raise ValueError("No provider set")
 
         provider_settings = options.current_provider_settings
 
-        return cls.create_provider(name, provider_settings)
+        translation_provider : TranslationProvider = cls.create_provider(options.provider, provider_settings)
+        if not translation_provider:
+            raise ValueError(f"Unable to create translation provider '{options.provider}'")
+
+        translation_provider.UpdateSettings(options)
+
+        return translation_provider
 
     @classmethod
     def create_provider(cls, name, provider_settings):
@@ -107,21 +121,6 @@ class TranslationProvider:
         for loader, module_name, is_pkg in pkgutil.iter_modules(package.__path__, package.__name__ + '.'):
             logging.debug(f"Importing provider: {module_name}")
             importlib.import_module(module_name)
-
-    @classmethod
-    def update_provider_settings(cls, options : Options):
-        """ Update the provider settings from the main options """
-        provider = options.provider
-        if not provider:
-            raise ValueError("No provider set")
-        
-        if provider not in options.provider_settings:
-            options.provider_settings[provider] = {}
-
-        provider_class : TranslationProvider = cls.get_provider(options)
-
-        for setting in provider_class.settings.keys():
-            options.MoveSettingToProvider(provider, setting)
     
     @classmethod
     def get_available_models(cls, options : Options):

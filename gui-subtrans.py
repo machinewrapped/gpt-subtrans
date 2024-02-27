@@ -118,10 +118,6 @@ if __name__ == "__main__":
     options.update(arguments)
     options.InitialiseInstructions()
 
-    # Update provider settings from command line args/environment variables
-    if options.provider:
-        TranslationProvider.update_provider_settings(options)
-
     # Launch the GUI
     app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()

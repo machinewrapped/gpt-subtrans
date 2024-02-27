@@ -98,8 +98,6 @@ try:
     })
 
     # Update provider settings with any relevant command line arguments
-    TranslationProvider.update_provider_settings(options)
-
     translation_provider = TranslationProvider.get_provider(options)
     if not translation_provider:
         raise ValueError(f"Unable to create translation provider {options.provider}")

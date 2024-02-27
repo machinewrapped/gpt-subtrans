@@ -48,7 +48,6 @@ class ProjectDataModel:
             # Restore project-specific settings
             project_settings = self.project.GetProjectSettings()
             self.project_options.update(project_settings)
-            TranslationProvider.update_provider_settings(self.project_options)
 
         self._update_translation_provider()
 
@@ -57,7 +56,6 @@ class ProjectDataModel:
         if self.project:
             self.project.UpdateProjectSettings(settings)
             self.project_options.update(settings)
-            TranslationProvider.update_provider_settings(self.project_options)
             self._update_translation_provider()
 
     def IsProjectInitialised(self):
@@ -81,7 +79,6 @@ class ProjectDataModel:
 
     def CreateTranslationProvider(self):
         """ Create a translation provider for the current settings """
-        TranslationProvider.update_provider_settings(self.project_options)
         if not self.project_options.provider:
             return None
 
@@ -136,13 +133,15 @@ class ProjectDataModel:
         """
         Create or update translation provider based on settings
         """
-        if self.project_options.provider:
-            if self.provider and self.provider == self.project_options.provider:
-                self.translation_provider.UpdateSettings(self.provider_settings)
-            else:
-                self.translation_provider = self.CreateTranslationProvider()
-        else:
+        if not self.project_options.provider:
             self.translation_provider = None
+            return
+        
+        if not self.provider or self.provider != self.project_options.provider:
+            self.translation_provider = self.CreateTranslationProvider()
+            return
+
+        self.translation_provider.UpdateSettings(self.project_options)
 
     @classmethod
     def RegisterActionHandler(cls, action_name : str, handler : callable):

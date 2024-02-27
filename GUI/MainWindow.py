@@ -165,6 +165,30 @@ class MainWindow(QMainWindow):
             if not self.datamodel.ValidateProviderSettings():
                 logging.warning("Translation provider settings are not valid. Please check the settings.")
 
+    def _first_run(self, options: Options):
+        first_run_options = FirstRunOptions(options, self)
+        result = first_run_options.exec()
+
+        if result == QDialog.Accepted:
+            logging.info("First run options set")
+            initial_settings = first_run_options.GetSettings()
+            self._update_settings(initial_settings)
+
+            self.QueueCommand(CheckProviderSettings(options))
+
+    def _show_new_project_Settings(self, datamodel : ProjectDataModel):
+        try:
+            dialog = NewProjectSettings(datamodel, self)
+
+            if dialog.exec() == QDialog.Accepted:
+                datamodel.UpdateProjectSettings(dialog.settings)
+                self.QueueCommand(CheckProviderSettings(datamodel.project_options))
+                self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
+                logging.info("Project settings set")
+
+        except Exception as e:
+            logging.error(f"Error initialising project settings: {str(e)}")
+
     def _show_about_dialog(self):
         _ = AboutDialog(self).exec()
 
@@ -292,33 +316,6 @@ class MainWindow(QMainWindow):
     def _on_project_settings_changed(self, settings: dict):
         if settings and self.datamodel:
             self.datamodel.UpdateProjectSettings(settings)
-
-    def _first_run(self, options: Options):
-        first_run_options = FirstRunOptions(options, self)
-        result = first_run_options.exec()
-
-        if result == QDialog.Accepted:
-            logging.info("First run options set")
-            options.update(first_run_options.GetSettings())
-            options.add('firstrun', False)
-            options.SaveSettings()
-            self.global_options = options
-            LoadStylesheet(options.theme)
-
-            self.QueueCommand(CheckProviderSettings(options))
-
-    def _show_new_project_Settings(self, datamodel : ProjectDataModel):
-        try:
-            dialog = NewProjectSettings(datamodel, self)
-
-            if dialog.exec() == QDialog.Accepted:
-                datamodel.UpdateProjectSettings(dialog.settings)
-                self.QueueCommand(CheckProviderSettings(datamodel.project_options))
-                self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
-                logging.info("Project settings set")
-
-        except Exception as e:
-            logging.error(f"Error initialising project settings: {str(e)}")
 
     def _on_error(self, error : object):
         logging.error(str(error))

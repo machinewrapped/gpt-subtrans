@@ -194,14 +194,14 @@ class Options:
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
 
-    def MoveSettingToProvider(self, provider, setting):
+    def MoveSettingsToProvider(self, provider : str, keys : list):
         """ Move a setting from the main options to a provider's settings """
         if provider not in self.provider_settings:
             self.provider_settings[provider] = {}
 
-        if setting in self.options:
-            self.provider_settings[provider][setting] = self.options[setting]
-            del self.options[setting]
+        settings_to_move = {key: self.options.pop(key) for key in keys if key in self.options}
+        if settings_to_move:
+            self.provider_settings[provider].update(settings_to_move)
 
     def _update_version(self):
         """ Update settings from older versions of the application """
@@ -211,8 +211,7 @@ class Options:
 
         if not self.provider_settings:
             self.options['provider_settings'] = {'OpenAI': {}} if self.options.get('api_key') else {}
-            for setting in ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens']:
-                self.MoveSettingToProvider('OpenAI', setting)
+            self.MoveSettingsToProvider('OpenAI', ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens', 'rate_limit'])
 
         current_version = default_options['version']
         self.options['version'] = current_version

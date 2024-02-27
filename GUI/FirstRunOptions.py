@@ -24,9 +24,6 @@ class FirstRunOptions(QDialog):
 
         self.options = Options(options)
 
-        if not options.provider:
-            options.provider = "OpenAI"
-
         self.OPTIONS['provider'] = (options.available_providers, self.OPTIONS['provider'][1])
 
         self.OPTIONS['theme'] = (['default'] + GetThemeNames(), self.OPTIONS['theme'][1])
@@ -38,9 +35,12 @@ class FirstRunOptions(QDialog):
         self.form_layout = QFormLayout(settings_widget)
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
+        settings = self.options.GetSettings()
+        settings['provider'] = settings.get('provider', "OpenAI")
+
         for key, option in self.OPTIONS.items():
             key_type, tooltip = option
-            field : OptionWidget = CreateOptionWidget(key, options.get(key), key_type, tooltip=tooltip)
+            field : OptionWidget = CreateOptionWidget(key, settings.get(key), key_type, tooltip=tooltip)
             self.form_layout.addRow(field.name, field)
             self.controls[key] = field
 
@@ -65,5 +65,7 @@ class FirstRunOptions(QDialog):
         super().accept()
 
     def GetSettings(self):
-        return self.options.GetSettings()
+        initial_settings = self.options.GetSettings()
+        initial_settings['firstrun'] = False
+        return initial_settings
 
