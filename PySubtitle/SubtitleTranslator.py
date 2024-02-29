@@ -197,17 +197,6 @@ class SubtitleTranslator:
                     if self.aborted:
                         raise TranslationAbortedError()
 
-                    if translation.quota_reached:
-                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
-
-                    if translation.reached_token_limit:
-                        # Try again without the context to keep the tokens down
-                        logging.warning("Hit API token limit, retrying batch without context...")
-                        translation = self.client.RequestTranslation(self.prompt, originals, None)
-
-                        if translation.reached_token_limit:
-                            raise TranslationError(f"Too many tokens in translation", translation)
-
                 if translation:
                     translation.ParseResponse()
 

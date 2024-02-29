@@ -4,6 +4,7 @@ import openai
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Providers.OpenAI.GPTPrompt import GPTPrompt
 from PySubtitle.Providers.OpenAI.GPTTranslation import GPTTranslation
+from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
 
@@ -70,6 +71,20 @@ class OpenAIClient(TranslationClient):
         gpt_translation = self._send_messages(gpt_prompt.messages)
 
         translation = GPTTranslation(gpt_translation, gpt_prompt)
+
+        if translation.quota_reached:
+            raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
+
+        if translation.reached_token_limit:
+            # Try again without the context to keep the tokens down
+            logging.warning("Hit API token limit, retrying batch without context...")
+            gpt_prompt.GenerateReducedMessages()
+            gpt_translation = self._send_messages(gpt_prompt.messages)
+
+            translation = GPTTranslation(gpt_translation, gpt_prompt)
+
+            if translation.reached_token_limit:
+                raise TranslationError(f"Too many tokens in translation", translation)
 
         return translation
     

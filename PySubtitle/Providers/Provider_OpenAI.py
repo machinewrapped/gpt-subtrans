@@ -1,7 +1,9 @@
+import logging
 import os
+import openai
+
 from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
 from PySubtitle.Providers.OpenAI.InstructGPTClient import InstructGPTClient
-from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
 
