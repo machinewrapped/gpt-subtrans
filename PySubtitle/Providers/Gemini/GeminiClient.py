@@ -21,6 +21,12 @@ class GeminiClient(TranslationClient):
 
         self.gemini_config = genai.GenerationConfig(candidate_count=1, temperature=self.temperature)
         self.gemini_model = genai.GenerativeModel(self.model)
+        self.safety_settings = {
+            "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
+            "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
+            "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
+            "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",            
+        }
 
     @property
     def api_key(self):
@@ -71,30 +77,27 @@ class GeminiClient(TranslationClient):
         prompt = self._build_prompt(messages)
 
         try:
-            response = self.gemini_model.generate_content(prompt, generation_config=self.gemini_config)
+            response = self.gemini_model.generate_content(prompt, 
+                                                          generation_config=self.gemini_config, 
+                                                          safety_settings=self.safety_settings)
 
             if self.aborted:
                 raise TranslationAbortedError()
 
-            if hasattr(response, 'text'):
-                response_text = response.text
-            else:
-                # We only expect one choice to be returned as we have 0 temperature
-                if not response.candidates:
-                    raise NoTranslationError("No candidates returned in the response", response)
+            if not response.candidates:
+                raise NoTranslationError("No candidates returned in the response", response)
 
-                candidate = response.candidates[0]
-                if not candidate.content.parts:
-                    raise NoTranslationError("Gemini response has no content parts")
+            candidate = response.candidates[0]
+            if not candidate.content.parts:
+                raise NoTranslationError("Gemini response has no content parts", response)
 
-                response_text = "\n".join(part.text for part in candidate.content.parts)
+            response_text = "\n".join(part.text for part in candidate.content.parts)
 
             if not response_text:
-                raise NoTranslationError("Gemini response is empty")
+                raise NoTranslationError("Gemini response is empty", response)
 
             translation['text'] = response_text
 
-            # Return the response if the API call succeeds
             return translation
         
         except Exception as e:
