@@ -67,12 +67,34 @@ class OpenAiProvider(TranslationProvider):
         return options
 
     def GetAvailableModels(self) -> list[str]:
-        if not self.api_key:
+        """
+        Returns a list of possible values for the LLM model 
+        """
+        try:
+            if not hasattr(openai, "OpenAI"):
+                raise Exception("The OpenAI library is out of date and must be updated")
+
+            if not self.api_key:
+                logging.debug("No OpenAI API key provided")
+                return []
+
+            client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url=self.api_base or None
+            )
+            response = client.models.list()
+
+            if not response or not response.data:
+                return []
+
+            model_list = [ model.id for model in response.data if model.id.startswith('gpt') and model.id.find('vision') < 0 ]
+            
+            return sorted(model_list)
+
+        except Exception as e:
+            logging.error(f"Unable to retrieve available AI models: {str(e)}")
             return []
-        
-        models = OpenAIClient.GetAvailableModels(self.api_key, self.api_base)
-        return models or []
-    
+
     def ValidateSettings(self) -> bool:
         """
         Validate the settings for the provider

@@ -95,32 +95,3 @@ class OpenAIClient(TranslationClient):
     def GetParser(self):
         return TranslationParser(self.settings)
     
-    @classmethod
-    def GetAvailableModels(cls, api_key : str, api_base : str):
-        """
-        Returns a list of possible values for the LLM model 
-        """
-        try:
-            if not hasattr(openai, "OpenAI"):
-                raise Exception("The OpenAI library is out of date and must be updated")
-
-            if not api_key:
-                logging.debug("No OpenAI API key provided")
-                return []
-
-            client = openai.OpenAI(
-                api_key=api_key,
-                base_url=api_base or None
-            )
-            response = client.models.list()
-
-            if not response or not response.data:
-                return []
-
-            model_list = [ model.id for model in response.data if model.id.startswith('gpt') and model.id.find('vision') < 0 ]
-            
-            return sorted(model_list)
-
-        except Exception as e:
-            logging.error(f"Unable to retrieve available AI models: {str(e)}")
-            return []
