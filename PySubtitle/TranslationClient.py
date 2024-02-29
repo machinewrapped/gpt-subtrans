@@ -8,7 +8,7 @@ linesep = '\n'
 
 class TranslationClient:
     """
-    Handles communication with OpenAI to request translations
+    Handles communication with the translation provider
     """
     def __init__(self, settings : dict):
         self.settings = settings
@@ -48,7 +48,7 @@ class TranslationClient:
 
     def RequestRetranslation(self, translation : Translation, errors : list[TranslationError]):
         """
-        Generate the messages to send to OpenAI to request a retranslation
+        Generate the messages to request a retranslation
         """
         prompt = translation.prompt
 
