@@ -36,6 +36,7 @@ class ProjectSettings(QGroupBox):
         self.model_list = []
         self.widgets = {}
         self.settings = {}
+        self.current_provider = None
 
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
@@ -67,6 +68,7 @@ class ProjectSettings(QGroupBox):
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.model_list = datamodel.available_models
+        self.current_provider = datamodel.provider
 
         self.settings = datamodel.project.GetProjectSettings()
         self.settings['model'] = datamodel.selected_model
@@ -227,6 +229,10 @@ class ProjectSettings(QGroupBox):
                 subtitles : SubtitleFile = source.ReadProjectFile(file_name)
                 if not subtitles:
                     raise Exception("Invalid project file")
+
+                # Don't copy provider because we don't have the settings for it (including model list)
+                subtitles.settings.pop('provider', None)
+                subtitles.settings.pop('model', None)
 
                 self.settings.update(subtitles.settings)
                 self.Populate()
