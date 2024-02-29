@@ -18,6 +18,10 @@ class TranslationClient:
 
         if not self.instructions:
             raise TranslationError("No instructions provided for the translator")
+        
+    @property
+    def rate_limit(self):
+        return self.settings.get('rate_limit')
 
     def RequestTranslation(self, prompt : str, lines : list, context : dict) -> Translation:
         """
@@ -35,7 +39,7 @@ class TranslationClient:
             logging.debug(f"Response:\n{translation.text}")
 
         # If a rate limit is replied ensure a minimum duration for each request
-        rate_limit = self.settings.get('rate_limit')
+        rate_limit = self.rate_limit
         if rate_limit and rate_limit > 0.0:
             minimum_duration = 60.0 / rate_limit
 
