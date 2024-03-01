@@ -1,6 +1,7 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
 from GUI.GuiHelpers import ClearForm, GetInstructionFiles, GetThemeNames, LoadInstructionsResource
+from PySide6.QtCore import Qt
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.Options import Options

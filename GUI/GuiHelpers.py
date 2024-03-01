@@ -2,9 +2,10 @@ from datetime import timedelta
 import logging
 import os
 import sys
+import darkdetect
 
 from srt import timedelta_to_srt_timestamp
-from PySide6.QtWidgets import (QFormLayout)
+from PySide6.QtWidgets import (QApplication, QFormLayout)
 
 from PySubtitle.Instructions import Instructions
 
@@ -23,6 +24,19 @@ def GetThemeNames():
 
     themes.sort()
     return themes 
+
+def LoadStylesheet(name):
+    if not name or name == "default":
+        name = "subtrans-dark" if darkdetect.isDark() else "subtrans"
+
+    filepath = GetResourcePath(os.path.join("theme", f"{name}.qss"))
+    logging.info(f"Loading stylesheet from {filepath}")
+    with open(filepath, 'r') as file:
+        stylesheet = file.read()
+    QApplication.instance().setStyleSheet(stylesheet)
+    return stylesheet
+
+
 
 def GetInstructionFiles():
     instruction_path = GetResourcePath("")

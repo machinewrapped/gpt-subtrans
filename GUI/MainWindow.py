@@ -1,7 +1,6 @@
 import os
 import logging
 import dotenv
-import darkdetect
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
@@ -19,7 +18,7 @@ from GUI.CommandQueue import ClearCommandQueue, CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
-from GUI.GuiHelpers import GetResourcePath
+from GUI.GuiHelpers import GetResourcePath, LoadStylesheet
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
 from GUI.ProjectActions import ProjectActions
@@ -36,17 +35,6 @@ from PySubtitle.version import __version__
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
-
-def LoadStylesheet(name):
-    if not name or name == "default":
-        name = "subtrans-dark" if darkdetect.isDark() else "subtrans"
-
-    filepath = GetResourcePath(os.path.join("theme", f"{name}.qss"))
-    logging.info(f"Loading stylesheet from {filepath}")
-    with open(filepath, 'r') as file:
-        stylesheet = file.read()
-    QApplication.instance().setStyleSheet(stylesheet)
-    return stylesheet
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None, options : Options = None, filepath : str = None):
