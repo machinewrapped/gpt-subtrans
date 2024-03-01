@@ -1,6 +1,7 @@
 import logging
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame)
-from GUI.GuiHelpers import ClearForm, GetInstructionFiles, GetThemeNames, LoadInstructionsResource
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame, QLabel, QScrollArea)
+from GUI.GuiHelpers import ClearForm, GetInstructionFiles, GetThemeNames, LoadInstructionsResource, LoadStylesheet
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.Options import Options
@@ -62,8 +63,14 @@ class SettingsDialog(QDialog):
         # Populate available providers
         self.SECTIONS[self.PROVIDER_SECTION]['provider'] = (options.available_providers, self.SECTIONS[self.PROVIDER_SECTION]['provider'][1])
 
-        # Initialise the current translation provider
-        self._initialise_translation_provider()
+        try:
+            # Initialise the current translation provider
+            self._initialise_translation_provider()
+
+        except Exception as e:
+            logging.error(f"Unable to create translation provider '{self.settings.get('provider')}': {e}")
+            self.settings['provider'] = options.available_providers[0]
+            self._initialise_translation_provider()
 
         # Initalise the tabs
         self.layout = QVBoxLayout(self)
@@ -98,6 +105,8 @@ class SettingsDialog(QDialog):
                 for row in range(layout.rowCount()):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
                     if section_name == self.PROVIDER_SECTION:
+                        if not hasattr(field, 'key'):
+                            continue
                         if field.key == 'provider':
                             self.settings[field.key] = field.GetValue()
                         else:
@@ -176,6 +185,19 @@ class SettingsDialog(QDialog):
             field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
             layout.addRow(field.name, field)
             self.widgets[key] = field
+        
+        provider_info = self.translation_provider.GetInformation()
+        if provider_info:
+            infoLabel = QLabel(provider_info)
+            infoLabel.setWordWrap(True)
+            infoLabel.setTextFormat(Qt.TextFormat.RichText)
+            infoLabel.setOpenExternalLinks(True)
+
+            scrollArea = QScrollArea()
+            scrollArea.setWidgetResizable(True)
+            scrollArea.setSizeAdjustPolicy(QScrollArea.SizeAdjustPolicy.AdjustToContents)
+            scrollArea.setWidget(infoLabel)
+            layout.addRow(scrollArea)
 
     def _refresh_provider_options(self):
         """

@@ -37,6 +37,12 @@ class TranslationProvider:
         Returns a list of possible model for the provider
         """
         raise NotImplementedError()
+    
+    def GetInformation(self) -> str:
+        """
+        Returns information about the provider settings
+        """
+        return None
 
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         """
