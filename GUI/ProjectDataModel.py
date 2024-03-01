@@ -18,7 +18,11 @@ class ProjectDataModel:
             project_settings = project.GetProjectSettings()
             self.project_options.update(project_settings)
 
-        self.translation_provider : TranslationProvider = self.CreateTranslationProvider() if self.project_options.provider else None
+        try:
+            self.translation_provider : TranslationProvider = self.CreateTranslationProvider() if self.project_options.provider else None
+        except Exception as e:
+            print(f"Error: {e}")
+            self.translation_provider = None
 
     @property
     def provider(self):

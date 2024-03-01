@@ -62,8 +62,14 @@ class SettingsDialog(QDialog):
         # Populate available providers
         self.SECTIONS[self.PROVIDER_SECTION]['provider'] = (options.available_providers, self.SECTIONS[self.PROVIDER_SECTION]['provider'][1])
 
-        # Initialise the current translation provider
-        self._initialise_translation_provider()
+        try:
+            # Initialise the current translation provider
+            self._initialise_translation_provider()
+
+        except Exception as e:
+            logging.error(f"Unable to create translation provider '{self.settings.get('provider')}': {e}")
+            self.settings['provider'] = options.available_providers[0]
+            self._initialise_translation_provider()
 
         # Initalise the tabs
         self.layout = QVBoxLayout(self)
