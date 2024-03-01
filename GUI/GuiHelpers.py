@@ -36,8 +36,6 @@ def LoadStylesheet(name):
     QApplication.instance().setStyleSheet(stylesheet)
     return stylesheet
 
-
-
 def GetInstructionFiles():
     instruction_path = GetResourcePath("")
     logging.debug(f"Looking for instruction files in {instruction_path}")
