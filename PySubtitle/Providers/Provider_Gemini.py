@@ -12,6 +12,18 @@ try:
     class GeminiProvider(TranslationProvider):
         name = "Gemini"
 
+        information = """
+        <p>Select the <a href="https://ai.google.dev/models/gemini">AI model</a> to use as a translator.</p> 
+        <p>Please note that the Gemini API can currently only be accessed from IP addresses in <a href="https://ai.google.dev/available_regions">certain regions</a>.</p>
+        <p>You must ensure that the Generative Language API is enabled for your project and/or API key.</p>
+        """
+
+        information_noapikey = """
+        <p>Please note that the Gemini API can currently only be accessed from IP addresses in <a href="https://ai.google.dev/available_regions">certain regions</a>.</p>
+        <p>To use this provider you need to create an API Key <a href="https://aistudio.google.com/app/apikey">Google AI Studio</a>
+        or a project on <a href="https://console.cloud.google.com/">Google Cloud Platform</a> and enable Generative Language API access.</p>
+        """
+
         def __init__(self, settings : dict):
             super().__init__(self.name, {
                 "api_key": settings.get('api_key') or os.getenv('GEMINI_API_KEY'),
@@ -63,6 +75,9 @@ try:
             models = [ m.display_name for m in self.gemini_models if m.display_name.find("Vision") < 0]
 
             return models or []
+
+        def GetInformation(self) -> str:
+            return self.information if self.api_key else self.information_noapikey
 
         def ValidateSettings(self) -> bool:
             """

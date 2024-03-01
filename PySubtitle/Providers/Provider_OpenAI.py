@@ -9,25 +9,25 @@ try:
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationProvider import TranslationProvider
 
-    information = """
-    <p>Select the AI <a href="https://platform.openai.com/docs/models">model</a> to use as a translator.</p> 
-    <p>Note that different models have different <a href="https://openai.com/pricing">costs</a> and limitations.</p>
-    In particular, the number of tokens supported by each model will affect the batch size that it can handle.
-    This will depend on the contents but as a rule of thumb 16K token models can handle 80-100 lines per batch.</p>
-    <p>GPT4 models are substantially more expensive but are better at following instructions, 
-    e.g. using provided names, and may be better for more complex translations and less common languages.</p>
-    """
-
-    information_instructmodels = "<p>Instruct models require the maximum output tokens to be specified. This should be roughly half the maximum tokens the model supports.</p>"
-
-    information_noapikey = """
-    <p>To use this provider you need <a href="https://platform.openai.com/account/api-keys">an OpenAI API key</a>.</p>
-    <p>Api Base can usually be left blank unless you are using a custom OpenAI instance, when you will need to provide the base URL.</p>
-    <p>Note that if your API Key is attached to a free trial account the <a href="https://platform.openai.com/docs/guides/rate-limits?context=tier-free">rate limit</a> for requests will be <i>severely</i> limited.</p>
-    """
-
     class OpenAiProvider(TranslationProvider):
         name = "OpenAI"
+
+        information = """
+        <p>Select the AI <a href="https://platform.openai.com/docs/models">model</a> to use as a translator.</p> 
+        <p>Note that different models have different <a href="https://openai.com/pricing">costs</a> and limitations.</p>
+        In particular, the number of tokens supported by each model will affect the batch size that it can handle.
+        This will depend on the contents but as a rule of thumb 16K token models can handle 80-100 lines per batch.</p>
+        <p>GPT4 models are substantially more expensive but are better at following instructions, 
+        e.g. using provided names, and may be better for more complex translations and less common languages.</p>
+        """
+
+        information_instructmodels = "<p>Instruct models require the maximum output tokens to be specified. This should be roughly half the maximum tokens the model supports.</p>"
+
+        information_noapikey = """
+        <p>To use this provider you need <a href="https://platform.openai.com/account/api-keys">an OpenAI API key</a>.</p>
+        <p>Api Base can usually be left blank unless you are using a custom OpenAI instance, when you will need to provide the base URL.</p>
+        <p>Note that if your API Key is attached to a free trial account the <a href="https://platform.openai.com/docs/guides/rate-limits?context=tier-free">rate limit</a> for requests will be <i>severely</i> limited.</p>
+        """
 
         def __init__(self, settings : dict):
             super().__init__(self.name, {
@@ -116,10 +116,10 @@ try:
             
         def GetInformation(self) -> str:
             if not self.api_key:
-                return information_noapikey
+                return self.information_noapikey
             if self.is_instruct_model:
-                return information + information_instructmodels
-            return information
+                return self.information + self.information_instructmodels
+            return self.information
 
         def ValidateSettings(self) -> bool:
             """
