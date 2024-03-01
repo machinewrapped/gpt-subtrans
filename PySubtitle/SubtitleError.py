@@ -8,9 +8,18 @@ class SubtitleError(Exception):
             return str(self.error)
         return super().__str__()
 
-class ProviderConfigurationError(SubtitleError):
-    def __init__(self, message, error = None):
-        super().__init__(message, error)
+class NoProviderError(SubtitleError):
+    def __init__(self):
+        super().__init__(f"Provider not specified in options")
+
+class ProviderError(SubtitleError):
+    def __init__(self, message, provider = None):
+        super().__init__(message)
+        self.provider = provider
+ 
+class ProviderConfigurationError(ProviderError):
+    def __init__(self, message, provider = None, error = None):
+        super().__init__(message, provider)
         self.error = error
 
 class TranslationError(SubtitleError):
