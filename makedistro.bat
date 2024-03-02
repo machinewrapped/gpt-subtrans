@@ -1,4 +1,5 @@
 call envsubtrans/scripts/activate
+python.exe -m pip install --upgrade pip
 pip install pywin32-ctypes
 pip install --upgrade pyinstaller
 pip install --upgrade -r requirements.txt
