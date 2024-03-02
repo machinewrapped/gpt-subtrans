@@ -20,29 +20,40 @@ echo "Python version is 3.10.0 or higher."
 
 echo "Checking if 'envsubtrans' folder exists..."
 if [ -d "envsubtrans" ]; then
-    echo "'envsubtrans' folder exists. Please delete it to continue with the installation."
-    exit 1
+    echo "'envsubtrans' folder exists."
+    read -p "Do you want to perform a clean install? This will remove existing 'envsubtrans' folder (Y/N): " clean_install
+    if [[ "$(echo "${clean_install}" | tr '[:lower:]' '[:upper:]')" == "Y" ]]; then
+        echo "Removing 'envsubtrans' folder..."
+        rm -rf envsubtrans
+        echo "Creating and activating new virtual environment 'envsubtrans'..."
+        python3 -m venv envsubtrans
+        chmod +x ./envsubtrans/bin/activate 
+        source ./envsubtrans/bin/activate
+    else
+        echo "Activating existing virtual environment and upgrading requirements."
+        source ./envsubtrans/bin/activate
+    fi
+else
+    echo "Creating and activating virtual environment 'envsubtrans'..."
+    python3 -m venv envsubtrans
+    chmod +x ./envsubtrans/bin/activate 
+    source ./envsubtrans/bin/activate
 fi
 
-echo "Creating and activating virtual environment 'envsubtrans'..."
-python3 -m venv envsubtrans
-chmod +x ./envsubtrans/bin/activate 
-source ./envsubtrans/bin/activate
-
-echo "Installing requirements from 'requirements.txt'..."
+echo "Installing or upgrading requirements from 'requirements.txt'..."
 pip install --upgrade -r requirements.txt
 
 if [ ! -f ".env" ]; then
     echo "Please enter your OpenAI API key:"
     read -r api_key
-    echo "API_KEY=$api_key" > .env
+    echo "OPENAI_API_KEY=$api_key" > .env
     echo "API key saved to .env"
 fi
 
 echo "Please enter your OpenAI API host(Leave blank for default: https://api.openai.com/v1):"
 read -r api_base
 if [ ! -z "$api_base" ]; then
-    echo "API_BASE=$api_base" >> .env
+    echo "OPENAI_API_BASE=$api_base" >> .env
     echo "API base saved to .env"
 fi
 
@@ -50,11 +61,9 @@ echo "Are you on the free plan? (Y/N)"
 read -r free_plan
 
 if [[ "$(echo "${free_plan}" | tr '[:lower:]' '[:upper:]')" == "Y" ]] || [[ "$(echo "${free_plan}" | tr '[:lower:]' '[:upper:]')" == "YES" ]]; then
-    echo "MAX_THREADS=1" >> .env
-    echo "RATE_LIMIT=5" >> .env
+    echo "OPENAI_FREE_PLAN=True" >> .env
     echo "Warning: Translation speed will be severely limited due to the free plan limitations."
     echo "If you upgrade your plan, rerun the script to update your settings."
 fi
 
-echo "Installation complete."
-echo "To uninstall, simply delete the directory."
+echo "Installation complete. To uninstall, simply delete the directory."
