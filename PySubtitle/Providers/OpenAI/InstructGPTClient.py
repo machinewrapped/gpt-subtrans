@@ -3,38 +3,39 @@ import time
 import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
-from PySubtitle.OpenAI.OpenAIClient import OpenAIClient
+from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
 
 linesep = '\n'
 
-class ChatGPTClient(OpenAIClient):
+class InstructGPTClient(OpenAIClient):
     """
-    Handles chat communication with OpenAI to request translations
+    Handles communication with GPT instruct models to request translations
     """
-    def SupportedModels(self):
-        models = OpenAIClient.GetAvailableModels(self.options.api_key, self.options.api_base)
-        return [ model for model in models if model.find("instruct") < 0]
+    def GetSupportedModels(self, available_models : list[str]):
+        return [ model for model in available_models if model.find("instruct") >= 0]
 
-    def _send_messages(self, messages : list[str], temperature : float = None):
+    @property
+    def max_instruct_tokens(self):
+        return self.settings.get('max_instruct_tokens', 2048)
+
+    def _send_messages(self, messages : list, temperature : float = None):
         """
         Make a request to the OpenAI API to provide a translation
         """
-        options = self.options
-        max_retries = options.get('max_retries', 3.0)
-        backoff_time = options.get('backoff_time', 5.0)
-        model = options.get('gpt_model')
-        temperature = temperature or options.get('temperature', 0.0)
-
         translation = {}
         retries = 0
 
-        while retries <= max_retries and not self.aborted:
+        prompt = self._build_prompt(messages)
+
+        while retries <= self.max_retries and not self.aborted:
             try:
-                response = self.client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature
+                response = self.client.completions.create(
+                    model=self.model,
+                    prompt=prompt,
+                    temperature=temperature,
+                    n=1,
+                    max_tokens=self.max_instruct_tokens
                 )
 
                 if self.aborted:
@@ -50,10 +51,11 @@ class ChatGPTClient(OpenAIClient):
                 # We only expect one choice to be returned as we have 0 temperature
                 if response.choices:
                     choice = response.choices[0]
-                    reply = response.choices[0].message
+                    if not isinstance(choice.text, str):
+                        raise NoTranslationError("Instruct model completion text is not a string")
 
                     translation['finish_reason'] = getattr(choice, 'finish_reason', None)
-                    translation['text'] = getattr(reply, 'content', None)
+                    translation['text'] = choice.text
                 else:
                     raise NoTranslationError("No choices returned in the response", response)
 
@@ -77,12 +79,12 @@ class ChatGPTClient(OpenAIClient):
                 
                 if isinstance(e, openai.APIConnectionError):
                     raise TranslationImpossibleError(str(e), translation)
-                elif retries == max_retries:
+                elif retries == self.max_retries:
                     logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
                     raise
                 else:
                     retries += 1
-                    sleep_time = backoff_time * 2.0**retries
+                    sleep_time = self.backoff_time * 2.0**retries
                     logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                     continue
@@ -92,3 +94,5 @@ class ChatGPTClient(OpenAIClient):
 
         return None
 
+    def _build_prompt(self, messages : list):
+        return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in messages ])

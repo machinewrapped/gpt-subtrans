@@ -5,21 +5,19 @@ from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.FileCommands import *
-from GUI.GUICommands import ExitProgramCommand
+from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
 from GUI.ProjectCommands import (
-    MergeBatchesCommand, 
-    MergeLinesCommand, 
+    MergeBatchesCommand,
+    MergeLinesCommand,
     MergeScenesCommand,
-    SplitBatchCommand, 
+    SplitBatchCommand,
     ResumeTranslationCommand,
-    SplitSceneCommand, 
-    SwapTextAndTranslations, 
-    TranslateSceneCommand, 
+    SplitSceneCommand,
+    SwapTextAndTranslations,
+    TranslateSceneCommand,
     TranslateSceneMultithreadedCommand
 )
 from GUI.ProjectSelection import ProjectSelection
-from GUI.ProjectViewModelUpdate import ModelUpdate
-from GUI.Widgets.ModelView import ModelView
 from PySubtitle.SubtitleFile import SubtitleFile
 
 class ActionError(Exception):
@@ -32,17 +30,15 @@ class ActionError(Exception):
             return str(self.error)
         return super().__str__()
 
-class NoApiKeyError(ActionError):
-    def __init__(self):
-        super().__init__("Cannot translate without a valid OpenAI API Key")
-
 class ProjectActions(QObject):
     issueCommand = Signal(object)
     actionError = Signal(object)
     saveSettings = Signal()
     showSettings = Signal()
+    showProviderSettings = Signal()
     toggleProjectSettings = Signal()
     showAboutDialog = Signal()
+    loadSubtitleFile = Signal(str)
 
     _actions = {}
 
@@ -65,6 +61,8 @@ class ProjectActions(QObject):
         #TODO: Mixing different concepts of "action" here, is there a better separation?
         # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
         # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
+        ProjectDataModel.RegisterActionHandler('Validate Provider Settings', self._check_provider_settings)
+        ProjectDataModel.RegisterActionHandler('Show Provider Settings', self._show_provider_settings)
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
         ProjectDataModel.RegisterActionHandler('Update Scene', self._update_scene)
         ProjectDataModel.RegisterActionHandler('Update Batch', self._update_batch)
@@ -106,14 +104,6 @@ class ProjectActions(QObject):
     def _issue_command(self, command : Command):
         self.issueCommand.emit(command)
 
-    def _check_api_key(self):
-        if self.datamodel and self.datamodel.options:
-            if self.datamodel.options.api_key():
-                return True
-        
-        self.actionError.emit(NoApiKeyError())
-        return False
-
     def _quit(self):
         logging.info("Application will exit...")
         self._stop_translating()
@@ -123,9 +113,7 @@ class ProjectActions(QObject):
         filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")
 
         if filepath:
-            options : Options = self.datamodel.options.GetNonProjectSpecificOptions()
-            command = LoadSubtitleFile(filepath, options)
-            self._issue_command(command)
+            self.loadSubtitleFile.emit(filepath)
 
     def _save_project_file(self):
         project : SubtitleProject = self.datamodel.project
@@ -147,6 +135,18 @@ class ProjectActions(QObject):
 
     def _show_settings_dialog(self):
         self.showSettings.emit()
+
+    def _check_provider_settings(self, datamodel : ProjectDataModel):
+        """
+        Check if the translation provider is configured correctly.
+        """
+        self._issue_command(CheckProviderSettings(datamodel.project_options))
+
+    def _show_provider_settings(self, datamodel : ProjectDataModel):
+        """
+        Show the settings dialog for the translation provider
+        """
+        self.showProviderSettings.emit()
 
     def _validate_datamodel(self, datamodel : ProjectDataModel):
         """
@@ -170,8 +170,7 @@ class ProjectActions(QObject):
         if datamodel.project.needsupdate:
             datamodel.project.WriteProjectFile()
 
-        if self._check_api_key():
-            self._issue_command(ResumeTranslationCommand(multithreaded=False))
+        self._issue_command(ResumeTranslationCommand(multithreaded=False))
 
     def _start_translating_fast(self):
         datamodel : ProjectDataModel = self.datamodel
@@ -182,8 +181,7 @@ class ProjectActions(QObject):
         if datamodel.project.needsupdate:
             datamodel.project.WriteProjectFile()
 
-        if self._check_api_key():
-            self._issue_command(ResumeTranslationCommand(multithreaded=True))
+        self._issue_command(ResumeTranslationCommand(multithreaded=True))
 
     def _stop_translating(self):
         self._issue_command(ClearCommandQueue())
@@ -195,9 +193,6 @@ class ProjectActions(QObject):
         if not selection.Any():
             raise ActionError("Nothing selected to translate")
 
-        if not self._check_api_key():
-            return
-
         self._validate_datamodel(datamodel)
 
         if datamodel.project.needsupdate:
@@ -205,7 +200,7 @@ class ProjectActions(QObject):
 
         logging.debug(f"Translate selection of {str(selection)}")
 
-        multithreaded = len(selection.scenes) > 1 and datamodel.options.allow_multithreaded_translation()
+        multithreaded = len(selection.scenes) > 1 and datamodel.project_options.allow_multithreaded_translation
 
         for scene in selection.scenes.values():
             batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
@@ -259,7 +254,7 @@ class ProjectActions(QObject):
         if batch:
             if batch.errors:
                 # re-run validations to clear errors
-                batch.Validate(datamodel.options)
+                batch.Validate(datamodel.project_options)
 
             update = {
                 'lines' : { line_number : { 'text' : original_text, 'translation' : translated_text}},

@@ -1,54 +1,55 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
 from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
+from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
-from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class NewProjectSettings(QDialog):
-    SETTINGS = {
+    OPTIONS = {
         'target_language': (str, "Language to translate the subtitles to"),
+        'provider': ([], "The AI translation service to use"),
         'model': (str, "AI model to use as the translator"),
         'min_batch_size': (int, "Fewest lines to send in separate batch"),
         'max_batch_size': (int, "Most lines to send in each batch"),
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
-        'gpt_prompt': (str, "High-level instructions for the translator"),
-        'instruction_file': (str, "Detailed instructions for the translator")
+        'instruction_file': (str, "Detailed instructions for the translator"),
+        'prompt': (str, "High-level instructions for the translator")
     }
 
-    def __init__(self, project : SubtitleProject, parent=None):
+    def __init__(self, datamodel : ProjectDataModel, parent=None):
         super(NewProjectSettings, self).__init__(parent)
         self.setWindowTitle("Project Settings")
         self.setMinimumWidth(800)
 
         self.fields = {}
 
-        self.project : SubtitleProject = project
-        self.settings : dict = project.options.GetSettings()
-        self.settings['model'] = self.settings.get('model') or self.settings.get('gpt_model')
+        self.project : SubtitleProject = datamodel.project
+        self.settings = datamodel.project_options.GetSettings()
+ 
+        self.providers = datamodel.available_providers
+        self.OPTIONS['provider'] = (self.providers, self.OPTIONS['provider'][1])
+        self.settings['provider'] = datamodel.provider
 
-        api_key = project.options.api_key()
-        api_base = project.options.api_base()
-
-        if api_key:
-            models = SubtitleTranslator.GetAvailableModels(api_key, api_base)
-            self.SETTINGS['model'] = (models, self.SETTINGS['model'][1])
+        available_models = datamodel.available_models
+        self.OPTIONS['model'] = (available_models, self.OPTIONS['model'][1])
+        self.settings['model'] = datamodel.selected_model
 
         instruction_files = GetInstructionFiles()
         if instruction_files:
-            self.SETTINGS['instruction_file'] = (instruction_files, self.SETTINGS['instruction_file'][1])
+            self.OPTIONS['instruction_file'] = (instruction_files, self.OPTIONS['instruction_file'][1])
 
         settings_widget = QFrame(self)
 
         self.form_layout = QFormLayout(settings_widget)
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        for key, setting in self.SETTINGS.items():
+        for key, setting in self.OPTIONS.items():
             key_type, tooltip = setting
             field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
             field.contentChanged.connect(self._preview_batches)
@@ -82,16 +83,12 @@ class NewProjectSettings(QDialog):
                     self.settings['prompt'] = instructions.prompt
                     self.settings['instructions'] = instructions.instructions
                     self.settings['retry_instructions'] = instructions.retry_instructions
-                    # Legacy
-                    self.settings['gpt_prompt'] = instructions.prompt
 
                     logging.debug(f"Prompt: {instructions.prompt}")
                     logging.debug(f"Instructions: {instructions.instructions}")
 
                 except Exception as e:
                     logging.error(f"Unable to load instructions from {instructions_file}: {e}")
-
-            self.project.UpdateProjectSettings(self.settings)
 
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
@@ -131,6 +128,6 @@ class NewProjectSettings(QDialog):
         if instruction_file:
             try:
                 instructions = LoadInstructionsResource(instruction_file)
-                self.fields['gpt_prompt'].SetValue(instructions.prompt)
+                self.fields['prompt'].SetValue(instructions.prompt)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")

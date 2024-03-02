@@ -2,8 +2,10 @@ from datetime import timedelta
 import logging
 import os
 import sys
+import darkdetect
 
 from srt import timedelta_to_srt_timestamp
+from PySide6.QtWidgets import (QApplication, QFormLayout)
 
 from PySubtitle.Instructions import Instructions
 
@@ -23,6 +25,17 @@ def GetThemeNames():
     themes.sort()
     return themes 
 
+def LoadStylesheet(name):
+    if not name or name == "default":
+        name = "subtrans-dark" if darkdetect.isDark() else "subtrans"
+
+    filepath = GetResourcePath(os.path.join("theme", f"{name}.qss"))
+    logging.info(f"Loading stylesheet from {filepath}")
+    with open(filepath, 'r') as file:
+        stylesheet = file.read()
+    QApplication.instance().setStyleSheet(stylesheet)
+    return stylesheet
+
 def GetInstructionFiles():
     instruction_path = GetResourcePath("")
     logging.debug(f"Looking for instruction files in {instruction_path}")
@@ -36,7 +49,7 @@ def LoadInstructionsResource(resource_name):
     instructions.LoadInstructionsFile(filepath)
     return instructions
 
-def GetLineHeight(text: str, wrap_length: int = 100) -> int:
+def GetLineHeight(text: str, wrap_length: int = 60) -> int:
     """
     Calculate the number of lines for a given text with wrapping and newline characters.
 
@@ -61,3 +74,17 @@ def DescribeLineCount(line_count, translated_count):
     else:
         return f"{translated_count} of {line_count} lines translated"
 
+def ClearForm(layout : QFormLayout):
+    """
+    Clear the widgets from a layout
+    """
+    while layout.rowCount():
+        row = layout.takeRow(0)
+        if row.fieldItem:
+            widget = row.fieldItem.widget()
+            if widget:
+                widget.deleteLater()
+        if row.labelItem:
+            widget = row.labelItem.widget()
+            if widget:
+                widget.deleteLater()

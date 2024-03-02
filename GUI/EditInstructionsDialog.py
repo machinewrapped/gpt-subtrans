@@ -1,5 +1,4 @@
 import logging
-import os
 from PySide6.QtWidgets import (
     QStyle, 
     QApplication, 

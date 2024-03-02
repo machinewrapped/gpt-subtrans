@@ -1,7 +1,6 @@
 import os
 import logging
 import dotenv
-import darkdetect
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
@@ -18,34 +17,24 @@ from GUI.Command import Command
 from GUI.CommandQueue import ClearCommandQueue, CommandQueue
 from GUI.FileCommands import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
-from GUI.GUICommands import ExitProgramCommand
-from GUI.GuiHelpers import GetResourcePath
+from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
+from GUI.GuiHelpers import GetResourcePath, LoadStylesheet
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
-from GUI.ProjectActions import NoApiKeyError, ProjectActions
+from GUI.ProjectActions import ProjectActions
 from GUI.ProjectCommands import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
 from GUI.NewProjectSettings import NewProjectSettings
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleError import ProviderConfigurationError
+from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
-
-def LoadStylesheet(name):
-    if not name or name == "default":
-        name = "subtrans-dark" if darkdetect.isDark() else "subtrans"
-
-    filepath = GetResourcePath(os.path.join("theme", f"{name}.qss"))
-    logging.info(f"Loading stylesheet from {filepath}")
-    with open(filepath, 'r') as file:
-        stylesheet = file.read()
-    QApplication.instance().setStyleSheet(stylesheet)
-    return stylesheet
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None, options : Options = None, filepath : str = None):
@@ -58,12 +47,14 @@ class MainWindow(QMainWindow):
         if not options:
             options = Options()
             options.InitialiseInstructions()
-            options.Load()
+            options.LoadSettings()
 
-        self.options = options
+        options.add('available_providers', sorted(TranslationProvider.get_providers()))
 
-        theme = options.get('theme', 'default')
-        LoadStylesheet(theme)
+        # TODO: move global_options to the datamodel?
+        self.global_options = options
+
+        LoadStylesheet(options.theme)
 
         # Create the project data model
         self.datamodel = ProjectDataModel(options=options)
@@ -78,10 +69,12 @@ class MainWindow(QMainWindow):
         self.action_handler = ProjectActions(mainwindow=self, datamodel=self.datamodel)
         self.action_handler.issueCommand.connect(self.QueueCommand)
         self.action_handler.actionError.connect(self._on_error)
-        self.action_handler.saveSettings.connect(self.PrepareForSave)
-        self.action_handler.showSettings.connect(self.ShowSettingsDialog)
+        self.action_handler.saveSettings.connect(self._prepare_for_save)
+        self.action_handler.showSettings.connect(self._show_settings_dialog)
+        self.action_handler.showProviderSettings.connect(self._show_provider_settings_dialog)
         self.action_handler.toggleProjectSettings.connect(self._toggle_project_settings)
-        self.action_handler.showAboutDialog.connect(self.ShowAboutDialog)
+        self.action_handler.showAboutDialog.connect(self._show_about_dialog)
+        self.action_handler.loadSubtitleFile.connect(self._load_subtitle_file)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -100,7 +93,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(splitter)
 
         self.model_viewer = ModelView(splitter)
-        self.model_viewer.optionsChanged.connect(self._on_project_settings_changed)
+        self.model_viewer.settingsChanged.connect(self._on_project_settings_changed)
         self.model_viewer.actionRequested.connect(self._on_action_requested)
         splitter.addWidget(self.model_viewer)
 
@@ -111,15 +104,18 @@ class MainWindow(QMainWindow):
         # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
 
-        if not options.api_key() or options.get('firstrun'):
-            # Make sure we have an API key
+        if options.provider is None or options.get('firstrun'):
+            # Configure critical settings
             self._first_run(options)
         elif filepath:
             # Load file if we were opened with one
             filepath = os.path.abspath(filepath)
             self.QueueCommand(LoadSubtitleFile(filepath, options))
+        else:
+            # Check if the translation provider is configured correctly
+            self.QueueCommand(CheckProviderSettings(options))
 
-        logging.info(f"GPT-Subtrans {__version__}")
+        logging.info(f"GUI-Subtrans {__version__}")
 
         # Check if there is a more recent version on Github (TODO: make this optional)
         if CheckIfUpdateCheckIsRequired():
@@ -133,28 +129,79 @@ class MainWindow(QMainWindow):
         """
         self.command_queue.AddCommand(command, self.datamodel)
 
-    def ShowSettingsDialog(self):
+    def _show_settings_dialog(self):
         """
         Open user settings dialog and update options
         """
-        options = self.options
-        settings = options.GetSettings()
-        result = SettingsDialog(settings, self).exec()
+        dialog = SettingsDialog(self.global_options, self)
+        result = dialog.exec()
 
         if result == QDialog.Accepted:
-            # Update and save global settings
-            options.update(settings)
-            options.Save()
+            self._update_settings(dialog.settings)
 
-            LoadStylesheet(options.get('theme'))
             logging.info("Settings updated")
 
-    def ShowAboutDialog(self):
+    def _show_provider_settings_dialog(self):
+        """
+        Open the settings dialog with the provider settings focused
+        """
+        dialog = SettingsDialog(self.global_options, self, focus_provider_settings=True)
+        result = dialog.exec()
+        if result == QDialog.Accepted:
+            self._update_settings(dialog.settings)
+
+            if not self.datamodel.ValidateProviderSettings():
+                logging.warning("Translation provider settings are not valid. Please check the settings.")
+
+    def _first_run(self, options: Options):
+        first_run_options = FirstRunOptions(options, self)
+        result = first_run_options.exec()
+
+        if result == QDialog.Accepted:
+            logging.info("First run options set")
+            initial_settings = first_run_options.GetSettings()
+            self._update_settings(initial_settings)
+
+            self.QueueCommand(CheckProviderSettings(options))
+
+    def _show_new_project_Settings(self, datamodel : ProjectDataModel):
+        try:
+            dialog = NewProjectSettings(datamodel, self)
+
+            if dialog.exec() == QDialog.Accepted:
+                datamodel.UpdateProjectSettings(dialog.settings)
+                self.QueueCommand(CheckProviderSettings(datamodel.project_options))
+                self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
+                logging.info("Project settings set")
+
+        except Exception as e:
+            logging.error(f"Error initialising project settings: {str(e)}")
+
+    def _show_about_dialog(self):
         _ = AboutDialog(self).exec()
 
-    def PrepareForSave(self):
+    def _update_settings(self, settings):
+        updated_settings = {k: v for k, v in settings.items() if v != self.global_options.get(k)}
+
+        if not updated_settings:
+            return
+
+        # Update and save global settings
+        self.global_options.update(updated_settings)
+        self.global_options.SaveSettings()
+
+        # Update the project and provider settings
+        self.datamodel.UpdateSettings(updated_settings)
+
+        if 'theme' in updated_settings:
+            LoadStylesheet(self.global_options.theme)
+    
+    def _load_subtitle_file(self, filepath):
+        self.QueueCommand(LoadSubtitleFile(filepath, self.global_options))
+
+    def _prepare_for_save(self):
         if self.model_viewer and self.datamodel:
-            self.model_viewer.CloseProjectOptions()
+            self.model_viewer.CloseSettings()
 
     def closeEvent(self, e):
         if self.command_queue and self.command_queue.AnyCommands():
@@ -162,7 +209,7 @@ class MainWindow(QMainWindow):
             self.QueueCommand(ExitProgramCommand())
             self.command_queue.Stop()
 
-        self.PrepareForSave()
+        self._prepare_for_save()
 
         project = self.datamodel.project
         if project and project.subtitles:
@@ -205,13 +252,13 @@ class MainWindow(QMainWindow):
                 self.datamodel = command.datamodel
                 self.model_viewer.SetDataModel(command.datamodel)
                 if not self.datamodel.IsProjectInitialised():
-                    self._show_new_project_Settings(self.datamodel.project)
+                    self._show_new_project_Settings(self.datamodel)
 
             if command.model_update.HasUpdate():
                 self.datamodel.UpdateViewModel(command.model_update)
 
             elif command.datamodel:
-                # Shouldn't need to do a full model rebuild often? 
+                # Shouldn't need to do a full model rebuild often?
                 self.datamodel = command.datamodel
                 self.action_handler.SetDataModel(self.datamodel)
                 self.model_viewer.SetDataModel(self.datamodel)
@@ -254,32 +301,14 @@ class MainWindow(QMainWindow):
     def _toggle_project_settings(self, show = None):
         self.model_viewer.ToggleProjectSettings(show)
 
-    def _on_project_settings_changed(self, options: dict):
-        if options and self.datamodel:
-            self.datamodel.UpdateSettings(options)
-
-    def _first_run(self, options: Options):
-        settings = options.GetSettings()
-        result = FirstRunOptions(settings, self).exec()
-
-        if result == QDialog.Accepted:
-            logging.info("First run options set")
-            options.update(settings)
-            options.add('firstrun', False)
-            options.Save()
-            self.options = options
-            LoadStylesheet(options.get('theme'))
-
-    def _show_new_project_Settings(self, project : SubtitleProject):
-        result = NewProjectSettings(project, self).exec()
-
-        if result == QDialog.Accepted:
-            logging.info("Project settings set")
-            self.QueueCommand(BatchSubtitlesCommand(project))
+    def _on_project_settings_changed(self, settings: dict):
+        if settings and self.datamodel:
+            self.datamodel.UpdateProjectSettings(settings)
 
     def _on_error(self, error : object):
         logging.error(str(error))
 
-        if isinstance(error, NoApiKeyError):
-            if self.datamodel and self.datamodel.options:
-                self._first_run(self.datamodel.options)
+        if isinstance(error, ProviderConfigurationError):
+            if self.datamodel and self.datamodel.project_options:
+                logging.warning("Please configure the translation provider settings")
+                self._show_provider_settings_dialog()

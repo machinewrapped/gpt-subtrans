@@ -4,20 +4,22 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 class BatchSubtitlesCommand(Command):
     """
     Attempt to partition subtitles into scenes and batches based on thresholds and limits.
     """
-    def __init__(self, project : SubtitleProject):
+    def __init__(self, project : SubtitleProject, options : Options):
         super().__init__()
         self.project : SubtitleProject = project
+        self.options : Options = options
 
     def execute(self):
         logging.info("Executing BatchSubtitlesCommand")
@@ -27,7 +29,8 @@ class BatchSubtitlesCommand(Command):
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
-        project.subtitles.AutoBatch(project.options)
+        batcher = CreateSubtitleBatcher(self.options)
+        project.subtitles.AutoBatch(batcher)
 
         project.WriteProjectFile()
 
@@ -284,13 +287,12 @@ class TranslateSceneCommand(Command):
             raise TranslationError("Unable to translate scene because project is not set on datamodel")
 
         project : SubtitleProject = self.datamodel.project
-        options = self.datamodel.options
 
-        self.translator = SubtitleTranslator(project.subtitles, options)
+        self.translator = SubtitleTranslator(self.datamodel.project_options)
 
         self.translator.events.batch_translated += self._on_batch_translated
 
-        scene = project.TranslateScene(self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers, translator = self.translator)
+        scene = project.TranslateScene(self.translator, self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers)
 
         self.translator.events.batch_translated -= self._on_batch_translated
 

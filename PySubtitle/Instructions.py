@@ -52,8 +52,7 @@ class Instructions:
             'prompt': self.prompt,
             'instructions': self.instructions,
             'retry_instructions': self.retry_instructions,
-            'instruction_file': self.instruction_file,
-            'gpt_prompt': self.prompt,  # Legacy settings
+            'instruction_file': self.instruction_file
         }
 
     def InitialiseInstructions(self, settings : dict):
