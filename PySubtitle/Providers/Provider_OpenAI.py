@@ -38,7 +38,7 @@ class OpenAiProvider(TranslationProvider):
             'max_instruct_tokens': int(os.getenv('MAX_INSTRUCT_TOKENS', 2048)),
         })
 
-        self.refresh_when_changed = ['api_key', 'api_base', 'model']
+        self.refresh_when_changed = ['api_key', 'api_base', 'model', 'free_plan']
 
     @property
     def api_key(self):
@@ -55,6 +55,10 @@ class OpenAiProvider(TranslationProvider):
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         client_settings = self.settings.copy()
         client_settings.update(settings)
+
+        if self.settings.get('free_plan'):
+            client_settings['rate_limit'] = 3.0
+
         if self.is_instruct_model:
             return InstructGPTClient(client_settings)
         else:
@@ -72,11 +76,15 @@ class OpenAiProvider(TranslationProvider):
                 options.update({
                     'model': (models, "AI model to use as the translator" if models else "Unable to retrieve models"),
                     'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
-                    'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan")
                 })
 
                 if self.selected_model and self.selected_model.find("instruct") >= 0:
                     options['max_instruct_tokens'] = (int, "Maximum tokens a completion can contain (only applicable for -instruct models)")
+
+                options['free_plan'] = (bool, "Check this if your API key is attached to a free trial account (requests will be rate-limited)")
+
+                if not self.settings.get('free_plan'):
+                    options['rate_limit'] = (float, "Rate limit for requests (only set this if you encounter rate limit errors)")
 
             else:
                 options['model'] = (["Unable to retrieve models"], "Check API key and base URL and try again")
