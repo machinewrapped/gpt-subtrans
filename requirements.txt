@@ -7,4 +7,4 @@ events
 requests
 darkdetect
 setuptools
-pyside6==6.6.1
+pyside6==6.6.0

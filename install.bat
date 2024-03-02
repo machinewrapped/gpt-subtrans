@@ -21,30 +21,45 @@ echo Python version is compatible.
 
 echo Checking if "envsubtrans" folder exists...
 if exist envsubtrans (
-    echo "envsubtrans" folder exists. Please delete it to continue with the installation.
-    exit /b 1
+    echo "envsubtrans" folder already exists.
+    echo Do you want to perform a clean install? This will delete the existing environment. (Y/N)
+    set /p user_choice=Enter your choice (Y/N): 
+    if /i "!user_choice!"=="Y" (
+        echo Performing a clean install...
+        rmdir /s /q envsubtrans
+        python -m venv envsubtrans
+        call envsubtrans\Scripts\activate.bat
+        echo Installing requirements from "requirements.txt"...
+        pip install -r requirements.txt
+    ) else if /i "!user_choice!"=="N" (
+        call envsubtrans\Scripts\activate.bat
+        echo Updating requirements in the existing environment...
+        pip install -U -r requirements.txt
+    ) else (
+        echo Invalid choice. Exiting installation.
+        exit /b 1
+    )
+) else (
+    echo Creating and activating virtual environment "envsubtrans"...
+    python -m venv envsubtrans
+    call envsubtrans\Scripts\activate.bat
+    echo Installing requirements from "requirements.txt"...
+    pip install -r requirements.txt
 )
 
-echo Creating and activating virtual environment "envsubtrans"...
-python -m venv envsubtrans
-call envsubtrans\Scripts\activate.bat
-
-echo Installing requirements from "requirements.txt"...
-pip install -r requirements.txt
-
 echo Please enter your OpenAI API key:
-set /p api_key=API_KEY:
+set /p api_key=OPENAI_API_KEY:
 
 if not "!api_key!"=="" (
-    echo API_KEY=!api_key! > .env
+    echo OPENAI_API_KEY=!api_key! > .env
     echo API key saved to .env
 )
 
-echo Please enter your OpenAI API host(Leave blank for default: https://api.openai.com/v1):
-set /p api_base=API_BASE:
+echo Please enter your OpenAI API host (Leave blank for default: https://api.openai.com/v1):
+set /p api_base=OPENAI_API_BASE:
 
 if not "!api_base!"=="" (
-    echo API_BASE=!api_base! >> .env
+    echo OPENAI_API_BASE=!api_base! >> .env
     echo API base saved to .env
 )
 
@@ -60,8 +75,7 @@ if /i "!free_plan!"=="Y" (
 )
 
 if "!add_limits!"=="1" (
-    echo MAX_THREADS=1 >> .env
-    echo RATE_LIMIT=5 >> .env
+    echo OPENAI_FREE_PLAN=1 >> .env
     echo Warning: Translation speed will be severely limited due to the free plan limitations.
     echo If you upgrade your plan, rerun the script to update your settings.
 )
