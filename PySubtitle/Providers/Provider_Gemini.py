@@ -4,6 +4,7 @@ import os
 
 try:
     import google.generativeai as genai
+    from google.api_core.exceptions import FailedPrecondition
 
     from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
     from PySubtitle.TranslationClient import TranslationClient
@@ -52,17 +53,20 @@ try:
             }
             
             if self.api_key:
-                models = self.available_models
-                if models:
-                    options.update({
-                        'model': (models, "AI model to use as the translator" if models else "Unable to retrieve models"),
-                        'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
-                        'rate_limit': (float, "Maximum API requests per minute.")
-                    })
+                try:
+                    models = self.available_models
+                    if models:
+                        options.update({
+                            'model': (models, "AI model to use as the translator" if models else "Unable to retrieve models"),
+                            'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
+                            'rate_limit': (float, "Maximum API requests per minute.")
+                        })
 
-                else:
-                    options['model'] = (["Unable to retrieve models"], "Check API key is authorized and try again")
-                
+                    else:
+                        options['model'] = (["Unable to retrieve models"], "Check API key is authorized and try again")
+                except FailedPrecondition as e:
+                    options['model'] = (["Unable to access the Gemini API"], str(e))
+                    
             return options
 
         def GetAvailableModels(self) -> list[str]:
