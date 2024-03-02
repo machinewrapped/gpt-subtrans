@@ -11,7 +11,7 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, ProviderError, TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
-from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, RemoveEmptyLines, UnbatchScenes
+from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, UnbatchScenes
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.TranslationEvents import TranslationEvents
