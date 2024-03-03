@@ -82,6 +82,7 @@ See the project wiki for further details on how to use the program.
 GPT-Subtrans can be used as a console command. The most basic usage is:
 ```
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
+gemini-subtrans <path_to_srt_file> --target_language <target_language>
 ```
 
 This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified, the default is English.
