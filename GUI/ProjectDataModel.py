@@ -58,9 +58,9 @@ class ProjectDataModel:
     def UpdateProjectSettings(self, settings : dict):
         """ Update the project settings """
         if self.project:
-            self.project.UpdateProjectSettings(settings)
             self.project_options.update(settings)
             self._update_translation_provider()
+            self.project.UpdateProjectSettings(settings)
 
     def IsProjectInitialised(self):
         """Check whether the project has been initialised (subtitles loaded and batched)"""

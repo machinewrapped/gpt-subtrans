@@ -203,12 +203,10 @@ class ProjectSettings(QGroupBox):
 
     def _update_provider_settings(self, provider : str):
         try:
-            provider_settings = self.datamodel.project_options.provider_settings.get(provider, {})
-            translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
-            self.model_list = translation_provider.available_models
-            self.settings['model'] = translation_provider.selected_model
+            self.datamodel.UpdateProjectSettings({ "provider": provider})
+            self.model_list = self.datamodel.available_models
+            self.settings['model'] = self.datamodel.selected_model
             self._update_available_models()
-            self.settings['provider'] = provider
         except Exception as e:
             logging.error(f"Provider error: {e}")
 
