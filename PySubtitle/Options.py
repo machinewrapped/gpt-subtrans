@@ -60,7 +60,7 @@ class Options:
 
         if options:
             # Remove None values from options and merge with defaults
-            options = {k: deepcopy(v) for k, v in options.items() if v}
+            options = {k: deepcopy(v) for k, v in options.items() if v is not None}
             self.options = {**self.options, **options}
 
         # Apply any explicit parameters
