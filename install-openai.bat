@@ -6,7 +6,7 @@ call install.bat
 call envsubtrans\Scripts\activate.bat
 
 echo Installing OpenAI SDK...
-pip install -U openai
+pip install -U openai^>=1.1.0
 
 if not exist .env (
     REM Create .env file
@@ -18,8 +18,6 @@ if not exist .env (
     echo PROVIDER=OpenAI >> temp.env
     move /y temp.env .env > nul
 )
-
-echo default provider set to OpenAI
 
 REM Check if OPENAI provider settings are already configured
 findstr /m "OPENAI_API_KEY" .env > nul
@@ -55,6 +53,8 @@ if /i "%free_plan%"=="Y" (
 )
 
 :skip_api_key
+
+echo default provider set to OpenAI
 
 echo Installation complete. To uninstall, simply delete the directory.
 exit /b 0
