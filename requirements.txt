@@ -1,5 +1,4 @@
 python-dotenv
-openai>=1.1.0
 srt
 regex
 appdirs
