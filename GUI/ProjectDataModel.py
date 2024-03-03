@@ -142,6 +142,7 @@ class ProjectDataModel:
             return
         
         if not self.provider or self.provider != self.project_options.provider:
+            # TODO: cache provider classes so that they don't have to keep fetching available models,
             self.translation_provider = self.CreateTranslationProvider()
             return
 

@@ -205,6 +205,7 @@ class ProjectSettings(QGroupBox):
         try:
             self.datamodel.UpdateProjectSettings({ "provider": provider})
             self.model_list = self.datamodel.available_models
+            self.settings['provider'] = provider
             self.settings['model'] = self.datamodel.selected_model
             self._update_available_models()
         except Exception as e:

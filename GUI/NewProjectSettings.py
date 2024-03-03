@@ -107,11 +107,11 @@ class NewProjectSettings(QDialog):
 
     def _update_provider_settings(self, provider : str):
         try:
-            provider_settings = self.datamodel.project_options.provider_settings.get(provider, {})
-            translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
+            self.datamodel.UpdateProjectSettings({ "provider": provider})
             model_options : DropdownOptionWidget = self.fields['model']
-            model_options.SetOptions(translation_provider.available_models, translation_provider.selected_model)
+            model_options.SetOptions(self.datamodel.available_models, self.datamodel.selected_model)
             self.settings['provider'] = provider
+            self.settings['model'] = self.datamodel.selected_model
         except Exception as e:
             logging.error(f"Provider error: {e}")
 
