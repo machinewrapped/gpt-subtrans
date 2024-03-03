@@ -64,6 +64,7 @@ try:
 
                     else:
                         options['model'] = (["Unable to retrieve models"], "Check API key is authorized and try again")
+
                 except FailedPrecondition as e:
                     options['model'] = (["Unable to access the Gemini API"], str(e))
                     
