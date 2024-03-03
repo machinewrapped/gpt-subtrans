@@ -2,7 +2,7 @@ import logging
 
 from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor
 from PySide6.QtWidgets import QTextEdit
-from PySide6.QtCore import Signal, Qt
+from PySide6.QtCore import Signal
 
 class LogWindow(QTextEdit):
     level_colors = {

@@ -1,5 +1,4 @@
 python-dotenv
-openai>=1.1.0
 srt
 regex
 appdirs
@@ -7,4 +6,4 @@ events
 requests
 darkdetect
 setuptools
-pyside6==6.6.1
+pyside6==6.6.0

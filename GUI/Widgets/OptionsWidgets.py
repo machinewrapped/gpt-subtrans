@@ -45,6 +45,12 @@ class TextOptionWidget(OptionWidget):
 
     def SetValue(self, value):
         self.text_field.setText(value)
+    
+    def SetEnabled(self, enabled : bool):
+        self.text_field.setEnabled(enabled)
+
+    def SetVisible(self, is_visible : bool):
+        self.text_field.setVisible(is_visible)
 
 class MultilineTextOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
@@ -69,6 +75,12 @@ class MultilineTextOptionWidget(OptionWidget):
 
     def SetReadOnly(self, is_read_only : bool):
         self.text_field.setReadOnly(is_read_only)
+
+    def SetEnabled(self, enabled : bool):
+        self.text_field.setEnabled(enabled)
+
+    def SetVisible(self, is_visible : bool):
+        self.text_field.setVisible(is_visible)
 
     def _get_content(self, value):
         """
@@ -115,6 +127,9 @@ class IntegerOptionWidget(OptionWidget):
 
     def SetEnabled(self, enabled : bool):
         self.spin_box.setEnabled(enabled)
+    
+    def SetVisible(self, is_visible : bool):
+        self.spin_box.setVisible(is_visible)
 
 class FloatOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
@@ -139,6 +154,9 @@ class FloatOptionWidget(OptionWidget):
     def SetEnabled(self, enabled : bool):
         self.double_spin_box.setEnabled(enabled)
 
+    def SetVisible(self, is_visible : bool):
+        self.double_spin_box.setVisible(is_visible)
+
 class CheckboxOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
         super(CheckboxOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
@@ -156,18 +174,15 @@ class CheckboxOptionWidget(OptionWidget):
     def SetEnabled(self, enabled : bool):
         self.check_box.setEnabled(enabled)
 
+    def SetVisible(self, is_visible : bool):
+        self.check_box.setVisible(is_visible)
 
 class DropdownOptionWidget(OptionWidget):
     def __init__(self, key, values, initial_value, tooltip = None):
         super(DropdownOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.combo_box = QComboBox(self)
         self.combo_box.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-        for value in values:
-            self.combo_box.addItem(value)
-
-        if initial_value:
-            self.combo_box.setCurrentIndex(self.combo_box.findText(initial_value))
-
+        self.SetOptions(values, initial_value)
         self.combo_box.currentTextChanged.connect(self.contentChanged)
 
     def GetValue(self):
@@ -182,6 +197,14 @@ class DropdownOptionWidget(OptionWidget):
             self.combo_box.addItem(value)
             if selected_value and value == selected_value:
                 self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
+
+        self.combo_box.setEnabled(len(values) > 1)
+    
+    def SetEnabled(self, enabled : bool):
+        self.combo_box.setEnabled(enabled)
+
+    def SetVisible(self, is_visible : bool):
+        self.combo_box.setVisible(is_visible)
 
 def CreateOptionWidget(key, initial_value, key_type, tooltip = None) -> OptionWidget:
     # Helper function to create an OptionWidget based on the specified type

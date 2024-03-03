@@ -1,5 +1,4 @@
 import logging
-import os
 from PySide6.QtWidgets import (
     QStyle, 
     QApplication, 
@@ -8,7 +7,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout, 
     QHBoxLayout, 
     QPushButton, 
-    QFileDialog, 
+    QFileDialog,
+    QSizePolicy
     )
 from GUI.GuiHelpers import GetResourcePath
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
@@ -28,6 +28,7 @@ class EditInstructionsDialog(QDialog):
         self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, "Prompt for each translation request")
         self.instructions_edit = self._add_form_option("instructions", self.instructions.instructions, MULTILINE_OPTION, "System instructions for the translator")
         self.retry_instructions_edit = self._add_form_option("retry_instructions", self.instructions.retry_instructions, MULTILINE_OPTION, "Supplementary instructions when retrying")
+        self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
         self.button_layout = QHBoxLayout()
 
@@ -48,6 +49,7 @@ class EditInstructionsDialog(QDialog):
             initial_value = initial_value.replace('\r\n', '\n')
 
         input = CreateOptionWidget(key, initial_value, key_type, tooltip)
+        input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.form_layout.addRow(key, input)
         return input
 

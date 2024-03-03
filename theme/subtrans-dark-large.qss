@@ -186,7 +186,7 @@ QListView:item {
     background-color: #363636;
 }
 
-.ProjectOptions {
+.ProjectSettings {
     color: white;
     background-color: #121212;
 }

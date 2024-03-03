@@ -11,7 +11,9 @@ class LoadSubtitleFile(Command):
         super().__init__()
         self.filepath = filepath
         self.project : SubtitleProject = None
-        self.options : Options = options
+        self.options : Options = Options(options)
+        self.options.add('project', 'true')
+        self.write_backup = self.options.get('write_backup', False)
 
     def execute(self):
         logging.debug(f"Executing LoadSubtitleFile {self.filepath}")
@@ -20,20 +22,17 @@ class LoadSubtitleFile(Command):
             return False
 
         try:
-            options = self.options
-            if not options:
-                options = Options()
-                options.Load()
+            self.options.InitialiseInstructions()
 
-            project = SubtitleProject(options)
-            project.Initialise(self.filepath)
+            project = SubtitleProject(self.options)
+            project.InitialiseProject(self.filepath, write_backup=self.write_backup)
 
             if not project.subtitles:
                 logging.error("Unable to load subtitles from {self.filepath}")
                 return False
-            
+
             self.project = project
-            self.datamodel = ProjectDataModel(project, project.options)
+            self.datamodel = ProjectDataModel(project, self.options)
 
             if self.datamodel.IsProjectInitialised():
                 self.datamodel.CreateViewModel()

@@ -83,7 +83,8 @@ def GetInputPath(filepath):
         basename = basename[0:basename.index("-ChatGPT")]
     if basename.endswith("-GPT"):
         basename = basename[0:basename.index("-GPT")]
-    return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
+    path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
+    return os.path.normpath(path)
 
 def GetOutputPath(filepath, language="translated"):
     if not filepath:
@@ -127,10 +128,39 @@ def BuildPrompt(options : Options):
     """
     target_language = options.get('target_language')
     movie_name = options.get('movie_name')
-    prompt = options.get('prompt') or options.get('gpt_prompt')
+    prompt = options.get('prompt')
     prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
     prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
     return prompt
+
+def GenerateBatchPrompt(prompt : str, lines, tag_lines=None):
+    """
+    Create the user prompt for translating a set of lines
+
+    :param tag_lines: optional list of extra lines to include at the top of the prompt.
+    """
+    source_lines = [ GetLinePrompt(line) for line in lines ]
+    source_text = '\n\n'.join(source_lines)
+    text = f"\n{source_text}\n\n<summary>Summary of the batch</summary>\n<scene>Summary of the scene</scene>"
+
+    if prompt:
+        text = f"{prompt}\n\n{text}"
+
+    if tag_lines:
+        text = f"<context>\n{tag_lines}\n</context>\n\n{text}"
+
+    return text
+
+def GetLinePrompt(line):
+    if not line._item:
+        return None
+    
+    return '\n'.join([
+        f"#{line.number}",
+        "Original>",
+        line.text_normalized,
+        "Translation>"
+    ])
 
 def ParseTranslation(text):
     """
@@ -315,6 +345,8 @@ def PerformSubstitutions(substitutions : dict, input, match_partial_words : bool
         
     return result
 
+def RemoveEmptyLines(lines):
+    return [line for line in lines if line.text and line.text.strip()]
 
 def RemoveWhitespaceAndPunctuation(string):
     # Matches any punctuation, separator, or other Unicode character

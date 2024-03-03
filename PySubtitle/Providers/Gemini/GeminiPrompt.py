@@ -1,10 +1,13 @@
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.TranslationPrompt import TranslationPrompt
-from PySubtitle.Helpers import GenerateTagLines
+from PySubtitle.Helpers import GenerateBatchPrompt, GenerateTagLines
 
-class GPTPrompt(TranslationPrompt):
-    """ Prompt format tailored to OpenAI endpoints """
+class GeminiPrompt(TranslationPrompt):
+    """ Prompt format tailored to Gemini """
     def GenerateMessages(self, prompt, lines, context):
+        """
+        Generate the messages to request a translation
+        """
         if self.instructions:
             self.messages.append({'role': "system", 'content': self.instructions})
 
@@ -15,11 +18,21 @@ class GPTPrompt(TranslationPrompt):
 
             tag_lines = GenerateTagLines(context, ['description', 'names','scene', 'summary', 'batch'])
 
-            self.user_prompt = self.GenerateBatchPrompt(prompt, lines, tag_lines)
+            self.user_prompt = GenerateBatchPrompt(prompt, lines, tag_lines)
 
         else:
-            self.user_prompt = self.GenerateBatchPrompt(prompt, lines)
+            self.user_prompt = GenerateBatchPrompt(prompt, lines)
 
+        self.messages.append({'role': "user", 'content': self.user_prompt})
+
+    def GenerateReducedMessages(self):
+        """
+        Remove context from the prompt to reduce the token count
+        """
+        self.messages.clear()
+        if self.instructions:
+            self.messages.append({'role': "system", 'content': self.instructions})
+        
         self.messages.append({'role': "user", 'content': self.user_prompt})
 
     def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[TranslationError]):
@@ -40,3 +53,4 @@ class GPTPrompt(TranslationPrompt):
             { 'role': "system", 'content': retry_instructions },
             { 'role': "user", 'content': retry_prompt }
         ])
+

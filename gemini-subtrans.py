@@ -8,10 +8,9 @@ from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
 
-# We'll write separate scripts for other providers
-provider = "OpenAI"
+provider = "Gemini"
 
-log_path = os.path.join(os.getcwd(), 'gpt-subtrans.log')
+log_path = os.path.join(os.getcwd(), 'gemini-subtrans.log')
 level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
 logging_level = getattr(logging, level_name, logging.INFO)
 
@@ -35,13 +34,12 @@ except Exception as e:
     logging.warning(f"Unable to create log file at {log_path}: {e}")
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Translates an SRT file using an OpenAI GPT model')
+parser = argparse.ArgumentParser(description='Translates an SRT file using Google Gemini')
 parser.add_argument('input', help="Input SRT file path")
 parser.add_argument('-o', '--output', help="Output SRT file path")
 parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
 parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
-parser.add_argument('-k', '--apikey', type=str, default=None, help="Your OpenAI API Key (https://platform.openai.com/account/api-keys)")
-parser.add_argument('-b', '--apibase', type=str, default=None, help="API backend base address, the default value is https://api.openai.com/v1")
+parser.add_argument('-k', '--apikey', type=str, default=None, help="Your Google Gemini API Key (https://makersuite.google.com/app/apikey)")
 
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
@@ -72,7 +70,6 @@ if args.debug:
 
 try:
     options = Options({
-        'api_base': args.apibase,
         'api_key': args.apikey,
         'batch_threshold': args.batchthreshold,
         'description': args.description,

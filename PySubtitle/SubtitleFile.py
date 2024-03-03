@@ -3,13 +3,14 @@ import logging
 import threading
 import srt
 import bisect
+from PySubtitle.Options import Options
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath, ParseNames, ParseSubstitutions, UnbatchScenes
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleBatcher import SubtitleBatcher
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
@@ -22,16 +23,31 @@ class SubtitleFile:
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
         self.start_line_number = 1
-        self.context = {}
         self._scenes : list[SubtitleScene] = []
         self.lock = threading.RLock()
 
         self.sourcepath = GetInputPath(filepath)
         self.outputpath = outputpath or None
 
+        self.settings = {
+            'provider': None,
+            'model': None,
+            'prompt': "",
+            'target_language': "",
+            'instructions': "",
+            'retry_instructions': "",
+            'movie_name': "",
+            'description': "",
+            'names': None,
+            'substitutions': None,
+            'match_partial_words': False,
+            'include_original': False,
+            'instruction_file': None
+        }
+
     @property
     def target_language(self):
-        return self.context.get('target_language')
+        return self.settings.get('target_language')
 
     @property
     def has_subtitles(self):
@@ -56,7 +72,7 @@ class SubtitleFile:
         with self.lock:
             self._scenes = scenes
             self.originals, self.translated, _ = UnbatchScenes(scenes)
-            self.start_line_number = self.originals[0].number if self.originals else 1
+            self.start_line_number = (self.originals[0].number if self.originals else 1) or 1
             self.Renumber()
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
@@ -161,11 +177,11 @@ class SubtitleFile:
             with open(self.sourcepath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
-    def SaveTranslation(self, outputpath : str = None, include_original : bool = False):
+    def SaveTranslation(self, outputpath : str = None):
         """
         Write translated subtitles to an SRT file
         """
-        outputpath = outputpath or self.outputpath 
+        outputpath = outputpath or self.outputpath
         if not outputpath:
             if os.path.exists(self.sourcepath):
                 outputpath = GetOutputPath(self.sourcepath, self.target_language)
@@ -188,83 +204,37 @@ class SubtitleFile:
                 logging.error("No subtitles translated")
                 return
             
-            if include_original:
+            if self.settings.get('include_original'):
                 translated = self._merge_original_and_translated(originals, translated)
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
-            srtfile = srt.compose([ line.item for line in translated if line.text ], reindex=False)
+            srtfile = srt.compose([ line.item for line in translated if line.text and line.start], reindex=False)
             with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
+            # Log a warning if any lines had no text or start time
+            num_invalid = len([line for line in translated if not line.text or not line.start])
+            if num_invalid:
+                logging.warning(f"{num_invalid} lines were invalid and were not written to the output file")
+                
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateContext(self, options):
+    def UpdateProjectSettings(self, settings):
         """
-        Update the project context from options,
-        and set any unspecified options from the project context.
+        Update the project settings
         """
-        if hasattr(options, 'options'):
-            return self.UpdateContext(options.options)
+        if isinstance(settings, Options):
+            return self.UpdateProjectSettings(settings.options)
     
-        context = {
-            'model': "",
-            'prompt': "",
-            'target_language': "",
-            'instructions': "",
-            'retry_instructions': "",
-            'movie_name': "",
-            'description': "",
-            'names': None,
-            'substitutions': None,
-            'match_partial_words': False,
-            'include_original': False,
-            'instruction_file': None
-        }
-
         with self.lock:
-            if self.context:
-                context = {**context, **self.context}
+            self.settings.update({key: settings[key] for key in settings if key in self.settings})
 
-            context['names'] = ParseNames(context.get('names'))
-            if options.get('names'):
-                options['names'] = ParseNames(options.get('names'))
+            self.settings['names'] = ParseNames(self.settings.get('names'))
+            self.settings['substitutions'] = ParseSubstitutions(self.settings.get('substitutions'))
 
-            context['substitutions'] = ParseSubstitutions(context.get('substitutions'))
-            if options.get('substitutions'):
-                options['substitutions'] = ParseSubstitutions(options.get('substitutions'))
-
-            # Update the context dictionary with matching fields from options, and vice versa
-            for key in context.keys():
-                if key in options:
-                    context[key] = options[key]
-                elif key in context:
-                    options[key] = context[key]
-
-            # Fill description from synopsis for backward compatibility
-            if not context.get('description') and context.get('synopsis'):
-                context['description'] = context.get('synopsis')
-
-            # Move characters to names for backward compatibility
-            if context.get('characters'):
-                context['names'].extend(context.get('characters'))
-                del context['characters']
-
-            # Copy prompt to gpt_prompt for backward compatibility
-            if context.get('prompt'):
-                options['gpt_prompt'] = context['prompt']
-            elif context.get('gpt_prompt'):
-                context['prompt'] = context['gpt_prompt']
-                del context['gpt_prompt']
-
-            # Copy model to gpt_model for backward compatibility
-            if context.get('model'):
-                context['gpt_model'] = context['model']
-
-            self.context = context
-
-        return context
+            self._update_compatibility(self.settings)
 
     def UpdateOutputPath(self, outputpath : str = None):
         """
@@ -274,12 +244,10 @@ class SubtitleFile:
             outputpath = GetOutputPath(self.sourcepath, self.target_language)
         self.outputpath = outputpath
 
-    def AutoBatch(self, options):
+    def AutoBatch(self, batcher : SubtitleBatcher):
         """
         Divide subtitles into scenes and batches based on threshold options
         """
-        batcher = CreateSubtitleBatcher(options)
-
         with self.lock:
             self.scenes = batcher.BatchSubtitles(self.originals)
 
@@ -426,7 +394,7 @@ class SubtitleFile:
             # Renumber lines sequentially and remap translated indexes
             translated_map = { translated.number: translated for translated in self.translated } if self.translated else None
 
-            for number, line in enumerate(self.originals, start=self.start_line_number):
+            for number, line in enumerate(self.originals, start=self.start_line_number or 1):
                 # If there is a matching translation, remap its number
                 if translated_map and line.number in translated_map:
                     translated = translated_map[line.number]
@@ -459,3 +427,21 @@ class SubtitleFile:
                 line.text = f"{line.text}\n{item.text}"
 
         return sorted(lines.values(), key=lambda item: item.key)
+
+    def _update_compatibility(self, settings):
+        """ Update settings for compatibility with older versions """
+        if not settings.get('description') and settings.get('synopsis'):
+            settings['description'] = settings.get('synopsis')
+
+        if settings.get('characters'):
+            settings['names'].extend(settings.get('characters'))
+            del settings['characters']
+
+        if settings.get('gpt_prompt'):
+            settings['prompt'] = settings['gpt_prompt']
+            del settings['gpt_prompt']
+
+        if settings.get('gpt_model'):
+            settings['model'] = settings['gpt_model']
+            del settings['gpt_model']
+
