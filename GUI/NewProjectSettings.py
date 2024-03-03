@@ -3,10 +3,11 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayo
 from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
 from GUI.ProjectDataModel import ProjectDataModel
 
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.TranslationProvider import TranslationProvider
 
 class NewProjectSettings(QDialog):
     OPTIONS = {
@@ -52,7 +53,7 @@ class NewProjectSettings(QDialog):
         for key, setting in self.OPTIONS.items():
             key_type, tooltip = setting
             field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
-            field.contentChanged.connect(self._preview_batches)
+            field.contentChanged.connect(lambda setting=field: self._on_setting_changed(setting.key, setting.GetValue()))
             self.form_layout.addRow(field.name, field)
             self.fields[key] = field
 
@@ -94,6 +95,22 @@ class NewProjectSettings(QDialog):
             logging.error(f"Unable to update settings: {e}")
 
         super(NewProjectSettings, self).accept()
+
+    def _on_setting_changed(self, key, value):
+        if key == 'provider':
+            self._update_provider_settings(value)
+        else:
+            self.settings[key] = value
+            self._preview_batches()
+
+    def _update_provider_settings(self, provider : str):
+        try:
+            translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, self.settings)
+            model_options : DropdownOptionWidget = self.fields['model']
+            model_options.SetOptions(translation_provider.available_models)
+            self.settings['provider'] = provider
+        except Exception as e:
+            logging.error(f"Provider error: {e}")
 
     def _update_settings(self):
         layout = self.form_layout.layout()
