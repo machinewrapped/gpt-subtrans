@@ -194,8 +194,15 @@ class Options:
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
 
+    def InitialiseProviderSettings(self, provider : str, settings : dict):
+        """ Create or update the settings for a provider"""
+        if provider not in self.provider_settings:
+            self.provider_settings[provider] = deepcopy(settings)
+
+        self.MoveSettingsToProvider(provider, settings.keys())
+
     def MoveSettingsToProvider(self, provider : str, keys : list):
-        """ Move a setting from the main options to a provider's settings """
+        """ Move settings from the main options to a provider's settings """
         if provider not in self.provider_settings:
             self.provider_settings[provider] = {}
 

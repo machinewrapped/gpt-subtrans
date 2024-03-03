@@ -61,8 +61,7 @@ class TranslationProvider:
         Update the settings for the provider
         """
         if isinstance(settings, Options):
-            # Move provider-specific settings from the main options to the provider_settings section
-            settings.MoveSettingsToProvider(self.name, self.settings.keys())
+            settings.InitialiseProviderSettings(self.name, self.settings)
             settings = settings.provider_settings.get(self.name, {})
 
         # Update the settings

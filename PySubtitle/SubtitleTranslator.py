@@ -10,7 +10,7 @@ from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
-from PySubtitle.SubtitleError import TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
+from PySubtitle.SubtitleError import NoProviderError, ProviderError, TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
 from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, UnbatchScenes
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -48,14 +48,17 @@ class SubtitleTranslator:
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 
         logging.debug(f"Translation prompt: {self.prompt}")
+
+        if not options.provider:
+            raise NoProviderError()
  
         self.provider_class : TranslationProvider = TranslationProvider.get_provider(options)
         if not self.provider_class:
-            raise Exception("Unable to create translation provider")
+            raise ProviderError("Unable to create translation provider")
 
         self.client : TranslationClient = self.provider_class.GetTranslationClient(self.settings)
         if not self.client:
-            raise Exception("Unable to create translation client")
+            raise ProviderError("Unable to create translation client")
         
         self.batcher = CreateSubtitleBatcher(options)
 

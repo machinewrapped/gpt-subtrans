@@ -1,8 +1,6 @@
 # GPT-Subtrans
 GPT-Subtrans is an open source subtitle translator that uses LLMs as a translation service. It can translate subtitles between any language pairs supported by the language model. 
 
-Currently there is only one supported provider, but that will change in the near future.
-
 Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to the provider's servers for translation, so their privacy policy applies.
 
 ## Installation
@@ -15,6 +13,15 @@ You will need an OpenAI API key from https://platform.openai.com/account/api-key
 
 If the API key is associated with a free trial account the translation speed will be severely restricted.
 
+### Google Gemini
+https://ai.google.dev/terms
+
+**Please note that the Google Gemini API can only be accessed from IP addresses in certain geographic regions: https://ai.google.dev/available_regions**
+
+You will need a Google Gemini API key from https://ai.google.dev/ or from a project created on https://console.cloud.google.com/. You must ensure that Generative AI is enabled for the api key and project.
+
+Gemini support is new and should be considered experimental.
+
 ### MacOS
 Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source to use the program. If anybody would like to volunteer to maintain Intel releases, please get in touch.
 
@@ -26,11 +33,12 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-**The easiest setup method for most users is to run `install.bat` or `install.sh`/`install-mac.sh` at this point and enter your API key when prompted. You can then skip the remaining steps.**
+**The easiest setup method for most users is to run `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install-mac.sh`, which will configure OpenAI as the provider. **
 
-2. Create a new file named .env in the root directory of the project. Add your OpenAI API key to the .env file like this:
+2. Create a new file named .env in the root directory of the project. Add your API key to the .env file like this:
 ```
-    OPENAI_API_KEY=<your_api_key_here>
+    OPENAI_API_KEY=<your_openai_api_key>
+    GEMINI_API_KEY=<your_gemini_api_key>
 ```
 
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
@@ -47,6 +55,12 @@ For other platforms, or if you want to modify the program, you will need to have
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
 ```
     pip install -r requirements.txt
+```
+
+6. Install the SDKs for the provider(s) you intend to use
+```
+    pip install openai
+    pip install google.generativeai
 ```
 
 Note that steps 3 and 4 are optional, but they can help prevent conflicts with other Python applications.

@@ -1,9 +1,10 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
+
 from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -29,6 +30,7 @@ class NewProjectSettings(QDialog):
 
         self.fields = {}
 
+        self.datamodel = datamodel
         self.project : SubtitleProject = datamodel.project
         self.settings = datamodel.project_options.GetSettings()
  
@@ -52,7 +54,7 @@ class NewProjectSettings(QDialog):
         for key, setting in self.OPTIONS.items():
             key_type, tooltip = setting
             field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
-            field.contentChanged.connect(self._preview_batches)
+            field.contentChanged.connect(lambda setting=field: self._on_setting_changed(setting.key, setting.GetValue()))
             self.form_layout.addRow(field.name, field)
             self.fields[key] = field
 
@@ -94,6 +96,23 @@ class NewProjectSettings(QDialog):
             logging.error(f"Unable to update settings: {e}")
 
         super(NewProjectSettings, self).accept()
+
+    def _on_setting_changed(self, key, value):
+        if key == 'provider':
+            self._update_provider_settings(value)
+        else:
+            self.settings[key] = value
+            self._preview_batches()
+
+    def _update_provider_settings(self, provider : str):
+        try:
+            self.datamodel.UpdateProjectSettings({ "provider": provider})
+            model_options : DropdownOptionWidget = self.fields['model']
+            model_options.SetOptions(self.datamodel.available_models, self.datamodel.selected_model)
+            self.settings['provider'] = provider
+            self.settings['model'] = self.datamodel.selected_model
+        except Exception as e:
+            logging.error(f"Provider error: {e}")
 
     def _update_settings(self):
         layout = self.form_layout.layout()
