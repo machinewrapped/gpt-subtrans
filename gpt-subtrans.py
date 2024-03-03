@@ -35,7 +35,7 @@ except Exception as e:
     logging.warning(f"Unable to create log file at {log_path}: {e}")
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Translates an SRT file using GPT')
+parser = argparse.ArgumentParser(description='Translates an SRT file using an OpenAI GPT model')
 parser.add_argument('input', help="Input SRT file path")
 parser.add_argument('-o', '--output', help="Output SRT file path")
 parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
@@ -47,8 +47,8 @@ parser.add_argument('--batchthreshold', type=float, default=None, help="Number o
 parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
 parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
 parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
-parser.add_argument('--instruction', action='append', type=str, default=None, help="An instruction for Chat GPT about the translation")
-parser.add_argument('--instructionfile', type=str, default=None, help="Name/path of a file to load GPT instructions from")
+parser.add_argument('--instruction', action='append', type=str, default=None, help="An instruction for the AI translator")
+parser.add_argument('--instructionfile', type=str, default=None, help="Name/path of a file to load instructions from")
 parser.add_argument('--matchpartialwords', action='store_true', help="Allow substitutions that do not match not on word boundaries")
 parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
 parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of lines(subtitles) to process in this run")
