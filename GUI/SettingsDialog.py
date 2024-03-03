@@ -167,6 +167,7 @@ class SettingsDialog(QDialog):
 
             provider_settings = self.provider_settings.get(provider)
             self.translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
+            self.provider_settings[provider].update(self.translation_provider.settings)
 
     def _add_provider_options(self, section_name : str, layout : QFormLayout):
         """
