@@ -1,9 +1,10 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
+
 from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
 from GUI.ProjectDataModel import ProjectDataModel
-
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
+
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -30,6 +31,7 @@ class NewProjectSettings(QDialog):
 
         self.fields = {}
 
+        self.datamodel = datamodel
         self.project : SubtitleProject = datamodel.project
         self.settings = datamodel.project_options.GetSettings()
  
@@ -105,9 +107,10 @@ class NewProjectSettings(QDialog):
 
     def _update_provider_settings(self, provider : str):
         try:
-            translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, self.settings)
+            provider_settings = self.datamodel.project_options.provider_settings.get(provider, {})
+            translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
             model_options : DropdownOptionWidget = self.fields['model']
-            model_options.SetOptions(translation_provider.available_models)
+            model_options.SetOptions(translation_provider.available_models, translation_provider.selected_model)
             self.settings['provider'] = provider
         except Exception as e:
             logging.error(f"Provider error: {e}")

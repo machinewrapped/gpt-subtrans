@@ -37,6 +37,7 @@ class ProjectSettings(QGroupBox):
         self.widgets = {}
         self.settings = {}
         self.current_provider = None
+        self.datamodel = None
 
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
@@ -67,6 +68,7 @@ class ProjectSettings(QGroupBox):
         self.show()
 
     def SetDataModel(self, datamodel : ProjectDataModel):
+        self.datamodel = datamodel
         self.model_list = datamodel.available_models
         self.current_provider = datamodel.provider
 
@@ -197,8 +199,18 @@ class ProjectSettings(QGroupBox):
 
     def _option_changed(self, key, value):
         if key == 'provider':
-            self.settings['key'] = value
+            self._update_provider_settings(value)
+
+    def _update_provider_settings(self, provider : str):
+        try:
+            provider_settings = self.datamodel.project_options.provider_settings.get(provider, {})
+            translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
+            self.model_list = translation_provider.available_models
+            self.settings['model'] = translation_provider.selected_model
             self._update_available_models()
+            self.settings['provider'] = provider
+        except Exception as e:
+            logging.error(f"Provider error: {e}")
 
     def _update_available_models(self):
         model_input = self.widgets.get('model')
