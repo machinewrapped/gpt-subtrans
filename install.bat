@@ -27,6 +27,7 @@ if exist envsubtrans (
     if /i "!user_choice!"=="Y" (
         echo Performing a clean install...
         rmdir /s /q envsubtrans
+        if exist .env del .env
         python -m venv envsubtrans
         call envsubtrans\Scripts\activate.bat
         echo Installing requirements from "requirements.txt"...

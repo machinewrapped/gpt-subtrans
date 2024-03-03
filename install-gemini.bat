@@ -19,8 +19,6 @@ if not exist .env (
     move /y temp.env .env > nul
 )
 
-echo default provider set to Google Gemini
-
 REM Check if GEMINI provider settings are already configured
 findstr /m "GEMINI_API_KEY" .env > nul
 if not errorlevel 1 (
@@ -37,6 +35,8 @@ if not "%api_key%"=="" (
 )
 
 :skip_api_key
+
+echo default provider set to Google Gemini
 
 echo Installation complete. To uninstall, simply delete the directory.
 exit /b 0
