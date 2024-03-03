@@ -10,7 +10,8 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QSplitter,
-    QDialog
+    QDialog,
+    QMessageBox
 )
 from GUI.AboutDialog import AboutDialog
 from GUI.Command import Command
@@ -154,6 +155,12 @@ class MainWindow(QMainWindow):
                 logging.warning("Translation provider settings are not valid. Please check the settings.")
 
     def _first_run(self, options: Options):
+        if not options.available_providers:
+            logging.error("No translation providers available. Please install one or more providers.")
+            QMessageBox.critical(self, "Error", "No translation providers available. Please install one or more providers.")
+            self.QueueCommand(ExitProgramCommand())
+            return
+
         first_run_options = FirstRunOptions(options, self)
         result = first_run_options.exec()
 
