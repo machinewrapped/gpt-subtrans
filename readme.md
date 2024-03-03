@@ -16,7 +16,7 @@ If the API key is associated with a free trial account the translation speed wil
 ### Google Gemini
 https://ai.google.dev/terms
 
-**Please note that the Google Gemini API can only be accessed from IP addresses in certain geographic regions: https://ai.google.dev/available_regions **
+**Please note that the Google Gemini API can only be accessed from IP addresses in certain geographic regions: https://ai.google.dev/available_regions**
 
 You will need a Google Gemini API key from https://ai.google.dev/ or from a project created on https://console.cloud.google.com/. You must ensure that Generative AI is enabled for the api key and project.
 
