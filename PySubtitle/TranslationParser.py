@@ -142,7 +142,7 @@ class TranslationParser:
         Check if the translation seems at least plausible
         """
         if not self.translated:
-            raise NoTranslationError(f"Failed to extract any translations from {self.text}", self.text)
+            return [ NoTranslationError(f"Failed to extract any translations from {self.text}", self.text) ]
         
         validator = SubtitleValidator(self.options)
-        validator.ValidateTranslations(self.translated)
+        return validator.ValidateTranslations(self.translated)

@@ -11,7 +11,7 @@ class SubtitleValidator:
         Check if the translation seems at least plausible
         """
         if not translated:
-            raise NoTranslationError(f"Failed to extract any translations")
+            return [ NoTranslationError(f"Failed to extract any translations") ]
         
         max_characters = self.options.get('max_characters')
         max_newlines = self.options.get('max_newlines')
@@ -35,14 +35,18 @@ class SubtitleValidator:
             if line.text.count('\n') > max_newlines:
                 too_many_newlines.append(line)
 
+        errors = []
+
         if no_number:
-            raise UnmatchedLinesError(f"{len(no_number)} translations could not be matched with a source line", no_number)
+            errors.append(UnmatchedLinesError(f"{len(no_number)} translations could not be matched with a source line", no_number))
 
         if no_text:
-            raise EmptyLinesError(f"{len(no_text)} translations returned a blank line", no_text)
+            errors.append(EmptyLinesError(f"{len(no_text)} translations returned a blank line", no_text))
 
         if too_long:
-            raise LineTooLongError(f"One or more lines exceeded {max_characters} characters", too_long)
+            errors.append(LineTooLongError(f"One or more lines exceeded {max_characters} characters", too_long))
 
         if too_many_newlines:
-            raise TooManyNewlinesError(f"One or more lines contain more than {max_newlines} newlines", too_many_newlines)
+            errors.append(TooManyNewlinesError(f"One or more lines contain more than {max_newlines} newlines", too_many_newlines))
+        
+        return errors

@@ -121,17 +121,16 @@ class SubtitleBatch:
         """
         Check whether translation contains obvious errors.
         """
-        self.errors = []
         if self.translated:
             try:
                 validator = SubtitleValidator(options)
-                validator.ValidateTranslations(self.translated)
+                return validator.ValidateTranslations(self.translated)
 
             except TranslationError as e:
                 if not options.get('allow_retranslations'):
                     raise
                 else:
-                    self.errors.append(e)
+                    return [e]
 
     def PerformInputSubstitutions(self, substitutions, match_partial_words : bool = False):
         """

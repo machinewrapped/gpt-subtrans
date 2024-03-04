@@ -31,7 +31,6 @@ class SubtitleTranslator:
         self.max_lines = options.get('max_lines')
         self.max_context_summaries = options.get('max_context_summaries')
         self.stop_on_error = options.get('stop_on_error')
-        self.enforce_line_parity = options.get('enforce_line_parity')
         self.allow_retranslations = options.get('allow_retranslations')
         self.whitespaces_to_newline = options.get('whitespaces_to_newline')
         self.match_partial_words = options.get('match_partial_words')
@@ -173,6 +172,12 @@ class SubtitleTranslator:
                 logging.info(f"Scene {batch.scene} batch {batch.number} already translated {batch.size} lines...")
                 continue
 
+            if self.reparse and batch.translation:
+                logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(originals)} lines...")
+                translation = batch.translation
+                self.ProcessTranslation(batch, line_numbers, context)
+                continue
+
             originals, context = self.PreprocessBatch(batch, context)
 
             if remaining_lines and len(originals) > remaining_lines:
@@ -180,49 +185,49 @@ class SubtitleTranslator:
                 originals = originals[:remaining_lines]
 
             try:
-                if self.reparse and batch.translation:
-                    logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(originals)} lines...")
-                    translation = batch.translation
-                else:
-                    logging.debug(f"Translating scene {batch.scene} batch {batch.number} with {len(originals)} lines...")
+                logging.debug(f"Translating scene {batch.scene} batch {batch.number} with {len(originals)} lines...")
 
-                    if self.preview:
-                        self.events.batch_translated(batch)
-                        continue
+                if self.preview:
+                    self.events.batch_translated(batch)
+                    continue
 
-                    # Build summaries context
-                    context['batch'] = f"Scene {batch.scene} batch {batch.number}"
-                    context['summary'] = batch.summary
+                # Build summaries context
+                context['batch'] = f"Scene {batch.scene} batch {batch.number}"
+                context['summary'] = batch.summary
 
-                    # Ask the client to do the translation
-                    translation : Translation = self.client.RequestTranslation(self.prompt, originals, context)
+                # Ask the client to do the translation
+                translation : Translation = self.client.RequestTranslation(self.prompt, originals, context)
 
-                    if self.aborted:
-                        raise TranslationAbortedError()
+                if self.aborted:
+                    raise TranslationAbortedError()
 
-                if translation:
-                    translation.ParseResponse()
-
-                    batch.translation = translation
-
-                    # Process the response
-                    self.ProcessTranslation(batch, line_numbers, context)
-
-                    if batch.summary:
-                        context['summaries'].append(batch.summary)  # TODO: may be out of order
-                        context['summaries'] = context['summaries'][-self.max_context_summaries:]
-
-                else:
+                if not translation:
                     logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
+                    if self.stop_on_error:
+                        raise TranslationFailedError(f"No translation for scene {batch.scene} batch {batch.number}")
 
-            except TranslationAbortedError:
-                raise
-                    
-            except TranslationError as e:
-                if self.stop_on_error or isinstance(e, TranslationImpossibleError):
+                translation.ParseResponse()
+
+                batch.translation = translation
+
+                # Process the response
+                self.ProcessTranslation(batch, line_numbers, context)
+
+                if batch.summary:
+                    context['summaries'].append(batch.summary)  # TODO: may be out of order
+                    context['summaries'] = context['summaries'][-self.max_context_summaries:]
+
+                if self.stop_on_error and batch.errors:
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
+
+            except (TranslationAbortedError, TranslationFailedError, TranslationImpossibleError) as e:
+                raise 
+
+            except Exception as e:
+                if self.stop_on_error:
+                    raise
                 else:
-                    logging.warning(f"Error translating batch: {str(e)}")
+                    logging.warning(f"Failed to translate scene {batch.scene} batch {batch.number} ({str(e)})")
 
             if remaining_lines:
                 remaining_lines = max(0, remaining_lines - len(originals))
@@ -273,20 +278,18 @@ class SubtitleTranslator:
             # Apply the translation to the subtitles
             parser : TranslationParser = self.client.GetParser()
             
-            # Reset error list, hopefully they're obsolete
-            batch.errors = []
-
             try:
                 parser.ProcessTranslation(translation)
 
                 # Try to match the translations with the original lines
                 translated, unmatched = parser.MatchTranslations(batch.originals)
 
+                # Sanity check the results
+                batch.errors = parser.ValidateTranslations()
+
                 if unmatched:
                     logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
-
-                # Sanity check the results
-                parser.ValidateTranslations()
+                    batch.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", unmatched))
             
             except TranslationAbortedError:
                 raise
@@ -302,7 +305,8 @@ class SubtitleTranslator:
                 logging.warn(f"Scene {batch.scene} batch {batch.number} failed validation, requesting retranslation")
                 retranslated = self.RequestRetranslations(batch, translation)
 
-                translated = MergeTranslations(translated or [], retranslated)
+                if retranslated:
+                    translated = MergeTranslations(translated or [], retranslated)
 
             # Assign the translated lines to the batch
             if line_numbers:
@@ -368,17 +372,15 @@ class SubtitleTranslator:
             return []
         
         try:
-            batch.errors = []
-
             _, unmatched = parser.MatchTranslations(batch.originals)
+
+            batch.errors = parser.ValidateTranslations()
 
             if unmatched:
                 logging.warning(f"Still unable to match {len(unmatched)} lines with a source line - try splitting the batch")
                 batch.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", unmatched))
-
-            parser.ValidateTranslations()
-
-            logging.info("Retranslation passed validation")
+            else:
+                logging.info("Retranslation passed validation")
 
         except TranslationError as e:
             logging.warn(f"Retranslation request did not fix problems:\n{retranslation.text}\n")
