@@ -1,6 +1,6 @@
 import logging
 from PySubtitle import SubtitleError
-from PySubtitle.Helpers import ResyncTranslatedLines
+from PySubtitle.Helpers import IsErrorType, ResyncTranslatedLines
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
@@ -176,8 +176,8 @@ class SubtitleScene:
             else:
                 logging.warning(f"Expected line number {translated_number} not found in batch translations")
 
-        for error in batch.errors:
-            if hasattr(error, 'type') and error.type == 'UntranslatedlinesError':
+        for error in batch.errors[:]:
+            if IsErrorType(error, SubtitleError.UntranslatedLinesError):
                 if not new_batch.all_translated:
                     new_batch.errors.append(error)
                 if batch.all_translated:

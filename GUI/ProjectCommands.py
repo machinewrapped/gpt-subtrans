@@ -185,7 +185,7 @@ class SplitBatchCommand(Command):
             self.model_update.lines.remove((self.scene_number, self.batch_number, line_removed))
 
         for batch_number in range(self.batch_number + 1, len(scene.batches)):
-             self.model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
+             self.model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1, 'errors' : split_batch.errors})
 
         self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 

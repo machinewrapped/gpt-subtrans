@@ -406,3 +406,7 @@ def FormatMessages(messages):
 
     return '\n'.join(lines)
 
+def IsErrorType(error, error_type):
+    """ Check if an object is an error type or serialized representation of it"""
+    return isinstance(error, error_type) or isinstance(error, dict) and error.get('type') == error_type.__name__
+
