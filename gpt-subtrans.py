@@ -10,6 +10,7 @@ from PySubtitle.TranslationProvider import TranslationProvider
 
 # We'll write separate scripts for other providers
 provider = "OpenAI"
+default_model = os.getenv('OPENAI_MODEL') or "gpt-3.5-turbo-0125"
 
 log_path = os.path.join(os.getcwd(), 'gpt-subtrans.log')
 level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
@@ -84,7 +85,7 @@ try:
         'max_context_summaries': args.maxsummaries,
         'max_lines': args.maxlines,
         'min_batch_size': args.minbatchsize,
-        'model': args.model,
+        'model': args.model or default_model,
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'names': ParseNames(args.names or args.name),
         'project': args.project and args.project.lower(),

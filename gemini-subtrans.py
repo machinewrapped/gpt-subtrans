@@ -9,6 +9,7 @@ from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
 
 provider = "Gemini"
+default_model = os.getenv('GEMINI_MODEL') or "Gemini 1.0 Pro"
 
 log_path = os.path.join(os.getcwd(), 'gemini-subtrans.log')
 level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
@@ -81,7 +82,7 @@ try:
         'max_context_summaries': args.maxsummaries,
         'max_lines': args.maxlines,
         'min_batch_size': args.minbatchsize,
-        'model': args.model,
+        'model': args.model or default_model,
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'names': ParseNames(args.names or args.name),
         'project': args.project and args.project.lower(),
