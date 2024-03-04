@@ -17,7 +17,6 @@ class SettingsDialog(QDialog):
             'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
             'theme': [],
             'allow_retranslations': (bool, "If true, translations that fail validation will be sent again with a note about the mistake"),
-            'enforce_line_parity': (bool, "Validator: If true, require one translated line for each source line"),
             'autosave': (bool, "Automatically save the project after each translation batch"),
             'write_backup': (bool, "Save a backup copy of the project when opening it"),
             'stop_on_error': (bool, "Stop translating if an error is encountered")

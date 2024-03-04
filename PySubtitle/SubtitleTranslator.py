@@ -284,8 +284,6 @@ class SubtitleTranslator:
 
                 if unmatched:
                     logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
-                    if self.enforce_line_parity:
-                        raise UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", unmatched)
 
                 # Sanity check the results
                 parser.ValidateTranslations()
