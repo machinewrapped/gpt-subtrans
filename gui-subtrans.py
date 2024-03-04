@@ -8,7 +8,6 @@ from pstats import Stats
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
 from PySubtitle.Options import Options, settings_path, config_dir
-from PySubtitle.TranslationProvider import TranslationProvider
 
 # This seems insane but ChatGPT told me to do it.
 project_dir = os.path.abspath(os.path.dirname(__file__))
