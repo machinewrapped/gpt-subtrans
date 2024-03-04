@@ -166,6 +166,14 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 - `-m`, `--model`:
   Specify the [AI model](https://platform.openai.com/docs/models) to use for translation
 
+### Gemini-specific arguments
+- `-k`, `--apikey`:
+  Your [Google Gemini API Key](https://aistudio.google.com/app/apikey). Not required if it is set in the .env file.
+
+- `-m`, `--model`:
+  Specify the [AI model](https://ai.google.dev/models/gemini) to use for translation
+
+
 ## Project File
 
 **Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and updated automatically.
