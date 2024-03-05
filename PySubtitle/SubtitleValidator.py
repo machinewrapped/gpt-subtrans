@@ -1,10 +1,27 @@
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleError import EmptyLinesError, LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError
+from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleError import EmptyLinesError, LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError, UntranslatedLinesError
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleValidator:
     def __init__(self, options : Options) -> None:
         self.options = options
+
+    def ValidateBatch(self, batch : SubtitleBatch):
+        """
+        Check if the batch seems at least plausible
+        """
+        errors = []
+        if batch.translated:
+            if not batch.all_translated:
+                errors.append(UntranslatedLinesError(f"No translation found for {len(batch.originals) - len(batch.translated)} lines"))
+
+            try:
+                self.ValidateTranslations(batch.translated)
+            except Exception as e:
+                errors.append(e)
+
+        batch.errors = errors
 
     def ValidateTranslations(self, translated : list[SubtitleLine]):
         """

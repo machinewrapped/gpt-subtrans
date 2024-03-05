@@ -48,9 +48,9 @@ class NoTranslationError(TranslationError):
         self.response = response
 
 class UntranslatedLinesError(TranslationError):
-    def __init__(self, message, lines):
+    def __init__(self, message, lines = None):
         super().__init__(message)
-        self.lines = lines
+        self.lines = lines or []
 
     def __str__(self) -> str:
         return str(self.args[0])
