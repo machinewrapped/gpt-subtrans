@@ -151,7 +151,7 @@ class SubtitleTranslator:
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
 
-        except TranslationAbortedError:
+        except (TranslationAbortedError, TranslationFailedError, TranslationImpossibleError) as e:
             raise
 
         except Exception as e:
@@ -221,7 +221,7 @@ class SubtitleTranslator:
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
 
             except (TranslationAbortedError, TranslationFailedError, TranslationImpossibleError) as e:
-                raise 
+                raise
 
             except Exception as e:
                 if self.stop_on_error:
