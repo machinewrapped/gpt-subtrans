@@ -131,6 +131,10 @@ def BuildPrompt(options : Options):
     prompt = options.get('prompt')
     prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
     prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
+
+    for k,v in options.options.items():
+        if v:
+            prompt = prompt.replace(f"[{k}]", str(v))
     return prompt
 
 def GenerateBatchPrompt(prompt : str, lines, tag_lines=None):
