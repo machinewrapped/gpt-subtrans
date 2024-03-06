@@ -19,6 +19,7 @@ from GUI.ProjectCommands import (
 )
 from GUI.ProjectSelection import ProjectSelection
 from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleValidator import SubtitleValidator
 
 class ActionError(Exception):
     def __init__(self, message, error = None):
@@ -253,8 +254,8 @@ class ProjectActions(QObject):
         batch = subtitles.GetBatchContainingLine(line_number)
         if batch:
             if batch.errors:
-                # re-run validations to clear errors
-                batch.Validate(datamodel.project_options)
+                validator = SubtitleValidator(datamodel.project_options)
+                self.errors = validator.ValidateBatch(batch)
 
             update = {
                 'lines' : { line_number : { 'text' : original_text, 'translation' : translated_text}},

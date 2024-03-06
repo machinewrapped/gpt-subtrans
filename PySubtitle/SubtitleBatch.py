@@ -1,7 +1,6 @@
 from datetime import timedelta
 import re
-from PySubtitle.SubtitleValidator import SubtitleValidator
-from PySubtitle.SubtitleError import SubtitleError, TranslationError
+from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import PerformSubstitutions
 from PySubtitle.SubtitleLine import SubtitleLine
 
@@ -117,22 +116,6 @@ class SubtitleBatch:
 
         return updated
     
-    def Validate(self, options):
-        """
-        Check whether translation contains obvious errors.
-        """
-        self.errors = []
-        if self.translated:
-            try:
-                validator = SubtitleValidator(options)
-                validator.ValidateTranslations(self.translated)
-
-            except TranslationError as e:
-                if not options.get('allow_retranslations'):
-                    raise
-                else:
-                    self.errors.append(e)
-
     def PerformInputSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
         Perform any word/phrase substitutions on source text
