@@ -11,6 +11,7 @@ from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.SubtitleValidator import SubtitleValidator
 
 class BatchSubtitlesCommand(Command):
     """
@@ -180,6 +181,10 @@ class SplitBatchCommand(Command):
         split_batch : SubtitleBatch = scene.GetBatch(self.batch_number)
         new_batch : SubtitleBatch = scene.GetBatch(new_batch_number)
 
+        validator = SubtitleValidator(self.datamodel.project_options)
+        validator.ValidateBatch(split_batch)
+        validator.ValidateBatch(new_batch)
+
         # Remove lines from the original batch that are in the new batch now
         for line_removed in range(self.line_number, new_batch.last_line_number + 1):
             self.model_update.lines.remove((self.scene_number, self.batch_number, line_removed))
@@ -187,6 +192,7 @@ class SplitBatchCommand(Command):
         for batch_number in range(self.batch_number + 1, len(scene.batches)):
              self.model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
 
+        self.model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.errors })
         self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
         return True
