@@ -61,7 +61,7 @@ class GeminiClient(TranslationClient):
         return translation
     
     def _abort(self):
-        self.client.close()
+        # TODO cancel any ongoing requests
         return super()._abort()
 
     def GetParser(self):
