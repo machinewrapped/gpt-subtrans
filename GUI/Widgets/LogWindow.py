@@ -47,9 +47,11 @@ class LogWindow(QTextEdit):
             self.scrollToBottom.emit()
 
     def _scroll_to_bottom(self):
-        current_scroll = self.verticalScrollBar().value()
-        maximum_scroll = self.verticalScrollBar().maximum()
-        self.verticalScrollBar().setValue(maximum_scroll)
+        try:
+            maximum_scroll = self.verticalScrollBar().maximum()
+            self.verticalScrollBar().setValue(maximum_scroll)
+        except:
+            pass
 
 class QtLogHandler(logging.Handler):
     log_window: LogWindow
@@ -60,7 +62,11 @@ class QtLogHandler(logging.Handler):
         self.log_window = log_window
 
     def emit(self, record):
-        msg = self.format(record)
-        level = record.levelname
-        self.log_window.AppendLogMessage(msg, level)
+        try:
+            msg = self.format(record)
+            level = record.levelname
+            self.log_window.AppendLogMessage(msg, level)
+
+        except Exception:
+            self.handleError(record)
 
