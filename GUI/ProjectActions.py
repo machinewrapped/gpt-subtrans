@@ -7,6 +7,7 @@ from GUI.CommandQueue import ClearCommandQueue
 from GUI.FileCommands import *
 from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
 from GUI.ProjectCommands import (
+    AutoSplitBatchCommand,
     MergeBatchesCommand,
     MergeLinesCommand,
     MergeScenesCommand,
@@ -71,6 +72,7 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Split Scene', self._split_scene)
+        ProjectDataModel.RegisterActionHandler('Auto-Split Batch', self._autosplit_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
     def SetDataModel(self, datamodel : ProjectDataModel):
@@ -316,6 +318,16 @@ class ProjectActions(QObject):
 
         self._issue_command(SplitSceneCommand(selected_batch.scene, selected_batch.number))
 
+    def _autosplit_batch(self, datamodel, selection : ProjectSelection):
+        """
+        Split a batch in two automatically (using heuristics to find the best split point)
+        """
+        if not selection.AnyBatches() or selection.MultipleSelected():
+            raise ActionError("Can only autosplit a single batch")
+        
+        scene_number, batch_number = selection.batch_numbers[0]
+
+        self._issue_command(AutoSplitBatchCommand(scene_number, batch_number))
 
     def _swap_text_and_translation(self, datamodel, selection : ProjectSelection):
         """
