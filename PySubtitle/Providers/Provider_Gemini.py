@@ -30,7 +30,7 @@ try:
                 "api_key": settings.get('api_key') or os.getenv('GEMINI_API_KEY'),
                 "model": settings.get('model') or os.getenv('GEMINI_MODEL'),
                 'temperature': float(os.getenv('GEMINI_TEMPERATURE', 0.0)),
-                'rate_limit': float(os.getenv('GEMINI_RATE_LIMIT')) if os.getenv('GEMINI_RATE_LIMIT') else None,
+                'rate_limit': float(os.getenv('GEMINI_RATE_LIMIT')) if os.getenv('GEMINI_RATE_LIMIT') else 60.0,
             })
 
             self.refresh_when_changed = ['api_key', 'model']
