@@ -69,8 +69,12 @@ class ProjectSettings(QGroupBox):
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
-        self.model_list = datamodel.available_models
         self.current_provider = datamodel.provider
+        try:
+            self.model_list = datamodel.available_models
+        except Exception as e:
+            logging.warning(f"Unable to retrieve models: {e}")
+            self.model_list = []
 
         self.settings = datamodel.project.GetProjectSettings()
         self.settings['model'] = datamodel.selected_model
