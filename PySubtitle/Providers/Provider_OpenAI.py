@@ -34,8 +34,8 @@ try:
                 "api_key": settings.get('api_key') or os.getenv('OPENAI_API_KEY'),
                 "api_base": settings.get('api_base') or os.getenv('OPENAI_API_BASE'),
                 "model": settings.get('model') or os.getenv('OPENAI_MODEL'),
-                'temperature': float(os.getenv('OPENAI_TEMPERATURE', 0.0)),
-                'rate_limit': float(os.getenv('OPENAI_RATE_LIMIT')) if os.getenv('OPENAI_RATE_LIMIT') else None,
+                'temperature': settings.get('temperature') or float(os.getenv('OPENAI_TEMPERATURE', 0.0)),
+                'rate_limit': settings.get('rate_limit') or float(os.getenv('OPENAI_RATE_LIMIT')) if os.getenv('OPENAI_RATE_LIMIT') else None,
                 "free_plan": settings.get('free_plan') or os.getenv('OPENAI_FREE_PLAN') == "True",
                 'max_instruct_tokens': int(os.getenv('MAX_INSTRUCT_TOKENS', 2048)),
             })
