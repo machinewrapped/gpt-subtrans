@@ -76,15 +76,22 @@ class Translation:
             return "No translation"
 
         content_keys = [k for k in self.content.keys() if k not in ['text', 'summary', 'scene', 'names']]
-        metadata = "\n".join([f"{k}: {self.content[k]}" for k in content_keys if self.content.get(k)])
+        metadata = [ f"{k}: {self.content[k]}" for k in content_keys if self.content.get(k) ]
 
         if self.scene:
-            metadata += f"\n\nScene:\n{self.scene}"
+            metadata.append(f"\nScene:\n{self.scene}")
 
         if self.summary:
-            metadata += f"\n\nSummary:\n{self.summary}"
+            metadata.append(f"\nSummary:\n{self.summary}")
 
         if self.names:
-            metadata += f"\n\nNames:\n{'\n'.join(self.names)}"
+            metadata.append(f"\n\nNames:\n{'\n'.join(self.names)}")
 
-        return f"{metadata}\n\n{self.text}" if include_text else metadata
+        if metadata:
+            metadata_text = '\n'.join(metadata)
+            return f"{metadata_text}\n\n{self.text}" if include_text else metadata_text
+        else:
+            return self.text if include_text else "No metadata available"
+            
+
+
