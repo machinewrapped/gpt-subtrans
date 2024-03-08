@@ -197,7 +197,7 @@ class SubtitleScene:
         best_split_index = None
         best_split_score = 0
 
-        # Split lines according to the largest gap waited towards the middle of the batch
+        # Split lines according to the largest gap weighted towards the middle of the batch
         for i in range(min_size, len(batch.originals) - min_size):
             gap = batch.originals[i].start - batch.originals[i - 1].end
             proximity_to_midpoint = midpoint - abs(i - midpoint)
