@@ -1,8 +1,6 @@
-import os
 from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QLabel, QDialogButtonBox, QTabWidget, QWidget, )
 
 from GUI.ProjectViewModel import BatchItem, LineItem, SceneItem
-
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
 class EditDialog(QDialog):
@@ -124,8 +122,8 @@ class EditBatchDialog(EditDialog):
 
             self.SetTabLayout(tab_widget, response_layout, "Response")
 
-        # Create debug tabs if DEBUG_MODE environment var is set
-        if os.environ.get("DEBUG_MODE") == "1":
+        if self.item.debug_view:
+            # Create debug tabs
             messages_layout = self.GetFormLayout()
             self.AddMultilineEdit(messages_layout, 'messages', read_only=True)
             self.SetTabLayout(tab_widget, messages_layout, "Messages")

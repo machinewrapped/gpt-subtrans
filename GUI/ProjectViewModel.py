@@ -36,6 +36,7 @@ class ProjectViewModel(QStandardItemModel):
         self.model = {}
         self.updates = []
         self.update_lock = QMutex()
+        self.debug_view = os.environ.get("DEBUG_MODE") == "1"
 
     def getRootItem(self):
         return self.invisibleRootItem()
@@ -75,7 +76,7 @@ class ProjectViewModel(QStandardItemModel):
         return scene_item
 
     def CreateBatchItem(self, scene_number : int, batch : SubtitleBatch):
-        batch_item = BatchItem(scene_number, batch)
+        batch_item = BatchItem(scene_number, batch, debug_view=self.debug_view)
 
         gap_start = None
         for line in batch.originals:
@@ -490,10 +491,11 @@ class LineItem(QStandardItem):
 ###############################################
 
 class BatchItem(ViewModelItem):
-    def __init__(self, scene_number, batch : SubtitleBatch):
+    def __init__(self, scene_number, batch : SubtitleBatch, debug_view = False):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
         self.scene = scene_number
         self.number = batch.number
+        self.debug_view = debug_view
         self.lines = {}
         self.translated = {}
         self.batch_model = {
@@ -522,7 +524,7 @@ class BatchItem(ViewModelItem):
                 'prompt': FormatPrompt(batch.prompt)
             })
 
-            if os.environ.get("DEBUG_MODE") == "1":
+            if self.debug_view:
                 self.batch_model.update({
                     'messages': FormatMessages(batch.prompt.messages)
                 })
@@ -618,7 +620,7 @@ class BatchItem(ViewModelItem):
                 self.batch_model.update({
                     'prompt': FormatPrompt(prompt)
                 })
-                if os.environ.get("DEBUG_MODE") == "1":
+                if self.debug_view:
                     self.batch_model.update({
                         'messages': FormatMessages(prompt.messages)
                     })
