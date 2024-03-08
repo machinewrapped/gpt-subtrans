@@ -286,12 +286,9 @@ class AutoSplitBatchCommand(Command):
             raise Exception("No subtitles")
         
         scene = project.subtitles.GetScene(self.scene_number)
-        if not scene:
-            raise CommandError(f"Cannot split scene {self.scene_number} because it doesn't exist")
-        
-        batch = scene.GetBatch(self.batch_number)
-        if not batch:
-            raise CommandError(f"Cannot split batch {self.batch_number} because it doesn't exist")
+
+        if not scene or not scene.GetBatch(self.batch_number):
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
 
         min_batch_size = self.datamodel.project_options.get('min_batch_size', 1)
         scene.AutoSplitBatch(self.batch_number, min_batch_size)
