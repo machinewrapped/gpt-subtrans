@@ -190,19 +190,19 @@ class SubtitleScene:
         if not batch:
             raise ValueError("Invalid batch number")
 
-        if len(batch.originals) <= min_size:
+        midpoint = len(batch.originals) // 2
+        if midpoint < min_size:
             raise ValueError("Batch is too small to split")
 
-        midpoint = len(batch.originals) // 2
         best_split_index = None
         best_split_score = 0
 
         # Split lines according to the largest gap waited towards the middle of the batch
-        
         for i in range(min_size, len(batch.originals) - min_size):
             gap = batch.originals[i].start - batch.originals[i - 1].end
             proximity_to_midpoint = midpoint - abs(i - midpoint)
             split_score = proximity_to_midpoint * (gap / timedelta(milliseconds=1))
+
             if split_score > best_split_score:
                 best_split_score = split_score
                 best_split_index = i
