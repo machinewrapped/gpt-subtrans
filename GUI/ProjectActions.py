@@ -325,7 +325,7 @@ class ProjectActions(QObject):
         if not selection.AnyBatches() or selection.MultipleSelected():
             raise ActionError("Can only autosplit a single batch")
         
-        scene_number, batch_number = selection.batch_numbers[0]
+        scene_number, batch_number = selection.selected_batches[0].key
 
         self._issue_command(AutoSplitBatchCommand(scene_number, batch_number))
 

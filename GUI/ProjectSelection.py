@@ -25,6 +25,10 @@ class SelectionBatch:
         self.scene, self.number = batch_number
         self.selected = selected
 
+    @property
+    def key(self):
+        return (self.scene, self.number)
+
     def __str__(self) -> str:
         str = f"scene {self.scene}:batch {self.number}"
         return f"{str} [*]" if self.selected else str
@@ -38,6 +42,10 @@ class SelectionLine:
         self.batch = batch
         self.number = number
         self.selected = selected
+
+    @property
+    def key(self):
+        return (self.scene, self.batch, self.number)
 
     def __str__(self) -> str:
         str = f"scene {self.scene}:batch {self.batch}:line {self.number}"
