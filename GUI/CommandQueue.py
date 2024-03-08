@@ -117,7 +117,8 @@ class CommandQueue(QObject):
 
         self.commandExecuted.emit(command, success)
 
-        if command.commands_to_queue and not command.aborted:
+        can_proceed = not command.aborted and not command.terminal
+        if command.commands_to_queue and can_proceed:
             with QMutexLocker(self.mutex):
                 for queued_command in command.commands_to_queue:
                     self._queue_command(queued_command, command.datamodel)

@@ -153,7 +153,7 @@ class SubtitleTranslator:
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
 
-        except (TranslationAbortedError, TranslationFailedError, TranslationImpossibleError) as e:
+        except (TranslationAbortedError, TranslationImpossibleError) as e:
             raise
 
         except Exception as e:
