@@ -12,6 +12,8 @@ from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.Translation import Translation
+from PySubtitle.TranslationPrompt import FormatPrompt, TranslationPrompt
 
 class ViewModelItem(QStandardItem):
     def GetContent(self):
@@ -34,6 +36,7 @@ class ProjectViewModel(QStandardItemModel):
         self.model = {}
         self.updates = []
         self.update_lock = QMutex()
+        self.debug_view = os.environ.get("DEBUG_MODE") == "1"
 
     def getRootItem(self):
         return self.invisibleRootItem()
@@ -73,7 +76,7 @@ class ProjectViewModel(QStandardItemModel):
         return scene_item
 
     def CreateBatchItem(self, scene_number : int, batch : SubtitleBatch):
-        batch_item = BatchItem(scene_number, batch)
+        batch_item = BatchItem(scene_number, batch, debug_view=self.debug_view)
 
         gap_start = None
         for line in batch.originals:
@@ -488,10 +491,11 @@ class LineItem(QStandardItem):
 ###############################################
 
 class BatchItem(ViewModelItem):
-    def __init__(self, scene_number, batch : SubtitleBatch):
+    def __init__(self, scene_number, batch : SubtitleBatch, debug_view = False):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
         self.scene = scene_number
         self.number = batch.number
+        self.debug_view = debug_view
         self.lines = {}
         self.translated = {}
         self.batch_model = {
@@ -505,13 +509,25 @@ class BatchItem(ViewModelItem):
         self._first_line_num = None
         self._last_line_num = None
 
-        if batch.translation and os.environ.get("DEBUG_MODE") == "1":
+        if batch.translation:
             self.batch_model.update({
                 'response': batch.translation.text,
-                'context': batch.context
+                'context': batch.context,
             })
-            if batch.translation.prompt:
-                self.batch_model['messages'] = FormatMessages(batch.translation.prompt.messages)
+
+        if batch.translation:
+            self.batch_model.update({
+                'response': batch.translation.FormatResponse()
+            })
+        if batch.prompt:
+            self.batch_model.update({
+                'prompt': FormatPrompt(batch.prompt)
+            })
+
+            if self.debug_view:
+                self.batch_model.update({
+                    'messages': FormatMessages(batch.prompt.messages)
+                })
 
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
@@ -563,6 +579,10 @@ class BatchItem(ViewModelItem):
         return self.batch_model.get('response')
     
     @property
+    def prompt(self):
+        return self.batch_model.get('prompt')
+    
+    @property
     def first_line_number(self):
         if not self._first_line_num:
             self._update_first_and_last()
@@ -587,13 +607,23 @@ class BatchItem(ViewModelItem):
         if 'errors' in update.keys():
             self.batch_model['errors'] = self._get_errors(update['errors'])
 
-        if 'translation' in update.keys() and os.environ.get("DEBUG_MODE") == "1":
+        if 'translation' in update.keys():
             translation = update['translation']
-            self.batch_model.update({
-                'response': translation.text
-            })
-            if translation.prompt:
-                self.batch_model['messages'] = FormatMessages(translation.prompt.messages)
+            if isinstance(translation, Translation):
+                self.batch_model.update({
+                    'response': translation.FormatResponse()
+                })
+
+        if 'prompt' in update.keys():
+            prompt = update['prompt']
+            if isinstance(prompt, TranslationPrompt):
+                self.batch_model.update({
+                    'prompt': FormatPrompt(prompt)
+                })
+                if self.debug_view:
+                    self.batch_model.update({
+                        'messages': FormatMessages(prompt.messages)
+                    })
     
     def GetContent(self):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \

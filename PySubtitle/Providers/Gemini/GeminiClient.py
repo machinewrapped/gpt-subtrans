@@ -2,11 +2,11 @@ import logging
 import google.generativeai as genai
 
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.Providers.Gemini.GeminiPrompt import GeminiPrompt
 from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class GeminiClient(TranslationClient):
     """
@@ -19,7 +19,6 @@ class GeminiClient(TranslationClient):
         
         logging.info(f"Translating with Gemini {self.model or 'default'} model")
 
-        self.gemini_config = genai.GenerationConfig(candidate_count=1, temperature=self.temperature)
         self.gemini_model = genai.GenerativeModel(self.model)
         self.safety_settings = {
             "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
@@ -37,28 +36,19 @@ class GeminiClient(TranslationClient):
         return self.settings.get('model')
     
     @property
-    def temperature(self):
-        return self.settings.get('temperature', 0.0)
-    
-    @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
     
-    def _request_translation(self, prompt, lines, context) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
-        Generate the prompt and request a translation
+        Request a translation based on the provided prompt
         """
-        gemini_prompt = GeminiPrompt(self.instructions)
+        logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
-        gemini_prompt.GenerateMessages(prompt, lines, context)
+        temperature = temperature or self.temperature
+        content = self._send_messages(prompt.messages, temperature)
 
-        logging.debug(f"Messages:\n{FormatMessages(gemini_prompt.messages)}")
-
-        gemini_translation = self._send_messages(gemini_prompt.messages)
-
-        translation = Translation(gemini_translation, gemini_prompt)
-
-        return translation
+        return Translation(content)
     
     def _abort(self):
         # TODO cancel any ongoing requests
@@ -67,18 +57,19 @@ class GeminiClient(TranslationClient):
     def GetParser(self):
         return TranslationParser(self.settings)
     
-    def _send_messages(self, messages : list, temperature : float = None):
+    def _send_messages(self, messages : list, temperature):
         """
         Make a request to the Gemini API to provide a translation
         """
-        translation = {}
+        content = {}
         retries = 0
 
         prompt = self._build_prompt(messages)
 
         try:
+            config = genai.GenerationConfig(candidate_count=1, temperature=temperature)
             response = self.gemini_model.generate_content(prompt, 
-                                                          generation_config=self.gemini_config, 
+                                                          generation_config=config, 
                                                           safety_settings=self.safety_settings)
 
             if self.aborted:
@@ -96,12 +87,12 @@ class GeminiClient(TranslationClient):
             if not response_text:
                 raise NoTranslationError("Gemini response is empty", response)
 
-            translation['text'] = response_text
+            content['text'] = response_text
 
-            return translation
+            return content
         
         except Exception as e:
-            raise TranslationImpossibleError(f"Unexpected error communicating with Gemini", translation, error=e)
+            raise TranslationImpossibleError(f"Unexpected error communicating with Gemini", content, error=e)
 
     def _build_prompt(self, messages : list):
         return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in messages ])

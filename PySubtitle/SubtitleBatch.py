@@ -1,8 +1,10 @@
 from datetime import timedelta
 import re
+from PySubtitle import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import PerformSubstitutions
 from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.Translation import Translation
 
 class SubtitleBatch:
     def __init__(self, dct = None):
@@ -14,7 +16,8 @@ class SubtitleBatch:
         self.errors = dct.get('errors', [])
         self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', []) 
         self._translated : list[SubtitleLine] = dct.get('translated', [])
-        self.translation = None
+        self.translation : Translation = dct.get('translation')
+        self.prompt : TranslationPrompt = dct.get('prompt')
 
     def __str__(self) -> str:
         return f"SubtitleBatch: {str(self.number)} in scene {str(self.scene)} with {self.size} lines"

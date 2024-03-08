@@ -1,15 +1,15 @@
-from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.Helpers import GenerateTagLines, ParseTranslation, PerformSubstitutions
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class Translation:
-    def __init__(self, response, prompt : TranslationPrompt):
-        self.prompt = prompt
-        self.response = response
-        self._text = response.get('text') if response else None
-        self.context = None
+    def __init__(self, content : dict):
+        self.content = content
+        translation_text = content.get('text')
+        self._text, context = ParseTranslation(translation_text)
+        self.content.update(context)
 
     def ParseResponse(self):
-        self._text, self.context = ParseTranslation(self.full_text or "")
+        pass
 
     @property
     def text(self):
@@ -20,29 +20,40 @@ class Translation:
         return True if self.text else False
         
     @property
-    def user_prompt(self):
-        return self.prompt.user_prompt if self.prompt else None
-    
-    @property
     def summary(self):
-        return self.context.get('summary') if self.context else None
+        return self.content.get('summary')
 
     @property
     def scene(self):
-        return self.context.get('scene') if self.context else None
+        return self.content.get('scene')
 
     @property
     def synopsis(self):
-        return self.context.get('synopsis') if self.context else None
+        return self.content.get('synopsis')
 
     @property
     def names(self):
-        return self.context.get('names') if self.context else None
+        return self.content.get('names')
     
     @property
+    def finish_reason(self):
+        return self.content.get('finish_reason')
+
+    @property
+    def response_time(self):
+        return self.content.get('response_time')
+
+    @property
+    def reached_token_limit(self):
+        return self.finish_reason == "length"
+    
+    @property
+    def quota_reached(self):
+        return self.finish_reason == "quota_reached"
+
+    @property
     def full_text(self):
-        tag_lines = GenerateTagLines(self.context, ['summary', 'scene', 'synopsis', 'names']) if self.context else None
-        return f"{tag_lines}\n\n{self._text}" if tag_lines else self._text
+        return self.content.get('text', self._text)
 
     def PerformSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
@@ -51,10 +62,36 @@ class Translation:
         Does NOT apply them to the translation text. 
         """
         if self.summary:
-            self.context['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
+            self.content['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
         if self.scene:
-            self.context['scene'] = PerformSubstitutions(substitutions, self.scene, match_partial_words)
+            self.content['scene'] = PerformSubstitutions(substitutions, self.scene, match_partial_words)
         if self.synopsis:
-            self.context['synopsis'] = PerformSubstitutions(substitutions, self.synopsis, match_partial_words)
+            self.content['synopsis'] = PerformSubstitutions(substitutions, self.synopsis, match_partial_words)
+
+    def FormatResponse(self, include_text : bool = True):
+        """
+        Format the response for display
+        """
+        if not self.content:
+            return "No translation"
+
+        content_keys = [k for k in self.content.keys() if k not in ['text', 'summary', 'scene', 'names']]
+        metadata = [ f"{k}: {self.content[k]}" for k in content_keys if self.content.get(k) ]
+
+        if self.scene:
+            metadata.append(f"\nScene:\n{self.scene}")
+
+        if self.summary:
+            metadata.append(f"\nSummary:\n{self.summary}")
+
+        if self.names:
+            metadata.append(f"\n\nNames:\n{'\n'.join(self.names)}")
+
+        if metadata:
+            metadata_text = '\n'.join(metadata)
+            return f"{metadata_text}\n\n{self.text}" if include_text else metadata_text
+        else:
+            return self.text if include_text else "No metadata available"
+            
 
 

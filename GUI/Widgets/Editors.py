@@ -1,8 +1,6 @@
-import os
 from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QLabel, QDialogButtonBox, QTabWidget, QWidget, )
 
 from GUI.ProjectViewModel import BatchItem, LineItem, SceneItem
-
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
 class EditDialog(QDialog):
@@ -109,6 +107,12 @@ class EditBatchDialog(EditDialog):
         self.AddMultilineEdit(summary_layout, 'summary')
         self.SetTabLayout(tab_widget, summary_layout, "Summary")
 
+        # Create "Prompt" tab if item has a prompt
+        if self.item.prompt:
+            prompt_layout = self.GetFormLayout()
+            self.AddMultilineEdit(prompt_layout, 'prompt', read_only=True)
+            self.SetTabLayout(tab_widget, prompt_layout, "Prompt")
+
         # Create "Response" tab if item has a response
         if self.item.response:
             response_layout = self.GetFormLayout()
@@ -118,13 +122,15 @@ class EditBatchDialog(EditDialog):
 
             self.SetTabLayout(tab_widget, response_layout, "Response")
 
-        # Create "Debug" tab if DEBUG_MODE environment var is set
-        if os.environ.get("DEBUG_MODE") == "1":
-            debug_layout = self.GetFormLayout()
-            self.AddMultilineEdit(debug_layout, 'messages', read_only=True)
-            self.AddMultilineEdit(debug_layout, 'context', read_only=True)
-            self.SetTabLayout(tab_widget, debug_layout, "Debug")
+        if self.item.debug_view:
+            # Create debug tabs
+            messages_layout = self.GetFormLayout()
+            self.AddMultilineEdit(messages_layout, 'messages', read_only=True)
+            self.SetTabLayout(tab_widget, messages_layout, "Messages")
 
+            context_layout = self.GetFormLayout()
+            self.AddMultilineEdit(context_layout, 'context', read_only=True)
+            self.SetTabLayout(tab_widget, context_layout, "Context")
 
         return tab_widget
 
