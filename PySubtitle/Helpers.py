@@ -128,7 +128,7 @@ def GenerateTag(tag, content):
 
     return f"<{tag}>{content}</{tag}>"
 
-def BuildPrompt(options : Options):
+def BuildUserPrompt(options : Options):
     """
     Generate the base prompt to use for requesting translations
     """

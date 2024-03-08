@@ -2,11 +2,11 @@ import logging
 import openai
 
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.Providers.OpenAI.GPTPrompt import GPTPrompt
-from PySubtitle.Providers.OpenAI.GPTTranslation import GPTTranslation
 from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
+from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class OpenAIClient(TranslationClient):
     """
@@ -43,10 +43,6 @@ class OpenAIClient(TranslationClient):
         return self.settings.get('model')
     
     @property
-    def temperature(self):
-        return self.settings.get('temperature', 0.0)
-    
-    @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
     
@@ -58,36 +54,41 @@ class OpenAIClient(TranslationClient):
     def backoff_time(self):
         return self.settings.get('backoff_time', 5.0)
 
-    def _request_translation(self, prompt, lines, context):
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
-        Generate the prompt and send to OpenAI to request a translation
+        Request a translation based on the provided prompt
         """
-        gpt_prompt = GPTPrompt(self.instructions)
+        logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
-        gpt_prompt.GenerateMessages(prompt, lines, context)
+        temperature = temperature or self.temperature
+        content = self._send_messages(prompt.messages, temperature)
 
-        logging.debug(f"Messages:\n{FormatMessages(gpt_prompt.messages)}")
-
-        gpt_translation = self._send_messages(gpt_prompt.messages)
-
-        translation = GPTTranslation(gpt_translation, gpt_prompt)
+        translation = Translation(content)
 
         if translation.quota_reached:
             raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
 
         if translation.reached_token_limit:
             # Try again without the context to keep the tokens down
+            # TODO: better to split the batch into smaller chunks
             logging.warning("Hit API token limit, retrying batch without context...")
-            gpt_prompt.GenerateReducedMessages()
-            gpt_translation = self._send_messages(gpt_prompt.messages)
+            prompt.GenerateReducedMessages()
 
-            translation = GPTTranslation(gpt_translation, gpt_prompt)
+            content = self._send_messages(prompt.messages, temperature)
+
+            translation = Translation(content)
 
             if translation.reached_token_limit:
                 raise TranslationError(f"Too many tokens in translation", translation)
 
         return translation
-    
+
+    def _send_messages(self, messages : list[str], temperature : float):
+        """
+        Communicate with the API
+        """
+        raise NotImplementedError("Not implemented in the base class")#
+
     def _abort(self):
         self.client.close()
         return super()._abort()
