@@ -166,16 +166,21 @@ class SubtitleScene:
         batch.originals = batch.originals[:split_index]
 
         if batch.translated:
-            translated_number = translated_number or line_number
-            translated_index = next((i for i, line in enumerate(batch.translated) if line.number == translated_number), -1)
-            if translated_index > 0:
+            split_translated = translated_number or line_number
+            translated_index = next((i for i, line in enumerate(batch.translated) if line.number == split_translated), -1)
+            if translated_index >= 0:
                 new_batch.translated = batch.translated[translated_index:]
                 batch.translated = batch.translated[:translated_index]
 
-                if translated_number != line_number:
+                if split_translated != line_number:
                     ResyncTranslatedLines(new_batch.originals, new_batch.translated)
-            else:
-                logging.warning(f"Expected line number {translated_number} not found in batch translations")
+
+            elif translated_number is not None:
+                logging.warning(f"Translated line number {translated_number} not found in batch translations")
+
+            elif batch.translated[0].number >= split_translated:
+                new_batch.translated = batch.translated
+                batch.translated = []
 
         batch_index = self._batches.index(batch)
         self._batches = self._batches[:batch_index + 1] + [new_batch] + self._batches[batch_index + 1:]
