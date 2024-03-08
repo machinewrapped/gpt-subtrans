@@ -16,6 +16,8 @@ class SelectionView(QFrame):
     def __init__(self) -> None:
         super().__init__()
 
+        self.debug_view = os.environ.get("DEBUG_MODE") == "1"
+
         self._label = QLabel(self)
         self._label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
@@ -47,7 +49,7 @@ class SelectionView(QFrame):
     def ShowSelection(self, selection : ProjectSelection):
         self.selection = selection
 
-        if os.environ.get("DEBUG_MODE") == "1" and self._debug_text(selection):
+        if self.debug_view and self._debug_text(selection):
             self._label.setText(f"{str(selection)} {self._debug_text(selection)}")
         else:
             self._label.setText(str(selection))

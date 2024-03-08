@@ -7,6 +7,12 @@ import srt
 
 from PySubtitle.Options import Options
 
+def GetEnvFloat(name, default=None):
+    value = os.getenv(name, default)
+    if value is not None:
+        return float(value)
+    return default
+
 def Linearise(lines):
     if not isinstance(lines, list):
         lines = str(lines).split("\n")
@@ -122,7 +128,7 @@ def GenerateTag(tag, content):
 
     return f"<{tag}>{content}</{tag}>"
 
-def BuildPrompt(options : Options):
+def BuildUserPrompt(options : Options):
     """
     Generate the base prompt to use for requesting translations
     """

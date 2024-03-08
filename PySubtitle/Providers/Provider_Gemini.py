@@ -2,6 +2,8 @@
 import logging
 import os
 
+from PySubtitle.Helpers import GetEnvFloat
+
 try:
     import google.generativeai as genai
     from google.api_core.exceptions import FailedPrecondition
@@ -29,8 +31,8 @@ try:
             super().__init__(self.name, {
                 "api_key": settings.get('api_key') or os.getenv('GEMINI_API_KEY'),
                 "model": settings.get('model') or os.getenv('GEMINI_MODEL'),
-                'temperature': float(os.getenv('GEMINI_TEMPERATURE', 0.0)),
-                'rate_limit': float(os.getenv('GEMINI_RATE_LIMIT')) if os.getenv('GEMINI_RATE_LIMIT') else 60.0,
+                'temperature': settings.get('temperature') or GetEnvFloat('GEMINI_TEMPERATURE'),
+                'rate_limit': settings.get('rate_limit') or GetEnvFloat('GEMINI_RATE_LIMIT')
             })
 
             self.refresh_when_changed = ['api_key', 'model']

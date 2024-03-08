@@ -55,7 +55,7 @@ class TextOptionWidget(OptionWidget):
 class MultilineTextOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
         super(MultilineTextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
-        content = self._get_content(initial_value)
+        content = self._get_content(initial_value).strip()
 
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)

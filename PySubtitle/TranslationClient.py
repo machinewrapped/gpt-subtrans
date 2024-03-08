@@ -2,6 +2,7 @@ import logging
 import time
 
 from PySubtitle.SubtitleError import TranslationAbortedError, TranslationError
+from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.Translation import Translation
 
 linesep = '\n'
@@ -22,8 +23,12 @@ class TranslationClient:
     @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
-
-    def RequestTranslation(self, prompt : str, lines : list, context : dict) -> Translation:
+    
+    @property
+    def temperature(self):
+        return self.settings.get('temperature', 0.0)
+    
+    def RequestTranslation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Generate the messages to request a translation
         """
@@ -33,7 +38,7 @@ class TranslationClient:
         start_time = time.monotonic()
 
         # Perform the translation
-        translation : Translation = self._request_translation(prompt, lines, context)
+        translation : Translation = self._request_translation(prompt, temperature)
 
         if translation.text:
             logging.debug(f"Response:\n{translation.text}")
@@ -50,44 +55,14 @@ class TranslationClient:
 
         return translation
 
-    def RequestRetranslation(self, translation : Translation, errors : list[TranslationError]):
-        """
-        Generate the messages to request a retranslation
-        """
-        prompt = translation.prompt
-
-        messages = []
-        for message in prompt.messages:
-            # Trim retry messages to keep tokens down
-            if message.get('content') == self.retry_instructions:
-                break
-            messages.append(message)
-
-        prompt.messages = messages
-
-        prompt.GenerateRetryPrompt(translation.text, self.retry_instructions, errors)
-
-        # Let's raise the temperature a little bit
-        temperature = min(self.settings.get('temperature', 0.0) + 0.1, 1.0)
-        retranslation_response = self._send_messages(prompt.messages, temperature)
-
-        retranslation = Translation(retranslation_response, prompt)
-        return retranslation
-    
     def AbortTranslation(self):
         self.aborted = True
         self._abort()
         pass
 
-    def _request_translation(self, prompt, lines, context):
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Make a request to the API to provide a translation
-        """
-        raise NotImplementedError("Not implemented in the base class")
-
-    def _send_messages(self, messages : list[str], temperature : float = None):
-        """
-        Communicate with the API
         """
         raise NotImplementedError("Not implemented in the base class")
 
