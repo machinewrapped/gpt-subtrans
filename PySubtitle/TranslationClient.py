@@ -27,7 +27,15 @@ class TranslationClient:
     @property
     def temperature(self):
         return self.settings.get('temperature', 0.0)
+
+    @property
+    def max_retries(self):
+        return self.settings.get('max_retries', 3.0)
     
+    @property
+    def backoff_time(self):
+        return self.settings.get('backoff_time', 5.0)
+
     def RequestTranslation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Generate the messages to request a translation

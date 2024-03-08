@@ -46,14 +46,6 @@ class OpenAIClient(TranslationClient):
     def rate_limit(self):
         return self.settings.get('rate_limit')
     
-    @property
-    def max_retries(self):
-        return self.settings.get('max_retries', 3.0)
-    
-    @property
-    def backoff_time(self):
-        return self.settings.get('backoff_time', 5.0)
-
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Request a translation based on the provided prompt
