@@ -4,7 +4,6 @@ from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from GUI.GuiHelpers import DescribeLineCount, GetLineHeight, TimeDeltaToText
-from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle import SubtitleLine
 
 from PySubtitle.Helpers import FormatMessages, Linearise, UpdateFields
@@ -38,7 +37,7 @@ class ProjectViewModel(QStandardItemModel):
     def getRootItem(self):
         return self.invisibleRootItem()
     
-    def AddUpdate(self, update):
+    def AddUpdate(self, update : callable):
         with QMutexLocker(self.update_lock):
             self.updates.append(update)
         self.updatesPending.emit()
@@ -147,61 +146,25 @@ class ProjectViewModel(QStandardItemModel):
 
                 batch_item.lines = { item.number: item for item in line_items }
 
-    def ApplyUpdate(self, update : ModelUpdate):
+    def ApplyUpdate(self, update_function : callable):
         """
         Patch the viewmodel
         """
+        # TODO: Don't reset the model if it can be avoided
         self.beginResetModel()
         self.blockSignals(True)
 
-        for scene_number, scene_update in update.scenes.updates.items():
-            self.UpdateScene(scene_number, scene_update)
+        try:
+            update_function(self)
 
-        for key, batch_update in update.batches.updates.items():
-            scene_number, batch_number = key
-            self.UpdateBatch(scene_number, batch_number, batch_update)
-
-        #TODO: Use UpdateLines
-        for key, line_update in update.lines.updates.items():
-            scene_number, batch_number, line_number = key
-            self.UpdateLine(scene_number, batch_number, line_number, line_update)
-
-        for scene_number, scene in update.scenes.replacements.items():
-            self.ReplaceScene(scene)
-
-        for key, batch in update.batches.replacements.items():
-            scene_number, batch_number = key
-            self.ReplaceBatch(batch)
-
-        for scene_number in reversed(update.scenes.removals):
-            self.RemoveScene(scene_number)
-
-        for key in reversed(update.batches.removals):
-            scene_number, batch_number = key
-            self.RemoveBatch(scene_number, batch_number)
-
-        for key in reversed(update.lines.removals):
-            scene_number, batch_number, line_number = key
-            self.RemoveLine(scene_number, batch_number, line_number)
-
-        for scene_number, scene in update.scenes.additions.items():
-            self.AddScene(scene)
-
-        for key, batch in update.batches.additions.items():
-            scene_number, batch_number = key
-            self.AddBatch(batch)
-
-        for key, line in update.lines.additions.items():
-            scene_number, batch_number, line_number = key
-            self.AddLine(scene_number, batch_number, line_number, line)
+        except Exception as e:
+            logging.error(f"Error updating viewmodel: {e}")
 
         # Rebuild the model dictionaries
         self.Remap()
         self.blockSignals(False)
         self.endResetModel()
     
-
-
     #############################################################################
 
     def AddScene(self, scene : SubtitleScene):
@@ -422,6 +385,30 @@ class ProjectViewModel(QStandardItemModel):
         batch_item.removeRow(line_index.row())
 
         del batch_item.lines[line_number]
+
+        batch_item.emitDataChanged()
+
+    def RemoveLines(self, scene_number, batch_number, line_numbers):
+        logging.debug(f"Removing lines in ({scene_number}, {batch_number})")
+
+        unfound_lines = []
+        scene_item : SceneItem = self.model[scene_number]
+        batch_item : BatchItem = scene_item.batches[batch_number]
+        for line_number in reversed(line_numbers):
+            if line_number in batch_item.lines.keys():
+                line_item = batch_item.lines[line_number]
+                line_index = self.indexFromItem(line_item)
+                batch_item.removeRow(line_index.row())
+
+                del batch_item.lines[line_number]
+
+            else:
+                unfound_lines.append(line_number)
+
+        if unfound_lines:
+            logging.warning(f"Lines {unfound_lines} not found in batch {batch_number}")
+
+        batch_item.emitDataChanged()
 
 ###############################################
 

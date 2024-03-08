@@ -130,8 +130,9 @@ class ProjectDataModel:
         if update.rebuild:
             # TODO: rebuild on the main thread
             self.CreateViewModel()
+
         elif self.viewmodel:
-            self.viewmodel.AddUpdate(update)
+            self.viewmodel.AddUpdate(lambda viewmodel=self.viewmodel, model_update=update : model_update.ApplyToViewModel(viewmodel))
 
     def _update_translation_provider(self):
         """
