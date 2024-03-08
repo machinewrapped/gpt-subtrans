@@ -98,12 +98,12 @@ class ProjectSettings(QGroupBox):
             self.AddMultiLineOption("Names", settings, 'names')
             self.AddMultiLineOption("Substitutions", settings, 'substitutions')
             self.AddCheckboxOption("Substitute Partial Words", settings, 'match_partial_words')
+            self.AddButton("", "Edit Instructions", self._edit_instructions)
+            self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
             if len(self.provider_list) > 1:
                 self.AddDropdownOption("Provider", settings, 'provider', self.provider_list)
             if len(self.model_list) > 1:
                 self.AddDropdownOption("Model", settings, 'model', self.model_list)
-            self.AddButton("", "Edit Instructions", self._edit_instructions)
-            self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
 
     def ClearForm(self):
         self.current_row = 0
