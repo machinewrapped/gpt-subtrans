@@ -30,7 +30,7 @@ class BatchSubtitlesCommand(Command):
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
 
-        batcher = CreateSubtitleBatcher(self.options)
+        batcher : SubtitleBatcher = CreateSubtitleBatcher(self.options)
         project.subtitles.AutoBatch(batcher)
 
         project.WriteProjectFile()
