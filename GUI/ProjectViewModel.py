@@ -12,6 +12,7 @@ from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.Translation import Translation
 from PySubtitle.TranslationPrompt import FormatPrompt, TranslationPrompt
 
 class ViewModelItem(QStandardItem):
@@ -513,6 +514,10 @@ class BatchItem(ViewModelItem):
             })
 
         if os.environ.get("DEBUG_MODE") == "1":
+            if batch.translation:
+                self.batch_model.update({
+                    'response': batch.translation.FormatResponse()
+                })
             if batch.prompt:
                 self.batch_model.update({
                     'prompt': FormatPrompt(batch.prompt),
@@ -595,9 +600,10 @@ class BatchItem(ViewModelItem):
 
         if 'translation' in update.keys():
             translation = update['translation']
-            self.batch_model.update({
-                'response': translation.text
-            })
+            if isinstance(translation, Translation):
+                self.batch_model.update({
+                    'response': translation.FormatResponse()
+                })
 
         if 'prompt' in update.keys() and os.environ.get("DEBUG_MODE") == "1":
             prompt = update['prompt']

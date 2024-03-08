@@ -81,13 +81,12 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, Translation):
             return {
-                "text": obj._text,
-                "content": obj.content,
-                "context": obj.context
+                "content": obj.content
             }
         elif isinstance(obj, TranslationPrompt):
             return {
                 "user_prompt": obj.user_prompt,
+                "batch_prompt": obj.batch_prompt,
                 "messages": obj.messages
             }
 
@@ -125,6 +124,10 @@ class SubtitleDecoder(json.JSONDecoder):
                     'prompt_tokens' : dct.get('prompt_tokens'),
                     'completion_tokens' : dct.get('completion_tokens'),
                     'total_tokens' : dct.get('total_tokens'),
+                    'summary': dct.get('summary'),
+                    'scene': dct.get('scene'),
+                    'synopsis': dct.get('synopsis'),
+                    'names': dct.get('names') or dct.get('characters')
                     }
                 
                 if isinstance(content['text'], list):
@@ -132,18 +135,13 @@ class SubtitleDecoder(json.JSONDecoder):
                     content['text'] = '\n'.join(content['text'])
 
                 obj = Translation(content)
-                obj.context = dct.get('context') or {
-                    'summary': dct.get('summary', None),
-                    'scene': dct.get('scene', None),
-                    'synopsis': dct.get('synopsis', None),
-                    'names': dct.get('names', None) or dct.get('characters', None)
-                }
                 return obj
             elif class_name == classname(TranslationPrompt):
                 user_prompt = dct.get('user_prompt')
                 instructions = dct.get('instructions')
                 context = dct.get('context')
                 obj = TranslationPrompt(user_prompt, instructions, context)
+                obj.batch_prompt = dct.get('batch_prompt')
                 obj.messages = dct.get('messages')
                 return obj
             elif class_name == classname(TranslationError):

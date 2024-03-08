@@ -5,7 +5,8 @@ class Translation:
     def __init__(self, content : dict):
         self.content = content
         translation_text = content.get('text')
-        self._text, self.context = ParseTranslation(translation_text)
+        self._text, context = ParseTranslation(translation_text)
+        self.content.update(context)
 
     def ParseResponse(self):
         pass
@@ -20,19 +21,19 @@ class Translation:
         
     @property
     def summary(self):
-        return self.context.get('summary')
+        return self.content.get('summary')
 
     @property
     def scene(self):
-        return self.context.get('scene')
+        return self.content.get('scene')
 
     @property
     def synopsis(self):
-        return self.context.get('synopsis')
+        return self.content.get('synopsis')
 
     @property
     def names(self):
-        return self.context.get('names')
+        return self.content.get('names')
     
     @property
     def finish_reason(self):
@@ -52,8 +53,7 @@ class Translation:
 
     @property
     def full_text(self):
-        tag_lines = GenerateTagLines(self.context, ['summary', 'scene', 'synopsis', 'names']) if self.context else None
-        return f"{tag_lines}\n\n{self._text}" if tag_lines else self._text
+        return self.content.get('text', self._text)
 
     def PerformSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
@@ -62,10 +62,29 @@ class Translation:
         Does NOT apply them to the translation text. 
         """
         if self.summary:
-            self.context['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
+            self.content['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
         if self.scene:
-            self.context['scene'] = PerformSubstitutions(substitutions, self.scene, match_partial_words)
+            self.content['scene'] = PerformSubstitutions(substitutions, self.scene, match_partial_words)
         if self.synopsis:
-            self.context['synopsis'] = PerformSubstitutions(substitutions, self.synopsis, match_partial_words)
+            self.content['synopsis'] = PerformSubstitutions(substitutions, self.synopsis, match_partial_words)
 
+    def FormatResponse(self, include_text : bool = True):
+        """
+        Format the response for display
+        """
+        if not self.content:
+            return "No translation"
 
+        content_keys = [k for k in self.content.keys() if k not in ['text', 'summary', 'scene', 'names']]
+        metadata = "\n".join([f"{k}: {self.content[k]}" for k in content_keys if self.content.get(k)])
+
+        if self.scene:
+            metadata += f"\n\nScene:\n{self.scene}"
+
+        if self.summary:
+            metadata += f"\n\nSummary:\n{self.summary}"
+
+        if self.names:
+            metadata += f"\n\nNames:\n{'\n'.join(self.names)}"
+
+        return f"{metadata}\n\n{self.text}" if include_text else metadata

@@ -120,13 +120,13 @@ class EditBatchDialog(EditDialog):
 
         # Create debug tabs if DEBUG_MODE environment var is set
         if os.environ.get("DEBUG_MODE") == "1":
-            prompt_layout = self.GetFormLayout()
-            self.AddMultilineEdit(prompt_layout, 'prompt', read_only=True)
-            self.SetTabLayout(tab_widget, prompt_layout, "Prompt")
-
             context_layout = self.GetFormLayout()
             self.AddMultilineEdit(context_layout, 'context', read_only=True)
             self.SetTabLayout(tab_widget, context_layout, "Context")
+
+            prompt_layout = self.GetFormLayout()
+            self.AddMultilineEdit(prompt_layout, 'prompt', read_only=True)
+            self.SetTabLayout(tab_widget, prompt_layout, "Prompt")
 
             messages_layout = self.GetFormLayout()
             self.AddMultilineEdit(messages_layout, 'messages', read_only=True)

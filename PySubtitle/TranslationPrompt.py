@@ -68,14 +68,15 @@ class TranslationPrompt:
         self.messages = messages
 
 def FormatPrompt(prompt : TranslationPrompt):
-    lines = []
     if prompt.batch_prompt:
-        lines.append(f"Batch Prompt:\n {prompt.batch_prompt}")
+        return prompt.batch_prompt
     else:
+        lines = []
+
         if prompt.user_prompt:
             lines.append(f"User Prompt:\n {prompt.user_prompt}")
         
         if prompt.instructions:
             lines.append(f"Instructions:\n {prompt.instructions}")
     
-    return "\n".join(lines)
+        return "\n".join(lines)
