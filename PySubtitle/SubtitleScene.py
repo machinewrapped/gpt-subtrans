@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 from PySubtitle import SubtitleError
 from PySubtitle.Helpers import ResyncTranslatedLines
@@ -180,6 +181,36 @@ class SubtitleScene:
         self._batches = self._batches[:batch_index + 1] + [new_batch] + self._batches[batch_index + 1:]
 
         self._renumber_batches()
+
+    def AutoSplitBatch(self, batch_number, min_size=1):
+        """
+        Split a list of lines in two at the optimal split point
+        """
+        batch = self.GetBatch(batch_number)
+        if not batch:
+            raise ValueError("Invalid batch number")
+
+        midpoint = len(batch.originals) // 2
+        if midpoint < min_size:
+            raise ValueError("Batch is too small to split")
+
+        best_split_index = None
+        best_split_score = 0
+
+        # Split lines according to the largest gap weighted towards the middle of the batch
+        for i in range(min_size, len(batch.originals) - min_size):
+            gap = batch.originals[i].start - batch.originals[i - 1].end
+            proximity_to_midpoint = midpoint - abs(i - midpoint)
+            split_score = proximity_to_midpoint * (gap / timedelta(milliseconds=1))
+
+            if split_score > best_split_score:
+                best_split_score = split_score
+                best_split_index = i
+
+        if best_split_index:
+            split_line = batch.originals[best_split_index].number
+            logging.info(f"Splitting batch {batch_number} at line {split_line}")
+            self.SplitBatch(batch_number, split_line)
 
     def _renumber_batches(self):
         for number, batch in enumerate(self._batches, start = 1):
