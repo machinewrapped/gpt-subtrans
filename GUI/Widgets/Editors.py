@@ -118,13 +118,19 @@ class EditBatchDialog(EditDialog):
 
             self.SetTabLayout(tab_widget, response_layout, "Response")
 
-        # Create "Debug" tab if DEBUG_MODE environment var is set
+        # Create debug tabs if DEBUG_MODE environment var is set
         if os.environ.get("DEBUG_MODE") == "1":
-            debug_layout = self.GetFormLayout()
-            self.AddMultilineEdit(debug_layout, 'messages', read_only=True)
-            self.AddMultilineEdit(debug_layout, 'context', read_only=True)
-            self.SetTabLayout(tab_widget, debug_layout, "Debug")
+            prompt_layout = self.GetFormLayout()
+            self.AddMultilineEdit(prompt_layout, 'prompt', read_only=True)
+            self.SetTabLayout(tab_widget, prompt_layout, "Prompt")
 
+            context_layout = self.GetFormLayout()
+            self.AddMultilineEdit(context_layout, 'context', read_only=True)
+            self.SetTabLayout(tab_widget, context_layout, "Context")
+
+            messages_layout = self.GetFormLayout()
+            self.AddMultilineEdit(messages_layout, 'messages', read_only=True)
+            self.SetTabLayout(tab_widget, messages_layout, "Messages")
 
         return tab_widget
 

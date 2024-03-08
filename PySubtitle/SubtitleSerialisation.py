@@ -71,7 +71,8 @@ class SubtitleEncoder(json.JSONEncoder):
                     "summary": obj.context.get('summary'),
                     "summaries": obj.context.get('summaries')
                 },
-                "translation": obj.translation
+                "translation": obj.translation,
+                "prompt": obj.prompt
             }
         elif isinstance(obj, SubtitleLine):
             return {
@@ -81,19 +82,12 @@ class SubtitleEncoder(json.JSONEncoder):
         elif isinstance(obj, Translation):
             return {
                 "text": obj._text,
-                "summary": obj.summary,
-                "synopsis": obj.synopsis,
-                "names": obj.names,
-                "prompt": obj.prompt,
-                "finish_reason": obj.response.get('finish_reason') if obj.response else None,
-                "response_time": obj.response.get('response_time') if obj.response else None,
-                "prompt_tokens": obj.response.get('prompt_tokens') if obj.response else None,
-                "completion_tokens": obj.response.get('completion_tokens') if obj.response else None,
-                "total_tokens": obj.response.get('total_tokens') if obj.response else None
+                "content": obj.content,
+                "context": obj.context
             }
         elif isinstance(obj, TranslationPrompt):
             return {
-                "instructions": obj.instructions,
+                "user_prompt": obj.user_prompt,
                 "messages": obj.messages
             }
 
@@ -119,11 +113,12 @@ class SubtitleDecoder(json.JSONDecoder):
                 obj = SubtitleScene(dct)
                 return obj
             elif class_name == classname(SubtitleBatch):
-                return SubtitleBatch(dct)
+                obj = SubtitleBatch(dct)
+                return obj
             elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
                 return SubtitleLine(dct.get('line'), translation=dct.get('translation'))
-            elif class_name == classname(Translation) or class_name == "ChatGPTTranslation":
-                response = {
+            elif class_name == classname(Translation) or class_name == "GPTTranslation":
+                content = dct.get('content') or {
                     'text' : dct.get('text'),
                     'finish_reason' : dct.get('finish_reason'),
                     'response_time' : dct.get('response_time'),
@@ -132,21 +127,23 @@ class SubtitleDecoder(json.JSONDecoder):
                     'total_tokens' : dct.get('total_tokens'),
                     }
                 
-                if isinstance(response['text'], list):
+                if isinstance(content['text'], list):
                     # This shouldn't happen, but try to recover if it does
-                    response['text'] = '\n'.join(response['text'])
+                    content['text'] = '\n'.join(content['text'])
 
-                obj = Translation(response, dct.get('prompt'))
-                obj.context = {
+                obj = Translation(content)
+                obj.context = dct.get('context') or {
                     'summary': dct.get('summary', None),
                     'scene': dct.get('scene', None),
                     'synopsis': dct.get('synopsis', None),
                     'names': dct.get('names', None) or dct.get('characters', None)
                 }
                 return obj
-            elif class_name == classname(TranslationPrompt) or class_name == "ChatGPTPrompt" or class_name == "GPTPrompt":
-                obj = TranslationPrompt(dct.get('instructions'))
-                obj.user_prompt = dct.get('user_prompt')
+            elif class_name == classname(TranslationPrompt):
+                user_prompt = dct.get('user_prompt')
+                instructions = dct.get('instructions')
+                context = dct.get('context')
+                obj = TranslationPrompt(user_prompt, instructions, context)
                 obj.messages = dct.get('messages')
                 return obj
             elif class_name == classname(TranslationError):

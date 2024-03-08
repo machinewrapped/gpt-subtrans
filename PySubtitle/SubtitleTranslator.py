@@ -11,10 +11,11 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, ProviderError, TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
-from PySubtitle.Helpers import BuildPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, UnbatchScenes
+from PySubtitle.Helpers import BuildUserPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, UnbatchScenes
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.TranslationEvents import TranslationEvents
+from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SubtitleTranslator:
@@ -41,12 +42,12 @@ class SubtitleTranslator:
 
         self.settings = options.GetSettings()
         self.instructions : Instructions = options.GetInstructions()
-        self.prompt : str = BuildPrompt(options)
+        self.user_prompt : str = BuildUserPrompt(options)
         self.substitutions = ParseSubstitutions(options.get('substitutions', {}))
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 
-        logging.debug(f"Translation prompt: {self.prompt}")
+        logging.debug(f"Translation prompt: {self.user_prompt}")
 
         if not options.provider:
             raise NoProviderError()
@@ -195,8 +196,12 @@ class SubtitleTranslator:
                 context['batch'] = f"Scene {batch.scene} batch {batch.number}"
                 context['summary'] = batch.summary
 
+                batch.prompt = TranslationPrompt(self.user_prompt, self.instructions.instructions, context)
+
+                batch.prompt.GenerateMessages(originals)
+
                 # Ask the client to do the translation
-                translation : Translation = self.client.RequestTranslation(self.prompt, originals, context)
+                translation : Translation = self.client.RequestTranslation(batch.prompt)
 
                 if self.aborted:
                     raise TranslationAbortedError()
@@ -205,8 +210,6 @@ class SubtitleTranslator:
                     logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
                     if self.stop_on_error:
                         raise TranslationFailedError(f"No translation for scene {batch.scene} batch {batch.number}")
-
-                translation.ParseResponse()
 
                 batch.translation = translation
 
@@ -291,7 +294,7 @@ class SubtitleTranslator:
                     logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
                     batch.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", unmatched))
             
-            except TranslationAbortedError:
+            except (TranslationAbortedError, TranslationImpossibleError):
                 raise
 
             except TranslationError as e:
@@ -303,7 +306,7 @@ class SubtitleTranslator:
             # Consider retrying if there were errors
             if batch.errors and self.allow_retranslations and not self.aborted:
                 logging.warn(f"Scene {batch.scene} batch {batch.number} failed validation, requesting retranslation")
-                retranslated = self.RequestRetranslations(batch, translation)
+                retranslated = self.RequestRetranslations(batch)
 
                 if retranslated:
                     translated = MergeTranslations(translated or [], retranslated)
@@ -350,12 +353,23 @@ class SubtitleTranslator:
             else:
                 logging.warning(f"Error translating batch: {str(te)}")
 
-
-    def RequestRetranslations(self, batch : SubtitleBatch, translation : str):
+    def RequestRetranslations(self, batch : SubtitleBatch):
         """
         Ask the client to retranslate the input and correct errors
         """
-        retranslation : Translation = self.client.RequestRetranslation(translation, batch.errors)
+        translation : Translation = batch.translation
+        if not translation:
+            raise TranslationError("No translation to retranslate")
+
+        prompt : TranslationPrompt = batch.prompt
+        if not prompt or not prompt.messages:
+            raise TranslationError("No prompt to retranslate")
+
+        prompt.GenerateRetryPrompt(translation.text, self.instructions.retry_instructions, batch.errors)
+
+        # Let's raise the temperature a little bit
+        temperature = min(self.client.temperature + 0.1, 1.0)
+        retranslation : Translation = self.client.RequestTranslation(prompt, temperature)
 
         if not isinstance(retranslation, Translation):
             raise TranslationError("Retranslation is not the expected type")

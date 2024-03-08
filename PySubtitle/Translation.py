@@ -1,15 +1,14 @@
-from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.Helpers import GenerateTagLines, ParseTranslation, PerformSubstitutions
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class Translation:
-    def __init__(self, response, prompt : TranslationPrompt):
-        self.prompt = prompt
-        self.response = response
-        self._text = response.get('text') if response else None
-        self.context = None
+    def __init__(self, content : dict):
+        self.content = content
+        translation_text = content.get('text')
+        self._text, self.context = ParseTranslation(translation_text)
 
     def ParseResponse(self):
-        self._text, self.context = ParseTranslation(self.full_text or "")
+        pass
 
     @property
     def text(self):
@@ -20,25 +19,37 @@ class Translation:
         return True if self.text else False
         
     @property
-    def user_prompt(self):
-        return self.prompt.user_prompt if self.prompt else None
-    
-    @property
     def summary(self):
-        return self.context.get('summary') if self.context else None
+        return self.context.get('summary')
 
     @property
     def scene(self):
-        return self.context.get('scene') if self.context else None
+        return self.context.get('scene')
 
     @property
     def synopsis(self):
-        return self.context.get('synopsis') if self.context else None
+        return self.context.get('synopsis')
 
     @property
     def names(self):
-        return self.context.get('names') if self.context else None
+        return self.context.get('names')
     
+    @property
+    def finish_reason(self):
+        return self.content.get('finish_reason')
+
+    @property
+    def response_time(self):
+        return self.content.get('response_time')
+
+    @property
+    def reached_token_limit(self):
+        return self.finish_reason == "length"
+    
+    @property
+    def quota_reached(self):
+        return self.finish_reason == "quota_reached"
+
     @property
     def full_text(self):
         tag_lines = GenerateTagLines(self.context, ['summary', 'scene', 'synopsis', 'names']) if self.context else None
