@@ -35,6 +35,7 @@ class SettingsDialog(QDialog):
             'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
             'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
+            'max_summary_length': (int, "Maximum length of the context summary to include with each translation batch"),
             'max_characters': (int, "Validator: Maximum number of characters to allow in a single translated line"),
             'max_newlines': (int, "Validator: Maximum number of newlines to allow in a single translated line"),
             'max_retries': (int, "Number of times to retry a failed translation before giving up"),

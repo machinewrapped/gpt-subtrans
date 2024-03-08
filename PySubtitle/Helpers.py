@@ -1,6 +1,7 @@
 import datetime
 import os
 import logging
+import re
 import regex
 import unicodedata
 import srt
@@ -416,3 +417,24 @@ def FormatMessages(messages):
 
     return '\n'.join(lines)
 
+def LimitTextLength(text, max_length):
+    text = text.strip()
+
+    if len(text) <= max_length:
+        return text
+
+    pattern = r'\.|\?|!'
+    matches = [(m.start(), m.group()) for m in re.finditer(pattern, text)]
+
+    # Find the closest match to the max length, if any
+    for position, match in reversed(matches):
+        if position <= max_length:
+            return text[:position + 1]
+
+    # If no sentence end is found within the limit, cut at the nearest whitespace
+    nearest_space = text.rfind(' ', 0, max_length)
+    if nearest_space != -1:
+        return text[:nearest_space] + '...'
+    else:
+        # As a last resort, cut directly at the max length
+        return text[:max_length] + '...'

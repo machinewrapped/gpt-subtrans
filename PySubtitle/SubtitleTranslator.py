@@ -11,7 +11,7 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, ProviderError, TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError, UntranslatedLinesError
-from PySubtitle.Helpers import BuildUserPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, UnbatchScenes
+from PySubtitle.Helpers import BuildUserPrompt, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, LimitTextLength, UnbatchScenes
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.TranslationEvents import TranslationEvents
@@ -35,6 +35,7 @@ class SubtitleTranslator:
         self.allow_retranslations = options.get('allow_retranslations')
         self.whitespaces_to_newline = options.get('whitespaces_to_newline')
         self.match_partial_words = options.get('match_partial_words')
+        self.max_summary_length = options.get('max_summary_length')
         self.resume = options.get('resume')
         self.retranslate = options.get('retranslate')
         self.reparse = options.get('reparse')
@@ -414,5 +415,13 @@ class SubtitleTranslator:
             # Remove movie name and any connectors (-,: or whitespace)
             summary = re.sub(r'^' + re.escape(movie_name) + r'\s*[:\-]\s*', '', summary)
 
-        return summary.strip() if summary.strip() else None
+        summary = summary.strip()
+        original_len = len(summary)
+        
+        summary = LimitTextLength(summary, self.max_summary_length)
+
+        if len(summary) != original_len:
+            logging.info(f"Summary was truncated from {original_len} to {len(summary)} characters")
+        
+        return summary or None
 

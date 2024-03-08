@@ -40,6 +40,7 @@ default_options = {
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None,
     'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 2)),
+    'max_summary_length': int(os.getenv('MAX_SUMMARY_LENGTH', 240)),
     'backoff_time': float(os.getenv('BACKOFF_TIME', 5.0)),
     'project' : os.getenv('PROJECT', None),
     'autosave': env_bool('AUTOSAVE', True),
