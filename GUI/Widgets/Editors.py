@@ -109,6 +109,12 @@ class EditBatchDialog(EditDialog):
         self.AddMultilineEdit(summary_layout, 'summary')
         self.SetTabLayout(tab_widget, summary_layout, "Summary")
 
+        # Create "Prompt" tab if item has a prompt
+        if self.item.prompt:
+            prompt_layout = self.GetFormLayout()
+            self.AddMultilineEdit(prompt_layout, 'prompt', read_only=True)
+            self.SetTabLayout(tab_widget, prompt_layout, "Prompt")
+
         # Create "Response" tab if item has a response
         if self.item.response:
             response_layout = self.GetFormLayout()
@@ -120,17 +126,13 @@ class EditBatchDialog(EditDialog):
 
         # Create debug tabs if DEBUG_MODE environment var is set
         if os.environ.get("DEBUG_MODE") == "1":
-            context_layout = self.GetFormLayout()
-            self.AddMultilineEdit(context_layout, 'context', read_only=True)
-            self.SetTabLayout(tab_widget, context_layout, "Context")
-
-            prompt_layout = self.GetFormLayout()
-            self.AddMultilineEdit(prompt_layout, 'prompt', read_only=True)
-            self.SetTabLayout(tab_widget, prompt_layout, "Prompt")
-
             messages_layout = self.GetFormLayout()
             self.AddMultilineEdit(messages_layout, 'messages', read_only=True)
             self.SetTabLayout(tab_widget, messages_layout, "Messages")
+
+            context_layout = self.GetFormLayout()
+            self.AddMultilineEdit(context_layout, 'context', read_only=True)
+            self.SetTabLayout(tab_widget, context_layout, "Context")
 
         return tab_widget
 

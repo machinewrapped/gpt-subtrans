@@ -513,14 +513,17 @@ class BatchItem(ViewModelItem):
                 'context': batch.context,
             })
 
-        if os.environ.get("DEBUG_MODE") == "1":
-            if batch.translation:
+        if batch.translation:
+            self.batch_model.update({
+                'response': batch.translation.FormatResponse()
+            })
+        if batch.prompt:
+            self.batch_model.update({
+                'prompt': FormatPrompt(batch.prompt)
+            })
+
+            if os.environ.get("DEBUG_MODE") == "1":
                 self.batch_model.update({
-                    'response': batch.translation.FormatResponse()
-                })
-            if batch.prompt:
-                self.batch_model.update({
-                    'prompt': FormatPrompt(batch.prompt),
                     'messages': FormatMessages(batch.prompt.messages)
                 })
 
@@ -574,6 +577,10 @@ class BatchItem(ViewModelItem):
         return self.batch_model.get('response')
     
     @property
+    def prompt(self):
+        return self.batch_model.get('prompt')
+    
+    @property
     def first_line_number(self):
         if not self._first_line_num:
             self._update_first_and_last()
@@ -605,13 +612,16 @@ class BatchItem(ViewModelItem):
                     'response': translation.FormatResponse()
                 })
 
-        if 'prompt' in update.keys() and os.environ.get("DEBUG_MODE") == "1":
+        if 'prompt' in update.keys():
             prompt = update['prompt']
             if isinstance(prompt, TranslationPrompt):
                 self.batch_model.update({
-                    'prompt': FormatPrompt(prompt),
-                    'messages': FormatMessages(prompt.messages)
+                    'prompt': FormatPrompt(prompt)
                 })
+                if os.environ.get("DEBUG_MODE") == "1":
+                    self.batch_model.update({
+                        'messages': FormatMessages(prompt.messages)
+                    })
     
     def GetContent(self):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \
