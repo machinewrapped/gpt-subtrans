@@ -20,9 +20,11 @@ class ChatGPTClient(OpenAIClient):
         Make a request to the OpenAI API to provide a translation
         """
         content = {}
-        retries = 0
 
-        while retries <= self.max_retries and not self.aborted:
+        for retry in range(self.max_retries):
+            if self.aborted:
+                raise TranslationAbortedError()
+
             try:
                 response = self.client.chat.completions.create(
                     model=self.model,
@@ -61,24 +63,19 @@ class ChatGPTClient(OpenAIClient):
                     time.sleep(retry_seconds)
                     continue
                 else:
-                    logging.warning("Rate limit hit, quota exceeded. Please wait until the quota resets.")
-                    raise
+                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan", content)
 
-            except (openai.APIConnectionError, openai.APITimeoutError) as e:
+            except openai.APITimeoutError as e:
                 if self.aborted:
                     raise TranslationAbortedError()
-                
-                if isinstance(e, openai.APIConnectionError):
-                    raise TranslationImpossibleError(str(e), content)
-                elif retries == self.max_retries:
-                    logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
-                    raise
-                else:
-                    retries += 1
-                    sleep_time = self.backoff_time * 2.0**retries
-                    logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
-                    time.sleep(sleep_time)
-                    continue
+
+                sleep_time = self.backoff_time * 2.0**retry
+                logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
+                time.sleep(sleep_time)
+                continue
+
+            except openai.APIConnectionError as e:
+                raise TranslationAbortedError() if self.aborted else TranslationImpossibleError(str(e), content)
 
             except Exception as e:
                 raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", content, error=e)
