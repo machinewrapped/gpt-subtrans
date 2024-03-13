@@ -13,6 +13,8 @@ You will need an OpenAI API key from https://platform.openai.com/account/api-key
 
 If the API key is associated with a free trial account the translation speed will be severely restricted.
 
+You can use the custom api_base parameter to access a custom OpenAI instance or other models with a compatible API, e.g. locally hosted models.
+
 ### Google Gemini
 https://ai.google.dev/terms
 
