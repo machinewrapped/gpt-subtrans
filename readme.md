@@ -231,10 +231,13 @@ Submit a pull request to the main GPT-Subtrans repository.
 ## Acknowledgements
 This project uses several useful libraries:
 
-- openai, of course (https://platform.openai.com/docs/libraries/python-bindings)
 - srt (https://github.com/cdown/srt)
 - requests (https://github.com/psf/requests)
 - regex (https://github.com/mrabarnett/mrab-regex)
+
+Translation providers:
+- openai (https://platform.openai.com/docs/libraries/python-bindings)
+- google.generativeai (https://github.com/google/generative-ai-python)
 
 For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
