@@ -31,8 +31,8 @@ try:
             super().__init__(self.name, {
                 "api_key": settings.get('api_key') or os.getenv('GEMINI_API_KEY'),
                 "model": settings.get('model') or os.getenv('GEMINI_MODEL'),
-                'temperature': settings.get('temperature') or GetEnvFloat('GEMINI_TEMPERATURE'),
-                'rate_limit': settings.get('rate_limit') or GetEnvFloat('GEMINI_RATE_LIMIT')
+                'temperature': settings.get('temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
+                'rate_limit': settings.get('rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 0.0))
             })
 
             self.refresh_when_changed = ['api_key', 'model']

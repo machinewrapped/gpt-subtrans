@@ -113,7 +113,7 @@ try:
 
     logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
 
-    translator = SubtitleTranslator(options)
+    translator = SubtitleTranslator(options, translation_provider)
 
     project.TranslateSubtitles(translator)
 

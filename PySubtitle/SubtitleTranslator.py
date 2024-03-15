@@ -22,7 +22,7 @@ class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
-    def __init__(self, options: Options):
+    def __init__(self, options: Options, translation_provider: TranslationProvider):
         """
         Initialise a SubtitleTranslator with translation options
         """
@@ -50,14 +50,15 @@ class SubtitleTranslator:
 
         logging.debug(f"Translation prompt: {self.user_prompt}")
 
+        self.translation_provider : TranslationProvider = translation_provider
+
         if not options.provider:
             raise NoProviderError()
  
-        self.provider_class : TranslationProvider = TranslationProvider.get_provider(options)
-        if not self.provider_class:
-            raise ProviderError("Unable to create translation provider")
+        if not self.translation_provider:
+            raise ProviderError("Translation provider is unavailable")
 
-        self.client : TranslationClient = self.provider_class.GetTranslationClient(self.settings)
+        self.client : TranslationClient = self.translation_provider.GetTranslationClient(self.settings)
         if not self.client:
             raise ProviderError("Unable to create translation client")
         
@@ -369,8 +370,9 @@ class SubtitleTranslator:
         prompt.GenerateRetryPrompt(translation.text, self.instructions.retry_instructions, batch.errors)
 
         # Let's raise the temperature a little bit
-        temperature = min(self.client.temperature + 0.1, 1.0)
-        retranslation : Translation = self.client.RequestTranslation(prompt, temperature)
+        temperature = self.client.temperature or 0.0
+        retry_temperature = min(temperature + 0.1, 1.0)
+        retranslation : Translation = self.client.RequestTranslation(prompt, retry_temperature)
 
         if not isinstance(retranslation, Translation):
             raise TranslationError("Retranslation is not the expected type")
