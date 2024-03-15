@@ -338,7 +338,10 @@ class TranslateSceneCommand(Command):
 
         project : SubtitleProject = self.datamodel.project
 
-        self.translator = SubtitleTranslator(self.datamodel.project_options)
+        options = self.datamodel.project_options
+        translation_provider = self.datamodel.translation_provider
+
+        self.translator = SubtitleTranslator(options, translation_provider)
 
         self.translator.events.batch_translated += self._on_batch_translated
 
