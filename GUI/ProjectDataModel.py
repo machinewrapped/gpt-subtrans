@@ -144,17 +144,17 @@ class ProjectDataModel:
         """
         Create or update translation provider based on settings
         """
-        if not self.project_options.provider:
+        provider = self.project_options.provider
+        if not provider:
             self.translation_provider = None
             return
         
-        if not self.provider or self.provider != self.project_options.provider:
-            if self.provider not in self.provider_cache:
-                self.CreateTranslationProvider()
-                return
-
-            self.translation_provider : TranslationProvider = self.provider_cache[self.provider]
+        if provider in self.provider_cache:
+            self.translation_provider : TranslationProvider = self.provider_cache[provider]
             self.translation_provider.UpdateSettings(self.project_options)
+            return
+
+        self.CreateTranslationProvider()
 
     @classmethod
     def RegisterActionHandler(cls, action_name : str, handler : callable):
