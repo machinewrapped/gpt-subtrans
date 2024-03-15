@@ -370,8 +370,9 @@ class SubtitleTranslator:
         prompt.GenerateRetryPrompt(translation.text, self.instructions.retry_instructions, batch.errors)
 
         # Let's raise the temperature a little bit
-        temperature = min(self.client.temperature + 0.1, 1.0)
-        retranslation : Translation = self.client.RequestTranslation(prompt, temperature)
+        temperature = self.client.temperature or 0.0
+        retry_temperature = min(temperature + 0.1, 1.0)
+        retranslation : Translation = self.client.RequestTranslation(prompt, retry_temperature)
 
         if not isinstance(retranslation, Translation):
             raise TranslationError("Retranslation is not the expected type")
