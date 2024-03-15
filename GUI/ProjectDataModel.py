@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtCore import QMutex, QMutexLocker
 from GUI.ProjectViewModel import ProjectViewModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
@@ -18,11 +19,11 @@ class ProjectDataModel:
             project_settings = project.GetProjectSettings()
             self.project_options.update(project_settings)
 
-        try:
-            self.translation_provider : TranslationProvider = self.CreateTranslationProvider() if self.project_options.provider else None
-        except Exception as e:
-            print(f"Error: {e}")
-            self.translation_provider = None
+        self.provider_cache = {}
+        self.translation_provider : TranslationProvider = None
+
+        if self.project_options.provider:
+            self.CreateTranslationProvider()
 
     @property
     def provider(self):
@@ -86,7 +87,13 @@ class ProjectDataModel:
         if not self.project_options.provider:
             return None
 
-        return TranslationProvider.get_provider(self.project_options)
+        try:
+            self.translation_provider = TranslationProvider.get_provider(self.project_options)
+            self.provider_cache[self.translation_provider.name] = self.translation_provider
+
+        except Exception as e:
+            logging.warning(f"Unable to create {self.provider} provider: {e}")
+            return None
     
     def UpdateProviderSettings(self, settings : dict):
         """ Update the settings for the translation provider """
@@ -142,11 +149,12 @@ class ProjectDataModel:
             return
         
         if not self.provider or self.provider != self.project_options.provider:
-            # TODO: cache provider classes so that they don't have to keep fetching available models,
-            self.translation_provider = self.CreateTranslationProvider()
-            return
+            if self.provider not in self.provider_cache:
+                self.CreateTranslationProvider()
+                return
 
-        self.translation_provider.UpdateSettings(self.project_options)
+            self.translation_provider : TranslationProvider = self.provider_cache[self.provider]
+            self.translation_provider.UpdateSettings(self.project_options)
 
     @classmethod
     def RegisterActionHandler(cls, action_name : str, handler : callable):
