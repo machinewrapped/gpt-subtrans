@@ -3,10 +3,10 @@
 
 a = Analysis(
     ['gui-subtrans.py'],
-    pathex=[],
+    pathex=['./envsubtrans/lib', './envsubtrans/lib/python3.12/site-packages'],
     binaries=[],
     datas=[('theme/*', 'theme/'), ('instructions*', '.'), ('LICENSE', '.'), ('gui-subtrans.ico', '.')],
-    hiddenimports=[],
+    hiddenimports=['PySide6.QtGui'],
     hookspath=['PySubtitleHooks'],
     hooksconfig={},
     runtime_hooks=[],

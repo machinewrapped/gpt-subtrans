@@ -35,7 +35,7 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-**The easiest setup method for most users is to run `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install-mac.sh`, which will configure OpenAI as the provider. **
+**The easiest setup method for most users is to run `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install.sh`, which will ask you to specify the provider (this should work on any unix-like system). **
 
 2. Create a new file named .env in the root directory of the project. Add your API key to the .env file like this:
 ```
@@ -81,13 +81,13 @@ See the project wiki for further details on how to use the program.
 
 ### Command Line
 
-GPT-Subtrans can be used as a console command. The most basic usage is:
+GPT-Subtrans can be used as a console command or shell script. The most basic usage is:
 ```
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
 ```
 
-This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified, the default is English.
+This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified the default is English.
 
 Note: Remember to activate the virtual environment every time you work on the project.
 
@@ -231,10 +231,13 @@ Submit a pull request to the main GPT-Subtrans repository.
 ## Acknowledgements
 This project uses several useful libraries:
 
-- openai, of course (https://platform.openai.com/docs/libraries/python-bindings)
 - srt (https://github.com/cdown/srt)
 - requests (https://github.com/psf/requests)
 - regex (https://github.com/mrabarnett/mrab-regex)
+
+Translation providers:
+- openai (https://platform.openai.com/docs/libraries/python-bindings)
+- google.generativeai (https://github.com/google/generative-ai-python)
 
 For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
