@@ -33,13 +33,13 @@ try:
 
         def __init__(self, settings : dict):
             super().__init__(self.name, {
-                "api_key": settings.get('api_key') or os.getenv('OPENAI_API_KEY'),
-                "api_base": settings.get('api_base') or os.getenv('OPENAI_API_BASE'),
-                "model": settings.get('model') or os.getenv('OPENAI_MODEL'),
-                'temperature': settings.get('temperature') or GetEnvFloat('OPENAI_TEMPERATURE', 0.0),
-                'rate_limit': settings.get('rate_limit') or GetEnvFloat('OPENAI_RATE_LIMIT'),
-                "free_plan": settings.get('free_plan') or os.getenv('OPENAI_FREE_PLAN') == "True",
-                'max_instruct_tokens': int(os.getenv('MAX_INSTRUCT_TOKENS', 2048)),
+                "api_key": settings.get('api_key', os.getenv('OPENAI_API_KEY')),
+                "api_base": settings.get('api_base', os.getenv('OPENAI_API_BASE')),
+                "model": settings.get('model', os.getenv('OPENAI_MODEL')),
+                'temperature': settings.get('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
+                'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
+                "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
+                'max_instruct_tokens': settings.get('max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', 2048))),
             })
 
             self.refresh_when_changed = ['api_key', 'api_base', 'model']
