@@ -67,7 +67,7 @@ class AnthropicClient(TranslationClient):
         """
         response = {}
 
-        for retry in range(self.max_retries):
+        for retry in range(self.max_retries + 1):
             if self.aborted:
                 raise TranslationAbortedError()
 
@@ -105,17 +105,24 @@ class AnthropicClient(TranslationClient):
                 # Return the response if the API call succeeds
                 return response
             
-            except (anthropic.APITimeoutError, anthropic.RateLimitError) as e:
-                if self.aborted:
-                    raise TranslationAbortedError()
+            except anthropic.APITimeoutError as e:
+                if retry < self.max_retries and not self.aborted:
+                    sleep_time = self.backoff_time * 2.0**retry
+                    logging.warning(f"self._get_error_message(e), retrying in {sleep_time}...")
+                    time.sleep(sleep_time)
+                    continue
 
-                sleep_time = self.backoff_time * 2.0**retry
-                logging.warning(f"Provider error {str(e)}, retrying in {sleep_time}...")
-                time.sleep(sleep_time)
-                continue
+            except anthropic.RateLimitError as e:
+                raise TranslationImpossibleError(self._get_error_message(e), response)
+            
+            except anthropic.APIError as e:
+                raise TranslationFailedError(self._get_error_message(e), response)
 
             except Exception as e:
                 raise TranslationImpossibleError(f"Unexpected error communicating with provider", response, error=e)
 
-        return None
+        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries", response)
+
+    def _get_error_message(self, e : anthropic.APIError):
+        return e.body.get('error', {}).get('message', e.message)
 
