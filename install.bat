@@ -22,8 +22,7 @@ echo Python version is compatible.
 echo Checking if "envsubtrans" folder exists...
 if exist envsubtrans (
     echo "envsubtrans" folder already exists.
-    echo Do you want to perform a clean install? This will delete the existing environment. (Y/N)
-    set /p user_choice=Enter your choice (Y/N): 
+    set /p user_choice=Do you want to perform a clean install? This will delete the existing environment. [Y/N]:
     if /i "!user_choice!"=="Y" (
         echo Performing a clean install...
         rmdir /s /q envsubtrans

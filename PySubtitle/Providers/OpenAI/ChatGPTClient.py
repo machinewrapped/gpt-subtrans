@@ -12,6 +12,11 @@ class ChatGPTClient(OpenAIClient):
     """
     Handles chat communication with OpenAI to request translations
     """
+    def __init__(self, settings : dict):
+        settings['supports_system_messages'] = True
+        settings['supports_conversation'] = True
+        super().__init__(settings)
+
     def SupportedModels(self, available_models : list[str]):
         return [ model for model in available_models if model.find("instruct") < 0]
 
@@ -19,14 +24,14 @@ class ChatGPTClient(OpenAIClient):
         """
         Make a request to the OpenAI API to provide a translation
         """
-        content = {}
+        response = {}
 
         for retry in range(self.max_retries):
             if self.aborted:
                 raise TranslationAbortedError()
 
             try:
-                response = self.client.chat.completions.create(
+                result = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
                     temperature=temperature 
@@ -35,25 +40,25 @@ class ChatGPTClient(OpenAIClient):
                 if self.aborted:
                     raise TranslationAbortedError()
 
-                content['response_time'] = getattr(response, 'response_ms', 0)
+                response['response_time'] = getattr(result, 'response_ms', 0)
 
-                if response.usage:
-                    content['prompt_tokens'] = getattr(response.usage, 'prompt_tokens')
-                    content['completion_tokens'] = getattr(response.usage, 'completion_tokens')
-                    content['total_tokens'] = getattr(response.usage, 'total_tokens')
+                if result.usage:
+                    response['prompt_tokens'] = getattr(result.usage, 'prompt_tokens')
+                    response['output_tokens'] = getattr(result.usage, 'completion_tokens')
+                    response['total_tokens'] = getattr(result.usage, 'total_tokens')
 
                 # We only expect one choice to be returned as we have 0 temperature
-                if response.choices:
-                    choice = response.choices[0]
-                    reply = response.choices[0].message
+                if result.choices:
+                    choice = result.choices[0]
+                    reply = result.choices[0].message
 
-                    content['finish_reason'] = getattr(choice, 'finish_reason', None)
-                    content['text'] = getattr(reply, 'content', None)
+                    response['finish_reason'] = getattr(choice, 'finish_reason', None)
+                    response['text'] = getattr(reply, 'content', None)
                 else:
-                    raise NoTranslationError("No choices returned in the response", response)
+                    raise NoTranslationError("No choices returned in the response", result)
 
                 # Return the response if the API call succeeds
-                return content
+                return response
             
             except openai.RateLimitError as e:
                 retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
@@ -63,7 +68,7 @@ class ChatGPTClient(OpenAIClient):
                     time.sleep(retry_seconds)
                     continue
                 else:
-                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan", content)
+                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan", response)
 
             except openai.APITimeoutError as e:
                 if self.aborted:
@@ -75,10 +80,10 @@ class ChatGPTClient(OpenAIClient):
                 continue
 
             except openai.APIConnectionError as e:
-                raise TranslationAbortedError() if self.aborted else TranslationImpossibleError(str(e), content)
+                raise TranslationAbortedError() if self.aborted else TranslationImpossibleError(str(e), response)
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", content, error=e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", response, error=e)
 
         return None
 

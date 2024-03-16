@@ -45,7 +45,8 @@ else
     echo "Select which provider you want to install:"
     echo "1 = OpenAI"
     echo "2 = Google Gemini"
-    read -p "Enter your choice (1/2): " provider_choice
+    echo "3 = Anthropic Claude"
+    read -p "Enter your choice (1/2/3): " provider_choice
 
     case $provider_choice in
         1)
@@ -57,10 +58,17 @@ else
             ;;
         2)
             read -p "Enter your Google Gemini API Key: " gemini_api_key
-            echo "PROVIDER=Gemini" > .env
+            echo "PROVIDER=Google Gemini" > .env
             echo "GEMINI_API_KEY=$gemini_api_key" >> .env
             echo "Installing Google GenerativeAI module..."
             pip install google-generativeai
+            ;;
+        3)
+            read -p "Enter your Anthropic API Key: " anthropic_api_key
+            echo "PROVIDER=Claude" > .env
+            echo "CLAUDE_API_KEY=$claude_api_key" >> .env
+            echo "Installing Anthropic module..."
+            pip install anthropic
             ;;
         *)
             echo "Invalid choice. Exiting installation."
