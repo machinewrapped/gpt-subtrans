@@ -192,15 +192,18 @@ class SettingsDialog(QDialog):
         
         provider_info = self.translation_provider.GetInformation()
         if provider_info:
+            provider_layout = QVBoxLayout()
             infoLabel = QLabel(provider_info)
             infoLabel.setWordWrap(True)
             infoLabel.setTextFormat(Qt.TextFormat.RichText)
             infoLabel.setOpenExternalLinks(True)
+            provider_layout.addWidget(infoLabel)
+            provider_layout.addStretch(1)
 
             scrollArea = QScrollArea()
             scrollArea.setWidgetResizable(True)
             scrollArea.setSizeAdjustPolicy(QScrollArea.SizeAdjustPolicy.AdjustToContents)
-            scrollArea.setWidget(infoLabel)
+            scrollArea.setLayout(provider_layout)
             layout.addRow(scrollArea)
 
     def _refresh_provider_options(self):

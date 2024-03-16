@@ -131,13 +131,12 @@ class SubtitleFile:
         if not scene:
             raise SubtitleError(f"Failed to find scene {scene_number}")
 
-        context_lines.append(f"scene {scene.number}:")
         for batch in scene.batches:
             if batch.number == batch_number:
                 break
 
             if batch.summary and batch.summary != last_summary:
-                context_lines.append(f"batch {batch.number}: {batch.summary}")
+                context_lines.append(f"scene {scene.number} batch {batch.number}: {batch.summary}")
                 last_summary = batch.summary
 
         if max_lines:

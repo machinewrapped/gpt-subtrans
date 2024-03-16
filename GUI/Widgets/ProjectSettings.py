@@ -205,6 +205,8 @@ class ProjectSettings(QGroupBox):
         if key == 'provider':
             self._update_provider_settings(value)
             self.datamodel.PerformModelAction('Validate Provider Settings')
+        elif key == 'model':
+            self.datamodel.UpdateProjectSettings({ "model": value })
 
     def _update_provider_settings(self, provider : str):
         try:
