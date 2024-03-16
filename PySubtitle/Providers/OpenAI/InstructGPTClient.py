@@ -14,7 +14,7 @@ class InstructGPTClient(OpenAIClient):
     """
     def __init__(self, settings : dict):
         settings['supports_conversation'] = False
-        settings['supports_system_messages'] = True
+        settings['supports_system_messages'] = False
         super().__init__(settings)
 
     def GetSupportedModels(self, available_models : list[str]):
