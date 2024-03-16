@@ -46,9 +46,9 @@ class AnthropicClient(TranslationClient):
         logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
         temperature = temperature or self.temperature
-        content = self._send_messages(prompt.system_prompt, prompt.content, temperature)
+        response = self._send_messages(prompt.system_prompt, prompt.content, temperature)
 
-        translation = Translation(content)
+        translation = Translation(response)
 
         if translation.quota_reached:
             raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
@@ -65,14 +65,14 @@ class AnthropicClient(TranslationClient):
         """
         Make a request to the LLM to provide a translation
         """
-        content = {}
+        response = {}
 
         for retry in range(self.max_retries):
             if self.aborted:
                 raise TranslationAbortedError()
 
             try:
-                response = self.client.messages.create(
+                result = self.client.messages.create(
                     model=self.model,
                     messages=messages,
                     system=system_prompt,
@@ -83,27 +83,27 @@ class AnthropicClient(TranslationClient):
                 if self.aborted:
                     raise TranslationAbortedError()
 
-                if not response.content:
-                    raise NoTranslationError("No choices returned in the response", response)
+                if not result.content:
+                    raise NoTranslationError("No choices returned in the response", result)
 
-                # content['response_time'] = getattr(response, 'response_ms', 0)
+                # response['response_time'] = getattr(response, 'response_ms', 0)
 
-                if response.stop_reason == 'max_tokens':
-                    content['finish_reason'] = "length"
+                if result.stop_reason == 'max_tokens':
+                    response['finish_reason'] = "length"
                 else:
-                    content['finish_reason'] = response.stop_reason
+                    response['finish_reason'] = result.stop_reason
                 
-                if response.usage:
-                    content['prompt_tokens'] = getattr(response.usage, 'input_tokens')
-                    content['output_tokens'] = getattr(response.usage, 'output_tokens')
+                if result.usage:
+                    response['prompt_tokens'] = getattr(result.usage, 'input_tokens')
+                    response['output_tokens'] = getattr(result.usage, 'output_tokens')
 
-                for piece in response.content:
+                for piece in result.content:
                     if piece.type == 'text':
-                        content['text'] = piece.text
+                        response['text'] = piece.text
                         break
 
                 # Return the response if the API call succeeds
-                return content
+                return response
             
             except (anthropic.APITimeoutError, anthropic.RateLimitError) as e:
                 if self.aborted:
@@ -115,7 +115,7 @@ class AnthropicClient(TranslationClient):
                 continue
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with provider", content, error=e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with provider", response, error=e)
 
         return None
 
