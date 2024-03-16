@@ -85,7 +85,8 @@ class Translation:
             metadata.append(f"\nSummary:\n{self.summary}")
 
         if self.names:
-            metadata.append(f"\n\nNames:\n{'\n'.join(self.names)}")
+            names = "\n".join(self.names)
+            metadata.append(f"\n\nNames:\n{names}")
 
         if metadata:
             metadata_text = '\n'.join(metadata)
