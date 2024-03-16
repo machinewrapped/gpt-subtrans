@@ -43,13 +43,13 @@ class SettingsDialog(QDialog):
         }
     }
 
-    def __init__(self, options : Options, parent=None, focus_provider_settings : bool = False):
+    def __init__(self, options : Options, provider_cache = None, parent=None, focus_provider_settings : bool = False):
         super(SettingsDialog, self).__init__(parent)
         self.setWindowTitle("GUI-Subtrans Settings")
         self.setMinimumWidth(800)
 
         self.translation_provider : TranslationProvider = None
-        self.provider_cache = {}
+        self.provider_cache = provider_cache or {}
         self.settings = options.GetSettings()
         self.widgets = {}
 
