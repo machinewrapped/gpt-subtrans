@@ -254,11 +254,9 @@ class SubtitleTranslator:
         """
         Generate a translation prompt for the context
         """
-        prompt = TranslationPrompt(self.user_prompt, 
-                                   conversation=self.client.supports_conversation, 
-                                   supports_system_prompt=self.client.supports_system_prompt, 
-                                   supports_system_messages=self.client.supports_system_messages)
-        
+        prompt = TranslationPrompt(self.user_prompt, self.client.supports_conversation)
+        prompt.supports_system_prompt = self.client.supports_system_prompt
+        prompt.supports_system_messages = self.client.supports_system_messages        
         prompt.GenerateMessages(self.instructions.instructions, lines, context)
         return prompt
 

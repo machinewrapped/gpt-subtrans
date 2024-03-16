@@ -2,13 +2,10 @@ from PySubtitle.Helpers import GenerateBatchPrompt, GenerateTagLines, WrapSystem
 from PySubtitle.SubtitleError import TranslationError
 
 class TranslationPrompt:
-    def __init__(self, user_prompt : str, conversation : bool, supports_system_prompt : bool, supports_system_messages : bool):
+    def __init__(self, user_prompt : str, conversation : bool = True, supports_system_prompt : bool = False, supports_system_messages : bool = False):
         self.conversation = conversation
         self.supports_system_prompt = supports_system_prompt
         self.supports_system_messages = supports_system_messages
-        self.user_role = "user"
-        self.assistant_role = "assistant"
-        self.system_role = "system" if self.supports_system_messages else self.user_role
         self.system_prompt = None
         self.user_prompt = user_prompt
         self.batch_prompt = None
@@ -21,6 +18,9 @@ class TranslationPrompt:
         """
         self.messages.clear()
 
+        user_role = "user"
+        system_role = "system" if self.supports_system_messages else user_role
+
         if context:
             tag_lines = GenerateTagLines(context, ['description', 'names', 'summaries', 'scene', 'summary', 'batch'])
 
@@ -32,15 +32,15 @@ class TranslationPrompt:
         if instructions:
             if self.supports_system_prompt:
                 self.system_prompt = instructions
-                self.messages.append({'role': self.user_role, 'content': self.batch_prompt})
+                self.messages.append({'role': user_role, 'content': self.batch_prompt})
             elif self.supports_system_messages:
-                self.messages.append({'role': self.system_role, 'content': instructions})
-                self.messages.append({'role': self.user_role, 'content': self.batch_prompt})
+                self.messages.append({'role': system_role, 'content': instructions})
+                self.messages.append({'role': user_role, 'content': self.batch_prompt})
             else:
                 user_instructions = WrapSystemMessage(instructions)
-                self.messages.append({'role': self.user_role, 'content': f"{user_instructions}\n{self.batch_prompt}"})
+                self.messages.append({'role': user_role, 'content': f"{user_instructions}\n{self.batch_prompt}"})
         else:
-            self.messages.append({'role': self.user_role, 'content': self.batch_prompt})
+            self.messages.append({'role': user_role, 'content': self.batch_prompt})
 
         self._generate_content()
 
@@ -49,12 +49,17 @@ class TranslationPrompt:
         Request retranslation of lines that were not translated originally
         """
         messages = []
+
+        user_role = "user"
+        assistant_role = "assistant"
+        system_role = "system" if self.supports_system_messages else user_role
+
         for message in self.messages:
             messages.append(message)
-            if message.get('role') == self.user_role:
+            if message.get('role') == user_role:
                 break
 
-        messages.append({ 'role': self.assistant_role, 'content': reponse })
+        messages.append({ 'role': assistant_role, 'content': reponse })
 
         if errors:
             unique_errors = set(( f"- {str(e).strip()}" for e in errors ))
@@ -66,11 +71,11 @@ class TranslationPrompt:
             retry_prompt = "There were some problems with the translation. Please try again."
 
         if self.supports_system_messages:
-            messages.append({ 'role': self.system_role, 'content': retry_instructions })
+            messages.append({ 'role': system_role, 'content': retry_instructions })
         else:
             retry_prompt = f"{WrapSystemMessage(retry_instructions)}\n{retry_prompt}"
 
-        messages.append({ 'role': self.user_role, 'content': retry_prompt })
+        messages.append({ 'role': user_role, 'content': retry_prompt })
 
         self.messages = messages
         self._generate_content()

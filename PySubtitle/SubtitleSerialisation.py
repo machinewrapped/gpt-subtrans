@@ -87,7 +87,11 @@ class SubtitleEncoder(json.JSONEncoder):
             return {
                 "user_prompt": obj.user_prompt,
                 "batch_prompt": obj.batch_prompt,
-                "messages": obj.messages
+                "messages": obj.messages,
+                "supports_system_messages": obj.supports_system_messages,
+                "supports_system_prompt": obj.supports_system_prompt,
+                "conversation": obj.conversation,
+
             }
 
         return super().default(obj)
@@ -138,9 +142,10 @@ class SubtitleDecoder(json.JSONDecoder):
                 return obj
             elif class_name == classname(TranslationPrompt):
                 user_prompt = dct.get('user_prompt')
-                instructions = dct.get('instructions')
-                context = dct.get('context')
-                obj = TranslationPrompt(user_prompt, instructions, context)
+                conversation = dct.get('conversation')
+                obj = TranslationPrompt(user_prompt, conversation)
+                obj.supports_system_messages = dct.get('supports_system_messages')
+                obj.supports_system_prompt = dct.get('supports_system_prompt')
                 obj.batch_prompt = dct.get('batch_prompt')
                 obj.messages = dct.get('messages')
                 return obj
