@@ -51,7 +51,7 @@ class AnthropicClient(TranslationClient):
         translation = Translation(response)
 
         if translation.quota_reached:
-            raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
+            raise TranslationImpossibleError("Anthropic account quota reached, please upgrade your plan or wait until it renews", translation)
 
         if translation.reached_token_limit:
             raise TranslationFailedError(f"Too many tokens in translation", translation)
