@@ -179,9 +179,9 @@ def GetLinePrompt(line):
         "Translation>"
     ])
 
-def WrapSystemMessage(message):
+def WrapSystemMessage(message : str):
     separator = "--------"
-    return '\n'.join( [ separator, "SYSTEM", separator, message, separator])
+    return '\n'.join( [ separator, "SYSTEM", separator, message.strip(), separator])
 
 def ParseTranslation(text):
     """

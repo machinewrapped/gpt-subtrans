@@ -85,7 +85,10 @@ class TranslationPrompt:
 
     def _generation_completion(self):
         """ Convert a series of messages to a script for the AI to complete """
-        return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in self.messages ])
+        if self.supports_system_messages:
+            return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in self.messages ])
+        else:
+            return "\n\n".join([ m.get('content') for m in self.messages ])
 
 def FormatPrompt(prompt : TranslationPrompt):
     if prompt.batch_prompt:
