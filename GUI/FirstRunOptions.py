@@ -36,7 +36,7 @@ class FirstRunOptions(QDialog):
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
         settings = self.options.GetSettings()
-        settings['provider'] = settings.get('provider', "OpenAI")
+        settings['provider'] = settings.get('provider') or "OpenAI"
 
         for key, option in self.OPTIONS.items():
             key_type, tooltip = option

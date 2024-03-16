@@ -58,7 +58,12 @@ class SubtitleTranslator:
         if not self.translation_provider:
             raise ProviderError("Translation provider is unavailable")
 
-        self.client : TranslationClient = self.translation_provider.GetTranslationClient(self.settings)
+        try:
+            self.client : TranslationClient = self.translation_provider.GetTranslationClient(self.settings)
+
+        except Exception as e:
+            raise ProviderError(f"Unable to create provider client: {str(e)}")
+
         if not self.client:
             raise ProviderError("Unable to create translation client")
         
