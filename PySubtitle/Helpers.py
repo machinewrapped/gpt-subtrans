@@ -14,6 +14,12 @@ def GetEnvFloat(name, default=None):
         return float(value)
     return default
 
+def GetEnvInteger(name, default=None):
+    value = os.getenv(name, default)
+    if value is not None:
+        return int(value)
+    return default
+
 def Linearise(lines):
     if not isinstance(lines, list):
         lines = str(lines).split("\n")
@@ -172,6 +178,10 @@ def GetLinePrompt(line):
         line.text_normalized,
         "Translation>"
     ])
+
+def WrapSystemMessage(message):
+    separator = "--------"
+    return '\n'.join( [ separator, "SYSTEM", separator, message, separator])
 
 def ParseTranslation(text):
     """

@@ -122,7 +122,7 @@ class SubtitleDecoder(json.JSONDecoder):
                     'finish_reason' : dct.get('finish_reason'),
                     'response_time' : dct.get('response_time'),
                     'prompt_tokens' : dct.get('prompt_tokens'),
-                    'completion_tokens' : dct.get('completion_tokens'),
+                    'output_tokens' : dct.get('completion_tokens'),
                     'total_tokens' : dct.get('total_tokens'),
                     'summary': dct.get('summary'),
                     'scene': dct.get('scene'),

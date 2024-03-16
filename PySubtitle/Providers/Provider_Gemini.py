@@ -2,12 +2,11 @@
 import logging
 import os
 
-from PySubtitle.Helpers import GetEnvFloat
-
 try:
     import google.generativeai as genai
     from google.api_core.exceptions import FailedPrecondition
 
+    from PySubtitle.Helpers import GetEnvFloat
     from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationProvider import TranslationProvider
@@ -46,7 +45,11 @@ try:
             genai.configure(api_key=self.api_key)
             client_settings = self.settings.copy()
             client_settings.update(settings)
-            client_settings['model'] = self._get_true_name(self.selected_model)
+            client_settings.update({
+                'model': self._get_true_name(self.selected_model),
+                'supports_conversation': False,         # Actually it does support conversation
+                'supports_system_messages': False       # This is what it doesn't support
+                })
             return GeminiClient(client_settings)
 
         def GetOptions(self) -> dict:
