@@ -111,7 +111,7 @@ try:
 
             except Exception as e:
                 logging.error(f"Unable to retrieve Gemini model list: {str(e)}")
-                return ["Unable to retrieve models"]
+                return []
 
         def _get_true_name(self, display_name : str) -> str:
             if not self.gemini_models:
