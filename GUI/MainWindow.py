@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
             QApplication.instance().quit()
             return
 
-        logging.debug(f"A {type(command).__name__} command {'succeeded' if success else 'failed'})")
+        logging.debug(f"A {type(command).__name__} command {'succeeded' if success else 'failed'}")
 
         if success:
             if isinstance(command, LoadSubtitleFile):

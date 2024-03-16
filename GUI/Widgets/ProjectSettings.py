@@ -204,6 +204,7 @@ class ProjectSettings(QGroupBox):
     def _option_changed(self, key, value):
         if key == 'provider':
             self._update_provider_settings(value)
+            self.datamodel.PerformModelAction('Validate Provider Settings')
 
     def _update_provider_settings(self, provider : str):
         try:

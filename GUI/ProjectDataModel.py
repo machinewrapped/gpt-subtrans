@@ -97,12 +97,12 @@ class ProjectDataModel:
     def ValidateProviderSettings(self):
         """Check if the translation provider is configured correctly."""
         if not self.translation_provider or not self.translation_provider.ValidateSettings():
-            self.PerformModelAction('Show Provider Settings', {})
             return False
 
         return True
 
-    def PerformModelAction(self, action_name : str, params):
+    def PerformModelAction(self, action_name : str, params = None):
+        params = params or {}
         with QMutexLocker(self.mutex):
             handlers = self._action_handlers.get(action_name)
             if handlers:
