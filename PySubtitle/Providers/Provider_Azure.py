@@ -36,6 +36,10 @@ try:
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             client_settings = self.settings.copy()
             client_settings.update(settings)
+            client_settings.update({
+                'supports_conversation': True,
+                'supports_system_messages': True
+                })
             return AzureOpenAIClient(client_settings)
 
         def GetOptions(self) -> dict:
