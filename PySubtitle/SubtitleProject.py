@@ -33,10 +33,11 @@ class SubtitleProject:
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
 
-        self.preview = project_mode in ["preview"]
-        self.resume = project_mode in ["resume"]
-        self.reparse = project_mode in ["reparse"]
-        self.retranslate = project_mode in ["retranslate"]
+        # Yes, this is a stupid way to set these settings
+        options.add("preview", project_mode in ["preview"])
+        options.add("resume", project_mode in ["resume"])
+        options.add("reparse", project_mode in ["reparse"])
+        options.add("retranslate", project_mode in ["retranslate"])
 
         if self.update_project and options.get('autosave'):
             self._start_autosave_thread
