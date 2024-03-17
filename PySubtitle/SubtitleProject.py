@@ -269,7 +269,7 @@ class SubtitleProject:
             if self.subtitles and translator.stop_on_error:
                 self.SaveTranslation()
 
-            logging.error(f"Failed to translate subtitles")
+            logging.error(f"Failed to translate subtitles: {str(e)}")
             raise
 
     def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
@@ -301,7 +301,7 @@ class SubtitleProject:
             if self.subtitles and translator.stop_on_error:
                 self.SaveTranslation()
 
-            logging.error(f"Failed to translate subtitles")
+            logging.error(f"Failed to translate subtitles: {str(e)}")
             raise
 
     def _start_autosave_thread(self):

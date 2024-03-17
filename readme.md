@@ -24,8 +24,20 @@ You will need a Google Gemini API key from https://ai.google.dev/ or from a proj
 
 Gemini support is new and should be considered experimental.
 
+### Anthropic Claude
+https://support.anthropic.com/en/collections/4078534-privacy-legal
+
+You will need an Anthropic API key from https://console.anthropic.com/settings/keys to use Claude as a provider. The Anthropic SDK does not provide a way to retrieve available models, so the latest Claude 3 model names are currently hardcoded in the GUI. Only the smallest Haiku model has been tested - it seems more than adequate for translation tasks.
+
+The API has very strict [rate limits](https://docs.anthropic.com/claude/reference/rate-limits) based on your credit tier, both on requests per minutes and tokens per day. The free credit tier limits should be sufficient to translate approximately one full movie per day.
+
+Claude support is new and should be considered experimental.
+
 ### MacOS
 Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source to use the program. If anybody would like to volunteer to maintain Intel releases, please get in touch.
+
+### Linux
+Prebuilt Linux packages are not provided so you will need to install from source.
 
 ### Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
@@ -35,13 +47,14 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-**The easiest setup method for most users is to run `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install.sh`, which will ask you to specify the provider (this should work on any unix-like system). **
+**The easiest setup method for most users is to run e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install.sh`, which will ask you to specify the provider (this should work on any unix-like system). **
 
 2. Create a new file named .env in the root directory of the project. Add your API key to the .env file like this:
 ```
     OPENAI_API_KEY=<your_openai_api_key>
     GEMINI_API_KEY=<your_gemini_api_key>
     AZURE_API_KEY=<your_azure_api_key>
+    CLAUDE_API_KEY=<your_claude_api_key>
 ```
 
 If you are using Azure, probably you want to add additional lines as well:
@@ -72,6 +85,7 @@ AZURE_DEPLOYMENT_NAME=<deployment_name>
 ```
     pip install openai
     pip install google.generativeai
+    pip install anthropic
 ```
 
 Note that steps 3 and 4 are optional, but they can help prevent conflicts with other Python applications.
@@ -94,6 +108,7 @@ GPT-Subtrans can be used as a console command or shell script. The most basic us
 ```
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
+claude-subtrans <path_to_srt_file> --target_language <target_language>
 ```
 
 This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified the default is English.
@@ -184,6 +199,12 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 - `-m`, `--model`:
   Specify the [AI model](https://ai.google.dev/models/gemini) to use for translation
 
+### Claude-specific arguments
+- `-k`, `--apikey`:
+  Your [Anthropic API Key](https://console.anthropic.com/settings/keys). Not required if it is set in the .env file.
+
+- `-m`, `--model`:
+  Specify the [AI model](https://docs.anthropic.com/claude/docs/models-overview#model-comparison) to use for translation. This should be the full model name, e.g. `claude-3-haiku-20240307`
 
 ## Project File
 

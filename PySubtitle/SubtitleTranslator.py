@@ -30,7 +30,7 @@ class SubtitleTranslator:
         self.aborted = False
 
         self.max_lines = options.get('max_lines')
-        self.max_context_summaries = options.get('max_context_summaries')
+        self.max_history = options.get('max_context_summaries')
         self.stop_on_error = options.get('stop_on_error')
         self.allow_retranslations = options.get('allow_retranslations')
         self.whitespaces_to_newline = options.get('whitespaces_to_newline')
@@ -52,11 +52,8 @@ class SubtitleTranslator:
 
         self.translation_provider : TranslationProvider = translation_provider
 
-        if not options.provider:
-            raise NoProviderError()
- 
         if not self.translation_provider:
-            raise ProviderError("Translation provider is unavailable")
+            raise NoProviderError("Translation provider is unavailable")
 
         try:
             self.client : TranslationClient = self.translation_provider.GetTranslationClient(self.settings)
@@ -144,10 +141,10 @@ class SubtitleTranslator:
 
             if batch_numbers:
                 batches = [ batch for batch in scene.batches if batch.number in batch_numbers ]
-                context['summaries'] = subtitles.GetBatchContext(scene.number, batch_numbers[-1], self.max_context_summaries)
+                context['history'] = subtitles.GetBatchContext(scene.number, batch_numbers[-1], self.max_history)
             else:
                 batches = scene.batches
-                context['summaries'] = subtitles.GetBatchContext(scene.number, 1, self.max_context_summaries)
+                context['history'] = subtitles.GetBatchContext(scene.number, 1, self.max_history)
 
             context['scene'] = f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}"
 
@@ -203,9 +200,7 @@ class SubtitleTranslator:
                 context['batch'] = f"Scene {batch.scene} batch {batch.number}"
                 context['summary'] = batch.summary
 
-                batch.prompt = TranslationPrompt(self.user_prompt, self.instructions.instructions, context)
-
-                batch.prompt.GenerateMessages(originals)
+                batch.prompt = self.BuildTranslationPrompt(originals, context)
 
                 # Ask the client to do the translation
                 translation : Translation = self.client.RequestTranslation(batch.prompt)
@@ -218,14 +213,22 @@ class SubtitleTranslator:
                     if self.stop_on_error:
                         raise TranslationFailedError(f"No translation for scene {batch.scene} batch {batch.number}")
 
+                if translation.reached_token_limit:
+                    # Try again without the context to keep the tokens down
+                    # TODO: better to split the batch into smaller chunks
+                    logging.warning("Hit API token limit, retrying batch without context...")
+                    batch.prompt.GenerateMessages(self.instructions.instructions, batch.originals, {})
+
+                    translation = self.client.RequestTranslation(batch.prompt)
+
                 batch.translation = translation
 
                 # Process the response
                 self.ProcessTranslation(batch, line_numbers, context)
 
                 if batch.summary:
-                    context['summaries'].append(batch.summary)  # TODO: may be out of order
-                    context['summaries'] = context['summaries'][-self.max_context_summaries:]
+                    context['history'].append(batch.summary)  # TODO: may be out of order
+                    context['history'] = context['history'][-self.max_history:]
 
                 if self.stop_on_error and batch.errors:
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)
@@ -246,6 +249,16 @@ class SubtitleTranslator:
 
             # Notify observers the batch was translated
             self.events.batch_translated(batch)
+
+    def BuildTranslationPrompt(self, lines : list, context : dict):
+        """
+        Generate a translation prompt for the context
+        """
+        prompt = TranslationPrompt(self.user_prompt, self.client.supports_conversation)
+        prompt.supports_system_prompt = self.client.supports_system_prompt
+        prompt.supports_system_messages = self.client.supports_system_messages        
+        prompt.GenerateMessages(self.instructions.instructions, lines, context)
+        return prompt
 
     def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
         """

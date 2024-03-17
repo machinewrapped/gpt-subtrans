@@ -53,7 +53,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "all_translated": obj.all_translated,
                 "context": {
                     "summary": obj.context.get('summary'),
-                    "summaries": obj.context.get('summaries')
+                    "history": obj.context.get('history') or obj.context.get('summaries')
                 },
                 "batches": obj._batches,
             }
@@ -69,7 +69,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "translated": obj._translated,
                 "context": {
                     "summary": obj.context.get('summary'),
-                    "summaries": obj.context.get('summaries')
+                    "history": obj.context.get('history') or obj.context.get('summaries')
                 },
                 "translation": obj.translation,
                 "prompt": obj.prompt
@@ -87,7 +87,11 @@ class SubtitleEncoder(json.JSONEncoder):
             return {
                 "user_prompt": obj.user_prompt,
                 "batch_prompt": obj.batch_prompt,
-                "messages": obj.messages
+                "messages": obj.messages,
+                "supports_system_messages": obj.supports_system_messages,
+                "supports_system_prompt": obj.supports_system_prompt,
+                "conversation": obj.conversation,
+
             }
 
         return super().default(obj)
@@ -122,7 +126,7 @@ class SubtitleDecoder(json.JSONDecoder):
                     'finish_reason' : dct.get('finish_reason'),
                     'response_time' : dct.get('response_time'),
                     'prompt_tokens' : dct.get('prompt_tokens'),
-                    'completion_tokens' : dct.get('completion_tokens'),
+                    'output_tokens' : dct.get('completion_tokens'),
                     'total_tokens' : dct.get('total_tokens'),
                     'summary': dct.get('summary'),
                     'scene': dct.get('scene'),
@@ -138,9 +142,10 @@ class SubtitleDecoder(json.JSONDecoder):
                 return obj
             elif class_name == classname(TranslationPrompt):
                 user_prompt = dct.get('user_prompt')
-                instructions = dct.get('instructions')
-                context = dct.get('context')
-                obj = TranslationPrompt(user_prompt, instructions, context)
+                conversation = dct.get('conversation')
+                obj = TranslationPrompt(user_prompt, conversation)
+                obj.supports_system_messages = dct.get('supports_system_messages')
+                obj.supports_system_prompt = dct.get('supports_system_prompt')
                 obj.batch_prompt = dct.get('batch_prompt')
                 obj.messages = dct.get('messages')
                 return obj

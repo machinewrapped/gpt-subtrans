@@ -19,7 +19,19 @@ class TranslationClient:
 
         if not self.instructions:
             raise TranslationError("No instructions provided for the translator")
-        
+
+    @property
+    def supports_conversation(self):
+        return self.settings.get('supports_conversation', False)
+    
+    @property
+    def supports_system_prompt(self):
+        return self.settings.get('supports_system_prompt', False)
+
+    @property
+    def supports_system_messages(self):
+        return self.settings.get('supports_system_messages', False)
+
     @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
@@ -59,6 +71,7 @@ class TranslationClient:
             elapsed_time = time.monotonic() - start_time
             if elapsed_time < minimum_duration:
                 sleep_time = minimum_duration - elapsed_time
+                logging.debug(f"Sleeping for {sleep_time:.2f} seconds to respect rate limit")
                 time.sleep(sleep_time)
 
         return translation

@@ -206,8 +206,13 @@ class ProjectActions(QObject):
         multithreaded = len(selection.scenes) > 1 and datamodel.project_options.allow_multithreaded_translation
 
         for scene in selection.scenes.values():
-            batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
             line_numbers = [ line.number for line in selection.selected_lines if line.scene == scene.number ]
+
+            if line_numbers:
+                # Extract unique batch numbers from the selected lines
+                batch_numbers = list(set([ line.batch for line in selection.selected_lines if line.scene == scene.number ]))
+            else:
+                batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
             
             if multithreaded:
                 command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, line_numbers, datamodel)

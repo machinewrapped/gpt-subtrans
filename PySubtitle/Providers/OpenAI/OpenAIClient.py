@@ -42,10 +42,6 @@ class OpenAIClient(TranslationClient):
     def model(self):
         return self.settings.get('model')
     
-    @property
-    def rate_limit(self):
-        return self.settings.get('rate_limit')
-    
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Request a translation based on the provided prompt
@@ -53,29 +49,19 @@ class OpenAIClient(TranslationClient):
         logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
         temperature = temperature or self.temperature
-        content = self._send_messages(prompt.messages, temperature)
+        response = self._send_messages(prompt.content, temperature)
 
-        translation = Translation(content)
+        translation = Translation(response)
 
         if translation.quota_reached:
             raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
 
         if translation.reached_token_limit:
-            # Try again without the context to keep the tokens down
-            # TODO: better to split the batch into smaller chunks
-            logging.warning("Hit API token limit, retrying batch without context...")
-            prompt.GenerateReducedMessages()
-
-            content = self._send_messages(prompt.messages, temperature)
-
-            translation = Translation(content)
-
-            if translation.reached_token_limit:
-                raise TranslationError(f"Too many tokens in translation", translation)
+            raise TranslationError(f"Too many tokens in translation", translation)
 
         return translation
 
-    def _send_messages(self, messages : list[str], temperature : float):
+    def _send_messages(self, content, temperature : float):
         """
         Communicate with the API
         """
