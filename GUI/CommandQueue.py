@@ -1,6 +1,6 @@
 import logging
 
-from PySide6.QtCore import QObject, Signal, QThreadPool, QMutex, QMutexLocker
+from PySide6.QtCore import QObject, Signal, QThreadPool, QRecursiveMutex, QMutexLocker
 
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
@@ -34,7 +34,7 @@ class CommandQueue(QObject):
         self.queue = []
         self.undo_stack = []
 
-        self.mutex = QMutex()
+        self.mutex = QRecursiveMutex()
 
         self.command_pool = QThreadPool(self)
         self.SetMaxThreadCount(1)

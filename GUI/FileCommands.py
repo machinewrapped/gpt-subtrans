@@ -12,7 +12,6 @@ class LoadSubtitleFile(Command):
         self.filepath = filepath
         self.project : SubtitleProject = None
         self.options : Options = Options(options)
-        self.options.add('project', 'true')
         self.write_backup = self.options.get('write_backup', False)
 
     def execute(self):

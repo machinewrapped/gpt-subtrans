@@ -54,6 +54,7 @@ def parse_arguments():
     parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
     parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum number of lines to consider starting a new batch")
     parser.add_argument('--profile', action='store_true', help="Profile execution and write stats to the console")
+    parser.add_argument('--project', type=str, default="true", help="How to process the project file (read, write, preview, reload, reparse, retranslate)")
     parser.add_argument('--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
     parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
     parser.add_argument('--theme', type=str, default=None, help="Stylesheet to load")
@@ -73,6 +74,7 @@ def parse_arguments():
         'min_batch_size': args.minbatchsize,
         'model': args.model,
         'profile': args.profile,
+        'project': args.project,
         'provider': args.provider,
         'rate_limit': args.ratelimit,
         'scene_threshold': args.scenethreshold,

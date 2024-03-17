@@ -1,5 +1,5 @@
 import logging
-from PySide6.QtCore import QMutex, QMutexLocker
+from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 from GUI.ProjectViewModel import ProjectViewModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
@@ -13,7 +13,7 @@ class ProjectDataModel:
         self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
         self.project_options = Options(options)
-        self.mutex = QMutex()
+        self.mutex = QRecursiveMutex()
 
         if project:
             project_settings = project.GetProjectSettings()

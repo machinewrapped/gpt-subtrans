@@ -1,6 +1,6 @@
 import logging
 import os
-from PySide6.QtCore import Qt, QModelIndex, QMutex, QMutexLocker, Signal
+from PySide6.QtCore import Qt, QModelIndex, QRecursiveMutex, QMutexLocker, Signal
 
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from GUI.GuiHelpers import DescribeLineCount, GetLineHeight, TimeDeltaToText
@@ -35,7 +35,7 @@ class ProjectViewModel(QStandardItemModel):
         super().__init__()
         self.model = {}
         self.updates = []
-        self.update_lock = QMutex()
+        self.update_lock = QRecursiveMutex()
         self.debug_view = os.environ.get("DEBUG_MODE") == "1"
 
     def getRootItem(self):

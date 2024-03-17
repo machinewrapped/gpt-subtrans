@@ -180,9 +180,9 @@ class SubtitleTranslator:
                 continue
 
             if self.reparse and batch.translation:
-                logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(originals)} lines...")
-                translation = batch.translation
+                logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(batch.originals)} lines...")
                 self.ProcessTranslation(batch, line_numbers, context)
+                self.events.batch_translated(batch)
                 continue
 
             originals, context = self.PreprocessBatch(batch, context)
