@@ -11,9 +11,8 @@ try:
 
         information = """
         <p>Azure API-provider.</p>
+        <p>To use Azure as a provider you need to provide the name and address of an OpenAI Azure deployment, an API version and API Key.</p>
         """
-
-        information_noapikey = """<p>You need an Azure API key/p>"""
 
         def __init__(self, settings : dict):
             super().__init__(self.name, {
@@ -23,7 +22,7 @@ try:
                 "deployment_name": settings.get('deployment_name', os.getenv('AZURE_DEPLOYMENT_NAME')),
             })
 
-            self.refresh_when_changed = ['api_key', 'api_base', 'model']
+            self.refresh_when_changed = ['api_key', 'api_base', 'api_version', 'deployment_name']
 
         @property
         def api_key(self):
@@ -32,10 +31,22 @@ try:
         @property
         def api_base(self):
             return self.settings.get('api_base')
+        
+        @property
+        def api_version(self):
+            return self.settings.get('api_version')
+        
+        @property
+        def deployment_name(self):
+            return self.settings.get('deployment_name')
 
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             client_settings = self.settings.copy()
             client_settings.update(settings)
+            client_settings.update({
+                'supports_conversation': True,
+                'supports_system_messages': True
+                })
             return AzureOpenAIClient(client_settings)
 
         def GetOptions(self) -> dict:
@@ -49,9 +60,10 @@ try:
             return options
 
         def GetInformation(self) -> str:
-            if not self.api_key:
-                return self.information_noapikey
-            return self.information
+            information = self.information
+            if not self.ValidateSettings():
+                information = information + f"<p>{self.validation_message}</p>"
+            return information
 
         def ValidateSettings(self) -> bool:
             """
