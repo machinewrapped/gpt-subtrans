@@ -30,7 +30,7 @@ class InstructGPTClient(OpenAIClient):
         """
         response = {}
 
-        for retry in range(self.max_retries):
+        for retry in range(self.max_retries + 1):
             if self.aborted:
                 raise TranslationAbortedError()
 
@@ -78,13 +78,11 @@ class InstructGPTClient(OpenAIClient):
                     raise
 
             except openai.APITimeoutError as e:
-                if self.aborted:
-                    raise TranslationAbortedError()
-
-                sleep_time = self.backoff_time * 2.0**retry
-                logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
-                time.sleep(sleep_time)
-                continue
+                if retry < self.max_retries and not self.aborted:
+                    sleep_time = self.backoff_time * 2.0**retry
+                    logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
+                    time.sleep(sleep_time)
+                    continue
 
             except openai.APIConnectionError as e:
                 raise TranslationAbortedError() if self.aborted else TranslationImpossibleError(str(e), response)
@@ -92,5 +90,5 @@ class InstructGPTClient(OpenAIClient):
             except Exception as e:
                 raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", response, error=e)
 
-        return None
+        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries", response)
 
