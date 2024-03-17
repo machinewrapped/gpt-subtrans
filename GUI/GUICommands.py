@@ -28,6 +28,8 @@ class CheckProviderSettings(Command):
         try:
             translation_provider : TranslationProvider = self.datamodel.translation_provider
             if not translation_provider or not translation_provider.ValidateSettings():
+                if translation_provider:
+                    logging.warning(f"Provider {translation_provider.name} needs configuring: {translation_provider.validation_message}")
                 self.datamodel.PerformModelAction('Show Provider Settings')
 
         except Exception as e:
