@@ -30,7 +30,7 @@ class SubtitleTranslator:
         self.aborted = False
 
         self.max_lines = options.get('max_lines')
-        self.max_context_summaries = options.get('max_context_summaries')
+        self.max_history = options.get('max_context_summaries')
         self.stop_on_error = options.get('stop_on_error')
         self.allow_retranslations = options.get('allow_retranslations')
         self.whitespaces_to_newline = options.get('whitespaces_to_newline')
@@ -141,10 +141,10 @@ class SubtitleTranslator:
 
             if batch_numbers:
                 batches = [ batch for batch in scene.batches if batch.number in batch_numbers ]
-                context['summaries'] = subtitles.GetBatchContext(scene.number, batch_numbers[-1], self.max_context_summaries)
+                context['history'] = subtitles.GetBatchContext(scene.number, batch_numbers[-1], self.max_history)
             else:
                 batches = scene.batches
-                context['summaries'] = subtitles.GetBatchContext(scene.number, 1, self.max_context_summaries)
+                context['history'] = subtitles.GetBatchContext(scene.number, 1, self.max_history)
 
             context['scene'] = f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}"
 
@@ -227,8 +227,8 @@ class SubtitleTranslator:
                 self.ProcessTranslation(batch, line_numbers, context)
 
                 if batch.summary:
-                    context['summaries'].append(batch.summary)  # TODO: may be out of order
-                    context['summaries'] = context['summaries'][-self.max_context_summaries:]
+                    context['history'].append(batch.summary)  # TODO: may be out of order
+                    context['history'] = context['history'][-self.max_history:]
 
                 if self.stop_on_error and batch.errors:
                     raise TranslationFailedError(f"Failed to translate a batch... terminating", batch.translation, e)

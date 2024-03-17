@@ -22,7 +22,7 @@ class TranslationPrompt:
         system_role = "system" if self.supports_system_messages else user_role
 
         if context:
-            tag_lines = GenerateTagLines(context, ['description', 'names', 'summaries', 'scene', 'summary', 'batch'])
+            tag_lines = GenerateTagLines(context, ['description', 'names', 'history', 'scene', 'summary', 'batch'])
 
             self.batch_prompt = GenerateBatchPrompt(self.user_prompt, lines, tag_lines)
 

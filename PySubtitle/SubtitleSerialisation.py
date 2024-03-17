@@ -53,7 +53,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "all_translated": obj.all_translated,
                 "context": {
                     "summary": obj.context.get('summary'),
-                    "summaries": obj.context.get('summaries')
+                    "history": obj.context.get('history') or obj.context.get('summaries')
                 },
                 "batches": obj._batches,
             }
@@ -69,7 +69,7 @@ class SubtitleEncoder(json.JSONEncoder):
                 "translated": obj._translated,
                 "context": {
                     "summary": obj.context.get('summary'),
-                    "summaries": obj.context.get('summaries')
+                    "history": obj.context.get('history') or obj.context.get('summaries')
                 },
                 "translation": obj.translation,
                 "prompt": obj.prompt
