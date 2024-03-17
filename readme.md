@@ -53,8 +53,17 @@ For other platforms, or if you want to modify the program, you will need to have
 ```
     OPENAI_API_KEY=<your_openai_api_key>
     GEMINI_API_KEY=<your_gemini_api_key>
+    AZURE_API_KEY=<your_azure_api_key>
     CLAUDE_API_KEY=<your_claude_api_key>
 ```
+
+If you are using Azure, probably you want to add additional lines as well:
+
+```
+AZURE_API_BASE=<your api_base, such as https://something.openai.azure.com>
+AZURE_DEPLOYMENT_NAME=<deployment_name>
+```
+
 
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
 ```
