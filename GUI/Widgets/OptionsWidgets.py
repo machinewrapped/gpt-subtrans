@@ -37,7 +37,8 @@ class TextOptionWidget(OptionWidget):
         self.text_field = QLineEdit(self)
         self.text_field.setText(initial_value)
         self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.text_field.textChanged.connect(self.contentChanged)
+        # self.text_field.textChanged.connect(self.contentChanged)
+        self.text_field.editingFinished.connect(self.contentChanged)
         self.layout.addWidget(self.text_field)
 
     def GetValue(self):
