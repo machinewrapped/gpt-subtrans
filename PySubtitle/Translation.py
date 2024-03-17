@@ -3,7 +3,7 @@ from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class Translation:
     def __init__(self, content : dict):
-        self.content = content
+        self.content = content or {}
         translation_text = content.get('text')
         self._text, context = ParseTranslation(translation_text)
         self.content.update(context)

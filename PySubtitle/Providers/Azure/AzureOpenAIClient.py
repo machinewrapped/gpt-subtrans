@@ -3,12 +3,11 @@ import openai
 import time
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.TranslationPrompt import TranslationPrompt
-from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import NoTranslationError, TranslationImpossibleError
 
 class AzureOpenAIClient(TranslationClient):
     """
@@ -54,9 +53,9 @@ class AzureOpenAIClient(TranslationClient):
         logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
         temperature = temperature or self.temperature
-        content = self._send_messages(prompt.messages, temperature)
+        reponse = self._send_messages(prompt.messages, temperature)
 
-        translation = Translation(content)
+        translation = Translation(reponse) if reponse else None
 
         return translation
 
@@ -68,7 +67,7 @@ class AzureOpenAIClient(TranslationClient):
 
         for retry in range(self.max_retries + 1):
             if self.aborted:
-                raise TranslationAbortedError()
+                return None
 
             try:
                 response = self.client.chat.completions.create(
@@ -78,7 +77,7 @@ class AzureOpenAIClient(TranslationClient):
                 )
 
                 if self.aborted:
-                    raise TranslationAbortedError()
+                    return None
 
                 content['response_time'] = getattr(response, 'response_ms', 0)
 
@@ -118,7 +117,8 @@ class AzureOpenAIClient(TranslationClient):
                     continue
 
             except openai.APIConnectionError as e:
-                raise TranslationAbortedError() if self.aborted else TranslationImpossibleError(str(e), content)
+                if not self.aborted:
+                    raise TranslationImpossibleError(str(e), content)
 
             except Exception as e:
                 raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", content, error=e)

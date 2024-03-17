@@ -259,11 +259,11 @@ class SubtitleProject:
             translator.events.batch_translated -= self._on_batch_translated
             translator.events.scene_translated -= self._on_scene_translated
 
-            self.SaveTranslation()
+            if not translator.aborted:
+                self.SaveTranslation()
 
         except TranslationAbortedError:
-            logging.warning(f"Translation aborted")
-            raise
+            logging.info(f"Translation aborted")
 
         except Exception as e:
             if self.subtitles and translator.stop_on_error:
@@ -290,7 +290,8 @@ class SubtitleProject:
             translator.events.preprocessed -= self._on_preprocessed
             translator.events.batch_translated -= self._on_batch_translated
 
-            self.SaveTranslation()
+            if not translator.aborted:
+                self.SaveTranslation()
 
             return scene
         
