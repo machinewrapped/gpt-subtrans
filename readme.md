@@ -1,5 +1,5 @@
 # GPT-Subtrans
-GPT-Subtrans is an open source subtitle translator that uses LLMs as a translation service. It can translate subtitles between any language pairs supported by the language model. 
+GPT-Subtrans is an open source subtitle translator that uses LLMs as a translation service. It can translate subtitles between any language pairs supported by the language model.
 
 Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to the provider's servers for translation, so their privacy policy applies.
 
@@ -169,7 +169,7 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
   This setting is ignored with the new subtitle batcher, as it batches dynamically based on the gaps between lines.
 
 - `--minbatchsize`:
-  Minimum number of lines to consider starting a new batch to send to the translator. 
+  Minimum number of lines to consider starting a new batch to send to the translator.
   Higher values typically result in faster and cheaper translations but increase the risk of desyncs.
 
 - `--maxbatchsize`:
@@ -243,7 +243,7 @@ The `--project` argument or `PROJECT` .env setting can take a number of values, 
 
 The default setting is `None`, which means the project file is neither written nor read, the only output of the program is the final translation.
 
-If the argument is set to `True` then a project file will be created with the `.subtrans` extension, containing details of the translation process, 
+If the argument is set to `True` then a project file will be created with the `.subtrans` extension, containing details of the translation process,
 and it will be updated as the translation progresses. Writing a project file allows, amongst other things, resuming a translation that was interrupted.
 
 Other valid options include `preview`, `resume`, `reparse` and `retranslate`. These are probably only useful if you're modifying the code, in which case

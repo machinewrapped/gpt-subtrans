@@ -25,7 +25,7 @@ default_options = {
     'provider': os.getenv('PROVIDER', None),
     'provider_settings': {},
     'prompt': os.getenv('PROMPT', "Please translate these subtitles[ for movie][ to language]."),
-    'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
+    'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions/instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'include_original': env_bool('INCLUDE_ORIGINAL', False),
     'use_simple_batcher': env_bool('USE_SIMPLE_BATCHER', False),
@@ -71,7 +71,7 @@ class Options:
 
     def get(self, option, default=None):
         return self.options.get(option, default)
-    
+
     def add(self, option, value):
         self.options[option] = value
 
@@ -94,7 +94,7 @@ class Options:
     def provider(self) -> str:
         """ the name of the translation provider """
         return self.get('provider')
-    
+
     @provider.setter
     def provider(self, value: str):
         self.options['provider'] = value
@@ -108,9 +108,9 @@ class Options:
     def current_provider_settings(self) -> dict:
         if not self.provider:
             return None
-        
+
         return self.provider_settings.get(self.provider, {})
-    
+
     @property
     def available_providers(self) -> list:
         return self.get('available_providers', [])
@@ -119,13 +119,13 @@ class Options:
     def model(self) -> str:
         if not self.provider:
             return None
-        
+
         return self.current_provider_settings.get('model')
-    
+
     @property
     def allow_multithreaded_translation(self):
         return self.get('max_threads') and self.get('max_threads') > 1
-    
+
     def GetInstructions(self) -> Instructions:
         """ Construct an Instructions object from the settings """
         return Instructions(self.options)
@@ -136,18 +136,18 @@ class Options:
         """
         settings = { key: deepcopy(self.get(key)) for key in self.options.keys() & default_options.keys() }
         return settings
-    
+
     def LoadSettings(self):
         if not os.path.exists(settings_path) or self.get('firstrun'):
             return False
-        
+
         try:
             with open(settings_path, "r", encoding="utf-8") as settings_file:
                 settings = json.load(settings_file)
-            
+
             if not settings:
                 return False
-            
+
             if not self.options:
                 self.options = deepcopy(default_options)
 
@@ -157,7 +157,7 @@ class Options:
                 self._update_version()
 
             return True
-        
+
         except Exception as e:
             logging.error(f"Error loading settings from {settings_path}")
             return False
@@ -168,7 +168,7 @@ class Options:
 
             if not settings:
                 return False
-            
+
             save_dict = { key : value for key, value in settings.items() if value != default_options.get(key) }
 
             if save_dict:
@@ -184,7 +184,7 @@ class Options:
         except Exception as e:
             logging.error(f"Error saving settings to {settings_path}")
             return False
-        
+
     def InitialiseInstructions(self):
         instruction_file = self.get('instruction_file')
         if instruction_file:
