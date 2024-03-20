@@ -15,6 +15,8 @@ If the API key is associated with a free trial account the translation speed wil
 
 You can use the custom api_base parameter to access a custom OpenAI instance or other models with a compatible API, e.g. locally hosted models.
 
+You can use an **OpenAI Azure** installation as a translation provider, but this is only advisable if you know what you're doing - in which case hopefully it will be clear how to configure the Azure provider settings. The Azure integration uses OpenAI's client library, so no additional installation is required.
+
 ### Google Gemini
 https://ai.google.dev/terms
 
