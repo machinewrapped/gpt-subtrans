@@ -346,11 +346,14 @@ class SubtitleFile:
             for scene_number in hierarchy.keys():
                 for batch_number in hierarchy[scene_number].keys():
                     batch_dict = hierarchy[scene_number][batch_number]
-                    original_lines = list(batch_dict['originals'].keys())
-                    translated_lines = list(batch_dict['translated'].keys())
-
                     batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
-                    batch.MergeLines(original_lines, translated_lines)
+                    if 'originals' in batch_dict:
+                        originals = list(batch_dict['originals'].keys())
+                        translated = list(batch_dict.get('translated', {}).keys())
+                        batch.MergeLines(originals, translated)
+                    else:
+                        lines = list(batch_dict['lines'].keys())
+                        batch.MergeLines(lines, None)
 
     def SplitScene(self, scene_number : int, batch_number : int):
         """

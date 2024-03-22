@@ -2,6 +2,8 @@ import logging
 import os
 
 try:
+    import openai
+
     from PySubtitle.Providers.Azure.AzureOpenAIClient import AzureOpenAIClient
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationProvider import TranslationProvider

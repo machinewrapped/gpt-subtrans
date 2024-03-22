@@ -3,13 +3,15 @@ from copy import deepcopy
 import logging
 import os
 
-from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger
-from PySubtitle.Providers.Anthropic.AnthropicClient import AnthropicClient
-from PySubtitle.TranslationClient import TranslationClient
-from PySubtitle.TranslationParser import TranslationParser
-from PySubtitle.TranslationProvider import TranslationProvider
-
 try:
+    import anthropic
+
+    from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger
+    from PySubtitle.Providers.Anthropic.AnthropicClient import AnthropicClient
+    from PySubtitle.TranslationClient import TranslationClient
+    from PySubtitle.TranslationParser import TranslationParser
+    from PySubtitle.TranslationProvider import TranslationProvider
+
     class Provider_Claude(TranslationProvider):
         name = "Claude"
 
