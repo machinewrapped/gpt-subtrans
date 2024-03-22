@@ -53,12 +53,12 @@ try:
 
             translation = Translation(response) if response else None
 
-        if translation:
+            if translation:
                 if translation.quota_reached:
                     raise TranslationImpossibleError("Anthropic account quota reached, please upgrade your plan or wait until it renews", translation)
 
-            if translation.reached_token_limit:
-                raise TranslationFailedError(f"Too many tokens in translation", translation)
+                if translation.reached_token_limit:
+                    raise TranslationFailedError(f"Too many tokens in translation", translation)
 
             return translation
 
