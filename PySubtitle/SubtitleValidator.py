@@ -11,18 +11,15 @@ class SubtitleValidator:
         """
         Check if the batch seems at least plausible
         """
-        errors = []
+        self.errors = []
+
         if batch.translated:
-            if not batch.all_translated:
-                errors.append(UntranslatedLinesError(f"No translation found for {len(batch.originals) - len(batch.translated)} lines"))
+            self.ValidateTranslations(batch.translated)
 
-            try:
-                errors.extend(self.ValidateTranslations(batch.translated))
+        if not batch.all_translated:
+            self.errors.append(UntranslatedLinesError(f"No translation found for {len(batch.originals) - len(batch.translated)} lines"))
 
-            except Exception as e:
-                errors.append(e)
-
-        batch.errors = errors
+        batch.errors = self.errors
 
     def ValidateTranslations(self, translated : list[SubtitleLine]):
         """

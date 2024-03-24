@@ -11,7 +11,7 @@ if os.environ.get("DEBUG_MODE") == "1":
     try:
         import debugpy
     except ImportError:
-        logging.warn("debugpy is not available, breakpoints on worker threads will not work")
+        logging.warning("debugpy is not available, breakpoints on worker threads will not work")
 
 class Command(QRunnable, QObject):
     commandExecuted = Signal(object, bool)
