@@ -7,12 +7,11 @@ try:
 
     from PySubtitle.Helpers import ParseDelayFromHeader
     from PySubtitle.Helpers import FormatMessages
-    from PySubtitle.SubtitleError import TranslationImpossibleError
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationParser import TranslationParser
     from PySubtitle.TranslationPrompt import TranslationPrompt
-    from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
+    from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 
     class AzureOpenAIClient(TranslationClient):
         """
@@ -22,10 +21,19 @@ try:
             super().__init__(settings)
 
             if not hasattr(openai, "AzureOpenAI"):
-                raise Exception("The OpenAI library is out of date and must be updated")
+                raise TranslationImpossibleError("The OpenAI library is out of date and must be updated")
 
             if not self.api_key:
-                raise ValueError('API key must be set in .env or provided as an argument')
+                raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
+            
+            if not self.api_base:
+                raise TranslationImpossibleError('API base must be set in .env or provided as an argument')
+            
+            if not self.api_version:
+                raise TranslationImpossibleError('API version must be set in .env or provided as an argument')
+            
+            if not self.deployment_name:
+                raise TranslationImpossibleError('Deployment name must be set in .env or provided as an argument')
 
             logging.info(f"Translating with Azure OpenAI deployment {self.deployment_name}, API-version {self.api_version}, API Base: {self.api_base}")
 
@@ -68,14 +76,14 @@ try:
             """
             Make a request to the Azure OpenAI API to provide a translation
             """
-            content = {}
+            response = {}
 
             for retry in range(self.max_retries + 1):
                 if self.aborted:
                     return None
 
                 try:
-                    response = self.client.chat.completions.create(
+                    result = self.client.chat.completions.create(
                         model=self.deployment_name,
                         messages=messages,
                         temperature=temperature
@@ -84,25 +92,25 @@ try:
                     if self.aborted:
                         return None
 
-                    content['response_time'] = getattr(response, 'response_ms', 0)
+                    response['response_time'] = getattr(result, 'response_ms', 0)
 
-                    if response.usage:
-                        content['prompt_tokens'] = getattr(response.usage, 'prompt_tokens')
-                        content['completion_tokens'] = getattr(response.usage, 'completion_tokens')
-                        content['total_tokens'] = getattr(response.usage, 'total_tokens')
+                    if result.usage:
+                        response['prompt_tokens'] = getattr(result.usage, 'prompt_tokens')
+                        response['completion_tokens'] = getattr(result.usage, 'completion_tokens')
+                        response['total_tokens'] = getattr(result.usage, 'total_tokens')
 
                     # We only expect one choice to be returned as we have 0 temperature
-                    if response.choices:
-                        choice = response.choices[0]
-                        reply = response.choices[0].message
+                    if result.choices:
+                        choice = result.choices[0]
+                        reply = result.choices[0].message
 
-                        content['finish_reason'] = getattr(choice, 'finish_reason', None)
-                        content['text'] = getattr(reply, 'content', None)
+                        response['finish_reason'] = getattr(choice, 'finish_reason', None)
+                        response['text'] = getattr(reply, 'content', None)
                     else:
-                        raise NoTranslationError("No choices returned in the response", response)
+                        raise TranslationResponseError("No choices returned in the response", response=result)
 
                     # Return the response if the API call succeeds
-                    return content
+                    return response
 
                 except openai.RateLimitError as e:
                     retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
@@ -112,7 +120,7 @@ try:
                         time.sleep(retry_seconds)
                         continue
                     else:
-                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan", content)
+                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan")
 
                 except openai.APITimeoutError as e:
                     if retry < self.max_retries and not self.aborted:
@@ -123,12 +131,12 @@ try:
 
                 except openai.APIConnectionError as e:
                     if not self.aborted:
-                        raise TranslationImpossibleError(str(e), content)
+                        raise TranslationImpossibleError(str(e), error=e)
 
                 except Exception as e:
-                    raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", content, error=e)
+                    raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
 
-            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries", response)
+            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
         def _abort(self):
             self.client.close()

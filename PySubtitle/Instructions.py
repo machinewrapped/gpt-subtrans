@@ -83,7 +83,7 @@ class Instructions:
         Try to load instructions from a text file.
         """
         if not os.path.exists(filepath):
-            raise Exception(f"Instruction file not found: {filepath}")
+            raise ValueError(f"Instruction file not found: {filepath}")
 
         with open(filepath, "r", encoding="utf-8") as f:
             lines = [l.strip() for l in f.readlines()]
@@ -114,7 +114,7 @@ class Instructions:
         self.instruction_file = os.path.basename(filepath)
 
         if not self.prompt or not self.instructions:
-            raise Exception("Invalid instruction file")
+            raise ValueError("Invalid instruction file")
 
     def SaveInstructions(self, filepath):
         """

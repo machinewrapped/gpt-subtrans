@@ -4,7 +4,7 @@ import re
 from PySubtitle.Options import Options
 from PySubtitle.Helpers import IsTextContentEqual, MergeTranslations
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.SubtitleError import NoTranslationError, UntranslatedLinesError
+from PySubtitle.SubtitleError import NoTranslationError, TranslationError, UntranslatedLinesError
 from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.Translation import Translation
 
@@ -47,7 +47,7 @@ class TranslationParser:
         self.text = translation.text if isinstance(translation, Translation) else str(translation) 
 
         if not self.text:
-            raise ValueError("No translated text provided")
+            raise TranslationError("No translated text provided", translation=translation)
         
         for template in regex_patterns:
             matches = self.FindMatches(f"{self.text}\n\n", template)
@@ -117,7 +117,7 @@ class TranslationParser:
         self.errors = self.ValidateTranslations()
 
         if unmatched:
-            self.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", unmatched))
+            self.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", lines=unmatched, translation=translation))
 
         return self.translated, unmatched
 
@@ -153,7 +153,7 @@ class TranslationParser:
         Check if the translation seems at least plausible
         """
         if not self.translated:
-            return [ NoTranslationError(f"Failed to extract translations from response", self.text) ]
+            return [ NoTranslationError("Failed to extract translations from response", translation=self.text) ]
         
         validator = SubtitleValidator(self.options)
         return validator.ValidateTranslations(self.translated)

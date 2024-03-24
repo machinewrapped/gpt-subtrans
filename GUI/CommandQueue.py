@@ -84,7 +84,7 @@ class CommandQueue(QObject):
         Check if the queue contains a command type(s)
         """
         if not command_type and not type_list:
-            raise Exception("Specify a command type or a list of command types")
+            raise ValueError("Specify a command type or a list of command types")
 
         if type_list:
             if any( self.Contains(type) for type in type_list ):

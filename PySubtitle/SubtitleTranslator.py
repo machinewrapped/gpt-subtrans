@@ -10,7 +10,7 @@ from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
-from PySubtitle.SubtitleError import NoProviderError, ProviderError, TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import NoProviderError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
 from PySubtitle.Helpers import BuildUserPrompt, FormatErrorMessages, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, SanitiseSummary, UnbatchScenes
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -78,7 +78,7 @@ class SubtitleTranslator:
         Translate a SubtitleFile
         """
         if not subtitles:
-            raise TranslationError("No subtitles to translate")
+            raise TranslationImpossibleError("No subtitles to translate")
     
         if subtitles.scenes and self.resume:
             logging.info("Resuming translation")
@@ -90,7 +90,7 @@ class SubtitleTranslator:
             subtitles.AutoBatch(self.batcher)
 
         if not subtitles.scenes:
-            raise Exception("No scenes to translate")
+            raise TranslationImpossibleError("No scenes to translate")
         
         logging.info(f"Translating {subtitles.linecount} lines in {subtitles.scenecount} scenes")
 
@@ -148,7 +148,10 @@ class SubtitleTranslator:
                 try:
                     self.TranslateBatch(batch, line_numbers, context)
 
-                except TranslationFailedError as e:
+                except TranslationImpossibleError as e:
+                    raise
+
+                except TranslationError as e:
                     batch.errors.append(e)
 
                 if self.aborted:
@@ -172,11 +175,12 @@ class SubtitleTranslator:
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
 
-        except (TranslationAbortedError, TranslationImpossibleError) as e:
+        except (TranslationAbortedError) as e:
             raise
 
-        except Exception as e:
-            raise TranslationFailedError(f"Failed to translate scene {scene.number} ({str(e)})")
+        except (TranslationError) as e:
+            logging.error(f"Failed to translate scene {scene.number} ({str(e)})")
+            raise
 
     def TranslateBatch(self, batch : SubtitleBatch, line_numbers : list[int], context : dict):
         """
@@ -221,7 +225,7 @@ class SubtitleTranslator:
 
         if not self.aborted:
             if not translation:
-                raise TranslationFailedError(f"Unable to translate scene {batch.scene} batch {batch.number}")
+                raise TranslationError(f"Unable to translate scene {batch.scene} batch {batch.number}")
 
             batch.translation = translation
 
@@ -293,7 +297,7 @@ class SubtitleTranslator:
         translation : Translation = batch.translation
 
         if not translation.has_translation:
-            raise ValueError("Translation contains no translated text")
+            raise TranslationError("Translation contains no translated text", translation=translation)
         
         logging.debug(f"Scene {batch.scene} batch {batch.number} translation:\n{translation.text}\n")
 
@@ -356,7 +360,7 @@ class SubtitleTranslator:
         retranslation : Translation = self.client.RequestTranslation(prompt, retry_temperature)
 
         if not isinstance(retranslation, Translation):
-            raise TranslationError("Retranslation is not the expected type")
+            raise TranslationError("Retranslation is not the expected type", translation=retranslation)
 
         logging.debug(f"Scene {batch.scene} batch {batch.number} retranslation:\n{retranslation.text}\n")
 

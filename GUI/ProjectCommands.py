@@ -125,12 +125,12 @@ class MergeLinesCommand(Command):
         if lines:
             logging.info(f"Merging lines {str(lines)}")
         else:
-            raise CommandError("No lines selected to merge")
+            raise CommandError("No lines selected to merge", command=self)
 
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise Exception("No subtitles")
+            raise CommandError("No subtitles", command=self)
         
         selected = self.selection.GetHierarchy()
 
@@ -165,14 +165,14 @@ class SplitBatchCommand(Command):
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise Exception("No subtitles")
+            raise CommandError("No subtitles", command=self)
 
         scene = project.subtitles.GetScene(self.scene_number)
 
         split_batch = scene.GetBatch(self.batch_number) if scene else None
 
         if not split_batch:
-            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
 
         scene.SplitBatch(self.batch_number, self.line_number, self.translation_number)
 
@@ -201,12 +201,12 @@ class SplitBatchCommand(Command):
         project: SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise Exception("No subtitles")
+            raise CommandError("No subtitles", command=self)
 
         scene = project.subtitles.GetScene(self.scene_number)
 
         if not scene or not scene.GetBatch(self.batch_number):
-            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
 
         try:
             scene.MergeBatches([self.batch_number, self.batch_number + 1])
@@ -218,7 +218,7 @@ class SplitBatchCommand(Command):
             return True
 
         except Exception as e:
-            raise CommandError(f"Unable to undo SplitBatchCommand command: {str(e)}")
+            raise CommandError(f"Unable to undo SplitBatchCommand command: {str(e)}", command=self)
 
 #############################################################
 
@@ -234,11 +234,11 @@ class SplitSceneCommand(Command):
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise Exception("No subtitles")
+            raise CommandError("No subtitles", command=self)
         
         scene = project.subtitles.GetScene(self.scene_number)
         if not scene:
-            raise CommandError(f"Cannot split scene {self.scene_number} because it doesn't exist")
+            raise CommandError(f"Cannot split scene {self.scene_number} because it doesn't exist", command=self)
         
         last_batch = scene.batches[-1].number
 
@@ -258,7 +258,7 @@ class SplitSceneCommand(Command):
         project: SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise Exception("No subtitles")
+            raise CommandError("No subtitles", command=self)
 
         try:
             project.subtitles.MergeScenes([self.scene_number, self.scene_number + 1])
@@ -267,7 +267,7 @@ class SplitSceneCommand(Command):
             return True
         
         except Exception as e:
-            raise CommandError(f"Unable to undo SplitScene command: {str(e)}")
+            raise CommandError(f"Unable to undo SplitScene command: {str(e)}", command=self)
 
 #############################################################
 
@@ -283,12 +283,12 @@ class AutoSplitBatchCommand(Command):
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise Exception("No subtitles")
+            raise CommandError("No subtitles", command=self)
         
         scene = project.subtitles.GetScene(self.scene_number)
 
         if not scene or not scene.GetBatch(self.batch_number):
-            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}")
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
 
         min_batch_size = self.datamodel.project_options.get('min_batch_size', 1)
         scene.AutoSplitBatch(self.batch_number, min_batch_size)
@@ -334,7 +334,7 @@ class TranslateSceneCommand(Command):
             logging.info(f"Translating scene number {self.scene_number}")
 
         if not self.datamodel.project:
-            raise TranslationError("Unable to translate scene because project is not set on datamodel")
+            raise CommandError("Unable to translate scene because project is not set on datamodel", command=self)
 
         project : SubtitleProject = self.datamodel.project
 
@@ -407,7 +407,7 @@ class ResumeTranslationCommand(Command):
 
     def execute(self):
         if not self.datamodel or not self.datamodel.project or not self.datamodel.project.subtitles:
-            raise CommandError("Nothing to translated")
+            raise CommandError("Nothing to translate", command=self)
 
         subtitles = self.datamodel.project.subtitles
 
@@ -451,7 +451,7 @@ class SwapTextAndTranslations(Command):
     def execute(self):
         logging.info(f"Swapping text and translations in scene {self.scene_number} batch {self.batch_number}")
         if not self.datamodel.project:
-            raise TranslationError("Unable to translate scene because project is not set on datamodel")
+            raise CommandError("Unable to translate scene because project is not set on datamodel", command=self)
 
         project : SubtitleProject = self.datamodel.project
         file : SubtitleFile = project.subtitles

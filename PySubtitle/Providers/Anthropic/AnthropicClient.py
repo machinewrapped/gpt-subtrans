@@ -5,7 +5,7 @@ try:
     import anthropic
 
     from PySubtitle.Helpers import FormatMessages
-    from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationFailedError, TranslationImpossibleError
+    from PySubtitle.SubtitleError import TranslationError, TranslationResponseError, TranslationImpossibleError
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
@@ -43,8 +43,7 @@ try:
                 self.client = anthropic.Anthropic(api_key=self.api_key)
 
             except Exception as e:
-                logging.error(f"Failed to initialize Anthropic client: {e}")
-                raise TranslationImpossibleError(f"Failed to initialize Anthropic client", None, error=e)
+                raise TranslationImpossibleError(f"Failed to initialize Anthropic client", error=e)
 
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
@@ -55,10 +54,10 @@ try:
 
             if translation:
                 if translation.quota_reached:
-                    raise TranslationImpossibleError("Anthropic account quota reached, please upgrade your plan or wait until it renews", translation)
+                    raise TranslationImpossibleError("Anthropic account quota reached, please upgrade your plan or wait until it renews")
 
                 if translation.reached_token_limit:
-                    raise TranslationFailedError(f"Too many tokens in translation", translation)
+                    raise TranslationError(f"Too many tokens in translation", translation=translation)
 
             return translation
 
@@ -88,7 +87,7 @@ try:
                         return None
 
                     if not result.content:
-                        raise NoTranslationError("No choices returned in the response", result)
+                        raise TranslationResponseError("No choices returned in the response", response=result)
 
                     # response['response_time'] = getattr(response, 'response_ms', 0)
 
@@ -116,16 +115,13 @@ try:
                         time.sleep(sleep_time)
                         continue
 
-                except anthropic.RateLimitError as e:
-                    raise TranslationImpossibleError(self._get_error_message(e), response)
+                except (anthropic.RateLimitError, anthropic.APIError) as e:
+                    raise TranslationImpossibleError(self._get_error_message(e), error=e)
                 
-                except anthropic.APIError as e:
-                    raise TranslationFailedError(self._get_error_message(e), response)
-
                 except Exception as e:
-                    raise TranslationImpossibleError(f"Unexpected error communicating with provider", response, error=e)
+                    raise TranslationError(f"Error communicating with provider", error=e)
 
-            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries", response)
+            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
         def _get_error_message(self, e : anthropic.APIError):
             return e.body.get('error', {}).get('message', e.message)

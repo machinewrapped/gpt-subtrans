@@ -1,6 +1,6 @@
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
-from PySubtitle.SubtitleError import EmptyLinesError, LineTooLongError, NoTranslationError, TooManyNewlinesError, UnmatchedLinesError, UntranslatedLinesError
+from PySubtitle.SubtitleError import EmptyLinesError, LineTooLongError, TooManyNewlinesError, UnmatchedLinesError, UntranslatedLinesError
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleValidator:
@@ -17,7 +17,7 @@ class SubtitleValidator:
             self.ValidateTranslations(batch.translated)
 
         if not batch.all_translated:
-            self.errors.append(UntranslatedLinesError(f"No translation found for {len(batch.originals) - len(batch.translated)} lines"))
+            self.errors.append(UntranslatedLinesError(f"No translation found for {len(batch.originals) - len(batch.translated)} lines", translation=batch.translation))
 
         batch.errors = self.errors
 
@@ -26,7 +26,7 @@ class SubtitleValidator:
         Check if the translation seems at least plausible
         """
         if not translated:
-            return [ NoTranslationError(f"Failed to extract any translations") ]
+            return [ UntranslatedLinesError(f"Failed to extract any translations") ]
         
         max_characters = self.options.get('max_characters')
         max_newlines = self.options.get('max_newlines')
@@ -53,15 +53,15 @@ class SubtitleValidator:
         errors = []
 
         if no_number:
-            errors.append(UnmatchedLinesError(f"{len(no_number)} translations could not be matched with a source line", no_number))
+            errors.append(UnmatchedLinesError(f"{len(no_number)} translations could not be matched with a source line", lines=no_number))
 
         if no_text:
-            errors.append(EmptyLinesError(f"{len(no_text)} translations returned a blank line", no_text))
+            errors.append(EmptyLinesError(f"{len(no_text)} translations returned a blank line", lines=no_text))
 
         if too_long:
-            errors.append(LineTooLongError(f"One or more lines exceeded {max_characters} characters", too_long))
+            errors.append(LineTooLongError(f"One or more lines exceeded {max_characters} characters", lines=too_long))
 
         if too_many_newlines:
-            errors.append(TooManyNewlinesError(f"One or more lines contain more than {max_newlines} newlines", too_many_newlines))
+            errors.append(TooManyNewlinesError(f"One or more lines contain more than {max_newlines} newlines", lines=too_many_newlines))
         
         return errors

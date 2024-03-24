@@ -85,7 +85,7 @@ class TranslationClient:
         """
         Make a request to the API to provide a translation
         """
-        raise NotImplementedError("Not implemented in the base class")
+        raise NotImplementedError
 
     def _abort(self):
         # Try to terminate ongoing requests

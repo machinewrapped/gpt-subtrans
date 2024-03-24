@@ -57,7 +57,7 @@ class ProjectViewModel(QStandardItemModel):
 
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):
-            raise Exception("Can only model subtitle files")
+            raise ValueError("Can only model subtitle files")
 
         self.model = {}
 

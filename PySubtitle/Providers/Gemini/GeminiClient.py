@@ -4,7 +4,7 @@ import google.generativeai as genai
 from google.generativeai.types import GenerateContentResponse
 
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.SubtitleError import NoTranslationError, TranslationError, TranslationFailedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
@@ -75,52 +75,6 @@ class GeminiClient(TranslationClient):
                                                                                         generation_config=config, 
                                                                                         safety_settings=self.safety_settings)
 
-                if self.aborted:
-                    return None
-                
-                if gcr.prompt_feedback.block_reason:
-                    raise TranslationFailedError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", gcr.prompt_feedback)
-
-                if not gcr.candidates:
-                    raise TranslationFailedError("No candidates returned in the response", gcr)
-
-                # Try to find a validate candidate
-                candidates = [candidate for candidate in gcr.candidates if candidate.finish_reason == "STOP"] or gcr.candidates
-
-                candidate = candidates[0]
-                response['token_count'] = candidate.token_count
-
-                finish_reason = candidate.finish_reason
-                if finish_reason == "STOP":
-                    response['finish_reason'] = "complete"
-                elif finish_reason == "MAX_TOKENS":
-                    response['finish_reason'] = "length"
-                    raise TranslationFailedError("Gemini response exceeded token limit", candidate)
-                elif finish_reason == "SAFETY":
-                    response['finish_reason'] = "blocked"
-                    raise TranslationFailedError("Gemini response was blocked for safety reasons", candidate.safety_ratings)
-                elif finish_reason == "RECITATION":
-                    response['finish_reason'] = "recitation"
-                    raise TranslationFailedError("Gemini response was blocked for recitation", candidate)
-                elif finish_reason == "FINISH_REASON_UNSPECIFIED":
-                    response['finish_reason'] = "unspecified"
-                    raise TranslationError("Gemini response was incomplete", candidate)
-                else:
-                    # Probably a failure
-                    response['finish_reason'] = finish_reason
-
-                response_text = "\n".join(part.text for part in candidate.content.parts)
-
-                if not response_text:
-                    raise NoTranslationError("Gemini response is empty", gcr)
-
-                response['text'] = response_text
-
-                return response
-
-            except (TranslationFailedError, TranslationImpossibleError):
-                raise
-
             except Exception as e:
                 if retry < self.max_retries and not self.aborted:
                     logging.warning(f"Gemini request failure {str(e)}, trying to reconnect...")
@@ -129,5 +83,49 @@ class GeminiClient(TranslationClient):
                     time.sleep(sleep_time)
                 
                     self.gemini_model = genai.GenerativeModel(self.model)
+                    continue
 
-        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries", response)
+            if self.aborted:
+                return None
+
+            if gcr.prompt_feedback.block_reason:
+                raise TranslationResponseError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", response=gcr)
+
+            if not gcr.candidates:
+                raise TranslationResponseError("No candidates returned in the response", response=gcr)
+
+            # Try to find a validate candidate
+            candidates = [candidate for candidate in gcr.candidates if candidate.finish_reason == "STOP"] or gcr.candidates
+
+            candidate = candidates[0]
+            response['token_count'] = candidate.token_count
+
+            finish_reason = candidate.finish_reason
+            if finish_reason == "STOP":
+                response['finish_reason'] = "complete"
+            elif finish_reason == "MAX_TOKENS":
+                response['finish_reason'] = "length"
+                raise TranslationResponseError("Gemini response exceeded token limit", response=candidate)
+            elif finish_reason == "SAFETY":
+                response['finish_reason'] = "blocked"
+                raise TranslationResponseError("Gemini response was blocked for safety reasons", response=candidate)
+            elif finish_reason == "RECITATION":
+                response['finish_reason'] = "recitation"
+                raise TranslationResponseError("Gemini response was blocked for recitation", response=candidate)
+            elif finish_reason == "FINISH_REASON_UNSPECIFIED":
+                response['finish_reason'] = "unspecified"
+                raise TranslationResponseError("Gemini response was incomplete", response=candidate)
+            else:
+                # Probably a failure
+                response['finish_reason'] = finish_reason
+
+            response_text = "\n".join(part.text for part in candidate.content.parts)
+
+            if not response_text:
+                raise TranslationResponseError("Gemini response is empty", response=candidate)
+
+            response['text'] = response_text
+
+            return response
+
+        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")

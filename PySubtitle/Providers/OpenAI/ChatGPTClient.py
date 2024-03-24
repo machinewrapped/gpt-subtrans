@@ -4,7 +4,7 @@ import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import NoTranslationError, TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError, TranslationResponseError
 
 linesep = '\n'
 
@@ -55,7 +55,7 @@ class ChatGPTClient(OpenAIClient):
                     response['finish_reason'] = getattr(choice, 'finish_reason', None)
                     response['text'] = getattr(reply, 'content', None)
                 else:
-                    raise NoTranslationError("No choices returned in the response", result)
+                    raise TranslationResponseError("No choices returned in the response", response=result)
 
                 # Return the response if the API call succeeds
                 return response
@@ -68,7 +68,7 @@ class ChatGPTClient(OpenAIClient):
                     time.sleep(retry_seconds)
                     continue
                 else:
-                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan", response)
+                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan")
 
             except openai.APITimeoutError as e:
                 if retry < self.max_retries and not self.aborted:
@@ -79,10 +79,10 @@ class ChatGPTClient(OpenAIClient):
 
             except openai.APIConnectionError as e:
                 if not self.aborted:
-                    raise TranslationImpossibleError(str(e), response)
+                    raise TranslationError(str(e), error=e)
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", response, error=e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
 
-        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries", response)
+        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
