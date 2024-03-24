@@ -74,9 +74,6 @@ class SubtitleTranslator:
         """
         Translate a SubtitleFile
         """
-        if self.aborted:
-            raise TranslationAbortedError()
-
         if not subtitles:
             raise TranslationError("No subtitles to translate")
     
@@ -101,11 +98,11 @@ class SubtitleTranslator:
         # Iterate over each subtitle scene and request translation
         for scene in subtitles.scenes:
             if self.aborted:
-                raise TranslationAbortedError()
+                break
 
             if self.resume and scene.all_translated:
-                    logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
-                    continue
+                logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
+                continue
 
             logging.debug(f"Translating scene {scene.number} of {subtitles.scenecount}")
             batch_numbers = [ batch.number for batch in scene.batches if not batch.translated ] if self.resume else None
@@ -117,6 +114,10 @@ class SubtitleTranslator:
                 if not remaining_lines:
                     logging.info(f"Reached max_lines limit of ({self.max_lines} lines)... finishing")
                     break
+        
+        if self.aborted:
+            logging.info("Translation aborted")
+            return
 
         # Linearise the translated scenes
         originals, translations, untranslated = UnbatchScenes(subtitles.scenes)
@@ -150,11 +151,12 @@ class SubtitleTranslator:
 
             self.TranslateBatches(batches, line_numbers, context, remaining_lines)
 
-            # Update the scene summary based on the best available information (we hope)
-            scene.summary = self.SanitiseSummary(scene.summary) or self.SanitiseSummary(context.get('scene')) or self.SanitiseSummary(context.get('summary'))
+            if not self.aborted:
+                # Update the scene summary based on the best available information (we hope)
+                scene.summary = self.SanitiseSummary(scene.summary) or self.SanitiseSummary(context.get('scene')) or self.SanitiseSummary(context.get('summary'))
 
-            # Notify observers the scene was translated
-            self.events.scene_translated(scene)
+                # Notify observers the scene was translated
+                self.events.scene_translated(scene)
 
         except (TranslationAbortedError, TranslationImpossibleError) as e:
             raise
@@ -171,7 +173,7 @@ class SubtitleTranslator:
         """
         for batch in batches:
             if self.aborted:
-                raise TranslationAbortedError()
+                return
 
             if self.resume and batch.all_translated:
                 logging.info(f"Scene {batch.scene} batch {batch.number} already translated {batch.size} lines...")
@@ -206,7 +208,7 @@ class SubtitleTranslator:
                 translation : Translation = self.client.RequestTranslation(batch.prompt)
 
                 if self.aborted:
-                    raise TranslationAbortedError()
+                    return
 
                 if not translation:
                     logging.warning(f"No translation for scene {batch.scene} batch {batch.number}")
@@ -220,6 +222,9 @@ class SubtitleTranslator:
                     batch.prompt.GenerateMessages(self.instructions.instructions, batch.originals, {})
 
                     translation = self.client.RequestTranslation(batch.prompt)
+
+                if self.aborted:
+                    return
 
                 batch.translation = translation
 

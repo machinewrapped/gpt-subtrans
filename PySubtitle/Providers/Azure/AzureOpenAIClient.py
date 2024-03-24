@@ -58,9 +58,9 @@ try:
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
             temperature = temperature or self.temperature
-            content = self._send_messages(prompt.messages, temperature)
+            reponse = self._send_messages(prompt.messages, temperature)
 
-            translation = Translation(content)
+            translation = Translation(reponse) if reponse else None
 
             return translation
 
@@ -72,7 +72,7 @@ try:
 
             for retry in range(self.max_retries + 1):
                 if self.aborted:
-                    raise TranslationAbortedError()
+                    return None
 
                 try:
                     response = self.client.chat.completions.create(
@@ -82,7 +82,7 @@ try:
                     )
 
                     if self.aborted:
-                        raise TranslationAbortedError()
+                        return None
 
                     content['response_time'] = getattr(response, 'response_ms', 0)
 
@@ -122,7 +122,8 @@ try:
                         continue
 
                 except openai.APIConnectionError as e:
-                    raise TranslationAbortedError() if self.aborted else TranslationImpossibleError(str(e), content)
+                    if not self.aborted:
+                        raise TranslationImpossibleError(str(e), content)
 
                 except Exception as e:
                     raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", content, error=e)

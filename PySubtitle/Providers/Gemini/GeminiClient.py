@@ -4,7 +4,7 @@ import google.generativeai as genai
 from google.generativeai.types import GenerateContentResponse
 
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationError, TranslationFailedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import NoTranslationError, TranslationError, TranslationFailedError, TranslationImpossibleError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
@@ -50,7 +50,7 @@ class GeminiClient(TranslationClient):
         temperature = temperature or self.temperature
         response = self._send_messages(prompt.content, temperature)
 
-        return Translation(response)
+        return Translation(response) if response else None
     
     def _abort(self):
         # TODO cancel any ongoing requests
@@ -67,7 +67,7 @@ class GeminiClient(TranslationClient):
 
         for retry in range(self.max_retries + 1):
             if self.aborted:
-                raise TranslationAbortedError()
+                return None
 
             try:
                 config = genai.GenerationConfig(candidate_count=1, temperature=temperature)
@@ -76,7 +76,7 @@ class GeminiClient(TranslationClient):
                                                                                         safety_settings=self.safety_settings)
 
                 if self.aborted:
-                    raise TranslationAbortedError()
+                    return None
                 
                 if gcr.prompt_feedback.block_reason:
                     raise TranslationFailedError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", gcr.prompt_feedback)
@@ -118,7 +118,7 @@ class GeminiClient(TranslationClient):
 
                 return response
 
-            except (TranslationAbortedError, TranslationFailedError, TranslationImpossibleError):
+            except (TranslationFailedError, TranslationImpossibleError):
                 raise
 
             except Exception as e:

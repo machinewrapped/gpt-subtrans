@@ -1,7 +1,7 @@
 import logging
 import time
 
-from PySubtitle.SubtitleError import TranslationAbortedError, TranslationError
+from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.Translation import Translation
 
@@ -52,13 +52,13 @@ class TranslationClient:
         """
         Generate the messages to request a translation
         """
-        if self.aborted:
-            raise TranslationAbortedError()
-
         start_time = time.monotonic()
 
         # Perform the translation
         translation : Translation = self._request_translation(prompt, temperature)
+
+        if self.aborted:
+            return None
 
         if translation.text:
             logging.debug(f"Response:\n{translation.text}")

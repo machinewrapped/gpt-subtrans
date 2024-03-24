@@ -126,7 +126,8 @@ class CommandQueue(QObject):
             for queued_command in command.commands_to_queue:
                 self.commandAdded.emit(queued_command)
 
-        self._start_command_queue()
+        if not command.aborted:
+            self._start_command_queue()
             
     def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
         """

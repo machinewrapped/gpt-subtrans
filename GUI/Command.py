@@ -57,6 +57,10 @@ class Command(QRunnable, QObject):
         try:
             success = self.execute()
 
+            if self.aborted:
+                logging.info(f"Aborted {type(self).__name__} command")
+                success = False
+
             self.commandExecuted.emit(self, success)
 
         except TranslationAbortedError:

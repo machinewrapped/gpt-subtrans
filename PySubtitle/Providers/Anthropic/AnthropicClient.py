@@ -51,13 +51,14 @@ try:
             temperature = temperature or self.temperature
             response = self._send_messages(prompt.system_prompt, prompt.content, temperature)
 
-            translation = Translation(response)
+            translation = Translation(response) if response else None
 
-            if translation.quota_reached:
-                raise TranslationImpossibleError("Anthropic account quota reached, please upgrade your plan or wait until it renews", translation)
+            if translation:
+                if translation.quota_reached:
+                    raise TranslationImpossibleError("Anthropic account quota reached, please upgrade your plan or wait until it renews", translation)
 
-            if translation.reached_token_limit:
-                raise TranslationFailedError(f"Too many tokens in translation", translation)
+                if translation.reached_token_limit:
+                    raise TranslationFailedError(f"Too many tokens in translation", translation)
 
             return translation
 
@@ -72,7 +73,7 @@ try:
 
             for retry in range(self.max_retries + 1):
                 if self.aborted:
-                    raise TranslationAbortedError()
+                    return None
 
                 try:
                     result = self.client.messages.create(
@@ -84,7 +85,7 @@ try:
                     )
 
                     if self.aborted:
-                        raise TranslationAbortedError()
+                        return None
 
                     if not result.content:
                         raise NoTranslationError("No choices returned in the response", result)

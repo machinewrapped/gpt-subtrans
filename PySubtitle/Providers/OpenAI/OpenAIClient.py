@@ -53,13 +53,14 @@ try:
             temperature = temperature or self.temperature
             response = self._send_messages(prompt.content, temperature)
 
-            translation = Translation(response)
+            translation = Translation(response) if response else None
 
-            if translation.quota_reached:
-                raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
+            if translation:
+                if translation.quota_reached:
+                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
 
-            if translation.reached_token_limit:
-                raise TranslationError(f"Too many tokens in translation", translation)
+                if translation.reached_token_limit:
+                    raise TranslationError(f"Too many tokens in translation", translation)
 
             return translation
 
