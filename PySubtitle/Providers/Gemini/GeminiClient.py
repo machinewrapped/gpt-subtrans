@@ -21,7 +21,6 @@ class GeminiClient(TranslationClient):
         
         logging.info(f"Translating with Gemini {self.model or 'default'} model")
 
-        self.gemini_model = genai.GenerativeModel(self.model)
         self.safety_settings = {
             "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
             "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
@@ -66,26 +65,28 @@ class GeminiClient(TranslationClient):
         response = {}
 
         for retry in range(self.max_retries + 1):
-            if self.aborted:
-                return None
-
             try:
+                gemini_model = genai.GenerativeModel(self.model)
                 config = genai.GenerationConfig(candidate_count=1, temperature=temperature)
-                gcr : GenerateContentResponse = self.gemini_model.generate_content(completion, 
-                                                                                        generation_config=config, 
-                                                                                        safety_settings=self.safety_settings)
+                gcr : GenerateContentResponse = gemini_model.generate_content(completion, 
+                                                                            generation_config=config, 
+                                                                            safety_settings=self.safety_settings)
 
             except Exception as e:
-                if retry < self.max_retries and not self.aborted:
+                if retry == self.max_retries:
+                    raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+
+                if not self.aborted:
                     logging.warning(f"Gemini request failure {str(e)}, trying to reconnect...")
                     sleep_time = self.backoff_time * 2.0**retry
-                    time.sleep(sleep_time)
-                
-                    self.gemini_model = genai.GenerativeModel(self.model)
+                    time.sleep(sleep_time)                
                     continue
 
             if self.aborted:
                 return None
+            
+            if not gcr:
+                raise TranslationImpossibleError("No response from Gemini")
 
             if gcr.prompt_feedback.block_reason:
                 raise TranslationResponseError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", response=gcr)
@@ -127,4 +128,3 @@ class GeminiClient(TranslationClient):
 
             return response
 
-        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
