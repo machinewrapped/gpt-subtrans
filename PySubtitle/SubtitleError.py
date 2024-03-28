@@ -2,10 +2,13 @@ class SubtitleError(Exception):
     def __init__(self, message, error = None):
         super().__init__(message)
         self.error = error
+        self.message = message
 
     def __str__(self) -> str:
         if self.error:
             return str(self.error)
+        elif self.message:
+            return self.message
         return super().__str__()
 
 class NoProviderError(SubtitleError):
