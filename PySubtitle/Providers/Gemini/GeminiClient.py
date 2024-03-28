@@ -79,7 +79,6 @@ class GeminiClient(TranslationClient):
                 if retry < self.max_retries and not self.aborted:
                     logging.warning(f"Gemini request failure {str(e)}, trying to reconnect...")
                     sleep_time = self.backoff_time * 2.0**retry
-                    logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                 
                     self.gemini_model = genai.GenerativeModel(self.model)
