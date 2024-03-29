@@ -8,10 +8,15 @@ from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
 
-provider = "Gemini"
-default_model = os.getenv('GEMINI_MODEL') or "Gemini 1.0 Pro"
+# Update when newer ones are available - https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
+latest_azure_api_version = "2024-02-01"
 
-log_path = os.path.join(os.getcwd(), 'gemini-subtrans.log')
+provider = "Azure"
+deployment_name = os.getenv('AZURE_DEPLOYMENT_NAME')
+api_base = os.getenv('AZURE_API_BASE')
+api_version = os.getenv('AZURE_API_VERSION', "2024-02-01")
+
+log_path = os.path.join(os.getcwd(), 'azure-subtrans.log')
 level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
 logging_level = getattr(logging, level_name, logging.INFO)
 
@@ -35,13 +40,14 @@ except Exception as e:
     logging.warning(f"Unable to create log file at {log_path}: {e}")
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Translates an SRT file using Google Gemini')
+parser = argparse.ArgumentParser(description='Translates an SRT file using Azure OpenAI')
 parser.add_argument('input', help="Input SRT file path")
 parser.add_argument('-o', '--output', help="Output SRT file path")
 parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
-parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
-parser.add_argument('-k', '--apikey', type=str, default=None, help="Your Google Gemini API Key (https://makersuite.google.com/app/apikey)")
-
+parser.add_argument('-a', '--apiversion', type=str, default=None, help="Azure API version")
+parser.add_argument('--apibase', type=str, default=None, help="Azure API base, the base part of the address.")
+parser.add_argument('--deploymentname', type=str, default=None, help="Azure deployment name")
+parser.add_argument('-k', '--apikey', type=str, default=None, help="Your Azure API Key")
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
 parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
@@ -72,6 +78,9 @@ if args.debug:
 try:
     options = Options({
         'api_key': args.apikey,
+        "deployment_name": args.deploymentname or deployment_name,
+        "api_base": args.apibase or api_base,
+        "api_version": args.apiversion or api_version,
         'batch_threshold': args.batchthreshold,
         'description': args.description,
         'include_original': args.includeoriginal,
@@ -82,7 +91,6 @@ try:
         'max_context_summaries': args.maxsummaries,
         'max_lines': args.maxlines,
         'min_batch_size': args.minbatchsize,
-        'model': args.model or default_model,
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'names': ParseNames(args.names or args.name),
         'project': args.project and args.project.lower(),

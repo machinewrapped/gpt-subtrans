@@ -98,12 +98,12 @@ class ProjectSettings(QGroupBox):
             self.AddMultiLineOption("Names", settings, 'names')
             self.AddMultiLineOption("Substitutions", settings, 'substitutions')
             self.AddCheckboxOption("Substitute Partial Words", settings, 'match_partial_words')
+            self.AddButton("", "Edit Instructions", self._edit_instructions)
+            self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
             if len(self.provider_list) > 1:
                 self.AddDropdownOption("Provider", settings, 'provider', self.provider_list)
             if len(self.model_list) > 1:
                 self.AddDropdownOption("Model", settings, 'model', self.model_list)
-            self.AddButton("", "Edit Instructions", self._edit_instructions)
-            self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
 
     def ClearForm(self):
         self.current_row = 0
@@ -204,6 +204,9 @@ class ProjectSettings(QGroupBox):
     def _option_changed(self, key, value):
         if key == 'provider':
             self._update_provider_settings(value)
+            self.datamodel.PerformModelAction('Validate Provider Settings')
+        elif key == 'model':
+            self.datamodel.UpdateProjectSettings({ "model": value })
 
     def _update_provider_settings(self, provider : str):
         try:
@@ -243,7 +246,7 @@ class ProjectSettings(QGroupBox):
                 source : SubtitleProject = SubtitleProject(project_options)
                 subtitles : SubtitleFile = source.ReadProjectFile(file_name)
                 if not subtitles:
-                    raise Exception("Invalid project file")
+                    raise ValueError("Invalid project file")
 
                 # Don't copy provider because we don't have the settings for it (including model list)
                 subtitles.settings.pop('provider', None)

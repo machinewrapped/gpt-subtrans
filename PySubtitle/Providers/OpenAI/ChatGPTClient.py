@@ -4,7 +4,7 @@ import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError, TranslationResponseError
 
 linesep = '\n'
 
@@ -12,46 +12,53 @@ class ChatGPTClient(OpenAIClient):
     """
     Handles chat communication with OpenAI to request translations
     """
+    def __init__(self, settings : dict):
+        settings['supports_system_messages'] = True
+        settings['supports_conversation'] = True
+        super().__init__(settings)
+
     def SupportedModels(self, available_models : list[str]):
         return [ model for model in available_models if model.find("instruct") < 0]
 
-    def _send_messages(self, messages : list[str], temperature : float = None):
+    def _send_messages(self, messages : list[str], temperature):
         """
         Make a request to the OpenAI API to provide a translation
         """
-        translation = {}
-        retries = 0
+        response = {}
 
-        while retries <= self.max_retries and not self.aborted:
+        for retry in range(self.max_retries + 1):
+            if self.aborted:
+                return None
+
             try:
-                response = self.client.chat.completions.create(
+                result = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=self.temperature
+                    temperature=temperature 
                 )
 
                 if self.aborted:
-                    raise TranslationAbortedError()
+                    return None
 
-                translation['response_time'] = getattr(response, 'response_ms', 0)
+                response['response_time'] = getattr(result, 'response_ms', 0)
 
-                if response.usage:
-                    translation['prompt_tokens'] = getattr(response.usage, 'prompt_tokens')
-                    translation['completion_tokens'] = getattr(response.usage, 'completion_tokens')
-                    translation['total_tokens'] = getattr(response.usage, 'total_tokens')
+                if result.usage:
+                    response['prompt_tokens'] = getattr(result.usage, 'prompt_tokens')
+                    response['output_tokens'] = getattr(result.usage, 'completion_tokens')
+                    response['total_tokens'] = getattr(result.usage, 'total_tokens')
 
                 # We only expect one choice to be returned as we have 0 temperature
-                if response.choices:
-                    choice = response.choices[0]
-                    reply = response.choices[0].message
+                if result.choices:
+                    choice = result.choices[0]
+                    reply = result.choices[0].message
 
-                    translation['finish_reason'] = getattr(choice, 'finish_reason', None)
-                    translation['text'] = getattr(reply, 'content', None)
+                    response['finish_reason'] = getattr(choice, 'finish_reason', None)
+                    response['text'] = getattr(reply, 'content', None)
                 else:
-                    raise NoTranslationError("No choices returned in the response", response)
+                    raise TranslationResponseError("No choices returned in the response", response=result)
 
                 # Return the response if the API call succeeds
-                return translation
+                return response
             
             except openai.RateLimitError as e:
                 retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
@@ -61,27 +68,21 @@ class ChatGPTClient(OpenAIClient):
                     time.sleep(retry_seconds)
                     continue
                 else:
-                    logging.warning("Rate limit hit, quota exceeded. Please wait until the quota resets.")
-                    raise
+                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan")
 
-            except (openai.APIConnectionError, openai.APITimeoutError) as e:
-                if self.aborted:
-                    raise TranslationAbortedError()
-                
-                if isinstance(e, openai.APIConnectionError):
-                    raise TranslationImpossibleError(str(e), translation)
-                elif retries == self.max_retries:
-                    logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
-                    raise
-                else:
-                    retries += 1
-                    sleep_time = self.backoff_time * 2.0**retries
+            except openai.APITimeoutError as e:
+                if retry < self.max_retries and not self.aborted:
+                    sleep_time = self.backoff_time * 2.0**retry
                     logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                     continue
 
-            except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", translation, error=e)
+            except openai.APIConnectionError as e:
+                if not self.aborted:
+                    raise TranslationError(str(e), error=e)
 
-        return None
+            except Exception as e:
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
+
+        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 

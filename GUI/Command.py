@@ -5,13 +5,13 @@ from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
-from PySubtitle.SubtitleError import TranslationAbortedError
+from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossibleError
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:
         import debugpy
     except ImportError:
-        logging.warn("debugpy is not available, breakpoints on worker threads will not work")
+        logging.warning("debugpy is not available, breakpoints on worker threads will not work")
 
 class Command(QRunnable, QObject):
     commandExecuted = Signal(object, bool)
@@ -24,6 +24,7 @@ class Command(QRunnable, QObject):
         self.started : bool = False
         self.executed : bool = False
         self.aborted : bool = False
+        self.terminal : bool = False
         self.callback = None
         self.undo_callback = None
         self.model_update = ModelUpdate()
@@ -56,10 +57,19 @@ class Command(QRunnable, QObject):
         try:
             success = self.execute()
 
+            if self.aborted:
+                logging.info(f"Aborted {type(self).__name__} command")
+                success = False
+
             self.commandExecuted.emit(self, success)
 
         except TranslationAbortedError:
             logging.info(f"Aborted {type(self).__name__} command")
+            self.commandExecuted.emit(self, False)
+
+        except TranslationImpossibleError as e:
+            logging.error(f"Unrecoverable error executing {type(self).__name__} command")
+            self.terminal = True
             self.commandExecuted.emit(self, False)
 
         except Exception as e:

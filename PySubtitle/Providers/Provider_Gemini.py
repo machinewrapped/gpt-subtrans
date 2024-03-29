@@ -6,6 +6,7 @@ try:
     import google.generativeai as genai
     from google.api_core.exceptions import FailedPrecondition
 
+    from PySubtitle.Helpers import GetEnvFloat
     from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationProvider import TranslationProvider
@@ -29,8 +30,8 @@ try:
             super().__init__(self.name, {
                 "api_key": settings.get('api_key') or os.getenv('GEMINI_API_KEY'),
                 "model": settings.get('model') or os.getenv('GEMINI_MODEL'),
-                'temperature': float(os.getenv('GEMINI_TEMPERATURE', 0.0)),
-                'rate_limit': float(os.getenv('GEMINI_RATE_LIMIT')) if os.getenv('GEMINI_RATE_LIMIT') else 60.0,
+                'temperature': settings.get('temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
+                'rate_limit': settings.get('rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 60.0))
             })
 
             self.refresh_when_changed = ['api_key', 'model']
@@ -44,7 +45,11 @@ try:
             genai.configure(api_key=self.api_key)
             client_settings = self.settings.copy()
             client_settings.update(settings)
-            client_settings['model'] = self._get_true_name(self.selected_model)
+            client_settings.update({
+                'model': self._get_true_name(self.selected_model),
+                'supports_conversation': False,         # Actually it does support conversation
+                'supports_system_messages': False       # This is what it doesn't support
+                })
             return GeminiClient(client_settings)
 
         def GetOptions(self) -> dict:
@@ -71,13 +76,10 @@ try:
             return options
 
         def GetAvailableModels(self) -> list[str]:
-            if not self.api_key:
-                return []
-            
-            genai.configure(api_key=self.api_key)
-            self.gemini_models = self._get_gemini_models()
-            
-            models = [ m.display_name for m in self.gemini_models if m.display_name.find("Vision") < 0]
+            if not self.gemini_models:
+                self.gemini_models = self._get_gemini_models()
+
+            models = [ m.display_name for m in self.gemini_models if m.display_name.find("Vision") < 0 ]
 
             return models or []
 
@@ -91,12 +93,26 @@ try:
             if not self.api_key:
                 self.validation_message = "API Key is required"
                 return False
+            
+            if not self.gemini_models:
+                self.validation_message = "Unable to retrieve models. Gemini API may be unavailable in your region."
+                return False
 
             return True
 
         def _get_gemini_models(self):
-            return [m for m in genai.list_models() if 'generateContent' in m.supported_generation_methods ]
-        
+            if not self.api_key:
+                return []
+
+            try:
+                genai.configure(api_key=self.api_key)
+                all_models = genai.list_models()
+                return [ m for m in all_models if 'generateContent' in m.supported_generation_methods ]
+
+            except Exception as e:
+                logging.error(f"Unable to retrieve Gemini model list: {str(e)}")
+                return []
+
         def _get_true_name(self, display_name : str) -> str:
             if not self.gemini_models:
                 self.gemini_models = self._get_gemini_models()

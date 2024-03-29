@@ -134,7 +134,8 @@ class MainWindow(QMainWindow):
         """
         Open user settings dialog and update options
         """
-        dialog = SettingsDialog(self.global_options, self)
+        provider_cache = self.datamodel.provider_cache if self.datamodel else None
+        dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self)
         result = dialog.exec()
 
         if result == QDialog.Accepted:
@@ -146,7 +147,8 @@ class MainWindow(QMainWindow):
         """
         Open the settings dialog with the provider settings focused
         """
-        dialog = SettingsDialog(self.global_options, self, focus_provider_settings=True)
+        provider_cache = self.datamodel.provider_cache if self.datamodel else None
+        dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self, focus_provider_settings=True)
         result = dialog.exec()
         if result == QDialog.Accepted:
             self._update_settings(dialog.settings)
@@ -252,7 +254,7 @@ class MainWindow(QMainWindow):
             QApplication.instance().quit()
             return
 
-        logging.debug(f"A {type(command).__name__} command {'succeeded' if success else 'failed'})")
+        logging.debug(f"A {type(command).__name__} command {'succeeded' if success else 'failed'}")
 
         if success:
             if isinstance(command, LoadSubtitleFile):

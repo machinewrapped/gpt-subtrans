@@ -80,8 +80,8 @@ class SubtitleLine:
         number = int(number) if number else None
         start = GetTimeDelta(start)
         end = GetTimeDelta(end)
-        text = srt.make_legal_content(text) if text else None
-        original = srt.make_legal_content(original) if original else None
+        text = srt.make_legal_content(text.strip()) if text else None
+        original = srt.make_legal_content(original.strip()) if original else None
         item = srt.Subtitle(number, start, end, text)
         return SubtitleLine(item, original=original) 
     

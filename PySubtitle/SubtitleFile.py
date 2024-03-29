@@ -131,13 +131,12 @@ class SubtitleFile:
         if not scene:
             raise SubtitleError(f"Failed to find scene {scene_number}")
 
-        context_lines.append(f"scene {scene.number}:")
         for batch in scene.batches:
             if batch.number == batch_number:
                 break
 
             if batch.summary and batch.summary != last_summary:
-                context_lines.append(f"batch {batch.number}: {batch.summary}")
+                context_lines.append(f"scene {scene.number} batch {batch.number}: {batch.summary}")
                 last_summary = batch.summary
 
         if max_lines:
@@ -260,7 +259,7 @@ class SubtitleFile:
         with self.lock:
             scene : SubtitleScene = self.GetScene(scene_number)
             if not scene:
-                raise Exception(f"Scene {scene_number} does not exist")
+                raise ValueError(f"Scene {scene_number} does not exist")
             
             return scene.UpdateContext(update)
 
@@ -268,7 +267,7 @@ class SubtitleFile:
         with self.lock:
             batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
             if not batch:
-                raise Exception(f"Batch ({scene_number},{batch_number}) does not exist")
+                raise ValueError(f"Batch ({scene_number},{batch_number}) does not exist")
             
             return batch.UpdateContext(update)
         
@@ -276,7 +275,7 @@ class SubtitleFile:
         with self.lock:
             original_line = next((original for original in self.originals if original.number == line_number), None)
             if not original_line:
-                raise Exception(f"Line {line_number} not found")
+                raise ValueError(f"Line {line_number} not found")
 
             if original_text:
                 original_line.text = original_text
@@ -347,11 +346,14 @@ class SubtitleFile:
             for scene_number in hierarchy.keys():
                 for batch_number in hierarchy[scene_number].keys():
                     batch_dict = hierarchy[scene_number][batch_number]
-                    original_lines = list(batch_dict['originals'].keys())
-                    translated_lines = list(batch_dict['translated'].keys())
-
                     batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
-                    batch.MergeLines(original_lines, translated_lines)
+                    if 'originals' in batch_dict:
+                        originals = list(batch_dict['originals'].keys())
+                        translated = list(batch_dict.get('translated', {}).keys())
+                        batch.MergeLines(originals, translated)
+                    else:
+                        lines = list(batch_dict['lines'].keys())
+                        batch.MergeLines(lines, None)
 
     def SplitScene(self, scene_number : int, batch_number : int):
         """

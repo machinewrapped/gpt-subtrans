@@ -1,6 +1,6 @@
 import logging
 
-from PySide6.QtCore import QObject, Signal, QThreadPool, QMutex, QMutexLocker
+from PySide6.QtCore import QObject, Signal, QThreadPool, QRecursiveMutex, QMutexLocker
 
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
@@ -34,7 +34,7 @@ class CommandQueue(QObject):
         self.queue = []
         self.undo_stack = []
 
-        self.mutex = QMutex()
+        self.mutex = QRecursiveMutex()
 
         self.command_pool = QThreadPool(self)
         self.SetMaxThreadCount(1)
@@ -84,7 +84,7 @@ class CommandQueue(QObject):
         Check if the queue contains a command type(s)
         """
         if not command_type and not type_list:
-            raise Exception("Specify a command type or a list of command types")
+            raise ValueError("Specify a command type or a list of command types")
 
         if type_list:
             if any( self.Contains(type) for type in type_list ):
@@ -117,7 +117,8 @@ class CommandQueue(QObject):
 
         self.commandExecuted.emit(command, success)
 
-        if command.commands_to_queue and not command.aborted:
+        can_proceed = not command.aborted and not command.terminal
+        if command.commands_to_queue and can_proceed:
             with QMutexLocker(self.mutex):
                 for queued_command in command.commands_to_queue:
                     self._queue_command(queued_command, command.datamodel)
@@ -125,7 +126,8 @@ class CommandQueue(QObject):
             for queued_command in command.commands_to_queue:
                 self.commandAdded.emit(queued_command)
 
-        self._start_command_queue()
+        if not command.aborted:
+            self._start_command_queue()
             
     def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
         """

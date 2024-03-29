@@ -4,14 +4,21 @@ import re
 from PySubtitle.Options import Options
 from PySubtitle.Helpers import IsTextContentEqual, MergeTranslations
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.SubtitleError import NoTranslationError
+from PySubtitle.SubtitleError import NoTranslationError, TranslationError, UntranslatedLinesError
 from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.Translation import Translation
 
-default_pattern = re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE)
+default_pattern = re.compile(
+    r"#(?P<number>\d+)"
+    r"(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?"
+    r"[\s\r\n]+Translation>"
+    r"(?:[\s\r\n]+(?P<body>[^\#]*?))?"
+    r"(?=\n#\d|\Z)", 
+    re.MULTILINE)
 
 regex_patterns = [
     default_pattern,
+    re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE),
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation[>:](?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE),
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]+(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)", re.MULTILINE),
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]*Original[>:][\s\r\n]*(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]*(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)", re.MULTILINE),
@@ -29,6 +36,7 @@ class TranslationParser:
         self.text = None
         self.translations = {}
         self.translated = []
+        self.errors = []
 
     def ProcessTranslation(self, translation : Translation):
         """
@@ -39,7 +47,7 @@ class TranslationParser:
         self.text = translation.text if isinstance(translation, Translation) else str(translation) 
 
         if not self.text:
-            raise ValueError("No translated text provided")
+            raise TranslationError("No translated text provided", translation=translation)
         
         for template in regex_patterns:
             matches = self.FindMatches(f"{self.text}\n\n", template)
@@ -58,6 +66,8 @@ class TranslationParser:
             return None
 
         self.translated = MergeTranslations(self.translated, self.translations.values())
+
+        self.errors = self.ValidateTranslations()
         
         return self.translated
 
@@ -104,6 +114,11 @@ class TranslationParser:
 
         self.translated = MergeTranslations(self.translated, self.translations.values())
 
+        self.errors = self.ValidateTranslations()
+
+        if unmatched:
+            self.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", lines=unmatched, translation=translation))
+
         return self.translated, unmatched
 
     def TryFuzzyMatches(self, unmatched : list [SubtitleLine]):
@@ -127,13 +142,9 @@ class TranslationParser:
 
                     #TODO: check for merged lines
 
-                # This is not very convincing logic but let's try it
-                if translation.start <= item.start and translation.end >= item.end:
-                    possible_matches.append((item, translation))
-
         if possible_matches:
             for item, translation in possible_matches:
-                logging.warn(f"Found fuzzy match for line {item.number} in translations")
+                logging.warning(f"Found fuzzy match for line {item.number} in translations")
                 item.translation = f"#Fuzzy: {translation.text}"
                 #unmatched.remove(item)
 
@@ -142,7 +153,7 @@ class TranslationParser:
         Check if the translation seems at least plausible
         """
         if not self.translated:
-            return [ NoTranslationError(f"Failed to extract any translations from {self.text}", self.text) ]
+            return [ NoTranslationError("Failed to extract translations from response", translation=self.text) ]
         
         validator = SubtitleValidator(self.options)
         return validator.ValidateTranslations(self.translated)

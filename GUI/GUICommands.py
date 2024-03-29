@@ -26,9 +26,12 @@ class CheckProviderSettings(Command):
 
     def execute(self):
         try:
-            translation_provider : TranslationProvider = TranslationProvider.get_provider(self.options)
+            translation_provider : TranslationProvider = self.datamodel.translation_provider
             if not translation_provider or not translation_provider.ValidateSettings():
-                self.datamodel.PerformModelAction('Show Provider Settings', {})
+                if translation_provider:
+                    logging.warning(f"Provider {translation_provider.name} needs configuring: {translation_provider.validation_message}")
+                self.datamodel.PerformModelAction('Show Provider Settings')
+
         except Exception as e:
             logging.error(f"CheckProviderSettings: {e}")
 

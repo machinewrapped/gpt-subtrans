@@ -16,11 +16,14 @@ class SelectionView(QFrame):
     def __init__(self) -> None:
         super().__init__()
 
+        self.debug_view = os.environ.get("DEBUG_MODE") == "1"
+
         self._label = QLabel(self)
         self._label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
         #TODO: Translate / Retranslate
         self._translate_button = self._create_button("Translate Selection", self._on_translate_selection)
+        self._autosplit_batch_button = self._create_button("Auto-Split Batch", self._on_auto_split_batch)
         self._split_batch_button = self._create_button("Split Batch", self._on_split_batch)
         self._split_scene_button = self._create_button("Split Scene", self._on_split_scene)
         self._merge_lines_button = self._create_button("Merge Lines", self._on_merge_selection)
@@ -34,6 +37,7 @@ class SelectionView(QFrame):
         layout.addWidget(self._label)
         layout.addWidget(self._swap_text_button)
         layout.addWidget(self._split_scene_button)
+        layout.addWidget(self._autosplit_batch_button)
         layout.addWidget(self._split_batch_button)
         layout.addWidget(self._merge_lines_button)
         layout.addWidget(self._merge_scenes_button)
@@ -45,12 +49,13 @@ class SelectionView(QFrame):
     def ShowSelection(self, selection : ProjectSelection):
         self.selection = selection
 
-        if os.environ.get("DEBUG_MODE") == "1" and self._debug_text(selection):
+        if self.debug_view and self._debug_text(selection):
             self._label.setText(f"{str(selection)} {self._debug_text(selection)}")
         else:
             self._label.setText(str(selection))
 
         _show(self._translate_button, selection.lines and selection.Any())
+        _show(self._autosplit_batch_button, selection.AnyBatches() and selection.OnlyBatches() and not selection.MultipleSelected())
         _show(self._split_batch_button, selection.AnyLines() and not selection.MultipleSelected() and not selection.IsFirstInBatchSelected())
         _show(self._split_scene_button, selection.AnyBatches() and not selection.MultipleSelected() and not selection.IsFirstInSceneSelected())
         _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsContiguous())
@@ -89,6 +94,10 @@ class SelectionView(QFrame):
     def _on_split_scene(self):
         if self.selection and self.selection.AnyBatches() and not self.selection.MultipleSelected():
             self.actionRequested.emit('Split Scene', (self.selection,))
+    
+    def _on_auto_split_batch(self):
+        if self.selection and self.selection.AnyBatches() and self.selection.OnlyBatches() and not self.selection.MultipleSelected():
+            self.actionRequested.emit('Auto-Split Batch', (self.selection,))
 
     def _on_swap_text(self):
         if self.selection:

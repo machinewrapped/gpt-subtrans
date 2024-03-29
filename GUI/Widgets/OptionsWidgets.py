@@ -37,7 +37,8 @@ class TextOptionWidget(OptionWidget):
         self.text_field = QLineEdit(self)
         self.text_field.setText(initial_value)
         self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.text_field.textChanged.connect(self.contentChanged)
+        # self.text_field.textChanged.connect(self.contentChanged)
+        self.text_field.editingFinished.connect(self.contentChanged)
         self.layout.addWidget(self.text_field)
 
     def GetValue(self):
@@ -55,7 +56,7 @@ class TextOptionWidget(OptionWidget):
 class MultilineTextOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
         super(MultilineTextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
-        content = self._get_content(initial_value)
+        content = self._get_content(initial_value).strip()
 
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)

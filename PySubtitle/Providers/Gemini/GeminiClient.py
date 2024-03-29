@@ -1,12 +1,14 @@
 import logging
+import time
 import google.generativeai as genai
+from google.generativeai.types import GenerateContentResponse
 
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.Providers.Gemini.GeminiPrompt import GeminiPrompt
-from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class GeminiClient(TranslationClient):
     """
@@ -19,8 +21,6 @@ class GeminiClient(TranslationClient):
         
         logging.info(f"Translating with Gemini {self.model or 'default'} model")
 
-        self.gemini_config = genai.GenerationConfig(candidate_count=1, temperature=self.temperature)
-        self.gemini_model = genai.GenerativeModel(self.model)
         self.safety_settings = {
             "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
             "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
@@ -37,28 +37,19 @@ class GeminiClient(TranslationClient):
         return self.settings.get('model')
     
     @property
-    def temperature(self):
-        return self.settings.get('temperature', 0.0)
-    
-    @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
     
-    def _request_translation(self, prompt, lines, context) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
-        Generate the prompt and request a translation
+        Request a translation based on the provided prompt
         """
-        gemini_prompt = GeminiPrompt(self.instructions)
+        logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
-        gemini_prompt.GenerateMessages(prompt, lines, context)
+        temperature = temperature or self.temperature
+        response = self._send_messages(prompt.content, temperature)
 
-        logging.debug(f"Messages:\n{FormatMessages(gemini_prompt.messages)}")
-
-        gemini_translation = self._send_messages(gemini_prompt.messages)
-
-        translation = Translation(gemini_translation, gemini_prompt)
-
-        return translation
+        return Translation(response) if response else None
     
     def _abort(self):
         # TODO cancel any ongoing requests
@@ -67,41 +58,73 @@ class GeminiClient(TranslationClient):
     def GetParser(self):
         return TranslationParser(self.settings)
     
-    def _send_messages(self, messages : list, temperature : float = None):
+    def _send_messages(self, completion : str, temperature):
         """
         Make a request to the Gemini API to provide a translation
         """
-        translation = {}
-        retries = 0
+        response = {}
 
-        prompt = self._build_prompt(messages)
+        for retry in range(self.max_retries + 1):
+            try:
+                gemini_model = genai.GenerativeModel(self.model)
+                config = genai.GenerationConfig(candidate_count=1, temperature=temperature)
+                gcr : GenerateContentResponse = gemini_model.generate_content(completion, 
+                                                                            generation_config=config, 
+                                                                            safety_settings=self.safety_settings)
 
-        try:
-            response = self.gemini_model.generate_content(prompt, 
-                                                          generation_config=self.gemini_config, 
-                                                          safety_settings=self.safety_settings)
+            except Exception as e:
+                if retry == self.max_retries:
+                    raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+
+                if not self.aborted:
+                    logging.warning(f"Gemini request failure {str(e)}, trying to reconnect...")
+                    sleep_time = self.backoff_time * 2.0**retry
+                    time.sleep(sleep_time)                
+                    continue
 
             if self.aborted:
-                raise TranslationAbortedError()
+                return None
+            
+            if not gcr:
+                raise TranslationImpossibleError("No response from Gemini")
 
-            if not response.candidates:
-                raise NoTranslationError("No candidates returned in the response", response)
+            if gcr.prompt_feedback.block_reason:
+                raise TranslationResponseError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", response=gcr)
 
-            candidate = response.candidates[0]
-            if not candidate.content.parts:
-                raise NoTranslationError("Gemini response has no content parts", response)
+            if not gcr.candidates:
+                raise TranslationResponseError("No candidates returned in the response", response=gcr)
+
+            # Try to find a validate candidate
+            candidates = [candidate for candidate in gcr.candidates if candidate.finish_reason == "STOP"] or gcr.candidates
+
+            candidate = candidates[0]
+            response['token_count'] = candidate.token_count
+
+            finish_reason = candidate.finish_reason
+            if finish_reason == "STOP":
+                response['finish_reason'] = "complete"
+            elif finish_reason == "MAX_TOKENS":
+                response['finish_reason'] = "length"
+                raise TranslationResponseError("Gemini response exceeded token limit", response=candidate)
+            elif finish_reason == "SAFETY":
+                response['finish_reason'] = "blocked"
+                raise TranslationResponseError("Gemini response was blocked for safety reasons", response=candidate)
+            elif finish_reason == "RECITATION":
+                response['finish_reason'] = "recitation"
+                raise TranslationResponseError("Gemini response was blocked for recitation", response=candidate)
+            elif finish_reason == "FINISH_REASON_UNSPECIFIED":
+                response['finish_reason'] = "unspecified"
+                raise TranslationResponseError("Gemini response was incomplete", response=candidate)
+            else:
+                # Probably a failure
+                response['finish_reason'] = finish_reason
 
             response_text = "\n".join(part.text for part in candidate.content.parts)
 
             if not response_text:
-                raise NoTranslationError("Gemini response is empty", response)
+                raise TranslationResponseError("Gemini response is empty", response=candidate)
 
-            translation['text'] = response_text
+            response['text'] = response_text
 
-            return translation
-        
-        except Exception as e:
-            raise TranslationImpossibleError(f"Unexpected error communicating with Gemini", translation, error=e)
+            return response
 
-    def _build_prompt(self, messages : list):
-        return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in messages ])

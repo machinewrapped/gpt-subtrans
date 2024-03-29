@@ -12,7 +12,7 @@ class BaseSubtitleBatcher:
         self.scene_threshold = timedelta(seconds=scene_threshold_seconds)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 class OldSubtitleBatcher(BaseSubtitleBatcher):
     def __init__(self, settings):

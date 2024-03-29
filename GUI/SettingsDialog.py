@@ -16,9 +16,10 @@ class SettingsDialog(QDialog):
             'instruction_file': (str, "Instructions for the translation provider to follow"),
             'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
             'theme': [],
-            'allow_retranslations': (bool, "If true, translations that fail validation will be sent again with a note about the mistake"),
             'autosave': (bool, "Automatically save the project after each translation batch"),
             'write_backup': (bool, "Save a backup copy of the project when opening it"),
+            # 'autosplit_incomplete': (bool, "If true, incomplete translations will be split into smaller batches and retried"),
+            'retry_on_error': (bool, "If true, translations that fail validation will be retried with a note about the error"),
             'stop_on_error': (bool, "Stop translating if an error is encountered")
         },
         PROVIDER_SECTION: {
@@ -35,6 +36,7 @@ class SettingsDialog(QDialog):
             'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
             'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
+            'max_summary_length': (int, "Maximum length of the context summary to include with each translation batch"),
             'max_characters': (int, "Validator: Maximum number of characters to allow in a single translated line"),
             'max_newlines': (int, "Validator: Maximum number of newlines to allow in a single translated line"),
             'max_retries': (int, "Number of times to retry a failed translation before giving up"),
@@ -42,12 +44,13 @@ class SettingsDialog(QDialog):
         }
     }
 
-    def __init__(self, options : Options, parent=None, focus_provider_settings : bool = False):
+    def __init__(self, options : Options, provider_cache = None, parent=None, focus_provider_settings : bool = False):
         super(SettingsDialog, self).__init__(parent)
         self.setWindowTitle("GUI-Subtrans Settings")
         self.setMinimumWidth(800)
 
         self.translation_provider : TranslationProvider = None
+        self.provider_cache = provider_cache or {}
         self.settings = options.GetSettings()
         self.widgets = {}
 
@@ -165,7 +168,9 @@ class SettingsDialog(QDialog):
                 self.provider_settings[provider] = {}
 
             provider_settings = self.provider_settings.get(provider)
-            self.translation_provider : TranslationProvider = TranslationProvider.create_provider(provider, provider_settings)
+            if provider not in self.provider_cache:
+                self.provider_cache[provider] = TranslationProvider.create_provider(provider, provider_settings)
+            self.translation_provider = self.provider_cache[provider]
             self.provider_settings[provider].update(self.translation_provider.settings)
 
     def _add_provider_options(self, section_name : str, layout : QFormLayout):
@@ -188,15 +193,18 @@ class SettingsDialog(QDialog):
         
         provider_info = self.translation_provider.GetInformation()
         if provider_info:
+            provider_layout = QVBoxLayout()
             infoLabel = QLabel(provider_info)
             infoLabel.setWordWrap(True)
             infoLabel.setTextFormat(Qt.TextFormat.RichText)
             infoLabel.setOpenExternalLinks(True)
+            provider_layout.addWidget(infoLabel)
+            provider_layout.addStretch(1)
 
             scrollArea = QScrollArea()
             scrollArea.setWidgetResizable(True)
             scrollArea.setSizeAdjustPolicy(QScrollArea.SizeAdjustPolicy.AdjustToContents)
-            scrollArea.setWidget(infoLabel)
+            scrollArea.setLayout(provider_layout)
             layout.addRow(scrollArea)
 
     def _refresh_provider_options(self):

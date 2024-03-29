@@ -8,10 +8,10 @@ from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
 
-provider = "Gemini"
-default_model = os.getenv('GEMINI_MODEL') or "Gemini 1.0 Pro"
+provider = "Claude"
+default_model = os.getenv('CLAUDE_MODEL') or "claude-3-haiku-20240307"
 
-log_path = os.path.join(os.getcwd(), 'gemini-subtrans.log')
+log_path = os.path.join(os.getcwd(), 'claude-subtrans.log')
 level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
 logging_level = getattr(logging, level_name, logging.INFO)
 
@@ -35,12 +35,12 @@ except Exception as e:
     logging.warning(f"Unable to create log file at {log_path}: {e}")
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Translates an SRT file using Google Gemini')
+parser = argparse.ArgumentParser(description='Translates an SRT file using Anthropic Claude')
 parser.add_argument('input', help="Input SRT file path")
 parser.add_argument('-o', '--output', help="Output SRT file path")
 parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
 parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
-parser.add_argument('-k', '--apikey', type=str, default=None, help="Your Google Gemini API Key (https://makersuite.google.com/app/apikey)")
+parser.add_argument('-k', '--apikey', type=str, default=None, help="Your Anthropic Claude API Key (https://console.anthropic.com/settings/keys)")
 
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")

@@ -44,7 +44,7 @@ if not "%api_base%"=="" (
     echo API base saved to .env
 )
 
-echo Are you on the free plan? (Y/N)
+echo Are you on the free plan? [Y/N]
 set /p free_plan=Free plan?:
 
 if /i "%free_plan%"=="Y" (

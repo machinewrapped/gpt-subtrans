@@ -4,7 +4,7 @@ import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import NoTranslationError, TranslationAbortedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 
 linesep = '\n'
 
@@ -12,6 +12,11 @@ class InstructGPTClient(OpenAIClient):
     """
     Handles communication with GPT instruct models to request translations
     """
+    def __init__(self, settings : dict):
+        settings['supports_conversation'] = False
+        settings['supports_system_messages'] = False
+        super().__init__(settings)
+
     def GetSupportedModels(self, available_models : list[str]):
         return [ model for model in available_models if model.find("instruct") >= 0]
 
@@ -19,18 +24,18 @@ class InstructGPTClient(OpenAIClient):
     def max_instruct_tokens(self):
         return self.settings.get('max_instruct_tokens', 2048)
 
-    def _send_messages(self, messages : list, temperature : float = None):
+    def _send_messages(self, prompt : str, temperature):
         """
         Make a request to the OpenAI API to provide a translation
         """
-        translation = {}
-        retries = 0
+        response = {}
 
-        prompt = self._build_prompt(messages)
+        for retry in range(self.max_retries + 1):
+            if self.aborted:
+                return None
 
-        while retries <= self.max_retries and not self.aborted:
             try:
-                response = self.client.completions.create(
+                result = self.client.completions.create(
                     model=self.model,
                     prompt=prompt,
                     temperature=temperature,
@@ -39,28 +44,27 @@ class InstructGPTClient(OpenAIClient):
                 )
 
                 if self.aborted:
-                    raise TranslationAbortedError()
+                    return None
 
-                translation['response_time'] = getattr(response, 'response_ms', 0)
+                response['response_time'] = getattr(result, 'response_ms', 0)
 
-                if response.usage:
-                    translation['prompt_tokens'] = getattr(response.usage, 'prompt_tokens')
-                    translation['completion_tokens'] = getattr(response.usage, 'completion_tokens')
-                    translation['total_tokens'] = getattr(response.usage, 'total_tokens')
+                if result.usage:
+                    response['prompt_tokens'] = getattr(result.usage, 'prompt_tokens')
+                    response['output_tokens'] = getattr(result.usage, 'completion_tokens')
+                    response['total_tokens'] = getattr(result.usage, 'total_tokens')
 
-                # We only expect one choice to be returned as we have 0 temperature
-                if response.choices:
-                    choice = response.choices[0]
+                if result.choices:
+                    choice = result.choices[0]
                     if not isinstance(choice.text, str):
-                        raise NoTranslationError("Instruct model completion text is not a string")
+                        raise TranslationResponseError("Instruct model completion text is not a string", response=result)
 
-                    translation['finish_reason'] = getattr(choice, 'finish_reason', None)
-                    translation['text'] = choice.text
+                    response['finish_reason'] = getattr(choice, 'finish_reason', None)
+                    response['text'] = choice.text
                 else:
-                    raise NoTranslationError("No choices returned in the response", response)
+                    raise TranslationResponseError("No choices returned in the response", response=result)
 
-                # Return the response if the API call succeeds
-                return translation
+                # Return the response content if the API call succeeds
+                return response
             
             except openai.RateLimitError as e:
                 retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
@@ -73,26 +77,19 @@ class InstructGPTClient(OpenAIClient):
                     logging.warning("Rate limit hit, quota exceeded. Please wait until the quota resets.")
                     raise
 
-            except (openai.APIConnectionError, openai.APITimeoutError) as e:
-                if self.aborted:
-                    raise TranslationAbortedError()
-                
-                if isinstance(e, openai.APIConnectionError):
-                    raise TranslationImpossibleError(str(e), translation)
-                elif retries == self.max_retries:
-                    logging.warning(f"OpenAI failure {str(e)}, aborting after {retries} retries...")
-                    raise
-                else:
-                    retries += 1
-                    sleep_time = self.backoff_time * 2.0**retries
+            except openai.APITimeoutError as e:
+                if retry < self.max_retries and not self.aborted:
+                    sleep_time = self.backoff_time * 2.0**retry
                     logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                     continue
 
+            except openai.APIConnectionError as e:
+                if not self.aborted:
+                    raise TranslationImpossibleError(str(e), error=e)
+
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", translation, error=e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
 
-        return None
+        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
-    def _build_prompt(self, messages : list):
-        return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in messages ])

@@ -36,7 +36,7 @@ class TranslationProvider:
         """
         Returns a list of possible model for the provider
         """
-        raise NotImplementedError()
+        raise NotImplementedError
     
     def GetInformation(self) -> str:
         """
@@ -48,7 +48,7 @@ class TranslationProvider:
         """
         Returns a new instance of the translation client for this provider
         """
-        raise NotImplementedError()
+        raise NotImplementedError
     
     def ValidateSettings(self) -> bool:
         """

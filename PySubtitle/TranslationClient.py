@@ -1,7 +1,8 @@
 import logging
 import time
 
-from PySubtitle.SubtitleError import TranslationAbortedError, TranslationError
+from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.Translation import Translation
 
 linesep = '\n'
@@ -18,22 +19,46 @@ class TranslationClient:
 
         if not self.instructions:
             raise TranslationError("No instructions provided for the translator")
-        
+
+    @property
+    def supports_conversation(self):
+        return self.settings.get('supports_conversation', False)
+    
+    @property
+    def supports_system_prompt(self):
+        return self.settings.get('supports_system_prompt', False)
+
+    @property
+    def supports_system_messages(self):
+        return self.settings.get('supports_system_messages', False)
+
     @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
+    
+    @property
+    def temperature(self):
+        return self.settings.get('temperature', 0.0)
 
-    def RequestTranslation(self, prompt : str, lines : list, context : dict) -> Translation:
+    @property
+    def max_retries(self):
+        return self.settings.get('max_retries', 3.0)
+    
+    @property
+    def backoff_time(self):
+        return self.settings.get('backoff_time', 5.0)
+
+    def RequestTranslation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Generate the messages to request a translation
         """
-        if self.aborted:
-            raise TranslationAbortedError()
-
         start_time = time.monotonic()
 
         # Perform the translation
-        translation : Translation = self._request_translation(prompt, lines, context)
+        translation : Translation = self._request_translation(prompt, temperature)
+
+        if self.aborted:
+            return None
 
         if translation.text:
             logging.debug(f"Response:\n{translation.text}")
@@ -46,50 +71,21 @@ class TranslationClient:
             elapsed_time = time.monotonic() - start_time
             if elapsed_time < minimum_duration:
                 sleep_time = minimum_duration - elapsed_time
+                logging.debug(f"Sleeping for {sleep_time:.2f} seconds to respect rate limit")
                 time.sleep(sleep_time)
 
         return translation
 
-    def RequestRetranslation(self, translation : Translation, errors : list[TranslationError]):
-        """
-        Generate the messages to request a retranslation
-        """
-        prompt = translation.prompt
-
-        messages = []
-        for message in prompt.messages:
-            # Trim retry messages to keep tokens down
-            if message.get('content') == self.retry_instructions:
-                break
-            messages.append(message)
-
-        prompt.messages = messages
-
-        prompt.GenerateRetryPrompt(translation.text, self.retry_instructions, errors)
-
-        # Let's raise the temperature a little bit
-        temperature = min(self.settings.get('temperature', 0.0) + 0.1, 1.0)
-        retranslation_response = self._send_messages(prompt.messages, temperature)
-
-        retranslation = Translation(retranslation_response, prompt)
-        return retranslation
-    
     def AbortTranslation(self):
         self.aborted = True
         self._abort()
         pass
 
-    def _request_translation(self, prompt, lines, context):
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Make a request to the API to provide a translation
         """
-        raise NotImplementedError("Not implemented in the base class")
-
-    def _send_messages(self, messages : list[str], temperature : float = None):
-        """
-        Communicate with the API
-        """
-        raise NotImplementedError("Not implemented in the base class")
+        raise NotImplementedError
 
     def _abort(self):
         # Try to terminate ongoing requests

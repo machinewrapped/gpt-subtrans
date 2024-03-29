@@ -1,4 +1,5 @@
-from PySide6.QtCore import QMutex, QMutexLocker
+import logging
+from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 from GUI.ProjectViewModel import ProjectViewModel
 from GUI.ProjectViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
@@ -12,17 +13,17 @@ class ProjectDataModel:
         self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
         self.project_options = Options(options)
-        self.mutex = QMutex()
+        self.mutex = QRecursiveMutex()
 
         if project:
             project_settings = project.GetProjectSettings()
             self.project_options.update(project_settings)
 
-        try:
-            self.translation_provider : TranslationProvider = self.CreateTranslationProvider() if self.project_options.provider else None
-        except Exception as e:
-            print(f"Error: {e}")
-            self.translation_provider = None
+        self.provider_cache = {}
+        self.translation_provider : TranslationProvider = None
+
+        if self.project_options.provider:
+            self.CreateTranslationProvider()
 
     @property
     def provider(self):
@@ -86,7 +87,13 @@ class ProjectDataModel:
         if not self.project_options.provider:
             return None
 
-        return TranslationProvider.get_provider(self.project_options)
+        try:
+            self.translation_provider = TranslationProvider.get_provider(self.project_options)
+            self.provider_cache[self.translation_provider.name] = self.translation_provider
+
+        except Exception as e:
+            logging.warning(f"Unable to create {self.provider} provider: {e}")
+            return None
     
     def UpdateProviderSettings(self, settings : dict):
         """ Update the settings for the translation provider """
@@ -97,12 +104,12 @@ class ProjectDataModel:
     def ValidateProviderSettings(self):
         """Check if the translation provider is configured correctly."""
         if not self.translation_provider or not self.translation_provider.ValidateSettings():
-            self.PerformModelAction('Show Provider Settings', {})
             return False
 
         return True
 
-    def PerformModelAction(self, action_name : str, params):
+    def PerformModelAction(self, action_name : str, params = None):
+        params = params or {}
         with QMutexLocker(self.mutex):
             handlers = self._action_handlers.get(action_name)
             if handlers:
@@ -125,7 +132,7 @@ class ProjectDataModel:
         Patch the viewmodel
         """
         if not isinstance(update, ModelUpdate):
-            raise Exception("Invalid model update")
+            raise ValueError("Invalid model update")
 
         if update.rebuild:
             # TODO: rebuild on the main thread
@@ -138,16 +145,17 @@ class ProjectDataModel:
         """
         Create or update translation provider based on settings
         """
-        if not self.project_options.provider:
+        provider = self.project_options.provider
+        if not provider:
             self.translation_provider = None
             return
         
-        if not self.provider or self.provider != self.project_options.provider:
-            # TODO: cache provider classes so that they don't have to keep fetching available models,
-            self.translation_provider = self.CreateTranslationProvider()
+        if provider in self.provider_cache:
+            self.translation_provider : TranslationProvider = self.provider_cache[provider]
+            self.translation_provider.UpdateSettings(self.project_options)
             return
 
-        self.translation_provider.UpdateSettings(self.project_options)
+        self.CreateTranslationProvider()
 
     @classmethod
     def RegisterActionHandler(cls, action_name : str, handler : callable):

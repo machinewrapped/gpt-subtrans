@@ -33,10 +33,11 @@ class SubtitleProject:
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
 
-        self.preview = project_mode in ["preview"]
-        self.resume = project_mode in ["resume"]
-        self.reparse = project_mode in ["reparse"]
-        self.retranslate = project_mode in ["retranslate"]
+        # Yes, this is a stupid way to set these settings
+        options.add("preview", project_mode in ["preview"])
+        options.add("resume", project_mode in ["resume"])
+        options.add("reparse", project_mode in ["reparse"])
+        options.add("retranslate", project_mode in ["retranslate"])
 
         if self.update_project and options.get('autosave'):
             self._start_autosave_thread
@@ -259,17 +260,17 @@ class SubtitleProject:
             translator.events.batch_translated -= self._on_batch_translated
             translator.events.scene_translated -= self._on_scene_translated
 
-            self.SaveTranslation()
+            if not translator.aborted:
+                self.SaveTranslation()
 
         except TranslationAbortedError:
-            logging.warning(f"Translation aborted")
-            raise
+            logging.info(f"Translation aborted")
 
         except Exception as e:
             if self.subtitles and translator.stop_on_error:
                 self.SaveTranslation()
 
-            logging.error(f"Failed to translate subtitles")
+            logging.error(f"Failed to translate subtitles: {str(e)}")
             raise
 
     def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
@@ -279,31 +280,28 @@ class SubtitleProject:
         if not self.subtitles:
             raise Exception("No subtitles to translate")
 
-        try:
-            translator.events.preprocessed += self._on_preprocessed
-            translator.events.batch_translated += self._on_batch_translated
+        translator.events.preprocessed += self._on_preprocessed
+        translator.events.batch_translated += self._on_batch_translated
 
+        try:
             scene = self.subtitles.GetScene(scene_number)
 
             translator.TranslateScene(self.subtitles, scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
 
-            translator.events.preprocessed -= self._on_preprocessed
-            translator.events.batch_translated -= self._on_batch_translated
-
-            self.SaveTranslation()
-
-            return scene
-        
         except TranslationAbortedError:
-            raise
+            pass
 
         except Exception as e:
-            if self.subtitles and translator.stop_on_error:
-                self.SaveTranslation()
+            logging.error(f"Failed to translate scene {scene_number}: {str(e)}")
 
-            logging.error(f"Failed to translate subtitles")
-            raise
+        translator.events.preprocessed -= self._on_preprocessed
+        translator.events.batch_translated -= self._on_batch_translated
 
+        if not translator.aborted:
+            self.SaveTranslation()
+
+        return scene
+        
     def _start_autosave_thread(self):
         self.stop_event = threading.Event()
         self.periodic_update_thread = threading.Thread(target=self._background_autosave)
