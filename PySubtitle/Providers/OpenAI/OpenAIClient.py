@@ -18,12 +18,12 @@ try:
             super().__init__(settings)
 
             if not hasattr(openai, "OpenAI"):
-                raise Exception("The OpenAI library is out of date and must be updated")
+                raise TranslationImpossibleError("The OpenAI library is out of date and must be updated")
 
             openai.api_key = self.api_key or openai.api_key
 
             if not openai.api_key:
-                raise ValueError('API key must be set in .env or provided as an argument')
+                raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
             
             if self.api_base:
                 openai.base_url = self.api_base
@@ -57,10 +57,10 @@ try:
 
             if translation:
                 if translation.quota_reached:
-                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews", translation)
+                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
 
                 if translation.reached_token_limit:
-                    raise TranslationError(f"Too many tokens in translation", translation)
+                    raise TranslationError(f"Too many tokens in translation", translation=translation)
 
             return translation
 
@@ -68,7 +68,7 @@ try:
             """
             Communicate with the API
             """
-            raise NotImplementedError("Not implemented in the base class")#
+            raise NotImplementedError
 
         def _abort(self):
             self.client.close()

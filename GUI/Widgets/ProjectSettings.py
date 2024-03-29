@@ -246,7 +246,7 @@ class ProjectSettings(QGroupBox):
                 source : SubtitleProject = SubtitleProject(project_options)
                 subtitles : SubtitleFile = source.ReadProjectFile(file_name)
                 if not subtitles:
-                    raise Exception("Invalid project file")
+                    raise ValueError("Invalid project file")
 
                 # Don't copy provider because we don't have the settings for it (including model list)
                 subtitles.settings.pop('provider', None)

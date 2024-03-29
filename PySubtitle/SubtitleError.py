@@ -2,10 +2,13 @@ class SubtitleError(Exception):
     def __init__(self, message, error = None):
         super().__init__(message)
         self.error = error
+        self.message = message
 
     def __str__(self) -> str:
         if self.error:
             return str(self.error)
+        elif self.message:
+            return self.message
         return super().__str__()
 
 class NoProviderError(SubtitleError):
@@ -23,55 +26,51 @@ class ProviderConfigurationError(ProviderError):
         self.error = error
 
 class TranslationError(SubtitleError):
-    def __init__(self, message, error = None):
+    def __init__(self, message, translation = None, error = None):
         super().__init__(message)
+        self.translation = translation
         self.error = error
-    
+
+class TranslationAbortedError(TranslationError):
+    def __init__(self):
+        super().__init__("Translation aborted")
+
 class TranslationImpossibleError(TranslationError):
     """ No chance of retry succeeding """
-    def __init__(self, message, translation = None, error = None):
+    def __init__(self, message, error = None):
         super().__init__(message, error)
-        self.translation = translation
 
-class TranslationAbortedError(TranslationImpossibleError):
-    def __init__(self, translation = None):
-        super().__init__("Translation aborted", translation)
-
-class TranslationFailedError(TranslationError):
-    def __init__(self, message, translation, error = None):
-        super().__init__(message, error)
-        self.translation = translation
-
-class NoTranslationError(TranslationError):
+class TranslationResponseError(TranslationError):
     def __init__(self, message, response):
         super().__init__(message)
         self.response = response
 
-class UntranslatedLinesError(TranslationError):
-    def __init__(self, message, lines = None):
-        super().__init__(message)
+class TranslationValidationError(TranslationError):
+    def __init__(self, message, lines, translation):
+        super().__init__(message, translation)
         self.lines = lines or []
 
-    def __str__(self) -> str:
-        return str(self.args[0])
-    
-class UnmatchedLinesError(TranslationError):
-    def __init__(self, message, lines):
-        super().__init__(message)
-        self.lines = lines
+class NoTranslationError(TranslationValidationError):
+    def __init__(self, message, translation = None):
+        super().__init__(message=message, translation=translation)
 
-class EmptyLinesError(TranslationError):
-    def __init__(self, message, lines):
-        super().__init__(message)
-        self.lines = lines
+class UntranslatedLinesError(TranslationValidationError):
+    def __init__(self, message, lines = None, translation = None):
+        super().__init__(message, lines=lines, translation=translation)
 
-class TooManyNewlinesError(TranslationError):
-    def __init__(self, message, lines):
-        super().__init__(message)
-        self.lines = lines
+class UnmatchedLinesError(TranslationValidationError):
+    def __init__(self, message, lines = None, translation = None):
+        super().__init__(message, lines=lines, translation=translation)
 
-class LineTooLongError(TranslationError):
-    def __init__(self, message, lines):
-        super().__init__(message)
-        self.lines = lines
+class EmptyLinesError(TranslationValidationError):
+    def __init__(self, message, lines = None, translation = None):
+        super().__init__(message, lines=lines, translation=translation)
 
+class TooManyNewlinesError(TranslationValidationError):
+    def __init__(self, message, lines = None, translation = None):
+        super().__init__(message, lines=lines, translation=translation)
+
+class LineTooLongError(TranslationValidationError):
+    def __init__(self, message, lines = None, translation = None):
+        super().__init__(message, lines=lines, translation=translation)
+ 

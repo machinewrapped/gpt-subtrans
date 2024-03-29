@@ -132,7 +132,7 @@ class ProjectDataModel:
         Patch the viewmodel
         """
         if not isinstance(update, ModelUpdate):
-            raise Exception("Invalid model update")
+            raise ValueError("Invalid model update")
 
         if update.rebuild:
             # TODO: rebuild on the main thread

@@ -64,13 +64,13 @@ class EditDialog(QDialog):
         """
         Subclasses should override this method to add editable fields to the form layout
         """
-        raise Exception("Not implemented in this class")
+        raise NotImplementedError
     
     def UpdateModel(self):
         """
         Subclasses should override this method to update the model from the form
         """
-        raise Exception("Not implemented in this class")
+        raise NotImplementedError
 
     def accept(self):
         self.UpdateModel()

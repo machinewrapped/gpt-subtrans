@@ -57,7 +57,7 @@ class SubtitleScene:
     @batches.setter
     def batches(self, value : list[SubtitleBatch]):
         if not isinstance(value, list) or not all(isinstance(v, SubtitleBatch) for v in value):
-            raise SubtitleError("Batches must be a list of SubtitleBatch")
+            raise ValueError("Batches must be a list of SubtitleBatch")
 
         self._batches = value
 

@@ -7,6 +7,7 @@ import unicodedata
 import srt
 
 from PySubtitle.Options import Options
+from PySubtitle.SubtitleError import SubtitleError
 
 def GetEnvFloat(name, default=None):
     value = os.getenv(name, default)
@@ -32,7 +33,7 @@ def UpdateFields(item : dict, update: dict, fields : list[str]):
     Patch selected fields in a dictionary 
     """
     if not isinstance(item, dict) or not isinstance(update, dict):
-        raise Exception(f"Can't patch a {type(item).__name__} with a {type(update).__name__}")
+        raise ValueError(f"Can't patch a {type(item).__name__} with a {type(update).__name__}")
 
     item.update({field: update[field] for field in update.keys() if field in fields})
 
@@ -71,18 +72,18 @@ def GetTimeDelta(time):
 
         if len(parts) == 3:
             if len(parts[-1]) == 3:
-                logging.warn(f"Adding hour to time '{time}'")
+                logging.warning(f"Adding hour to time '{time}'")
                 return GetTimeDelta(f"00:{parts[0]}:{parts[1]},{parts[2]}")
             else:
-                logging.warn(f"Adding milliseconds to time '{time}'")
+                logging.warning(f"Adding milliseconds to time '{time}'")
                 return GetTimeDelta(f"{parts[0]}:{parts[1]}:{parts[2],000}")
 
         if len(parts) >= 4:
             if len(parts[-1]) == 3:
-                logging.warn(f"Using last four parts of '{time}' as time")
+                logging.warning(f"Using last four parts of '{time}' as time")
                 return GetTimeDelta(f"{parts[-4]}:{parts[-3]}:{parts[-2]},{parts[-1]}")
 
-            logging.warn(f"Using first four parts of '{time}' as time")
+            logging.warning(f"Using first four parts of '{time}' as time")
             return GetTimeDelta(f"{parts[0]}:{parts[1]}:{parts[2]},{parts[3]}")
 
     raise ValueError(f"Unable to interpret time '{str(time)}'")
@@ -334,6 +335,7 @@ def ParseSubstitutions(sub_list, separator="::"):
                                 substitutions[before] = after
                             else:
                                 raise ValueError(f"Invalid substitution format in {sub}: {line}")
+
                 except FileNotFoundError:
                     logging.warning(f"Substitution file not found: {sub}")
                 except ValueError:
@@ -448,3 +450,35 @@ def LimitTextLength(text, max_length):
     else:
         # As a last resort, cut directly at the max length
         return text[:max_length] + '...'
+
+def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length : int = None):
+    """
+    Remove trivial parts of summary text
+    """
+    if not summary:
+        return None
+
+    summary = re.sub(r'^(?:(?:Scene|Batch)[\s\d:\-]*)+', '', summary, flags=re.IGNORECASE)
+    summary = summary.replace("Summary of the batch", "")
+    summary = summary.replace("Summary of the scene", "")
+
+    if movie_name:
+        # Remove movie name and any connectors (-,: or whitespace)
+        summary = re.sub(r'^' + re.escape(movie_name) + r'\s*[:\-]\s*', '', summary)
+
+    summary = summary.strip()
+    original_len = len(summary)
+
+    if max_summary_length:
+        summary = LimitTextLength(summary, max_summary_length)
+
+    if len(summary) != original_len:
+        logging.info(f"Summary was truncated from {original_len} to {len(summary)} characters")
+    
+    return summary or None
+
+def FormatErrorMessages(errors : list[SubtitleError]):
+    """
+    Extract error messages from a list of errors
+    """
+    return ", ".join([ error.message for error in errors ])

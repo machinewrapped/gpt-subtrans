@@ -4,7 +4,7 @@ import openai
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import NoTranslationError, TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 
 linesep = '\n'
 
@@ -56,12 +56,12 @@ class InstructGPTClient(OpenAIClient):
                 if result.choices:
                     choice = result.choices[0]
                     if not isinstance(choice.text, str):
-                        raise NoTranslationError("Instruct model completion text is not a string")
+                        raise TranslationResponseError("Instruct model completion text is not a string", response=result)
 
                     response['finish_reason'] = getattr(choice, 'finish_reason', None)
                     response['text'] = choice.text
                 else:
-                    raise NoTranslationError("No choices returned in the response", result)
+                    raise TranslationResponseError("No choices returned in the response", response=result)
 
                 # Return the response content if the API call succeeds
                 return response
@@ -86,10 +86,10 @@ class InstructGPTClient(OpenAIClient):
 
             except openai.APIConnectionError as e:
                 if not self.aborted:
-                    raise TranslationImpossibleError(str(e), response)
+                    raise TranslationImpossibleError(str(e), error=e)
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", response, error=e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
 
-        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries", response)
+        raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 

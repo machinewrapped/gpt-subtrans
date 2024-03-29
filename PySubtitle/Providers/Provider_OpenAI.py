@@ -2,6 +2,7 @@ import logging
 import os
 
 from PySubtitle.Helpers import GetEnvFloat
+from PySubtitle.SubtitleError import ProviderError
 
 try:
     import openai
@@ -93,7 +94,7 @@ try:
             """
             try:
                 if not hasattr(openai, "OpenAI"):
-                    raise Exception("The OpenAI library is out of date and must be updated")
+                    raise ProviderError("The OpenAI library is out of date and must be updated", provider=self)
 
                 if not self.api_key:
                     logging.debug("No OpenAI API key provided")

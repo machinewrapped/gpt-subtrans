@@ -259,7 +259,7 @@ class SubtitleFile:
         with self.lock:
             scene : SubtitleScene = self.GetScene(scene_number)
             if not scene:
-                raise Exception(f"Scene {scene_number} does not exist")
+                raise ValueError(f"Scene {scene_number} does not exist")
             
             return scene.UpdateContext(update)
 
@@ -267,7 +267,7 @@ class SubtitleFile:
         with self.lock:
             batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
             if not batch:
-                raise Exception(f"Batch ({scene_number},{batch_number}) does not exist")
+                raise ValueError(f"Batch ({scene_number},{batch_number}) does not exist")
             
             return batch.UpdateContext(update)
         
@@ -275,7 +275,7 @@ class SubtitleFile:
         with self.lock:
             original_line = next((original for original in self.originals if original.number == line_number), None)
             if not original_line:
-                raise Exception(f"Line {line_number} not found")
+                raise ValueError(f"Line {line_number} not found")
 
             if original_text:
                 original_line.text = original_text
