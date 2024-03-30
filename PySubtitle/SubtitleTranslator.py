@@ -10,7 +10,7 @@ from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
-from PySubtitle.SubtitleError import NoProviderError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
+from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
 from PySubtitle.Helpers import BuildUserPrompt, FormatErrorMessages, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, SanitiseSummary, UnbatchScenes
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -195,7 +195,7 @@ class SubtitleTranslator:
 
         if self.reparse and batch.translation:
             logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(batch.originals)} lines...")
-            self.ProcessTranslation(batch, line_numbers)
+            self.ProcessBatchTranslation(batch, batch.translation, line_numbers)
             return
 
         originals, context = self.PreprocessBatch(batch, context)
@@ -227,10 +227,8 @@ class SubtitleTranslator:
             if not translation:
                 raise TranslationError(f"Unable to translate scene {batch.scene} batch {batch.number}")
 
-            batch.translation = translation
-
             # Process the response
-            self.ProcessTranslation(batch, line_numbers)
+            self.ProcessBatchTranslation(batch, translation, line_numbers)
 
             # Consider retrying if there were errors
             if batch.errors and self.retry_on_error:
@@ -290,12 +288,13 @@ class SubtitleTranslator:
 
         return originals, context
 
-    def ProcessTranslation(self, batch : SubtitleBatch, line_numbers : list[int]):
+    def ProcessBatchTranslation(self, batch : SubtitleBatch, translation : Translation, line_numbers : list[int]):
         """
         Attempt to extract translation from the API response
         """
-        translation : Translation = batch.translation
-
+        if not translation:
+            raise NoTranslationError("No translation provided")
+        
         if not translation.has_translation:
             raise TranslationError("Translation contains no translated text", translation=translation)
         
@@ -309,8 +308,6 @@ class SubtitleTranslator:
         # Try to match the translations with the original lines
         translated, unmatched = parser.MatchTranslations(batch.originals)
 
-        batch.errors = parser.errors
-
         if unmatched and not self.max_lines:
             logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
 
@@ -319,6 +316,9 @@ class SubtitleTranslator:
             translated = [line for line in translated if line.number in line_numbers]
 
         batch.translated = MergeTranslations(batch.translated or [], translated)
+
+        batch.translation = translation
+        batch.errors = parser.errors
 
         if batch.untranslated:
             batch.AddContext('untranslated_lines', [f"{item.number}. {item.text}" for item in batch.untranslated])
@@ -337,8 +337,7 @@ class SubtitleTranslator:
 
         if translation.summary and translation.summary.strip():
             logging.info(f"Summary: {translation.summary}")
-
-
+        
     def RequestRetranslation(self, batch : SubtitleBatch, line_numbers : list[int] = None, context : dict = {}):
         """
         Ask the client to retranslate the input and correct errors
@@ -359,12 +358,15 @@ class SubtitleTranslator:
 
         retranslation : Translation = self.client.RequestTranslation(prompt, retry_temperature)
 
+        if self.aborted:
+            return None
+
         if not isinstance(retranslation, Translation):
             raise TranslationError("Retranslation is not the expected type", translation=retranslation)
 
         logging.debug(f"Scene {batch.scene} batch {batch.number} retranslation:\n{retranslation.text}\n")
 
-        self.ProcessTranslation(batch, line_numbers)
+        self.ProcessBatchTranslation(batch, retranslation, line_numbers)
 
         if batch.errors:
             logging.warning(f"Retry failed validation: {FormatErrorMessages(batch.errors)}")

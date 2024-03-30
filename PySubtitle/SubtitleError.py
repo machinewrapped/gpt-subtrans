@@ -45,14 +45,14 @@ class TranslationResponseError(TranslationError):
         super().__init__(message)
         self.response = response
 
+class NoTranslationError(TranslationError):
+    def __init__(self, message, translation = None):
+        super().__init__(message=message, translation=translation)
+
 class TranslationValidationError(TranslationError):
     def __init__(self, message, lines, translation):
         super().__init__(message, translation)
         self.lines = lines or []
-
-class NoTranslationError(TranslationValidationError):
-    def __init__(self, message, translation = None):
-        super().__init__(message=message, translation=translation)
 
 class UntranslatedLinesError(TranslationValidationError):
     def __init__(self, message, lines = None, translation = None):
