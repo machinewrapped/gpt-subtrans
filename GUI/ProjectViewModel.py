@@ -49,7 +49,10 @@ class ProjectViewModel(QStandardItemModel):
     def ProcessUpdates(self):
         with QMutexLocker(self.update_lock):
             for update in self.updates:
-                self.ApplyUpdate(update)
+                try:
+                    self.ApplyUpdate(update)
+                except Exception as e:
+                    logging.error(f"Error updating view model: {e}")
 
             self.updates = []
 
@@ -409,8 +412,11 @@ class ProjectViewModel(QStandardItemModel):
         scene_item : SceneItem = self.model[scene_number]
         batch_item : BatchItem = scene_item.batches[batch_number]
         for line_number, line_update in lines.items():
-            line_item : LineItem = batch_item.lines[line_number]
-            line_item.Update(line_update)            
+            line_item : LineItem = batch_item.lines.get(line_number)
+            if line_item:
+                line_item.Update(line_update)
+            else:
+                logging.warning(f"Line {line_number} not found in batch {batch_number}")
 
     def RemoveLine(self, scene_number, batch_number, line_number):
         logging.debug(f"Removing line ({scene_number}, {batch_number}, {line_number})")
