@@ -160,51 +160,54 @@ class ProjectViewModel(QStandardItemModel):
         self.beginResetModel()
         self.blockSignals(True)
 
-        for scene_number, scene_update in update.scenes.updates.items():
-            self.UpdateScene(scene_number, scene_update)
+        try:
+            for scene_number, scene_update in update.scenes.updates.items():
+                self.UpdateScene(scene_number, scene_update)
 
-        for key, batch_update in update.batches.updates.items():
-            scene_number, batch_number = key
-            self.UpdateBatch(scene_number, batch_number, batch_update)
+            for key, batch_update in update.batches.updates.items():
+                scene_number, batch_number = key
+                self.UpdateBatch(scene_number, batch_number, batch_update)
 
-        #TODO: Use UpdateLines
-        for key, line_update in update.lines.updates.items():
-            scene_number, batch_number, line_number = key
-            self.UpdateLine(scene_number, batch_number, line_number, line_update)
+            #TODO: Use UpdateLines
+            for key, line_update in update.lines.updates.items():
+                scene_number, batch_number, line_number = key
+                self.UpdateLine(scene_number, batch_number, line_number, line_update)
 
-        for scene_number, scene in update.scenes.replacements.items():
-            self.ReplaceScene(scene)
+            for scene_number, scene in update.scenes.replacements.items():
+                self.ReplaceScene(scene)
 
-        for key, batch in update.batches.replacements.items():
-            scene_number, batch_number = key
-            self.ReplaceBatch(batch)
+            for key, batch in update.batches.replacements.items():
+                scene_number, batch_number = key
+                self.ReplaceBatch(batch)
 
-        for scene_number in reversed(update.scenes.removals):
-            self.RemoveScene(scene_number)
+            for scene_number in reversed(update.scenes.removals):
+                self.RemoveScene(scene_number)
 
-        for key in reversed(update.batches.removals):
-            scene_number, batch_number = key
-            self.RemoveBatch(scene_number, batch_number)
+            for key in reversed(update.batches.removals):
+                scene_number, batch_number = key
+                self.RemoveBatch(scene_number, batch_number)
 
-        for key in reversed(update.lines.removals):
-            scene_number, batch_number, line_number = key
-            self.RemoveLine(scene_number, batch_number, line_number)
+            for key in reversed(update.lines.removals):
+                scene_number, batch_number, line_number = key
+                self.RemoveLine(scene_number, batch_number, line_number)
 
-        for scene_number, scene in update.scenes.additions.items():
-            self.AddScene(scene)
+            for scene_number, scene in update.scenes.additions.items():
+                self.AddScene(scene)
 
-        for key, batch in update.batches.additions.items():
-            scene_number, batch_number = key
-            self.AddBatch(batch)
+            for key, batch in update.batches.additions.items():
+                scene_number, batch_number = key
+                self.AddBatch(batch)
 
-        for key, line in update.lines.additions.items():
-            scene_number, batch_number, line_number = key
-            self.AddLine(scene_number, batch_number, line_number, line)
-
-        # Rebuild the model dictionaries
-        self.Remap()
-        self.blockSignals(False)
-        self.endResetModel()
+            for key, line in update.lines.additions.items():
+                scene_number, batch_number, line_number = key
+                self.AddLine(scene_number, batch_number, line_number, line)
+        except Exception as e:
+            logging.error(f"Error updating view model: {e}")
+        finally:
+            # Rebuild the model dictionaries
+            self.Remap()
+            self.blockSignals(False)
+            self.endResetModel()
     
 
 
