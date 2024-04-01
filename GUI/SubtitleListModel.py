@@ -3,8 +3,9 @@ from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt
 from GUI.ViewModel.SceneItem import SceneItem
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.LineItem import LineItem
-from GUI.ProjectViewModel import ProjectViewModel, ViewModelItem
+from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.ProjectSelection import ProjectSelection
+from GUI.ViewModel.ViewModelItem import ViewModelItem
 from GUI.Widgets.Widgets import LineItemView
 
 class SubtitleListModel(QAbstractProxyModel):

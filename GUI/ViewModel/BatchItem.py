@@ -1,17 +1,16 @@
+import logging
+
+from PySide6.QtCore import Qt
+
 from GUI.GuiHelpers import DescribeLineCount
 from GUI.ViewModel.LineItem import LineItem
-from GUI.ProjectViewModel import ViewModelError, ViewModelItem
+from GUI.ViewModel.ViewModelItem import ViewModelItem
+from GUI.ViewModel.ViewModelError import ViewModelError
+
 from PySubtitle.Helpers import FormatMessages, UpdateFields
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationPrompt import FormatPrompt, TranslationPrompt
-
-
-from PySide6.QtCore import Qt
-
-
-import logging
-
 
 class BatchItem(ViewModelItem):
     def __init__(self, scene_number, batch : SubtitleBatch, debug_view = False):

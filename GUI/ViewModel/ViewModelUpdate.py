@@ -1,5 +1,5 @@
-from GUI.ViewModel.ModelUpdateSection import ModelUpdateSection
-from GUI.ViewModel.ProjectViewModel import ProjectViewModel
+from GUI.ViewModel.ViewModelUpdateSection import ModelUpdateSection
+from GUI.ViewModel.ViewModel import ProjectViewModel
 
 class ModelUpdate:
     def __init__(self):

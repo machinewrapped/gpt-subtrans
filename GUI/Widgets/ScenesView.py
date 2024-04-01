@@ -1,7 +1,9 @@
 import logging
 from PySide6.QtWidgets import QTreeView, QAbstractItemView, QDialog
 from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelectionModel, QItemSelection, QItemSelectionRange, Signal
-from GUI.ProjectViewModel import BatchItem, SceneItem, ViewModelItem
+from GUI.ViewModel.ViewModelItem import ViewModelItem
+from GUI.ViewModel.BatchItem import BatchItem
+from GUI.ViewModel.SceneItem import SceneItem
 from GUI.Widgets.Editors import EditBatchDialog, EditSceneDialog
 
 from GUI.ScenesBatchesModel import ScenesBatchesModel

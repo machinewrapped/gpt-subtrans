@@ -2,7 +2,7 @@ import logging
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
-from GUI.ProjectViewModelUpdate import ModelUpdate
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher, SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile

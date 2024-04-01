@@ -1,31 +1,18 @@
 import logging
 import os
 from PySide6.QtCore import Qt, QModelIndex, QRecursiveMutex, QMutexLocker, Signal
-from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtGui import QStandardItemModel
 
 from GUI.GuiHelpers import TimeDeltaToText
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.LineItem import LineItem
 from GUI.ViewModel.SceneItem import SceneItem
+from GUI.ViewModel.ViewModelError import ViewModelError
 
-from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
-
-class ViewModelItem(QStandardItem):
-    def GetContent(self):
-        return {
-            'heading': "Item Heading",
-            'subheading': "Optional Subheading",
-            'body': "Body Content",
-            'properties': {}
-        }
-
-class ViewModelError(SubtitleError):
-    def __init__(self, message, error = None):
-        super().__init__(message, error)
 
 class ProjectViewModel(QStandardItemModel):
     updatesPending = Signal()

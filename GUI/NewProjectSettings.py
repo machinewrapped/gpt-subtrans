@@ -6,7 +6,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
-from PySubtitle import SubtitleProject
+from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
 
 class NewProjectSettings(QDialog):

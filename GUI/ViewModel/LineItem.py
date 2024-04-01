@@ -1,6 +1,6 @@
 from GUI.GuiHelpers import GetLineHeight
 from PySubtitle.Helpers import Linearise, UpdateFields
-from GUI.ViewModel.ProjectViewModel import ViewModelError
+from GUI.ViewModel.ViewModelError import ViewModelError
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItem

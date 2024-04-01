@@ -1,7 +1,7 @@
 from PySide6.QtCore import QSortFilterProxyModel, QModelIndex, Qt
 
 from GUI.ViewModel.BatchItem import BatchItem
-from GUI.ProjectViewModel import ViewModelItem
+from GUI.ViewModel.ViewModelItem import ViewModelItem
 from GUI.Widgets.Widgets import TreeViewItemWidget
 
 class ScenesBatchesModel(QSortFilterProxyModel):

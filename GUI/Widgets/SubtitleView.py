@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSig
 from GUI.ViewModel.LineItem import LineItem
 from GUI.ProjectSelection import ProjectSelection, SelectionLine
 
-from GUI.ProjectViewModel import ProjectViewModel
+from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.SubtitleItemDelegate import SubtitleItemDelegate
 from GUI.SubtitleListModel import SubtitleListModel
 

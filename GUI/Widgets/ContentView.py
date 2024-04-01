@@ -1,8 +1,9 @@
 import logging
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QDialog
 from PySide6.QtCore import Signal, Slot
+from GUI.ViewModel.LineItem import LineItem
 from GUI.ProjectSelection import ProjectSelection
-from GUI.ProjectViewModel import LineItem, ProjectViewModel
+from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.Widgets.Editors import EditSubtitleDialog
 from GUI.Widgets.SelectionView import SelectionView
 

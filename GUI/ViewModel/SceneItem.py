@@ -1,12 +1,11 @@
 from GUI.ViewModel.BatchItem import BatchItem
+from GUI.ViewModel.ViewModelError import ViewModelError
+from GUI.ViewModel.ViewModelItem import ViewModelItem
 from GUI.GuiHelpers import DescribeLineCount
-from GUI.ProjectViewModel import ViewModelError, ViewModelItem
 from PySubtitle.Helpers import UpdateFields
 from PySubtitle.SubtitleScene import SubtitleScene
 
-
 from PySide6.QtCore import Qt
-
 
 class SceneItem(ViewModelItem):
     def __init__(self, scene : SubtitleScene):
