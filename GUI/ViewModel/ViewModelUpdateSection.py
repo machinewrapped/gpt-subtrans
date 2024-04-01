@@ -18,8 +18,8 @@ class ModelUpdateSection:
         self.removals.append(key)
 
     def HasUpdate(self) -> bool:
-        return self.updates or self.replacements or self.additions or self.removals
+        return True if (self.updates or self.replacements or self.additions or self.removals) else False
 
     @property
     def size_changed(self) -> bool:
-        return self.removals or self.additions
+        return True if (self.removals or self.additions) else False
