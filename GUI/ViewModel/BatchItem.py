@@ -13,13 +13,13 @@ from PySubtitle.Translation import Translation
 from PySubtitle.TranslationPrompt import FormatPrompt, TranslationPrompt
 
 class BatchItem(ViewModelItem):
+    """ Represents a subtitle batch in the view model"""
     def __init__(self, scene_number, batch : SubtitleBatch, debug_view = False):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
         self.scene = scene_number
         self.number = batch.number
         self.debug_view = debug_view
         self.lines = {}
-        self.translated = {}
         self.batch_model = {
             'start': batch.srt_start,
             'end': batch.srt_end,
@@ -52,21 +52,6 @@ class BatchItem(ViewModelItem):
                 })
 
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
-
-    def AddLineItem(self, line_number : int, model : dict):
-        line_item : LineItem = LineItem(line_number, model)
-        self.appendRow(line_item)
-
-        self.lines[line_number] = line_item
-
-        self._invalidate_first_and_last()
-
-    def AddTranslation(self, line_number : int, text : str):
-        if line_number in self.lines.keys():
-            line_item : LineItem = self.lines[line_number]
-            line_item.Update({ 'translation': text })
-        else:
-            logging.warning(f"Original line {line_number} not found in batch {self.number}")
 
     @property
     def line_count(self):
@@ -121,6 +106,9 @@ class BatchItem(ViewModelItem):
         return True if self.batch_model.get('errors') else False
 
     def Update(self, update : dict):
+        """ 
+        Update the batch model properties
+        """
         if not isinstance(update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
@@ -147,7 +135,52 @@ class BatchItem(ViewModelItem):
                         'messages': FormatMessages(prompt.messages)
                     })
 
+        self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
+
+    def AddLineItem(self, line_number : int, model : dict):
+        """
+        Add an original line item to the batch
+        """
+        line_item : LineItem = LineItem(line_number, model)
+        last_line_item = self.child(self.rowCount() - 1, 0) if self.rowCount() > 0 else None
+
+        if not last_line_item or line_number > last_line_item.number:
+            self.appendRow(line_item)
+            self.lines[line_number] = line_item
+        else:
+            for row in range(self.rowCount()):
+                row_item : LineItem = self.child(row, 0)
+                if not row_item.number:
+                    raise ViewModelError(f"Line item {row} has no line number")
+
+                if row_item.number < line_number:
+                    continue
+
+                if row_item.number == line_number:
+                    self.insertRow(row, line_item)
+
+                row_item.number = row_item.number + 1
+                self.lines[line_number] = line_item
+
+        if self._last_line_num and self._last_line_num < line_number:
+            self._last_line_num = line_number
+        if self._first_line_num and self._first_line_num > line_number:
+            self._first_line_num = line_number
+
+    def AddTranslation(self, line_number : int, text : str):
+        """
+        Add a translation to the line item
+        """
+        if line_number in self.lines.keys():
+            line_item : LineItem = self.lines[line_number]
+            line_item.Update({ 'translation': text })
+        else:
+            logging.warning(f"Original line {line_number} not found in batch {self.number}")
+
     def GetContent(self):
+        """
+        Return a dictionary of interesting batch data for UI display
+        """
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \
             else self.summary if self.summary \
             else "\n".join([
@@ -169,7 +202,7 @@ class BatchItem(ViewModelItem):
     def _update_first_and_last(self):
         line_numbers = [ num for num in self.lines.keys() if num ] if self.lines else None
         self._first_line_num = min(line_numbers) if line_numbers else None
-        self._last_line_num = max(line_numbers)
+        self._last_line_num = max(line_numbers) if line_numbers else None
 
     def _invalidate_first_and_last(self):
         self._first_line_num = None

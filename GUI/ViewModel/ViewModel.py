@@ -152,10 +152,6 @@ class ProjectViewModel(QStandardItemModel):
         """
         Patch the viewmodel
         """
-        # TODO: Don't reset the model if it can be avoided
-        self.beginResetModel()
-        self.blockSignals(True)
-
         try:
             update_function(self)
 
@@ -164,8 +160,6 @@ class ProjectViewModel(QStandardItemModel):
 
         # Rebuild the model dictionaries
         self.Remap()
-        self.blockSignals(False)
-        self.endResetModel()
     
     #############################################################################
 
@@ -197,18 +191,18 @@ class ProjectViewModel(QStandardItemModel):
         if not isinstance(scene, SubtitleScene):
             raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")
         
+        root_item = self.getRootItem()
         scene_item = SceneItem(scene)
         scene_index = self.indexFromItem(self.model[scene.number]) 
 
         self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
-        scene_item.removeRow(scene_index.row())
+        root_item.removeRow(scene_index.row())
         self.endRemoveRows()
 
         self.beginInsertRows(QModelIndex(), scene_index.row(), scene_index.row())
-        scene_item.insertRow(scene_index.row(), scene_item)
-        self.endInsertRows()
-
+        root_item.insertRow(scene_index.row(), scene_item)
         self.model[scene.number] = scene_item
+        self.endInsertRows()
 
         self.getRootItem().emitDataChanged()
 
@@ -217,7 +211,7 @@ class ProjectViewModel(QStandardItemModel):
         scene_item : SceneItem = self.model.get(scene_number)
         if not scene_item:
             raise ViewModelError(f"Model update for unknown scene {scene_number}")
-
+        
         scene_item.Update(scene_update)
 
         if scene_update.get('number'):
@@ -243,9 +237,8 @@ class ProjectViewModel(QStandardItemModel):
 
         self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
         root_item.removeRow(scene_index.row())
-        self.endRemoveRows()
-
         del self.model[scene_number]
+        self.endRemoveRows()
 
     #############################################################################
 
@@ -257,11 +250,15 @@ class ProjectViewModel(QStandardItemModel):
         batch_item : BatchItem = self.CreateBatchItem(batch.scene, batch)
 
         scene_item : SceneItem = self.model.get(batch.scene)
+        if not scene_item:
+            raise ViewModelError(f"Scene {batch.scene} not found")
+
         scene_index = self.indexFromItem(scene_item)
         insert_row = batch_item.number - 1
 
         self.beginInsertRows(scene_index, insert_row, insert_row)
         scene_item.AddBatchItem(batch_item)
+        scene_item.Remap()
         self.endInsertRows()
 
         scene_item.emitDataChanged()
@@ -343,6 +340,7 @@ class ProjectViewModel(QStandardItemModel):
         if line.number in batch_item.lines.keys():
             raise ViewModelError(f"Line {line.number} already exists in {scene_number} batch {batch_number}")
 
+        self.beginInsertRows(self.indexFromItem(batch_item), line.number - 1, line.number - 1)
         batch_item.AddLineItem(line.number, {
                 'scene': scene_number,
                 'batch': batch_number,
@@ -352,6 +350,8 @@ class ProjectViewModel(QStandardItemModel):
                 'gap': None,
                 'text': line.text
             })
+
+        self.endInsertRows()
 
     def UpdateLine(self, scene_number, batch_number, line_number, line_update : dict):
         logging.debug(f"Updating line ({scene_number}, {batch_number}, {line_number})")

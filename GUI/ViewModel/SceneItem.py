@@ -8,6 +8,7 @@ from PySubtitle.SubtitleScene import SubtitleScene
 from PySide6.QtCore import Qt
 
 class SceneItem(ViewModelItem):
+    """ Represents a scene in the view model """
     def __init__(self, scene : SubtitleScene):
         super(SceneItem, self).__init__()
         self.number = scene.number
@@ -27,17 +28,6 @@ class SceneItem(ViewModelItem):
 
         self.setText(f"Scene {scene.number}")
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
-
-    def AddBatchItem(self, batch_item : BatchItem):
-        if batch_item.number > len(self.batches):
-            self.appendRow(batch_item)
-        else:
-            self.insertRow(batch_item.number - 1, batch_item)
-            for i in range(0, self.rowCount()):
-                self.child(i, 0).number = i
-
-        batch_items = [ self.child(i, 0) for i in range(0, self.rowCount()) ]
-        self.batches = { item.number: item for item in batch_items }
 
     @property
     def batch_count(self):
@@ -89,13 +79,31 @@ class SceneItem(ViewModelItem):
     def summary(self):
         return self.scene_model['summary']
 
+    def AddBatchItem(self, batch_item : BatchItem):
+        """ Insert or append a batch item to the scene """
+        if batch_item.number > len(self.batches):
+            self.appendRow(batch_item)
+        else:
+            self.insertRow(batch_item.number - 1, batch_item)
+            for i in range(0, self.rowCount()):
+                self.child(i, 0).number = i
+
+        self.Remap()
+    
     def Update(self, update):
+        """ Update the scene model with new data """
         if not isinstance(update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
         UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration', 'gap'])
 
+    def Remap(self):
+        """ Rebuild the batch number map """
+        batch_items = [ self.child(i, 0) for i in range(0, self.rowCount()) ]
+        self.batches = { item.number: item for item in batch_items }
+
     def GetContent(self):
+        """ Return a dictionary of interesting scene data for UI display """
         str_translated = "All batches translated" if self.translated_batch_count == self.batch_count else f"{self.translated_batch_count} of {self.batch_count} batches translated"
         metadata = [
             "1 line" if self.line_count == 1 else f"{self.line_count} lines in {self.batch_count} batches",
