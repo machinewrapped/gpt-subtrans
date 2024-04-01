@@ -1,6 +1,6 @@
 import logging
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QDialog
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import Qt, Signal, Slot
 from GUI.ViewModel.LineItem import LineItem
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ViewModel.ViewModel import ProjectViewModel
@@ -41,7 +41,7 @@ class ContentView(QWidget):
 
     def Populate(self, viewmodel : ProjectViewModel):
         self.viewmodel = viewmodel
-        self.viewmodel.updatesPending.connect(self._update_view_model)
+        self.viewmodel.updatesPending.connect(self._update_view_model, type=Qt.ConnectionType.QueuedConnection)
         self.subtitle_view.SetViewModel(viewmodel)
         self.selection_view.ShowSelection(ProjectSelection())
 

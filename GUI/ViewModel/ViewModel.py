@@ -28,19 +28,28 @@ class ProjectViewModel(QStandardItemModel):
         return self.invisibleRootItem()
     
     def AddUpdate(self, update : callable):
+        """ Add an update to the queue and signal the main thread to process it """
         with QMutexLocker(self.update_lock):
             self.updates.append(update)
         self.updatesPending.emit()
 
     def ProcessUpdates(self):
-        with QMutexLocker(self.update_lock):
-            for update in self.updates:
-                try:
-                    self.ApplyUpdate(update)
-                except Exception as e:
-                    logging.error(f"Error updating view model: {e}")
+        """ While there are updates in the queue, process them in sequence """
+        while True:
+            with QMutexLocker(self.update_lock):
+                # Pop the next update from the queue until there are none left
+                if not self.updates:
+                    break
 
-            self.updates = []
+                update = self.updates.pop(0)
+
+            try:
+                logging.debug(f"Processing viewmodel update")
+                self.ApplyUpdate(update)
+
+            except Exception as e:
+                logging.error(f"Error updating view model: {e}")
+                # break?
 
         self.layoutChanged.emit()
 
