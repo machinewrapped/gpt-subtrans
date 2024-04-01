@@ -16,14 +16,14 @@ from PySide6.QtWidgets import (
 from GUI.AboutDialog import AboutDialog
 from GUI.Command import Command
 from GUI.CommandQueue import ClearCommandQueue, CommandQueue
-from GUI.FileCommands import LoadSubtitleFile
+from GUI.Commands.LoadSubtitleFile import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
 from GUI.GuiHelpers import GetResourcePath, LoadStylesheet
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
 from GUI.ProjectActions import ProjectActions
-from GUI.ProjectCommands import BatchSubtitlesCommand
+from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView

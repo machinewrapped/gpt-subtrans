@@ -53,6 +53,19 @@ class ProjectViewModel(QStandardItemModel):
 
         self.layoutChanged.emit()
 
+    def ApplyUpdate(self, update_function):
+        """
+        Patch the viewmodel
+        """
+        if not callable(update_function):
+            raise ViewModelError(f"Expected a callable, got a {type(update_function).__name__}")
+
+        try:
+            update_function(self)
+
+        except Exception as e:
+            logging.error(f"Error updating viewmodel: {e}")
+    
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):
             raise ValueError("Can only model subtitle files")
@@ -153,16 +166,6 @@ class ProjectViewModel(QStandardItemModel):
 
                 batch_item.lines = { item.number: item for item in line_items }
 
-    def ApplyUpdate(self, update_function : callable):
-        """
-        Patch the viewmodel
-        """
-        try:
-            update_function(self)
-
-        except Exception as e:
-            logging.error(f"Error updating viewmodel: {e}")
-    
     #############################################################################
 
     def AddScene(self, scene : SubtitleScene):

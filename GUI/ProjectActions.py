@@ -1,25 +1,26 @@
+import logging
 import os
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
+from GUI.Command import Command
+from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.CommandQueue import ClearCommandQueue
 
-from GUI.FileCommands import *
 from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
-from GUI.ProjectCommands import (
-    AutoSplitBatchCommand,
-    MergeBatchesCommand,
-    MergeLinesCommand,
-    MergeScenesCommand,
-    SplitBatchCommand,
-    ResumeTranslationCommand,
-    SplitSceneCommand,
-    SwapTextAndTranslations,
-    TranslateSceneCommand,
-    TranslateSceneMultithreadedCommand
-)
+from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
+from GUI.Commands.MergeLinesCommand import MergeLinesCommand
+from GUI.Commands.MergeScenesCommand import MergeScenesCommand
+from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
+from GUI.Commands.ResumeTranslationCommand import ResumeTranslationCommand
+from GUI.Commands.SplitBatchCommand import SplitBatchCommand
+from GUI.Commands.SplitSceneCommand import SplitSceneCommand
+from GUI.Commands.SwapTextAndTranslations import SwapTextAndTranslations
+from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand, TranslateSceneMultithreadedCommand
+from GUI.Commands.SaveProjectFile import SaveProjectFile
 from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleValidator import SubtitleValidator
 
 class ActionError(Exception):
