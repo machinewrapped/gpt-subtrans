@@ -157,9 +157,6 @@ class ProjectViewModel(QStandardItemModel):
 
         except Exception as e:
             logging.error(f"Error updating viewmodel: {e}")
-
-        # Rebuild the model dictionaries
-        self.Remap()
     
     #############################################################################
 
