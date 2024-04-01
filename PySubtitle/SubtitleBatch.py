@@ -1,6 +1,6 @@
 from datetime import timedelta
 import re
-from PySubtitle import TranslationPrompt
+from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import PerformSubstitutions
 from PySubtitle.SubtitleLine import SubtitleLine

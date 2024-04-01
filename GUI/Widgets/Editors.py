@@ -1,6 +1,8 @@
 from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QLabel, QDialogButtonBox, QTabWidget, QWidget, )
 
-from GUI.ProjectViewModel import BatchItem, LineItem, SceneItem
+from GUI.ViewModel.BatchItem import BatchItem
+from GUI.ViewModel.LineItem import LineItem
+from GUI.ViewModel.SceneItem import SceneItem
 from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
 
 class EditDialog(QDialog):

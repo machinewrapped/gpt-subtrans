@@ -1,9 +1,9 @@
-import logging
 from PySide6.QtWidgets import QListView, QAbstractItemView
 from PySide6.QtCore import Qt, QItemSelectionModel, QItemSelection, Signal, QSignalBlocker
+from GUI.ViewModel.LineItem import LineItem
 from GUI.ProjectSelection import ProjectSelection, SelectionLine
 
-from GUI.ProjectViewModel import ProjectViewModel, LineItem
+from GUI.ProjectViewModel import ProjectViewModel
 from GUI.SubtitleItemDelegate import SubtitleItemDelegate
 from GUI.SubtitleListModel import SubtitleListModel
 

@@ -1,6 +1,9 @@
 import logging
 from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt
-from GUI.ProjectViewModel import BatchItem, ProjectViewModel, SceneItem, LineItem, ViewModelItem
+from GUI.ViewModel.SceneItem import SceneItem
+from GUI.ViewModel.BatchItem import BatchItem
+from GUI.ViewModel.LineItem import LineItem
+from GUI.ProjectViewModel import ProjectViewModel, ViewModelItem
 from GUI.ProjectSelection import ProjectSelection
 from GUI.Widgets.Widgets import LineItemView
 

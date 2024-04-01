@@ -1,9 +1,8 @@
 from datetime import timedelta
 import logging
-from PySubtitle import SubtitleError
-from PySubtitle.Helpers import ResyncTranslatedLines
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.Helpers import ResyncTranslatedLines
 
 class SubtitleScene:
     def __init__(self, dct = None):
