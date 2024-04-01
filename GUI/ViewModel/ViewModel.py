@@ -97,17 +97,22 @@ class ProjectViewModel(QStandardItemModel):
         return batch_item
     
     def GetLineItem(self, line_number):
-        if line_number and self.model:
-            for scene_item in self.model.values():
-                for batch_item in scene_item.batches.values():
-                    if batch_item.first_line_number > line_number:
-                        return None
-                    
-                    if batch_item.last_line_number >= line_number:
-                        lines = batch_item.lines
-                        line = lines.get(line_number, None) if lines else None
-                        if line:
-                            return line
+        """ Find a line item in the viewmodel """
+        if not line_number:
+            return None
+
+        root_item = self.getRootItem()
+        for scene_row in range(0, root_item.rowCount()):
+            scene_item : SceneItem = root_item.child(scene_row, 0)
+            for batch_row in range(0, scene_item.rowCount()):
+                batch_item : BatchItem = scene_item.child(batch_row, 0)
+                if batch_item.first_line_number > line_number:
+                    return None
+
+                for line_row in range(0, batch_item.rowCount()):
+                    line_item : LineItem = batch_item.child(line_row, 0)
+                    if line_item.number == line_number:
+                        return line_item
 
     def GetBatchNumbers(self):
         """
@@ -171,7 +176,7 @@ class ProjectViewModel(QStandardItemModel):
         insert_row = scene_item.number - 1
 
         self.beginInsertRows(QModelIndex(), insert_row, insert_row)
-        if scene_item.number > len(self.model):
+        if insert_row >= root_item.rowCount():
             root_item.appendRow(scene_item)
         else:
             root_item.insertRow(insert_row, scene_item)
