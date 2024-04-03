@@ -2,6 +2,7 @@ import logging
 
 try:
     import openai
+    import httpx
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
@@ -30,7 +31,10 @@ try:
             
             logging.info(f"Translating with OpenAI model {self.model or 'default'}, Using API Base: {openai.base_url}")
 
-            self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url)
+            # Optionally use httpx for requests
+            http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True) if self.api_base and self.settings.get('use_httpx') else None
+
+            self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
 
         @property
         def api_key(self):

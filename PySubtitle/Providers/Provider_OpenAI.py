@@ -41,6 +41,7 @@ try:
                 'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
                 "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
                 'max_instruct_tokens': settings.get('max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', 2048))),
+                'use_httpx': settings.get('use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True")
             })
 
             self.refresh_when_changed = ['api_key', 'api_base', 'model']
@@ -71,6 +72,9 @@ try:
                 'api_base': (str, "The base URL to use for requests - leave as default unless you know you need something else"),
             }
             
+            if self.api_base:
+                options['use_httpx'] = (bool, "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base")
+
             if self.api_key:
                 models = self.available_models
                 if models:

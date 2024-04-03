@@ -34,7 +34,7 @@ class ChatGPTClient(OpenAIClient):
                 result = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=temperature 
+                    temperature=temperature,
                 )
 
                 if self.aborted:
