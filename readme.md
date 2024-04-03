@@ -191,6 +191,9 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 - `-b`, `--apibase`:
   API base URL if you are using a custom instance. if it is not set, the default URL will be used.
 
+- '--httpx':
+  Use the [HTTPX library](https://github.com/projectdiscovery/httpx) for requests (only supported if apibase is specified)
+
 - `-m`, `--model`:
   Specify the [AI model](https://platform.openai.com/docs/models) to use for translation
 

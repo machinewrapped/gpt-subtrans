@@ -47,6 +47,7 @@ parser.add_argument('-b', '--apibase', type=str, default=None, help="API backend
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
 parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
+parser.add_argument('--httpx', action='store_true', help="Use the httpx library for custom api_base requests. May help if you receive a 307 redirect error.")
 parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
 parser.add_argument('--instruction', action='append', type=str, default=None, help="An instruction for the AI translator")
 parser.add_argument('--instructionfile', type=str, default=None, help="Name/path of a file to load instructions from")
@@ -95,6 +96,7 @@ try:
         'substitutions': ParseSubstitutions(args.substitution),
         'target_language': args.target_language,
         'temperature': args.temperature,
+        'use_httpx': args.httpx,
         'write_backup': args.writebackup,
     })
 
