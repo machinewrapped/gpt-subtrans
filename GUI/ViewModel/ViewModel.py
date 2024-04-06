@@ -60,12 +60,21 @@ class ProjectViewModel(QStandardItemModel):
         if not callable(update_function):
             raise ViewModelError(f"Expected a callable, got a {type(update_function).__name__}")
 
+        # TODO: Don't reset the model if it can be avoided
+        self.beginResetModel()
+        self.blockSignals(True)
+
         try:
             update_function(self)
 
         except Exception as e:
             logging.error(f"Error updating viewmodel: {e}")
     
+        finally:
+            self.Remap()
+            self.blockSignals(False)
+            self.endResetModel()
+
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):
             raise ValueError("Can only model subtitle files")
