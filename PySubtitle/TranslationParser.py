@@ -16,8 +16,7 @@ default_pattern = re.compile(
     r"(?=\n#\d|\Z)", 
     re.MULTILINE)
 
-regex_patterns = [
-    default_pattern,
+fallback_patterns = [
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE),
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation[>:](?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", re.MULTILINE),
     re.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]+(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)", re.MULTILINE),
@@ -29,7 +28,7 @@ regex_patterns = [
 
 class TranslationParser:
     """
-    Extract translated subtitles from a completion 
+    Extract translated subtitles from the AI translation response 
     """
     def __init__(self, options : Options):
         self.options = options
@@ -37,6 +36,14 @@ class TranslationParser:
         self.translations = {}
         self.translated = []
         self.errors = []
+        self.regex_patterns = self.GetRegularExpressionPatterns()
+
+    def GetRegularExpressionPatterns(self):
+        """
+        Returns a list of regular expressions to try for extracting translations
+        """
+        # Use the current default pattern, and fall back on alternative/older patterns if no matches are found
+        return [default_pattern] + fallback_patterns
 
     def ProcessTranslation(self, translation : Translation):
         """
@@ -49,7 +56,7 @@ class TranslationParser:
         if not self.text:
             raise TranslationError("No translated text provided", translation=translation)
         
-        for template in regex_patterns:
+        for template in self.regex_patterns:
             matches = self.FindMatches(f"{self.text}\n\n", template)
 
             if matches:
