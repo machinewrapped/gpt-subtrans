@@ -1,7 +1,8 @@
 from itertools import groupby
 from PySide6.QtCore import Qt
 
-from GUI.ProjectViewModel import BatchItem, SceneItem
+from GUI.ViewModel.BatchItem import BatchItem
+from GUI.ViewModel.SceneItem import SceneItem
 
 class SelectionScene:
     def __init__(self, number : int, selected : bool = True) -> None:

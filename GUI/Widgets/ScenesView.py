@@ -1,13 +1,18 @@
 import logging
 from PySide6.QtWidgets import QTreeView, QAbstractItemView, QDialog
 from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelectionModel, QItemSelection, QItemSelectionRange, Signal
-from GUI.ProjectViewModel import BatchItem, SceneItem, ViewModelItem
+from GUI.ViewModel.ViewModelItem import ViewModelItem
+from GUI.ViewModel.BatchItem import BatchItem
+from GUI.ViewModel.SceneItem import SceneItem
 from GUI.Widgets.Editors import EditBatchDialog, EditSceneDialog
 
 from GUI.ScenesBatchesModel import ScenesBatchesModel
 from GUI.ScenesBatchesDelegate import ScenesBatchesDelegate
 
 class ScenesView(QTreeView):
+    """
+    Tree view to show scenes and batches from the viewmodel
+    """
     onSelection = Signal()
 
     onSceneEdited = Signal(int, object)
@@ -142,3 +147,4 @@ class ScenesView(QTreeView):
                 return True
 
         return False
+

@@ -236,7 +236,7 @@ class SubtitleProject:
 
         if self.subtitles.scenes:
             self.subtitles.UpdateOutputPath()
-            self.WriteProjectFile()
+            self.needsupdate = True
 
     def TranslateSubtitles(self, translator : SubtitleTranslator):
         """

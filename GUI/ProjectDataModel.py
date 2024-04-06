@@ -1,7 +1,7 @@
 import logging
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
-from GUI.ProjectViewModel import ProjectViewModel
-from GUI.ProjectViewModelUpdate import ModelUpdate
+from GUI.ViewModel.ViewModel import ProjectViewModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -137,8 +137,9 @@ class ProjectDataModel:
         if update.rebuild:
             # TODO: rebuild on the main thread
             self.CreateViewModel()
+
         elif self.viewmodel:
-            self.viewmodel.AddUpdate(update)
+            self.viewmodel.AddUpdate(lambda viewmodel=self.viewmodel, model_update=update : model_update.ApplyToViewModel(viewmodel))
 
     def _update_translation_provider(self):
         """

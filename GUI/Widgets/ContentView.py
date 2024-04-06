@@ -1,14 +1,18 @@
 import logging
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QDialog
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import Qt, Signal, Slot
+from GUI.ViewModel.LineItem import LineItem
 from GUI.ProjectSelection import ProjectSelection
-from GUI.ProjectViewModel import LineItem, ProjectViewModel
+from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.Widgets.Editors import EditSubtitleDialog
 from GUI.Widgets.SelectionView import SelectionView
 
 from GUI.Widgets.SubtitleView import SubtitleView
 
 class ContentView(QWidget):
+    """
+    The main content view for the application. This view is responsible for displaying the subtitle lines and the selection view.
+    """
     onSelection = Signal()
     actionRequested = Signal(str, object)
 
@@ -40,7 +44,7 @@ class ContentView(QWidget):
 
     def Populate(self, viewmodel : ProjectViewModel):
         self.viewmodel = viewmodel
-        self.viewmodel.updatesPending.connect(self._update_view_model)
+        self.viewmodel.updatesPending.connect(self._update_view_model, type=Qt.ConnectionType.QueuedConnection)
         self.subtitle_view.SetViewModel(viewmodel)
         self.selection_view.ShowSelection(ProjectSelection())
 
@@ -78,3 +82,4 @@ class ContentView(QWidget):
     def _update_view_model(self):
         if self.viewmodel:
             self.viewmodel.ProcessUpdates()
+

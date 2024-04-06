@@ -2,8 +2,9 @@ from PySide6.QtWidgets import QToolBar
 from GUI.CommandQueue import CommandQueue
 
 from GUI.ProjectActions import ProjectActions
-from GUI.ProjectCommands import ResumeTranslationCommand, TranslateSceneCommand, TranslateSceneMultithreadedCommand
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.Commands.ResumeTranslationCommand import ResumeTranslationCommand
+from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand, TranslateSceneMultithreadedCommand
 
 class MainToolbar(QToolBar):
     # _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Stop Translating"], ["Quit"] ]

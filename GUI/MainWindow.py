@@ -16,14 +16,14 @@ from PySide6.QtWidgets import (
 from GUI.AboutDialog import AboutDialog
 from GUI.Command import Command
 from GUI.CommandQueue import ClearCommandQueue, CommandQueue
-from GUI.FileCommands import LoadSubtitleFile
+from GUI.Commands.LoadSubtitleFile import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
 from GUI.GuiHelpers import GetResourcePath, LoadStylesheet
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
 from GUI.ProjectActions import ProjectActions
-from GUI.ProjectCommands import BatchSubtitlesCommand
+from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
@@ -101,8 +101,6 @@ class MainWindow(QMainWindow):
         # Create the log window widget and add it to the splitter
         log_window_widget = LogWindow(splitter)
         splitter.addWidget(log_window_widget)
-
-        # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
 
         if options.provider is None or options.get('firstrun'):
