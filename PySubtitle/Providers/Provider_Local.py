@@ -17,11 +17,12 @@ class Provider_LocalServer(TranslationProvider):
 
     def __init__(self, settings : dict):
         super().__init__(self.name, {
-            "server_address": settings.get('server_address') or os.getenv('LOCAL_SERVER_ADDRESS', "http://localhost:1234/v1"),
+            "server_address": settings.get('server_address') or os.getenv('LOCAL_SERVER_ADDRESS', "http://localhost:1234"),
             "endpoint": "/v1/chat/completions",
             "supports_conversation": True,
             "supports_system_messages": True,
-            'temperature': settings.get('temperature', GetEnvFloat('LOCAL_TEMPERATURE', 0.0))
+            'temperature': settings.get('temperature', GetEnvFloat('LOCAL_TEMPERATURE', 0.0)),
+            'max_tokens': settings.get('max_tokens', GetEnvFloat('LOCAL_MAX_TOKENS', 2048))
             })
         
         #TODO: Add additional parameters option
@@ -51,6 +52,7 @@ class Provider_LocalServer(TranslationProvider):
             'supports_conversation': (bool, "Specify whether the server supports chat format requests (default true)"),
             'supports_system_messages': (bool, "Specify whether the server supports system messages (default true)"),
             'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
+            'max_tokens': (int, "The maximum number of tokens the AI should generate")
         }
 
         return options

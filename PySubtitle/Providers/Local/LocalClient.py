@@ -15,10 +15,9 @@ class LocalClient(TranslationClient):
     """
     def __init__(self, settings : dict):
         super().__init__(settings)
+        self.client = None
 
         logging.info(f"Translating with local server at {self.server_address}{self.endpoint}")
-
-        self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=300.0, headers={'Content-Type': 'application/json'})
 
     @property
     def server_address(self):
@@ -31,6 +30,10 @@ class LocalClient(TranslationClient):
     @property
     def supports_conversation(self):
         return self.settings.get('supports_conversation', False)
+    
+    @property
+    def max_tokens(self):
+        return self.settings.get('max_tokens', -1)
     
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
@@ -59,55 +62,79 @@ class LocalClient(TranslationClient):
         """
         response = {}
 
-        try:
-            request_body = self._generate_request_body(prompt, temperature)
-            logging.debug(f"Request Body:\n{request_body}")
-
-            result : httpx.Response = self.client.post(self.endpoint, json=request_body)
-
+        for retry in range(self.max_retries + 1):
             if self.aborted:
                 return None
+
+            try:
+                request_body = self._generate_request_body(prompt, temperature, self.max_tokens)
+                logging.debug(f"Request Body:\n{request_body}")
+
+                self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=300.0, headers={'Content-Type': 'application/json'})
+
+                result : httpx.Response = self.client.post(self.endpoint, json=request_body)
+
+                if self.aborted:
+                    return None
+                
+                logging.debug(f"Response:\n{result.text}")
+
+                content = result.json()
+
+                response['model'] = content.get('model')
+                response['response_time'] = content.get('response_ms', 0)
+
+                usage = content.get('usage', {})
+                response['prompt_tokens'] = usage.get('prompt_tokens')
+                response['output_tokens'] = usage.get('completion_tokens')
+                response['total_tokens'] = usage.get('total_tokens')
+
+                choices = content.get('choices')
+                if not choices:
+                    raise TranslationResponseError("No choices returned in the response", response=result)
+
+                for choice in choices:
+                    if choice.get('text'):
+                        response['text'] = choice.get('text')
+                        response['finish_reason'] = choice.get('finish_reason')
+                        break
+
+                    if choice.get('message'):
+                        response['text'] = choice.get('message', {}).get('content')
+                        response['finish_reason'] = choice.get('finish_reason')
+                        break
+                
+                if not response.get('text'):
+                    raise TranslationResponseError("No text returned in the response", response=result)
+
+                # Return the response if the API call succeeds
+                return response
             
-            logging.debug(f"Response:\n{result.text}")
+            except httpx.ConnectError as e:
+                if self.aborted:
+                    return None
 
-            content = result.json()
+                logging.error(f"Failed to connect to server at {self.server_address}{self.endpoint}")
+                continue
 
-            response['model'] = content.get('model')
-            response['response_time'] = content.get('response_ms', 0)
+            except httpx.NetworkError as e:
+                if self.aborted:
+                    return None
 
-            usage = content.get('usage', {})
-            response['prompt_tokens'] = usage.get('prompt_tokens')
-            response['output_tokens'] = usage.get('completion_tokens')
-            response['total_tokens'] = usage.get('total_tokens')
-
-            choices = content.get('choices')
-            if not choices:
-                raise TranslationResponseError("No choices returned in the response", response=result)
-
-            for choice in choices:
-                text = choice.get('text')
-                if text:
-                    response['text'] = text
-                    response['finish_reason'] = choice.get('finish_reason')
-                    break
-            
-            if not response.get('text'):
-                raise TranslationResponseError("No text returned in the response", response=result)
-
-            # Return the response if the API call succeeds
-            return response
-        
-        except httpx.NetworkError as e:
-            if not self.aborted:
                 raise TranslationError(str(e), error=e)
+        
+            except httpx.ReadTimeout as e:
+                raise TranslationError("Request to server timed out", error=e)
 
-        except Exception as e:
-            raise TranslationImpossibleError(f"Unexpected error communicating with Server", error=e)
+            except Exception as e:
+                raise TranslationImpossibleError(f"Unexpected error communicating with server", error=e)
 
-    def _generate_request_body(self, prompt, temperature):
+        raise TranslationImpossibleError(f"Failed to communicate with server after {self.max_retries} retries")
+
+    def _generate_request_body(self, prompt, temperature, max_tokens):
         request_body = {
             'temperature': temperature,
-            'max_tokens': -1,
+            'max_tokens': max_tokens,
             'stream': False
         }
 
