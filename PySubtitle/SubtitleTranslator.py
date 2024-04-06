@@ -178,10 +178,6 @@ class SubtitleTranslator:
         except (TranslationAbortedError) as e:
             raise
 
-        except (TranslationError) as e:
-            logging.error(f"Failed to translate scene {scene.number} ({str(e)})")
-            raise
-
     def TranslateBatch(self, batch : SubtitleBatch, line_numbers : list[int], context : dict):
         """
         Send batches of subtitles for translation, building up context.

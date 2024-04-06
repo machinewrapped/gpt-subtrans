@@ -4,7 +4,7 @@ import logging
 import threading
 from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleError import TranslationAbortedError
+from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossibleError
 from PySubtitle.SubtitleFile import SubtitleFile
 
 from PySubtitle.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
@@ -288,20 +288,18 @@ class SubtitleProject:
 
             translator.TranslateScene(self.subtitles, scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
 
+            if not translator.aborted:
+                self.SaveTranslation()
+
+            return scene
+        
         except TranslationAbortedError:
             pass
 
-        except Exception as e:
-            logging.error(f"Failed to translate scene {scene_number}: {str(e)}")
+        finally:
+            translator.events.preprocessed -= self._on_preprocessed
+            translator.events.batch_translated -= self._on_batch_translated
 
-        translator.events.preprocessed -= self._on_preprocessed
-        translator.events.batch_translated -= self._on_batch_translated
-
-        if not translator.aborted:
-            self.SaveTranslation()
-
-        return scene
-        
     def _start_autosave_thread(self):
         self.stop_event = threading.Event()
         self.periodic_update_thread = threading.Thread(target=self._background_autosave)
