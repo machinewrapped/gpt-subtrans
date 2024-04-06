@@ -10,6 +10,9 @@ from GUI.Widgets.SelectionView import SelectionView
 from GUI.Widgets.SubtitleView import SubtitleView
 
 class ContentView(QWidget):
+    """
+    The main content view for the application. This view is responsible for displaying the subtitle lines and the selection view.
+    """
     onSelection = Signal()
     actionRequested = Signal(str, object)
 
@@ -79,3 +82,4 @@ class ContentView(QWidget):
     def _update_view_model(self):
         if self.viewmodel:
             self.viewmodel.ProcessUpdates()
+

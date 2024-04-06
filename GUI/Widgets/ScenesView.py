@@ -10,6 +10,9 @@ from GUI.ScenesBatchesModel import ScenesBatchesModel
 from GUI.ScenesBatchesDelegate import ScenesBatchesDelegate
 
 class ScenesView(QTreeView):
+    """
+    Tree view to show scenes and batches from the viewmodel
+    """
     onSelection = Signal()
 
     onSceneEdited = Signal(int, object)
@@ -144,3 +147,4 @@ class ScenesView(QTreeView):
                 return True
 
         return False
+

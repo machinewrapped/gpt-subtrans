@@ -173,7 +173,7 @@ class BatchItem(ViewModelItem):
         """
         if line_number in self.lines.keys():
             line_item : LineItem = self.lines[line_number]
-            line_item.Update({ 'translation': text })
+            line_item.Update({ 'translation' : text })
         else:
             logging.warning(f"Original line {line_number} not found in batch {self.number}")
 

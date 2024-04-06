@@ -101,8 +101,6 @@ class MainWindow(QMainWindow):
         # Create the log window widget and add it to the splitter
         log_window_widget = LogWindow(splitter)
         splitter.addWidget(log_window_widget)
-
-        # Set the sizes of the splitter panes
         splitter.setSizes([int(self.height() * 0.8), int(self.height() * 0.2)])
 
         if options.provider is None or options.get('firstrun'):
