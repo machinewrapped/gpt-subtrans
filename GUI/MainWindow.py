@@ -151,9 +151,6 @@ class MainWindow(QMainWindow):
         if result == QDialog.Accepted:
             self._update_settings(dialog.settings)
 
-            if not self.datamodel.ValidateProviderSettings():
-                logging.warning("Translation provider settings are not valid. Please check the settings.")
-
     def _first_run(self, options: Options):
         if not options.available_providers:
             logging.error("No translation providers available. Please install one or more providers.")
@@ -199,6 +196,9 @@ class MainWindow(QMainWindow):
 
         # Update the project and provider settings
         self.datamodel.UpdateSettings(updated_settings)
+
+        if not self.datamodel.ValidateProviderSettings():
+            logging.warning("Translation provider settings are not valid. Please check the settings.")
 
         if 'theme' in updated_settings:
             LoadStylesheet(self.global_options.theme)

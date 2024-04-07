@@ -21,6 +21,12 @@ class Provider_LocalServer(TranslationProvider):
     <p>Note that locally hosted models are likely to be much less capable than the large models hosted in the cloud, and results may be underwhelming.</p>
     """
 
+    information_invalid = """
+    <p>This provider allows you to connect to a server running locally (or otherwise accessible) with an OpenAI compatible API, 
+    e.g. <a href="https://lmstudio.ai/">LM Studio</a>.</p>
+    <p><b>Server address and endpoint must be provided.</b></p>
+    """
+
     def __init__(self, settings : dict):
         super().__init__(self.name, {
             'server_address': settings.get('server_address', os.getenv('LOCAL_SERVER_ADDRESS', "http://localhost:1234")),
@@ -35,7 +41,27 @@ class Provider_LocalServer(TranslationProvider):
         #TODO: Add additional parameters option
         #TODO: Add support for custom response parser
         self.refresh_when_changed = ['server_address', 'supports_conversation']
-        
+    
+    @property
+    def server_address(self):
+        return self.settings.get('server_address')
+    
+    @property
+    def endpoint(self):
+        return self.settings.get('endpoint')
+    
+    @property
+    def supports_conversation(self):
+        return self.settings.get('supports_conversation', False)
+    
+    @property
+    def supports_system_messages(self):
+        return self.settings.get('supports_system_messages', False)
+    
+    @property
+    def prompt_template(self):
+        return self.settings.get('prompt_template')
+    
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         client_settings : dict = deepcopy(self.settings)
         client_settings.update(settings)
@@ -49,22 +75,42 @@ class Provider_LocalServer(TranslationProvider):
         return TranslationParser(self.settings)
     
     def GetInformation(self):
-        return self.information
+        if self.ValidateSettings():
+            return self.information
+        else:
+            return self.information_invalid
     
     def GetOptions(self) -> dict:
         options = {
             'server_address': (str, "The address of the local server"),
             'endpoint': (str, "The API function to call on the server"),
-            'supports_conversation': (bool, "Attempt to communicate with the endpoint using chat format")
         }
 
-        if self.settings.get('supports_conversation'):
-            options['supports_system_messages'] = (bool, "Instructions will be sent as system messages rather than the user prompt")
+        if self.ValidateSettings():
+            options['supports_conversation'] = (bool, "Attempt to communicate with the endpoint using chat format")
 
-        options.update({
-            'prompt_template': (MULTILINE_OPTION, "Template for the prompt to send to the server (use {prompt} and {context} tags)"),
-            'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
-            'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)")
-        })
+            if self.settings.get('supports_conversation'):
+                options['supports_system_messages'] = (bool, "Instructions will be sent as system messages rather than the user prompt")
+
+            options.update({
+                'prompt_template': (MULTILINE_OPTION, "Template for the prompt to send to the server (use {prompt} and {context} tags)"),
+                'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
+                'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)")
+            })
 
         return options
+    
+    def ValidateSettings(self) -> bool:
+        """
+        Validate the settings for the provider
+        """
+        if not self.server_address:
+            self.validation_message = "Server address must be provided"
+            return False
+        
+        if not self.endpoint:
+            self.validation_message = "Endpoint must be provided"
+            return False
+        
+        return True
+
