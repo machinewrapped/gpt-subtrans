@@ -35,6 +35,11 @@ The API has very strict [rate limits](https://docs.anthropic.com/claude/referenc
 
 Claude support is new and should be considered experimental.
 
+### Local Server
+GPT-Subtrans can interface with a locally hosted server which supports an OpenAI compatible API, e.g. [LM Studio](https://lmstudio.ai/). This is mainly for research and experimentation, and you should not expect particularly good results. LLMs like GPT and Gemini derive much of their power from their size, and small, quantized models running locally are likely to produce poor translations, fail to generate valid responses that follow instructions and frequently get stuck in endless generation loops. If you find a model that can run locally and reliably produces good results, please post about your experience in the Discussions area!
+
+Chat and completion endpoints are supported, you should configure the settings and endpoint based on the model the server is running (e.g. instruction tuned models will probably produce better results using the completions endpoint rather than chat/conversation). The prompt template can be edited in the GUI - make sure to include at least the {prompt} tag in the template, as this is where the subtitles that need translating in each batch will be provided.
+
 ### MacOS
 Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source to use the program. If anybody would like to volunteer to maintain Intel releases, please get in touch.
 
