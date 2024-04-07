@@ -1,5 +1,5 @@
-from PySubtitle.Helpers import GenerateTagLines, ParseTranslation, PerformSubstitutions
-from PySubtitle.TranslationPrompt import TranslationPrompt
+from PySubtitle.Helpers import ParseTranslation
+from PySubtitle.Helpers.substitutions import PerformSubstitutions
 
 class Translation:
     def __init__(self, content : dict):
@@ -18,7 +18,7 @@ class Translation:
     @property
     def has_translation(self):
         return True if self.text else False
-        
+
     @property
     def summary(self):
         return self.content.get('summary')
@@ -34,7 +34,7 @@ class Translation:
     @property
     def names(self):
         return self.content.get('names')
-    
+
     @property
     def finish_reason(self):
         return self.content.get('finish_reason')
@@ -46,7 +46,7 @@ class Translation:
     @property
     def reached_token_limit(self):
         return self.finish_reason == "length"
-    
+
     @property
     def quota_reached(self):
         return self.finish_reason == "quota_reached"
@@ -59,7 +59,7 @@ class Translation:
         """
         Apply any text substitutions to summary, scene, names and synopsis if they exist.
 
-        Does NOT apply them to the translation text. 
+        Does NOT apply them to the translation text.
         """
         if self.summary:
             self.content['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
@@ -93,6 +93,6 @@ class Translation:
             return f"{metadata_text}\n\n{self.text}" if include_text else metadata_text
         else:
             return self.text if include_text else "No metadata available"
-            
+
 
 

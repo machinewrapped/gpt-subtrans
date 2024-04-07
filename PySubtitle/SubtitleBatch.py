@@ -2,7 +2,7 @@ from datetime import timedelta
 import re
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers import PerformSubstitutions
+from PySubtitle.Helpers.substitutions import PerformSubstitutions
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Translation import Translation
 
@@ -14,7 +14,7 @@ class SubtitleBatch:
         self.summary = dct.get('summary')
         self.context = dct.get('context', {})
         self.errors = dct.get('errors', [])
-        self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', []) 
+        self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', [])
         self._translated : list[SubtitleLine] = dct.get('translated', [])
         self.translation : Translation = dct.get('translation')
         self.prompt : TranslationPrompt = dct.get('prompt')
@@ -28,11 +28,11 @@ class SubtitleBatch:
     @property
     def originals(self) -> list[SubtitleLine]:
         return self._originals
-    
+
     @property
     def size(self):
         return len(self._originals)
-    
+
     @property
     def translated(self) -> list[SubtitleLine]:
         return self._translated
@@ -44,11 +44,11 @@ class SubtitleBatch:
     @property
     def all_translated(self):
         return self.translated and (len(self.translated) == len(self.originals))
-    
+
     @property
     def start(self) -> timedelta:
         return self.originals[0].start if self.originals else None
-    
+
     @property
     def srt_start(self) -> str:
         return self.originals[0].srt_start if self.originals else ""
@@ -64,7 +64,7 @@ class SubtitleBatch:
     @property
     def duration(self):
         return self.end - self.start if self.start and self.end else timedelta(seconds=0)
-    
+
     @property
     def first_line_number(self):
         return self.originals[0].number if self.originals else None
@@ -90,7 +90,7 @@ class SubtitleBatch:
     def HasTranslatedLine(self, line_number):
         if line_number < self.first_line_number or line_number > self.last_line_number:
             return False
-        
+
         return any(line for line in self._translated if line.number == line_number)
 
     def AddContext(self, key, value):
@@ -98,7 +98,7 @@ class SubtitleBatch:
 
     def GetContext(self, key):
         return self.context.get(key)
-    
+
     def SetContext(self, context):
         self.context = context.copy()
 
@@ -118,7 +118,7 @@ class SubtitleBatch:
                 updated = True
 
         return updated
-    
+
     def PerformInputSubstitutions(self, substitutions, match_partial_words : bool = False):
         """
         Perform any word/phrase substitutions on source text
@@ -150,7 +150,7 @@ class SubtitleBatch:
                     item.text = replacements.get(item.text) or item.text
 
             return replacements
-        
+
     def ConvertWhitespaceBlocksToNewlines(self):
         """
         Convert chinese commas or blocks of 3 or more spaces to newlines, unless there are newlines already
@@ -162,7 +162,7 @@ class SubtitleBatch:
     def MergeLines(self, original_lines : list[int], translated_lines : list[int]):
         first_line = next((line for line in self.originals if line.number == original_lines[0]), None)
         last_line = next((line for line in self.originals if line.number == original_lines[-1]), None)
-        
+
         if first_line and last_line:
             first_index = self.originals.index(first_line)
             last_index = self.originals.index(last_line)
