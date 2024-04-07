@@ -25,7 +25,6 @@ def parse_arguments():
     parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
     parser.add_argument('-p', '--provider', type=str, default=None, help="The translation provider to use")
     parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
-
     parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
     parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
     parser.add_argument('--firstrun', action='store_true', help="Show the first-run options dialog on launch")

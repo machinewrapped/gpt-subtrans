@@ -23,7 +23,7 @@ class SubtitleProject:
         self.stop_event = None
 
         self.include_original = options.get('include_original', False)
-        
+
         project_mode = options.get('project', '')
         if project_mode:
             project_mode = project_mode.lower()
@@ -116,11 +116,11 @@ class SubtitleProject:
         path, ext = os.path.splitext(filepath)
         filepath = filepath if ext == '.subtrans' else f"{path}.subtrans"
         return os.path.normpath(filepath)
-    
+
     def GetBackupFilepath(self, filepath):
         projectfile = self.GetProjectFilepath(filepath)
         return f"{projectfile}-backup"
-    
+
     def LoadSubtitleFile(self, filepath):
         """
         Load subtitles from an SRT file
@@ -158,7 +158,7 @@ class SubtitleProject:
 
             if not projectfile:
                 raise Exception("No file path provided")
-            
+
             projectfile = os.path.normpath(projectfile)
 
             logging.info(f"Writing project data to {str(projectfile)}")
@@ -166,7 +166,7 @@ class SubtitleProject:
             with open(projectfile, 'w', encoding=default_encoding) as f:
                 project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
                 f.write(project_json)
-            
+
             self.needsupdate = False
 
     def WriteBackupFile(self):
@@ -209,7 +209,7 @@ class SubtitleProject:
         if self.update_project:
             if not self.subtitles:
                 raise Exception("Unable to update project file, no subtitles")
-            
+
             self.needsupdate = True
 
     def GetProjectSettings(self):
@@ -218,7 +218,7 @@ class SubtitleProject:
         """
         return { key : value for key, value in self.subtitles.settings.items() if value }
 
-    def UpdateProjectSettings(self, settings: dict):
+    def UpdateProjectSettings(self, settings: dict | Options):
         """
         Replace settings if the provided dictionary has an entry with the same key
         """
@@ -244,7 +244,7 @@ class SubtitleProject:
         """
         if not self.subtitles:
             raise Exception("No subtitles to translate")
-        
+
         # Prime new project files
         if self.write_project:
             self.WriteProjectFile()
@@ -292,7 +292,7 @@ class SubtitleProject:
                 self.SaveTranslation()
 
             return scene
-        
+
         except TranslationAbortedError:
             pass
 
