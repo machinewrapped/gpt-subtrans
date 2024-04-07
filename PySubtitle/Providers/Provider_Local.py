@@ -35,7 +35,8 @@ class Provider_LocalServer(TranslationProvider):
             'supports_system_messages': settings.get('supports_system_messages', GetEnvBool('LOCAL_SUPPORTS_SYSTEM_MESSAGES', True)),
             'prompt_template': settings.get('prompt_template', os.getenv('LOCAL_PROMPT_TEMPLATE', TranslationPrompt.default_template)),
             'temperature': settings.get('temperature', GetEnvFloat('LOCAL_TEMPERATURE', 0.0)),
-            'max_tokens': settings.get('max_tokens', GetEnvInteger('LOCAL_MAX_TOKENS', 0))
+            'max_tokens': settings.get('max_tokens', GetEnvInteger('LOCAL_MAX_TOKENS', 0)),
+            "api_key": settings.get('api_key', os.getenv('LOCAL_API_KEY'))
             })
         
         #TODO: Add additional parameters option
@@ -49,6 +50,10 @@ class Provider_LocalServer(TranslationProvider):
     @property
     def endpoint(self):
         return self.settings.get('endpoint')
+    
+    @property
+    def api_key(self):
+        return self.settings.get('api_key')
     
     @property
     def supports_conversation(self):

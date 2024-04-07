@@ -28,6 +28,10 @@ class LocalClient(TranslationClient):
         return self.settings.get('endpoint')
     
     @property
+    def api_key(self):
+        return self.settings.get('api_key')
+    
+    @property
     def supports_conversation(self):
         return self.settings.get('supports_conversation', False)
     
@@ -138,6 +142,9 @@ class LocalClient(TranslationClient):
             'max_tokens': max_tokens,
             'stream': False
         }
+
+        if self.api_key:
+            request_body['api_key'] = self.api_key
 
         if self.supports_conversation:
             request_body['messages'] = prompt.messages
