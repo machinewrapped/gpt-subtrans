@@ -1,4 +1,4 @@
-from PySubtitle.Helpers import WrapSystemMessage, GenerateTagLines
+from PySubtitle.Helpers import WrapSystemMessage
 from PySubtitle.Helpers.prompts import GenerateBatchPrompt
 from PySubtitle.SubtitleError import TranslationError
 
