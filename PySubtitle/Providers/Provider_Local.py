@@ -101,7 +101,9 @@ class Provider_LocalServer(TranslationProvider):
             options.update({
                 'prompt_template': (MULTILINE_OPTION, "Template for the prompt to send to the server (use {prompt} and {context} tags)"),
                 'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
-                'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)")
+                'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)"),
+                'api_key': (str, "An API key is normally not needed for a local server"),
+                'model': (str, "The model is normally set by the server, and should not need to be specified here")
             })
 
         return options
