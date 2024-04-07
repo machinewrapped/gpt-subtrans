@@ -67,7 +67,8 @@ class LocalClient(TranslationClient):
                 return None
 
             try:
-                request_body = self._generate_request_body(prompt, temperature, self.max_tokens)
+                max_tokens = self.max_tokens if self.max_tokens else -1
+                request_body = self._generate_request_body(prompt, temperature, max_tokens)
                 logging.debug(f"Request Body:\n{request_body}")
 
                 self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=300.0, headers={'Content-Type': 'application/json'})
