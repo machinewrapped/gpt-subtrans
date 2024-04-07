@@ -36,7 +36,8 @@ class Provider_LocalServer(TranslationProvider):
             'prompt_template': settings.get('prompt_template', os.getenv('LOCAL_PROMPT_TEMPLATE', TranslationPrompt.default_template)),
             'temperature': settings.get('temperature', GetEnvFloat('LOCAL_TEMPERATURE', 0.0)),
             'max_tokens': settings.get('max_tokens', GetEnvInteger('LOCAL_MAX_TOKENS', 0)),
-            "api_key": settings.get('api_key', os.getenv('LOCAL_API_KEY'))
+            "api_key": settings.get('api_key', os.getenv('LOCAL_API_KEY')),
+            "model": settings.get('model', os.getenv('LOCAL_MODEL'))
             })
         
         #TODO: Add additional parameters option

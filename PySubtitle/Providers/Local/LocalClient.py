@@ -16,6 +16,9 @@ class LocalClient(TranslationClient):
     def __init__(self, settings : dict):
         super().__init__(settings)
         self.client = None
+        self.headers = {'Content-Type': 'application/json'}
+        if self.api_key:
+            self.headers['Authorization'] = f"Bearer {self.api_key}"
 
         logging.info(f"Translating with local server at {self.server_address}{self.endpoint}")
 
@@ -28,16 +31,20 @@ class LocalClient(TranslationClient):
         return self.settings.get('endpoint')
     
     @property
-    def api_key(self):
-        return self.settings.get('api_key')
-    
-    @property
     def supports_conversation(self):
         return self.settings.get('supports_conversation', False)
     
     @property
+    def api_key(self):
+        return self.settings.get('api_key')
+    
+    @property
+    def model(self):
+        return self.settings.get('model')
+    
+    @property
     def max_tokens(self):
-        return self.settings.get('max_tokens', -1)
+        return self.settings.get('max_tokens', None)
     
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
@@ -71,17 +78,22 @@ class LocalClient(TranslationClient):
                 return None
 
             try:
-                max_tokens = self.max_tokens if self.max_tokens else -1
-                request_body = self._generate_request_body(prompt, temperature, max_tokens)
+                request_body = self._generate_request_body(prompt, temperature)
                 logging.debug(f"Request Body:\n{request_body}")
 
-                self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=300.0, headers={'Content-Type': 'application/json'})
+                self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=300.0, headers=self.headers)
 
                 result : httpx.Response = self.client.post(self.endpoint, json=request_body)
 
                 if self.aborted:
                     return None
                 
+                if result.is_error:
+                    if result.is_client_error:
+                        raise TranslationImpossibleError(f"Client error: {result.status_code} {result.text}", response=result)
+                    else:
+                        raise TranslationResponseError(f"Server error: {result.status_code} {result.text}", response=result)
+
                 logging.debug(f"Response:\n{result.text}")
 
                 content = result.json()
@@ -136,15 +148,17 @@ class LocalClient(TranslationClient):
 
         raise TranslationImpossibleError(f"Failed to communicate with server after {self.max_retries} retries")
 
-    def _generate_request_body(self, prompt, temperature, max_tokens):
+    def _generate_request_body(self, prompt, temperature):
         request_body = {
             'temperature': temperature,
-            'max_tokens': max_tokens,
             'stream': False
         }
 
-        if self.api_key:
-            request_body['api_key'] = self.api_key
+        if self.max_tokens:
+            request_body['max_tokens'] = self.max_tokens
+
+        if self.model:
+            request_body['model'] = self.model
 
         if self.supports_conversation:
             request_body['messages'] = prompt.messages

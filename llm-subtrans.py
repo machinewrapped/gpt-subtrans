@@ -41,6 +41,7 @@ parser.add_argument('-l', '--target_language', type=str, default=None, help="The
 parser.add_argument('-s', '--server', type=str, default=None, help="Address of the server including port (e.g. http://localhost:1234)")
 parser.add_argument('-e', '--endpoint', type=str, default=None, help="Endpoint to call on  the server (e.g. /v1/completions)")
 parser.add_argument('-k', '--apikey', type=str, default=None, help="API Key, if required")
+parser.add_argument('-m', '--model', type=str, default=None, help="Model to use if the server allows it to be specified")
 
 parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
 parser.add_argument('--chat', action='store_true', help="Use chat format requests for the endpoint")
@@ -85,6 +86,7 @@ try:
         'max_context_summaries': args.maxsummaries,
         'max_lines': args.maxlines,
         'min_batch_size': args.minbatchsize,
+        'model': args.model,
         'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
         'names': ParseNames(args.names or args.name),
         'project': args.project and args.project.lower(),
