@@ -269,10 +269,12 @@ This project uses several useful libraries:
 - srt (https://github.com/cdown/srt)
 - requests (https://github.com/psf/requests)
 - regex (https://github.com/mrabarnett/mrab-regex)
+- httpx (https://github.com/projectdiscovery/httpx)
 
 Translation providers:
 - openai (https://platform.openai.com/docs/libraries/python-bindings)
 - google.generativeai (https://github.com/google/generative-ai-python)
+- anthropic (https://github.com/anthropics/anthropic-sdk-python)
 
 For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)

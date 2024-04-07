@@ -67,7 +67,7 @@ class AboutDialog(QDialog):
         license_text.setWordWrap(True)
         
         # Libraries and their versions
-        libraries = ["srt", "pyside6", "openai", "google-generativeai", "regex", "events", "darkdetect", "appdirs", "python-dotenv"]
+        libraries = ["srt", "pyside6", "openai", "google-generativeai", "anthropic", "regex", "events", "httpx", "requests", "darkdetect", "appdirs", "python-dotenv"]
         library_strings = []
 
         for lib in libraries:
