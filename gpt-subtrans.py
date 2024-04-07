@@ -2,8 +2,7 @@ import os
 import argparse
 import logging
 
-from PySubtitle.Helpers import ParseNames, ParseSubstitutions
-from PySubtitle.Options import Options
+from PySubtitle.Options import create_options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -73,32 +72,7 @@ if args.debug:
     logging.debug("Debug logging enabled")
 
 try:
-    options = Options({
-        'api_base': args.apibase,
-        'api_key': args.apikey,
-        'batch_threshold': args.batchthreshold,
-        'description': args.description,
-        'include_original': args.includeoriginal,
-        'instruction_args': args.instruction,
-        'instruction_file': args.instructionfile,
-        'match_partial_words': args.matchpartialwords,
-        'max_batch_size': args.maxbatchsize,
-        'max_context_summaries': args.maxsummaries,
-        'max_lines': args.maxlines,
-        'min_batch_size': args.minbatchsize,
-        'model': args.model or default_model,
-        'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
-        'names': ParseNames(args.names or args.name),
-        'project': args.project and args.project.lower(),
-        'provider': provider,
-        'rate_limit': args.ratelimit,
-        'scene_threshold': args.scenethreshold,
-        'substitutions': ParseSubstitutions(args.substitution),
-        'target_language': args.target_language,
-        'temperature': args.temperature,
-        'use_httpx': args.httpx,
-        'write_backup': args.writebackup,
-    })
+    options = create_options(args, default_model, provider, use_httpx=args.httpx, api_base=args.httpx)
 
     # Update provider settings with any relevant command line arguments
     translation_provider = TranslationProvider.get_provider(options)
