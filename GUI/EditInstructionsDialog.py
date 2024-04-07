@@ -11,9 +11,9 @@ from PySide6.QtWidgets import (
     QSizePolicy
     )
 from GUI.GuiHelpers import GetResourcePath
-from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
-from PySubtitle.Options import Options
+from PySubtitle.Options import MULTILINE_OPTION, Options
 from PySubtitle.Instructions import Instructions
 
 class EditInstructionsDialog(QDialog):

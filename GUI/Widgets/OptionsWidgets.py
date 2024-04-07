@@ -5,7 +5,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
 from PySide6.QtGui import QTextOption
 
-MULTILINE_OPTION = 'multiline'
+from PySubtitle.Options import MULTILINE_OPTION
 
 class OptionWidget(QWidget):
     contentChanged = Signal()

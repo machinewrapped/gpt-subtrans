@@ -8,6 +8,8 @@ from GUI.GuiHelpers import LoadInstructionsResource
 from PySubtitle.Instructions import Instructions
 from PySubtitle.version import __version__
 
+MULTILINE_OPTION = 'multiline'
+
 config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
 settings_path = os.path.join(config_dir, 'settings.json')
 
