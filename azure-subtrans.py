@@ -53,7 +53,6 @@ logger_options = InitLogger(args.debug, provider)
 try:
     options = create_options(
         args,
-        "",
         provider,
         deployment_name=args.deploymentname or deployment_name,
         api_base=args.apibase or api_base,

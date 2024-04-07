@@ -48,7 +48,13 @@ args = parser.parse_args()
 logger_options = InitLogger(args.debug, provider)
 
 try:
-    options = create_options(args, default_model, provider, use_httpx=args.httpx, api_base=args.httpx)
+    options = create_options(
+        args,
+        provider,
+        use_httpx=args.httpx,
+        api_base=args.httpx,
+        model=args.model or default_model
+    )
 
     # Update provider settings with any relevant command line arguments
     translation_provider = TranslationProvider.get_provider(options)

@@ -6,7 +6,6 @@ import regex
 import unicodedata
 import srt
 from typing import List
-
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import SubtitleError
 
