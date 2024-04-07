@@ -232,6 +232,9 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 - `-k`, `--apikey`:
   Local servers shouldn't need an api key, but the option is provided in case it is needed for your setup.
 
+- `-m`, `--model`:
+  The model will usually be determined by the server, but the option is provided in case you need to specify it.
+
 ## Project File
 
 **Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and updated automatically.
