@@ -33,7 +33,6 @@ class Provider_LocalServer(TranslationProvider):
             })
         
         #TODO: Add additional parameters option
-        #TODO: Add support for custom prompt format
         #TODO: Add support for custom response parser
         self.refresh_when_changed = ['server_address', 'supports_conversation']
         
