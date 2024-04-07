@@ -5,6 +5,7 @@ import re
 import regex
 import unicodedata
 import srt
+from typing import List
 
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import SubtitleError
@@ -36,7 +37,7 @@ def Linearise(lines):
 
 def UpdateFields(item : dict, update: dict, fields : list[str]):
     """
-    Patch selected fields in a dictionary 
+    Patch selected fields in a dictionary
     """
     if not isinstance(item, dict) or not isinstance(update, dict):
         raise ValueError(f"Can't patch a {type(item).__name__} with a {type(update).__name__}")
@@ -65,7 +66,7 @@ def CreateSrtSubtitle(item):
 def GetTimeDelta(time):
     if time is None:
         return None
-    
+
     if isinstance(time, datetime.timedelta):
         return time
 
@@ -97,7 +98,7 @@ def GetTimeDelta(time):
 def GetInputPath(filepath):
     if not filepath:
         return None
-    
+
     basename, _ = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
@@ -109,7 +110,7 @@ def GetInputPath(filepath):
 def GetOutputPath(filepath, language="translated"):
     if not filepath:
         return None
-    
+
     basename, _ = os.path.splitext(os.path.basename(filepath))
 
     if basename.endswith("-ChatGPT"):
@@ -186,7 +187,7 @@ def GenerateBatchPrompt(user_prompt : str, lines : list, context : dict = None, 
 def GetLinePrompt(line):
     if not line._item:
         return None
-    
+
     return '\n'.join([
         f"#{line.number}",
         "Original>",
@@ -214,7 +215,7 @@ def ParseTranslation(text):
         'names': names
     }
 
-    return text, context 
+    return text, context
 
 def ExtractTag(tagname : str, text : str):
     """
@@ -282,7 +283,7 @@ def UnbatchScenes(scenes):
             originals.extend(batch_originals)
             translations.extend(batch_translations)
             untranslated.extend(batch_untranslated)
-    
+
     return originals, translations, untranslated
 
 def ResyncTranslatedLines(original_lines, translated_lines):
@@ -306,81 +307,6 @@ def ResyncTranslatedLines(original_lines, translated_lines):
     elif num_original > num_translated:
         logging.warning(f"Number of lines in original and translated subtitles don't match. Synced {min_lines} lines.")
 
-
-def ParseNames(name_list):
-    if isinstance(name_list, str):
-        name_list = regex.split("[\n,]", name_list)
-
-    if isinstance(name_list, list):
-        return [ name.strip() for name in name_list ]
-    
-    return []
-
-
-def ParseSubstitutions(sub_list, separator="::"):
-    """
-    :param sub_list: is assumed to be a list of (before,after) pairs 
-    separated by the separator ("::" by default).
-
-    :return: a dictionary of (before,after) pairs
-    :rtype dict:
-    """
-    if not sub_list:
-        return {}
-    
-    if isinstance(sub_list, dict):
-        return sub_list
-
-    if isinstance(sub_list, str):
-        sub_list = regex.split("[\n,]", sub_list)
-
-    if isinstance(sub_list, list):
-        substitutions = {}
-        for sub in sub_list:
-            if "::" in sub:
-                before, after = sub.split(separator)
-                substitutions[before] = after
-            elif sub.strip():
-                try:
-                    with open(sub, "r", encoding="utf-8", newline='') as f:
-                        for line in [line.strip() for line in f if line.strip()]:
-                            if "::" in line:
-                                before, after = line.split("::")
-                                substitutions[before] = after
-                            else:
-                                raise ValueError(f"Invalid substitution format in {sub}: {line}")
-
-                except FileNotFoundError:
-                    logging.warning(f"Substitution file not found: {sub}")
-                except ValueError:
-                    raise
-        
-        return substitutions
-
-    return {}
-
-def PerformSubstitutions(substitutions : dict, input, match_partial_words : bool = False):
-    """
-    :param input: If input is string-like, attempt to substitute all (before,after) pairs 
-    in substitutions. If input is a list, iterate over all elements performing substitutions.
-    
-    :return: If input is string-like, return a string with the substitutions.
-    If input is a list, return a list of strings along with a dictionary of (before,after) pairs
-    for each elements that had one or more substitutions. 
-    """
-    substitutions = substitutions if substitutions else {}
-
-    if isinstance(input, list):
-        new_list = [ PerformSubstitutions(substitutions, line, match_partial_words) for line in input ]
-        replacements = { line: new_line for line, new_line in zip(input, new_list) if new_line != str(line) }
-        return new_list, replacements
-
-    result = str(input)
-    for before, after in substitutions.items():
-        pattern = fr"\b{regex.escape(before)}\b" if not match_partial_words else regex.escape(before) 
-        result = regex.sub(pattern, after, result, flags=regex.UNICODE)
-        
-    return result
 
 def RemoveEmptyLines(lines):
     return [line for line in lines if line.text and line.text.strip()]
@@ -488,10 +414,10 @@ def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length :
 
     if len(summary) != original_len:
         logging.info(f"Summary was truncated from {original_len} to {len(summary)} characters")
-    
+
     return summary or None
 
-def FormatErrorMessages(errors : list[SubtitleError]):
+def FormatErrorMessages(errors : List[SubtitleError]):
     """
     Extract error messages from a list of errors
     """

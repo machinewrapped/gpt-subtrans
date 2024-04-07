@@ -1,7 +1,9 @@
+from dataclasses import dataclass
 import os
 import logging
 from PySubtitle.Options import config_dir
 
+@dataclass
 class LoggerOptions():
     file_handler: logging.FileHandler
     log_path: str

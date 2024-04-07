@@ -16,7 +16,8 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Options import Options
-from PySubtitle.Helpers import ParseNames, ParseSubstitutions
+from PySubtitle.Helpers.substitutions import ParseSubstitutions
+from PySubtitle.Helpers.parse import ParseNames
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -110,7 +111,7 @@ class ProjectSettings(QGroupBox):
         self.widgets = {}
         with QSignalBlocker(self):
             # Remove and delete all widgets from the form layout
-            for i in reversed(range(self.grid_layout.count())): 
+            for i in reversed(range(self.grid_layout.count())):
                 widget = self.grid_layout.itemAt(i).widget()
                 if widget is not None:
                     widget.deleteLater()
@@ -151,7 +152,7 @@ class ProjectSettings(QGroupBox):
         if key in settings:
             initial_value = settings[key]
             combo_box.setCurrentIndex(combo_box.findText(initial_value))
-        
+
         combo_box.currentTextChanged.connect(lambda x: self._option_changed(key, x))
         self._add_row(key, label_widget, combo_box)
 

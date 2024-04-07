@@ -8,7 +8,8 @@ import appdirs
 from GUI.GuiHelpers import LoadInstructionsResource
 from PySubtitle.Instructions import Instructions
 from PySubtitle.version import __version__
-from PySubtitle.Helpers import ParseNames, ParseSubstitutions
+from PySubtitle.Helpers.substitutions import ParseSubstitutions
+from PySubtitle.Helpers.parse import ParseNames
 
 
 MULTILINE_OPTION = 'multiline'
