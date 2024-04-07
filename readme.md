@@ -56,7 +56,7 @@ For other platforms, or if you want to modify the program, you will need to have
 
 **The easiest setup method for most users is to run e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install.sh`, which will ask you to specify the provider (this should work on any unix-like system). **
 
-2. Create a new file named .env in the root directory of the project. Add your API key to the .env file like this:
+2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
 ```
     OPENAI_API_KEY=<your_openai_api_key>
     GEMINI_API_KEY=<your_gemini_api_key>
@@ -64,13 +64,12 @@ For other platforms, or if you want to modify the program, you will need to have
     CLAUDE_API_KEY=<your_claude_api_key>
 ```
 
-If you are using Azure, probably you want to add additional lines as well:
+If you are using Azure:
 
 ```
 AZURE_API_BASE=<your api_base, such as https://something.openai.azure.com>
 AZURE_DEPLOYMENT_NAME=<deployment_name>
 ```
-
 
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
 ```
@@ -116,6 +115,7 @@ GPT-Subtrans can be used as a console command or shell script. The most basic us
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
 claude-subtrans <path_to_srt_file> --target_language <target_language>
+llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
 ```
 
 This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified the default is English.
@@ -215,6 +215,22 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 
 - `-m`, `--model`:
   Specify the [AI model](https://docs.anthropic.com/claude/docs/models-overview#model-comparison) to use for translation. This should be the full model name, e.g. `claude-3-haiku-20240307`
+
+### Local Server specific arguments
+- `-s`, `--server`:
+  The address the server is running on, including port (e.g. http://localhost:1234). Should be provided by the server
+
+- `-e`, `--endpoint`:
+  The API function to call on the server, e.g. `/v1/completions`. Choose an appropriate endpoint for the model running on the server.
+
+- `--chat`:
+  Specify this argument if the endpoint expects requests in a conversation format - otherwise it is assumed to be a completion endpoint.
+
+- `--systemmessages`:
+  If using a conversation endpoint, translation instructions will be sent as the "system" user if this flag is specified.
+
+- `-k`, `--apikey`:
+  Local servers shouldn't need an api key, but the option is provided in case it is needed for your setup.
 
 ## Project File
 
