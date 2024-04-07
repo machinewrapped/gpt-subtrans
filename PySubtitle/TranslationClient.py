@@ -31,7 +31,11 @@ class TranslationClient:
     @property
     def supports_system_messages(self):
         return self.settings.get('supports_system_messages', False)
-
+    
+    @property
+    def prompt_template(self):
+        return self.settings.get('prompt_template') or TranslationPrompt.default_template
+    
     @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
@@ -47,6 +51,17 @@ class TranslationClient:
     @property
     def backoff_time(self):
         return self.settings.get('backoff_time', 5.0)
+    
+    def BuildTranslationPrompt(self, user_prompt : str, instructions : str, lines : list, context : dict):
+        """
+        Generate a translation prompt for the context
+        """
+        prompt = TranslationPrompt(user_prompt, self.supports_conversation)
+        prompt.supports_system_prompt = self.supports_system_prompt
+        prompt.supports_system_messages = self.supports_conversation and self.supports_system_messages
+        prompt.template = self.prompt_template
+        prompt.GenerateMessages(instructions, lines, context)
+        return prompt
 
     def RequestTranslation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """

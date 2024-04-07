@@ -9,6 +9,12 @@ import srt
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import SubtitleError
 
+def GetEnvBool(key, default=False):
+    var = os.getenv(key, default)
+    if var is not None:
+        return str(var).lower() in ('true', 'yes', '1')
+    return default
+
 def GetEnvFloat(name, default=None):
     value = os.getenv(name, default)
     if value is not None:
@@ -116,7 +122,7 @@ def GetOutputPath(filepath, language="translated"):
 
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def GenerateTagLines(context, tags):
+def GenerateTagLines(context, tags) -> str:
     """
     Create a user message for specifying a set of tags
 
@@ -130,42 +136,50 @@ def GenerateTagLines(context, tags):
     else:
         return None
 
-def GenerateTag(tag, content):
+def GenerateTag(tag, content) -> str:
+    """ Generate html-style tag with content """
     if isinstance(content, list):
         content = ', '.join(content)
 
     return f"<{tag}>{content}</{tag}>"
 
-def BuildUserPrompt(options : Options):
+def BuildUserPrompt(options : Options) -> str:
     """
     Generate the base prompt to use for requesting translations
     """
     target_language = options.get('target_language')
     movie_name = options.get('movie_name')
-    prompt = options.get('prompt')
+    prompt = options.get('prompt', "Translate these subtitles [ for movie][ to language]")
     prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
     prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
 
     for k,v in options.options.items():
         if v:
             prompt = prompt.replace(f"[{k}]", str(v))
-    return prompt
 
-def GenerateBatchPrompt(prompt : str, lines, tag_lines=None):
+    return prompt.strip()
+
+def GenerateBatchPrompt(user_prompt : str, lines : list, context : dict = None, template : str = None):
     """
     Create the user prompt for translating a set of lines
 
     :param tag_lines: optional list of extra lines to include at the top of the prompt.
+    :param template: optional template to format the prompt.
     """
     source_lines = [ GetLinePrompt(line) for line in lines ]
-    source_text = '\n\n'.join(source_lines)
-    text = f"\n{source_text}\n\n<summary>Summary of the batch</summary>\n<scene>Summary of the scene</scene>"
+    text = '\n\n'.join(source_lines).strip()
 
-    if prompt:
-        text = f"{prompt}\n\n{text}"
+    if not text:
+        raise ValueError("No source text provided")
 
-    if tag_lines:
-        text = f"<context>\n{tag_lines}\n</context>\n\n{text}"
+    prompt = f"{user_prompt}\n\n{text}\n" if user_prompt else text
+
+    tag_lines = GenerateTagLines(context, ['description', 'names', 'history', 'scene', 'summary', 'batch']) if context else ""
+
+    if not template:
+        template = "<context>{context}</context>\n\n{prompt}" if tag_lines else "{prompt}"
+
+    text = template.format(prompt=prompt, context=tag_lines)
 
     return text
 

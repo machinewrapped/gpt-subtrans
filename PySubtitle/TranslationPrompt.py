@@ -1,13 +1,16 @@
-from PySubtitle.Helpers import GenerateBatchPrompt, GenerateTagLines, WrapSystemMessage
+from PySubtitle.Helpers import GenerateBatchPrompt, WrapSystemMessage
 from PySubtitle.SubtitleError import TranslationError
 
 class TranslationPrompt:
+    default_template = "<context>\n{context}\n</context>\n\n{prompt}\n\n<summary>Summary of the batch</summary>\n<scene>Summary of the scene</scene>\n"
+
     def __init__(self, user_prompt : str, conversation : bool = True, supports_system_prompt : bool = False, supports_system_messages : bool = False):
         self.conversation = conversation
         self.supports_system_prompt = supports_system_prompt
         self.supports_system_messages = supports_system_messages
-        self.system_prompt = None
         self.user_prompt = user_prompt
+        self.template = self.default_template
+        self.system_prompt = None
         self.batch_prompt = None
         self.content = None
         self.messages = []
@@ -21,13 +24,7 @@ class TranslationPrompt:
         user_role = "user"
         system_role = "system" if self.supports_system_messages else user_role
 
-        if context:
-            tag_lines = GenerateTagLines(context, ['description', 'names', 'history', 'scene', 'summary', 'batch'])
-
-            self.batch_prompt = GenerateBatchPrompt(self.user_prompt, lines, tag_lines)
-
-        else:
-            self.batch_prompt = GenerateBatchPrompt(self.user_prompt, lines)
+        self.batch_prompt = GenerateBatchPrompt(self.user_prompt, lines, context=context, template=self.template)
 
         if instructions:
             if self.supports_system_prompt:
