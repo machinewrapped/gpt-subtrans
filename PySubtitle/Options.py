@@ -1,4 +1,5 @@
 from copy import deepcopy
+from argparse import Namespace
 import json
 import logging
 import os
@@ -7,6 +8,8 @@ import appdirs
 from GUI.GuiHelpers import LoadInstructionsResource
 from PySubtitle.Instructions import Instructions
 from PySubtitle.version import __version__
+from PySubtitle.Helpers import ParseNames, ParseSubstitutions
+
 
 MULTILINE_OPTION = 'multiline'
 
@@ -225,3 +228,37 @@ class Options:
 
         current_version = default_options['version']
         self.options['version'] = current_version
+
+def create_options(args: Namespace, default_model: str, provider: str, **kwargs) -> Options:
+    """ Create base-options object"""
+
+    options = {
+        'api_key': args.apikey,
+        'batch_threshold': args.batchthreshold,
+        'description': args.description,
+        'include_original': args.includeoriginal,
+        'instruction_args': args.instruction,
+        'instruction_file': args.instructionfile,
+        'match_partial_words': args.matchpartialwords,
+        'max_batch_size': args.maxbatchsize,
+        'max_context_summaries': args.maxsummaries,
+        'max_lines': args.maxlines,
+        'min_batch_size': args.minbatchsize,
+        'model': args.model or default_model,
+        'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
+        'names': ParseNames(args.names or args.name),
+        'project': args.project and args.project.lower(),
+        'provider': provider,
+        'rate_limit': args.ratelimit,
+        'scene_threshold': args.scenethreshold,
+        'substitutions': ParseSubstitutions(args.substitution),
+        'target_language': args.target_language,
+        'temperature': args.temperature,
+        'write_backup': args.writebackup,
+    }
+
+    # Adding optional new keys from kwargs
+    for key, value in kwargs.items():
+        options[key] = value
+
+    return options
