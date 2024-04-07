@@ -203,7 +203,7 @@ class SubtitleTranslator:
         if batch.summary:
             context['summary'] = batch.summary
 
-        batch.prompt = self.BuildTranslationPrompt(originals, context)
+        batch.prompt = self.client.BuildTranslationPrompt(self.user_prompt, self.instructions.instructions, originals, context)
 
         if self.preview:
             return
@@ -238,17 +238,6 @@ class SubtitleTranslator:
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "")
                 #context['names'] = translation.names or context.get('names', []) or options.get('names')
                 batch.UpdateContext(context)
-
-        
-    def BuildTranslationPrompt(self, lines : list, context : dict):
-        """
-        Generate a translation prompt for the context
-        """
-        prompt = TranslationPrompt(self.user_prompt, self.client.supports_conversation)
-        prompt.supports_system_prompt = self.client.supports_system_prompt
-        prompt.supports_system_messages = self.client.supports_system_messages        
-        prompt.GenerateMessages(self.instructions.instructions, lines, context)
-        return prompt
 
     def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
         """
@@ -304,9 +293,6 @@ class SubtitleTranslator:
         # Try to match the translations with the original lines
         translated, unmatched = parser.MatchTranslations(batch.originals)
 
-        if unmatched and not self.max_lines:
-            logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
-
         # Assign the translated lines to the batch
         if line_numbers:
             translated = [line for line in translated if line.number in line_numbers]
@@ -316,7 +302,8 @@ class SubtitleTranslator:
         batch.translation = translation
         batch.errors = parser.errors
 
-        if batch.untranslated:
+        if batch.untranslated and not self.max_lines:
+            logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
             batch.AddContext('untranslated_lines', [f"{item.number}. {item.text}" for item in batch.untranslated])
 
         # Apply any word/phrase substitutions to the translation 

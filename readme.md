@@ -35,6 +35,11 @@ The API has very strict [rate limits](https://docs.anthropic.com/claude/referenc
 
 Claude support is new and should be considered experimental.
 
+### Local Server
+GPT-Subtrans can interface with a locally hosted server which supports an OpenAI compatible API, e.g. [LM Studio](https://lmstudio.ai/). This is mainly for research and experimentation, and you should not expect particularly good results. LLMs like GPT and Gemini derive much of their power from their size, and small, quantized models running locally are likely to produce poor translations, fail to generate valid responses that follow instructions and frequently get stuck in endless generation loops. If you find a model that can run locally and reliably produces good results, please post about your experience in the Discussions area!
+
+Chat and completion endpoints are supported, you should configure the settings and endpoint based on the model the server is running (e.g. instruction tuned models will probably produce better results using the completions endpoint rather than chat/conversation). The prompt template can be edited in the GUI - make sure to include at least the {prompt} tag in the template, as this is where the subtitles that need translating in each batch will be provided.
+
 ### MacOS
 Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source to use the program. If anybody would like to volunteer to maintain Intel releases, please get in touch.
 
@@ -51,7 +56,7 @@ For other platforms, or if you want to modify the program, you will need to have
 
 **The easiest setup method for most users is to run e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install.sh`, which will ask you to specify the provider (this should work on any unix-like system). **
 
-2. Create a new file named .env in the root directory of the project. Add your API key to the .env file like this:
+2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
 ```
     OPENAI_API_KEY=<your_openai_api_key>
     GEMINI_API_KEY=<your_gemini_api_key>
@@ -59,13 +64,12 @@ For other platforms, or if you want to modify the program, you will need to have
     CLAUDE_API_KEY=<your_claude_api_key>
 ```
 
-If you are using Azure, probably you want to add additional lines as well:
+If you are using Azure:
 
 ```
 AZURE_API_BASE=<your api_base, such as https://something.openai.azure.com>
 AZURE_DEPLOYMENT_NAME=<deployment_name>
 ```
-
 
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
 ```
@@ -111,6 +115,7 @@ GPT-Subtrans can be used as a console command or shell script. The most basic us
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
 claude-subtrans <path_to_srt_file> --target_language <target_language>
+llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
 ```
 
 This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified the default is English.
@@ -211,6 +216,25 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 - `-m`, `--model`:
   Specify the [AI model](https://docs.anthropic.com/claude/docs/models-overview#model-comparison) to use for translation. This should be the full model name, e.g. `claude-3-haiku-20240307`
 
+### Local Server specific arguments
+- `-s`, `--server`:
+  The address the server is running on, including port (e.g. http://localhost:1234). Should be provided by the server
+
+- `-e`, `--endpoint`:
+  The API function to call on the server, e.g. `/v1/completions`. Choose an appropriate endpoint for the model running on the server.
+
+- `--chat`:
+  Specify this argument if the endpoint expects requests in a conversation format - otherwise it is assumed to be a completion endpoint.
+
+- `--systemmessages`:
+  If using a conversation endpoint, translation instructions will be sent as the "system" user if this flag is specified.
+
+- `-k`, `--apikey`:
+  Local servers shouldn't need an api key, but the option is provided in case it is needed for your setup.
+
+- `-m`, `--model`:
+  The model will usually be determined by the server, but the option is provided in case you need to specify it.
+
 ## Project File
 
 **Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and updated automatically.
@@ -269,10 +293,12 @@ This project uses several useful libraries:
 - srt (https://github.com/cdown/srt)
 - requests (https://github.com/psf/requests)
 - regex (https://github.com/mrabarnett/mrab-regex)
+- httpx (https://github.com/projectdiscovery/httpx)
 
 Translation providers:
 - openai (https://platform.openai.com/docs/libraries/python-bindings)
 - google.generativeai (https://github.com/google/generative-ai-python)
+- anthropic (https://github.com/anthropics/anthropic-sdk-python)
 
 For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)

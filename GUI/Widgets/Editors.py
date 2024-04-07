@@ -3,7 +3,8 @@ from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QLabel, QDialo
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.LineItem import LineItem
 from GUI.ViewModel.SceneItem import SceneItem
-from GUI.Widgets.OptionsWidgets import MULTILINE_OPTION, CreateOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget
+from PySubtitle.Options import MULTILINE_OPTION
 
 class EditDialog(QDialog):
     def __init__(self, model, parent=None, title=None) -> None:
