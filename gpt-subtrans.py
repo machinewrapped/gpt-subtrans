@@ -6,33 +6,11 @@ from PySubtitle.Options import create_options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
+from scripts.Common import InitLogger
 
 # We'll write separate scripts for other providers
 provider = "OpenAI"
 default_model = os.getenv('OPENAI_MODEL') or "gpt-3.5-turbo-0125"
-
-log_path = os.path.join(os.getcwd(), 'gpt-subtrans.log')
-level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
-logging_level = getattr(logging, level_name, logging.INFO)
-
-# Create console logger
-try:
-    logging.basicConfig(format='%(levelname)s: %(message)s', encoding='utf-8', level=logging_level)
-    logging.info("Initialising log")
-
-except Exception as e:
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
-    logging.info("Unable to write to utf-8 log, falling back to default encoding")
-
-# Create file handler with the same logging level
-try:
-    file_handler = logging.FileHandler(log_path, encoding='utf-8', mode='w')
-    formatter = logging.Formatter('%(levelname)s: %(message)s')
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.INFO)
-    logging.getLogger('').addHandler(file_handler)
-except Exception as e:
-    logging.warning(f"Unable to create log file at {log_path}: {e}")
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Translates an SRT file using an OpenAI GPT model')
@@ -67,9 +45,7 @@ parser.add_argument('--writebackup', action='store_true', help="Write a backup o
 
 args = parser.parse_args()
 
-if args.debug:
-    logging.getLogger('').setLevel(logging.DEBUG)
-    logging.debug("Debug logging enabled")
+logger_options = InitLogger(args.debug, provider)
 
 try:
     options = create_options(args, default_model, provider, use_httpx=args.httpx, api_base=args.httpx)

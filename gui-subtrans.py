@@ -8,35 +8,15 @@ from pstats import Stats
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
 from PySubtitle.Options import Options, settings_path, config_dir
+from scripts.Common import InitLogger
 
-# This seems insane but ChatGPT told me to do it.
+"""
+    This code ensures that Python can import modules located in the same folder as the currently executing script,
+    even if the script is invoked from a different location. This would allow local, project-specific modules to be
+    accessed as though they were installed in the standard Python library locations.
+"""
 project_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, project_dir)
-
-log_path = os.path.join(config_dir, 'gui-subtrans.log')
-
-level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
-logging_level = getattr(logging, level_name, logging.INFO)
-
-# Create console logger
-try:
-    logging.basicConfig(format='%(levelname)s: %(message)s', encoding='utf-8', level=logging_level)
-    logging.info("Initialising log")
-
-except Exception as e:
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
-    logging.info("Unable to write to utf-8 log, falling back to default encoding")
-
-# Create file handler with the same logging level
-try:
-    os.makedirs(config_dir, exist_ok=True)
-    file_handler = logging.FileHandler(log_path, encoding='utf-8', mode='w')
-    formatter = logging.Formatter('%(levelname)s: %(message)s')
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.INFO)
-    logging.getLogger('').addHandler(file_handler)
-except Exception as e:
-    logging.warning(f"Unable to create log file at {log_path}: {e}")
 
 def parse_arguments():
     # Parse command line arguments
@@ -45,7 +25,7 @@ def parse_arguments():
     parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
     parser.add_argument('-p', '--provider', type=str, default=None, help="The translation provider to use")
     parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
-	
+
     parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
     parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
     parser.add_argument('--firstrun', action='store_true', help="Show the first-run options dialog on launch")
@@ -65,6 +45,8 @@ def parse_arguments():
         print(f"Argument error: {e}")
         raise
 
+    logger_options = InitLogger(args.debug, "gui-subtrans")
+
     arguments = {
         'batch_threshold': args.batchthreshold,
         'firstrun': args.firstrun,
@@ -81,13 +63,8 @@ def parse_arguments():
         'target_language': args.target_language,
         'theme': args.theme
     }
-    
-    if args.debug:
-        file_handler.setLevel(logging.DEBUG)
-        logging.getLogger('').setLevel(logging.DEBUG)
-        logging.debug("Debug logging enabled")
 
-    return arguments, args.filepath
+    return arguments, args.filepath, logger_options
 
 def run_with_profiler(app):
     profiler = cProfile.Profile()
@@ -108,7 +85,7 @@ def run_with_profiler(app):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    arguments, filepath = parse_arguments()
+    arguments, filepath, logger_options = parse_arguments()
 
     # Load default options and update with any explicit arguments
     options = Options()
@@ -121,7 +98,7 @@ if __name__ == "__main__":
     app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()
 
-    logging.info(f"Logging to {log_path}")
+    logging.info(f"Logging to {logger_options.log_path}")
 
     if arguments.get('profile'):
         run_with_profiler(app)
