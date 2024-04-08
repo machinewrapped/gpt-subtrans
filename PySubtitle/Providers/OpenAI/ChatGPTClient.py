@@ -1,6 +1,7 @@
 import logging
 import time
 import openai
+from openai.types.chat import ChatCompletion
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
@@ -31,7 +32,7 @@ class ChatGPTClient(OpenAIClient):
                 return None
 
             try:
-                result = self.client.chat.completions.create(
+                result : ChatCompletion = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
                     temperature=temperature,
@@ -39,6 +40,12 @@ class ChatGPTClient(OpenAIClient):
 
                 if self.aborted:
                     return None
+                
+                if not isinstance(result, ChatCompletion):
+                    raise TranslationResponseError(f"Unexpected response type: {type(result).__name__}", response=result)
+
+                if not getattr(result, 'choices'):
+                    raise TranslationResponseError("No choices returned in the response", response=result)
 
                 response['response_time'] = getattr(result, 'response_ms', 0)
 
@@ -47,7 +54,6 @@ class ChatGPTClient(OpenAIClient):
                     response['output_tokens'] = getattr(result.usage, 'completion_tokens')
                     response['total_tokens'] = getattr(result.usage, 'total_tokens')
 
-                # We only expect one choice to be returned as we have 0 temperature
                 if result.choices:
                     choice = result.choices[0]
                     reply = result.choices[0].message

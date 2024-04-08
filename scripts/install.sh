@@ -38,44 +38,56 @@ fi
 python3 -m venv envsubtrans
 source envsubtrans/bin/activate
 
-# Check if .env exists and contains a line that starts with "PROVIDER="
-if [ -f ".env" ] && grep -q "^PROVIDER=" .env; then
-    echo "Provider configuration found in .env file."
-else
-    echo "Select which provider you want to install:"
-    echo "1 = OpenAI"
-    echo "2 = Google Gemini"
-    echo "3 = Anthropic Claude"
-    read -p "Enter your choice (1/2/3): " provider_choice
+echo "Select which provider you want to install:"
+echo "0 = None"
+echo "1 = OpenAI"
+echo "2 = Google Gemini"
+echo "3 = Anthropic Claude"
+read -p "Enter your choice (0/1/2/3): " provider_choice
 
-    case $provider_choice in
-        1)
-            read -p "Enter your OpenAI API Key: " openai_api_key
-            echo "PROVIDER=OpenAI" > .env
-            echo "OPENAI_API_KEY=$openai_api_key" >> .env
-            echo "Installing OpenAI module..."
-            pip install openai
-            ;;
-        2)
-            read -p "Enter your Google Gemini API Key: " gemini_api_key
-            echo "PROVIDER=Google Gemini" > .env
-            echo "GEMINI_API_KEY=$gemini_api_key" >> .env
-            echo "Installing Google GenerativeAI module..."
-            pip install google-generativeai
-            ;;
-        3)
-            read -p "Enter your Anthropic API Key: " anthropic_api_key
-            echo "PROVIDER=Claude" > .env
-            echo "CLAUDE_API_KEY=$claude_api_key" >> .env
-            echo "Installing Anthropic module..."
-            pip install anthropic
-            ;;
-        *)
-            echo "Invalid choice. Exiting installation."
-            exit 1
-            ;;
-    esac
-fi
+case $provider_choice in
+    0)
+        echo "No additional provider selected. Moving forward without any installations."
+        ;;
+    1)
+        read -p "Enter your OpenAI API Key: " openai_api_key
+        if [ -f ".env" ]; then
+            sed -i '' "/^OPENAI_/d" .env
+            sed -i '' "/^PROVIDER=OpenAI/d" .env
+        fi
+        echo "PROVIDER=OpenAI" >> .env
+        echo "OPENAI_API_KEY=$openai_api_key" >> .env
+        echo "Installing OpenAI module..."
+        pip install openai
+        ;;
+    2)
+        read -p "Enter your Google Gemini API Key: " gemini_api_key
+        if [ -f ".env" ]; then
+            sed -i '' "/^GEMINI_/d" .env
+            sed -i '' "/^PROVIDER=Google Gemini/d" .env
+        fi
+        echo "PROVIDER=Google Gemini" >> .env
+        echo "GEMINI_API_KEY=$gemini_api_key" >> .env
+        echo "Installing Google GenerativeAI module..."
+        pip install google-generativeai
+        ;;
+    3)
+        read -p "Enter your Anthropic API Key: " anthropic_api_key
+        if [ -f ".env" ]; then
+            sed -i '' "/^CLAUDE_/d" .env
+            sed -i '' "/^PROVIDER=Claude/d" .env
+        fi
+        echo "PROVIDER=Claude" >> .env
+        echo "CLAUDE_API_KEY=$anthropic_api_key" >> .env
+        echo "Installing Anthropic module..."
+        pip install anthropic
+        ;;
+    *)
+        echo "Invalid choice. Exiting installation."
+        exit 1
+        ;;
+esac
+
 
 echo "Installing requirements from \"requirements.txt\"..."
 pip install -r requirements.txt
