@@ -1,6 +1,7 @@
 import logging
 import time
 import openai
+from openai.types.completion import Completion
 
 from PySubtitle.Helpers import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
@@ -35,7 +36,7 @@ class InstructGPTClient(OpenAIClient):
                 return None
 
             try:
-                result = self.client.completions.create(
+                result : Completion = self.client.completions.create(
                     model=self.model,
                     prompt=prompt,
                     temperature=temperature,
@@ -45,6 +46,9 @@ class InstructGPTClient(OpenAIClient):
 
                 if self.aborted:
                     return None
+                
+                if not isinstance(result, Completion):
+                    raise TranslationResponseError(f"Unexpected response type: {type(result).__name__}", response=result)
 
                 response['response_time'] = getattr(result, 'response_ms', 0)
 
