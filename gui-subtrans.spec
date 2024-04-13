@@ -2,16 +2,17 @@
 
 
 a = Analysis(
-    ['gui-subtrans.py'],
+    ['scripts\\gui-subtrans.py'],
     pathex=[],
     binaries=[],
-    datas=[('theme/*', 'theme/'), ('instructions*', 'instructions/'), ('LICENSE', '.'), ('assets/gui-subtrans.ico', '.')],
+    datas=[('theme/*', 'theme/'), ('instructions*', 'instructions/'), ('scripts*', 'scripts/'), ('LICENSE', '.'), ('assets/gui-subtrans.ico', '.')],
     hiddenimports=[],
     hookspath=['PySubtitleHooks'],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
+    optimize=0,
 )
 pyz = PYZ(a.pure)
 

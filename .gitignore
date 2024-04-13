@@ -21,3 +21,4 @@ get-pip.py
 *.mkv
 *.log
 /*.cmd
+gui-subtrans.spec
