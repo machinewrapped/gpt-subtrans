@@ -2,6 +2,11 @@
 # Enable error handling
 set -e
 
+if ![ -d "scripts" ]; then
+    echo "Please run the script from the root directory of the project."
+    exit 1
+fi
+
 echo "Checking if Python 3 is installed..."
 if ! python3 --version &>/dev/null; then
     echo "Python 3 not found. Please install Python 3 and try again."
@@ -88,9 +93,12 @@ case $provider_choice in
         ;;
 esac
 
-
 echo "Installing requirements from \"requirements.txt\"..."
 pip install -r requirements.txt
+
+echo "Copying scripts to root directory..."
+cp scripts/subtrans.sh .
+cp scripts/gui-subtrans.sh .
 
 echo "Setup completed successfully. To uninstall just delete the directory"
 

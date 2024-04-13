@@ -36,6 +36,8 @@ if not "%api_key%"=="" (
 
 :skip_api_key
 
+call scripts\generate-cmd.bat claude-subtrans
+
 echo default provider set to Anthropic Claude
 
 echo Installation complete. To uninstall, simply delete the directory.

@@ -36,6 +36,8 @@ if not "%api_key%"=="" (
 
 :skip_api_key
 
+call scripts\generate-cmd.bat gemini-subtrans
+
 echo default provider set to Google Gemini
 
 echo Installation complete. To uninstall, simply delete the directory.

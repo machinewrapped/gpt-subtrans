@@ -1,6 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
+if not exist scripts (
+    echo This script must be run from the root directory of the project.
+    exit /b 1
+)
+
 echo Checking if Python 3 is installed...
 python --version >nul 2>&1
 if errorlevel 1 (
@@ -26,6 +31,7 @@ if exist envsubtrans (
     if /i "!user_choice!"=="Y" (
         echo Performing a clean install...
         rmdir /s /q envsubtrans
+        del *.cmd
         if exist .env del .env
         python -m venv envsubtrans
         call envsubtrans\Scripts\activate.bat
@@ -46,5 +52,9 @@ if exist envsubtrans (
     echo Installing requirements from "requirements.txt"...
     pip install -r requirements.txt
 )
+
+echo Generating command scripts...
+call scripts\generate-cmd.bat gui-subtrans
+call scripts\generate-cmd.bat llm-subtrans
 
 exit /b 0

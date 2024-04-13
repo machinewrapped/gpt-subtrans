@@ -40,11 +40,12 @@ def run_all_tests(tests_directory, subtitles_directory, results_directory):
             module.run_tests(subtitles_directory, results_directory)
 
 if __name__ == "__main__":
-    root_directory = os.path.dirname(os.path.abspath(__file__))
+    scripts_directory = os.path.dirname(os.path.abspath(__file__))
+    root_directory = os.path.dirname(scripts_directory)
     tests_directory = os.path.join(root_directory, 'Tests')
     subtitles_directory = os.path.join(root_directory, 'test_subtitles')
     results_directory =  os.path.join(root_directory, 'test_results')
-    
+
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
 

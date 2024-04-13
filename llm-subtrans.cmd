@@ -1,10 +1,4 @@
-@echo off
-
-rem Activate the virtual environment
-call envsubtrans\Scripts\activate.bat
-
-rem Run the script with the provided arguments
-python llm-subtrans.py %*
-
-rem Deactivate the virtual environment
-call envsubtrans\Scripts\deactivate
+@echo off 
+call envsubtrans\Scripts\activate.bat 
+python scripts\llm-subtrans.py %* 
+call envsubtrans\Scripts\deactivate 

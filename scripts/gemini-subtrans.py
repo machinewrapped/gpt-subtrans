@@ -1,19 +1,19 @@
 import os
 import logging
 
+from subtrans_common import *
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
-from scripts.Common import CreateArgParser, CreateProject, InitLogger, CreateOptions, CreateTranslator
 
-provider = "Claude"
-default_model = os.getenv('CLAUDE_MODEL') or "claude-3-haiku-20240307"
+provider = "Gemini"
+default_model = os.getenv('GEMINI_MODEL') or "Gemini 1.0 Pro"
 
-parser = CreateArgParser(f"Translates an SRT file using Anthropic's Claude AI")
-parser.add_argument('-k', '--apikey', type=str, default=None, help=f"Your Anthropic API Key (https://console.anthropic.com/settings/keys)")
+parser = CreateArgParser(f"Translates an SRT file using a Google Gemini model")
+parser.add_argument('-k', '--apikey', type=str, default=None, help=f"Your Gemini API Key (https://makersuite.google.com/app/apikey)")
 parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
 args = parser.parse_args()
 
-logger_options = InitLogger("claude-subtrans", args.debug)
+logger_options = InitLogger("gemini-subtrans", args.debug)
 
 try:
     options = CreateOptions(args, provider, model=args.model or default_model)

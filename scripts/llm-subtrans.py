@@ -1,10 +1,9 @@
-import os
 import logging
 
+from subtrans_common import *
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
-from scripts.Common import CreateArgParser, InitLogger, CreateOptions, CreateTranslator
 
 provider = "Local Server"
 

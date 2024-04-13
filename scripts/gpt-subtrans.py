@@ -1,10 +1,7 @@
 import os
 import logging
 
-from PySubtitle.SubtitleProject import SubtitleProject
-from PySubtitle.SubtitleTranslator import SubtitleTranslator
-from PySubtitle.TranslationProvider import TranslationProvider
-from scripts.Common import CreateArgParser, CreateProject, InitLogger, CreateOptions, CreateTranslator
+from subtrans_common import *
 
 # We'll write separate scripts for other providers
 provider = "OpenAI"

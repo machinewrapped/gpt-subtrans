@@ -54,6 +54,8 @@ if /i "%free_plan%"=="Y" (
 
 :skip_api_key
 
+call scripts\generate-cmd.bat gpt-subtrans
+
 echo default provider set to OpenAI
 
 echo Installation complete. To uninstall, simply delete the directory.

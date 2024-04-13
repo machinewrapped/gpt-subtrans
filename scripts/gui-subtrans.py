@@ -5,18 +5,10 @@ import sys
 import cProfile
 from pstats import Stats
 
+from subtrans_common import *
 from PySide6.QtWidgets import QApplication
 from GUI.MainWindow import MainWindow
 from PySubtitle.Options import Options, settings_path, config_dir
-from scripts.Common import InitLogger
-
-"""
-    This code ensures that Python can import modules located in the same folder as the currently executing script,
-    even if the script is invoked from a different location. This would allow local, project-specific modules to be
-    accessed as though they were installed in the standard Python library locations.
-"""
-project_dir = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, project_dir)
 
 def parse_arguments():
     # Parse command line arguments
