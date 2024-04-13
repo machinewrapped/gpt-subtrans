@@ -1,45 +1,30 @@
 import os
 import logging
 
-from PySubtitle.Options import create_options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
-from PySubtitle.TranslationProvider import TranslationProvider
-from scripts.Common import CreateArgParser, InitLogger
+from scripts.Common import CreateArgParser, CreateProject, InitLogger, CreateOptions, CreateTranslator
 
 provider = "Gemini"
 default_model = os.getenv('GEMINI_MODEL') or "Gemini 1.0 Pro"
 
-parser = CreateArgParser(provider)
-parser.add_argument('-b', '--apibase', type=str, default=None, help="API backend base address.")
+parser = CreateArgParser(f"Translates an SRT file using a Google Gemini model")
+parser.add_argument('-k', '--apikey', type=str, default=None, help=f"Your Gemini API Key (https://makersuite.google.com/app/apikey)")
 parser.add_argument('-m', '--model', type=str, default=None, help="The model to use for translation")
 args = parser.parse_args()
 
-logger_options = InitLogger(args.debug, provider)
+logger_options = InitLogger("gemini-subtrans", args.debug)
 
 try:
-    options = create_options(args, provider, model=args.model or default_model)
+    options = CreateOptions(args, provider, model=args.model or default_model)
 
-    # Update provider settings with any relevant command line arguments
-    translation_provider = TranslationProvider.get_provider(options)
-    if not translation_provider:
-        raise ValueError(f"Unable to create translation provider {options.provider}")
+    # Create a translator with the provided options
+    translator : SubtitleTranslator = CreateTranslator(options)
 
-    logging.info(f"Using translation provider {translation_provider.name}")
+    # Create a project for the translation
+    project : SubtitleProject = CreateProject(options, args)
 
-    # Load the instructions
-    options.InitialiseInstructions()
-
-    # Process the project options
-    project = SubtitleProject(options)
-
-    project.InitialiseProject(args.input, args.output, args.writebackup)
-    project.UpdateProjectSettings(options)
-
-    logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
-
-    translator = SubtitleTranslator(options, translation_provider)
-
+    # Translate the subtitles
     project.TranslateSubtitles(translator)
 
     if project.write_project:

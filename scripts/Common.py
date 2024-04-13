@@ -1,17 +1,22 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 import os
 import logging
-from PySubtitle.Options import config_dir
+from PySubtitle.Helpers.parse import ParseNames
+from PySubtitle.Helpers.substitutions import ParseSubstitutions
+from PySubtitle.Options import Options, config_dir
+from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.TranslationProvider import TranslationProvider
 
 @dataclass
 class LoggerOptions():
     file_handler: logging.FileHandler
     log_path: str
 
-def InitLogger(debug: bool, provider: str) -> LoggerOptions:
-
-    log_path = os.path.join(config_dir, f"{provider}.log")
+def InitLogger(logfilename: str, debug: bool = False) -> LoggerOptions:
+    """ Initialise the logger with a file handler and return the path to the log file """
+    log_path = os.path.join(config_dir, f"{logfilename}.log")
 
     if debug:
         logging.debug("Debug logging enabled")
@@ -39,23 +44,17 @@ def InitLogger(debug: bool, provider: str) -> LoggerOptions:
         logging.getLogger('').addHandler(file_handler)
     except Exception as e:
         logging.warning(f"Unable to create log file at {log_path}: {e}")
+
     return LoggerOptions(file_handler=file_handler, log_path=log_path)
 
-_api_key_information_urls = {
-    """ Information for each of the provider API-keys """
-    "Gemini": "https://makersuite.google.com/app/apikey",
-    "Azure": "",
-    "OpenAI": "https://platform.openai.com/account/api-keys",
-    "Claude": "https://console.anthropic.com/settings/keys"
-}
-
-def CreateArgParser(provider: str) -> ArgumentParser:
-    """ Create new arg parser and parse shared command line arguments between models """
-    parser = ArgumentParser(description=f"Translates an SRT file using an {provider} model")
+def CreateArgParser(description : str) -> ArgumentParser:
+    """
+    Create new arg parser and parse shared command line arguments between models
+    """
+    parser = ArgumentParser(description=description)
     parser.add_argument('input', help="Input SRT file path")
     parser.add_argument('-o', '--output', help="Output SRT file path")
     parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
-    parser.add_argument('-k', '--apikey', type=str, default=None, help=f"Your {provider} API Key ({_api_key_information_urls[provider]})")
     parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
     parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
     parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
@@ -77,3 +76,67 @@ def CreateArgParser(provider: str) -> ArgumentParser:
     parser.add_argument('--temperature', type=float, default=0.0, help="A higher temperature increases the random variance of translations.")
     parser.add_argument('--writebackup', action='store_true', help="Write a backup of the project file when it is loaded (if it exists)")
     return parser
+
+def CreateOptions(args: Namespace, provider: str, **kwargs) -> Options:
+    """ Create options with additional arguments """
+    options = {
+        'api_key': args.apikey,
+        'batch_threshold': args.batchthreshold,
+        'description': args.description,
+        'include_original': args.includeoriginal,
+        'instruction_args': args.instruction,
+        'instruction_file': args.instructionfile,
+        'match_partial_words': args.matchpartialwords,
+        'max_batch_size': args.maxbatchsize,
+        'max_context_summaries': args.maxsummaries,
+        'max_lines': args.maxlines,
+        'min_batch_size': args.minbatchsize,
+        'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
+        'names': ParseNames(args.names or args.name),
+        'project': args.project and args.project.lower(),
+        'provider': provider,
+        'rate_limit': args.ratelimit,
+        'scene_threshold': args.scenethreshold,
+        'substitutions': ParseSubstitutions(args.substitution),
+        'target_language': args.target_language,
+        'temperature': args.temperature,
+        'write_backup': args.writebackup,
+    }
+
+    # Adding optional new keys from kwargs
+    for key, value in kwargs.items():
+        options[key] = value
+
+    return Options(options)
+
+def CreateTranslator(options : Options) -> SubtitleTranslator:
+    """
+    Initialise a subtitle translator with the provided options
+    """
+    translation_provider = TranslationProvider.get_provider(options)
+    if not translation_provider:
+        raise ValueError(f"Unable to create translation provider {options.provider}")
+
+    if not translation_provider.ValidateSettings():
+        logging.error(f"Provider settings are not valid: {translation_provider.validation_message}")
+        raise ValueError(f"Invalid settings for provider {options.provider}")
+
+    logging.info(f"Using translation provider {translation_provider.name}")
+
+    # Load the instructions
+    options.InitialiseInstructions()
+
+    return SubtitleTranslator(options, translation_provider)
+
+def CreateProject(options : Options, args: Namespace) -> SubtitleProject:
+    """
+    Initialise a subtitle project with the provided arguments
+    """
+    project = SubtitleProject(options)
+
+    project.InitialiseProject(args.input, args.output, args.writebackup)
+    project.UpdateProjectSettings(options)
+
+    logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
+
+    return project

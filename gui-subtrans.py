@@ -20,7 +20,7 @@ sys.path.insert(0, project_dir)
 
 def parse_arguments():
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Translates an SRT file using GPT')
+    parser = argparse.ArgumentParser(description='Translates an SRT file using an AI service')
     parser.add_argument('filepath', nargs='?', help="Optional file to load on startup")
     parser.add_argument('-l', '--target_language', type=str, default=None, help="The target language for the translation")
     parser.add_argument('-p', '--provider', type=str, default=None, help="The translation provider to use")
@@ -44,7 +44,7 @@ def parse_arguments():
         print(f"Argument error: {e}")
         raise
 
-    logger_options = InitLogger(args.debug, "gui-subtrans")
+    logger_options = InitLogger("gui-subtrans", args.debug)
 
     arguments = {
         'batch_threshold': args.batchthreshold,
