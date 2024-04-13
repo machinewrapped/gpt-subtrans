@@ -5,10 +5,15 @@ import sys
 import cProfile
 from pstats import Stats
 
-from subtrans_common import *
+# Add the parent directory to the sys path so that modules can be found
+base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(base_path)
+
+from scripts.subtrans_common import InitLogger
+
 from PySide6.QtWidgets import QApplication
-from GUI.MainWindow import MainWindow
 from PySubtitle.Options import Options, settings_path, config_dir
+from GUI.MainWindow import MainWindow
 
 def parse_arguments():
     # Parse command line arguments

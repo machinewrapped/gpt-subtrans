@@ -1,7 +1,15 @@
 import os
+import sys
 import logging
 
-from subtrans_common import *
+# Add the parent directory to the sys path so that modules can be found
+base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(base_path)
+
+from scripts.subtrans_common import InitLogger, CreateArgParser, CreateOptions, CreateTranslator, CreateProject
+from PySubtitle.Options import Options
+from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 # Update when newer ones are available - https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 latest_azure_api_version = "2024-02-01"
@@ -21,7 +29,7 @@ args = parser.parse_args()
 logger_options = InitLogger("azure-subtrans", args.debug)
 
 try:
-    options = CreateOptions(
+    options : Options = CreateOptions(
         args,
         provider,
         deployment_name=args.deploymentname or deployment_name,

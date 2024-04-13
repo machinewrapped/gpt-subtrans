@@ -11,4 +11,4 @@ pip install --upgrade --target ./envsubtrans/lib anthropic
 pip install --upgrade --target ./envsubtrans/lib PySide6==6.6.0
 pip install --upgrade --target ./envsubtrans/lib PySide6.QtGui
 
-pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --hidden-import="PySide6.QtGui" --paths="./envsubtrans/lib" --paths="./envsubtrans/lib/python3.12/site-packages" --add-data "theme/*:theme/" --add-data "instructions*:instructions/" --add-data "LICENSE:." --add-data "assets/gui-subtrans.ico:." --noconfirm gui-subtrans.py
+pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --hidden-import="PySide6.QtGui" --paths="./envsubtrans/lib" --paths="./envsubtrans/lib/python3.12/site-packages" --add-data "theme/*:theme/" --add-data "instructions*:instructions/" --add-data "LICENSE:." --add-data "assets/gui-subtrans.ico:." --noconfirm scripts/gui-subtrans.py

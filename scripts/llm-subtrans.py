@@ -1,6 +1,13 @@
+import os
+import sys
 import logging
 
-from subtrans_common import *
+# Add the parent directory to the sys path so that modules can be found
+base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(base_path)
+
+from scripts.subtrans_common import InitLogger, CreateArgParser, CreateOptions, CreateTranslator, CreateProject
+
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
@@ -34,13 +41,8 @@ try:
     # Create a translator with the provided options
     translator : SubtitleTranslator = CreateTranslator(options)
 
-    # Process the project options
-    project = SubtitleProject(options)
-
-    project.InitialiseProject(args.input, args.output, args.writebackup)
-    project.UpdateProjectSettings(options)
-
-    logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")
+    # Create a project for the translation
+    project : SubtitleProject = CreateProject(options, args)
 
     project.TranslateSubtitles(translator)
 

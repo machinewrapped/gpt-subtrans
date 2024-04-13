@@ -1,13 +1,8 @@
 import os
 import logging
-import sys
 
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
-
-# Add the parent directory to the sys path so that modules can be found
-base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(base_path)
 
 from PySubtitle.Helpers.parse import ParseNames
 from PySubtitle.Helpers.substitutions import ParseSubstitutions
