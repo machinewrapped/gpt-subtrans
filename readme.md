@@ -54,7 +54,7 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-**The easiest setup method for most users is to first copy a script for your system from `scripts`-folder into project root and then run e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. You can then skip the remaining steps. MacOS users should run `install.sh`, which will ask you to specify the provider (this should work on any unix-like system). **
+**The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. You can then skip the remaining steps. MacOS users should run `install.sh` instead (this should work on any unix-like system). **
 
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
 ```
@@ -120,9 +120,10 @@ llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
 
 This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified the default is English.
 
-Note: Remember to activate the virtual environment every time you work on the project.
+### Developers
+It is recommended to use an IDE such as Visual Studio Code to run the program when installed from source, and set up a launch.json file to specify the arguments.
 
-It is recommended to use an IDE such as Visual Studio Code to run the program when installing from source, as this will provide more control, e.g. specifying command-line parameters in a launch.json file.
+Note: Remember to activate the virtual environment every time you work on the project.
 
 ## Advanced usage
 
