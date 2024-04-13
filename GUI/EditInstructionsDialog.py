@@ -10,11 +10,10 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QSizePolicy
     )
-from GUI.GuiHelpers import GetResourcePath
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
 from PySubtitle.Options import MULTILINE_OPTION, Options
-from PySubtitle.Instructions import Instructions
+from PySubtitle.Instructions import GetInstructionsResourcePath, Instructions
 
 class EditInstructionsDialog(QDialog):
     def __init__(self, settings : dict, parent=None):
@@ -108,7 +107,7 @@ class EditInstructionsDialog(QDialog):
     def _save_instructions(self):
         '''Save instructions to a file'''
         options = QFileDialog.Options()
-        filepath = GetResourcePath(self.instructions.instruction_file)
+        filepath = GetInstructionsResourcePath(self.instructions.instruction_file)
         file_name, _ = QFileDialog.getSaveFileName(self, "Save Instructions", filepath, "Text Files (*.txt);;All Files (*)", options=options)
         if file_name:
             try:

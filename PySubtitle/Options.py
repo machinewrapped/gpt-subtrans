@@ -5,8 +5,7 @@ import logging
 import os
 import dotenv
 import appdirs
-from GUI.GuiHelpers import LoadInstructionsResource
-from PySubtitle.Instructions import Instructions
+from PySubtitle.Instructions import Instructions, LoadInstructionsResource
 from PySubtitle.version import __version__
 from PySubtitle.Helpers.substitutions import ParseSubstitutions
 from PySubtitle.Helpers.parse import ParseNames
@@ -29,7 +28,7 @@ default_options = {
     'provider': os.getenv('PROVIDER', None),
     'provider_settings': {},
     'prompt': os.getenv('PROMPT', "Please translate these subtitles[ for movie][ to language]."),
-    'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions/instructions.txt"),
+    'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'include_original': env_bool('INCLUDE_ORIGINAL', False),
     'use_simple_batcher': env_bool('USE_SIMPLE_BATCHER', False),

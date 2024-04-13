@@ -5,7 +5,7 @@ a = Analysis(
     ['gui-subtrans.py'],
     pathex=[],
     binaries=[],
-    datas=[('theme/*', 'theme/'), ('instructions*', '.'), ('LICENSE', '.'), ('assets/gui-subtrans.ico', '.')],
+    datas=[('theme/*', 'theme/'), ('instructions*', 'instructions/'), ('LICENSE', '.'), ('assets/gui-subtrans.ico', '.')],
     hiddenimports=[],
     hookspath=['PySubtitleHooks'],
     hooksconfig={},

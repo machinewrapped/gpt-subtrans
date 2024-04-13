@@ -1,6 +1,8 @@
 import logging
 import os
 
+from PySubtitle.Helpers.resources import GetResourcePath
+
 linesep = '\n'
 
 default_instructions = linesep.join([
@@ -136,6 +138,34 @@ class Instructions:
                 f.write("\n")
 
             self.instruction_file = os.path.basename(filepath)
+
+def GetInstructionsResourcePath(instructions_file : str = None):
+    """
+    Get the path for an instructions file (or the directory that contains them).
+    """
+    if not instructions_file:
+        return GetResourcePath("instructions")
+
+    return GetResourcePath("instructions", instructions_file)
+
+def GetInstructionFiles():
+    """
+    Get a list of instruction files in the instructions directory.
+    """
+    instruction_path = GetInstructionsResourcePath()
+    logging.debug(f"Looking for instruction files in {instruction_path}")
+    files = os.listdir(instruction_path)
+    return [ file for file in files if file.lower().startswith("instructions") ]
+
+def LoadInstructionsResource(resource_name):
+    """
+    Load instructions from a file in the project/package.
+    """
+    filepath = GetInstructionsResourcePath(resource_name)
+    logging.debug(f"Loading instructions from {filepath}")
+    instructions = Instructions({})
+    instructions.LoadInstructionsFile(filepath)
+    return instructions
 
 def LoadLegacyInstructions(lines):
     """

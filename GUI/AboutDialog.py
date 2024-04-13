@@ -3,8 +3,8 @@ import pkg_resources
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout)
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-from GUI.GuiHelpers import GetResourcePath
 
+from PySubtitle.Helpers.resources import GetResourcePath
 from PySubtitle.version import __version__
 
 class AboutDialog(QDialog):
@@ -23,7 +23,7 @@ class AboutDialog(QDialog):
         # Image on the left
         image_layout = QVBoxLayout()        
         image_label = QLabel(self)
-        filepath = GetResourcePath(os.path.join("theme", "subtransmd.png"))
+        filepath = GetResourcePath("theme", "subtransmd.png")
         pixmap = QPixmap(filepath)
         image_label.setPixmap(pixmap)
         
