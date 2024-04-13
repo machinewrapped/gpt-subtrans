@@ -1,20 +1,19 @@
 import logging
 from PySide6.QtWidgets import (
-    QStyle, 
-    QApplication, 
-    QFormLayout, 
-    QDialog, 
-    QVBoxLayout, 
-    QHBoxLayout, 
-    QPushButton, 
+    QStyle,
+    QApplication,
+    QFormLayout,
+    QDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
     QFileDialog,
     QSizePolicy
     )
-from GUI.GuiHelpers import GetResourcePath
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
 from PySubtitle.Options import MULTILINE_OPTION, Options
-from PySubtitle.Instructions import Instructions
+from PySubtitle.Instructions import GetInstructionsResourcePath, Instructions
 
 class EditInstructionsDialog(QDialog):
     def __init__(self, settings : dict, parent=None):
@@ -79,21 +78,21 @@ class EditInstructionsDialog(QDialog):
             return True
         if self.retry_instructions_edit.GetValue() != self.instructions.retry_instructions:
             return True
-        
+
         return False
 
     @property
     def load_icon(self):
         return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DialogOpenButton)
-    
+
     @property
     def save_icon(self):
         return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DialogSaveButton)
-    
+
     def _load_instructions(self):
         '''Load instructions from a file'''
         options = QFileDialog.Options()
-        file_name, _ = QFileDialog.getOpenFileName(self, "Load Instructions", "", "Text Files (*.txt);;All Files (*)", options=options)
+        file_name, _ = QFileDialog.getOpenFileName(self, "Load Instructions", "instructions", "Text Files (*.txt);;All Files (*)", options=options)
         if file_name:
             try:
                 self.instructions.LoadInstructionsFile(file_name)
@@ -108,14 +107,14 @@ class EditInstructionsDialog(QDialog):
     def _save_instructions(self):
         '''Save instructions to a file'''
         options = QFileDialog.Options()
-        filepath = GetResourcePath(self.instructions.instruction_file)
+        filepath = GetInstructionsResourcePath(self.instructions.instruction_file)
         file_name, _ = QFileDialog.getSaveFileName(self, "Save Instructions", filepath, "Text Files (*.txt);;All Files (*)", options=options)
         if file_name:
             try:
                 self.instructions.prompt = self.prompt_edit.GetValue()
                 self.instructions.instructions = self.instructions_edit.GetValue()
                 self.instructions.retry_instructions = self.retry_instructions_edit.GetValue()
-                
+
                 self.instructions.SaveInstructions(file_name)
 
             except Exception as e:

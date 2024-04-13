@@ -19,7 +19,7 @@ from GUI.CommandQueue import ClearCommandQueue, CommandQueue
 from GUI.Commands.LoadSubtitleFile import LoadSubtitleFile
 from GUI.FirstRunOptions import FirstRunOptions
 from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
-from GUI.GuiHelpers import GetResourcePath, LoadStylesheet
+from GUI.GuiHelpers import LoadStylesheet
 from GUI.MainToolbar import MainToolbar
 from GUI.SettingsDialog import SettingsDialog
 from GUI.ProjectActions import ProjectActions
@@ -28,6 +28,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
 from GUI.NewProjectSettings import NewProjectSettings
+from PySubtitle.Helpers.resources import GetResourcePath
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import ProviderConfigurationError
 from PySubtitle.TranslationProvider import TranslationProvider

@@ -1,18 +1,12 @@
 from datetime import timedelta
 import logging
 import os
-import sys
 import darkdetect
 
 from srt import timedelta_to_srt_timestamp
 from PySide6.QtWidgets import (QApplication, QFormLayout)
 
-from PySubtitle.Instructions import Instructions
-
-def GetResourcePath(relative_path):
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path or "")
+from PySubtitle.Helpers.resources import GetResourcePath
 
 def GetThemeNames():
     themes = []
@@ -29,25 +23,12 @@ def LoadStylesheet(name):
     if not name or name == "default":
         name = "subtrans-dark" if darkdetect.isDark() else "subtrans"
 
-    filepath = GetResourcePath(os.path.join("theme", f"{name}.qss"))
+    filepath = GetResourcePath("theme", f"{name}.qss")
     logging.info(f"Loading stylesheet from {filepath}")
     with open(filepath, 'r') as file:
         stylesheet = file.read()
     QApplication.instance().setStyleSheet(stylesheet)
     return stylesheet
-
-def GetInstructionFiles():
-    instruction_path = GetResourcePath("")
-    logging.debug(f"Looking for instruction files in {instruction_path}")
-    files = os.listdir(instruction_path)
-    return [ file for file in files if file.lower().startswith("instructions") ]
-
-def LoadInstructionsResource(resource_name):
-    filepath = GetResourcePath(resource_name)
-    logging.debug(f"Loading instructions from {filepath}")
-    instructions = Instructions({})
-    instructions.LoadInstructionsFile(filepath)
-    return instructions
 
 def GetLineHeight(text: str, wrap_length: int = 60) -> int:
     """

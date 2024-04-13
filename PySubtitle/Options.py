@@ -1,12 +1,15 @@
 from copy import deepcopy
+from argparse import Namespace
 import json
 import logging
 import os
 import dotenv
 import appdirs
-from GUI.GuiHelpers import LoadInstructionsResource
-from PySubtitle.Instructions import Instructions
+from PySubtitle.Instructions import Instructions, LoadInstructionsResource
 from PySubtitle.version import __version__
+from PySubtitle.Helpers.substitutions import ParseSubstitutions
+from PySubtitle.Helpers.parse import ParseNames
+
 
 MULTILINE_OPTION = 'multiline'
 
@@ -71,7 +74,7 @@ class Options:
 
     def get(self, option, default=None):
         return self.options.get(option, default)
-    
+
     def add(self, option, value):
         self.options[option] = value
 
@@ -94,7 +97,7 @@ class Options:
     def provider(self) -> str:
         """ the name of the translation provider """
         return self.get('provider')
-    
+
     @provider.setter
     def provider(self, value: str):
         self.options['provider'] = value
@@ -108,9 +111,9 @@ class Options:
     def current_provider_settings(self) -> dict:
         if not self.provider:
             return None
-        
+
         return self.provider_settings.get(self.provider, {})
-    
+
     @property
     def available_providers(self) -> list:
         return self.get('available_providers', [])
@@ -119,13 +122,13 @@ class Options:
     def model(self) -> str:
         if not self.provider:
             return None
-        
+
         return self.current_provider_settings.get('model')
-    
+
     @property
     def allow_multithreaded_translation(self):
         return self.get('max_threads') and self.get('max_threads') > 1
-    
+
     def GetInstructions(self) -> Instructions:
         """ Construct an Instructions object from the settings """
         return Instructions(self.options)
@@ -136,18 +139,18 @@ class Options:
         """
         settings = { key: deepcopy(self.get(key)) for key in self.options.keys() & default_options.keys() }
         return settings
-    
+
     def LoadSettings(self):
         if not os.path.exists(settings_path) or self.get('firstrun'):
             return False
-        
+
         try:
             with open(settings_path, "r", encoding="utf-8") as settings_file:
                 settings = json.load(settings_file)
-            
+
             if not settings:
                 return False
-            
+
             if not self.options:
                 self.options = deepcopy(default_options)
 
@@ -157,7 +160,7 @@ class Options:
                 self._update_version()
 
             return True
-        
+
         except Exception as e:
             logging.error(f"Error loading settings from {settings_path}")
             return False
@@ -168,7 +171,7 @@ class Options:
 
             if not settings:
                 return False
-            
+
             save_dict = { key : value for key, value in settings.items() if value != default_options.get(key) }
 
             if save_dict:
@@ -184,7 +187,7 @@ class Options:
         except Exception as e:
             logging.error(f"Error saving settings to {settings_path}")
             return False
-        
+
     def InitialiseInstructions(self):
         instruction_file = self.get('instruction_file')
         if instruction_file:
@@ -225,3 +228,36 @@ class Options:
 
         current_version = default_options['version']
         self.options['version'] = current_version
+
+def create_options(args: Namespace, provider: str, **kwargs) -> Options:
+    """ Create base-options object"""
+
+    options = {
+        'api_key': args.apikey,
+        'batch_threshold': args.batchthreshold,
+        'description': args.description,
+        'include_original': args.includeoriginal,
+        'instruction_args': args.instruction,
+        'instruction_file': args.instructionfile,
+        'match_partial_words': args.matchpartialwords,
+        'max_batch_size': args.maxbatchsize,
+        'max_context_summaries': args.maxsummaries,
+        'max_lines': args.maxlines,
+        'min_batch_size': args.minbatchsize,
+        'movie_name': args.moviename or os.path.splitext(os.path.basename(args.input))[0],
+        'names': ParseNames(args.names or args.name),
+        'project': args.project and args.project.lower(),
+        'provider': provider,
+        'rate_limit': args.ratelimit,
+        'scene_threshold': args.scenethreshold,
+        'substitutions': ParseSubstitutions(args.substitution),
+        'target_language': args.target_language,
+        'temperature': args.temperature,
+        'write_backup': args.writebackup,
+    }
+
+    # Adding optional new keys from kwargs
+    for key, value in kwargs.items():
+        options[key] = value
+
+    return Options(options)

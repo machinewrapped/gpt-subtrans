@@ -1,4 +1,5 @@
-from PySubtitle.Helpers import GenerateBatchPrompt, WrapSystemMessage
+from PySubtitle.Helpers import WrapSystemMessage
+from PySubtitle.Helpers.prompts import GenerateBatchPrompt
 from PySubtitle.SubtitleError import TranslationError
 
 class TranslationPrompt:
@@ -95,8 +96,8 @@ def FormatPrompt(prompt : TranslationPrompt):
 
         if prompt.user_prompt:
             lines.append(f"User Prompt:\n {prompt.user_prompt}")
-        
+
         if prompt.instructions:
             lines.append(f"Instructions:\n {prompt.instructions}")
-    
+
         return "\n".join(lines)
