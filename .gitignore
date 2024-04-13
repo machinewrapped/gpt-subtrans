@@ -20,3 +20,6 @@ get-pip.py
 /test_subtitles
 *.mkv
 *.log
+/*.sh
+/*.bat
+/*.cmd

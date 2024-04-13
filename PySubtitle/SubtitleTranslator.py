@@ -11,7 +11,9 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
-from PySubtitle.Helpers import BuildUserPrompt, FormatErrorMessages, Linearise, MergeTranslations, ParseSubstitutions, RemoveEmptyLines, SanitiseSummary, UnbatchScenes
+from PySubtitle.Helpers import FormatErrorMessages, Linearise, MergeTranslations,  RemoveEmptyLines, SanitiseSummary, UnbatchScenes
+from PySubtitle.Helpers.prompts import BuildUserPrompt
+from PySubtitle.Helpers.substitutions import ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.TranslationEvents import TranslationEvents
@@ -66,7 +68,7 @@ class SubtitleTranslator:
 
         if not self.client:
             raise ProviderError("Unable to create translation client")
-        
+
         self.batcher = CreateSubtitleBatcher(options)
 
     def StopTranslating(self):
@@ -79,7 +81,7 @@ class SubtitleTranslator:
         """
         if not subtitles:
             raise TranslationImpossibleError("No subtitles to translate")
-    
+
         if subtitles.scenes and self.resume:
             logging.info("Resuming translation")
 
@@ -91,7 +93,7 @@ class SubtitleTranslator:
 
         if not subtitles.scenes:
             raise TranslationImpossibleError("No scenes to translate")
-        
+
         logging.info(f"Translating {subtitles.linecount} lines in {subtitles.scenecount} scenes")
 
         self.events.preprocessed(subtitles.scenes)
@@ -239,6 +241,17 @@ class SubtitleTranslator:
                 #context['names'] = translation.names or context.get('names', []) or options.get('names')
                 batch.UpdateContext(context)
 
+
+    def BuildTranslationPrompt(self, lines : list, context : dict):
+        """
+        Generate a translation prompt for the context
+        """
+        prompt = TranslationPrompt(self.user_prompt, self.client.supports_conversation)
+        prompt.supports_system_prompt = self.client.supports_system_prompt
+        prompt.supports_system_messages = self.client.supports_system_messages
+        prompt.GenerateMessages(self.instructions.instructions, lines, context)
+        return prompt
+
     def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
         """
         Preprocess the batch before translation
@@ -279,15 +292,15 @@ class SubtitleTranslator:
         """
         if not translation:
             raise NoTranslationError("No translation provided")
-        
+
         if not translation.has_translation:
             raise TranslationError("Translation contains no translated text", translation=translation)
-        
+
         logging.debug(f"Scene {batch.scene} batch {batch.number} translation:\n{translation.text}\n")
 
         # Apply the translation to the subtitles
         parser : TranslationParser = self.client.GetParser()
-        
+
         parser.ProcessTranslation(translation)
 
         # Try to match the translations with the original lines
@@ -306,7 +319,7 @@ class SubtitleTranslator:
             logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
             batch.AddContext('untranslated_lines', [f"{item.number}. {item.text}" for item in batch.untranslated])
 
-        # Apply any word/phrase substitutions to the translation 
+        # Apply any word/phrase substitutions to the translation
         replacements = batch.PerformOutputSubstitutions(self.substitutions, self.match_partial_words)
 
         if replacements:
@@ -320,7 +333,7 @@ class SubtitleTranslator:
 
         if translation.summary and translation.summary.strip():
             logging.info(f"Summary: {translation.summary}")
-        
+
     def RequestRetranslation(self, batch : SubtitleBatch, line_numbers : list[int] = None, context : dict = {}):
         """
         Ask the client to retranslate the input and correct errors
@@ -366,5 +379,5 @@ class SubtitleTranslator:
             sanitised = SanitiseSummary(candidate, movie_name, max_length)
             if sanitised:
                 return sanitised
-            
+
         return None

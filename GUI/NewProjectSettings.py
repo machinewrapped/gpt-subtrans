@@ -1,10 +1,10 @@
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
 
-from GUI.GuiHelpers import GetInstructionFiles, LoadInstructionsResource
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
+from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
