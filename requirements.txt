@@ -6,5 +6,5 @@ events
 requests
 darkdetect
 setuptools
-pyside6
+pyside6==6.6.3
 httpx
