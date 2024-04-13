@@ -16,11 +16,11 @@ try:
         name = "OpenAI"
 
         information = """
-        <p>Select the AI <a href="https://platform.openai.com/docs/models">model</a> to use as a translator.</p> 
+        <p>Select the AI <a href="https://platform.openai.com/docs/models">model</a> to use as a translator.</p>
         <p>Note that different models have different <a href="https://openai.com/pricing">costs</a> and limitations.</p>
         In particular, the number of tokens supported by each model will affect the batch size that it can handle.
         This will depend on the contents but as a rule of thumb 16K token models can handle 80-100 lines per batch.</p>
-        <p>GPT4 models are substantially more expensive but are better at following instructions, 
+        <p>GPT4 models are substantially more expensive but are better at following instructions,
         e.g. using provided names, and may be better for more complex translations and less common languages.</p>
         """
 
@@ -36,7 +36,7 @@ try:
             super().__init__(self.name, {
                 "api_key": settings.get('api_key', os.getenv('OPENAI_API_KEY')),
                 "api_base": settings.get('api_base', os.getenv('OPENAI_API_BASE')),
-                "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-3.5-turbo-0125")),
+                "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-3.5-turbo")),
                 'temperature': settings.get('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
                 'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
                 "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
@@ -49,15 +49,15 @@ try:
         @property
         def api_key(self):
             return self.settings.get('api_key')
-        
+
         @property
         def api_base(self):
             return self.settings.get('api_base')
-        
+
         @property
         def is_instruct_model(self):
             return self.selected_model and self.selected_model.find("instruct") >= 0
-        
+
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             client_settings = self.settings.copy()
             client_settings.update(settings)
@@ -71,7 +71,7 @@ try:
                 'api_key': (str, "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"),
                 'api_base': (str, "The base URL to use for requests - leave as default unless you know you need something else"),
             }
-            
+
             if self.api_base:
                 options['use_httpx'] = (bool, "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base")
 
@@ -89,12 +89,12 @@ try:
 
                 else:
                     options['model'] = (["Unable to retrieve models"], "Check API key and base URL and try again")
-                
+
             return options
 
         def GetAvailableModels(self) -> list[str]:
             """
-            Returns a list of possible values for the LLM model 
+            Returns a list of possible values for the LLM model
             """
             try:
                 if not hasattr(openai, "OpenAI"):
@@ -114,13 +114,13 @@ try:
                     return []
 
                 model_list = [ model.id for model in response.data if model.id.startswith('gpt') and model.id.find('vision') < 0 ]
-                
+
                 return sorted(model_list)
 
             except Exception as e:
                 logging.error(f"Unable to retrieve available AI models: {str(e)}")
                 return []
-            
+
         def GetInformation(self) -> str:
             if not self.api_key:
                 return self.information_noapikey
