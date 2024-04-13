@@ -228,7 +228,7 @@ class MainWindow(QMainWindow):
     def _load_icon(self, name):
         if not name or name == "default":
             name = "subtrans64"
-        filepath = GetResourcePath(f"{name}.ico")
+        filepath = GetResourcePath("assets", f"{name}.ico")
         self.setWindowIcon(QIcon(filepath))
 
     def _on_action_requested(self, action_name, params):
