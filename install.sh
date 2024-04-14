@@ -2,7 +2,7 @@
 # Enable error handling
 set -e
 
-if ![ -d "scripts" ]; then
+if [ ! -d "scripts" ]; then
     echo "Please run the script from the root directory of the project."
     exit 1
 fi
@@ -26,8 +26,7 @@ fi
 echo "Checking if \"envsubtrans\" folder exists..."
 if [ -d "envsubtrans" ]; then
     echo "\"envsubtrans\" folder already exists."
-    echo "Do you want to perform a clean install? This will delete the existing environment. (Y/N)"
-    read -p "Enter your choice (Y/N): " user_choice
+    read -p "Do you want to perform a clean install? This will delete the existing environment. (Y/N): " user_choice
     if [ "$user_choice" = "Y" ] || [ "$user_choice" = "y" ]; then
         echo "Performing a clean install..."
         rm -rf envsubtrans
@@ -36,12 +35,13 @@ if [ -d "envsubtrans" ]; then
         echo "Invalid choice. Exiting installation."
         exit 1
     fi
-else
-    echo "Creating \"envsubtrans\" directory..."
 fi
 
 python3 -m venv envsubtrans
 source envsubtrans/bin/activate
+
+scripts/generate-cmd.sh gui-subtrans
+scripts/generate-cmd.sh llm-subtrans
 
 echo "Select which provider you want to install:"
 echo "0 = None"
@@ -64,6 +64,7 @@ case $provider_choice in
         echo "OPENAI_API_KEY=$openai_api_key" >> .env
         echo "Installing OpenAI module..."
         pip install openai
+        scripts/generate-cmd.sh gpt-subrans
         ;;
     2)
         read -p "Enter your Google Gemini API Key: " gemini_api_key
@@ -75,6 +76,7 @@ case $provider_choice in
         echo "GEMINI_API_KEY=$gemini_api_key" >> .env
         echo "Installing Google GenerativeAI module..."
         pip install google-generativeai
+        scripts/generate-cmd.sh gemini-subtrans
         ;;
     3)
         read -p "Enter your Anthropic API Key: " anthropic_api_key
@@ -86,6 +88,7 @@ case $provider_choice in
         echo "CLAUDE_API_KEY=$anthropic_api_key" >> .env
         echo "Installing Anthropic module..."
         pip install anthropic
+        scripts/generate-cmd.sh claude-subtrans
         ;;
     *)
         echo "Invalid choice. Exiting installation."
@@ -93,12 +96,8 @@ case $provider_choice in
         ;;
 esac
 
-echo "Installing requirements from \"requirements.txt\"..."
-pip install -r requirements.txt
-
-echo "Copying scripts to root directory..."
-cp scripts/subtrans.sh .
-cp scripts/gui-subtrans.sh .
+echo "Installing required modules..."
+pip install --upgrade -r requirements.txt
 
 echo "Setup completed successfully. To uninstall just delete the directory"
 
