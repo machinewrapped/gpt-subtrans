@@ -2,6 +2,26 @@
 # Enable error handling
 set -e
 
+function install_provider() {
+    local provider=$1
+    local api_key_var_name=$2
+    local pip_package=$3
+    local script_name=$4
+
+    read -p "Enter your $provider API Key: " api_key
+    if [ -f ".env" ]; then
+        # Remove any existing API key and provider settings
+        sed -i '' "/^${api_key_var_name}_API_KEY=/d" .env
+        sed -i '' "/^PROVIDER=/d" .env
+    fi
+    echo "PROVIDER=$provider" >> .env
+    echo "${api_key_var_name}_API_KEY=$api_key" >> .env
+    echo "Installing $provider module..."
+    pip install $pip_package
+    scripts/generate-cmd.sh $script_name
+}
+
+
 if [ ! -d "scripts" ]; then
     echo "Please run the script from the root directory of the project."
     exit 1
@@ -48,47 +68,26 @@ echo "0 = None"
 echo "1 = OpenAI"
 echo "2 = Google Gemini"
 echo "3 = Anthropic Claude"
-read -p "Enter your choice (0/1/2/3): " provider_choice
+echo "a = All"
+read -p "Enter your choice (0/1/2/3/a): " provider_choice
 
 case $provider_choice in
     0)
         echo "No additional provider selected. Moving forward without any installations."
         ;;
     1)
-        read -p "Enter your OpenAI API Key: " openai_api_key
-        if [ -f ".env" ]; then
-            sed -i '' "/^OPENAI_/d" .env
-            sed -i '' "/^PROVIDER=OpenAI/d" .env
-        fi
-        echo "PROVIDER=OpenAI" >> .env
-        echo "OPENAI_API_KEY=$openai_api_key" >> .env
-        echo "Installing OpenAI module..."
-        pip install openai
-        scripts/generate-cmd.sh gpt-subrans
+        install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
         ;;
     2)
-        read -p "Enter your Google Gemini API Key: " gemini_api_key
-        if [ -f ".env" ]; then
-            sed -i '' "/^GEMINI_/d" .env
-            sed -i '' "/^PROVIDER=Google Gemini/d" .env
-        fi
-        echo "PROVIDER=Google Gemini" >> .env
-        echo "GEMINI_API_KEY=$gemini_api_key" >> .env
-        echo "Installing Google GenerativeAI module..."
-        pip install google-generativeai
-        scripts/generate-cmd.sh gemini-subtrans
+        install_provider "Google Gemini" "GEMINI" "google-generativeai" "gemini-subtrans"
         ;;
     3)
-        read -p "Enter your Anthropic API Key: " anthropic_api_key
-        if [ -f ".env" ]; then
-            sed -i '' "/^CLAUDE_/d" .env
-            sed -i '' "/^PROVIDER=Claude/d" .env
-        fi
-        echo "PROVIDER=Claude" >> .env
-        echo "CLAUDE_API_KEY=$anthropic_api_key" >> .env
-        echo "Installing Anthropic module..."
-        pip install anthropic
-        scripts/generate-cmd.sh claude-subtrans
+        install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
+        ;;
+    a)
+        install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
+        install_provider "Google Gemini" "GEMINI" "google-generativeai" "gemini-subtrans"
+        install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
         ;;
     *)
         echo "Invalid choice. Exiting installation."
