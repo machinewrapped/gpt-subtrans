@@ -6,14 +6,12 @@ import dotenv
 import appdirs
 from PySubtitle.Instructions import Instructions, LoadInstructionsResource
 from PySubtitle.version import __version__
-from PySubtitle.Helpers.substitutions import ParseSubstitutions
-from PySubtitle.Helpers.parse import ParseNames
-
 
 MULTILINE_OPTION = 'multiline'
 
 config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
 settings_path = os.path.join(config_dir, 'settings.json')
+default_user_prompt = "Translate these subtitles [ for movie][ to language]"
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -140,6 +138,9 @@ class Options:
         return settings
 
     def LoadSettings(self):
+        """
+        Load the settings from a JSON file
+        """
         if not os.path.exists(settings_path) or self.get('firstrun'):
             return False
 
@@ -165,6 +166,9 @@ class Options:
             return False
 
     def SaveSettings(self):
+        """
+        Save the settings to a JSON file
+        """
         try:
             settings : dict = self.GetSettings()
 
@@ -187,7 +191,26 @@ class Options:
             logging.error(f"Error saving settings to {settings_path}")
             return False
 
+    def BuildUserPrompt(self) -> str:
+        """
+        Generate the user prompt to use for requesting translations
+        """
+        target_language = self.get('target_language')
+        movie_name = self.get('movie_name')
+        prompt : str = self.get('prompt', default_user_prompt)
+        prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
+        prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
+
+        for k,v in self.options.items():
+            if v:
+                prompt = prompt.replace(f"[{k}]", str(v))
+
+        return prompt.strip()
+
     def InitialiseInstructions(self):
+        """
+        Load options from instructions file if specified
+        """
         instruction_file = self.get('instruction_file')
         if instruction_file:
             try:
@@ -200,14 +223,18 @@ class Options:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
 
     def InitialiseProviderSettings(self, provider : str, settings : dict):
-        """ Create or update the settings for a provider"""
+        """
+        Create or update the settings for a provider
+        """
         if provider not in self.provider_settings:
             self.provider_settings[provider] = deepcopy(settings)
 
         self.MoveSettingsToProvider(provider, settings.keys())
 
     def MoveSettingsToProvider(self, provider : str, keys : list):
-        """ Move settings from the main options to a provider's settings """
+        """
+        Move settings from the main options to a provider's settings
+        """
         if provider not in self.provider_settings:
             self.provider_settings[provider] = {}
 
@@ -216,7 +243,9 @@ class Options:
             self.provider_settings[provider].update(settings_to_move)
 
     def _update_version(self):
-        """ Update settings from older versions of the application """
+        """
+        Update settings from older versions of the application
+        """
         if 'gpt_model' in self.options:
             self.options['model'] = self.options['gpt_model']
             del self.options['gpt_model']

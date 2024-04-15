@@ -121,10 +121,6 @@ def GetOutputPath(filepath, language="translated"):
 
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def WrapSystemMessage(message : str):
-    separator = "--------"
-    return '\n'.join( [ separator, "SYSTEM", separator, message.strip(), separator])
-
 def ParseTranslation(text):
     """
     Unpack a response from Chat GPT

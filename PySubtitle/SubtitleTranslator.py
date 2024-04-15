@@ -12,7 +12,6 @@ from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
 from PySubtitle.Helpers import FormatErrorMessages, Linearise, MergeTranslations,  RemoveEmptyLines, SanitiseSummary, UnbatchScenes
-from PySubtitle.Helpers.prompts import BuildUserPrompt
 from PySubtitle.Helpers.substitutions import ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -48,7 +47,7 @@ class SubtitleTranslator:
 
         self.settings = options.GetSettings()
         self.instructions : Instructions = options.GetInstructions()
-        self.user_prompt : str = BuildUserPrompt(options)
+        self.user_prompt : str = options.BuildUserPrompt()
         self.substitutions = ParseSubstitutions(options.get('substitutions', {}))
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
@@ -205,7 +204,8 @@ class SubtitleTranslator:
         if batch.summary:
             context['summary'] = batch.summary
 
-        batch.prompt = self.client.BuildTranslationPrompt(self.user_prompt, self.instructions.instructions, originals, context)
+        instructions = self.instructions.instructions
+        batch.prompt = self.client.BuildTranslationPrompt(self.user_prompt, instructions, originals, context)
 
         if self.preview:
             return
@@ -240,17 +240,6 @@ class SubtitleTranslator:
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "")
                 #context['names'] = translation.names or context.get('names', []) or options.get('names')
                 batch.UpdateContext(context)
-
-
-    def BuildTranslationPrompt(self, lines : list, context : dict):
-        """
-        Generate a translation prompt for the context
-        """
-        prompt = TranslationPrompt(self.user_prompt, self.client.supports_conversation)
-        prompt.supports_system_prompt = self.client.supports_system_prompt
-        prompt.supports_system_messages = self.client.supports_system_messages
-        prompt.GenerateMessages(self.instructions.instructions, lines, context)
-        return prompt
 
     def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
         """

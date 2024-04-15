@@ -10,7 +10,7 @@ from GUI.ViewModel.ViewModelError import ViewModelError
 from PySubtitle.Helpers import FormatMessages, UpdateFields
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.Translation import Translation
-from PySubtitle.TranslationPrompt import FormatPrompt, TranslationPrompt
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class BatchItem(ViewModelItem):
     """ Represents a subtitle batch in the view model"""
@@ -106,7 +106,7 @@ class BatchItem(ViewModelItem):
         return True if self.batch_model.get('errors') else False
 
     def Update(self, update : dict):
-        """ 
+        """
         Update the batch model properties
         """
         if not isinstance(update, dict):
@@ -219,3 +219,18 @@ class BatchItem(ViewModelItem):
     def __str__(self) -> str:
         content = self.GetContent()
         return f"{content['heading']}\n{content['subheading']}\n{content['body']}"
+
+
+def FormatPrompt(prompt : TranslationPrompt):
+    """
+    Format a prompt for display to the user
+    """
+    if prompt.batch_prompt:
+        return prompt.batch_prompt
+    else:
+        lines = []
+
+        if prompt.user_prompt:
+            lines.append(f"User Prompt:\n {prompt.user_prompt}")
+
+        return "\n".join(lines)
