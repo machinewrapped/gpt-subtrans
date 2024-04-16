@@ -1,6 +1,5 @@
 from typing import Optional, List
 
-from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleLine import SubtitleLine
 
