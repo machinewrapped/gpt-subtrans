@@ -12,8 +12,8 @@ default_pattern = re.compile(
     r"#(?P<number>\d+)"
     r"(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?"
     r"[\s\r\n]+Translation>"
-    r"(?:[\s\r\n]+(?P<body>[^\#]*?))?"
-    r"(?=\n#\d|\Z)", 
+    r"(?:[\s\r\n]+(?P<body>[\s\S]*?))?"
+    r"(?=\n#\d|\Z)",
     re.MULTILINE)
 
 fallback_patterns = [
@@ -28,7 +28,7 @@ fallback_patterns = [
 
 class TranslationParser:
     """
-    Extract translated subtitles from the AI translation response 
+    Extract translated subtitles from the AI translation response
     """
     def __init__(self, options : Options):
         self.options = options
@@ -51,11 +51,11 @@ class TranslationParser:
         pre-defined pattern to match each line, or a list of fallbacks
         if the match fails.
         """
-        self.text = translation.text if isinstance(translation, Translation) else str(translation) 
+        self.text = translation.text if isinstance(translation, Translation) else str(translation)
 
         if not self.text:
             raise TranslationError("No translated text provided", translation=translation)
-        
+
         for template in self.regex_patterns:
             matches = self.FindMatches(f"{self.text}\n\n", template)
 
@@ -65,28 +65,28 @@ class TranslationParser:
         logging.debug(f"Matches: {str(matches)}")
 
         subs = [SubtitleLine.FromDictionary(match) for match in matches]
-        self.translations = { 
-            sub.key: sub for sub in subs 
+        self.translations = {
+            sub.key: sub for sub in subs
             }
-        
+
         if not self.translations:
             return None
 
         self.translated = MergeTranslations(self.translated, self.translations.values())
 
         self.errors = self.ValidateTranslations()
-        
+
         return self.translated
 
     def FindMatches(self, text, template):
         """
         re.findall has some very unhelpful behaviour, so we use finditer instead.
         """
-        return [{ 
+        return [{
             'body': match.group('body'),
             'number': match.groupdict().get('number'),
-            'start': match.groupdict().get('start'), 
-            'end': match.groupdict().get('end'), 
+            'start': match.groupdict().get('start'),
+            'end': match.groupdict().get('end'),
             'original': match.groupdict().get('original')
             } for match in template.finditer(text)]
 
@@ -96,7 +96,7 @@ class TranslationParser:
         """
         if not originals:
             raise ValueError("Original subtitles not provided")
-        
+
         unmatched = []
 
         for item in originals:
@@ -161,6 +161,6 @@ class TranslationParser:
         """
         if not self.translated:
             return [ NoTranslationError("Failed to extract translations from response", translation=self.text) ]
-        
+
         validator = SubtitleValidator(self.options)
         return validator.ValidateTranslations(self.translated)
