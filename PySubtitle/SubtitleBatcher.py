@@ -26,7 +26,7 @@ class OldSubtitleBatcher(BaseSubtitleBatcher):
         last_endtime = None
 
         for line in lines:
-            gap = line.start - last_endtime if last_endtime else None 
+            gap = line.start - last_endtime if last_endtime else None
 
             if gap is None or gap > self.scene_threshold:
                 scene = SubtitleScene()
@@ -65,7 +65,7 @@ class SubtitleBatcher(BaseSubtitleBatcher):
             if gap is not None and gap > self.scene_threshold:
                 if current_lines:
                     scene = self._create_scene(current_lines)
-                    
+
                     scenes.append(scene)
                     current_lines = []
 
@@ -119,11 +119,11 @@ class SubtitleBatcher(BaseSubtitleBatcher):
         # Recursively split the batches and concatenate the lists
         return self._split_lines(left) + self._split_lines(right)
 
-def CreateSubtitleBatcher(settings : dict):
+def CreateSubtitleBatcher(settings : dict) -> BaseSubtitleBatcher:
     """
     Helper to create an appropriate batcher for the settings
     """
     if settings.get('use_simple_batcher'):
         return OldSubtitleBatcher(settings)
-    
+
     return SubtitleBatcher(settings)

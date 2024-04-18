@@ -3,7 +3,7 @@ import regex
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
-split_chars = ['\n', '!', '?', '.', ':', ';', ',']
+split_chars = ['\n', '\，', '!', '?', '.', ',' ':', ';', ',']
 
 class SubtitlePreprocessor:
     """
@@ -80,8 +80,7 @@ class SubtitlePreprocessor:
         split_start = line.end - split_duration
         split_end = line.end
 
-        line.text = line.text[:split_point]
-        line.end = line.end - (split_duration + self.min_gap)
+        line = SubtitleLine.Construct(line.number, line.start, line.end - (split_duration + self.min_gap), line.text[:split_point])
 
         split_lines : list[SubtitleLine] = self._split_line_by_duration(line)
 
@@ -107,9 +106,12 @@ class SubtitlePreprocessor:
             if index <= 0:
                 continue
 
+            if index >= len(line.text) - 1:
+                continue
+
             score = self._get_split_score(index, line)
             if score > split_score:
-                split_point = index
+                split_point = index + 1
                 split_score = score
 
         return split_point if split_score > 0 else None

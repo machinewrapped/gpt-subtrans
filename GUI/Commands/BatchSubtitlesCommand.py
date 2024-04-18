@@ -2,6 +2,7 @@ from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher, SubtitleBatcher
+from PySubtitle.SubtitlePreprocessor import SubtitlePreprocessor
 from PySubtitle.SubtitleProject import SubtitleProject
 
 import logging
@@ -22,6 +23,10 @@ class BatchSubtitlesCommand(Command):
 
         if not project or not project.subtitles:
             logging.error("No subtitles to batch")
+
+        if self.options.get('preprocess_subtitles'):
+            preprocessor = SubtitlePreprocessor(self.options)
+            project.subtitles.PreProcess(preprocessor)
 
         batcher : SubtitleBatcher = CreateSubtitleBatcher(self.options)
         project.subtitles.AutoBatch(batcher)
