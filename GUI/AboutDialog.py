@@ -16,17 +16,17 @@ class AboutDialog(QDialog):
         self.setWindowTitle("About GUI-Subtrans")
         self.setMinimumWidth(512)
         self.setMaximumWidth(768)
-        
+
         # Main Horizontal Layout
         main_layout = QHBoxLayout(self)
 
         # Image on the left
-        image_layout = QVBoxLayout()        
+        image_layout = QVBoxLayout()
         image_label = QLabel(self)
-        filepath = GetResourcePath("theme", "subtransmd.png")
+        filepath = GetResourcePath("assets", "subtransmd.png")
         pixmap = QPixmap(filepath)
         image_label.setPixmap(pixmap)
-        
+
         # Label for image attribution
         image_attribution_label = QLabel('Logo generated with <a href="https://stability.ai/stablediffusion">Stable Diffusion XL</a>')
         image_attribution_label.setOpenExternalLinks(True)  # This ensures the link opens in a default web browser
@@ -39,17 +39,17 @@ class AboutDialog(QDialog):
 
         # Right side vertical layout
         layout = QVBoxLayout()
-        
+
         # Title
         title_label = QLabel(f"GUI-Subtrans Version {__version__}")
         font = title_label.font()
         font.setPointSize(24)
         title_label.setFont(font)
-        
+
         # Description
         description_label = QLabel("GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or to improve the quality of an existing translation.")
         description_label.setWordWrap(True)
-        
+
         # Author Information and GitHub link
         author_label = QLabel("Developed by: MachineWrapped<br>"
                               "Contact: machinewrapped@gmail.com<br>"
@@ -65,7 +65,7 @@ class AboutDialog(QDialog):
                              "without restriction, including without limitation the rights to use, copy, "
                              "modify, merge, publish, distribute, sublicense, and/or sell copies of the software.")
         license_text.setWordWrap(True)
-        
+
         # Libraries and their versions
         libraries = ["srt", "pyside6", "openai", "google-generativeai", "anthropic", "regex", "events", "httpx", "requests", "darkdetect", "appdirs", "python-dotenv"]
         library_strings = []
@@ -79,11 +79,11 @@ class AboutDialog(QDialog):
 
         libraries_list = QLabel("GUI-Subtrans would not work without these libraries:\n" + ", ".join(library_strings))
         libraries_list.setWordWrap(True)
-        
+
         # OK Button
         button_box = QDialogButtonBox(QDialogButtonBox.Ok)
         button_box.accepted.connect(self.accept)
-        
+
         # Add widgets to layout
         layout.addWidget(title_label)
         layout.addWidget(description_label)
