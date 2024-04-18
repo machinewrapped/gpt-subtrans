@@ -42,7 +42,7 @@ def UpdateFields(item : dict, update: dict, fields : list[str]):
 
     item.update({field: update[field] for field in update.keys() if field in fields})
 
-def CreateSrtSubtitle(item):
+def CreateSrtSubtitle(item) -> srt.Subtitle:
     """
     Try to construct an srt.Subtitle from the argument
     """
@@ -61,7 +61,7 @@ def CreateSrtSubtitle(item):
 
     return item
 
-def GetTimeDelta(time):
+def GetTimeDelta(time) -> datetime.timedelta:
     if time is None:
         return None
 

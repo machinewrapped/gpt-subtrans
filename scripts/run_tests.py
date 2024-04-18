@@ -1,6 +1,11 @@
 import os
 import logging
 import importlib.util
+import sys
+
+# Add the parent directory to the sys path so that modules can be found
+base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(base_path)
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -12,7 +17,6 @@ console.setLevel(logging.INFO)
 formatter = logging.Formatter('%(message)s')
 console.setFormatter(formatter)
 logger.addHandler(console)
-
 
 def run_all_tests(tests_directory, subtitles_directory, results_directory):
     """
@@ -37,7 +41,11 @@ def run_all_tests(tests_directory, subtitles_directory, results_directory):
 
         # Check if run_tests function exists
         if hasattr(module, 'run_tests'):
-            module.run_tests(subtitles_directory, results_directory)
+            try:
+                module.run_tests(subtitles_directory, results_directory)
+
+            except Exception as e:
+                logger.error(f"Error running tests in {filename}: {e}")
 
 if __name__ == "__main__":
     scripts_directory = os.path.dirname(os.path.abspath(__file__))

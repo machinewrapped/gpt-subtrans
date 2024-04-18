@@ -35,6 +35,8 @@ default_options = {
     'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 30)),
     'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
     'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
+    'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.5)),
+    'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 2)),
     'match_partial_words': env_bool('MATCH_PARTIAL_WORDS', False),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),

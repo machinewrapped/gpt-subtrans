@@ -1,25 +1,7 @@
-import logging
 import os
-from datetime import datetime
-
 from PySubtitle.SubtitleBatcher import OldSubtitleBatcher, SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
-
-def configure_logger(filename, logger_name):
-    """
-    Configures the logger to write to the given filename.
-    Returns the logger instance.
-    """
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.INFO)
-
-    file_handler = logging.FileHandler(filename, mode='w', encoding='utf-8')
-    formatter = logging.Formatter('%(message)s')
-    file_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-
-    return logger, file_handler
+from PySubtitle.Helpers.test_helpers import run_test_on_all_srt_files
 
 def analyze_scenes(scenes):
     num_scenes = len(scenes)
@@ -112,34 +94,9 @@ def run_tests(directory_path, results_path):
         { 'min_batch_size': 16, 'max_batch_size': 80, 'scene_threshold': 40, 'batch_threshold': 8 },
     ]
 
-    for file in os.listdir(directory_path):
-        if not file.endswith(".srt"):
-            continue
-
-        filepath = os.path.join(directory_path, file)
-        result_filepath = os.path.join(results_path, f"{os.path.splitext(file)[0]}_batch_tests.txt")
-
-        logger, file_handler = configure_logger(result_filepath, file)
-
-        current_time = datetime.now().strftime("%Y-%m-%d at %H:%M")
-        logger.info(f"File: {filepath}")
-        logger.info(f"Tested: {current_time}")
-        logger.info("".center(60, "-"))
-
-        try:
-            subtitles = SubtitleFile(filepath)
-            subtitles.LoadSubtitles()
-
-            for options in test_options:
-                logger.info("")
-                run_test(subtitles, logger, options)
-
-        except Exception as e:
-            logger.error(f"Error processing {filepath}: {str(e)}")
-
-        finally:
-            logger.removeHandler(file_handler)
+    run_test_on_all_srt_files(run_test, test_options, directory_path, results_path)
 
 if __name__ == "__main__":
     directory_path = os.path.join(os.getcwd(), "test_subtitles")
+    results_path = os.path.join(directory_path, "test_results")
     run_tests(directory_path)
