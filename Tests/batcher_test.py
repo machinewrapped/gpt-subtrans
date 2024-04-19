@@ -25,7 +25,7 @@ def analyze_scenes(scenes):
 
     return num_scenes, num_batches_list, largest_batch_list, smallest_batch_list, average_batch_size_list
 
-def run_test(subtitles: SubtitleFile, logger, options):
+def batcher_test(subtitles: SubtitleFile, logger, options):
     try:
         old_batcher = OldSubtitleBatcher(options)
         old_scenes = old_batcher.BatchSubtitles(subtitles.originals)
@@ -94,7 +94,7 @@ def run_tests(directory_path, results_path):
         { 'min_batch_size': 16, 'max_batch_size': 80, 'scene_threshold': 40, 'batch_threshold': 8 },
     ]
 
-    run_test_on_all_srt_files(run_test, test_options, directory_path, results_path)
+    run_test_on_all_srt_files(batcher_test, test_options, directory_path, results_path)
 
 if __name__ == "__main__":
     directory_path = os.path.join(os.getcwd(), "test_subtitles")

@@ -1,9 +1,10 @@
 from datetime import timedelta
+import logging
 import regex
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
-split_chars = ['\n', '\，', '!', '?', '.', ',' ':', ';', ',']
+split_sequences = ['\n', '\，', '!', '?', '.', ',' ':', ';', ',']
 
 class SubtitlePreprocessor:
     """
@@ -11,11 +12,9 @@ class SubtitlePreprocessor:
 
     Will split long lines, add line breaks and remove empty lines.
     """
-    def __init__(self, options : Options):
-        self.options = options
-
-        self.max_line_duration = options.get('max_line_duration', 0.0)
-        self.min_line_duration = options.get('min_line_duration', 0.0)
+    def __init__(self, settings : Options | dict):
+        self.max_line_duration = settings.get('max_line_duration', 0.0)
+        self.min_line_duration = settings.get('min_line_duration', 0.0)
         self.min_gap = timedelta(seconds=0.05)
 
         self.split_by_duration = self.max_line_duration > 0.0
@@ -33,18 +32,27 @@ class SubtitlePreprocessor:
         line_number = lines[0].number
 
         for line in lines:
-            new_lines = []
-
             self._preprocess_line(line)
             if not line.text:
                 continue
 
             needs_split = self.split_by_duration and line.duration.total_seconds() > self.max_line_duration
-            new_lines = self._split_line_by_duration(line) if needs_split else [line]
 
-            for out_line in new_lines:
-                out_line.number = line_number
-                processed.append(out_line)
+            if needs_split:
+                split_lines = self._split_line_by_duration(line)
+
+                for out_line in split_lines:
+                    out_line.number = line_number
+                    processed.append(out_line)
+                    line_number += 1
+
+                if len(split_lines) > 1:
+                    new_line_text = '\n'.join([str(l) for l in split_lines])
+                    logging.debug(f"Split line {line.number} into {len(split_lines)} parts:\n{str(line)}\n-->\n{new_line_text}")
+                else:
+                    logging.debug(f"Failed to split line {line.number}:\n{str(line)}")
+            else:
+                processed.append(line)
                 line_number += 1
 
         return processed
@@ -101,7 +109,7 @@ class SubtitlePreprocessor:
         split_point = None
         split_score = 0
 
-        for char in split_chars:
+        for char in split_sequences:
             index = line.text.rfind(char)
             if index <= 0:
                 continue
