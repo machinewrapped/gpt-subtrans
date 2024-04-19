@@ -4,7 +4,7 @@ import regex
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
-split_sequences = ['\n', '\，', '!', '?', '.', ',' ':', ';', ',']
+split_sequences = ['\n', '\，', '!', '?', '.', ',', ':', ';', ',']
 
 class SubtitlePreprocessor:
     """
@@ -15,7 +15,8 @@ class SubtitlePreprocessor:
     def __init__(self, settings : Options | dict):
         self.max_line_duration = settings.get('max_line_duration', 0.0)
         self.min_line_duration = settings.get('min_line_duration', 0.0)
-        self.min_gap = timedelta(seconds=0.05)
+        self.min_split_length = settings.get('min_split_length', 4)
+        self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
 
         self.split_by_duration = self.max_line_duration > 0.0
 
@@ -106,23 +107,27 @@ class SubtitlePreprocessor:
         Split as close to the middle as possible
         Neither side of the split should be shorter than the minimum line duration
         """
-        split_point = None
-        split_score = 0
+        line_length = len(line.text)
+        split_start_index = self.min_split_length
+        split_end_index = line_length - self.min_split_length
+        if split_end_index <= split_start_index:
+            return None
 
         for char in split_sequences:
-            index = line.text.rfind(char)
-            if index <= 0:
-                continue
+            split_point = None
+            split_score = 0
 
-            if index >= len(line.text) - 1:
-                continue
+            for index in range(split_start_index, split_end_index):
+                if line.text[index] == char:
+                    score = self._get_split_score(index, line)
+                    if score > split_score:
+                        split_point = index + 1
+                        split_score = score
 
-            score = self._get_split_score(index, line)
-            if score > split_score:
-                split_point = index + 1
-                split_score = score
+            if split_point:
+                return split_point
 
-        return split_point if split_score > 0 else None
+        return None
 
     def _get_split_score(self, index : int, line : SubtitleLine):
         """
