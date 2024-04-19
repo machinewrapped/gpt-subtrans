@@ -15,7 +15,7 @@ class SubtitlePreprocessor:
     def __init__(self, settings : Options | dict):
         self.max_line_duration = settings.get('max_line_duration', 0.0)
         self.min_line_duration = settings.get('min_line_duration', 0.0)
-        self.min_split_length = settings.get('min_split_length', 4)
+        self.min_split_chars = settings.get('min_split_chars', 4)
         self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
 
         self.split_by_duration = self.max_line_duration > 0.0
@@ -108,8 +108,8 @@ class SubtitlePreprocessor:
         Neither side of the split should be shorter than the minimum line duration
         """
         line_length = len(line.text)
-        split_start_index = self.min_split_length
-        split_end_index = line_length - self.min_split_length
+        split_start_index = self.min_split_chars
+        split_end_index = line_length - self.min_split_chars
         if split_end_index <= split_start_index:
             return None
 
