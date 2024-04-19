@@ -37,6 +37,7 @@ default_options = {
     'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
     'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.0)),
     'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
+    'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 4)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 2)),
     'match_partial_words': env_bool('MATCH_PARTIAL_WORDS', False),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),

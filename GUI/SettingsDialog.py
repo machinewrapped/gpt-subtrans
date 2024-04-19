@@ -17,6 +17,7 @@ class SettingsDialog(QDialog):
             'instruction_file': (str, "Instructions for the translation provider to follow"),
             'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
             'theme': [],
+            'preprocess_subtitles': (bool, "Preprocess subtitles before translation"),
             'autosave': (bool, "Automatically save the project after each translation batch"),
             'write_backup': (bool, "Save a backup copy of the project when opening it"),
             # 'autosplit_incomplete': (bool, "If true, incomplete translations will be split into smaller batches and retried"),
@@ -34,6 +35,9 @@ class SettingsDialog(QDialog):
             'scene_threshold': (float, "Consider a new scene to have started after this many seconds without subtitles"),
             'batch_threshold': (float, "Consider starting a new batch after a gap of this many seconds (simple batcher only)"),
             'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
+            'max_line_duration': (float, "Maximum duration of a single line of subtitles"),
+            'min_line_duration': (float, "Minimum duration of a single line of subtitles"),
+            'min_split_chars': (int, "Minimum number of characters to split a line at"),
             'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
             'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
@@ -117,7 +121,7 @@ class SettingsDialog(QDialog):
                             self.provider_settings[provider][field.key] = field.GetValue()
                     else:
                         self.settings[field.key] = field.GetValue()
-            
+
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
 
@@ -134,7 +138,7 @@ class SettingsDialog(QDialog):
 
         layout = QFormLayout(section_widget)
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        
+
         self._populate_form(section_name, layout)
 
         self.sections[section_name] = section_widget
@@ -143,7 +147,7 @@ class SettingsDialog(QDialog):
 
     def _populate_form(self, section_name : str, layout : QFormLayout):
         """
-        Create the form fields for the options 
+        Create the form fields for the options
         """
         ClearForm(layout)
 
@@ -191,7 +195,7 @@ class SettingsDialog(QDialog):
             field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
             layout.addRow(field.name, field)
             self.widgets[key] = field
-        
+
         provider_info = self.translation_provider.GetInformation()
         if provider_info:
             provider_layout = QVBoxLayout()
@@ -215,7 +219,7 @@ class SettingsDialog(QDialog):
         if not self.translation_provider:
             logging.warning("Translation provider is not configured")
             return
-        
+
         provider_settings = self.provider_settings.get(self.translation_provider.name, {})
         self.translation_provider.settings.update(provider_settings)
 
@@ -258,5 +262,5 @@ class SettingsDialog(QDialog):
                 self.widgets['prompt'].SetValue(instructions.prompt)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
-    
+
 
