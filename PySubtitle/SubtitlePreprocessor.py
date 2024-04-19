@@ -4,7 +4,7 @@ import regex
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
-split_sequences = ['\n', '\，', '!', '?', '.', ',', ':', ';', ',']
+split_sequences = ['\n', '\，', '!', '?', '.', '…', '。', ',', '﹑', ':', ';', ',', '   ']
 
 class SubtitlePreprocessor:
     """
@@ -80,7 +80,7 @@ class SubtitlePreprocessor:
         if line.duration.total_seconds() <= self.max_line_duration:
             return [line]
 
-        split_point = self._find_split_point(line)
+        split_point = self._find_break_point(line, split_sequences)
         if split_point is None:
             return [line]
 
@@ -98,34 +98,41 @@ class SubtitlePreprocessor:
 
         return split_lines
 
-    def _find_split_point(self, line : SubtitleLine):
+    def _find_break_point(self, line: SubtitleLine, break_sequences: list[str]):
         """
         Find the optimum split point for a subtitle.
 
         The criteria are:
-        Prefer to split at newlines > punctuation > whitespace if possible
-        Split as close to the middle as possible
+        Take break sequences as priority order, find the first matching sequence.
+        Break at the occurence that is as close to the middle as possible.
         Neither side of the split should be shorter than the minimum line duration
+        If multiple instances of a split sequence are adjacent, split at the last one
         """
         line_length = len(line.text)
-        split_start_index = self.min_split_chars
-        split_end_index = line_length - self.min_split_chars
-        if split_end_index <= split_start_index:
+        start_index = self.min_split_chars
+        end_index = line_length - self.min_split_chars
+        if end_index <= start_index:
             return None
 
-        for char in split_sequences:
-            split_point = None
-            split_score = 0
+        for seq in break_sequences:
+            best_break_point = None
+            best_break_score = 0
 
-            for index in range(split_start_index, split_end_index):
-                if line.text[index] == char:
-                    score = self._get_split_score(index, line)
-                    if score > split_score:
-                        split_point = index + 1
-                        split_score = score
+            # Find all occurrences of the sequence in the allowable range
+            index = line.text.find(seq, start_index)
+            while index != -1 and index < end_index:
+                # Compute the score after this sequence
+                break_index = index + len(seq)
+                score = self._get_split_score(break_index, line)
 
-            if split_point:
-                return split_point
+                if score > best_break_score:
+                    best_break_point = break_index
+                    best_break_score = score
+
+                index = line.text.find(seq, index + 1)
+
+            if best_break_point is not None:
+                return best_break_point
 
         return None
 
