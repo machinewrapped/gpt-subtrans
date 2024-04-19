@@ -4,7 +4,7 @@ from datetime import datetime
 
 from PySubtitle.SubtitleFile import SubtitleFile
 
-def configure_base_logger(results_path, test_name):
+def _configure_base_logger(results_path, test_name):
     """
     Configures and returns a base logger that logs DEBUG messages to the console
     and to a general log file named after the test name.
@@ -15,13 +15,13 @@ def configure_base_logger(results_path, test_name):
     # Creating file handler for the test log
     test_log_path = os.path.join(results_path, f"{test_name}.log")
     file_handler = logging.FileHandler(test_log_path, mode='w', encoding='utf-8')
-    file_formatter = logging.Formatter('%(levelname)s - %(message)s')
+    file_formatter = logging.Formatter('%(message)s')
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
 
     return logger
 
-def add_test_file_logger(logger, results_path, input_filename, test_name):
+def _add_test_file_logger(logger, results_path, input_filename, test_name):
     """
     Adds a file handler to log INFO level messages to a specific file named after the input file (without extension) and test name.
     """
@@ -34,7 +34,7 @@ def add_test_file_logger(logger, results_path, input_filename, test_name):
     logger.addHandler(file_handler)
     return file_handler
 
-def run_test_on_all_srt_files(run_test: callable, test_options: list[dict], directory_path: str, results_path: str = None):
+def RunTestOnAllSrtFiles(run_test: callable, test_options: list[dict], directory_path: str, results_path: str = None):
     """
     Run a series of tests on all .srt files in the test_subtitles directory.
     """
@@ -43,7 +43,7 @@ def run_test_on_all_srt_files(run_test: callable, test_options: list[dict], dire
     results_path = results_path or directory_path
     os.makedirs(results_path, exist_ok=True)
 
-    logger = configure_base_logger(results_path, test_name)
+    logger = _configure_base_logger(results_path, test_name)
 
     logger.info("".center(60, "-"))
     logger.info(f"Running {test_name}")
@@ -54,7 +54,7 @@ def run_test_on_all_srt_files(run_test: callable, test_options: list[dict], dire
         if not file.endswith(".srt"):
             continue
 
-        file_handler = add_test_file_logger(logger, results_path, file, test_name)
+        file_handler = _add_test_file_logger(logger, results_path, file, test_name)
 
         filepath = os.path.join(directory_path, file)
 

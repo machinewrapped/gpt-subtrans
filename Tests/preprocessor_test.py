@@ -1,7 +1,7 @@
 import os
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitlePreprocessor import SubtitlePreprocessor
-from PySubtitle.Helpers.test_helpers import run_test_on_all_srt_files
+from PySubtitle.Helpers.test_helpers import RunTestOnAllSrtFiles
 
 def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
     try:
@@ -42,7 +42,7 @@ def run_tests(directory_path, results_path):
         { 'max_line_duration': 4.0, 'min_line_duration': 0.8 }
     ]
 
-    run_test_on_all_srt_files(preprocess_test, test_options, directory_path, results_path)
+    RunTestOnAllSrtFiles(preprocess_test, test_options, directory_path, results_path)
 
 if __name__ == "__main__":
     directory_path = os.path.join(os.getcwd(), "test_subtitles")
