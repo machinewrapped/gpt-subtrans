@@ -4,7 +4,7 @@ import regex
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
-split_sequences = ['\n', '\，', '!', '?', '.', '…', '。', ',', '﹑', ':', ';', ',', '   ']
+split_sequences = ['\n', '!', '?', '.', '，', '、', '…', '。', ',', '﹑', ':', ';', ',', '   ']
 
 class SubtitlePreprocessor:
     """
@@ -24,7 +24,7 @@ class SubtitlePreprocessor:
         """
         Pre-process subtitles to make them suitable for translation.
 
-        Will split long lines, merge short lines, and remove empty lines.
+        Will split long lines, add line breaks to dialog, and remove empty lines.
         """
         if not lines:
             return []
@@ -39,7 +39,7 @@ class SubtitlePreprocessor:
 
             needs_split = self.split_by_duration and line.duration.total_seconds() > self.max_line_duration
 
-            if needs_split:
+            if needs_split and self.can_split(line):
                 split_lines = self._split_line_by_duration(line)
 
                 for out_line in split_lines:
@@ -58,12 +58,15 @@ class SubtitlePreprocessor:
 
         return processed
 
+    def can_split(self, line):
+        """ Check if a line can be split """
+        return not self._contains_tags(line.text)
+
     def _preprocess_line(self, line : SubtitleLine):
         """
         Split dialogs onto separate lines.
         Adjust line breaks to split at punctuation weighted by centrality
         """
-        # Remove leading and trailing whitespace
         line.text = line.text.strip()
 
         # Break line at dialog markers ("- ")
@@ -168,3 +171,9 @@ class SubtitlePreprocessor:
         length_seconds = max(line_duration * length_ratio, self.min_line_duration)
 
         return timedelta(seconds=length_seconds)
+
+    def _contains_tags(self, text : str) -> bool:
+        """
+        Check if a line contains any html-like tags (<i>, <b>, etc.)
+        """
+        return regex.search(r"<[^>]+>", text) is not None
