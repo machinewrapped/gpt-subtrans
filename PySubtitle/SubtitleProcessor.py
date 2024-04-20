@@ -28,6 +28,14 @@ class SubtitleProcessor:
             r" {3,}"  # Three or more spaces
         ]
         self._compiled_split_sequences = None
+        self.forbidden_start_end_pairs = [
+            ("<", ">"),
+            ("[", "]"),
+            ("(", ")"),
+            ('"', '"'),
+            ("“", "”"),
+            ("‘", "’"),
+        ]
 
         self.max_line_duration = timedelta(seconds = settings.get('max_line_duration', 0.0))
         self.min_line_duration = timedelta(seconds = settings.get('min_line_duration', 0.0))
@@ -60,7 +68,7 @@ class SubtitleProcessor:
 
             needs_split = self.split_by_duration and line.duration > self.max_line_duration
 
-            if needs_split and self._can_split(line):
+            if needs_split:
                 split_lines = self._split_line_by_duration(line)
 
                 processed.extend(split_lines)
@@ -76,10 +84,6 @@ class SubtitleProcessor:
                 line_number += 1
 
         return processed
-
-    def _can_split(self, line : SubtitleLine) -> bool:
-        """ Check if a line can be split """
-        return not ContainsTags(line.text)
 
     def _preprocess_line(self, line : SubtitleLine):
         """
@@ -119,7 +123,11 @@ class SubtitleProcessor:
 
         while stack:
             current_line = stack.pop()
-            if current_line.duration <= self.max_line_duration:
+            if current_line.duration <= self.max_line_duration or len(current_line.text) < self.min_split_chars * 2:
+                result.append(current_line)
+                continue
+
+            if (current_line.text[0], current_line.text[-1]) in self.forbidden_start_end_pairs:
                 result.append(current_line)
                 continue
 
