@@ -1,11 +1,10 @@
-from datetime import timedelta
 import logging
 import regex
-from PySubtitle.Helpers import ConvertWhitespaceBlocksToNewlines
+from datetime import timedelta
+
+from PySubtitle.Helpers.Text import ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags, ContainsTags
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
-
-split_sequences = ['\n', '!', '?', '.', '，', '、', '…', '。', ',', '﹑', ':', ';', ',', '   ']
 
 class SubtitleProcessor:
     """
@@ -14,13 +13,19 @@ class SubtitleProcessor:
     Will split long lines, add line breaks and remove empty lines.
     """
     def __init__(self, settings : Options | dict):
-        self.max_line_duration = settings.get('max_line_duration', 0.0)
-        self.min_line_duration = settings.get('min_line_duration', 0.0)
-        self.min_split_chars = settings.get('min_split_chars', 4)
-        self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
-        self.convert_whitespace_to_linebreak = settings.get('whitespaces_to_newline', False)
+        self.dialog_marker = "- "
+        self.split_sequences = ["\n", self.dialog_marker, "!", "?", ".", "，", "、", "…", "。", ",", "﹑", ":", ";", ",", "   "]
 
-        self.split_by_duration = self.max_line_duration > 0.0
+        self.max_line_duration = timedelta(seconds = settings.get('max_line_duration', 0.0))
+        self.min_line_duration = timedelta(seconds = settings.get('min_line_duration', 0.0))
+        self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
+        self.min_split_chars = settings.get('min_split_chars', 4)
+
+        self.convert_whitespace_to_linebreak = settings.get('whitespaces_to_newline', False)
+        self.break_dialog_on_one_line = settings.get('break_dialog_on_one_line', False)
+        self.normalise_dialog_tags = settings.get('normalise_dialog_tags', False)
+
+        self.split_by_duration = self.max_line_duration.total_seconds() > 0.0
 
     def PreprocessSubtitles(self, lines : list[SubtitleLine]):
         """
@@ -39,9 +44,9 @@ class SubtitleProcessor:
             if not line.text:
                 continue
 
-            needs_split = self.split_by_duration and line.duration.total_seconds() > self.max_line_duration
+            needs_split = self.split_by_duration and line.duration > self.max_line_duration
 
-            if needs_split and self.can_split(line):
+            if needs_split and self._can_split(line):
                 split_lines = self._split_line_by_duration(line)
 
                 for out_line in split_lines:
@@ -60,40 +65,47 @@ class SubtitleProcessor:
 
         return processed
 
-    def can_split(self, line):
+    def _can_split(self, line : SubtitleLine) -> bool:
         """ Check if a line can be split """
-        return not self._contains_tags(line.text)
+        return not ContainsTags(line.text)
 
     def _preprocess_line(self, line : SubtitleLine):
         """
         Split dialogs onto separate lines.
         Adjust line breaks to split at punctuation weighted by centrality
         """
-        line.text = line.text.strip()
+        text = line.text.strip()
 
+        # Convert whitespace blocks to newlines
         if self.convert_whitespace_to_linebreak:
-            line.text = ConvertWhitespaceBlocksToNewlines(line.text)
+            text = ConvertWhitespaceBlocksToNewlines(text)
 
-        # Break line at dialog markers ("- ")
-        line_parts = regex.split(r"(?<=\w)- ", line.text)
+        # If the subtitle is a single line, see if it should have line breaks added
+        if self.break_dialog_on_one_line and '-' in text:
+            text = BreakDialogOnOneLine(text, self.dialog_marker)
 
-        if len(line_parts) > 1:
-            line.text = '\n'.join(line_parts)
+        # If the subtitle has multiple lines, make sure dialog markers match
+        if self.normalise_dialog_tags:
+            text = NormaliseDialogTags(text, self.dialog_marker)
+
+        if text != line.text:
+            logging.debug(f"Preprocessed line {line.number}:\n{line.text}\n-->\n{text}")
+            line.text = text
 
     def _split_line_by_duration(self, line : SubtitleLine) -> list[SubtitleLine]:
         """
         Recursively split a line by finding potential split points and selecting the best one,
         adjusting the duration of the split lines to be proportional to their length as a percentage of the original line.
         """
-        if line.duration.total_seconds() <= self.max_line_duration:
+        if line.duration <= self.max_line_duration:
             return [line]
 
-        split_point = self._find_break_point(line, split_sequences)
+        split_point = _find_break_point(line, self.split_sequences, min_duration=self.min_line_duration, min_split_chars=self.min_split_chars)
         if split_point is None:
             return [line]
 
         split_text = line.text[split_point:].strip()
-        split_duration = self._get_proportional_duration(len(split_text), line)
+        split_duration = line.GetProportionalDuration(len(split_text), self.min_line_duration)
         split_start = line.end - split_duration
         split_end = line.end
 
@@ -106,80 +118,60 @@ class SubtitleProcessor:
 
         return split_lines
 
-    def _find_break_point(self, line: SubtitleLine, break_sequences: list[str]):
-        """
-        Find the optimum split point for a subtitle.
+def _find_break_point(line: SubtitleLine, break_sequences: list[str], min_duration: timedelta, min_split_chars: int):
+    """
+    Find the optimum split point for a subtitle.
 
-        The criteria are:
-        Take break sequences as priority order, find the first matching sequence.
-        Break at the occurence that is as close to the middle as possible.
-        Neither side of the split should be shorter than the minimum line duration
-        If multiple instances of a split sequence are adjacent, split at the last one
-        """
-        line_length = len(line.text)
-        start_index = self.min_split_chars
-        end_index = line_length - self.min_split_chars
-        if end_index <= start_index:
-            return None
-
-        for seq in break_sequences:
-            best_break_point = None
-            best_break_score = 0
-
-            # Find all occurrences of the sequence in the allowable range
-            index = line.text.find(seq, start_index)
-            while index != -1 and index < end_index:
-                # Compute the score after this sequence
-                break_index = index + len(seq)
-                score = self._get_split_score(break_index, line)
-
-                if score > best_break_score:
-                    best_break_point = break_index
-                    best_break_score = score
-
-                index = line.text.find(seq, index + 1)
-
-            if best_break_point is not None:
-                return best_break_point
-
+    The criteria are:
+    Take break sequences as priority order, find the first matching sequence.
+    Break at the occurence that is as close to the middle as possible.
+    Neither side of the split should be shorter than the minimum line duration
+    If multiple instances of a split sequence are adjacent, split at the last one
+    """
+    line_length = len(line.text)
+    start_index = min_split_chars
+    end_index = line_length - min_split_chars
+    if end_index <= start_index:
         return None
 
-    def _get_split_score(self, index : int, line : SubtitleLine):
-        """
-        Calculate the score for a potential split point
-        """
-        lhs_duration = self._get_proportional_duration(index, line)
-        rhs_duration = line.duration - lhs_duration
+    for seq in break_sequences:
+        best_break_point = None
+        best_break_score = 0
 
-        lhs_seconds = lhs_duration.total_seconds()
-        rhs_seconds = rhs_duration.total_seconds()
+        # Find all occurrences of the sequence in the allowable range
+        index = line.text.find(seq, start_index)
+        while index != -1 and index < end_index:
+            # Compute the score after this sequence
+            break_index = index + len(seq)
+            score = _get_split_score(break_index, line, min_duration)
 
-        if lhs_seconds < self.min_line_duration or rhs_seconds < self.min_line_duration:
-            return 0
+            if score > best_break_score:
+                best_break_point = break_index
+                best_break_score = score
 
-        # score approaches 1 for a split point in the middle and 0 at either extremity
-        split_ratio = index / len(line.text)
-        split_score = 1.0 - abs(split_ratio - 0.5) * 2.0
-        return split_score
+            index = line.text.find(seq, index + 1)
 
-    def _get_proportional_duration(self, num_characters : int, line : SubtitleLine) -> timedelta:
-        """
-        Calculate the proportional duration of a character string as a percentage of a subtitle
-        """
-        line_duration = line.duration.total_seconds()
-        line_length = len(line.text)
+        if best_break_point is not None:
+            return best_break_point
 
-        if num_characters >= line_length:
-            raise ValueError("Proportion is longer than original line")
+    return None
 
-        length_ratio = num_characters / line_length
-        length_seconds = max(line_duration * length_ratio, self.min_line_duration)
+def _get_split_score(index : int, line : SubtitleLine, min_duration : timedelta):
+    """
+    Calculate the score for a potential split point
+    """
+    lhs_duration = line.GetProportionalDuration(index, min_duration=min_duration)
+    rhs_duration = line.duration - lhs_duration
 
-        return timedelta(seconds=length_seconds)
+    lhs_seconds = lhs_duration.total_seconds()
+    rhs_seconds = rhs_duration.total_seconds()
+    min_seconds = min_duration.total_seconds()
 
-    def _contains_tags(self, text : str) -> bool:
-        """
-        Check if a line contains any html-like tags (<i>, <b>, etc.)
-        """
-        return regex.search(r"<[^>]+>", text) is not None
+    if lhs_seconds < min_seconds or rhs_seconds < min_seconds:
+        return 0
+
+    # score approaches 1 for a split point in the middle and 0 at either extremity
+    split_ratio = index / len(line.text)
+    split_score = 1.0 - abs(split_ratio - 0.5) * 2.0
+    return split_score
 

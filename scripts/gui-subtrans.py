@@ -29,6 +29,7 @@ def parse_arguments():
     parser.add_argument('--maxbatchsize', type=int, default=None, help="Maximum number of lines before starting a new batch is compulsory")
     parser.add_argument('--maxlines', type=int, default=None, help="Maximum number of batches to process")
     parser.add_argument('--minbatchsize', type=int, default=None, help="Minimum number of lines to consider starting a new batch")
+    parser.add_argument('--preprocess', action='store_true', help="Preprocess the subtitles before translation")
     parser.add_argument('--profile', action='store_true', help="Profile execution and write stats to the console")
     parser.add_argument('--project', type=str, default="true", help="How to process the project file (read, write, preview, reload, reparse, retranslate)")
     parser.add_argument('--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
@@ -51,6 +52,7 @@ def parse_arguments():
         'max_lines': args.maxlines,
         'min_batch_size': args.minbatchsize,
         'model': args.model,
+        'preprocess_subtitles': args.preprocess,
         'profile': args.profile,
         'project': args.project,
         'provider': args.provider,

@@ -28,6 +28,14 @@ class SettingsDialog(QDialog):
             'provider': ([], "The AI translation service to use"),
             'provider_settings': TranslationProvider,
         },
+        'Processing': {
+            'max_line_duration': (float, "Maximum duration of a single line of subtitles"),
+            'min_line_duration': (float, "Minimum duration of a single line of subtitles"),
+            'min_split_chars': (int, "Minimum number of characters to split a line at"),
+            'break_dialog_on_one_line': (bool, "Add line breaks to text with dialog markers"),
+            'normalise_dialog_tags': (bool, "Ensure dialog markers match in multi-line subtitles"),
+            'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
+        },
         'Advanced': {
             'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation"),
             'min_batch_size': (int, "Avoid creating a new batch smaller than this"),
@@ -35,17 +43,19 @@ class SettingsDialog(QDialog):
             'scene_threshold': (float, "Consider a new scene to have started after this many seconds without subtitles"),
             'batch_threshold': (float, "Consider starting a new batch after a gap of this many seconds (simple batcher only)"),
             'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
-            'max_line_duration': (float, "Maximum duration of a single line of subtitles"),
-            'min_line_duration': (float, "Minimum duration of a single line of subtitles"),
-            'min_split_chars': (int, "Minimum number of characters to split a line at"),
             'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
-            'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
             'max_summary_length': (int, "Maximum length of the context summary to include with each translation batch"),
             'max_characters': (int, "Validator: Maximum number of characters to allow in a single translated line"),
             'max_newlines': (int, "Validator: Maximum number of newlines to allow in a single translated line"),
             'max_retries': (int, "Number of times to retry a failed translation before giving up"),
             'backoff_time': (float, "Seconds to wait before retrying a failed translation"),
+        }
+    }
+
+    VISIBILITY_DEPENDENCIES = {
+        'Processing' : {
+            'preprocess_subtitles': True
         }
     }
 
@@ -92,6 +102,9 @@ class SettingsDialog(QDialog):
 
         if focus_provider_settings:
             self.tabs.setCurrentWidget(self.sections[self.PROVIDER_SECTION])
+
+        # Conditionally hide or show tabs
+        self._update_section_visibility()
 
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
@@ -162,6 +175,16 @@ class SettingsDialog(QDialog):
                 field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
                 layout.addRow(field.name, field)
                 self.widgets[key] = field
+
+    def _update_section_visibility(self):
+        """
+        Update the visibility of section tabs based on dependencies
+        """
+        for section_name, dependencies in self.VISIBILITY_DEPENDENCIES.items():
+            section_tab = self.tabs.findChild(QWidget, section_name)
+            if section_tab:
+                visible = all(self.settings.get(key) == value for key, value in dependencies.items())
+                self.tabs.setTabVisible(self.tabs.indexOf(section_tab), visible)
 
     def _initialise_translation_provider(self):
         """
@@ -241,6 +264,10 @@ class SettingsDialog(QDialog):
         elif key == 'instruction_file':
             self.settings[key] = value
             self._update_instruction_file()
+
+        elif key == 'preprocess_subtitles':
+            self.settings[key] = value
+            self._update_section_visibility()
 
         elif section_name == self.PROVIDER_SECTION:
             provider = self.settings.get('provider')

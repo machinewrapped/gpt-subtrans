@@ -1,9 +1,8 @@
 from datetime import timedelta
 from os import linesep
 import srt
-from GUI.GuiHelpers import TimeDeltaToText
 
-from PySubtitle.Helpers import CreateSrtSubtitle, GetTimeDelta
+from PySubtitle.Helpers import CreateSrtSubtitle, GetTimeDelta, TimeDeltaToText
 
 class SubtitleLine:
     """
@@ -75,6 +74,57 @@ class SubtitleLine:
     def item(self) -> srt.Subtitle:
         return self._item
 
+    @item.setter
+    def item(self, item):
+        if isinstance(item, SubtitleLine):
+            item = item.item
+
+        self._item : srt.Subtitle = CreateSrtSubtitle(item)
+
+    @number.setter
+    def number(self, value):
+        if self._item:
+            self._item.index = value
+
+    @text.setter
+    def text(self, text):
+        if self._item:
+            self._item.content = text
+
+    @start.setter
+    def start(self, time):
+        if self._item:
+            self._item.start = GetTimeDelta(time)
+
+    @end.setter
+    def end(self, time):
+        if self._item:
+            self._item.end = GetTimeDelta(time)
+
+    @duration.setter
+    def duration(self, duration):
+        if self._item and self._item.start:
+            self._item.end = self._item.start + GetTimeDelta(duration)
+
+
+    def GetProportionalDuration(self, num_characters : int, min_duration : timedelta = None) -> timedelta:
+        """
+        Calculate the proportional duration of a character string as a percentage of a subtitle
+        """
+        line_duration = self.duration.total_seconds()
+        line_length = len(self.text)
+
+        if num_characters >= line_length:
+            raise ValueError("Proportion is longer than original line")
+
+        length_ratio = num_characters / line_length
+        length_seconds = line_duration * length_ratio
+
+        if min_duration:
+            length_seconds = max(length_seconds, min_duration.total_seconds())
+
+        return timedelta(seconds=length_seconds)
+
     @classmethod
     def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str = None):
         number = int(number) if number else None
@@ -111,38 +161,6 @@ class SubtitleLine:
             number = None
 
         return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
-
-    @item.setter
-    def item(self, item):
-        if isinstance(item, SubtitleLine):
-            item = item.item
-
-        self._item : srt.Subtitle = CreateSrtSubtitle(item)
-
-    @number.setter
-    def number(self, value):
-        if self._item:
-            self._item.index = value
-
-    @text.setter
-    def text(self, text):
-        if self._item:
-            self._item.content = text
-
-    @start.setter
-    def start(self, time):
-        if self._item:
-            self._item.start = GetTimeDelta(time)
-
-    @end.setter
-    def end(self, time):
-        if self._item:
-            self._item.end = GetTimeDelta(time)
-
-    @duration.setter
-    def duration(self, duration):
-        if self._item and self._item.start:
-            self._item.end = self._item.start + GetTimeDelta(duration)
 
     @classmethod
     def GetLines(lines):

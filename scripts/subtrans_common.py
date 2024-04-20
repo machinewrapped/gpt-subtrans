@@ -71,6 +71,7 @@ def CreateArgParser(description : str) -> ArgumentParser:
     parser.add_argument('--moviename', type=str, default=None, help="Optionally specify the name of the movie to help the translator")
     parser.add_argument('--name', action='append', type=str, default=None, help="A name to use verbatim in the translation")
     parser.add_argument('--names', type=str, default=None, help="A list of names to use verbatim")
+    parser.add_argument('--preprocess', action='store_true', help="Preprocess the subtitles before translation")
     parser.add_argument('--project', type=str, default=None, help="Read or Write project file to working directory")
     parser.add_argument('--ratelimit', type=int, default=None, help="Maximum number of batches per minute to process")
     parser.add_argument('--scenethreshold', type=float, default=None, help="Number of seconds between lines to consider a new scene")
