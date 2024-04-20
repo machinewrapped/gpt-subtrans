@@ -18,11 +18,13 @@ class SubtitleProcessor:
             r"\n",  # Newline has the highest priority
             regex.escape(self.dialog_marker),  # Dialog marker
             r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
-            r"[!?？！]+",  # Sequence of punctuation like '!', '?'
-            r"[.。…]+",  # Sequence of sentence punctuation
-            r"[,，、﹑]",  # Various forms of commas
-            r"[:;]",  # Colon and semicolon
-            r"[–—]+",  # Dashes
+            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
+            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
+            r"[!?？！](\s|\")",  # Sequence of punctuation like '!', '?'
+            r"[.。…](\s|\")",  # Sequence of sentence punctuation
+            r"[,，、﹑](\s|\")",  # Various forms of commas
+            r"[:;]\s+",  # Colon and semicolon
+            r"[–—]+\s+",  # Dashes
             r" {3,}"  # Three or more spaces
         ]
         self._compiled_split_sequences = None
