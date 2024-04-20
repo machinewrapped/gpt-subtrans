@@ -54,7 +54,15 @@ class SubtitleLine:
 
     @property
     def duration(self) -> timedelta:
-        return self.end - self.start if self.start is not None and self.end else timedelta(seconds=0)
+        if not self._duration:
+            self._duration = self.end - self.start if self.start is not None and self.end else timedelta(seconds=0)
+        return self._duration
+
+    @duration.setter
+    def duration(self, duration):
+        if self._item and self._item.start:
+            self._duration = GetTimeDelta(duration)
+            self._item.end = self._item.start + self._duration
 
     @property
     def srt_duration(self) -> str:
@@ -80,6 +88,7 @@ class SubtitleLine:
             item = item.item
 
         self._item : srt.Subtitle = CreateSrtSubtitle(item)
+        self._duration = None
 
     @number.setter
     def number(self, value):
@@ -95,17 +104,13 @@ class SubtitleLine:
     def start(self, time):
         if self._item:
             self._item.start = GetTimeDelta(time)
+            self._duration = None
 
     @end.setter
     def end(self, time):
         if self._item:
             self._item.end = GetTimeDelta(time)
-
-    @duration.setter
-    def duration(self, duration):
-        if self._item and self._item.start:
-            self._item.end = self._item.start + GetTimeDelta(duration)
-
+            self._duration = None
 
     def GetProportionalDuration(self, num_characters : int, min_duration : timedelta = None) -> timedelta:
         """
