@@ -1,7 +1,7 @@
 import os
 from PySubtitle.SubtitleBatcher import OldSubtitleBatcher, SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.Helpers.test_helpers import RunTestOnAllSrtFiles
+from PySubtitle.Helpers.Tests import RunTestOnAllSrtFiles
 
 def analyze_scenes(scenes):
     num_scenes = len(scenes)

@@ -1,7 +1,7 @@
 import os
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
-from PySubtitle.Helpers.test_helpers import RunTestOnAllSrtFiles
+from PySubtitle.Helpers.Tests import RunTestOnAllSrtFiles
 
 def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
     try:
@@ -38,8 +38,8 @@ def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
 
 def run_tests(directory_path, results_path):
     test_options = [
-        { 'max_line_duration': 5.0, 'min_line_duration': 1.0 },
-        { 'max_line_duration': 4.0, 'min_line_duration': 0.8 }
+        { 'max_line_duration': 5.0, 'min_line_duration': 1.0, 'min_gap': 0.1, 'min_split_chars': 4, 'whitespaces_to_newline': False, 'break_dialog_on_one_line': True, 'normalise_dialog_tags': True},
+        { 'max_line_duration': 4.0, 'min_line_duration': 0.8, 'min_gap': 0.05, 'min_split_chars': 8, 'whitespaces_to_newline': True, 'break_dialog_on_one_line': False, 'normalise_dialog_tags': False}
     ]
 
     RunTestOnAllSrtFiles(preprocess_test, test_options, directory_path, results_path)
