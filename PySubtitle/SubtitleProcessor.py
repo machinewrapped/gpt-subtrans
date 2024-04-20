@@ -2,7 +2,7 @@ import logging
 import regex
 from datetime import timedelta
 
-from PySubtitle.Helpers.Text import ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags, ContainsTags
+from PySubtitle.Helpers.Text import ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
@@ -20,9 +20,10 @@ class SubtitleProcessor:
             r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
             r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
             r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
-            r"[!?？！](\s|\")",  # Sequence of punctuation like '!', '?'
-            r"[.。…](\s|\")",  # Sequence of sentence punctuation
-            r"[,，、﹑](\s|\")",  # Various forms of commas
+            r"[!?](\s|\")",  # Sequence of punctuation like '!', '?'
+            r"[.](\s|\")",  # Sentence punctuation
+            r"[？！。…]", # Full-width punctuation
+            r"[,，、﹑](\s|\")?",  # Various forms of commas
             r"[:;]\s+",  # Colon and semicolon
             r"[–—]+\s+",  # Dashes
             r" {3,}"  # Three or more spaces
