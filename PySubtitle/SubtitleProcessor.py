@@ -81,7 +81,7 @@ class SubtitleProcessor:
             text = ConvertWhitespaceBlocksToNewlines(text)
 
         # If the subtitle is a single line, see if it should have line breaks added
-        if self.break_dialog_on_one_line and '-' in text:
+        if self.break_dialog_on_one_line and self.dialog_marker in text:
             text = BreakDialogOnOneLine(text, self.dialog_marker)
 
         # If the subtitle has multiple lines, make sure dialog markers match
