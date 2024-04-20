@@ -119,7 +119,7 @@ class SubtitleLine:
         line_duration = self.duration.total_seconds()
         line_length = len(self.text)
 
-        if num_characters >= line_length:
+        if num_characters > line_length:
             raise ValueError("Proportion is longer than original line")
 
         length_ratio = num_characters / line_length
