@@ -22,7 +22,7 @@ class AboutDialog(QDialog):
         # Image on the left
         image_layout = QVBoxLayout()
         image_label = QLabel(self)
-        filepath = GetResourcePath("theme", "subtransmd.png")
+        filepath = GetResourcePath("assets", "subtransmd.png")
         pixmap = QPixmap(filepath)
         image_label.setPixmap(pixmap)
 
