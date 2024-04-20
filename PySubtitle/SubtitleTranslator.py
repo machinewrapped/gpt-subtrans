@@ -164,7 +164,7 @@ class SubtitleTranslator:
                 if batch.errors:
                     logging.warning(f"Failed to translate scene {batch.scene} batch {batch.number}")
                     if self.stop_on_error:
-                        break
+                        raise TranslationImpossibleError("Stopping translation because of error")
 
                 if self.max_lines and self.lines_processed >= self.max_lines:
                     logging.info(f"Reached max_lines limit of ({self.max_lines} lines)... finishing")
@@ -176,7 +176,7 @@ class SubtitleTranslator:
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
 
-        except (TranslationAbortedError) as e:
+        except (TranslationAbortedError, TranslationImpossibleError) as e:
             raise
 
     def TranslateBatch(self, batch : SubtitleBatch, line_numbers : list[int], context : dict):
