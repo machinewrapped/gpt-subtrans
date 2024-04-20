@@ -2,7 +2,7 @@ import logging
 import regex
 
 from PySubtitle.Options import Options
-from PySubtitle.Helpers import MergeTranslations
+from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Text import IsTextContentEqual
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleError import NoTranslationError, TranslationError, UntranslatedLinesError

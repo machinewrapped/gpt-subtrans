@@ -43,25 +43,6 @@ def UpdateFields(item : dict, update: dict, fields : list[str]):
 
     item.update({field: update[field] for field in update.keys() if field in fields})
 
-def CreateSrtSubtitle(item) -> srt.Subtitle:
-    """
-    Try to construct an srt.Subtitle from the argument
-    """
-    if hasattr(item, 'item'):
-        item = item.item
-
-    if not isinstance(item, srt.Subtitle):
-        line = str(item).strip()
-        match = srt.SRT_REGEX.match(line)
-        if match:
-            raw_index, raw_start, raw_end, proprietary, content = match.groups()
-            index = int(raw_index) if raw_index else None
-            start = srt.srt_timestamp_to_timedelta(raw_start)
-            end = srt.srt_timestamp_to_timedelta(raw_end)
-            item = srt.Subtitle(index, start, end, content, proprietary)
-
-    return item
-
 def GetInputPath(filepath):
     if not filepath:
         return None
@@ -89,60 +70,6 @@ def GetOutputPath(filepath, language="translated"):
         basename = basename + language_suffix
 
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
-
-def MergeTranslations(lines, translated):
-    """
-    Replace lines with corresponding lines in translated
-    """
-    line_dict = {item.key: item for item in lines if item.key}
-
-    for item in translated:
-        line_dict[item.key] = item
-
-    lines = sorted(line_dict.values(), key=lambda item: item.key)
-
-    return lines
-
-def UnbatchScenes(scenes):
-    """
-    Reconstruct a sequential subtitle from multiple scenes
-    """
-    originals = []
-    translations = []
-    untranslated = []
-
-    for i_scene, scene in enumerate(scenes):
-        for i_batch, batch in enumerate(scene.batches):
-            batch_originals = batch.originals if batch.originals else []
-            batch_translations = batch.translated if batch.translated else []
-            batch_untranslated = batch.untranslated if batch.untranslated else []
-
-            originals.extend(batch_originals)
-            translations.extend(batch_translations)
-            untranslated.extend(batch_untranslated)
-
-    return originals, translations, untranslated
-
-def ResyncTranslatedLines(original_lines, translated_lines):
-    """
-    Copy number, start and end from original lines to matching translated lines.
-    """
-    num_original = len(original_lines)
-    num_translated = len(translated_lines)
-    min_lines = min(num_original, num_translated)
-
-    for i in range(min_lines):
-        translated_lines[i].start = original_lines[i].start
-        translated_lines[i].end = original_lines[i].end
-        translated_lines[i].number = original_lines[i].number
-
-    if num_original < num_translated:
-        logging.warning(f"Number of translated lines exceeds the number of original lines. "
-                        f"Removed {num_translated - num_original} extra translated lines.")
-        del translated_lines[num_original:]
-
-    elif num_original > num_translated:
-        logging.warning(f"Number of lines in original and translated subtitles don't match. Synced {min_lines} lines.")
 
 def TimeDeltaToText(time: datetime.timedelta) -> str:
     """

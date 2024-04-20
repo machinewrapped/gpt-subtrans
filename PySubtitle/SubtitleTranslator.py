@@ -2,8 +2,9 @@ from copy import deepcopy
 import logging
 from os import linesep
 import threading
+from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Summary import SanitiseSummary
-from PySubtitle.Helpers.Text import ConvertWhitespaceBlocksToNewlines, Linearise
+from PySubtitle.Helpers.Text import Linearise
 from PySubtitle.Instructions import Instructions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.Translation import Translation
@@ -13,10 +14,10 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
-from PySubtitle.Helpers import FormatErrorMessages, MergeTranslations, UnbatchScenes
+from PySubtitle.Helpers import FormatErrorMessages
 from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
 from PySubtitle.TranslationEvents import TranslationEvents
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.TranslationProvider import TranslationProvider

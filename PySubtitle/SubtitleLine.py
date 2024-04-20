@@ -2,7 +2,7 @@ from datetime import timedelta
 from os import linesep
 import srt
 
-from PySubtitle.Helpers import CreateSrtSubtitle, GetTimeDelta, TimeDeltaToText
+from PySubtitle.Helpers import GetTimeDelta, TimeDeltaToText
 
 class SubtitleLine:
     """
@@ -162,40 +162,21 @@ class SubtitleLine:
 
         return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
 
-    @classmethod
-    def GetLines(lines):
-        """
-        (re)parse the lines, assuming SubRip format
-        """
-        if all(isinstance(line, SubtitleLine) for line in lines):
-            return lines
-        else:
-            return [SubtitleLine(line) for line in lines]
+def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
+    """
+    Try to construct an srt.Subtitle from the argument
+    """
+    if hasattr(item, 'item'):
+        item = item.item
 
-    @classmethod
-    def GetLineItems(cls, lines, tag):
-        """
-        Generate a set of translation cues for the translator
-        """
-        items = SubtitleLine.GetLines(lines)
-        return [ SubtitleLine.GetLineItem(item, tag) for item in items ]
+    if not isinstance(item, srt.Subtitle):
+        line = str(item).strip()
+        match = srt.SRT_REGEX.match(line)
+        if match:
+            raw_index, raw_start, raw_end, proprietary, content = match.groups()
+            index = int(raw_index) if raw_index else None
+            start = srt.srt_timestamp_to_timedelta(raw_start)
+            end = srt.srt_timestamp_to_timedelta(raw_end)
+            item = srt.Subtitle(index, start, end, content, proprietary)
 
-    @classmethod
-    def GetLineItem(cls, line, tag):
-        """
-        Format line for the translator
-        """
-        line = f"<{tag} line={line.number}>{line.text}</{tag}>"
-        return line
-
-    @classmethod
-    def MergeSubtitles(cls, merged_lines):
-        first_line = merged_lines[0]
-        last_line = merged_lines[-1]
-        merged_number = first_line.number
-        merged_start = first_line.start
-        merged_end = last_line.end
-        merged_content = "\n".join(line.text for line in merged_lines)
-        subtitle = srt.Subtitle(merged_number, merged_start, merged_end, merged_content)
-        return SubtitleLine(subtitle)
-
+    return item
