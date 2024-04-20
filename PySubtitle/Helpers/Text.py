@@ -64,10 +64,14 @@ def NormaliseDialogTags(text : str, dialog_marker : str) -> str:
     """
     Make sure dialog markers are consistent across lines
     """
-    if not '\n' in text or not dialog_marker in text:
+    if not dialog_marker in text:
         return text
 
     line_parts = text.split('\n')
+
+    # If a single line starts with a dialog marker, remove it
+    if len(line_parts) == 1 and text.startswith(dialog_marker):
+        return text[len(dialog_marker):].strip()
 
     # If any of the line parts starts with a dialog marker, they all should
     if any(part.startswith(dialog_marker) for part in line_parts):
