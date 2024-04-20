@@ -39,7 +39,6 @@ class SubtitleTranslator:
         self.stop_on_error = options.get('stop_on_error')
         self.retry_on_error = options.get('retry_on_error')
         # self.split_on_error = options.get('autosplit_incomplete')
-        self.whitespaces_to_newline = options.get('whitespaces_to_newline')
         self.match_partial_words = options.get('match_partial_words')
         self.max_summary_length = options.get('max_summary_length')
         self.resume = options.get('resume')
@@ -259,11 +258,6 @@ class SubtitleTranslator:
             replaced = [f"{Linearise(k)} -> {Linearise(v)}" for k,v in replacements.items()]
             logging.info(f"Made substitutions in input:\n{linesep.join(replaced)}")
             batch.AddContext('replacements', replaced)
-
-        # Split single lines with blocks of whitespace
-        if self.whitespaces_to_newline:
-            for item in batch.originals:
-                item.text = ConvertWhitespaceBlocksToNewlines(item.text)
 
         # Filter out empty lines
         originals = [ line for line in batch.originals if line.text and line.text.strip() ]
