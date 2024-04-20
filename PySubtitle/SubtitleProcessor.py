@@ -105,6 +105,10 @@ class SubtitleProcessor:
             line.text = text
 
     def _split_line_by_duration(self, line: SubtitleLine) -> list[SubtitleLine]:
+        """
+        Recursively split a line into smaller lines based on the duration of the text,
+        by choosing a split point from the defined sequences weighted towards the middle.
+        """
         result = []
         stack = [line]
 
