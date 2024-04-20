@@ -11,7 +11,7 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
-from PySubtitle.Helpers import FormatErrorMessages, Linearise, MergeTranslations,  RemoveEmptyLines, SanitiseSummary, UnbatchScenes
+from PySubtitle.Helpers import ConvertWhitespaceBlocksToNewlines, FormatErrorMessages, Linearise, MergeTranslations,  RemoveEmptyLines, SanitiseSummary, UnbatchScenes
 from PySubtitle.Helpers.substitutions import ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -260,7 +260,8 @@ class SubtitleTranslator:
 
         # Split single lines with blocks of whitespace
         if self.whitespaces_to_newline:
-            batch.ConvertWhitespaceBlocksToNewlines()
+            for item in batch.originals:
+                item.text = ConvertWhitespaceBlocksToNewlines(item.text)
 
         # Filter out empty lines
         originals = RemoveEmptyLines(batch.originals)

@@ -241,6 +241,14 @@ def RemoveWhitespaceAndPunctuation(string):
     normalized = unicodedata.normalize('NFC', stripped)
     return normalized
 
+def ConvertWhitespaceBlocksToNewlines(text):
+    """
+    Convert chinese commas or blocks of 3 or more spaces to newlines, unless there are newlines already
+    """
+    if text and '\n' not in text:
+        text = re.sub(r' {3,}|\，\s*', '\n', text)
+    return text
+
 def IsTextContentEqual(string1 : str, string2 : str):
     if string1 and string2:
         stripped1 = RemoveWhitespaceAndPunctuation(string1)

@@ -10,7 +10,7 @@ from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath, UnbatchScenes
 from PySubtitle.Helpers.substitutions import ParseSubstitutions
 from PySubtitle.Helpers.parse import ParseNames
-from PySubtitle.SubtitlePreprocessor import SubtitlePreprocessor
+from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
@@ -246,7 +246,7 @@ class SubtitleFile:
             outputpath = GetOutputPath(self.sourcepath, self.target_language)
         self.outputpath = outputpath
 
-    def PreProcess(self, preprocessor : SubtitlePreprocessor):
+    def PreProcess(self, preprocessor : SubtitleProcessor):
         """
         Preprocess subtitles
         """

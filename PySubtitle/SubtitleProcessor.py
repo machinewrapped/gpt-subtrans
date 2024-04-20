@@ -1,12 +1,13 @@
 from datetime import timedelta
 import logging
 import regex
+from PySubtitle.Helpers import ConvertWhitespaceBlocksToNewlines
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
 split_sequences = ['\n', '!', '?', '.', '，', '、', '…', '。', ',', '﹑', ':', ';', ',', '   ']
 
-class SubtitlePreprocessor:
+class SubtitleProcessor:
     """
     Helper class to pre-process subtitles to make them suitable for translation.
 
@@ -17,6 +18,7 @@ class SubtitlePreprocessor:
         self.min_line_duration = settings.get('min_line_duration', 0.0)
         self.min_split_chars = settings.get('min_split_chars', 4)
         self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
+        self.convert_whitespace_to_linebreak = settings.get('whitespaces_to_newline', False)
 
         self.split_by_duration = self.max_line_duration > 0.0
 
@@ -68,6 +70,9 @@ class SubtitlePreprocessor:
         Adjust line breaks to split at punctuation weighted by centrality
         """
         line.text = line.text.strip()
+
+        if self.convert_whitespace_to_linebreak:
+            line.text = ConvertWhitespaceBlocksToNewlines(line.text)
 
         # Break line at dialog markers ("- ")
         line_parts = regex.split(r"(?<=\w)- ", line.text)
@@ -177,3 +182,4 @@ class SubtitlePreprocessor:
         Check if a line contains any html-like tags (<i>, <b>, etc.)
         """
         return regex.search(r"<[^>]+>", text) is not None
+

@@ -6,7 +6,7 @@ from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
 from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
-from PySubtitle.SubtitlePreprocessor import SubtitlePreprocessor
+from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
 
@@ -129,7 +129,7 @@ class NewProjectSettings(QDialog):
 
         lines = self.project.subtitles.originals
         if self.settings.get('preprocess_subtitles'):
-            preprocessor = SubtitlePreprocessor(self.settings)
+            preprocessor = SubtitleProcessor(self.settings)
             lines = preprocessor.PreprocessSubtitles(lines)
 
         batcher = CreateSubtitleBatcher(self.settings)

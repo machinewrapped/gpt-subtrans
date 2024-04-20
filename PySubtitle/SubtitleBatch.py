@@ -151,14 +151,6 @@ class SubtitleBatch:
 
             return replacements
 
-    def ConvertWhitespaceBlocksToNewlines(self):
-        """
-        Convert chinese commas or blocks of 3 or more spaces to newlines, unless there are newlines already
-        """
-        for item in self.originals:
-            if item.text and '\n' not in item.text:
-                item.text = re.sub(r' {3,}|\，\s*', '\n', item.text)
-
     def MergeLines(self, original_lines : list[int], translated_lines : list[int]):
         first_line = next((line for line in self.originals if line.number == original_lines[0]), None)
         last_line = next((line for line in self.originals if line.number == original_lines[-1]), None)

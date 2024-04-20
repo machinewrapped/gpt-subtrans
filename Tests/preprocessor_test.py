@@ -1,11 +1,11 @@
 import os
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.SubtitlePreprocessor import SubtitlePreprocessor
+from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.Helpers.test_helpers import RunTestOnAllSrtFiles
 
 def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
     try:
-        preprocessor = SubtitlePreprocessor(options)
+        preprocessor = SubtitleProcessor(options)
 
         test_lines = preprocessor.PreprocessSubtitles(subtitles.originals)
 
