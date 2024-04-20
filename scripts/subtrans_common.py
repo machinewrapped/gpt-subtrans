@@ -4,8 +4,8 @@ import logging
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 
-from PySubtitle.Helpers.parse import ParseNames
-from PySubtitle.Helpers.substitutions import ParseSubstitutions
+from PySubtitle.Helpers.Parse import ParseNames
+from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.Options import Options, config_dir
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator

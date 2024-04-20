@@ -1,8 +1,8 @@
 from datetime import timedelta
-import re
+
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.substitutions import PerformSubstitutions
+from PySubtitle.Helpers.Substitutions import PerformSubstitutions
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Translation import Translation
 

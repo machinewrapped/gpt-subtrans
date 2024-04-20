@@ -1,11 +1,11 @@
-from PySubtitle.Helpers import ParseTranslation
-from PySubtitle.Helpers.substitutions import PerformSubstitutions
+from PySubtitle.Helpers.Substitutions import PerformSubstitutions
+from PySubtitle.Helpers.Text import ExtractTag, ExtractTagList
 
 class Translation:
     def __init__(self, content : dict):
         self.content = content or {}
         translation_text = content.get('text')
-        self._text, context = ParseTranslation(translation_text)
+        self._text, context = self.ParseTranslation(translation_text)
         self.content.update(context)
 
     def ParseResponse(self):
@@ -94,5 +94,20 @@ class Translation:
         else:
             return self.text if include_text else "No metadata available"
 
+    def ParseTranslation(self, text : str):
+        """
+        Extract tags from text body
+        """
+        text, summary = ExtractTag("summary", text)
+        text, synopsis = ExtractTag("synopsis", text)
+        text, scene = ExtractTag("scene", text)
+        text, names = ExtractTagList("names", text)
 
+        context = {
+            'summary': summary,
+            'scene': scene,
+            'synopsis': synopsis,
+            'names': names
+        }
+        return text, context
 

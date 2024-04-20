@@ -3,6 +3,8 @@ import re
 
 from PySubtitle.Options import Options
 from PySubtitle.Helpers import IsTextContentEqual, MergeTranslations
+from PySubtitle.Helpers import MergeTranslations
+from PySubtitle.Helpers.Text import IsTextContentEqual
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleError import NoTranslationError, TranslationError, UntranslatedLinesError
 from PySubtitle.SubtitleValidator import SubtitleValidator

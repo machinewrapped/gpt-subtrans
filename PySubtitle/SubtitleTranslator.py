@@ -2,6 +2,8 @@ from copy import deepcopy
 import logging
 from os import linesep
 import threading
+from PySubtitle.Helpers.Summary import SanitiseSummary
+from PySubtitle.Helpers.Text import ConvertWhitespaceBlocksToNewlines, Linearise
 from PySubtitle.Instructions import Instructions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.Translation import Translation
@@ -11,8 +13,8 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
-from PySubtitle.Helpers import ConvertWhitespaceBlocksToNewlines, FormatErrorMessages, Linearise, MergeTranslations,  RemoveEmptyLines, SanitiseSummary, UnbatchScenes
-from PySubtitle.Helpers.substitutions import ParseSubstitutions
+from PySubtitle.Helpers import FormatErrorMessages, MergeTranslations, UnbatchScenes
+from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.TranslationEvents import TranslationEvents
@@ -264,7 +266,7 @@ class SubtitleTranslator:
                 item.text = ConvertWhitespaceBlocksToNewlines(item.text)
 
         # Filter out empty lines
-        originals = RemoveEmptyLines(batch.originals)
+        originals = [ line for line in batch.originals if line.text and line.text.strip() ]
 
         # A=Apply the max_lines limit
         with self.lock:
@@ -368,6 +370,8 @@ class SubtitleTranslator:
         for candidate in candidates:
             sanitised = SanitiseSummary(candidate, movie_name, max_length)
             if sanitised:
+                if len(sanitised) < len(candidate):
+                    logging.info(f"Summary was truncated from {len(candidate)} to {len(sanitised)} characters")
                 return sanitised
 
         return None

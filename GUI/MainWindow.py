@@ -28,7 +28,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.LogWindow import LogWindow
 from GUI.Widgets.ModelView import ModelView
 from GUI.NewProjectSettings import NewProjectSettings
-from PySubtitle.Helpers.resources import GetResourcePath
+from PySubtitle.Helpers.Resources import GetResourcePath
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import ProviderConfigurationError
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
 
         if 'theme' in updated_settings:
             LoadStylesheet(self.global_options.theme)
-    
+
     def _load_subtitle_file(self, filepath):
         self.QueueCommand(LoadSubtitleFile(filepath, self.global_options))
 

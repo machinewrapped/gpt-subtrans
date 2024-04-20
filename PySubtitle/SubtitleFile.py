@@ -8,8 +8,8 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath, UnbatchScenes
-from PySubtitle.Helpers.substitutions import ParseSubstitutions
-from PySubtitle.Helpers.parse import ParseNames
+from PySubtitle.Helpers.Substitutions import ParseSubstitutions
+from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
