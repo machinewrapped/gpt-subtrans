@@ -72,13 +72,6 @@ class NewProjectSettings(QDialog):
 
         self.fields['instruction_file'].contentChanged.connect(self._update_instruction_file)
 
-        self.preprocessor_settings = {
-            'min_line_duration': self.settings.get('min_line_duration', 0.0),
-            'max_line_duration': self.settings.get('max_line_duration', 0.0),
-            'min_gap': self.settings.get('min_gap', 0.05),
-            'min_split_chars': self.settings.get('min_split_chars', 4),
-        }
-
         self._preview_batches()
 
     def accept(self):
@@ -136,7 +129,7 @@ class NewProjectSettings(QDialog):
 
         lines = self.project.subtitles.originals
         if self.settings.get('preprocess_subtitles'):
-            preprocessor = SubtitleProcessor(self.preprocessor_settings)
+            preprocessor = SubtitleProcessor(self.settings)
             lines = preprocessor.PreprocessSubtitles(lines)
 
         batcher = CreateSubtitleBatcher(self.settings)
