@@ -21,16 +21,24 @@ def log_error(text: str, prefix: str = ""):
     for line in text.split("\n"):
         logging.error(f"{prefix}{line}")
 
+def log_test_name(test_name: str):
+    """
+    Logs the name of the test with a separator before and after.
+    """
+    logging.info(separator)
+    log_info(test_name.center(len(separator)))
+    logging.info(separator)
+
 def log_input_expected_result(input, expected, result):
     """
     Logs the input text, the expected result and the actual result.
     """
-    logging.info(separator)
     log_info(str(input), prefix="".ljust(10))
     log_info(str(expected), prefix="===".ljust(10))
     if expected != result:
         log_error("*** UNEXPECTED RESULT! ***", prefix="!!!".ljust(10))
     log_info(str(result), prefix="-->".ljust(10))
+    logging.info(separator)
 
 def create_logfile(results_dir : str, log_name : str, log_level = logging.DEBUG) -> logging.FileHandler:
     """

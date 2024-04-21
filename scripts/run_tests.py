@@ -19,7 +19,9 @@ console_handler.setLevel(logging.WARNING)
 console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
 
 def run_unit_tests(results_path : str):
-    # Run all unit tests imported from PySubtitle.UnitTests
+    """
+    Run all unit tests in PySubtitle.UnitTests.
+    """
     log_file = create_logfile(results_path, "unit_tests.log")
 
     logging.info(separator)
