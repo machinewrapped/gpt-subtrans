@@ -9,6 +9,19 @@ from PySubtitle.Options import Options
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SettingsDialog(QDialog):
+    """
+    Dialog for editing user settings in various categories
+
+    The settings are stored in a dictionary with a section for each tab and the settings it contains as key-value pairs.
+
+    Each value is either a type indicating the type of the setting, or a tuple containing the type and a tooltip string.
+
+    The PROVIDER_SECTION is special and contains the settings for the translation provider, which are loaded dynamically based on the selected provider.
+
+    The VISIBILITY_DEPENDENCIES dictionary contains the conditions for showing or hiding each section based on the settings.
+
+    Some dropdowns are populated dynamically when the dialog is created, based on the available themes and instruction files.
+    """
     PROVIDER_SECTION = 'Provider Settings'
     SECTIONS = {
         'General': {
@@ -146,6 +159,9 @@ class SettingsDialog(QDialog):
             self.reject()
 
     def _create_section_widget(self, section_name):
+        """
+        Create the form for a settings tab
+        """
         section_widget = QFrame(self)
         section_widget.setObjectName(section_name)
 
@@ -221,19 +237,25 @@ class SettingsDialog(QDialog):
 
         provider_info = self.translation_provider.GetInformation()
         if provider_info:
-            provider_layout = QVBoxLayout()
-            infoLabel = QLabel(provider_info)
-            infoLabel.setWordWrap(True)
-            infoLabel.setTextFormat(Qt.TextFormat.RichText)
-            infoLabel.setOpenExternalLinks(True)
-            provider_layout.addWidget(infoLabel)
-            provider_layout.addStretch(1)
+            self._add_provider_info_widget(layout, provider_info)
 
-            scrollArea = QScrollArea()
-            scrollArea.setWidgetResizable(True)
-            scrollArea.setSizeAdjustPolicy(QScrollArea.SizeAdjustPolicy.AdjustToContents)
-            scrollArea.setLayout(provider_layout)
-            layout.addRow(scrollArea)
+    def _add_provider_info_widget(self, layout, provider_info):
+        """
+        Create a rich text widget for provider information and add it to the layout
+        """
+        provider_layout = QVBoxLayout()
+        infoLabel = QLabel(provider_info)
+        infoLabel.setWordWrap(True)
+        infoLabel.setTextFormat(Qt.TextFormat.RichText)
+        infoLabel.setOpenExternalLinks(True)
+        provider_layout.addWidget(infoLabel)
+        provider_layout.addStretch(1)
+
+        scrollArea = QScrollArea()
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setSizeAdjustPolicy(QScrollArea.SizeAdjustPolicy.AdjustToContents)
+        scrollArea.setLayout(provider_layout)
+        layout.addRow(scrollArea)
 
     def _refresh_provider_options(self):
         """
