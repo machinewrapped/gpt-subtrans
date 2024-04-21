@@ -2,7 +2,7 @@ import logging
 import regex
 from datetime import timedelta
 
-from PySubtitle.Helpers.Text import ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
+from PySubtitle.Helpers.Text import CompileDialogSplitPattern, ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
@@ -45,6 +45,8 @@ class SubtitleProcessor:
         self.convert_whitespace_to_linebreak = settings.get('whitespaces_to_newline', False)
         self.break_dialog_on_one_line = settings.get('break_dialog_on_one_line', False)
         self.normalise_dialog_tags = settings.get('normalise_dialog_tags', False)
+
+        self.split_dialog_pattern = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
 
         self.split_by_duration = self.max_line_duration.total_seconds() > 0.0
 
@@ -99,8 +101,8 @@ class SubtitleProcessor:
             text = ConvertWhitespaceBlocksToNewlines(text)
 
         # If the subtitle is a single line, see if it should have line breaks added
-        if self.break_dialog_on_one_line and self.dialog_marker in text:
-            text = BreakDialogOnOneLine(text, self.dialog_marker)
+        if self.break_dialog_on_one_line:
+            text = BreakDialogOnOneLine(text, self.split_dialog_pattern)
 
         # If the subtitle has multiple lines, make sure dialog markers match
         if self.normalise_dialog_tags:

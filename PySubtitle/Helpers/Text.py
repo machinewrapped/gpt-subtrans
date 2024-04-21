@@ -44,16 +44,25 @@ def ConvertWhitespaceBlocksToNewlines(text) -> str:
 
     return text
 
-def BreakDialogOnOneLine(text : str, dialog_marker : str) -> str:
+def CompileDialogSplitPattern(dialog_marker):
+    """
+    Compile a regex pattern to split lines at dialog markers
+    """
+    escaped_marker = regex.escape(dialog_marker)
+    re_split = r"(?<=[^a-zA-Z0-9]\s*)(?=" + escaped_marker + ")"
+    return regex.compile(re_split)
+
+def BreakDialogOnOneLine(text : str, dialog_marker : str | regex.Pattern) -> str:
     """
     Break dialog into separate lines
     """
     # Split line at dialog markers following any non-alphanumeric character and whitespace
     # This should catch the majority of genuine dialog markers and few other uses of a dash
     # Uses a look-behind followed by a look-ahead so that the split point is not consumed
-    escaped_marker = regex.escape(dialog_marker)
-    re_split = r"(?<=[^a-zA-Z0-9]\s*)(?=" + escaped_marker + ")"
-    line_parts = regex.split(re_split, text)
+    if not isinstance(dialog_marker, regex.Pattern):
+        dialog_marker = CompileDialogSplitPattern(dialog_marker)
+
+    line_parts = dialog_marker.split(text)
 
     if len(line_parts) > 1:
         text = '\n'.join([part.strip() for part in line_parts])
