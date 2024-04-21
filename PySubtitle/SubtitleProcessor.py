@@ -2,6 +2,7 @@ import logging
 import regex
 from datetime import timedelta
 
+from PySubtitle.Helpers.Subtitles import FindBreakPoint
 from PySubtitle.Helpers.Text import CompileDialogSplitPattern, ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -133,7 +134,7 @@ class SubtitleProcessor:
                 result.append(current_line)
                 continue
 
-            split_point = _find_break_point(current_line, self._compiled_split_sequences, min_duration=self.min_line_duration, min_split_chars=self.min_split_chars)
+            split_point = FindBreakPoint(current_line, self._compiled_split_sequences, min_duration=self.min_line_duration, min_split_chars=self.min_split_chars)
             if split_point is None:
                 result.append(current_line)
                 continue
@@ -156,39 +157,4 @@ class SubtitleProcessor:
     def _compile_split_sequences(self):
         self._compiled_split_sequences = [regex.compile(seq) for seq in self.split_sequences]
 
-def _find_break_point(line: SubtitleLine, break_sequences: list[regex.Pattern], min_duration: timedelta, min_split_chars: int) -> int | None:
-    """
-    Find the optimal break point for a subtitle.
-
-    The criteria are:
-    Take break sequences as priority order, find the first matching sequence.
-    Break at the occurence that is as close to the middle as possible.
-    Neither side of the split should be shorter than the minimum line duration
-    """
-    line_length = len(line.text)
-    start_index = min_split_chars
-    end_index = line_length - min_split_chars
-    if end_index <= start_index:
-        return None
-
-    middle_index = line_length // 2
-
-    for priority, seq in enumerate(break_sequences, start=0):
-        matches = list(seq.finditer(line.text))
-        if not matches:
-            continue
-
-        # Find the match that is closest to the middle of the text
-        best_match = min(matches, key=lambda m: abs(m.end() - middle_index))
-        split_index = best_match.end()
-        split_time = line.GetProportionalDuration(split_index, min_duration)
-
-        # Skip if the split is too close to the start or end (exception for newlines)
-        if split_time < min_duration or (line.duration - split_time) < min_duration:
-            if priority > 0:
-                continue
-
-        return split_index
-
-    return None
 
