@@ -41,7 +41,7 @@ default_options = {
     'break_dialog_on_one_line': env_bool('break_dialog_on_one_line', False),
     'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.0)),
     'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
-    'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 4)),
+    'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 3)),
     'normalise_dialog_tags': env_bool('NORMALISE_DIALOG_TAGS', False),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
