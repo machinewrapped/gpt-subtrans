@@ -3,7 +3,10 @@ import srt
 
 from PySubtitle.SubtitleLine import SubtitleLine
 
-def MergeSubtitles(merged_lines) -> SubtitleLine:
+def MergeSubtitles(merged_lines : list[SubtitleLine]) -> SubtitleLine:
+    """
+    Merge multiple lines into a single line with the same start and end times.
+    """
     first_line = merged_lines[0]
     last_line = merged_lines[-1]
     merged_number = first_line.number
