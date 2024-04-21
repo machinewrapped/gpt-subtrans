@@ -1,8 +1,9 @@
 from datetime import timedelta
-import re
+
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.substitutions import PerformSubstitutions
+from PySubtitle.Helpers.Substitutions import PerformSubstitutions
+from PySubtitle.Helpers.Subtitles import MergeSubtitles
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Translation import Translation
 
@@ -151,14 +152,6 @@ class SubtitleBatch:
 
             return replacements
 
-    def ConvertWhitespaceBlocksToNewlines(self):
-        """
-        Convert chinese commas or blocks of 3 or more spaces to newlines, unless there are newlines already
-        """
-        for item in self.originals:
-            if item.text and '\n' not in item.text:
-                item.text = re.sub(r' {3,}|\，\s*', '\n', item.text)
-
     def MergeLines(self, original_lines : list[int], translated_lines : list[int]):
         first_line = next((line for line in self.originals if line.number == original_lines[0]), None)
         last_line = next((line for line in self.originals if line.number == original_lines[-1]), None)
@@ -167,13 +160,13 @@ class SubtitleBatch:
             first_index = self.originals.index(first_line)
             last_index = self.originals.index(last_line)
 
-            merged = SubtitleLine.MergeSubtitles(self.originals[first_index : last_index + 1])
+            merged = MergeSubtitles(self.originals[first_index : last_index + 1])
             self.originals = self.originals[:first_index] + [ merged ] + self.originals[last_index + 1:]
 
         if translated_lines and len(translated_lines) > 1:
             if translated_lines == original_lines:
                 if translated_lines:
-                    merged = SubtitleLine.MergeSubtitles(self.translated[first_index : last_index + 1])
+                    merged = MergeSubtitles(self.translated[first_index : last_index + 1])
                     self.translated = self.translated[:first_index] + [ merged ] + self.translated[last_index:]
 
             elif len(original_lines) > len(translated_lines):
@@ -185,7 +178,7 @@ class SubtitleBatch:
                     last_translated_index = self.translated.index(last_translated_line)
 
                     if first_translated_index != last_translated_index:
-                        merged = SubtitleLine.MergeSubtitles(self.translated[first_translated_index : last_translated_index + 1])
+                        merged = MergeSubtitles(self.translated[first_translated_index : last_translated_index + 1])
                         self.translated = self.translated[:first_translated_index] + [ merged ] + self.translated[last_translated_index:]
 
             else:

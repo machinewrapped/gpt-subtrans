@@ -1,10 +1,9 @@
-import os
 import pkg_resources
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout)
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
-from PySubtitle.Helpers.resources import GetResourcePath
+from PySubtitle.Helpers.Resources import GetResourcePath
 from PySubtitle.version import __version__
 
 class AboutDialog(QDialog):

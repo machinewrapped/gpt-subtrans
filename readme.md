@@ -178,6 +178,11 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
   This needs to take into account the token limit for the model being used, but the "optimal" value depends on many factors, so experimentation is encouraged.
   Larger batches are more cost-effective but increase the risk of the AI desynchronising, triggering expensive retries.
 
+- `--preprocess`:
+  Preprocess the subtitles prior to batching.
+  This performs various options to prepare the subtitles for more efficient translation, e.g. splitting long (duration) lines into multiple lines.
+  Mainly intended for subtitles that have been automatically transcribed with e.g. Whisper.
+
 - `--instruction`:
   An additional instruction for the AI indicating how it should approach the translation.
 

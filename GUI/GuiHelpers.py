@@ -1,12 +1,10 @@
-from datetime import timedelta
 import logging
 import os
 import darkdetect
 
-from srt import timedelta_to_srt_timestamp
 from PySide6.QtWidgets import (QApplication, QFormLayout)
 
-from PySubtitle.Helpers.resources import GetResourcePath
+from PySubtitle.Helpers.Resources import GetResourcePath
 
 def GetThemeNames():
     themes = []
@@ -17,7 +15,7 @@ def GetThemeNames():
             themes.append(theme_name)
 
     themes.sort()
-    return themes 
+    return themes
 
 def LoadStylesheet(name):
     if not name or name == "default":
@@ -44,14 +42,11 @@ def GetLineHeight(text: str, wrap_length: int = 60) -> int:
     wraps = -(-len(text) // wrap_length) if wrap_length else None  # Ceiling division
     return text.count('\n') + wraps
 
-def TimeDeltaToText(time: timedelta) -> str:
-    return timedelta_to_srt_timestamp(time).replace('00:', '') if time is not None else None
-
 def DescribeLineCount(line_count, translated_count):
     if translated_count == 0:
-        return f"{line_count} lines" 
+        return f"{line_count} lines"
     elif line_count == translated_count:
-        return f"{translated_count} lines translated" 
+        return f"{translated_count} lines translated"
     else:
         return f"{translated_count} of {line_count} lines translated"
 

@@ -16,8 +16,8 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Options import Options
-from PySubtitle.Helpers.substitutions import ParseSubstitutions
-from PySubtitle.Helpers.parse import ParseNames
+from PySubtitle.Helpers.Substitutions import ParseSubstitutions
+from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider

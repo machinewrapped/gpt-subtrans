@@ -2,6 +2,9 @@ from copy import deepcopy
 import logging
 from os import linesep
 import threading
+from PySubtitle.Helpers.Subtitles import MergeTranslations
+from PySubtitle.Helpers.Summary import SanitiseSummary
+from PySubtitle.Helpers.Text import Linearise
 from PySubtitle.Instructions import Instructions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.Translation import Translation
@@ -11,10 +14,10 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
-from PySubtitle.Helpers import FormatErrorMessages, Linearise, MergeTranslations,  RemoveEmptyLines, SanitiseSummary, UnbatchScenes
-from PySubtitle.Helpers.substitutions import ParseSubstitutions
+from PySubtitle.Helpers import FormatErrorMessages
+from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
 from PySubtitle.TranslationEvents import TranslationEvents
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -37,7 +40,6 @@ class SubtitleTranslator:
         self.stop_on_error = options.get('stop_on_error')
         self.retry_on_error = options.get('retry_on_error')
         # self.split_on_error = options.get('autosplit_incomplete')
-        self.whitespaces_to_newline = options.get('whitespaces_to_newline')
         self.match_partial_words = options.get('match_partial_words')
         self.max_summary_length = options.get('max_summary_length')
         self.resume = options.get('resume')
@@ -258,12 +260,8 @@ class SubtitleTranslator:
             logging.info(f"Made substitutions in input:\n{linesep.join(replaced)}")
             batch.AddContext('replacements', replaced)
 
-        # Split single lines with blocks of whitespace
-        if self.whitespaces_to_newline:
-            batch.ConvertWhitespaceBlocksToNewlines()
-
         # Filter out empty lines
-        originals = RemoveEmptyLines(batch.originals)
+        originals = [ line for line in batch.originals if line.text and line.text.strip() ]
 
         # A=Apply the max_lines limit
         with self.lock:
@@ -367,6 +365,8 @@ class SubtitleTranslator:
         for candidate in candidates:
             sanitised = SanitiseSummary(candidate, movie_name, max_length)
             if sanitised:
+                if len(sanitised) < len(candidate):
+                    logging.info(f"Summary was truncated from {len(candidate)} to {len(sanitised)} characters")
                 return sanitised
 
         return None

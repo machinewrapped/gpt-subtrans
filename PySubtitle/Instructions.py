@@ -1,7 +1,7 @@
 import logging
 import os
 
-from PySubtitle.Helpers.resources import GetResourcePath
+from PySubtitle.Helpers.Resources import GetResourcePath
 
 linesep = '\n'
 
@@ -177,7 +177,7 @@ def LoadLegacyInstructions(lines):
                 return linesep.join(lines[:idx]), linesep.join(lines[idx + 1:])
 
         return linesep.join(lines), []
-        
+
     return None, None
 
 def ReplaceTags(text, tags):

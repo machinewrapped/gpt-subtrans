@@ -7,10 +7,11 @@ from PySubtitle.Options import Options
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers import GetInputPath, GetOutputPath, UnbatchScenes
-from PySubtitle.Helpers.substitutions import ParseSubstitutions
-from PySubtitle.Helpers.parse import ParseNames
-from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.Helpers import GetInputPath, GetOutputPath
+from PySubtitle.Helpers.Substitutions import ParseSubstitutions
+from PySubtitle.Helpers.Parse import ParseNames
+from PySubtitle.SubtitleProcessor import SubtitleProcessor
+from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 
@@ -244,6 +245,13 @@ class SubtitleFile:
         if not outputpath:
             outputpath = GetOutputPath(self.sourcepath, self.target_language)
         self.outputpath = outputpath
+
+    def PreProcess(self, preprocessor : SubtitleProcessor):
+        """
+        Preprocess subtitles
+        """
+        with self.lock:
+            self.originals = preprocessor.PreprocessSubtitles(self.originals)
 
     def AutoBatch(self, batcher : SubtitleBatcher):
         """

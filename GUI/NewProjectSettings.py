@@ -6,6 +6,7 @@ from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
 from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
 
@@ -17,6 +18,7 @@ class NewProjectSettings(QDialog):
         'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
         'min_batch_size': (int, "Fewest lines to send in separate batch"),
         'max_batch_size': (int, "Most lines to send in each batch"),
+        'preprocess_subtitles': (bool, "Preprocess subtitles before batching"),
         'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
         'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
         'instruction_file': (str, "Detailed instructions for the translator"),
@@ -33,7 +35,7 @@ class NewProjectSettings(QDialog):
         self.datamodel = datamodel
         self.project : SubtitleProject = datamodel.project
         self.settings = datamodel.project_options.GetSettings()
- 
+
         self.providers = datamodel.available_providers
         self.OPTIONS['provider'] = (self.providers, self.OPTIONS['provider'][1])
         self.settings['provider'] = datamodel.provider
@@ -125,9 +127,14 @@ class NewProjectSettings(QDialog):
         self._update_settings()
         self._update_inputs()
 
+        lines = self.project.subtitles.originals
+        if self.settings.get('preprocess_subtitles'):
+            preprocessor = SubtitleProcessor(self.settings)
+            lines = preprocessor.PreprocessSubtitles(lines)
+
         batcher = CreateSubtitleBatcher(self.settings)
         if batcher.min_batch_size < batcher.max_batch_size:
-            scenes : list[SubtitleScene] = batcher.BatchSubtitles(self.project.subtitles.originals)
+            scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
             batch_count = sum(scene.size for scene in scenes)
             line_count = sum(scene.linecount for scene in scenes)
             self.preview_widget.setText(f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches")

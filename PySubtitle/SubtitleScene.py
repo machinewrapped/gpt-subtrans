@@ -2,7 +2,7 @@ from datetime import timedelta
 import logging
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
-from PySubtitle.Helpers import ResyncTranslatedLines
+from PySubtitle.Helpers.Subtitles import ResyncTranslatedLines
 
 class SubtitleScene:
     def __init__(self, dct = None):
@@ -13,7 +13,7 @@ class SubtitleScene:
 
     def __str__(self) -> str:
         return f"SubtitleScene {self.number} with {self.size} batches and {self.linecount} lines"
-    
+
     def __repr__(self) -> str:
         return str(self)
 
@@ -28,7 +28,7 @@ class SubtitleScene:
     @property
     def linecount(self):
         return sum(batch.size for batch in self.batches)
-    
+
     @property
     def first_line_number(self):
         return self.batches[0].first_line_number if self.batches else None
@@ -40,7 +40,7 @@ class SubtitleScene:
     @property
     def all_translated(self):
         return all(batch.all_translated for batch in self.batches)
-    
+
     @property
     def any_translated(self):
         return any(batch.all_translated for batch in self.batches)
@@ -48,7 +48,7 @@ class SubtitleScene:
     @property
     def summary(self):
         return self.GetContext('summary')
-    
+
     @summary.setter
     def summary(self, value):
         self.AddContext('summary', value)
@@ -85,7 +85,7 @@ class SubtitleScene:
 
     def GetContext(self, key):
         return self.context.get(key) if self.context else None
-    
+
     def UpdateContext(self, update) -> bool:
         if not self.context:
             self.context = {}
@@ -97,7 +97,7 @@ class SubtitleScene:
                 updated = True
 
         return updated
-    
+
     def MergeScenes(self, merged_scenes):
         """
         Merge another scene into this scene
@@ -106,7 +106,7 @@ class SubtitleScene:
         self.summary = "\n".join(scene.summary for scene in scenes if scene.summary)
         self._batches = [ batch for scene in scenes for batch in scene.batches ]
 
-        self._renumber_batches() 
+        self._renumber_batches()
 
     def MergeBatches(self, batch_numbers : list[int]):
         """
@@ -119,7 +119,7 @@ class SubtitleScene:
         batches = [ batch for batch in self.batches if batch.number in batch_numbers]
         if len(batches) != len(batch_numbers):
             raise ValueError(f"Could not find batches {str(batch_numbers)} in scene {self.number}")
-        
+
         merged_batch = SubtitleBatch()
         merged_batch.number = batches[0].number
         merged_batch.scene = self.number
@@ -220,3 +220,23 @@ class SubtitleScene:
         for number, batch in enumerate(self._batches, start = 1):
             batch.number = number
 
+
+def UnbatchScenes(scenes : list[SubtitleScene]):
+    """
+    Reconstruct a sequential subtitle from multiple scenes
+    """
+    originals = []
+    translations = []
+    untranslated = []
+
+    for i_scene, scene in enumerate(scenes):
+        for i_batch, batch in enumerate(scene.batches):
+            batch_originals = batch.originals if batch.originals else []
+            batch_translations = batch.translated if batch.translated else []
+            batch_untranslated = batch.untranslated if batch.untranslated else []
+
+            originals.extend(batch_originals)
+            translations.extend(batch_translations)
+            untranslated.extend(batch_untranslated)
+
+    return originals, translations, untranslated

@@ -3,12 +3,12 @@ import os
 from PySide6.QtCore import Qt, QModelIndex, QRecursiveMutex, QMutexLocker, Signal
 from PySide6.QtGui import QStandardItemModel
 
-from GUI.GuiHelpers import TimeDeltaToText
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.LineItem import LineItem
 from GUI.ViewModel.SceneItem import SceneItem
 from GUI.ViewModel.ViewModelError import ViewModelError
 
+from PySubtitle.Helpers import TimeDeltaToText
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -26,7 +26,7 @@ class ProjectViewModel(QStandardItemModel):
 
     def getRootItem(self):
         return self.invisibleRootItem()
-    
+
     def AddUpdate(self, update : callable):
         """ Add an update to the queue and signal the main thread to process it """
         with QMutexLocker(self.update_lock):
@@ -69,7 +69,7 @@ class ProjectViewModel(QStandardItemModel):
 
         except Exception as e:
             logging.error(f"Error updating viewmodel: {e}")
-    
+
         finally:
             self.Remap()
             self.blockSignals(False)
@@ -117,7 +117,7 @@ class ProjectViewModel(QStandardItemModel):
                 batch_item.AddTranslation(line.number, line.text)
 
         return batch_item
-    
+
     def GetLineItem(self, line_number):
         """ Find a line item in the viewmodel """
         if not line_number:
@@ -161,7 +161,7 @@ class ProjectViewModel(QStandardItemModel):
                     logging.debug(f"Batch ({batch_item.scene}, {batch_item.number}) -> ({scene_item.number},{batch_item.number})")
                     batch_item.scene = scene_item.number
                     batch_item.number = batch_number
-                
+
             scene_item.batches = { item.number: item for item in batch_items }
 
             for batch_item in batch_items:
@@ -194,7 +194,7 @@ class ProjectViewModel(QStandardItemModel):
             root_item.insertRow(insert_row, scene_item)
             for i in range(0, self.rowCount()):
                 root_item.child(i, 0).number = i + 1
-        
+
         scene_items = [ root_item.child(i, 0) for i in range(0, root_item.rowCount()) ]
         self.model = { item.number: item for item in scene_items }
 
@@ -204,10 +204,10 @@ class ProjectViewModel(QStandardItemModel):
         logging.debug(f"Replacing scene {scene.number}")
         if not isinstance(scene, SubtitleScene):
             raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")
-        
+
         root_item = self.getRootItem()
         scene_item = SceneItem(scene)
-        scene_index = self.indexFromItem(self.model[scene.number]) 
+        scene_index = self.indexFromItem(self.model[scene.number])
 
         self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
         root_item.removeRow(scene_index.row())
@@ -225,7 +225,7 @@ class ProjectViewModel(QStandardItemModel):
         scene_item : SceneItem = self.model.get(scene_number)
         if not scene_item:
             raise ViewModelError(f"Model update for unknown scene {scene_number}")
-        
+
         scene_item.Update(scene_update)
 
         if scene_update.get('number'):
@@ -245,7 +245,7 @@ class ProjectViewModel(QStandardItemModel):
         if scene_number not in self.model.keys():
             raise ViewModelError(f"Scene number {scene_number} does not exist")
 
-        root_item = self.getRootItem()        
+        root_item = self.getRootItem()
         scene_item = self.model.get(scene_number)
         scene_index = self.indexFromItem(scene_item)
 
@@ -285,7 +285,7 @@ class ProjectViewModel(QStandardItemModel):
         scene_item : SceneItem = self.model[batch.scene]
         scene_index = self.indexFromItem(scene_item)
         batch_index = self.indexFromItem(scene_item.batches[batch.number])
-        
+
         self.beginRemoveRows(scene_index, batch_index.row(), batch_index.row())
         scene_item.removeRow(batch_index.row())
         self.endRemoveRows()
@@ -303,7 +303,7 @@ class ProjectViewModel(QStandardItemModel):
         logging.debug(f"Updating batch ({scene_number}, {batch_number})")
         if not isinstance(batch_update, dict):
             raise ViewModelError("Expected a patch dictionary")
-        
+
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number] if scene_number else None
         if not batch_item:
@@ -329,7 +329,7 @@ class ProjectViewModel(QStandardItemModel):
         scene_item : SceneItem = self.model.get(scene_number)
         if batch_number not in scene_item.batches.keys():
             raise ViewModelError(f"Scene {scene_number} batch {batch_number} does not exist")
-        
+
         scene_index = self.indexFromItem(scene_item)
 
         for i in range(0, scene_item.rowCount()):
@@ -376,7 +376,7 @@ class ProjectViewModel(QStandardItemModel):
         batch_item : BatchItem = scene_item.batches[batch_number]
         if line_number not in batch_item.lines.keys():
             raise ViewModelError(f"Line {line_number} not found in {scene_number} batch {batch_number}")
-        
+
         line_item : LineItem = batch_item.lines[line_number]
         line_item.Update(line_update)
 
@@ -398,7 +398,7 @@ class ProjectViewModel(QStandardItemModel):
         batch_item : BatchItem = scene_item.batches[batch_number]
         if line_number not in batch_item.lines.keys():
             raise ViewModelError(f"Line {line_number} not found in {scene_number} batch {batch_number}")
-        
+
         line_item = batch_item.lines[line_number]
         line_index = self.indexFromItem(line_item)
         batch_item.removeRow(line_index.row())

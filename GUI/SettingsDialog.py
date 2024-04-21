@@ -9,6 +9,19 @@ from PySubtitle.Options import Options
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SettingsDialog(QDialog):
+    """
+    Dialog for editing user settings in various categories
+
+    The settings are stored in a dictionary with a section for each tab and the settings it contains as key-value pairs.
+
+    Each value is either a type indicating the type of the setting, or a tuple containing the type and a tooltip string.
+
+    The PROVIDER_SECTION is special and contains the settings for the translation provider, which are loaded dynamically based on the selected provider.
+
+    The VISIBILITY_DEPENDENCIES dictionary contains the conditions for showing or hiding each section based on the settings.
+
+    Some dropdowns are populated dynamically when the dialog is created, based on the available themes and instruction files.
+    """
     PROVIDER_SECTION = 'Provider Settings'
     SECTIONS = {
         'General': {
@@ -17,6 +30,7 @@ class SettingsDialog(QDialog):
             'instruction_file': (str, "Instructions for the translation provider to follow"),
             'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
             'theme': [],
+            'preprocess_subtitles': (bool, "Preprocess subtitles before translation"),
             'autosave': (bool, "Automatically save the project after each translation batch"),
             'write_backup': (bool, "Save a backup copy of the project when opening it"),
             # 'autosplit_incomplete': (bool, "If true, incomplete translations will be split into smaller batches and retried"),
@@ -27,6 +41,14 @@ class SettingsDialog(QDialog):
             'provider': ([], "The AI translation service to use"),
             'provider_settings': TranslationProvider,
         },
+        'Processing': {
+            'max_line_duration': (float, "Maximum duration of a single line of subtitles"),
+            'min_line_duration': (float, "Minimum duration of a single line of subtitles"),
+            'min_split_chars': (int, "Minimum number of characters to split a line at"),
+            'break_dialog_on_one_line': (bool, "Add line breaks to text with dialog markers"),
+            'normalise_dialog_tags': (bool, "Ensure dialog markers match in multi-line subtitles"),
+            'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
+        },
         'Advanced': {
             'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation"),
             'min_batch_size': (int, "Avoid creating a new batch smaller than this"),
@@ -35,13 +57,18 @@ class SettingsDialog(QDialog):
             'batch_threshold': (float, "Consider starting a new batch after a gap of this many seconds (simple batcher only)"),
             'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
             'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
-            'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
             'max_summary_length': (int, "Maximum length of the context summary to include with each translation batch"),
             'max_characters': (int, "Validator: Maximum number of characters to allow in a single translated line"),
             'max_newlines': (int, "Validator: Maximum number of newlines to allow in a single translated line"),
             'max_retries': (int, "Number of times to retry a failed translation before giving up"),
             'backoff_time': (float, "Seconds to wait before retrying a failed translation"),
+        }
+    }
+
+    VISIBILITY_DEPENDENCIES = {
+        'Processing' : {
+            'preprocess_subtitles': True
         }
     }
 
@@ -89,6 +116,9 @@ class SettingsDialog(QDialog):
         if focus_provider_settings:
             self.tabs.setCurrentWidget(self.sections[self.PROVIDER_SECTION])
 
+        # Conditionally hide or show tabs
+        self._update_section_visibility()
+
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
         self.buttonBox.accepted.connect(self.accept)
@@ -117,7 +147,7 @@ class SettingsDialog(QDialog):
                             self.provider_settings[provider][field.key] = field.GetValue()
                     else:
                         self.settings[field.key] = field.GetValue()
-            
+
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
 
@@ -129,12 +159,15 @@ class SettingsDialog(QDialog):
             self.reject()
 
     def _create_section_widget(self, section_name):
+        """
+        Create the form for a settings tab
+        """
         section_widget = QFrame(self)
         section_widget.setObjectName(section_name)
 
         layout = QFormLayout(section_widget)
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        
+
         self._populate_form(section_name, layout)
 
         self.sections[section_name] = section_widget
@@ -143,7 +176,7 @@ class SettingsDialog(QDialog):
 
     def _populate_form(self, section_name : str, layout : QFormLayout):
         """
-        Create the form fields for the options 
+        Create the form fields for the options
         """
         ClearForm(layout)
 
@@ -158,6 +191,16 @@ class SettingsDialog(QDialog):
                 field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
                 layout.addRow(field.name, field)
                 self.widgets[key] = field
+
+    def _update_section_visibility(self):
+        """
+        Update the visibility of section tabs based on dependencies
+        """
+        for section_name, dependencies in self.VISIBILITY_DEPENDENCIES.items():
+            section_tab = self.tabs.findChild(QWidget, section_name)
+            if section_tab:
+                visible = all(self.settings.get(key) == value for key, value in dependencies.items())
+                self.tabs.setTabVisible(self.tabs.indexOf(section_tab), visible)
 
     def _initialise_translation_provider(self):
         """
@@ -191,22 +234,28 @@ class SettingsDialog(QDialog):
             field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
             layout.addRow(field.name, field)
             self.widgets[key] = field
-        
+
         provider_info = self.translation_provider.GetInformation()
         if provider_info:
-            provider_layout = QVBoxLayout()
-            infoLabel = QLabel(provider_info)
-            infoLabel.setWordWrap(True)
-            infoLabel.setTextFormat(Qt.TextFormat.RichText)
-            infoLabel.setOpenExternalLinks(True)
-            provider_layout.addWidget(infoLabel)
-            provider_layout.addStretch(1)
+            self._add_provider_info_widget(layout, provider_info)
 
-            scrollArea = QScrollArea()
-            scrollArea.setWidgetResizable(True)
-            scrollArea.setSizeAdjustPolicy(QScrollArea.SizeAdjustPolicy.AdjustToContents)
-            scrollArea.setLayout(provider_layout)
-            layout.addRow(scrollArea)
+    def _add_provider_info_widget(self, layout, provider_info):
+        """
+        Create a rich text widget for provider information and add it to the layout
+        """
+        provider_layout = QVBoxLayout()
+        infoLabel = QLabel(provider_info)
+        infoLabel.setWordWrap(True)
+        infoLabel.setTextFormat(Qt.TextFormat.RichText)
+        infoLabel.setOpenExternalLinks(True)
+        provider_layout.addWidget(infoLabel)
+        provider_layout.addStretch(1)
+
+        scrollArea = QScrollArea()
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setSizeAdjustPolicy(QScrollArea.SizeAdjustPolicy.AdjustToContents)
+        scrollArea.setLayout(provider_layout)
+        layout.addRow(scrollArea)
 
     def _refresh_provider_options(self):
         """
@@ -215,7 +264,7 @@ class SettingsDialog(QDialog):
         if not self.translation_provider:
             logging.warning("Translation provider is not configured")
             return
-        
+
         provider_settings = self.provider_settings.get(self.translation_provider.name, {})
         self.translation_provider.settings.update(provider_settings)
 
@@ -238,6 +287,10 @@ class SettingsDialog(QDialog):
             self.settings[key] = value
             self._update_instruction_file()
 
+        elif key == 'preprocess_subtitles':
+            self.settings[key] = value
+            self._update_section_visibility()
+
         elif section_name == self.PROVIDER_SECTION:
             provider = self.settings.get('provider')
             self.provider_settings[provider][key] = value
@@ -258,5 +311,5 @@ class SettingsDialog(QDialog):
                 self.widgets['prompt'].SetValue(instructions.prompt)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
-    
+
 
