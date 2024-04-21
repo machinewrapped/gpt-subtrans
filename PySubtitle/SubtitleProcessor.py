@@ -148,8 +148,8 @@ class SubtitleProcessor:
 
             stack.extend([split_line, new_line])
 
-        for i, line in enumerate(result, start=0):
-            line.number = line.number + i
+        for i, result_line in enumerate(result, start=0):
+            result_line.number = line.number + i
 
         return result
 
