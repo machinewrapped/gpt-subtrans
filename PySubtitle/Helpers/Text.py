@@ -1,13 +1,14 @@
 import unicodedata
 import regex
 
+whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
+
 def RemoveWhitespaceAndPunctuation(string) -> str:
     """
     Remove all whitespace and punctuation from a string
     """
     # Matches any punctuation, separator, or other Unicode character
-    pattern = r'[\p{P}\p{Z}\p{C}]'
-    stripped = regex.sub(pattern, '', string)
+    stripped = whitespace_and_punctuation_pattern.sub('', string)
 
     # Normalize Unicode characters to their canonical forms
     normalized = unicodedata.normalize('NFC', stripped)
