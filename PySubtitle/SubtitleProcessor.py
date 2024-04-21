@@ -20,9 +20,8 @@ class SubtitleProcessor:
             r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
             r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
             r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
-            r"[!?](\s|\")",  # Sequence of punctuation like '!', '?'
-            r"[.](\s|\")",  # Sentence punctuation
-            r"[？！。…]", # Full-width punctuation
+            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
+            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
             r"[,，、﹑](\s|\")?",  # Various forms of commas
             r"[:;]\s+",  # Colon and semicolon
             r"[–—]+\s+",  # Dashes
@@ -120,7 +119,7 @@ class SubtitleProcessor:
         stack = [line]
 
         if self._compiled_split_sequences is None:
-            self._compiled_split_sequences = [regex.compile(seq) for seq in self.split_sequences]
+            self._compile_split_sequences()
 
         while stack:
             current_line = stack.pop()
@@ -152,7 +151,10 @@ class SubtitleProcessor:
 
         return result
 
-def _find_break_point(line: SubtitleLine, break_sequences: list, min_duration: timedelta, min_split_chars: int):
+    def _compile_split_sequences(self):
+        self._compiled_split_sequences = [regex.compile(seq) for seq in self.split_sequences]
+
+def _find_break_point(line: SubtitleLine, break_sequences: list[regex.Pattern], min_duration: timedelta, min_split_chars: int) -> int | None:
     """
     Find the optimal break point for a subtitle.
 
@@ -169,7 +171,7 @@ def _find_break_point(line: SubtitleLine, break_sequences: list, min_duration: t
 
     middle_index = line_length // 2
 
-    for seq in break_sequences:
+    for priority, seq in enumerate(break_sequences, start=0):
         matches = list(seq.finditer(line.text))
         if not matches:
             continue
@@ -178,8 +180,11 @@ def _find_break_point(line: SubtitleLine, break_sequences: list, min_duration: t
         best_match = min(matches, key=lambda m: abs(m.end() - middle_index))
         split_index = best_match.end()
         split_time = line.GetProportionalDuration(split_index, min_duration)
+
+        # Skip if the split is too close to the start or end (exception for newlines)
         if split_time < min_duration or (line.duration - split_time) < min_duration:
-            continue
+            if priority > 0:
+                continue
 
         return split_index
 
