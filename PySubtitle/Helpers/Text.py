@@ -49,7 +49,7 @@ def CompileDialogSplitPattern(dialog_marker):
     Compile a regex pattern to split lines at dialog markers
     """
     escaped_marker = regex.escape(dialog_marker)
-    re_split = r"(?<=[^a-zA-Z0-9]\s*)(?=" + escaped_marker + ")"
+    re_split = r"(?<=[^a-zA-Z0-9\s])\s*(?=" + escaped_marker + ")"
     return regex.compile(re_split)
 
 def BreakDialogOnOneLine(text : str, dialog_marker : str | regex.Pattern) -> str:
