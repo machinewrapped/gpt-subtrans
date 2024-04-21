@@ -3,22 +3,39 @@ import logging
 import importlib.util
 import sys
 import argparse
+from datetime import datetime
+import unittest
 
 # Add the parent directory to the sys path so that modules can be found
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(base_path)
 
-logging.basicConfig(format='%(levelname)s: %(message)s', encoding='utf-8', level=logging.WARNING)
-logging.info("Initialising log")
+import PySubtitle.UnitTests
+from PySubtitle.Helpers.Tests import create_logfile, end_logfile, separator
 
-def create_logfile(results_dir : str):
-    log_path = os.path.join(results_dir, "run_tests.log")
-    file_handler = logging.FileHandler(log_path, encoding='utf-8', mode='w')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
-    logging.getLogger('').addHandler(file_handler)
+logging.getLogger().setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.WARNING)
+console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
 
-def run_tests(tests_directory, subtitles_directory, results_directory, test_name=None):
+def run_unit_tests(results_path : str):
+    # Run all unit tests imported from PySubtitle.UnitTests
+    log_file = create_logfile(results_path, "unit_tests.log")
+
+    logging.info(separator)
+    logging.info("Running unit tests at " + datetime.now().strftime("%Y-%m-%d at %H:%M"))
+    logging.info(separator)
+
+    unittest.runner.TextTestRunner(verbosity=2).run(unittest.TestLoader().loadTestsFromModule(PySubtitle.UnitTests))
+
+    logging.info(separator)
+    logging.info("Completed unit tests at " + datetime.now().strftime("%Y-%m-%d at %H:%M"))
+    logging.info(separator)
+
+    end_logfile(log_file)
+
+
+def run_functional_tests(tests_directory, subtitles_directory, results_directory, test_name=None):
     """
     Scans the given directory for .py files, imports them, and runs the run_tests function if it exists.
     If a test_name is specified, only that test is run.
@@ -66,6 +83,8 @@ if __name__ == "__main__":
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
 
-    create_logfile(results_directory)
+    create_logfile(results_directory, "run_tests.log")
 
-    run_tests(tests_directory, subtitles_directory, results_directory, test_name=args.test)
+    run_unit_tests(results_directory)
+
+    run_functional_tests(tests_directory, subtitles_directory, results_directory, test_name=args.test)

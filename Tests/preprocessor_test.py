@@ -1,7 +1,7 @@
 import os
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
-from PySubtitle.Helpers.Tests import RunTestOnAllSrtFiles
+from PySubtitle.Helpers.Tests import RunTestOnAllSrtFiles, separator
 
 def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
     try:
@@ -16,9 +16,10 @@ def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
     original_length = len(subtitles.originals)
     new_length = len(test_lines)
 
-    logger.info(f"Original line count: {original_length}")
-    logger.info(f"New line count: {new_length}")
-    logger.info(f"Delta: {new_length - original_length}")
+    logger.info(separator)
+    logger.info("| {:<20} | {:<20} | {:<20} |".format("Original count", "New line count", "Delta"))
+    logger.info("| {:<20} | {:<20} | {:<20} |".format(original_length, new_length, new_length - original_length))
+    logger.info(separator)
     logger.info("")
 
     max_line_duration = options.get('max_line_duration', 0.0)
@@ -34,7 +35,7 @@ def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
         #     logger.info(str(line))
         #     logger.info("")
 
-    logger.info("".center(60, "-"))
+    logger.info(separator)
 
 def run_tests(directory_path, results_path):
     test_options = [

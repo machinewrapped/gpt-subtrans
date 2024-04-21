@@ -1,7 +1,7 @@
 import os
 from PySubtitle.SubtitleBatcher import OldSubtitleBatcher, SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.Helpers.Tests import RunTestOnAllSrtFiles
+from PySubtitle.Helpers.Tests import RunTestOnAllSrtFiles, separator
 
 def analyze_scenes(scenes):
     num_scenes = len(scenes)
@@ -63,14 +63,14 @@ def batcher_test(subtitles: SubtitleFile, logger, options):
     total_new_avg = sum(new_avg_batch_list) / new_num_scenes
     total_delta_avg = total_new_avg - total_old_avg
 
-    logger.info("".center(60, "-"))
+    logger.info(separator)
     logger.info(f"Total (min {options['min_batch_size']}, max {options['max_batch_size']}, scene {options['scene_threshold']}, batch {options['batch_threshold']})")
-    logger.info("".center(60, "-"))
+    logger.info(separator)
     logger.info(f"{'Total Batches':<25}{total_old_batches:<10}{total_new_batches:<10}{' ' if total_delta_batches == 0 else total_delta_batches:<10}")
     logger.info(f"{'Total Largest Batch':<25}{total_old_largest:<10}{total_new_largest:<10}{' ' if total_delta_largest == 0 else total_delta_largest:<10}")
     logger.info(f"{'Total Smallest Batch':<25}{total_old_smallest:<10}{total_new_smallest:<10}{' ' if total_delta_smallest == 0 else total_delta_smallest:<10}")
     logger.info(f"{'Average Batch Size':<25}{total_old_avg:<10.2f}{total_new_avg:<10.2f}{'' if abs(total_delta_avg) < 1.0 else f'{total_delta_avg:.2f}':<10}")
-    logger.info("".center(60, "-"))
+    logger.info(separator)
 
     for i in range(old_num_scenes):
         scene_num = i + 1

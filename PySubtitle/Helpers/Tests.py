@@ -4,6 +4,52 @@ from datetime import datetime
 
 from PySubtitle.SubtitleFile import SubtitleFile
 
+separator = "".center(60, "-")
+wide_separator = "".center(120, "-")
+
+def log_info(text: str, prefix: str = ""):
+    """
+    Logs a string as individual lines with an optional prefix on each line using logging.info.
+    """
+    for line in text.split("\n"):
+        logging.info(f"{prefix}{line}")
+
+def log_error(text: str, prefix: str = ""):
+    """
+    Logs a string as individual lines with an optional prefix on each line using logging.error.
+    """
+    for line in text.split("\n"):
+        logging.error(f"{prefix}{line}")
+
+def log_input_expected_result(input, expected, result):
+    """
+    Logs the input text, the expected result and the actual result.
+    """
+    logging.info(separator)
+    log_info(str(input), prefix="".ljust(10))
+    log_info(str(expected), prefix="===".ljust(10))
+    if expected != result:
+        log_error("*** UNEXPECTED RESULT! ***", prefix="!!!".ljust(10))
+    log_info(str(result), prefix="-->".ljust(10))
+
+def create_logfile(results_dir : str, log_name : str, log_level = logging.DEBUG) -> logging.FileHandler:
+    """
+    Creates a log file with the specified name in the specified directory and adds it to the root logger.
+    """
+    log_path = os.path.join(results_dir, log_name)
+    file_handler = logging.FileHandler(log_path, encoding='utf-8', mode='w')
+    file_handler.setLevel(log_level)
+    file_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+    logging.getLogger('').addHandler(file_handler)
+    return file_handler
+
+def end_logfile(file_handler : logging.FileHandler):
+    """
+    Closes the file handler for the log file.
+    """
+    logging.getLogger('').removeHandler(file_handler)
+    file_handler.close()
+
 def _configure_base_logger(results_path, test_name):
     """
     Configures and returns a base logger that logs DEBUG messages to the console
@@ -12,7 +58,6 @@ def _configure_base_logger(results_path, test_name):
     logger = logging.getLogger(test_name)
     logger.setLevel(logging.DEBUG)
 
-    # Creating file handler for the test log
     test_log_path = os.path.join(results_path, f"{test_name}.log")
     file_handler = logging.FileHandler(test_log_path, mode='w', encoding='utf-8')
     file_formatter = logging.Formatter('%(message)s')
@@ -45,9 +90,9 @@ def RunTestOnAllSrtFiles(run_test: callable, test_options: list[dict], directory
 
     logger = _configure_base_logger(results_path, test_name)
 
-    logger.info("".center(60, "-"))
+    logger.info(separator)
     logger.info(f"Running {test_name}")
-    logger.info("".center(60, "-"))
+    logger.info(separator)
     logger.info("")
 
     for file in os.listdir(directory_path):
@@ -61,7 +106,7 @@ def RunTestOnAllSrtFiles(run_test: callable, test_options: list[dict], directory
         current_time = datetime.now().strftime("%Y-%m-%d at %H:%M")
         logger.info(f"File: {filepath}")
         logger.info(f"Tested: {current_time}")
-        logger.info("".center(60, "-"))
+        logger.info(separator)
 
         try:
             subtitles = SubtitleFile(filepath)
