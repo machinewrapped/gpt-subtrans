@@ -77,6 +77,9 @@ def FindBreakPoint(line: SubtitleLine, break_sequences: list[regex.Pattern], min
         # Find the match that is closest to the middle of the text
         best_match = min(matches, key=lambda m: abs(m.end() - middle_index))
         split_index = best_match.end()
+        if split_index < start_index or split_index > end_index:
+            continue
+
         split_time = line.GetProportionalDuration(split_index, min_duration)
 
         # Skip if the split is too close to the start or end (exception for newlines)
