@@ -11,14 +11,14 @@ def log_info(text: str, prefix: str = ""):
     """
     Logs a string as individual lines with an optional prefix on each line using logging.info.
     """
-    for line in text.split("\n"):
+    for line in text.strip().split("\n"):
         logging.info(f"{prefix}{line}")
 
 def log_error(text: str, prefix: str = ""):
     """
     Logs a string as individual lines with an optional prefix on each line using logging.error.
     """
-    for line in text.split("\n"):
+    for line in text.strip().split("\n"):
         logging.error(f"{prefix}{line}")
 
 def log_test_name(test_name: str):

@@ -1,8 +1,10 @@
 import unittest
-from PySubtitle.Helpers.Tests import log_input_expected_result, log_invalid_testcase, log_test_name
-from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations
-from PySubtitle.SubtitleLine import SubtitleLine
+import regex
+from datetime import timedelta
 
+from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
+from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindBreakPoint
 
 class TestSubtitles(unittest.TestCase):
 
@@ -77,6 +79,49 @@ class TestSubtitles(unittest.TestCase):
                                           merged_lines)
 
                 self.assertSequenceEqual(merged_lines, expected)
+
+    break_point_cases = [
+        ("1\n00:00:01,000 --> 00:00:05,000\nThis is a test subtitle, break after comma.", "This is a test subtitle,"),
+        ("2\n00:00:06,000 --> 00:00:10,000\nSecond test subtitle. Break after period.", "Second test subtitle."),
+        ("3\n00:00:11,000 --> 00:00:15,000\nThird test subtitle! Break after exclamation mark.", "Third test subtitle!"),
+        ("4\n00:00:16,000 --> 00:00:20,000\nFourth test subtitle? Break after question mark.", "Fourth test subtitle?"),
+        ("5\n00:00:21,000 --> 00:00:25,000\nFifth test subtitle... Break after ellipsis.", "Fifth test subtitle..."),
+        ("6\n00:00:26,000 --> 00:00:30,000\nSixth test subtitle.\nBreak after newline.", "Sixth test subtitle."),
+        ("7\n00:00:31,000 --> 00:00:35,000\nSeventh test subtitle.\nBreak after newline, not after the comma even if it is closer to the middle of the line.", "Seventh test subtitle."),
+        ("8\n00:00:36,000 --> 00:00:40,000\nEighth test subtitle, break after second comma, because it is closer to the middle.", "Eighth test subtitle, break after second comma,"),
+        ("9\n00:00:36,000 --> 00:00:40,000\nNinth test subtitle. Break after the period, not the comma even if it is closer to the middle.", "Ninth test subtitle."),
+        ("10\n00:00:41,000 --> 00:00:45,000\nTenth test subtitle, <i>We should not split here, even though there is a comma in the italic block.</i>", "Tenth test subtitle,"),
+        ("11\n00:00:46,000 --> 00:00:50,000\nEleventh test subtitle！Break after full-width exclamation mark.", "Eleventh test subtitle！"),
+        ("12\n00:00:51,000 --> 00:00:55,000\nTwelfth test subtitle.    Break after three spaces.", "Twelfth test subtitle."),
+        ("13\n00:00:56,000 --> 00:01:00,000\n\"Is this the 13th subtitle?\" Break after the quote.", "\"Is this the 13th subtitle?\""),
+        ("15\n00:01:06,000 --> 00:01:10,000\nThey say, \"We should not! Split a quotation!\"", "They say,"),
+        ("16\n00:01:11,000 --> 00:01:15,000\nWe can split <i>a block in tags, if they do not match</b>", "We can split <i>a block in tags,"),
+    ]
+
+    def test_FindBreakPoint(self):
+        break_sequences = [
+            r"\n",  # Newline has the highest priority
+            r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
+            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
+            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
+            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
+            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
+            r"[,，、﹑](\s|\")?",  # Various forms of commas
+            r" {3,}"  # Three or more spaces
+        ]
+
+        break_patterns = [regex.compile(sequence) for sequence in break_sequences]
+
+        min_duration = timedelta(seconds=1)
+        min_split_chars = 3
+
+        for source, first_part in self.break_point_cases:
+            with self.subTest(source=source):
+                line = SubtitleLine(source)
+                break_point = FindBreakPoint(line, break_patterns, min_duration, min_split_chars)
+                result = line.text[:break_point].strip()
+                log_input_expected_result(line, first_part, result)
+                self.assertEqual(result, first_part)
 
 if __name__ == '__main__':
     unittest.main()
