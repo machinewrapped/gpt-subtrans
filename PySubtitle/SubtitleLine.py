@@ -2,7 +2,7 @@ from datetime import timedelta
 from os import linesep
 import srt
 
-from PySubtitle.Helpers import GetTimeDelta, TimeDeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, TimeDeltaToText
 
 class SubtitleLine:
     """

@@ -5,7 +5,7 @@ import time
 try:
     import openai
 
-    from PySubtitle.Helpers import ParseDelayFromHeader
+    from PySubtitle.Helpers.Parse import ParseDelayFromHeader
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
@@ -25,13 +25,13 @@ try:
 
             if not self.api_key:
                 raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
-            
+
             if not self.api_base:
                 raise TranslationImpossibleError('API base must be set in .env or provided as an argument')
-            
+
             if not self.api_version:
                 raise TranslationImpossibleError('API version must be set in .env or provided as an argument')
-            
+
             if not self.deployment_name:
                 raise TranslationImpossibleError('Deployment name must be set in .env or provided as an argument')
 

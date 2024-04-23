@@ -3,7 +3,7 @@ import time
 import openai
 from openai.types.completion import Completion
 
-from PySubtitle.Helpers import ParseDelayFromHeader
+from PySubtitle.Helpers.Parse import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 
@@ -46,7 +46,7 @@ class InstructGPTClient(OpenAIClient):
 
                 if self.aborted:
                     return None
-                
+
                 if not isinstance(result, Completion):
                     raise TranslationResponseError(f"Unexpected response type: {type(result).__name__}", response=result)
 
@@ -69,7 +69,7 @@ class InstructGPTClient(OpenAIClient):
 
                 # Return the response content if the API call succeeds
                 return response
-            
+
             except openai.RateLimitError as e:
                 retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
                 if retry_after:

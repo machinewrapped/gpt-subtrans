@@ -8,7 +8,7 @@ from GUI.ViewModel.LineItem import LineItem
 from GUI.ViewModel.SceneItem import SceneItem
 from GUI.ViewModel.ViewModelError import ViewModelError
 
-from PySubtitle.Helpers import TimeDeltaToText
+from PySubtitle.Helpers.Time import TimeDeltaToText
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch

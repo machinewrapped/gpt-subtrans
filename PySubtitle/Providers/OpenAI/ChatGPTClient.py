@@ -3,7 +3,7 @@ import time
 import openai
 from openai.types.chat import ChatCompletion
 
-from PySubtitle.Helpers import ParseDelayFromHeader
+from PySubtitle.Helpers.Parse import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError, TranslationResponseError
 
@@ -40,7 +40,7 @@ class ChatGPTClient(OpenAIClient):
 
                 if self.aborted:
                     return None
-                
+
                 if not isinstance(result, ChatCompletion):
                     raise TranslationResponseError(f"Unexpected response type: {type(result).__name__}", response=result)
 
@@ -65,7 +65,7 @@ class ChatGPTClient(OpenAIClient):
 
                 # Return the response if the API call succeeds
                 return response
-            
+
             except openai.RateLimitError as e:
                 retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
                 if retry_after:
