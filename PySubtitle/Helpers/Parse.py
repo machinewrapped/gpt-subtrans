@@ -6,10 +6,10 @@ def ParseNames(name_list : str | list[str]) -> list[str]:
     Parse a list of names from a string or list of strings
     """
     if isinstance(name_list, str):
-        return regex.split("[\n,]", name_list)
+        name_list = regex.split("[\n,]\s+", name_list)
 
     if isinstance(name_list, list):
-        return [ name.strip() for name in name_list ]
+        return [ name.strip() for name in name_list if name.strip() ]
 
     return []
 
@@ -34,6 +34,9 @@ def ParseDelayFromHeader(value : str) -> float:
             delay *= 60
         elif unit == 'ms':
             delay /= 1000
+        else:
+            logging.error(f"Unexpected time unit '{unit}'")
+            return 6.66
 
         return max(1, delay)  # ensure at least 1 second
 
