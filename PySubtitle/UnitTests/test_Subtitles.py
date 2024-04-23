@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
-from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindBreakPoint
+from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindBreakPoint, GetProportionalDuration
 
 class TestSubtitles(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class TestSubtitles(unittest.TestCase):
     example_line_2 = SubtitleLine("2\n00:00:02,500 --> 00:00:03,500\nThis is line 2")
     example_line_3 = SubtitleLine("3\n00:00:04,000 --> 00:00:06,200\nThis is line 3")
     example_line_4 = SubtitleLine("4\n00:00:06,500 --> 00:00:07,500\nThis is line 4")
-    example_line_5 = SubtitleLine("5\n00:00:08,000 --> 00:00:09,000\nThis is line 5.\nThis is line 5 continued")
+    example_line_5 = SubtitleLine("5\n00:00:08,000 --> 00:00:09,500\nThis is line 5.\nThis is line 5 continued")
     example_line_11 = SubtitleLine("11\n00:00:10,000 --> 00:00:11,000\nThis is line 11, which is a bit longer!")
     alternative_line_1 = SubtitleLine("1\n00:00:01,000 --> 00:00:02,000\nThis is an alternative line 1")
     alternative_line_2 = SubtitleLine("2\n00:00:02,500 --> 00:00:03,500\nThis is an alternative line 2")
@@ -32,7 +32,7 @@ class TestSubtitles(unittest.TestCase):
         ),
         (
             [ example_line_4, example_line_5 ],
-            SubtitleLine("4\n00:00:06,500 --> 00:00:09,000\nThis is line 4\nThis is line 5.\nThis is line 5 continued")
+            SubtitleLine("4\n00:00:06,500 --> 00:00:09,500\nThis is line 4\nThis is line 5.\nThis is line 5 continued")
         )
     ]
 
@@ -122,6 +122,23 @@ class TestSubtitles(unittest.TestCase):
                 result = line.text[:break_point].strip()
                 log_input_expected_result(line, first_part, result)
                 self.assertEqual(result, first_part)
+
+    proportional_duration_cases = [
+        (example_line_1, 6, timedelta(seconds=0.5), timedelta(seconds=0.5)),
+        (example_line_2, 4, timedelta(seconds=0.8), timedelta(seconds=0.8)),
+        (example_line_3, 10, timedelta(seconds=0.75), timedelta(seconds=1.0, microseconds=571429)),
+        (example_line_3, 14, timedelta(seconds=0.75), timedelta(seconds=2.0, microseconds=200000)),
+        (example_line_5, 8, timedelta(seconds=0.6), timedelta(seconds=0.6)),
+        (example_line_5, 25, timedelta(seconds=0.6), timedelta(microseconds=937500))
+    ]
+
+    def test_GetProportionalDuration(self):
+        log_test_name("GetProportionalDuration")
+        for line, characters, min_duration, expected_duration in self.proportional_duration_cases:
+            with self.subTest(line=line, characters=characters):
+                result = GetProportionalDuration(line, characters, min_duration=min_duration)
+                log_input_expected_result((line.text, characters, min_duration.total_seconds()), expected_duration, result)
+                self.assertEqual(result, expected_duration)
 
 if __name__ == '__main__':
     unittest.main()

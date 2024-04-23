@@ -2,7 +2,7 @@ import logging
 import regex
 from datetime import timedelta
 
-from PySubtitle.Helpers.Subtitles import FindBreakPoint
+from PySubtitle.Helpers.Subtitles import FindBreakPoint, GetProportionalDuration
 from PySubtitle.Helpers.Text import CompileDialogSplitPattern, ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -140,7 +140,7 @@ class SubtitleProcessor:
                 continue
 
             split_text = current_line.text[split_point:].strip()
-            split_duration = current_line.GetProportionalDuration(len(split_text), self.min_line_duration)
+            split_duration = GetProportionalDuration(current_line, len(split_text), self.min_line_duration)
             split_start = current_line.end - split_duration
             split_end = current_line.end
 

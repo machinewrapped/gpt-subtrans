@@ -115,24 +115,6 @@ class SubtitleLine:
     def __eq__(self, other):
         return self._item == other._item if isinstance(other, SubtitleLine) else False
 
-    def GetProportionalDuration(self, num_characters : int, min_duration : timedelta = None) -> timedelta:
-        """
-        Calculate the proportional duration of a character string as a percentage of a subtitle
-        """
-        line_duration = self.duration.total_seconds()
-        line_length = len(self.text)
-
-        if num_characters > line_length:
-            raise ValueError("Proportion is longer than original line")
-
-        length_ratio = num_characters / line_length
-        length_seconds = line_duration * length_ratio
-
-        if min_duration:
-            length_seconds = max(length_seconds, min_duration.total_seconds())
-
-        return timedelta(seconds=length_seconds)
-
     @classmethod
     def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str = None):
         number = int(number) if number else None

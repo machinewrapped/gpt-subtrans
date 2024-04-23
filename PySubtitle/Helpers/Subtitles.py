@@ -80,7 +80,7 @@ def FindBreakPoint(line: SubtitleLine, break_sequences: list[regex.Pattern], min
         if split_index < start_index or split_index > end_index:
             continue
 
-        split_time = line.GetProportionalDuration(split_index, min_duration)
+        split_time = GetProportionalDuration(line, split_index, min_duration)
 
         # Skip if the split is too close to the start or end (exception for newlines)
         if split_time < min_duration or (line.duration - split_time) < min_duration:
@@ -90,3 +90,22 @@ def FindBreakPoint(line: SubtitleLine, break_sequences: list[regex.Pattern], min
         return split_index
 
     return None
+
+def GetProportionalDuration(line : SubtitleLine, num_characters : int, min_duration : timedelta = None) -> timedelta:
+    """
+    Calculate the proportional duration of a character string as a percentage of a subtitle
+    """
+    line_duration = line.duration.total_seconds()
+    line_length = len(line.text)
+
+    if num_characters > line_length:
+        raise ValueError("Proportion is longer than original line")
+
+    length_ratio = num_characters / line_length
+    length_seconds = line_duration * length_ratio
+
+    if min_duration:
+        length_seconds = max(length_seconds, min_duration.total_seconds())
+
+    return timedelta(seconds=length_seconds)
+
