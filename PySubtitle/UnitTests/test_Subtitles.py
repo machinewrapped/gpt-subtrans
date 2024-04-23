@@ -99,6 +99,7 @@ class TestSubtitles(unittest.TestCase):
     ]
 
     def test_FindBreakPoint(self):
+        log_test_name("FindBreakPoint")
         break_sequences = [
             r"\n",  # Newline has the highest priority
             r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
