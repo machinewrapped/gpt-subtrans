@@ -1,5 +1,5 @@
-from PySubtitle.Helpers.Substitutions import PerformSubstitutions
 from PySubtitle.Helpers.Text import ExtractTag, ExtractTagList
+from PySubtitle.Substitutions import Substitutions
 
 class Translation:
     def __init__(self, content : dict):
@@ -55,18 +55,18 @@ class Translation:
     def full_text(self):
         return self.content.get('text', self._text)
 
-    def PerformSubstitutions(self, substitutions, match_partial_words : bool = False):
+    def PerformSubstitutions(self, substitutions : Substitutions):
         """
         Apply any text substitutions to summary, scene, names and synopsis if they exist.
 
         Does NOT apply them to the translation text.
         """
         if self.summary:
-            self.content['summary'] = PerformSubstitutions(substitutions, self.summary, match_partial_words)
+            self.content['summary'] = substitutions.PerformSubstitutions(self.summary)
         if self.scene:
-            self.content['scene'] = PerformSubstitutions(substitutions, self.scene, match_partial_words)
+            self.content['scene'] = substitutions.PerformSubstitutions(self.scene)
         if self.synopsis:
-            self.content['synopsis'] = PerformSubstitutions(substitutions, self.synopsis, match_partial_words)
+            self.content['synopsis'] = substitutions.PerformSubstitutions(self.synopsis)
 
     def FormatResponse(self, include_text : bool = True):
         """

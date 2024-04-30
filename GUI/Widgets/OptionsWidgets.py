@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 from datetime import datetime
 
@@ -5,6 +6,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
 from PySide6.QtGui import QTextOption
 
+from PySubtitle.Helpers import GetValueFromName, GetValueName
 from PySubtitle.Options import MULTILINE_OPTION
 
 class OptionWidget(QWidget):
@@ -25,7 +27,7 @@ class OptionWidget(QWidget):
 
     def GetValue(self):
         raise NotImplementedError
-    
+
     def SetValue(self, value):
         raise NotImplementedError
 
@@ -46,7 +48,7 @@ class TextOptionWidget(OptionWidget):
 
     def SetValue(self, value):
         self.text_field.setText(value)
-    
+
     def SetEnabled(self, enabled : bool):
         self.text_field.setEnabled(enabled)
 
@@ -70,7 +72,7 @@ class MultilineTextOptionWidget(OptionWidget):
 
     def GetValue(self):
         return self.text_field.toPlainText()
-    
+
     def SetValue(self, value):
         self.text_field.setPlainText(value)
 
@@ -119,16 +121,16 @@ class IntegerOptionWidget(OptionWidget):
 
     def GetValue(self):
         return self.spin_box.value()
-    
+
     def SetValue(self, value : int):
         self.spin_box.setValue(value)
-    
+
     def SetRange(self, min : int, max : int):
         self.spin_box.setRange(min, max)
 
     def SetEnabled(self, enabled : bool):
         self.spin_box.setEnabled(enabled)
-    
+
     def SetVisible(self, is_visible : bool):
         self.spin_box.setVisible(is_visible)
 
@@ -148,7 +150,7 @@ class FloatOptionWidget(OptionWidget):
 
     def SetValue(self, value : float):
         self.double_spin_box.setValue(value)
-    
+
     def SetRange(self, min : float, max : float):
         self.double_spin_box.setRange(min, max)
 
@@ -168,7 +170,7 @@ class CheckboxOptionWidget(OptionWidget):
 
     def GetValue(self):
         return self.check_box.isChecked()
-    
+
     def SetValue(self, checked : bool):
         self.check_box.setChecked(checked)
 
@@ -187,20 +189,23 @@ class DropdownOptionWidget(OptionWidget):
         self.combo_box.currentTextChanged.connect(self.contentChanged)
 
     def GetValue(self):
-        return self.combo_box.currentText()
-    
+        return GetValueFromName(self.combo_box.currentText(), self.values)
+
     def SetValue(self, value):
         self.combo_box.setCurrentIndex(self.combo_box.findText(value))
 
     def SetOptions(self, values, selected_value = None):
         self.combo_box.clear()
+        self.values = values
+        selected_value_name = GetValueName(selected_value) if selected_value else None
         for value in values:
-            self.combo_box.addItem(value)
-            if selected_value and value == selected_value:
+            value_name = GetValueName(value)
+            self.combo_box.addItem(value_name)
+            if selected_value and value_name == selected_value_name:
                 self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
 
         self.combo_box.setEnabled(len(values) > 1)
-    
+
     def SetEnabled(self, enabled : bool):
         self.combo_box.setEnabled(enabled)
 
@@ -210,6 +215,8 @@ class DropdownOptionWidget(OptionWidget):
 def CreateOptionWidget(key, initial_value, key_type, tooltip = None) -> OptionWidget:
     # Helper function to create an OptionWidget based on the specified type
     if isinstance(key_type, list):
+        return DropdownOptionWidget(key, key_type, initial_value, tooltip=tooltip)
+    elif isinstance(key_type, type) and issubclass(key_type, Enum):
         return DropdownOptionWidget(key, key_type, initial_value, tooltip=tooltip)
     elif key_type == MULTILINE_OPTION:
         return MultilineTextOptionWidget(key, initial_value, tooltip=tooltip)

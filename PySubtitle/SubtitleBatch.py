@@ -1,8 +1,8 @@
 from datetime import timedelta
 
+from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Substitutions import PerformSubstitutions
 from PySubtitle.Helpers.Subtitles import MergeSubtitles
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Translation import Translation
@@ -120,14 +120,14 @@ class SubtitleBatch:
 
         return updated
 
-    def PerformInputSubstitutions(self, substitutions, match_partial_words : bool = False):
+    def PerformInputSubstitutions(self, substitutions : Substitutions):
         """
         Perform any word/phrase substitutions on source text
         """
         if substitutions and self.originals:
             lines = [item.text for item in self.originals]
 
-            lines, replacements = PerformSubstitutions(substitutions, lines, match_partial_words)
+            lines, replacements = substitutions.PerformSubstitutionsOnAll(lines)
 
             if replacements:
                 self.AddContext('input_replacements', replacements)
@@ -136,14 +136,14 @@ class SubtitleBatch:
 
             return replacements
 
-    def PerformOutputSubstitutions(self, substitutions, match_partial_words : bool = False):
+    def PerformOutputSubstitutions(self, substitutions : Substitutions):
         """
         Perform any word/phrase substitutions on translated text
         """
         if substitutions and self.translated:
             lines = [item.text for item in self.translated]
 
-            _, replacements = PerformSubstitutions(substitutions, lines, match_partial_words)
+            _, replacements = substitutions.PerformSubstitutionsOnAll(lines)
 
             if replacements:
                 self.AddContext('output_replacements', replacements)
@@ -153,6 +153,9 @@ class SubtitleBatch:
             return replacements
 
     def MergeLines(self, original_lines : list[int], translated_lines : list[int]):
+        """
+        Merge multiple lines into a single line with the same start/end times
+        """
         first_line = next((line for line in self.originals if line.number == original_lines[0]), None)
         last_line = next((line for line in self.originals if line.number == original_lines[-1]), None)
 

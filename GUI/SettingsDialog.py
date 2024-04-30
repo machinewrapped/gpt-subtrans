@@ -6,6 +6,7 @@ from GUI.GuiHelpers import ClearForm, GetThemeNames
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
 from PySubtitle.Options import Options
+from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SettingsDialog(QDialog):
@@ -56,7 +57,7 @@ class SettingsDialog(QDialog):
             'scene_threshold': (float, "Consider a new scene to have started after this many seconds without subtitles"),
             'batch_threshold': (float, "Consider starting a new batch after a gap of this many seconds (simple batcher only)"),
             'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
-            'match_partial_words': (bool, "Used with substitutions, required for some languages where word boundaries aren't detected"),
+            'substitution_mode': (Substitutions.Mode, "Whether to substitute whole words or partial matches, or choose automatically based on input language"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
             'max_summary_length': (int, "Maximum length of the context summary to include with each translation batch"),
             'max_characters': (int, "Validator: Maximum number of characters to allow in a single translated line"),

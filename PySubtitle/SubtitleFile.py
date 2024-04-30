@@ -5,10 +5,10 @@ import srt
 import bisect
 from PySubtitle.Options import Options
 
+from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath
-from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
@@ -22,6 +22,22 @@ class SubtitleFile:
     """
     High level class for manipulating subtitle files
     """
+    project_settings = {
+        'provider': None,
+        'model': None,
+        'prompt': "",
+        'target_language': "",
+        'instructions': "",
+        'retry_instructions': "",
+        'movie_name': "",
+        'description': "",
+        'names': None,
+        'substitutions': None,
+        'substitution_mode': "Auto",
+        'include_original': False,
+        'instruction_file': None
+    }
+
     def __init__(self, filepath = None, outputpath = None):
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
@@ -32,21 +48,7 @@ class SubtitleFile:
         self.sourcepath = GetInputPath(filepath)
         self.outputpath = outputpath or None
 
-        self.settings = {
-            'provider': None,
-            'model': None,
-            'prompt': "",
-            'target_language': "",
-            'instructions': "",
-            'retry_instructions': "",
-            'movie_name': "",
-            'description': "",
-            'names': None,
-            'substitutions': None,
-            'match_partial_words': False,
-            'include_original': False,
-            'instruction_file': None
-        }
+        self.settings = self.project_settings
 
     @property
     def target_language(self):
@@ -231,10 +233,10 @@ class SubtitleFile:
             return self.UpdateProjectSettings(settings.options)
 
         with self.lock:
-            self.settings.update({key: settings[key] for key in settings if key in self.settings})
+            self.settings.update({key: settings[key] for key in settings if key in self.project_settings})
 
             self.settings['names'] = ParseNames(self.settings.get('names'))
-            self.settings['substitutions'] = ParseSubstitutions(self.settings.get('substitutions'))
+            self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions'))
 
             self._update_compatibility(self.settings)
 
@@ -457,3 +459,5 @@ class SubtitleFile:
             settings['model'] = settings['gpt_model']
             del settings['gpt_model']
 
+        if not settings.get('substitution_mode'):
+            settings['substitution_mode'] = "Partial Words" if settings.get('match_partial_words') else "Auto"

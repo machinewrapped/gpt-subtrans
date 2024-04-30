@@ -1,4 +1,7 @@
 import unittest
+from enum import Enum
+
+from PySubtitle.Helpers import GetValueName, GetValueFromName
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader, ParseNames
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 
@@ -39,6 +42,54 @@ class TestParseNames(unittest.TestCase):
                 result = ParseNames(value)
                 log_input_expected_result(value, expected, result)
                 self.assertSequenceEqual(result, expected)
+
+class TestParseValues(unittest.TestCase):
+    class TestEnum(Enum):
+        Test1 = 1
+        Test2 = 2
+        Test3 = 3
+
+    class TestObject:
+        def __init__(self, name):
+            self.name = name
+
+    get_value_name_cases = [
+        (12345, "12345"),
+        (True, "True"),
+        ("Test", "Test"),
+        ("TEST", "TEST"),
+        ("TestName", "Test Name"),
+        ("CamelCaseName", "Camel Case Name"),
+        ("CamelCaseNAME", "Camel Case NAME"),
+        ("CamelCase123Name", "Camel Case123Name"),
+        (TestEnum.Test1, "Test1"),
+        (TestEnum.Test2, "Test2"),
+        (TestObject("Test Object"), "Test Object")
+    ]
+
+    def test_GetValueName(self):
+        log_test_name("GetValueName")
+        for value, expected in self.get_value_name_cases:
+            with self.subTest(value=value):
+                result = GetValueName(value)
+                log_input_expected_result(value, expected, result)
+                self.assertEqual(result, expected)
+
+    get_value_from_name_cases = [
+        ("Test Name", ["Test Name", "Another Name", "Yet Another Name"], None, "Test Name"),
+        ("Nonexistent Name", ["Test Name", "Another Name", "Yet Another Name"], "Default Value", "Default Value"),
+        (34567, [12345, 34567, 98765], None, 34567),
+        ("12345", [12345, 34567, 98765], None, 12345),
+        ("Test2", TestEnum, None, TestEnum.Test2)
+    ]
+
+    def test_GetValueFromName(self):
+        log_test_name("GetValueFromName")
+        for value, names, default, expected in self.get_value_from_name_cases:
+            with self.subTest(value=value):
+                result = GetValueFromName(value, names, default)
+                log_input_expected_result((value, names, default), expected, result)
+                self.assertEqual(result, expected)
 
 if __name__ == '__main__':
     unittest.main()

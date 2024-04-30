@@ -36,13 +36,13 @@ default_options = {
     'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
     'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
     'max_newlines': int(os.getenv('MAX_NEWLINES', 2)),
-    'match_partial_words': env_bool('MATCH_PARTIAL_WORDS', False),
     'preprocess_subtitles': env_bool('PREPROCESS_SUBTITLES', False),
     'break_dialog_on_one_line': env_bool('break_dialog_on_one_line', False),
     'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.0)),
     'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
     'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 3)),
     'normalise_dialog_tags': env_bool('NORMALISE_DIALOG_TAGS', False),
+    'substitution_mode': os.getenv('SUBSTITUTION_MODE', "Auto"),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
     # 'autosplit_incomplete': env_bool('AUTOSPLIT_INCOMPLETE', True),
@@ -58,6 +58,9 @@ default_options = {
     'theme' : os.getenv('THEME', None),
     'firstrun' : False
 }
+
+def serialize(value):
+    return value.serialize() if hasattr(value, 'serialize') else value
 
 class Options:
     def __init__(self, options=None, **kwargs):
@@ -189,7 +192,7 @@ class Options:
                 save_dict['version'] = default_options['version']
 
                 with open(settings_path, "w", encoding="utf-8") as settings_file:
-                    json.dump(save_dict, settings_file, ensure_ascii=False, indent=4, sort_keys=True)
+                    json.dump(save_dict, settings_file, ensure_ascii=False, indent=4, sort_keys=True, default=serialize)
 
             return True
 

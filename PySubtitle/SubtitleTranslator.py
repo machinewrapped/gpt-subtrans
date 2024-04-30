@@ -6,6 +6,7 @@ from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Summary import SanitiseSummary
 from PySubtitle.Helpers.Text import Linearise
 from PySubtitle.Instructions import Instructions
+from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -15,7 +16,6 @@ from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, TranslationAbortedError, TranslationError, TranslationImpossibleError
 from PySubtitle.Helpers import FormatErrorMessages
-from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
 from PySubtitle.TranslationEvents import TranslationEvents
@@ -40,7 +40,6 @@ class SubtitleTranslator:
         self.stop_on_error = options.get('stop_on_error')
         self.retry_on_error = options.get('retry_on_error')
         # self.split_on_error = options.get('autosplit_incomplete')
-        self.match_partial_words = options.get('match_partial_words')
         self.max_summary_length = options.get('max_summary_length')
         self.resume = options.get('resume')
         self.retranslate = options.get('retranslate')
@@ -50,7 +49,7 @@ class SubtitleTranslator:
         self.settings = options.GetSettings()
         self.instructions : Instructions = options.GetInstructions()
         self.user_prompt : str = options.BuildUserPrompt()
-        self.substitutions = ParseSubstitutions(options.get('substitutions', {}))
+        self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode', 'Auto'))
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 
@@ -253,7 +252,7 @@ class SubtitleTranslator:
                 context[key] = value
 
         # Apply any substitutions to the input
-        replacements = batch.PerformInputSubstitutions(self.substitutions, self.match_partial_words)
+        replacements = batch.PerformInputSubstitutions(self.substitutions)
 
         if replacements:
             replaced = [f"{Linearise(k)} -> {Linearise(v)}" for k,v in replacements.items()]
@@ -307,14 +306,14 @@ class SubtitleTranslator:
             batch.AddContext('untranslated_lines', [f"{item.number}. {item.text}" for item in batch.untranslated])
 
         # Apply any word/phrase substitutions to the translation
-        replacements = batch.PerformOutputSubstitutions(self.substitutions, self.match_partial_words)
+        replacements = batch.PerformOutputSubstitutions(self.substitutions)
 
         if replacements:
             replaced = [f"{k} -> {v}" for k,v in replacements.items()]
             logging.info(f"Made substitutions in output:\n{linesep.join(replaced)}")
 
         # Perform substitutions on the output
-        translation.PerformSubstitutions(self.substitutions, self.match_partial_words)
+        translation.PerformSubstitutions(self.substitutions)
 
         logging.info(f"Scene {batch.scene} batch {batch.number}: {len(batch.translated or [])} lines and {len(batch.untranslated or [])} untranslated.")
 
