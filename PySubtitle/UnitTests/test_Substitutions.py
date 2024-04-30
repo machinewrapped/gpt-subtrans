@@ -23,6 +23,8 @@ class TestSubstitutions(unittest.TestCase):
         (["before::after", "hello::world"], "before hello", "after world", Substitutions.Mode.WholeWords),
         ({"before": "after", "hello": "world"}, "This is the string before", "This is the string after", Substitutions.Mode.WholeWords),
         ({"bef": "aft", "hello": "world"}, "before hello", "before world", Substitutions.Mode.WholeWords),
+        ({"Shaw Brothers": "Snowboarders"}, "Shaw Brothers is a film company", "Snowboarders is a film company", Substitutions.Mode.WholeWords),
+        ({"Shaw Brothers": "Snow Boarders"}, "We all love Shaw Brothers films here!", "We all love Snow Boarders films here!", Substitutions.Mode.WholeWords),
         ({"李王": "Li Wang"}, "Mr. 李王 is a Chinese name", "Mr. Li Wang is a Chinese name", Substitutions.Mode.WholeWords),
         ({"東京": "Tokyo"}, "東京 is the capital of Japan", "Tokyo is the capital of Japan", Substitutions.Mode.WholeWords),
         ({"big": "small"}, "The big brown fox jumped over the big fence", "The small brown fox jumped over the small fence", Substitutions.Mode.WholeWords),
