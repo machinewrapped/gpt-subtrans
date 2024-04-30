@@ -49,6 +49,10 @@ class TestParseValues(unittest.TestCase):
         Test2 = 2
         Test3 = 3
 
+    class TestObject:
+        def __init__(self, name):
+            self.name = name
+
     get_value_name_cases = [
         (12345, "12345"),
         (True, "True"),
@@ -60,6 +64,7 @@ class TestParseValues(unittest.TestCase):
         ("CamelCase123Name", "Camel Case123Name"),
         (TestEnum.Test1, "Test1"),
         (TestEnum.Test2, "Test2"),
+        (TestObject("Test Object"), "Test Object")
     ]
 
     def test_GetValueName(self):
