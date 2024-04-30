@@ -1,7 +1,7 @@
 import logging
 import regex
 
-def ParseSubstitutions(sub_list, separator="::"):
+def ParseSubstitutions(sub_list : list[str] | str | dict, separator="::") -> dict:
     """
     :param sub_list: is assumed to be a list of (before,after) pairs
     separated by the separator ("::" by default).
@@ -62,6 +62,30 @@ def PerformSubstitutions(substitutions : dict, input, match_partial_words : bool
     result = str(input)
     for before, after in substitutions.items():
         pattern = fr"\b{regex.escape(before)}\b" if not match_partial_words else regex.escape(before)
+        result = regex.sub(pattern, after, result, flags=regex.UNICODE)
+
+    return result
+
+def PerformSubstitutions2(substitutions : dict, input):
+    """
+    :param input: If input is string-like, attempt to substitute all (before,after) pairs
+    in substitutions. If input is a list, iterate over all elements performing substitutions.
+    Uses unicode character classes to match word boundaries in Latin script, character boundaries otherwise.
+
+    :return: If input is string-like, return a string with the substitutions.
+    If input is a list, return a list of strings along with a dictionary of (before,after) pairs
+    for each elements that had one or more substitutions.
+    """
+    substitutions = substitutions if substitutions else {}
+
+    if isinstance(input, list):
+        new_list = [ PerformSubstitutions2(substitutions, line) for line in input ]
+        replacements = { line: new_line for line, new_line in zip(input, new_list) if new_line != str(line) }
+        return new_list, replacements
+
+    result = str(input)
+    for before, after in substitutions.items():
+        pattern = fr"(?<!\p{{Script=Latin}}){regex.escape(before)}(?!\p{{Script=Latin}})"
         result = regex.sub(pattern, after, result, flags=regex.UNICODE)
 
     return result
