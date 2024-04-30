@@ -22,7 +22,7 @@ class SubtitleFile:
     """
     High level class for manipulating subtitle files
     """
-    default_settings = {
+    project_settings = {
         'provider': None,
         'model': None,
         'prompt': "",
@@ -48,7 +48,7 @@ class SubtitleFile:
         self.sourcepath = GetInputPath(filepath)
         self.outputpath = outputpath or None
 
-        self.settings = self.default_settings
+        self.settings = self.project_settings
 
     @property
     def target_language(self):
@@ -233,7 +233,7 @@ class SubtitleFile:
             return self.UpdateProjectSettings(settings.options)
 
         with self.lock:
-            self.settings.update({key: settings[key] for key in settings if key in self.default_settings})
+            self.settings.update({key: settings[key] for key in settings if key in self.project_settings})
 
             self.settings['names'] = ParseNames(self.settings.get('names'))
             self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions'))

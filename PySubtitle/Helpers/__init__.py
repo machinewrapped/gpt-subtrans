@@ -52,7 +52,10 @@ def GetValueFromName(name, values, default=None):
         if str(name) == str(value) or name == GetValueName(value):
             return value
 
-    return default
+    if default is not None:
+        return default
+
+    raise ValueError(f"Value '{name}' not found in {values}")
 
 def UpdateFields(item : dict, update: dict, fields : list[str]):
     """

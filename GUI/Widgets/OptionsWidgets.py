@@ -196,11 +196,12 @@ class DropdownOptionWidget(OptionWidget):
 
     def SetOptions(self, values, selected_value = None):
         self.combo_box.clear()
-        self.values = [str(value) for value in values]
+        self.values = values
+        selected_value_name = GetValueName(selected_value) if selected_value else None
         for value in values:
             value_name = GetValueName(value)
             self.combo_box.addItem(value_name)
-            if selected_value and value == selected_value:
+            if selected_value and value_name == selected_value_name:
                 self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
 
         self.combo_box.setEnabled(len(values) > 1)

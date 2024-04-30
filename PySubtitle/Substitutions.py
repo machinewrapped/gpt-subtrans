@@ -13,6 +13,9 @@ class Substitutions:
         WholeWords = 1
         PartialWords = 2
 
+        def serialize(self):
+            return self.name
+
     template_wholewords = r"\b{}\b"
     template_partialwords = r"{}"
     template_automatic = r"(?<!\p{{Script=Latin}}){}(?!\p{{Script=Latin}})"
