@@ -15,9 +15,10 @@ from GUI.EditInstructionsDialog import EditInstructionsDialog
 from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
+from PySubtitle.Helpers import GetValueName
 from PySubtitle.Options import Options
-from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.Helpers.Parse import ParseNames
+from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -55,8 +56,8 @@ class ProjectSettings(QGroupBox):
             'include_original': self.widgets['include_original'].isChecked(),
             'description': self.widgets['description'].toPlainText(),
             'names': ParseNames(self.widgets['names'].toPlainText()),
-            'substitutions': ParseSubstitutions(self.widgets['substitutions'].toPlainText()),
-            'match_partial_words': self.widgets['match_partial_words'].isChecked(),
+            'substitutions': Substitutions.Parse(self.widgets['substitutions'].toPlainText()),
+            'substitution_mode': self.widgets['substitution_mode'].currentText(),
             'model': self.widgets['model'].currentText() if 'model' in self.widgets else self.settings.get('model'),
             'provider': self.widgets['provider'].currentText() if 'provider' in self.widgets else self.settings.get('provider'),
         }
@@ -98,7 +99,7 @@ class ProjectSettings(QGroupBox):
             self.AddMultiLineOption("Description", settings, 'description')
             self.AddMultiLineOption("Names", settings, 'names')
             self.AddMultiLineOption("Substitutions", settings, 'substitutions')
-            self.AddCheckboxOption("Substitute Partial Words", settings, 'match_partial_words')
+            self.AddDropdownOption("Substitute Whole Words", settings, 'substitution_mode', Substitutions.Mode)
             self.AddButton("", "Edit Instructions", self._edit_instructions)
             self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
             if len(self.provider_list) > 1:
@@ -147,7 +148,8 @@ class ProjectSettings(QGroupBox):
         combo_box = QComboBox(self)
         combo_box.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         for value in values:
-            combo_box.addItem(value)
+            value_name = GetValueName(value)
+            combo_box.addItem(value_name)
 
         if key in settings:
             initial_value = settings[key]

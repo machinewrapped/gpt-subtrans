@@ -5,10 +5,10 @@ import srt
 import bisect
 from PySubtitle.Options import Options
 
+from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath
-from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
@@ -43,7 +43,7 @@ class SubtitleFile:
             'description': "",
             'names': None,
             'substitutions': None,
-            'match_partial_words': False,
+            'substitution_mode': Substitutions.Mode.Auto,
             'include_original': False,
             'instruction_file': None
         }
@@ -234,7 +234,7 @@ class SubtitleFile:
             self.settings.update({key: settings[key] for key in settings if key in self.settings})
 
             self.settings['names'] = ParseNames(self.settings.get('names'))
-            self.settings['substitutions'] = ParseSubstitutions(self.settings.get('substitutions'))
+            self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions'))
 
             self._update_compatibility(self.settings)
 

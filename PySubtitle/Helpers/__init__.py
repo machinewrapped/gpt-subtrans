@@ -30,6 +30,15 @@ def GetEnvInteger(name, default=None):
         return int(value)
     return default
 
+def GetValueName(value):
+    """
+    Get the name of an object if it has one, or a string representation of the object.
+    """
+    if hasattr(value, 'name'):
+        return value.name
+
+    return str(value)
+
 def UpdateFields(item : dict, update: dict, fields : list[str]):
     """
     Patch selected fields in a dictionary

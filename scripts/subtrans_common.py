@@ -5,8 +5,8 @@ from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 
 from PySubtitle.Helpers.Parse import ParseNames
-from PySubtitle.Helpers.Substitutions import ParseSubstitutions
 from PySubtitle.Options import Options, config_dir
+from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -100,7 +100,7 @@ def CreateOptions(args: Namespace, provider: str, **kwargs) -> Options:
         'provider': provider,
         'rate_limit': args.ratelimit,
         'scene_threshold': args.scenethreshold,
-        'substitutions': ParseSubstitutions(args.substitution),
+        'substitutions': Substitutions.Parse(args.substitution),
         'target_language': args.target_language,
         'temperature': args.temperature,
         'write_backup': args.writebackup,
