@@ -99,7 +99,7 @@ class ProjectSettings(QGroupBox):
             self.AddMultiLineOption("Description", settings, 'description')
             self.AddMultiLineOption("Names", settings, 'names')
             self.AddMultiLineOption("Substitutions", settings, 'substitutions')
-            self.AddDropdownOption("Substitute Whole Words", settings, 'substitution_mode', Substitutions.Mode)
+            self.AddDropdownOption("Substitution Mode", settings, 'substitution_mode', Substitutions.Mode)
             self.AddButton("", "Edit Instructions", self._edit_instructions)
             self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
             if len(self.provider_list) > 1:
