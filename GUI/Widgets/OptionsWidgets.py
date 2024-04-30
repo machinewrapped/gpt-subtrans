@@ -2,7 +2,7 @@ from enum import Enum
 import json
 from datetime import datetime
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QSignalBlocker
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
 from PySide6.QtGui import QTextOption
 
@@ -195,16 +195,17 @@ class DropdownOptionWidget(OptionWidget):
         self.combo_box.setCurrentIndex(self.combo_box.findText(value))
 
     def SetOptions(self, values, selected_value = None):
-        self.combo_box.clear()
-        self.values = values
-        selected_value_name = GetValueName(selected_value) if selected_value else None
-        for value in values:
-            value_name = GetValueName(value)
-            self.combo_box.addItem(value_name)
-            if selected_value and value_name == selected_value_name:
-                self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
+        with QSignalBlocker(self.combo_box):
+            self.combo_box.clear()
+            self.values = values
+            selected_value_name = GetValueName(selected_value) if selected_value else None
+            for value in values:
+                value_name = GetValueName(value)
+                self.combo_box.addItem(value_name)
+                if selected_value and value_name == selected_value_name:
+                    self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
 
-        self.combo_box.setEnabled(len(values) > 1)
+            self.combo_box.setEnabled(len(values) > 1)
 
     def SetEnabled(self, enabled : bool):
         self.combo_box.setEnabled(enabled)
