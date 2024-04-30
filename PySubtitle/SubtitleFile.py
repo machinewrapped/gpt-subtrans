@@ -22,6 +22,22 @@ class SubtitleFile:
     """
     High level class for manipulating subtitle files
     """
+    default_settings = {
+        'provider': None,
+        'model': None,
+        'prompt': "",
+        'target_language': "",
+        'instructions': "",
+        'retry_instructions': "",
+        'movie_name': "",
+        'description': "",
+        'names': None,
+        'substitutions': None,
+        'substitution_mode': "Auto",
+        'include_original': False,
+        'instruction_file': None
+    }
+
     def __init__(self, filepath = None, outputpath = None):
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
@@ -32,21 +48,7 @@ class SubtitleFile:
         self.sourcepath = GetInputPath(filepath)
         self.outputpath = outputpath or None
 
-        self.settings = {
-            'provider': None,
-            'model': None,
-            'prompt': "",
-            'target_language': "",
-            'instructions': "",
-            'retry_instructions': "",
-            'movie_name': "",
-            'description': "",
-            'names': None,
-            'substitutions': None,
-            'substitution_mode': Substitutions.Mode.Auto,
-            'include_original': False,
-            'instruction_file': None
-        }
+        self.settings = self.default_settings
 
     @property
     def target_language(self):
@@ -231,7 +233,7 @@ class SubtitleFile:
             return self.UpdateProjectSettings(settings.options)
 
         with self.lock:
-            self.settings.update({key: settings[key] for key in settings if key in self.settings})
+            self.settings.update({key: settings[key] for key in settings if key in self.default_settings})
 
             self.settings['names'] = ParseNames(self.settings.get('names'))
             self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions'))
@@ -457,3 +459,5 @@ class SubtitleFile:
             settings['model'] = settings['gpt_model']
             del settings['gpt_model']
 
+        if not settings.get('substitution_mode'):
+            settings['substitution_mode'] = "Partial Words" if settings.get('match_partial_words') else "Auto"

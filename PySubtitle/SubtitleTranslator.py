@@ -49,7 +49,7 @@ class SubtitleTranslator:
         self.settings = options.GetSettings()
         self.instructions : Instructions = options.GetInstructions()
         self.user_prompt : str = options.BuildUserPrompt()
-        self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode'))
+        self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode', 'Auto'))
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 

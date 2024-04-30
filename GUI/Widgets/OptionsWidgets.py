@@ -6,7 +6,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
 from PySide6.QtGui import QTextOption
 
-from PySubtitle.Helpers import GetValueName
+from PySubtitle.Helpers import GetValueFromName, GetValueName
 from PySubtitle.Options import MULTILINE_OPTION
 
 class OptionWidget(QWidget):
@@ -189,13 +189,14 @@ class DropdownOptionWidget(OptionWidget):
         self.combo_box.currentTextChanged.connect(self.contentChanged)
 
     def GetValue(self):
-        return self.combo_box.currentText()
+        return GetValueFromName(self.combo_box.currentText(), self.values)
 
     def SetValue(self, value):
         self.combo_box.setCurrentIndex(self.combo_box.findText(value))
 
     def SetOptions(self, values, selected_value = None):
         self.combo_box.clear()
+        self.values = [str(value) for value in values]
         for value in values:
             value_name = GetValueName(value)
             self.combo_box.addItem(value_name)

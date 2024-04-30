@@ -1,6 +1,8 @@
 import os
 
 from typing import List
+
+import regex
 from PySubtitle.SubtitleError import SubtitleError
 
 def GetEnvBool(key, default=False):
@@ -33,11 +35,24 @@ def GetEnvInteger(name, default=None):
 def GetValueName(value):
     """
     Get the name of an object if it has one, or a string representation of the object.
+    Then, if the name is in CamelCase, insert spaces between each word.
     """
-    if hasattr(value, 'name'):
-        return value.name
+    name = getattr(value, 'name', str(value))
 
-    return str(value)
+    # Insert spaces before all caps in CamelCase (but not at the start)
+    spaced_name = regex.sub(r'(?<=[a-z])(?=[A-Z])', ' ', name)
+
+    return spaced_name
+
+def GetValueFromName(name, values, default=None):
+    """
+    Get the value from a name in a list of values
+    """
+    for value in values:
+        if str(name) == str(value) or name == GetValueName(value):
+            return value
+
+    return default
 
 def UpdateFields(item : dict, update: dict, fields : list[str]):
     """

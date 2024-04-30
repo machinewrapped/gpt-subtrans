@@ -1,5 +1,8 @@
+import logging
 import regex
 from enum import Enum
+
+from PySubtitle.Helpers import GetValueFromName
 
 class Substitutions:
     """
@@ -96,10 +99,7 @@ class Substitutions:
             except ValueError:
                 raise ValueError(f"No enum member for value: {mode}")
 
-        try:
-            return getattr(self.Mode, str(mode))
-        except AttributeError:
-            raise ValueError(f"Invalid mode value: {mode}")
+        return GetValueFromName(mode, self.Mode)
 
     @classmethod
     def Parse(cls, sub_list : str | list[str] | dict, separator="::") -> dict:
