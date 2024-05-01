@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
-from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindBreakPoint, GetProportionalDuration
+from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindSplitPoint, GetProportionalDuration
 
 class TestSubtitles(unittest.TestCase):
 
@@ -119,7 +119,7 @@ class TestSubtitles(unittest.TestCase):
         for source, first_part in self.break_point_cases:
             with self.subTest(source=source):
                 line = SubtitleLine(source)
-                break_point = FindBreakPoint(line, break_patterns, min_duration, min_split_chars)
+                break_point = FindSplitPoint(line, break_patterns, min_duration, min_split_chars)
                 result = line.text[:break_point].strip()
                 log_input_expected_result(line, first_part, result)
                 self.assertEqual(result, first_part)

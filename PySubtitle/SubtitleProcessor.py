@@ -2,8 +2,8 @@ import logging
 import regex
 from datetime import timedelta
 
-from PySubtitle.Helpers.Subtitles import FindBreakPoint, GetProportionalDuration
-from PySubtitle.Helpers.Text import CompileDialogSplitPattern, ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
+from PySubtitle.Helpers.Subtitles import FindSplitPoint, GetProportionalDuration
+from PySubtitle.Helpers.Text import BreakLongLine, CompileDialogSplitPattern, ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
@@ -28,7 +28,20 @@ class SubtitleProcessor:
             r"[–—]+\s+",  # Dashes
             r" {3,}"  # Three or more spaces
         ]
+        self.break_sequences = [
+            regex.escape(self.dialog_marker),  # Dialog marker
+            r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
+            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
+            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
+            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
+            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
+            r"[,，、﹑](\s|\")?",  # Various forms of commas
+            r"[:;]\s+",  # Colon and semicolon
+            r"[–—]+\s+",  # Dashes
+            r"\s+",  # Whitespace
+        ]
         self._compiled_split_sequences = None
+        self._compiled_break_sequences = None
         self.forbidden_start_end_pairs = [
             ("<", ">"),
             ("[", "]"),
@@ -42,10 +55,13 @@ class SubtitleProcessor:
         self.min_line_duration = timedelta(seconds = settings.get('min_line_duration', 0.0))
         self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
         self.min_split_chars = settings.get('min_split_chars', 4)
+        self.max_single_line_length = settings.get('max_single_line_length', 40)
+        self.min_single_line_length = settings.get('min_single_line_length', 4)
 
         self.convert_whitespace_to_linebreak = settings.get('whitespaces_to_newline', False)
         self.break_dialog_on_one_line = settings.get('break_dialog_on_one_line', False)
         self.normalise_dialog_tags = settings.get('normalise_dialog_tags', False)
+        self.break_long_lines = settings.get('break_long_lines', False)
 
         self.split_dialog_pattern = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
 
@@ -88,6 +104,23 @@ class SubtitleProcessor:
 
         return processed
 
+    def PostprocessSubtitles(self, lines : list[SubtitleLine]):
+        """
+        Post-process lines after translation
+        """
+        if not lines:
+            return []
+
+        processed = []
+        line_number = lines[0].number
+
+        for line in lines:
+            line.number = line_number
+            self._postprocess_line(line)
+            if line.text:
+                processed.append(line)
+                line_number += 1
+
     def _preprocess_line(self, line : SubtitleLine):
         """
         Split dialogs onto separate lines.
@@ -113,6 +146,43 @@ class SubtitleProcessor:
             logging.debug(f"Preprocessed line {line.number}:\n{line.text}\n-->\n{text}")
             line.text = text
 
+    def _postprocess_line(self, line : SubtitleLine):
+        """
+        Split dialogs onto separate lines.
+        Normalise dialog markers.
+        Add line breaks to long lines.
+        """
+        if not line.text:
+            return
+
+        text = line.text
+
+        if self.break_dialog_on_one_line:
+            text = BreakDialogOnOneLine(text, self.split_dialog_pattern)
+
+        if self.normalise_dialog_tags:
+            text = NormaliseDialogTags(text, self.dialog_marker)
+
+        if self.break_long_lines:
+            text = self._break_long_lines(text)
+
+        if text != line.text:
+            logging.debug(f"Postprocessed line {line.number}:\n{line.text}\n-->\n{text}")
+            line.text = text
+
+    def _break_long_lines(self, text):
+        """
+        Add line breaks to long lines
+        """
+        if self._compiled_break_sequences is None:
+            self._compile_break_sequences()
+
+        max_length = self.max_single_line_length
+        min_length = self.min_single_line_length
+        break_sequences = self._compiled_break_sequences
+        text = BreakLongLine(text, max_single_line_length=max_length, min_single_line_length=min_length, break_sequences=break_sequences)
+        return text
+
     def _split_line_by_duration(self, line: SubtitleLine) -> list[SubtitleLine]:
         """
         Recursively split a line into smaller lines based on the duration of the text,
@@ -134,7 +204,7 @@ class SubtitleProcessor:
                 result.append(current_line)
                 continue
 
-            split_point = FindBreakPoint(current_line, self._compiled_split_sequences, min_duration=self.min_line_duration, min_split_chars=self.min_split_chars)
+            split_point = FindSplitPoint(current_line, self._compiled_split_sequences, min_duration=self.min_line_duration, min_split_chars=self.min_split_chars)
             if split_point is None:
                 result.append(current_line)
                 continue
@@ -156,5 +226,8 @@ class SubtitleProcessor:
 
     def _compile_split_sequences(self):
         self._compiled_split_sequences = [regex.compile(seq) for seq in self.split_sequences]
+
+    def _compile_break_sequences(self):
+        self._compiled_break_sequences = [regex.compile(seq) for seq in self.break_sequences]
 
 
