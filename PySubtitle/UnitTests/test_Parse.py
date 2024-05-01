@@ -47,7 +47,8 @@ class TestParseValues(unittest.TestCase):
     class TestEnum(Enum):
         Test1 = 1
         Test2 = 2
-        Test3 = 3
+        TestValue = 4
+        TestExample = 5
 
     class TestObject:
         def __init__(self, name):
@@ -58,12 +59,11 @@ class TestParseValues(unittest.TestCase):
         (True, "True"),
         ("Test", "Test"),
         ("TEST", "TEST"),
-        ("TestName", "Test Name"),
-        ("CamelCaseName", "Camel Case Name"),
-        ("CamelCaseNAME", "Camel Case NAME"),
-        ("CamelCase123Name", "Camel Case123Name"),
+        ("TestName", "TestName"),
         (TestEnum.Test1, "Test1"),
         (TestEnum.Test2, "Test2"),
+        (TestEnum.TestValue, "Test Value"),
+        (TestEnum.TestExample, "Test Example"),
         (TestObject("Test Object"), "Test Object")
     ]
 

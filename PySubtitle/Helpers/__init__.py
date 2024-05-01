@@ -43,7 +43,7 @@ def GetValueName(value):
         spaced_name = regex.sub(r'(?<=[a-z])(?=[A-Z])', ' ', name)
         return spaced_name
 
-    return value
+    return str(value)
 
 def GetValueFromName(name, values, default=None):
     """
