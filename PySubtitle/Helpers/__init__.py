@@ -37,12 +37,13 @@ def GetValueName(value):
     Get the name of an object if it has one, or a string representation of the object.
     Then, if the name is in CamelCase, insert spaces between each word.
     """
-    name = getattr(value, 'name', str(value))
+    if hasattr(value, 'name'):
+        name = value.name
+        # Insert spaces before all caps in CamelCase (but not at the start)
+        spaced_name = regex.sub(r'(?<=[a-z])(?=[A-Z])', ' ', name)
+        return spaced_name
 
-    # Insert spaces before all caps in CamelCase (but not at the start)
-    spaced_name = regex.sub(r'(?<=[a-z])(?=[A-Z])', ' ', name)
-
-    return spaced_name
+    return value
 
 def GetValueFromName(name, values, default=None):
     """
