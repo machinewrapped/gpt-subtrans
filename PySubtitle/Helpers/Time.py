@@ -1,4 +1,3 @@
-import srt
 import datetime
 import regex
 
@@ -47,9 +46,28 @@ def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception = False
 
     return error
 
-def TimeDeltaToText(time: datetime.timedelta) -> str:
+def TimeDeltaToText(time: datetime.timedelta, include_milliseconds = True) -> str:
     """
-    Convert a timedelta to a string
+    Convert a timedelta to a minimal string representation, adhering to specific formatting rules:
+    - Hours, minutes, and seconds may appear with leading zeros only as required.
+    - Milliseconds are appended after a comma if they are present.
+    - Seconds can be a single digit if no preceding hours or minutes are present.
     """
-    return srt.timedelta_to_srt_timestamp(time).replace('00:', '') if time is not None else None
+    total_seconds = int(time.total_seconds())
+    milliseconds = time.microseconds // 1000
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    if hours > 0:
+        time_str = f"{hours}:{minutes:02d}:{seconds:02d}"
+    elif minutes > 0:
+        time_str = f"{minutes}:{seconds:02d}"
+    else:
+        time_str = f"{seconds:02d}"
+
+    if include_milliseconds:
+        time_str += f",{milliseconds:03d}"
+
+    return time_str.format(hours, minutes, seconds, milliseconds)
 
