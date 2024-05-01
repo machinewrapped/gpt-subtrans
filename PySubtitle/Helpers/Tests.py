@@ -40,6 +40,17 @@ def log_input_expected_result(input, expected, result):
     log_info(str(result), prefix="-->".ljust(10))
     logging.info(separator)
 
+def log_input_expected_error(input, expected_error, result):
+    """
+    Logs the input text, the expected error and the actual error.
+    """
+    log_info(str(input), prefix="".ljust(10))
+    log_info(expected_error.__name__, prefix="===".ljust(10))
+    if not isinstance(result, expected_error):
+        log_error("*** UNEXPECTED ERROR! ***", prefix="!!!".ljust(10))
+    log_info(str(result), prefix="-->".ljust(10))
+    logging.info(separator)
+
 def create_logfile(results_dir : str, log_name : str, log_level = logging.DEBUG) -> logging.FileHandler:
     """
     Creates a log file with the specified name in the specified directory and adds it to the root logger.
