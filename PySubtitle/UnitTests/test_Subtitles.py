@@ -142,5 +142,33 @@ class TestSubtitles(unittest.TestCase):
                 log_input_expected_result((line.text, characters, min_duration.total_seconds()), expected_duration, result)
                 self.assertEqual(result, expected_duration)
 
+class SubtitleProcessorTests(unittest.TestCase):
+    example_line_1 = SubtitleLine("1\n00:00:01,000 --> 00:00:02,000\nThis is line 1")
+    example_line_2 = SubtitleLine("2\n00:00:02,500 --> 00:00:03,500\nThis is line 2")
+
+    preprocess_cases = [
+        ([example_line_1, example_line_2], {}, [example_line_1, example_line_2]),  # No changes
+    ]
+
+    def test_Preprocess(self):
+        log_test_name("PreprocessSubtitles")
+        for source, settings, expected in self.preprocess_cases:
+            with self.subTest(source=source, settings=settings):
+                processor = SubtitleProcessor(settings)
+                result = processor.PreprocessSubtitles(source, settings)
+                self.assertSequenceEqual(result, expected)
+
+    postprocess_cases = [
+        ([example_line_1, example_line_2], {}, [example_line_1, example_line_2]),  # No changes
+    ]
+
+    def test_Postprocess(self):
+        log_test_name("PostprocessSubtitles")
+        for source, settings, expected in self.postprocess_cases:
+            with self.subTest(source=source, settings=settings):
+                processor = SubtitleProcessor(settings)
+                result = processor.PostprocessSubtitles(source, settings)
+                self.assertSequenceEqual(result, expected)
+
 if __name__ == '__main__':
     unittest.main()
