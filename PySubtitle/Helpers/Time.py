@@ -1,16 +1,25 @@
-import datetime
-import logging
-import regex
 import srt
+import datetime
+import regex
 
-def TimeDeltaToText(time: datetime.timedelta) -> str:
-    """
-    Convert a timedelta to a string
-    """
-    return srt.timedelta_to_srt_timestamp(time).replace('00:', '') if time is not None else None
+delim = r"[,.:，．。：]"
 
+timestamp_patterns = [
+    # Handle standard SRT timestamps
+    r"^(?P<hours>\d{1,3}):(?P<minutes>\d{1,2}):(?P<seconds>\d{2})(?:,(?P<milliseconds>\d{3}))?$",
+    # Handle timestamps with non-standard delimiters but the same structure, with optional garbage at the end
+    rf"^(?P<hours>\d{{1,3}}){delim}(?P<minutes>\d{{1,2}}){delim}(?P<seconds>\d{{1,2}})(?:{delim}(?P<milliseconds>\d{{3}}))?($|[^0-9])",
+    # Handle timestamps with only minutes and seconds
+    rf"^(?P<minutes>\d{{1,2}}){delim}(?P<seconds>\d{{1,2}})(?:{delim}(?P<milliseconds>\d{{3}}))?$",
+    # Handle just seconds and optional milliseconds
+    r"^(?P<seconds>\d{1,2})(?:,(?P<milliseconds>\d{3}))?$",
+]
 
-def GetTimeDelta(time : datetime.timedelta | str | None) -> datetime.timedelta:
+re_timestamps = [
+    regex.compile(pattern) for pattern in timestamp_patterns
+]
+
+def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception = False) -> datetime.timedelta:
     """
     Ensure the input value is a timedelta, as best we can
     """
@@ -20,28 +29,27 @@ def GetTimeDelta(time : datetime.timedelta | str | None) -> datetime.timedelta:
     if isinstance(time, datetime.timedelta):
         return time
 
-    try:
-        return srt.srt_timestamp_to_timedelta(str(time))
+    timestamp = str(time).strip()
 
-    except Exception as e:
-        time = str(time).strip()
-        parts = regex.split('[:,]', time)
+    for pattern in re_timestamps:
+        time_match = pattern.match(timestamp)
+        if time_match:
+            hours = int(time_match.group("hours")) if "hours" in time_match.groupdict() else 0
+            minutes = int(time_match.group("minutes")) if "minutes" in time_match.groupdict() else 0
+            seconds = int(time_match.group("seconds") or 0)
+            milliseconds = int(time_match.group("milliseconds") or 0)
 
-        if len(parts) == 3:
-            if len(parts[-1]) == 3:
-                logging.warning(f"Adding hour to time '{time}'")
-                return GetTimeDelta(f"00:{parts[0]}:{parts[1]},{parts[2]}")
-            else:
-                logging.warning(f"Adding milliseconds to time '{time}'")
-                return GetTimeDelta(f"{parts[0]}:{parts[1]}:{parts[2],000}")
+            return datetime.timedelta(hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds)
 
-        if len(parts) >= 4:
-            if len(parts[-1]) == 3:
-                logging.warning(f"Using last four parts of '{time}' as time")
-                return GetTimeDelta(f"{parts[-4]}:{parts[-3]}:{parts[-2]},{parts[-1]}")
+    error = ValueError(f"Invalid time format: {time}")
+    if raise_exception:
+        raise error
 
-            logging.warning(f"Using first four parts of '{time}' as time")
-            return GetTimeDelta(f"{parts[0]}:{parts[1]}:{parts[2]},{parts[3]}")
+    return error
 
-    raise ValueError(f"Unable to interpret time '{str(time)}'")
+def TimeDeltaToText(time: datetime.timedelta) -> str:
+    """
+    Convert a timedelta to a string
+    """
+    return srt.timedelta_to_srt_timestamp(time).replace('00:', '') if time is not None else None
 
