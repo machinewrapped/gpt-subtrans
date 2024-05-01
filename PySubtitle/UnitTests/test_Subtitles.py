@@ -101,7 +101,7 @@ class TestSubtitles(unittest.TestCase):
 
     def test_FindSplitPoint(self):
         log_test_name("FindSplitPoint")
-        break_sequences = [
+        split_sequences = [
             r"\n",  # Newline has the highest priority
             r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
             r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
@@ -112,7 +112,7 @@ class TestSubtitles(unittest.TestCase):
             r" {3,}"  # Three or more spaces
         ]
 
-        split_patterns = [regex.compile(sequence) for sequence in break_sequences]
+        split_patterns = [regex.compile(sequence) for sequence in split_sequences]
 
         min_duration = timedelta(seconds=1)
         min_split_chars = 3
@@ -120,7 +120,7 @@ class TestSubtitles(unittest.TestCase):
         for source, first_part in self.split_point_cases:
             with self.subTest(source=source):
                 line = SubtitleLine(source)
-                break_point = FindSplitPoint(line, break_patterns, min_duration, min_split_chars)
+                break_point = FindSplitPoint(line, split_patterns, min_duration, min_split_chars)
                 result = line.text[:break_point].strip()
                 log_input_expected_result(line, first_part, result)
                 self.assertEqual(result, first_part)
