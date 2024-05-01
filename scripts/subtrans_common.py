@@ -89,7 +89,7 @@ def CreateOptions(args: Namespace, provider: str, **kwargs) -> Options:
         'include_original': args.includeoriginal,
         'instruction_args': args.instruction,
         'instruction_file': args.instructionfile,
-        'match_partial_words': args.matchpartialwords,
+        'substitution_mode': "Partial Words" if args.matchpartialwords else "Auto",
         'max_batch_size': args.maxbatchsize,
         'max_context_summaries': args.maxsummaries,
         'max_lines': args.maxlines,
