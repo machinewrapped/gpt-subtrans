@@ -62,7 +62,7 @@ def TimeDeltaToText(time: datetime.timedelta, include_milliseconds = True) -> st
     if hours > 0:
         time_str = f"{hours}:{minutes:02d}:{seconds:02d}"
     elif minutes > 0:
-        time_str = f"{minutes}:{seconds:02d}"
+        time_str = f"{minutes:02d}:{seconds:02d}"
     else:
         time_str = f"{seconds:02d}"
 
