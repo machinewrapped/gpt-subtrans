@@ -5,6 +5,7 @@ from datetime import timedelta
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindSplitPoint, GetProportionalDuration
+from PySubtitle.SubtitleProcessor import SubtitleProcessor
 
 class TestSubtitles(unittest.TestCase):
 
@@ -80,7 +81,7 @@ class TestSubtitles(unittest.TestCase):
 
                 self.assertSequenceEqual(merged_lines, expected)
 
-    break_point_cases = [
+    split_point_cases = [
         ("1\n00:00:01,000 --> 00:00:05,000\nThis is a test subtitle, break after comma.", "This is a test subtitle,"),
         ("2\n00:00:06,000 --> 00:00:10,000\nSecond test subtitle. Break after period.", "Second test subtitle."),
         ("3\n00:00:11,000 --> 00:00:15,000\nThird test subtitle! Break after exclamation mark.", "Third test subtitle!"),
@@ -98,8 +99,8 @@ class TestSubtitles(unittest.TestCase):
         ("16\n00:01:11,000 --> 00:01:15,000\nWe can split <i>a block in tags, if they do not match</b>", "We can split <i>a block in tags,"),
     ]
 
-    def test_FindBreakPoint(self):
-        log_test_name("FindBreakPoint")
+    def test_FindSplitPoint(self):
+        log_test_name("FindSplitPoint")
         break_sequences = [
             r"\n",  # Newline has the highest priority
             r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
@@ -111,12 +112,12 @@ class TestSubtitles(unittest.TestCase):
             r" {3,}"  # Three or more spaces
         ]
 
-        break_patterns = [regex.compile(sequence) for sequence in break_sequences]
+        split_patterns = [regex.compile(sequence) for sequence in break_sequences]
 
         min_duration = timedelta(seconds=1)
         min_split_chars = 3
 
-        for source, first_part in self.break_point_cases:
+        for source, first_part in self.split_point_cases:
             with self.subTest(source=source):
                 line = SubtitleLine(source)
                 break_point = FindSplitPoint(line, break_patterns, min_duration, min_split_chars)
