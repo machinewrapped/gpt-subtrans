@@ -42,7 +42,7 @@ class SubtitleLine:
 
     @property
     def srt_start(self) -> str:
-        return TimeDeltaToText(self.start) if self.start is not None else None
+        return srt.timedelta_to_srt_timestamp(self.start) if self.start is not None else None
 
     @property
     def end(self) -> timedelta:
@@ -50,7 +50,7 @@ class SubtitleLine:
 
     @property
     def srt_end(self) -> str:
-        return TimeDeltaToText(self.end) if self.end else None
+        return srt.timedelta_to_srt_timestamp(self.end) if self.end else None
 
     @property
     def duration(self) -> timedelta:

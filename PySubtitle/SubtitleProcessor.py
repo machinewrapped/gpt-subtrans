@@ -55,13 +55,14 @@ class SubtitleProcessor:
         self.min_line_duration = timedelta(seconds = settings.get('min_line_duration', 0.0))
         self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
         self.min_split_chars = settings.get('min_split_chars', 4)
-        self.max_single_line_length = settings.get('max_single_line_length', 40)
-        self.min_single_line_length = settings.get('min_single_line_length', 4)
 
         self.convert_whitespace_to_linebreak = settings.get('whitespaces_to_newline', False)
         self.break_dialog_on_one_line = settings.get('break_dialog_on_one_line', False)
         self.normalise_dialog_tags = settings.get('normalise_dialog_tags', False)
+
         self.break_long_lines = settings.get('break_long_lines', False)
+        self.max_single_line_length = settings.get('max_single_line_length', 40)
+        self.min_single_line_length = settings.get('min_single_line_length', 4)
 
         self.split_dialog_pattern = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
 
@@ -116,10 +117,12 @@ class SubtitleProcessor:
 
         for line in lines:
             line.number = line_number
-            self._postprocess_line(line)
-            if line.text:
-                processed.append(line)
-                line_number += 1
+            output = self._postprocess_line(line)
+            if output:
+                processed.extend(output)
+                line_number += len(output)
+
+        return processed
 
     def _preprocess_line(self, line : SubtitleLine):
         """
@@ -166,9 +169,12 @@ class SubtitleProcessor:
         if self.break_long_lines:
             text = self._break_long_lines(text)
 
-        if text != line.text:
-            logging.debug(f"Postprocessed line {line.number}:\n{line.text}\n-->\n{text}")
-            line.text = text
+        if text == line.text:
+            return [line]
+
+        logging.debug(f"Postprocessed line {line.number}:\n{line.text}\n-->\n{text}")
+        processed_line = SubtitleLine(line.number, line.start, line.end, text)
+        return [processed_line]
 
     def _break_long_lines(self, text):
         """

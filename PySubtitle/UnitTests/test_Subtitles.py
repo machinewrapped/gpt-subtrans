@@ -3,7 +3,7 @@ import regex
 from datetime import timedelta
 
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
+from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindSplitPoint, GetProportionalDuration
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 
@@ -143,11 +143,23 @@ class TestSubtitles(unittest.TestCase):
                 self.assertEqual(result, expected_duration)
 
 class SubtitleProcessorTests(unittest.TestCase):
-    example_line_1 = SubtitleLine("1\n00:00:01,000 --> 00:00:02,000\nThis is line 1")
-    example_line_2 = SubtitleLine("2\n00:00:02,500 --> 00:00:03,500\nThis is line 2")
+    example_line_1 = "1\n00:00:01,000 --> 00:00:02,000\nThis is line 1"
+    example_line_2 = "2\n00:00:02,500 --> 00:00:03,500\nThis is line 2"
+    example_line_3 = "7\n00:00:31,000 --> 00:00:35,000\nFourth test subtitle.\nBreak after newline, not after the comma even though it is central."
+    example_line_4 = "8\n00:00:36,000 --> 00:00:40,000\nFifth test subtitle, break after second comma, because it is closer to the middle."
+    example_line_5 = "9\n00:00:42,000 --> 00:00:48,000\nSixth test subtitle. Break after the period, not the comma even if it is closer to the middle."
+    example_line_6 = "10\n00:00:50,000 --> 00:0055,000\nSeventh test subtitle, <i>We should not split here, even though there is a comma in the italic block.</i>"
 
     preprocess_cases = [
         ([example_line_1, example_line_2], {}, [example_line_1, example_line_2]),  # No changes
+        ([example_line_3, example_line_4],
+         { "max_line_duration": 3.5, "min_line_duration": 1.0 },
+         [
+            "7\n00:00:31,000 --> 00:00:31,938\nFourth test subtitle.",
+            "8\n00:00:31,988 --> 00:00:35,000\nBreak after newline, not after the comma even though it is central.",
+            "9\n00:00:36,000 --> 00:00:38,242\nFifth test subtitle, break after second comma,",
+            "10\n00:00:38,292 --> 00:00:40,000\nbecause it is closer to the middle.",
+        ]),
     ]
 
     def test_Preprocess(self):
@@ -155,8 +167,13 @@ class SubtitleProcessorTests(unittest.TestCase):
         for source, settings, expected in self.preprocess_cases:
             with self.subTest(source=source, settings=settings):
                 processor = SubtitleProcessor(settings)
-                result = processor.PreprocessSubtitles(source, settings)
-                self.assertSequenceEqual(result, expected)
+                input = [SubtitleLine(line) for line in source]
+
+                result = processor.PreprocessSubtitles(input)
+                result_lines = [f"{line.number}\n{line.srt_start} --> {line.srt_end}\n{line.text}" for line in result]
+
+                self._log_expected_vs_actual(result_lines, expected)
+                self.assertSequenceEqual(result_lines, expected)
 
     postprocess_cases = [
         ([example_line_1, example_line_2], {}, [example_line_1, example_line_2]),  # No changes
@@ -167,8 +184,20 @@ class SubtitleProcessorTests(unittest.TestCase):
         for source, settings, expected in self.postprocess_cases:
             with self.subTest(source=source, settings=settings):
                 processor = SubtitleProcessor(settings)
-                result = processor.PostprocessSubtitles(source, settings)
-                self.assertSequenceEqual(result, expected)
+                input = [SubtitleLine(line) for line in source]
+
+                result = processor.PostprocessSubtitles(input)
+                result_lines = [f"{line.number}\n{line.srt_start} --> {line.srt_end}\n{line.text}" for line in result]
+
+                self._log_expected_vs_actual(result_lines, expected)
+                self.assertSequenceEqual(result_lines, expected)
+
+    def _log_expected_vs_actual(self, result : list[str], expected_result : list[str]):
+        log_info(',\n'.join(self._format_lines(expected_result)), prefix="===".ljust(10))
+        log_info(',\n'.join(self._format_lines(result)), prefix="-->".ljust(10))
+
+    def _format_lines(self, expected_result):
+        return [f"\"{line}\"".replace('\n', '\\n') for line in expected_result]
 
 if __name__ == '__main__':
     unittest.main()
