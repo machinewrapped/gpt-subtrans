@@ -10,7 +10,8 @@ from PySubtitle.Helpers.Text import (
     LimitTextLength,
     Linearise,
     NormaliseDialogTags,
-    RemoveWhitespaceAndPunctuation
+    RemoveWhitespaceAndPunctuation,
+    SanitiseSummary
     )
 
 class TestTextHelpers(unittest.TestCase):
@@ -177,6 +178,24 @@ class TestTextHelpers(unittest.TestCase):
                 result = ExtractTagList(tagname, text)
                 log_input_expected_result(text, expected, result)
                 self.assertEqual(result, expected)
+
+    sanitise_summary_cases = [
+        ("", None, None, None),
+        ("Summary of the batch - This is a summary", None, None, "This is a summary"),
+        ("Movie Name: Summary of the scene - This is a summary", "Movie Name", None, "This is a summary"),
+        ("Movie Name: Summary of the scene - This is a summary", "Movie Name", 10, "This is a..."),
+        ("Scene 1: This is the first scene of Movie Name", "Movie Name", None, "This is the first scene of Movie Name"),
+        ("An example of a summary with too much whitespace    ", None, None, "An example of a summary with too much whitespace"),
+    ]
+
+    def test_SanitiseSummary(self):
+        log_test_name("SanitiseSummary")
+        for text, movie_name, max_length, expected in self.sanitise_summary_cases:
+            with self.subTest(text=text):
+                result = SanitiseSummary(text, movie_name, max_length)
+                log_input_expected_result(text, expected, result)
+                self.assertEqual(result, expected)
+
 
 if __name__ == '__main__':
     unittest.main()

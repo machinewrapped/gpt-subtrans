@@ -154,3 +154,28 @@ def ExtractTagList(tagname, text):
     text, tag = ExtractTag(tagname, text)
     tag_list = [ item.strip() for item in regex.split("[\n,]", tag) ] if tag else []
     return text, tag_list
+
+def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length : int = None):
+    """
+    Remove trivial parts of summary text and limit the length if required
+    """
+    if not summary:
+        return None
+
+    summary = summary.replace("Summary of the batch", "")
+    summary = summary.replace("Summary of the scene", "")
+    summary = regex.sub(r'^(?:(?:Scene|Batch)[\s\d:\-]*)+', '', summary, flags=regex.IGNORECASE)
+
+    if movie_name:
+        # Remove movie name and any connectors (-,: or whitespace)
+        summary = regex.sub(r'^' + regex.escape(movie_name) + r'\s*[:\-\s]*', '', summary)
+
+    summary = regex.sub(r'^[\s\d:\-]*', '', summary, flags=regex.IGNORECASE)
+
+    summary = summary.strip()
+
+    if max_summary_length:
+        summary = LimitTextLength(summary, max_summary_length)
+
+    return summary or None
+

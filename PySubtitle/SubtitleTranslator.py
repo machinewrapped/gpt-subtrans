@@ -3,8 +3,7 @@ import logging
 from os import linesep
 import threading
 from PySubtitle.Helpers.Subtitles import MergeTranslations
-from PySubtitle.Helpers.Summary import SanitiseSummary
-from PySubtitle.Helpers.Text import Linearise
+from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
 from PySubtitle.Instructions import Instructions
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
