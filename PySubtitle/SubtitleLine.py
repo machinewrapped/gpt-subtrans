@@ -45,12 +45,20 @@ class SubtitleLine:
         return srt.timedelta_to_srt_timestamp(self.start) if self.start is not None else None
 
     @property
+    def txt_start(self) -> str:
+        return TimeDeltaToText(self.start) if self.start is not None else None
+
+    @property
     def end(self) -> timedelta:
         return self._item.end if self._item else None
 
     @property
     def srt_end(self) -> str:
         return srt.timedelta_to_srt_timestamp(self.end) if self.end else None
+
+    @property
+    def txt_end(self) -> str:
+        return TimeDeltaToText(self.end) if self.end is not None else None
 
     @property
     def duration(self) -> timedelta:

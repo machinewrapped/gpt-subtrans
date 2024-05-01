@@ -21,7 +21,7 @@ class BatchItem(ViewModelItem):
         self.debug_view = debug_view
         self.lines = {}
         self.batch_model = {
-            'start': batch.srt_start,
+            'start': batch.txt_start,
             'end': batch.srt_end,
             'summary': batch.summary,
             'errors': self._get_errors(batch.errors)
