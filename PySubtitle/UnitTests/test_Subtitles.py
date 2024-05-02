@@ -3,6 +3,7 @@ import regex
 from datetime import timedelta
 
 from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.Helpers.Text import split_sequences
 from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Subtitles import MergeSubtitles, MergeTranslations, FindSplitPoint, GetProportionalDuration
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
@@ -97,21 +98,11 @@ class TestSubtitles(unittest.TestCase):
         ("13\n00:00:56,000 --> 00:01:00,000\n\"Is this the 13th subtitle?\" Break after the quote.", "\"Is this the 13th subtitle?\""),
         ("15\n00:01:06,000 --> 00:01:10,000\nThey say, \"We should not! Split a quotation!\"", "They say,"),
         ("16\n00:01:11,000 --> 00:01:15,000\nWe can split <i>a block in tags, if they do not match</b>", "We can split <i>a block in tags,"),
+        ("17\n00:01:16,000 --> 00:01:20,000\nWe shouldn't split the number 500,000 even if there is a comma in the middle.", "We shouldn't split the number 500,000 even if there is a comma in the middle."),
     ]
 
     def test_FindSplitPoint(self):
         log_test_name("FindSplitPoint")
-        split_sequences = [
-            r"\n",  # Newline has the highest priority
-            r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
-            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
-            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
-            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
-            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
-            r"[,，、﹑](\s|\")?",  # Various forms of commas
-            r" {3,}"  # Three or more spaces
-        ]
-
         split_patterns = [regex.compile(sequence) for sequence in split_sequences]
 
         min_duration = timedelta(seconds=1)

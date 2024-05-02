@@ -3,7 +3,16 @@ import regex
 from datetime import timedelta
 
 from PySubtitle.Helpers.Subtitles import FindSplitPoint, GetProportionalDuration
-from PySubtitle.Helpers.Text import BreakLongLine, CompileDialogSplitPattern, ConvertWhitespaceBlocksToNewlines, BreakDialogOnOneLine, NormaliseDialogTags
+from PySubtitle.Helpers.Text import (
+    dialog_marker,
+    split_sequences,
+    break_sequences,
+    BreakLongLine,
+    CompileDialogSplitPattern,
+    ConvertWhitespaceBlocksToNewlines,
+    BreakDialogOnOneLine,
+    NormaliseDialogTags
+)
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
 
@@ -14,32 +23,9 @@ class SubtitleProcessor:
     Will split long lines, add line breaks and remove empty lines.
     """
     def __init__(self, settings : Options | dict):
-        self.dialog_marker = "- "
-        self.split_sequences = [
-            r"\n",  # Newline has the highest priority
-            regex.escape(self.dialog_marker),  # Dialog marker
-            r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
-            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
-            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
-            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
-            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
-            r"[,，、﹑](\s|\")?",  # Various forms of commas
-            r"[:;]\s+",  # Colon and semicolon
-            r"[–—]+\s+",  # Dashes
-            r" {3,}"  # Three or more spaces
-        ]
-        self.break_sequences = [
-            regex.escape(self.dialog_marker),  # Dialog marker
-            r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
-            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
-            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
-            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
-            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
-            r"[,，、﹑](\s|\")?",  # Various forms of commas
-            r"[:;]\s+",  # Colon and semicolon
-            r"[–—]+\s+",  # Dashes
-            r"\s+",  # Whitespace
-        ]
+        self.dialog_marker = dialog_marker
+        self.split_sequences = split_sequences
+        self.break_sequences = break_sequences
         self._compiled_split_sequences = None
         self._compiled_break_sequences = None
         self.forbidden_start_end_pairs = [
@@ -121,6 +107,9 @@ class SubtitleProcessor:
             if output:
                 processed.extend(output)
                 line_number += len(output)
+
+        # TODO: fix minimum durations
+        # TODO: fix overlapping start/end times (or merge the lines?)
 
         return processed
 

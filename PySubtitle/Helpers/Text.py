@@ -3,6 +3,35 @@ import regex
 
 whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
 
+dialog_marker = "- "
+
+break_sequences = [
+    regex.escape(dialog_marker),  # Dialog marker
+    r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
+    r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
+    r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
+    r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
+    r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
+    r"[,，、﹑](\s|\")",  # Various forms of commas
+    r"[:;]\s+",  # Colon and semicolon
+    r"[–—]+\s+",  # Dashes
+    r"\s+",  # Whitespace
+]
+
+split_sequences = [
+    r"\n",  # Newline has the highest priority
+    regex.escape(dialog_marker),  # Dialog marker
+    r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
+    r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
+    r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
+    r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
+    r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
+    r"[,，、﹑](\s|\")",  # Various forms of commas
+    r"[:;]\s+",  # Colon and semicolon
+    r"[–—]+\s+",  # Dashes
+    r" {3,}"  # Three or more spaces
+]
+
 def RemoveWhitespaceAndPunctuation(string) -> str:
     """
     Remove all whitespace and punctuation from a string
@@ -127,6 +156,8 @@ def BreakLongLine(text : str, max_single_line_length : int, min_single_line_leng
 
     if '\n' in text:
         return text
+
+    # TODO: should the minimum line length be min(len(text) - max_single_line_length, max_single_line_length) to ensure the split lines are not too long?
 
     break_index = FindBreakPoint(text, break_sequences, min_single_line_length)
     if break_index:

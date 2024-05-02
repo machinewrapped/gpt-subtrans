@@ -3,6 +3,7 @@ import regex
 
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Text import (
+    break_sequences,
     BreakDialogOnOneLine,
     BreakLongLine,
     CompileDialogSplitPattern,
@@ -120,20 +121,11 @@ class TestTextHelpers(unittest.TestCase):
         ("A parenthetical (which should be kept together).", 20, 10, "A parenthetical\n(which should be kept together)."),
         ("A line with a \"Quote that should not be broken.\"", 20, 10, "A line with a\n\"Quote that should not be broken.\""),
         ("A line with a <i>block of italics that should not be broken.</i>", 20, 10, "A line with a\n<i>block of italics that should not be broken.</i>"),
+        ("We shouldn't split the number 500,000 even if it's a good position", 20, 10, "We shouldn't split the number\n500,000 even if it's a good position"),
     ]
 
     def test_BreakLongLines(self):
         log_test_name("BreakLongLines")
-        break_sequences = [
-            r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
-            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
-            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
-            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
-            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
-            r"[,，、﹑](\s|\")?",  # Various forms of commas
-            r"\s+",  # Whitespace
-        ]
-
         break_patterns = [regex.compile(sequence) for sequence in break_sequences]
 
         for text, max_length, min_length, expected in self.break_long_line_cases:
