@@ -55,12 +55,20 @@ class SubtitleBatch:
         return self.originals[0].srt_start if self.originals else ""
 
     @property
+    def txt_start(self) -> str:
+        return self.originals[0].txt_start if self.originals else ""
+
+    @property
     def end(self) -> timedelta:
         return self.originals[-1].end if self.originals else None
 
     @property
     def srt_end(self) -> str:
         return self.originals[-1].srt_end if self.originals else ""
+
+    @property
+    def txt_end(self) -> str:
+        return self.originals[-1].txt_end if self.originals else ""
 
     @property
     def duration(self):

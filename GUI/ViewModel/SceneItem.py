@@ -15,7 +15,7 @@ class SceneItem(ViewModelItem):
         self.batches = {}
         self.scene_model = {
             'scene': scene.number,
-            'start': scene.batches[0].srt_start,
+            'start': scene.batches[0].txt_start,
             'end': scene.batches[-1].srt_end,
             'duration': None,
             'gap': None,
@@ -87,7 +87,7 @@ class SceneItem(ViewModelItem):
             self.insertRow(batch_item.number - 1, batch_item)
 
         self.Remap()
-    
+
     def Update(self, update):
         """ Update the scene model with new data """
         if not isinstance(update, dict):

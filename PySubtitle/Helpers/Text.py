@@ -90,6 +90,50 @@ def NormaliseDialogTags(text : str, dialog_marker : str) -> str:
 
     return text
 
+def FindBreakPoint(text : str, break_sequences: list[regex.Pattern], min_line_length : int) -> int | None:
+    """
+    Find the optimal break point for a long line
+    """
+    line_length = len(text)
+    start_index = min_line_length
+    end_index = line_length - min_line_length
+    if end_index <= start_index:
+        return None
+
+    middle_index = line_length // 2
+
+    for seq in break_sequences:
+        matches = list(seq.finditer(text))
+        if not matches:
+            continue
+
+        # Find the match that is closest to the middle of the text
+        best_match = min(matches, key=lambda m: abs(m.end() - middle_index))
+        split_index = best_match.end()
+        if split_index < start_index or split_index > end_index:
+            continue
+
+        return split_index
+
+    return None
+
+def BreakLongLine(text : str, max_single_line_length : int, min_single_line_length : int, break_sequences: list[regex.Pattern]) -> str:
+    """
+    Add line breaks to long single lines
+    """
+    length = len(text)
+    if length <= max_single_line_length:
+        return text
+
+    if '\n' in text:
+        return text
+
+    break_index = FindBreakPoint(text, break_sequences, min_single_line_length)
+    if break_index:
+        text = text[:break_index].strip() + '\n' + text[break_index:].strip()
+
+    return text
+
 def LimitTextLength(text : str, max_length : int) -> str:
     """
     Limit the length of a text string to a maximum number of characters, cutting at the nearest sentence end or whitespace

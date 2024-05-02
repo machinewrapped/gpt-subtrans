@@ -52,9 +52,9 @@ def ResyncTranslatedLines(original_lines : list[SubtitleLine], translated_lines 
     elif num_original > num_translated:
         logging.warning(f"Number of lines in original and translated subtitles don't match. Synced {min_lines} lines.")
 
-def FindBreakPoint(line: SubtitleLine, break_sequences: list[regex.Pattern], min_duration: timedelta, min_split_chars: int) -> int | None:
+def FindSplitPoint(line: SubtitleLine, break_sequences: list[regex.Pattern], min_duration: timedelta, min_split_chars: int) -> int | None:
     """
-    Find the optimal break point for a subtitle.
+    Find the optimal split point for a subtitle.
 
     The criteria are:
     Take break sequences as priority order, find the first matching sequence.

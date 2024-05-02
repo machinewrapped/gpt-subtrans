@@ -7,6 +7,7 @@ from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
 from PySubtitle.Instructions import Instructions
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
@@ -69,6 +70,8 @@ class SubtitleTranslator:
             raise ProviderError("Unable to create translation client")
 
         self.batcher = CreateSubtitleBatcher(options)
+
+        self.postprocessor = SubtitleProcessor(options) if options.get('postprocess_translation') else None
 
     def StopTranslating(self):
         self.aborted = True
@@ -240,6 +243,10 @@ class SubtitleTranslator:
                 context['synopsis'] = translation.synopsis or context.get('synopsis', "")
                 #context['names'] = translation.names or context.get('names', []) or options.get('names')
                 batch.UpdateContext(context)
+
+            # Post-process the translation
+            if self.postprocessor:
+                self.postprocessor.PostprocessSubtitles(batch.translated)
 
     def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
         """

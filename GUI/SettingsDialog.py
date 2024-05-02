@@ -31,7 +31,8 @@ class SettingsDialog(QDialog):
             'instruction_file': (str, "Instructions for the translation provider to follow"),
             'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
             'theme': [],
-            'preprocess_subtitles': (bool, "Preprocess subtitles before translation"),
+            'preprocess_subtitles': (bool, "Preprocess subtitles when they are loaded"),
+            'postprocess_translation': (bool, "Postprocess subtitles after translation"),
             'autosave': (bool, "Automatically save the project after each translation batch"),
             'write_backup': (bool, "Save a backup copy of the project when opening it"),
             # 'autosplit_incomplete': (bool, "If true, incomplete translations will be split into smaller batches and retried"),
@@ -49,6 +50,9 @@ class SettingsDialog(QDialog):
             'break_dialog_on_one_line': (bool, "Add line breaks to text with dialog markers"),
             'normalise_dialog_tags': (bool, "Ensure dialog markers match in multi-line subtitles"),
             'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
+            'break_long_lines': (bool, "Add line breaks to long single lines (post-process)"),
+            'max_single_line_length': (int, "Maximum length of a single line of subtitles"),
+            'min_single_line_length': (int, "Minimum length of a single line of subtitles"),
         },
         'Advanced': {
             'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation"),
@@ -68,9 +72,10 @@ class SettingsDialog(QDialog):
     }
 
     VISIBILITY_DEPENDENCIES = {
-        'Processing' : {
-            'preprocess_subtitles': True
-        }
+        'Processing' : [
+            { 'preprocess_subtitles': True },
+            { 'postprocess_translation': True }
+        ]
     }
 
     def __init__(self, options : Options, provider_cache = None, parent=None, focus_provider_settings : bool = False):
@@ -200,7 +205,11 @@ class SettingsDialog(QDialog):
         for section_name, dependencies in self.VISIBILITY_DEPENDENCIES.items():
             section_tab = self.tabs.findChild(QWidget, section_name)
             if section_tab:
-                visible = all(self.settings.get(key) == value for key, value in dependencies.items())
+                if isinstance(dependencies, list):
+                    visible = any(all(self.settings.get(key) == value for key, value in dependency.items()) for dependency in dependencies)
+                else:
+                    visible = all(self.settings.get(key) == value for key, value in dependencies.items())
+
                 self.tabs.setTabVisible(self.tabs.indexOf(section_tab), visible)
 
     def _initialise_translation_provider(self):
@@ -288,7 +297,7 @@ class SettingsDialog(QDialog):
             self.settings[key] = value
             self._update_instruction_file()
 
-        elif key == 'preprocess_subtitles':
+        elif key == 'preprocess_subtitles' or key == 'postprocess_translation':
             self.settings[key] = value
             self._update_section_visibility()
 

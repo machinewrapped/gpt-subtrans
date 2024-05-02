@@ -1,7 +1,10 @@
 import unittest
+import regex
+
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Text import (
     BreakDialogOnOneLine,
+    BreakLongLine,
     CompileDialogSplitPattern,
     ContainsTags,
     ExtractTag,
@@ -103,6 +106,41 @@ class TestTextHelpers(unittest.TestCase):
                 compiled_result = BreakDialogOnOneLine(text, compiled_pattern)
                 log_input_expected_result(text, expected, compiled_result)
                 self.assertEqual(compiled_result, expected)
+
+    break_long_line_cases = [
+        ("This is a test", 100, 10, "This is a test"),
+        ("This is a test", 10, 4, "This is\na test"),
+        ("This is a test with punctuation. It should break at the punctuation.", 30, 4, "This is a test with punctuation.\nIt should break at the punctuation."),
+        ("Where will this line break? It should break at the question mark.", 30, 4, "Where will this line break?\nIt should break at the question mark."),
+        ("This line should break at the comma, not at a space.", 30, 4, "This line should break at the comma,\nnot at a space."),
+        ("Break at the exclamation mark! Don't break here, commas are lower priority you know.", 30, 4, "Break at the exclamation mark!\nDon't break here, commas are lower priority you know."),
+        ("This line already has line breaks.\nWe should respect them.", 10, 4, "This line already has line breaks.\nWe should respect them."),
+        ("This line has punctuation and quite uneven line lengths. Break it.", 20, 4, "This line has punctuation and quite uneven line lengths.\nBreak it."),
+        ("This line has punctuation and quite uneven line lengths. Break it.", 20, 12, "This line has punctuation and\nquite uneven line lengths. Break it."),
+        ("A parenthetical (which should be kept together).", 20, 10, "A parenthetical\n(which should be kept together)."),
+        ("A line with a \"Quote that should not be broken.\"", 20, 10, "A line with a\n\"Quote that should not be broken.\""),
+        ("A line with a <i>block of italics that should not be broken.</i>", 20, 10, "A line with a\n<i>block of italics that should not be broken.</i>"),
+    ]
+
+    def test_BreakLongLines(self):
+        log_test_name("BreakLongLines")
+        break_sequences = [
+            r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
+            r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
+            r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
+            r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
+            r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
+            r"[,，、﹑](\s|\")?",  # Various forms of commas
+            r"\s+",  # Whitespace
+        ]
+
+        break_patterns = [regex.compile(sequence) for sequence in break_sequences]
+
+        for text, max_length, min_length, expected in self.break_long_line_cases:
+            with self.subTest(text=text):
+                result = BreakLongLine(text, max_length, min_length, break_patterns)
+                log_input_expected_result((text, max_length, min_length), expected, result)
+                self.assertEqual(result, expected)
 
     limit_text_length_cases = [
         # input is shorter than max_length

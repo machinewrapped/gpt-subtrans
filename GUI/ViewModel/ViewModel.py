@@ -103,7 +103,7 @@ class ProjectViewModel(QStandardItemModel):
             batch_item.AddLineItem(line.number, {
                 'scene': scene_number,
                 'batch': batch.number,
-                'start': line.srt_start,
+                'start': line.txt_start,
                 'end': line.srt_end,
                 'duration': line.srt_duration,
                 'gap': TimeDeltaToText(line.start - gap_start) if gap_start else "",
@@ -358,7 +358,7 @@ class ProjectViewModel(QStandardItemModel):
         batch_item.AddLineItem(line.number, {
                 'scene': scene_number,
                 'batch': batch_number,
-                'start': line.srt_start,
+                'start': line.txt_start,
                 'end': line.srt_end,
                 'duration': line.srt_duration,
                 'gap': None,
