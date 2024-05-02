@@ -246,7 +246,7 @@ class SubtitleTranslator:
 
             # Post-process the translation
             if self.postprocessor:
-                self.postprocessor.PostprocessSubtitles(batch.translated)
+                batch.translated = self.postprocessor.PostprocessSubtitles(batch.translated)
 
     def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
         """
