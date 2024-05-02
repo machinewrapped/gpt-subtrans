@@ -173,7 +173,7 @@ class SubtitleProcessor:
             return [line]
 
         logging.debug(f"Postprocessed line {line.number}:\n{line.text}\n-->\n{text}")
-        processed_line = SubtitleLine(line.number, line.start, line.end, text)
+        processed_line = SubtitleLine.Construct(line.number, line.start, line.end, text)
         return [processed_line]
 
     def _break_long_lines(self, text):
