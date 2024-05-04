@@ -141,6 +141,7 @@ class SubtitleProcessorTests(unittest.TestCase):
     example_line_5 = "5\n00:00:42,000 --> 00:00:46,000\nFifth test subtitle. Break after the period, not the comma even if it is closer to the middle."
     example_line_6 = "6\n00:00:42,000 --> 00:00:50,000\nSixth test subtitle, Break after the period, and again after the comma."
     example_line_7 = "7\n00:00:50,000 --> 00:00:55,000\nSeventh test subtitle, <i>We should not split here, even though there is a comma in the italic block.</i>"
+    example_line_8 = "8\n00:00:55,000 --> 00:01:00,000\nBreak this! But not at the exclamation mark because it would be too unbalanced."
 
     preprocess_cases = [
         ([example_line_1, example_line_2], {}, [example_line_1, example_line_2]),  # No changes
@@ -189,13 +190,17 @@ class SubtitleProcessorTests(unittest.TestCase):
                 "3\n00:00:31,000 --> 00:00:35,000\nThird test subtitle.\nBreak after newline, not after the comma even though it is central.",
                 "4\n00:00:36,000 --> 00:00:40,000\nFourth test subtitle, break after second comma,\nbecause it is closer to the middle."
             ]),
-        ([example_line_5], { 'break_long_lines': True, 'max_single_line_length': 30, 'min_single_line_length': 10 },
+        ([example_line_5], { 'break_long_lines': True, 'max_single_line_length': 80, 'min_single_line_length': 10 },
             [
                 "5\n00:00:42,000 --> 00:00:46,000\nFifth test subtitle.\nBreak after the period, not the comma even if it is closer to the middle."
             ]),
          ([example_line_7], { 'break_long_lines': True, 'max_single_line_length': 30, 'min_single_line_length': 10 },
             [
                 "7\n00:00:50,000 --> 00:00:55,000\nSeventh test subtitle,\n<i>We should not split here, even though there is a comma in the italic block.</i>"
+            ]),
+        ([example_line_8], { 'break_long_lines': True, 'max_single_line_length': 44, 'min_single_line_length': 6 },
+            [
+                "8\n00:00:55,000 --> 00:01:00,000\nBreak this! But not at the exclamation\nmark because it would be too unbalanced."
             ])
     ]
 

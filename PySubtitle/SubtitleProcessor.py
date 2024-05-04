@@ -175,7 +175,7 @@ class SubtitleProcessor:
         max_length = self.max_single_line_length
         min_length = self.min_single_line_length
         break_sequences = self._compiled_break_sequences
-        text = BreakLongLine(text, max_single_line_length=max_length, min_single_line_length=min_length, break_sequences=break_sequences)
+        text = BreakLongLine(text, max_line_length=max_length, min_line_length=min_length, break_sequences=break_sequences)
         return text
 
     def _split_line_by_duration(self, line: SubtitleLine) -> list[SubtitleLine]:
