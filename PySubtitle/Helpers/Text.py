@@ -5,6 +5,8 @@ whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
 
 dialog_marker = "- "
 
+standard_filler_words = "um,umm,uh,uhh,er,err,ah,ahh,oh,eh,hm,hmm,huh,ha,mmm,ow,oww"
+
 priority_break_sequences = [
     regex.escape(dialog_marker),  # Dialog marker
     r"(?=\([^)]*\)|\[[^\]]*\])",  # Look ahead to find a complete parenthetical or bracketed block to split before
@@ -197,6 +199,66 @@ def LimitTextLength(text : str, max_length : int) -> str:
     else:
         # As a last resort, cut directly at the max length
         return text[:max_length] + '...'
+
+def CompileFillerWordsPattern(filler_words: str | list[str]) -> regex.Pattern:
+    """
+    Compile a regex pattern to match any provided filler word, assuming they are
+    followed by mandatory punctuation and possibly preceded by punctuation.
+    """
+    if isinstance(filler_words, str):
+        filler_words = [i.strip() for i in filler_words.split(',') if i.strip()]
+
+    if not filler_words:
+        return None
+
+    filler_pattern = '|'.join(regex.escape(i) for i in filler_words if i)
+    punctuation = r"[.,!?]"
+    filler_words_pattern = rf"(^|[,]?\s+)({filler_pattern})({punctuation}+(\s+|$))"
+
+    return regex.compile(filler_words_pattern, flags=regex.IGNORECASE|regex.MULTILINE)
+
+def RemoveFillerWords(text: str, fillerWords: str | list[str] | regex.Pattern) -> str:
+    """
+    Remove filler words from a text string, adjusting capitalization based on the capitalization of the filler word.
+    """
+    if not isinstance(fillerWords, regex.Pattern):
+        fillerWords = CompileFillerWordsPattern(fillerWords)
+
+    if fillerWords is None:
+        return text
+
+    output = []
+    last_index = 0
+    capitalise_first_letter = False
+
+    def _append_previous_section(output : list[str], text : str, previous_start : int, previous_end : int, capitalise_first_letter : bool):
+        if previous_end > previous_start:
+            if capitalise_first_letter:
+                first_letter = text[previous_start].upper()
+                next_index = previous_start + 1
+                previous_section = first_letter if next_index == previous_end else first_letter + text[next_index:previous_end]
+                output.append(previous_section)
+            else:
+                output.append(text[previous_start:previous_end])
+
+    for match in fillerWords.finditer(text):
+        start, end = match.span()
+
+        # Output any text before the match
+        _append_previous_section(output, text, last_index, start, capitalise_first_letter)
+
+        # Capitalize the first letter of the next section if the filler word was capitalized
+        first_alpha = next((char for char in text[start:end] if char.isalpha()), None)
+        capitalise_first_letter = first_alpha is not None and first_alpha.isupper()
+
+        last_index = end
+
+    # Append any remaining text after the last match
+    if last_index < len(text):
+        _append_previous_section(output, text, last_index, len(text), capitalise_first_letter)
+
+    # Join the output sections into a single string
+    return ' '.join(output)
 
 def ContainsTags(text : str) -> bool:
     """

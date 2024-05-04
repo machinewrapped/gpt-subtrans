@@ -53,6 +53,8 @@ class SettingsDialog(QDialog):
             'break_long_lines': (bool, "Add line breaks to long single lines (post-process)"),
             'max_single_line_length': (int, "Maximum length of a single line of subtitles"),
             'min_single_line_length': (int, "Minimum length of a single line of subtitles"),
+            'remove_filler_words': (bool, "Remove filler_words and filler words from subtitles"),
+            'filler_words': (str, "Comma-separated list of filler_words to remove"),
         },
         'Advanced': {
             'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation"),

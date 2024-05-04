@@ -4,7 +4,9 @@ import logging
 import os
 import dotenv
 import appdirs
+
 from PySubtitle.Instructions import Instructions, LoadInstructionsResource
+from PySubtitle.Helpers.Text import standard_filler_words
 from PySubtitle.version import __version__
 
 MULTILINE_OPTION = 'multiline'
@@ -46,6 +48,8 @@ default_options = {
     'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
     'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 3)),
     'normalise_dialog_tags': env_bool('NORMALISE_DIALOG_TAGS', True),
+    'remove_filler_words': env_bool('REMOVE_FILLER_WORDS', True),
+    'filler_words': standard_filler_words,
     'substitution_mode': os.getenv('SUBSTITUTION_MODE', "Auto"),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
