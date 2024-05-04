@@ -30,11 +30,11 @@ try:
         @property
         def model(self):
             return self.settings.get('model')
-        
+
         @property
         def max_tokens(self):
             return self.settings.get('max_tokens', 0)
-        
+
         def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
             """
             Request a translation based on the provided prompt
@@ -62,7 +62,7 @@ try:
             return translation
 
         def GetParser(self):
-            return TranslationParser(self.settings)    
+            return TranslationParser(self.settings)
 
         def _send_messages(self, system_prompt : str, messages : list[str], temperature):
             """
@@ -95,7 +95,7 @@ try:
                         response['finish_reason'] = "length"
                     else:
                         response['finish_reason'] = result.stop_reason
-                    
+
                     if result.usage:
                         response['prompt_tokens'] = getattr(result.usage, 'input_tokens')
                         response['output_tokens'] = getattr(result.usage, 'output_tokens')
@@ -107,17 +107,17 @@ try:
 
                     # Return the response if the API call succeeds
                     return response
-                
-                except anthropic.APITimeoutError as e:
+
+                except (anthropic.APITimeoutError, anthropic.RateLimitError) as e:
                     if retry < self.max_retries and not self.aborted:
                         sleep_time = self.backoff_time * 2.0**retry
-                        logging.warning(f"self._get_error_message(e), retrying in {sleep_time}...")
+                        logging.warning(f"{self._get_error_message(e)}, retrying in {sleep_time}...")
                         time.sleep(sleep_time)
                         continue
 
-                except (anthropic.RateLimitError, anthropic.APIError) as e:
+                except anthropic.APIError as e:
                     raise TranslationImpossibleError(self._get_error_message(e), error=e)
-                
+
                 except Exception as e:
                     raise TranslationError(f"Error communicating with provider", error=e)
 

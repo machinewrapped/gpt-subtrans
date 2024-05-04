@@ -180,8 +180,12 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 
 - `--preprocess`:
   Preprocess the subtitles prior to batching.
-  This performs various options to prepare the subtitles for more efficient translation, e.g. splitting long (duration) lines into multiple lines.
+  This performs various actions to prepare the subtitles for more efficient translation, e.g. splitting long (duration) lines into multiple lines.
   Mainly intended for subtitles that have been automatically transcribed with e.g. Whisper.
+
+- `--postprocess`:
+  Post-process translated subtitles.
+  Performs various actions like adding line breaks to long lines and normalising dialogue tags after a translation request.
 
 - `--instruction`:
   An additional instruction for the AI indicating how it should approach the translation.
