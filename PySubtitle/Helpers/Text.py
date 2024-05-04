@@ -5,7 +5,7 @@ whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
 
 dialog_marker = "- "
 
-standard_filler_words = "um,umm,uh,uhh,er,err,ah,ahh,oh,eh,hm,hmm,huh,ha,mmm,ow,oww"
+standard_filler_words = "um,umm,uh,uhh,er,err,ah,ahh,oh,eh,hm,hmm,hmmm,huh,ha,mmm,ow,oww"
 
 priority_break_sequences = [
     regex.escape(dialog_marker),  # Dialog marker
