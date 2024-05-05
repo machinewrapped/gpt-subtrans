@@ -1,6 +1,8 @@
 import unicodedata
 import regex
 
+common_punctuation = r"[.,!?;:…¡¿]"
+
 whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
 
 dialog_marker = "- "
@@ -212,8 +214,7 @@ def CompileFillerWordsPattern(filler_words: str | list[str]) -> regex.Pattern:
         return None
 
     filler_pattern = '|'.join(regex.escape(i) for i in filler_words if i)
-    punctuation = r"[.,!?]"
-    filler_words_pattern = rf"(^|[,]?\s+)({filler_pattern})({punctuation}+(\s+|$))"
+    filler_words_pattern = rf"(^|[,¡¿]?\s+)({filler_pattern})({common_punctuation}+(\s+|$))"
 
     return regex.compile(filler_words_pattern, flags=regex.IGNORECASE|regex.MULTILINE)
 
