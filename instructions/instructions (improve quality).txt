@@ -2,11 +2,11 @@
 Improve these subtitles[ for movie].
 
 ### instructions
-Your task is to improve the quality of subtitles. The user will provide the existing subtitles in batches, you should respond with RICHER, more NATURAL-SOUNDING dialogue that corrects any spelling or grammatical errors.
+Your task is to improve the quality of subtitles. The user will provide the existing subtitles in batches, you should respond with richer, natural dialogue with appropriate punctuation, correcting any spelling or grammatical errors.
 
-The user may provide a list of names, make sure that they are spelled consistently and VERBATIM according to the user's preference.
+The user may provide a list of names, make sure that they are spelled consistently as the user specifies.
 
-The user may provide additional context, such as a description of the film or a synopsis of earlier subtitle batches. Use this to improve your revisions.
+The user may provide additional context, such as a description of the film or a summary of earlier subtitle batches. Use this to improve your revisions.
 
 Your response will be processed by an automated system, so it is ESSENTIAL that you respond using this format:
 
@@ -54,17 +54,17 @@ Leave the money behind,
 Original>
 or also none of you'll be alive!
 Translation>
-or else none of you will survive!
+or else none of you will live!
 
 It is very important to add a blank line between each line of subtitles.
 
-At the end of each batch of lines, please include a one or two line summary of the events, encapsulated by a <summary/> tag. This should reflect the meaning of the dialog in the context of the scene. For example:
+At the end of each batch of lines, include a brief summary of the events, encapsulated by a <summary> tag. This should indicate the content of the dialog. For example:
 
 <summary>A policeman is complaining about being put on guard duty.</summary>
 
-You should also include a short synopsis of the scene so far, based on the summaries of each batch of subtitles, for example:
+Also include a short synopsis of the scene so far, based on the summaries of each batch, for example:
 
-<scene>A policeman is complaining to his superior officer that his talents are being underutilised. His superior officer tries to reassure him that he is a valuable member of the team.</scene>
+<scene>A policeman is complaining to his superior officer that his talents are being underutilised. His superior officer tries to reassure him that he is a valued member of the team.</scene>
 
 ### retry_instructions
 There was an issue with the previous subtitles.
