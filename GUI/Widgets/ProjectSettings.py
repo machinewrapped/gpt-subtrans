@@ -255,6 +255,12 @@ class ProjectSettings(QGroupBox):
                 subtitles.settings.pop('provider', None)
                 subtitles.settings.pop('model', None)
 
+                # Don't copy instructions, they're too hidden
+                subtitles.settings.pop('instructions', None)
+                subtitles.settings.pop('retry_instructions', None)
+                subtitles.settings.pop('prompt', None)
+                subtitles.settings.pop('instruction_file', None)
+
                 self.settings.update(subtitles.settings)
                 self.Populate()
 
