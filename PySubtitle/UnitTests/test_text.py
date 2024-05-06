@@ -4,9 +4,11 @@ import regex
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Text import (
     break_sequences,
+    standard_filler_words,
     BreakDialogOnOneLine,
     BreakLongLine,
     CompileDialogSplitPattern,
+    CompileFillerWordsPattern,
     ContainsTags,
     ExtractTag,
     ExtractTagList,
@@ -14,6 +16,7 @@ from PySubtitle.Helpers.Text import (
     LimitTextLength,
     Linearise,
     NormaliseDialogTags,
+    RemoveFillerWords,
     RemoveWhitespaceAndPunctuation,
     SanitiseSummary
     )
@@ -226,6 +229,24 @@ class TestTextHelpers(unittest.TestCase):
                 result = SanitiseSummary(text, movie_name, max_length)
                 log_input_expected_result(text, expected, result)
                 self.assertEqual(result, expected)
+
+    remove_filler_cases = [
+        ("This is a normal sentence", "This is a normal sentence"),
+        ("This is, err, not a normal sentence", "This is not a normal sentence"),
+        ("Umm, this sentence has a filler word", "This sentence has a filler word"),
+        ("This, err, sentence is, umm, full of filler words, eh?", "This sentence is full of filler words"),
+        ("This sentence has no filler. Ah, but this one does.", "This sentence has no filler. But this one does.")
+    ]
+
+    def test_RemoveFillerWords(self):
+        log_test_name("RemoveFillerWords")
+        filler_patterns = CompileFillerWordsPattern(standard_filler_words)
+        for text, expected in self.remove_filler_cases:
+            with self.subTest(text=text):
+                result = RemoveFillerWords(text, filler_patterns)
+                log_input_expected_result(text, expected, result)
+                self.assertEqual(result, expected)
+
 
 
 if __name__ == '__main__':

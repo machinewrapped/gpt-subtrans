@@ -8,10 +8,12 @@ from PySubtitle.Helpers.Text import (
     split_sequences,
     break_sequences,
     BreakLongLine,
-    CompileDialogSplitPattern,
-    ConvertWhitespaceBlocksToNewlines,
     BreakDialogOnOneLine,
-    NormaliseDialogTags
+    CompileDialogSplitPattern,
+    CompileFillerWordsPattern,
+    ConvertWhitespaceBlocksToNewlines,
+    NormaliseDialogTags,
+    RemoveFillerWords
 )
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -45,12 +47,14 @@ class SubtitleProcessor:
         self.convert_whitespace_to_linebreak = settings.get('whitespaces_to_newline', False)
         self.break_dialog_on_one_line = settings.get('break_dialog_on_one_line', False)
         self.normalise_dialog_tags = settings.get('normalise_dialog_tags', False)
+        self.remove_filler_words = settings.get('remove_filler_words', False)
 
         self.break_long_lines = settings.get('break_long_lines', False)
         self.max_single_line_length = settings.get('max_single_line_length', 40)
         self.min_single_line_length = settings.get('min_single_line_length', 4)
 
         self.split_dialog_pattern = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
+        self.filler_words_pattern = CompileFillerWordsPattern(settings.get('filler_words')) if self.remove_filler_words else None
 
         self.split_by_duration = self.max_line_duration.total_seconds() > 0.0
 
@@ -126,6 +130,10 @@ class SubtitleProcessor:
         if self.convert_whitespace_to_linebreak:
             text = ConvertWhitespaceBlocksToNewlines(text)
 
+        # Remove filler words
+        if self.remove_filler_words:
+            text = RemoveFillerWords(text, self.filler_words_pattern)
+
         # If the subtitle is a single line, see if it should have line breaks added
         if self.break_dialog_on_one_line:
             text = BreakDialogOnOneLine(text, self.split_dialog_pattern)
@@ -148,6 +156,9 @@ class SubtitleProcessor:
             return
 
         text = line.text
+
+        if self.remove_filler_words:
+            text = RemoveFillerWords(text, self.filler_words_pattern)
 
         if self.break_dialog_on_one_line:
             text = BreakDialogOnOneLine(text, self.split_dialog_pattern)
