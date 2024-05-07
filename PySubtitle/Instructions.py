@@ -50,18 +50,24 @@ class Instructions:
 
     def GetSettings(self):
         """ Generate the settings for these instructions """
-        return {
+        settings = {
             'prompt': self.prompt,
             'instructions': self.instructions,
             'retry_instructions': self.retry_instructions,
-            'instruction_file': self.instruction_file
+            'instruction_file': self.instruction_file,
         }
+
+        if self.target_language:
+            settings['target_language'] = self.target_language
+
+        return settings
 
     def InitialiseInstructions(self, settings : dict):
         self.prompt = settings.get('prompt') or settings.get('gpt_prompt')
         self.instructions = settings.get('instructions') or default_instructions
         self.retry_instructions = settings.get('retry_instructions') or default_retry_instructions
         self.instruction_file = settings.get('instruction_file') or None
+        self.target_language = None
 
         # Add any additional instructions from the command line
         if settings.get('instruction_args'):
@@ -114,6 +120,7 @@ class Instructions:
         self.instructions = linesep.join(sections.get('instructions', []))
         self.retry_instructions = linesep.join(sections.get('retry_instructions', [])) or default_retry_instructions
         self.instruction_file = os.path.basename(filepath)
+        self.target_language = ''.join(sections.get('target_language', None)) if 'target_language' in sections else None
 
         if not self.prompt or not self.instructions:
             raise ValueError("Invalid instruction file")

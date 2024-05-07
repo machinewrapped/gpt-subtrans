@@ -22,6 +22,7 @@ class EditInstructionsDialog(QDialog):
         self.setMinimumWidth(800)
 
         self.instructions : Instructions = Instructions(settings)
+        self.target_language = None
 
         self.form_layout = QFormLayout()
         self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, "Prompt for each translation request")

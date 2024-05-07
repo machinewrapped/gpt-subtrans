@@ -236,6 +236,7 @@ class ProjectSettings(QGroupBox):
             logging.info("Instructions for this project updated")
             self.settings.update(dialog.instructions.GetSettings())
             self.settingsChanged.emit(dialog.instructions.GetSettings())
+            self.BuildForm(self.settings)
 
     def _copy_from_another_project(self):
         '''
