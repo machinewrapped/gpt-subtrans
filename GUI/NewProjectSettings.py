@@ -87,6 +87,8 @@ class NewProjectSettings(QDialog):
                     self.settings['prompt'] = instructions.prompt
                     self.settings['instructions'] = instructions.instructions
                     self.settings['retry_instructions'] = instructions.retry_instructions
+                    if instructions.target_language:
+                        self.settings['target_language'] = instructions.target_language
 
                     logging.debug(f"Prompt: {instructions.prompt}")
                     logging.debug(f"Instructions: {instructions.instructions}")
@@ -155,5 +157,7 @@ class NewProjectSettings(QDialog):
             try:
                 instructions = LoadInstructionsResource(instruction_file)
                 self.fields['prompt'].SetValue(instructions.prompt)
+                if instructions.target_language:
+                    self.fields['target_language'].SetValue(instructions.target_language)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")

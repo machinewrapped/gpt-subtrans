@@ -321,6 +321,9 @@ class SettingsDialog(QDialog):
             try:
                 instructions = LoadInstructionsResource(instruction_file)
                 self.widgets['prompt'].SetValue(instructions.prompt)
+                if instructions.target_language:
+                    self.widgets['target_language'].SetValue(instructions.target_language)
+
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
 
