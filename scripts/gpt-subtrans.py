@@ -30,7 +30,7 @@ try:
         args,
         provider,
         use_httpx=args.httpx,
-        api_base=args.httpx,
+        api_base=args.apibase,
         model=args.model or default_model
     )
 
