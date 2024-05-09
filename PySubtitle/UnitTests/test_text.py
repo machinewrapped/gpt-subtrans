@@ -3,6 +3,7 @@ import regex
 
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Text import (
+    EnsureFullWidthPunctuation,
     break_sequences,
     standard_filler_words,
     BreakDialogOnOneLine,
@@ -247,7 +248,26 @@ class TestTextHelpers(unittest.TestCase):
                 log_input_expected_result(text, expected, result)
                 self.assertEqual(result, expected)
 
+    fullwidth_punctuation_cases = [
+        ("你好,世界!", "你好，世界!"),
+        ("一来拜寿,二来送终.", "一来拜寿，二来送终."),
+        ("こんにちは、世界! こんにちは世界.", "こんにちは、世界! こんにちは世界."),
+        ("안녕하세요,세계? 你好,世界! こんにちは、世界!", "안녕하세요，세계? 你好，世界! こんにちは、世界!"),
+        ("Hello, world! 你好,世界!", "Hello, world! 你好，世界!"),
+        ("안녕하세요. Hello, world! 你好,世界!", "안녕하세요. Hello, world! 你好，世界!"),
+        ("これは、テストです.", "これは、テストです."),
+        ("数学,物理,化学,生物.", "数学，物理，化学，生物."),
+        ("没问题！这很容易。", "没问题！这很容易。"),
+        ("시작하자:게임을 시작하자!", "시작하자：게임을 시작하자!")
+    ]
 
+    def test_EnsureFullWidthPunctuation(self):
+        log_test_name("EnsureFullWidthPunctuation")
+        for text, expected in self.fullwidth_punctuation_cases:
+            with self.subTest(text=text):
+                result = EnsureFullWidthPunctuation(text)
+                log_input_expected_result(text, expected, result)
+                self.assertEqual(result, expected)
 
 if __name__ == '__main__':
     unittest.main()

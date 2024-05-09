@@ -12,6 +12,7 @@ from PySubtitle.Helpers.Text import (
     CompileDialogSplitPattern,
     CompileFillerWordsPattern,
     ConvertWhitespaceBlocksToNewlines,
+    EnsureFullWidthPunctuation,
     NormaliseDialogTags,
     RemoveFillerWords
 )
@@ -48,6 +49,7 @@ class SubtitleProcessor:
         self.break_dialog_on_one_line = settings.get('break_dialog_on_one_line', False)
         self.normalise_dialog_tags = settings.get('normalise_dialog_tags', False)
         self.remove_filler_words = settings.get('remove_filler_words', False)
+        self.full_width_punctuation = settings.get('full_width_punctuation', False)
 
         self.break_long_lines = settings.get('break_long_lines', False)
         self.max_single_line_length = settings.get('max_single_line_length', 40)
@@ -130,6 +132,10 @@ class SubtitleProcessor:
         if self.convert_whitespace_to_linebreak:
             text = ConvertWhitespaceBlocksToNewlines(text)
 
+        # Ensure full-width punctuation is used in Asian languages
+        if self.full_width_punctuation:
+            text = EnsureFullWidthPunctuation(text)
+
         # Remove filler words
         if self.remove_filler_words:
             text = RemoveFillerWords(text, self.filler_words_pattern)
@@ -165,6 +171,9 @@ class SubtitleProcessor:
 
         if self.normalise_dialog_tags:
             text = NormaliseDialogTags(text, self.dialog_marker)
+
+        if self.full_width_punctuation:
+            text = EnsureFullWidthPunctuation(text)
 
         if self.break_long_lines:
             text = self._break_long_lines(text)

@@ -50,6 +50,7 @@ class SettingsDialog(QDialog):
             'break_dialog_on_one_line': (bool, "Add line breaks to text with dialog markers"),
             'normalise_dialog_tags': (bool, "Ensure dialog markers match in multi-line subtitles"),
             'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
+            'full_width_punctuation': (bool, "Ensure full-width punctuation is used in Asian languages"),
             'break_long_lines': (bool, "Add line breaks to long single lines (post-process)"),
             'max_single_line_length': (int, "Maximum length of a single line of subtitles"),
             'min_single_line_length': (int, "Minimum length of a single line of subtitles"),

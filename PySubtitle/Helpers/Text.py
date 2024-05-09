@@ -3,11 +3,11 @@ import regex
 
 common_punctuation = r"[.,!?;:…¡¿]"
 
-whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
-
 dialog_marker = "- "
 
 standard_filler_words = "um,umm,uh,uhh,er,err,ah,ahh,oh,eh,hm,hmm,hmmm,huh,ha,mmm,ow,oww"
+
+whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
 
 priority_break_sequences = [
     regex.escape(dialog_marker),  # Dialog marker
@@ -38,6 +38,19 @@ split_sequences = [
     r"[–—]+\s+",  # Dashes
     r" {3,}"  # Three or more spaces
 ]
+
+# Dictionary mapping half-width punctuation to full-width
+fullwidth_punctuation_map = {
+    ',': '，',
+    '.': '。',
+    ';': '；',
+    ':': '：',
+    '?': '？',
+    '!': '！'
+}
+
+# Regex to find half-width punctuation adjacent to Asian script characters
+fullwidth_pattern = r'(?<=[\p{Script=Han}\p{Script=Hangul}\p{Script=Hiragana}\p{Script=Katakana}])(?P<punct>[,.;:?!\-])(?=[\p{Script=Han}\p{Script=Hangul}\p{Script=Hiragana}\p{Script=Katakana}])'
 
 def RemoveWhitespaceAndPunctuation(string) -> str:
     """
@@ -80,6 +93,20 @@ def ConvertWhitespaceBlocksToNewlines(text) -> str:
         text = regex.sub(r' {3,}|\，\s*', '\n', text)
 
     return text
+
+def EnsureFullWidthPunctuation(text: str) -> str:
+    """
+    Ensure full-width punctuation is used in East Asian languages by replacing half-width
+    punctuation with full-width equivalents only when directly adjacent to Asian script characters.
+    """
+    # Function to replace each punctuation mark found with its full-width counterpart
+    def replace(match):
+        punctuation = match.group('punct')
+        return fullwidth_punctuation_map[punctuation]
+
+    # Replace all occurrences of half-width punctuation in the text
+    return regex.sub(fullwidth_pattern, replace, text)
+
 
 def CompileDialogSplitPattern(dialog_marker):
     """
