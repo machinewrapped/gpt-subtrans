@@ -18,8 +18,8 @@ priority_break_sequences = [
 
 break_sequences = priority_break_sequences + [
     r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
-    r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
-    r"[,，、﹑](\s|\")",  # Various forms of commas
+    r"[？！。…，、﹑]", # Full-width punctuation (does not need to be followed by whitespace)
+    r"[,](\s|\")",  # Commas followed by whitespace or quote
     r"[:;]\s+",  # Colon and semicolon
     r"[–—]+\s+",  # Dashes
     r"\s+",  # Whitespace
@@ -32,9 +32,9 @@ split_sequences = [
     r"(?=\"[^\"]*\")",  # Look ahead to find a complete block within double quotation marks
     r"(?=<([ib])>[^<]*</\1>)",  # Look ahead to find a block in italics or bold
     r"[.!?](\s|\")",  # End of sentence punctuation like '!', '?', possibly at the end of a quote
-    r"[？！。…]", # Full-width punctuation (does not need to be followed by whitespace)
-    r"[,，、﹑](\s|\")",  # Various forms of commas
-    r"[:;]\s+",  # Colon and semicolon
+    r"[？！。…，、﹑]", # Full-width punctuation (does not need to be followed by whitespace)
+    r"[,](\s|\")",  # Commas followed by whitespace or quote
+    r"[:;；：]\s+",  # Colon and semicolon
     r"[–—]+\s+",  # Dashes
     r" {3,}"  # Three or more spaces
 ]
