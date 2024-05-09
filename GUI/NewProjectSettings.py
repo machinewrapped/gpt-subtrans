@@ -1,3 +1,4 @@
+from copy import deepcopy
 import logging
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
 
@@ -129,7 +130,7 @@ class NewProjectSettings(QDialog):
         self._update_settings()
         self._update_inputs()
 
-        lines = self.project.subtitles.originals
+        lines = deepcopy(self.project.subtitles.originals)
         if self.settings.get('preprocess_subtitles'):
             preprocessor = SubtitleProcessor(self.settings)
             lines = preprocessor.PreprocessSubtitles(lines)
