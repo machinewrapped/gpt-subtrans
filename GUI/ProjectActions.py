@@ -1,24 +1,28 @@
 import logging
 import os
+
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
+
 from GUI.Command import Command
-from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.CommandQueue import ClearCommandQueue
 
-from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
+from GUI.GUICommands import CheckProviderSettings
+from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
-from GUI.ProjectDataModel import ProjectDataModel
-from GUI.ProjectSelection import ProjectSelection
 from GUI.Commands.ResumeTranslationCommand import ResumeTranslationCommand
+from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.Commands.SwapTextAndTranslations import SwapTextAndTranslations
 from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand, TranslateSceneMultithreadedCommand
-from GUI.Commands.SaveProjectFile import SaveProjectFile
+
+from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ProjectSelection import ProjectSelection
+
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleValidator import SubtitleValidator
@@ -41,19 +45,21 @@ class ProjectActions(QObject):
     showProviderSettings = Signal()
     toggleProjectSettings = Signal()
     showAboutDialog = Signal()
-    loadSubtitleFile = Signal(str)
+    loadProject = Signal(str)
+    exitProgram = Signal()
 
     _actions = {}
 
     def __init__(self, mainwindow : QMainWindow = None, datamodel : ProjectDataModel = None):
         super().__init__()
-        # TODO: add a proxy interface for ProjectActions to communicate with the main window
-        self._mainwindow = mainwindow
-        self.SetDataModel(datamodel)
 
-        self.AddAction('Quit', self._quit, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
-        self.AddAction('Load Subtitles', self._load_subtitle_file, QStyle.StandardPixmap.SP_DialogOpenButton)
-        self.AddAction('Save Project', self._save_project_file, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold Shift to save as...)')
+        self._mainwindow = mainwindow
+        self.datamodel = datamodel
+        self.last_used_path = os.path.dirname(datamodel.project.projectfile) if datamodel and datamodel.project else None
+
+        self.AddAction('Quit', self.exitProgram, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
+        self.AddAction('Load Subtitles', self._load_project, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', 'Load Subtitles')
+        self.AddAction('Save Project', self._save_project, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold Shift to save as...)')
         self.AddAction('Project Settings', self.toggleProjectSettings, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Settings')
         self.AddAction('Settings', self.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
         self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
@@ -104,41 +110,43 @@ class ProjectActions(QObject):
 
     def GetActionList(self, names : list) -> list[QAction]:
         return [ self.GetAction(name) for name in names ]
-    
+
     def _issue_command(self, command : Command):
         self.issueCommand.emit(command)
 
-    def _quit(self):
-        logging.info("Application will exit...")
-        self._stop_translating()
-        self._issue_command(ExitProgramCommand())
-
-    def _load_subtitle_file(self):
-        filepath, _ = QFileDialog.getOpenFileName(self._mainwindow, "Open File", "", "Subtitle files (*.srt *.subtrans);;All Files (*)")
+    def _load_project(self):
+        """
+        Load a subtitle file
+        """
+        initial_path = self.last_used_path
+        filters = "Subtitle files (*.srt *.subtrans);;All Files (*)"
+        filepath, _ = QFileDialog.getOpenFileName(parent=self._mainwindow, caption="Open File", dir=initial_path, filter=filters)
 
         if filepath:
-            self.loadSubtitleFile.emit(filepath)
+            self.loadProject.emit(filepath)
 
-    def _save_project_file(self):
+    def _save_project(self):
+        """
+        Save the current project
+        """
         project : SubtitleProject = self.datamodel.project
         if not project:
             raise ActionError("Nothing to save!")
-        
+
         self.saveSettings.emit()
 
         filepath = project.projectfile
-        if not filepath or not os.path.exists(filepath) or self._is_shift_pressed():
+        show_dialog = self._is_shift_pressed()
+
+        if show_dialog or not filepath or not os.path.exists(filepath):
+            filepath = os.path.join(self.last_used_path, os.path.basename(project.GetProjectFilepath()))
             filepath, _ = QFileDialog.getSaveFileName(self._mainwindow, "Save Project File", filepath, "Subtrans projects (*.subtrans);;All Files (*)")
 
         if filepath:
-            command = SaveProjectFile(project, filepath)
-            self._issue_command(command)
+            self._issue_command(SaveProjectFile(project, filepath))
 
     def _is_shift_pressed(self):
         return QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
-
-    def _show_settings_dialog(self):
-        self.showSettings.emit()
 
     def _check_provider_settings(self, datamodel : ProjectDataModel):
         """
@@ -158,14 +166,17 @@ class ProjectActions(QObject):
         """
         if not datamodel or not datamodel.project:
             raise ActionError("Project is not valid")
-        
+
         if not datamodel.project.subtitles:
             raise ActionError("No subtitles")
-        
+
         if not datamodel.project.subtitles.scenes:
             raise ActionError("Subtitles have not been batched")
 
     def _start_translating(self):
+        """
+        Start or resume translation of the project
+        """
         datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel(datamodel)
 
@@ -177,6 +188,9 @@ class ProjectActions(QObject):
         self._issue_command(ResumeTranslationCommand(multithreaded=False))
 
     def _start_translating_fast(self):
+        """
+        Start or resume translation of the project using multiple threads
+        """
         datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel(datamodel)
 
@@ -188,6 +202,9 @@ class ProjectActions(QObject):
         self._issue_command(ResumeTranslationCommand(multithreaded=True))
 
     def _stop_translating(self):
+        """
+        Stop the translation process
+        """
         self._issue_command(ClearCommandQueue())
 
     def _translate_selection(self, datamodel : ProjectDataModel, selection : ProjectSelection):
@@ -214,7 +231,7 @@ class ProjectActions(QObject):
                 batch_numbers = list(set([ line.batch for line in selection.selected_lines if line.scene == scene.number ]))
             else:
                 batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
-            
+
             if multithreaded:
                 command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, line_numbers, datamodel)
             else:
@@ -278,10 +295,10 @@ class ProjectActions(QObject):
         """
         if not selection.Any():
             raise ActionError("Nothing selected to merge")
-        
+
         if not selection.IsContiguous():
             raise ActionError("Cannot merge non-sequential elements")
-        
+
         if selection.OnlyScenes():
             self._issue_command(MergeScenesCommand(selection.scene_numbers, datamodel))
 
@@ -295,17 +312,17 @@ class ProjectActions(QObject):
 
         else:
             raise ActionError(f"Unable to merge selection ({str(selection)})")
-        
+
     def _split_batch(self, datamodel, selection : ProjectSelection):
         """
         Split a batch in two at the specified index (optionally, using a different index for translated lines)
         """
         if not selection.Any():
             raise ActionError("Please select a line to split the batch at")
-        
+
         if selection.MultipleSelected():
             raise ActionError("Please select a single split point")
-        
+
         selected_line = selection.selected_lines[0]
 
         self._issue_command(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
@@ -316,10 +333,10 @@ class ProjectActions(QObject):
         """
         if not selection.AnyBatches():
             raise ActionError("Please select a batch to split the scene at")
-        
+
         if selection.MultipleSelected():
             raise ActionError("Please select a single split point")
-        
+
         selected_batch = selection.selected_batches[0]
 
         self._issue_command(SplitSceneCommand(selected_batch.scene, selected_batch.number))
@@ -330,7 +347,7 @@ class ProjectActions(QObject):
         """
         if not selection.AnyBatches() or selection.MultipleSelected():
             raise ActionError("Can only autosplit a single batch")
-        
+
         scene_number, batch_number = selection.selected_batches[0].key
 
         self._issue_command(AutoSplitBatchCommand(scene_number, batch_number))
@@ -341,7 +358,7 @@ class ProjectActions(QObject):
         """
         if not selection.AnyBatches() or selection.MultipleSelected():
             raise ActionError("Can only swap text of a single batch")
-        
+
         scene_number, batch_number = selection.batch_numbers[0]
-    
+
         self._issue_command(SwapTextAndTranslations(scene_number, batch_number, datamodel))
