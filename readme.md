@@ -129,12 +129,14 @@ See the project wiki for further details on how to use the program.
 
 ### Command Line
 
+Before use these scripts, you need to change directory to scripts folder and activate the environment.
 GPT-Subtrans can be used as a console command or shell script. The most basic usage is:
 ```
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
 claude-subtrans <path_to_srt_file> --target_language <target_language>
 llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
+python3 batch_process.py  # process files in different folders
 ```
 
 This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified the default is English.
