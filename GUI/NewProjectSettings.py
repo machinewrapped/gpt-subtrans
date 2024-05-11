@@ -108,8 +108,7 @@ class NewProjectSettings(QDialog):
             logging.error(f"Unable to update settings: {e}")
 
         # Wait for any remaining preview threads to complete
-        while self.preview_threads:
-            QThread.msleep(100)
+        self._wait_for_threads()
 
         super(NewProjectSettings, self).accept()
 
@@ -183,6 +182,16 @@ class NewProjectSettings(QDialog):
     def _remove_preview_thread(self):
         with QMutexLocker(self.preview_mutex):
             self.preview_threads = [x for x in self.preview_threads if x != self.sender()]
+
+    def _wait_for_threads(self):
+        if self.preview_threads:
+            QThread.msleep(500)
+            with QMutexLocker(self.preview_mutex):
+                for thread in self.preview_threads:
+                    thread.update_preview.disconnect(self._update_preview_widget)
+                    thread.finished.disconnect(self._remove_preview_thread)
+                    thread.quit()
+                    thread.wait()
 
 class BatchPreviewWorker(QThread):
     update_preview = Signal(int, str)
