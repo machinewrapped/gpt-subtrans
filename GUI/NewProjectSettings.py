@@ -1,12 +1,15 @@
 from copy import deepcopy
 import logging
+
+from PySide6.QtCore import QThread, Signal, Slot, QRecursiveMutex, QMutexLocker
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
 from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
-from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher, BaseSubtitleBatcher
+from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -73,6 +76,10 @@ class NewProjectSettings(QDialog):
 
         self.fields['instruction_file'].contentChanged.connect(self._update_instruction_file)
 
+        self.preview_threads = []
+        self.preview_count = 0
+        self.preview_mutex = QRecursiveMutex()
+
         self._preview_batches()
 
     def accept(self):
@@ -100,6 +107,10 @@ class NewProjectSettings(QDialog):
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
 
+        # Wait for any remaining preview threads to complete
+        while self.preview_threads:
+            QThread.msleep(100)
+
         super(NewProjectSettings, self).accept()
 
     def _on_setting_changed(self, key, value):
@@ -107,7 +118,8 @@ class NewProjectSettings(QDialog):
             self._update_provider_settings(value)
         else:
             self.settings[key] = value
-            self._preview_batches()
+            if value:
+                self._preview_batches()
 
     def _update_provider_settings(self, provider : str):
         try:
@@ -125,22 +137,6 @@ class NewProjectSettings(QDialog):
         for row in range(layout.rowCount()):
             field = layout.itemAt(row, QFormLayout.FieldRole).widget()
             self.settings[field.key] = field.GetValue()
-
-    def _preview_batches(self):
-        self._update_settings()
-        self._update_inputs()
-
-        lines = deepcopy(self.project.subtitles.originals)
-        if self.settings.get('preprocess_subtitles'):
-            preprocessor = SubtitleProcessor(self.settings)
-            lines = preprocessor.PreprocessSubtitles(lines)
-
-        batcher = CreateSubtitleBatcher(self.settings)
-        if batcher.min_batch_size < batcher.max_batch_size:
-            scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
-            batch_count = sum(scene.size for scene in scenes)
-            line_count = sum(scene.linecount for scene in scenes)
-            self.preview_widget.setText(f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches")
 
     def _update_inputs(self):
         layout : QFormLayout = self.form_layout.layout()
@@ -162,3 +158,49 @@ class NewProjectSettings(QDialog):
                     self.fields['target_language'].SetValue(instructions.target_language)
             except Exception as e:
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
+
+    def _preview_batches(self):
+        self._update_settings()
+        self._update_inputs()
+
+        self.preview_count += 1
+        preview_thread = BatchPreviewWorker(self.preview_count, self.settings, deepcopy(self.project.subtitles.originals))
+        preview_thread.update_preview.connect(self._update_preview_widget)
+        preview_thread.finished.connect(self._remove_preview_thread)
+        preview_thread.start()
+
+        with QMutexLocker(self.preview_mutex):
+            self.preview_threads.append(preview_thread)
+
+    @Slot(int, str)
+    def _update_preview_widget(self, count : int, text : str):
+        if count == self.preview_count:
+            with QMutexLocker(self.preview_mutex):
+                self.preview_widget.setText(text)
+                self.preview_threads = [x for x in self.preview_threads if x.count != count]
+
+    @Slot()
+    def _remove_preview_thread(self):
+        with QMutexLocker(self.preview_mutex):
+            self.preview_threads = [x for x in self.preview_threads if x != self.sender()]
+
+class BatchPreviewWorker(QThread):
+    update_preview = Signal(int, str)
+
+    def __init__(self, count : int, settings : dict, subtitles : list[SubtitleLine], parent=None):
+        super().__init__(parent)
+        self.count = count
+        self.settings = settings
+        self.subtitles = subtitles
+
+    def run(self):
+        preprocessor = SubtitleProcessor(self.settings)
+        lines = preprocessor.PreprocessSubtitles(self.subtitles)
+
+        batcher : BaseSubtitleBatcher = CreateSubtitleBatcher(self.settings)
+        scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
+        batch_count = sum(scene.size for scene in scenes)
+        line_count = sum(scene.linecount for scene in scenes)
+
+        preview_text = f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches"
+        self.update_preview.emit(self.count, preview_text)
