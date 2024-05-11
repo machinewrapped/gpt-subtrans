@@ -27,6 +27,6 @@ for subdir, dirs, files in os.walk(root_dir):
             # Call gpt-subtrans.py for translation
             subprocess.run(
                 ["python3", "/path/to/gpt-subtrans/scripts/gpt-subtrans.py", src_file, "--target_language", "Chinese",
-                 "--instructionfile", "/home/kdt/gpt-subtrans/instructions/instructions (english to chinese).txt"])
+                 "--instructionfile", "/path/to/gpt-subtrans/instructions/instructions (english to chinese).txt"])
 
             print(f"Translated: {src_file}")
