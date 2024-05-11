@@ -54,27 +54,27 @@ class BatchItem(ViewModelItem):
         self.setData(self.batch_model, Qt.ItemDataRole.UserRole)
 
     @property
-    def line_count(self):
+    def line_count(self) -> int:
         return len(self.lines)
 
     @property
-    def translated_count(self):
-        return len([line for line in self.lines.values() if line.translation])
+    def translated_count(self) -> int:
+        return len([line for line in self.lines.values() if line.translation is not None])
 
     @property
-    def all_translated(self):
+    def all_translated(self) -> bool:
         return self.translated_count == self.line_count
 
     @property
-    def start(self):
+    def start(self) -> str:
         return self.batch_model['start']
 
     @property
-    def end(self):
+    def end(self) -> str:
         return self.batch_model['end']
 
     @property
-    def context(self):
+    def context(self) -> str:
         return self.batch_model.get('context')
 
     @property

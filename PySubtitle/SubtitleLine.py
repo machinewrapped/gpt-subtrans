@@ -82,7 +82,7 @@ class SubtitleLine:
 
     @property
     def translated(self) -> srt.Subtitle | None:
-        if not self._item or not self.translation:
+        if not self._item or self.translation is None:
             return None
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
 
