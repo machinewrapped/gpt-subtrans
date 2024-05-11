@@ -50,6 +50,7 @@ Prebuilt Linux packages are not provided so you will need to install from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
 step1 
+
 1. Clone the GPT-Subtrans repository onto your local machine using the following command:
 ```
     git clone https://github.com/machinewrapped/gpt-subtrans.git
