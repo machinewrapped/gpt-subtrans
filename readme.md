@@ -54,7 +54,11 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-**The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. You can then skip the remaining steps. MacOS users should run `install.sh` instead (this should work on any unix-like system). **
+The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. You can then skip the remaining steps. 
+
+MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system). 
+
+During the installing process, input the apikey you have, and the .env file will be created automatically. Thus, you can ignore step2, but you are recommended to read it.
 
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
 ```
@@ -76,10 +80,13 @@ AZURE_DEPLOYMENT_NAME=<deployment_name>
     python -m venv envsubtrans
 ```
 
+notice： For linux user, the environment has already prepared during the installing process.
+
 4. Activate the virtual environment by running the appropriate command for your operating system:
 ```
     .\envsubtrans\Scripts\activate
     .\envsubtrans\bin\activate
+    soure path/to/gpt-subtrans/envsubtrans/bin/activate    # for linux user
 ```
 
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
