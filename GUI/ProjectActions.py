@@ -139,7 +139,7 @@ class ProjectActions(QObject):
         show_dialog = self._is_shift_pressed()
 
         if show_dialog or not filepath or not os.path.exists(filepath):
-            filepath = os.path.join(self.last_used_path, os.path.basename(project.GetProjectFilepath()))
+            filepath = os.path.join(self.last_used_path, os.path.basename(project.projectfile))
             filepath, _ = QFileDialog.getSaveFileName(self._mainwindow, "Save Project File", filepath, "Subtrans projects (*.subtrans);;All Files (*)")
 
         if filepath:
