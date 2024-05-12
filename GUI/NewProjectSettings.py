@@ -59,10 +59,14 @@ class NewProjectSettings(QDialog):
 
         for key, setting in self.OPTIONS.items():
             key_type, tooltip = setting
-            field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
-            field.contentChanged.connect(lambda setting=field: self._on_setting_changed(setting.key, setting.GetValue()))
-            self.form_layout.addRow(field.name, field)
-            self.fields[key] = field
+            try:
+                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
+                field.contentChanged.connect(lambda setting=field: self._on_setting_changed(setting.key, setting.GetValue()))
+                self.form_layout.addRow(field.name, field)
+                self.fields[key] = field
+
+            except Exception as e:
+                logging.error(f"Unable to create option widget for {key}: {e}")
 
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(settings_widget)
@@ -159,17 +163,21 @@ class NewProjectSettings(QDialog):
                 logging.error(f"Unable to load instructions from {instruction_file}: {e}")
 
     def _preview_batches(self):
-        self._update_settings()
-        self._update_inputs()
+        try:
+            self._update_settings()
+            self._update_inputs()
 
-        self.preview_count += 1
-        preview_thread = BatchPreviewWorker(self.preview_count, self.settings, deepcopy(self.project.subtitles.originals))
-        preview_thread.update_preview.connect(self._update_preview_widget)
-        preview_thread.finished.connect(self._remove_preview_thread)
-        preview_thread.start()
+            self.preview_count += 1
+            preview_thread = BatchPreviewWorker(self.preview_count, self.settings, deepcopy(self.project.subtitles.originals))
+            preview_thread.update_preview.connect(self._update_preview_widget)
+            preview_thread.finished.connect(self._remove_preview_thread)
+            preview_thread.start()
 
-        with QMutexLocker(self.preview_mutex):
-            self.preview_threads.append(preview_thread)
+            with QMutexLocker(self.preview_mutex):
+                self.preview_threads.append(preview_thread)
+
+        except Exception as e:
+            logging.error(f"Unable to preview batches: {e}")
 
     @Slot(int, str)
     def _update_preview_widget(self, count : int, text : str):
@@ -203,13 +211,17 @@ class BatchPreviewWorker(QThread):
         self.subtitles = subtitles
 
     def run(self):
-        preprocessor = SubtitleProcessor(self.settings)
-        lines = preprocessor.PreprocessSubtitles(self.subtitles)
+        try:
+            preprocessor = SubtitleProcessor(self.settings)
+            lines = preprocessor.PreprocessSubtitles(self.subtitles)
 
-        batcher : BaseSubtitleBatcher = CreateSubtitleBatcher(self.settings)
-        scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
-        batch_count = sum(scene.size for scene in scenes)
-        line_count = sum(scene.linecount for scene in scenes)
+            batcher : BaseSubtitleBatcher = CreateSubtitleBatcher(self.settings)
+            scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
+            batch_count = sum(scene.size for scene in scenes)
+            line_count = sum(scene.linecount for scene in scenes)
 
-        preview_text = f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches"
-        self.update_preview.emit(self.count, preview_text)
+            preview_text = f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches"
+            self.update_preview.emit(self.count, preview_text)
+
+        except Exception as e:
+            self.update_preview.emit(self.count, f"Error: {e}")
