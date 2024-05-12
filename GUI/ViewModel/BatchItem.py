@@ -31,16 +31,12 @@ class BatchItem(ViewModelItem):
         self._first_line_num = None
         self._last_line_num = None
 
-        if batch.translation:
+        if batch.translation and isinstance(batch.translation, Translation):
             self.batch_model.update({
-                'response': batch.translation.text,
-                'context': batch.context,
+                'response': batch.translation.FormatResponse(),
+                'context': batch.context
             })
 
-        if batch.translation:
-            self.batch_model.update({
-                'response': batch.translation.FormatResponse()
-            })
         if batch.prompt:
             self.batch_model.update({
                 'prompt': FormatPrompt(batch.prompt)

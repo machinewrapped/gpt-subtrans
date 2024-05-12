@@ -1,4 +1,5 @@
 import logging
+import os
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
@@ -9,7 +10,7 @@ from PySubtitle.TranslationProvider import TranslationProvider
 class ProjectDataModel:
     _action_handlers = {}
 
-    def __init__(self, project = None, options = None):
+    def __init__(self, project : SubtitleProject = None, options : Options = None):
         self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
         self.project_options = Options(options)
@@ -28,19 +29,19 @@ class ProjectDataModel:
     @property
     def provider(self):
         return self.translation_provider.name if self.translation_provider else None
-    
+
     @property
     def provider_settings(self):
         return self.project_options.current_provider_settings
-    
+
     @property
     def available_providers(self):
         return self.project_options.available_providers if self.project_options else []
-    
+
     @property
     def available_models(self):
         return self.translation_provider.available_models if self.translation_provider else []
-    
+
     @property
     def selected_model(self):
         return self.translation_provider.selected_model if self.translation_provider else None
@@ -66,7 +67,7 @@ class ProjectDataModel:
     def IsProjectInitialised(self):
         """Check whether the project has been initialised (subtitles loaded and batched)"""
         return self.project and self.project.subtitles and self.project.subtitles.scenes
-    
+
     def NeedsSave(self):
         """Does the project have changes that should be saved"""
         return self.IsProjectInitialised() and self.project.needsupdate
@@ -74,7 +75,7 @@ class ProjectDataModel:
     def NeedsAutosave(self):
         """Does the project have changes that should be auto-saved"""
         return self.NeedsSave() and self.project_options.get('autosave')
-    
+
     def SaveProject(self):
         if self.NeedsSave():
             self.project.WriteProjectFile()
@@ -94,7 +95,7 @@ class ProjectDataModel:
         except Exception as e:
             logging.warning(f"Unable to create {self.provider} provider: {e}")
             return None
-    
+
     def UpdateProviderSettings(self, settings : dict):
         """ Update the settings for the translation provider """
         self.provider_settings.update(settings)
@@ -149,7 +150,7 @@ class ProjectDataModel:
         if not provider:
             self.translation_provider = None
             return
-        
+
         if provider in self.provider_cache:
             self.translation_provider : TranslationProvider = self.provider_cache[provider]
             self.translation_provider.UpdateSettings(self.project_options)

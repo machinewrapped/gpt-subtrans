@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
+from GUI.GuiInterface import GuiInterface
 from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.ProjectSelection import ProjectSelection
@@ -11,24 +12,25 @@ from GUI.Widgets.ProjectSettings import ProjectSettings
 
 class ModelView(QWidget):
     settingsChanged = Signal(dict)
-    actionRequested = Signal(str, object)
 
-    def __init__(self, parent=None):
+    def __init__(self, gui_interface : GuiInterface, parent=None):
         super().__init__(parent)
+
+        self.gui = gui_interface
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self._toolbar = ProjectToolbar(self)
-        self._toolbar.toggleOptions.connect(self.ToggleProjectSettings)
+        self._toolbar = ProjectToolbar(parent=self)
+        self._toolbar.showProjectOptions.connect(self.ShowProjectSettings)
         self._toolbar.setVisible(False)
         layout.addWidget(self._toolbar)
 
         # Scenes & Batches Panel
-        self.scenes_view = ScenesView(self)
+        self.scenes_view = ScenesView(parent=self)
 
         # Main Content Area
-        self.content_view = ContentView(self)
+        self.content_view = ContentView(gui_interface, parent=self)
 
         # Project Settings
         self.project_settings = ProjectSettings()
@@ -49,8 +51,6 @@ class ModelView(QWidget):
 
         self.scenes_view.onSelection.connect(self._items_selected)
         self.content_view.onSelection.connect(self._lines_selected)
-
-        self.content_view.actionRequested.connect(self.actionRequested)
 
         self.scenes_view.onBatchEdited.connect(self._on_batch_edited)
         self.scenes_view.onSceneEdited.connect(self._on_scene_edited)
@@ -78,17 +78,16 @@ class ModelView(QWidget):
             self.scenes_view.Populate(viewmodel)
             self.content_view.Populate(viewmodel)
 
-    def ToggleProjectSettings(self, show = None):
-        if self.project_settings.isVisible() and not show:
-            self.CloseSettings()
-        else:
+    def ShowProjectSettings(self, show : bool):
+        if show and not self.project_settings.isVisible():
             self.project_settings.OpenSettings()
+            self._toolbar.show_options = True
 
-    def CloseSettings(self):
-        if self.project_settings.isVisible():
+        elif not show and self.project_settings.isVisible():
             settings = self.project_settings.GetSettings()
-            self.settingsChanged.emit(settings)
+            self._toolbar.show_options = False
             self.project_settings.hide()
+            self.settingsChanged.emit(settings)
 
     def GetSelection(self) -> ProjectSelection:
         selection = ProjectSelection()
@@ -117,11 +116,11 @@ class ModelView(QWidget):
         update = {
             'summary' : scene_model.get('summary')
         }
-        self.actionRequested.emit('Update Scene', (scene_number, update,))
+        self.gui.PerformModelAction('Update Scene', (scene_number, update,))
 
     def _on_batch_edited(self, scene, batch_number, batch_model):
         update = {
             'summary' : batch_model.get('summary')
         }
-        self.actionRequested.emit('Update Batch', (scene, batch_number, update,))
+        self.gui.PerformModelAction('Update Batch', (scene, batch_number, update,))
 

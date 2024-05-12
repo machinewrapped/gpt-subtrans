@@ -34,7 +34,7 @@ class BatchSubtitlesCommand(Command):
 
         project.WriteProjectFile()
 
-        self.datamodel : ProjectDataModel = self.datamodel or ProjectDataModel(project)
+        self.datamodel : ProjectDataModel = ProjectDataModel(project, self.options)
         self.datamodel.CreateViewModel()
         return True
 
