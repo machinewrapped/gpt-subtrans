@@ -57,7 +57,7 @@ class LineItem(QStandardItem):
 
     @property
     def translation(self):
-        return self.line_model.get('translation') or ""
+        return self.line_model.get('translation')
 
     @property
     def scene(self):

@@ -218,9 +218,13 @@ class SubtitleFile:
                 f.write(srtfile)
 
             # Log a warning if any lines had no text or start time
-            num_invalid = len([line for line in translated if not line.text or not line.start])
+            num_invalid = len([line for line in translated if not line.start])
             if num_invalid:
                 logging.warning(f"{num_invalid} lines were invalid and were not written to the output file")
+
+            num_empty = len([line for line in translated if not line.text])
+            if num_empty:
+                logging.warning(f"{num_empty} lines were empty and were not written to the output file")
 
             self.translated = translated
             self.outputpath = outputpath
