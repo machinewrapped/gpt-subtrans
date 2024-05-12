@@ -35,6 +35,7 @@ class GuiInterface(QObject):
     dataModelChanged = Signal(object)
     commandAdded = Signal(object)
     commandComplete = Signal(object, bool)
+    actionRequested = Signal(str)
     prepareForSave = Signal()
     toggleProjectSettings = Signal()
 
@@ -63,6 +64,7 @@ class GuiInterface(QObject):
 
         # Create centralised action handler
         self.action_handler = ProjectActions()
+        self.action_handler.issueCommand.connect(self.QueueCommand)
         self.action_handler.actionError.connect(self._on_error)
         self.action_handler.showSettings.connect(self.ShowSettingsDialog)
         self.action_handler.showProviderSettings.connect(self.ShowProviderSettingsDialog)
@@ -94,7 +96,18 @@ class GuiInterface(QObject):
         return self.command_queue
 
     def GetDataModel(self):
+        """
+        Get the data model
+        """
         return self.datamodel
+
+    def SetDataModel(self, datamodel : ProjectDataModel):
+        """
+        Set the data model
+        """
+        self.datamodel = datamodel
+        self.action_handler.SetDataModel(datamodel)
+        self.dataModelChanged.emit(datamodel)
 
     def PerformModelAction(self, action_name : str, params : dict):
         """
@@ -104,6 +117,7 @@ class GuiInterface(QObject):
             raise Exception(f"Cannot perform {action_name} without a data model")
 
         try:
+            self.actionRequested.emit(action_name)
             self.datamodel.PerformModelAction(action_name, params)
 
         except Exception as e:
@@ -217,13 +231,12 @@ class GuiInterface(QObject):
         """
         self.QueueCommand(LoadSubtitleFile(filepath, self.global_options))
 
-    def ShowNewProjectSettings(self):
+    def ShowNewProjectSettings(self, datamodel : ProjectDataModel):
         """
         Show the new project settings dialog
         """
         try:
-            datamodel : ProjectDataModel = self.datamodel
-            dialog = NewProjectSettings(datamodel, self)
+            dialog = NewProjectSettings(datamodel, parent=self.GetMainWindow())
 
             if dialog.exec() == QDialog.Accepted:
                 datamodel.UpdateProjectSettings(dialog.settings)
@@ -260,23 +273,20 @@ class GuiInterface(QObject):
         if success:
             if isinstance(command, LoadSubtitleFile):
                 self._update_last_used_path(command.filepath)
-                self.datamodel = command.datamodel
-                self.dataModelChanged.emit(self.datamodel)
+                self.SetDataModel(command.datamodel)
                 if not self.datamodel.IsProjectInitialised():
                     self.ShowNewProjectSettings(self.datamodel)
 
             elif isinstance(command, SaveProjectFile):
                 self._update_last_used_path(command.filepath)
-                self.datamodel = command.datamodel
-                self.dataModelChanged.emit(self.datamodel)
+                self.SetDataModel(command.datamodel)
 
             if command.model_update.HasUpdate():
                 self.datamodel.UpdateViewModel(command.model_update)
 
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often?
-                self.datamodel = command.datamodel
-                self.dataModelChanged.emit(self.datamodel)
+                self.SetDataModel(command.datamodel)
 
             else:
                 self.dataModelChanged.emit(None)

@@ -3,14 +3,12 @@ import dotenv
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
-    QApplication,
     QMainWindow,
     QWidget,
     QVBoxLayout,
     QSplitter,
 )
 from GUI.Command import Command
-from GUI.GuiHelpers import LoadStylesheet
 from GUI.GuiInterface import GuiInterface
 from GUI.MainToolbar import MainToolbar
 from GUI.ProjectDataModel import ProjectDataModel
@@ -32,11 +30,12 @@ class MainWindow(QMainWindow):
         self._load_icon("gui-subtrans")
 
         self.gui_interface = GuiInterface(self, options)
+        self.gui_interface.actionRequested.connect(self._on_action_requested)
         self.gui_interface.commandAdded.connect(self._on_command_added)
         self.gui_interface.commandComplete.connect(self._on_command_complete)
         self.gui_interface.dataModelChanged.connect(self._on_data_model_changed)
         self.gui_interface.prepareForSave.connect(self._prepare_for_save)
-        self.gui_interface.toggleProjectSettings.connect(self.ToggleProjectSettings)
+        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -54,9 +53,8 @@ class MainWindow(QMainWindow):
         splitter = QSplitter(Qt.Orientation.Vertical)
         main_layout.addWidget(splitter)
 
-        self.model_viewer = ModelView(splitter)
+        self.model_viewer = ModelView(self.gui_interface, parent=splitter)
         self.model_viewer.settingsChanged.connect(self.gui_interface.UpdateProjectSettings)
-        self.model_viewer.actionRequested.connect(self._on_action_requested)
         splitter.addWidget(self.model_viewer)
 
         # Create the log window widget and add it to the splitter
@@ -80,7 +78,7 @@ class MainWindow(QMainWindow):
         Update project settings and close the panel
         """
         if self.model_viewer:
-            self.model_viewer.CloseSettings()
+            self.model_viewer.ShowProjectSettings(False)
 
     def _on_data_model_changed(self, datamodel : ProjectDataModel):
         """
@@ -98,17 +96,16 @@ class MainWindow(QMainWindow):
         filepath = GetResourcePath("assets", f"{name}.ico")
         self.setWindowIcon(QIcon(filepath))
 
-    def _on_action_requested(self, action_name : str, params : dict):
-        self.statusBar().showMessage(f"Executing {action_name}")
-        self.gui_interface.PerformModelAction(action_name, params)
+    def _on_action_requested(self, action_name : str):
+        self.statusBar().showMessage(f"Performing {action_name}")
 
     def _on_command_added(self, command : Command):
         self.toolbar.UpdateBusyStatus()
         self._update_status_bar(command)
 
     def _on_command_complete(self, command : Command, success):
-        self._update_status_bar(command, success)
         self.toolbar.UpdateBusyStatus()
+        self._update_status_bar(command, success)
 
     def _update_status_bar(self, command : Command, succeeded : bool = None):
         command_queue = self.gui_interface.GetCommandQueue()
@@ -129,6 +126,6 @@ class MainWindow(QMainWindow):
             else:
                 self.statusBar().showMessage(f"{type(command).__name__} was successful.")
 
-    def ToggleProjectSettings(self, show = None):
-        self.model_viewer.ToggleProjectSettings(show)
+    def _toggle_project_settings(self, show = None):
+        self.model_viewer.ShowProjectSettings(show)
 

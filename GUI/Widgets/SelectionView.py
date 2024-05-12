@@ -2,6 +2,7 @@ import os
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QFrame, QHBoxLayout, QPushButton, QSizePolicy
 
+from GUI.GuiInterface import GuiInterface
 from GUI.ProjectSelection import ProjectSelection
 
 def _show(widget, condition):
@@ -11,17 +12,16 @@ def _show(widget, condition):
         widget.hide()
 
 class SelectionView(QFrame):
-    actionRequested = Signal(str, object)
+    def __init__(self, gui_interface : GuiInterface, parent=None):
+        super().__init__(parent=parent)
 
-    def __init__(self) -> None:
-        super().__init__()
-
+        self.gui = gui_interface
         self.debug_view = os.environ.get("DEBUG_MODE") == "1"
 
         self._label = QLabel(self)
         self._label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
-        #TODO: Translate / Retranslate
+        #TODO: Translate / Retranslate label
         self._translate_button = self._create_button("Translate Selection", self._on_translate_selection)
         self._autosplit_batch_button = self._create_button("Auto-Split Batch", self._on_auto_split_batch)
         self._split_batch_button = self._create_button("Split Batch", self._on_split_batch)
@@ -81,26 +81,26 @@ class SelectionView(QFrame):
 
     def _on_translate_selection(self):
         if self.selection:
-            self.actionRequested.emit('Translate Selection', (self.selection,))
+            self.gui.PerformModelAction('Translate Selection', (self.selection,))
 
     def _on_merge_selection(self):
         if self.selection:
-            self.actionRequested.emit('Merge Selection', (self.selection,))
+            self.gui.PerformModelAction('Merge Selection', (self.selection,))
 
     def _on_split_batch(self):
         if self.selection and self.selection.AnyLines() and not self.selection.MultipleSelected():
-            self.actionRequested.emit('Split Batch', (self.selection,))
+            self.gui.PerformModelAction('Split Batch', (self.selection,))
 
     def _on_split_scene(self):
         if self.selection and self.selection.AnyBatches() and not self.selection.MultipleSelected():
-            self.actionRequested.emit('Split Scene', (self.selection,))
-    
+            self.gui.PerformModelAction('Split Scene', (self.selection,))
+
     def _on_auto_split_batch(self):
         if self.selection and self.selection.AnyBatches() and self.selection.OnlyBatches() and not self.selection.MultipleSelected():
-            self.actionRequested.emit('Auto-Split Batch', (self.selection,))
+            self.gui.PerformModelAction('Auto-Split Batch', (self.selection,))
 
     def _on_swap_text(self):
         if self.selection:
-            self.actionRequested.emit('Swap Text', (self.selection,))
+            self.gui.PerformModelAction('Swap Text', (self.selection,))
 
 

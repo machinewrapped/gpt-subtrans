@@ -4,7 +4,7 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QToolBar, QStyle, QApplication
 
 class ProjectToolbar(QToolBar):
-    toggleOptions = Signal(bool)
+    showProjectOptions = Signal(bool)
 
     _show_options = True
 
@@ -20,12 +20,12 @@ class ProjectToolbar(QToolBar):
 
     def _toggle_options(self):
         self.show_options = not self.show_options
-        self.toggleOptions.emit(self.show_options)
+        self.showProjectOptions.emit(self.show_options)
 
     @property
     def show_options(self):
         return self._show_options
-    
+
     @show_options.setter
     def show_options(self, value):
         self._show_options = value
