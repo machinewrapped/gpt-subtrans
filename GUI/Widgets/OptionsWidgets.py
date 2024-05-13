@@ -189,7 +189,10 @@ class DropdownOptionWidget(OptionWidget):
         self.combo_box.currentTextChanged.connect(self.contentChanged)
 
     def GetValue(self):
-        return GetValueFromName(self.combo_box.currentText(), self.values)
+        value = self.combo_box.currentText()
+        if value and self.values:
+            return GetValueFromName(value, self.values)
+        return None
 
     def SetValue(self, value):
         self.combo_box.setCurrentIndex(self.combo_box.findText(value))
