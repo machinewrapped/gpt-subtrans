@@ -316,7 +316,7 @@ class GuiInterface(QObject):
             self.QueueCommand(ExitProgramCommand())
             return
 
-        first_run_options = FirstRunOptions(options, self)
+        first_run_options = FirstRunOptions(options, parent = self.GetMainWindow())
         result = first_run_options.exec()
 
         if result == QDialog.Accepted:
