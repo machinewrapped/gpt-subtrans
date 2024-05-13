@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="347cf016-5441-4729-bb70-535266e4c038" name="Changes" comment="change gpt-subtrans/PySubtitle/Providers/OpenAI/OpenAIClient.py,add proxy function for socks proxy">
+    <list default="true" id="347cf016-5441-4729-bb70-535266e4c038" name="Changes" comment="change gpt-subtrans.py,add proxy function for socks proxy">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/gpt-subtrans.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/gpt-subtrans.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -99,7 +100,7 @@
       <workItem from="1715413149541" duration="283000" />
       <workItem from="1715413513149" duration="3278000" />
       <workItem from="1715525996738" duration="4708000" />
-      <workItem from="1715581344094" duration="697000" />
+      <workItem from="1715581344094" duration="1451000" />
     </task>
     <task id="LOCAL-00001" summary="change readme, add batch_process.py">
       <option name="closed" value="true" />
@@ -157,7 +158,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715581976431</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="change gpt-subtrans.py,add proxy function for socks proxy">
+      <option name="closed" value="true" />
+      <created>1715582114819</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1715582114819</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,6 +177,7 @@
     <MESSAGE value="change readme" />
     <MESSAGE value="change batch_process.py" />
     <MESSAGE value="change gpt-subtrans/PySubtitle/Providers/OpenAI/OpenAIClient.py,add proxy function for socks proxy" />
-    <option name="LAST_COMMIT_MESSAGE" value="change gpt-subtrans/PySubtitle/Providers/OpenAI/OpenAIClient.py,add proxy function for socks proxy" />
+    <MESSAGE value="change gpt-subtrans.py,add proxy function for socks proxy" />
+    <option name="LAST_COMMIT_MESSAGE" value="change gpt-subtrans.py,add proxy function for socks proxy" />
   </component>
 </project>
