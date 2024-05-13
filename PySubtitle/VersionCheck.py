@@ -22,7 +22,7 @@ def CheckIfUpdateAvailable():
                 f.write(datetime.date.today().isoformat())
 
             latest_version = response.json()["tag_name"]
-            
+
             if latest_version != __version__:
                 logging.info(f"A new version ({latest_version}) of {repo_name} is available!")
                 return True
@@ -38,6 +38,9 @@ def CheckIfUpdateAvailable():
     return False
 
 def CheckIfUpdateCheckIsRequired():
+    if not os.path.exists(last_check_file):
+        return True
+
     try:
         with open(last_check_file, "r") as f:
             last_check = datetime.date.fromisoformat(f.read().strip())
