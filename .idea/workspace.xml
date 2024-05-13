@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="347cf016-5441-4729-bb70-535266e4c038" name="Changes" comment="change batch_process.py">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PySubtitle/Providers/OpenAI/OpenAIClient.py" beforeDir="false" afterPath="$PROJECT_DIR$/PySubtitle/Providers/OpenAI/OpenAIClient.py" afterDir="false" />
+    <list default="true" id="347cf016-5441-4729-bb70-535266e4c038" name="Changes" comment="change gpt-subtrans/PySubtitle/Providers/OpenAI/OpenAIClient.py,add proxy function for socks proxy">
+      <change beforePath="$PROJECT_DIR$/scripts/gpt-subtrans.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/gpt-subtrans.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,7 +99,7 @@
       <workItem from="1715413149541" duration="283000" />
       <workItem from="1715413513149" duration="3278000" />
       <workItem from="1715525996738" duration="4708000" />
-      <workItem from="1715581344094" duration="501000" />
+      <workItem from="1715581344094" duration="697000" />
     </task>
     <task id="LOCAL-00001" summary="change readme, add batch_process.py">
       <option name="closed" value="true" />
@@ -150,7 +149,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715416458164</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="change gpt-subtrans/PySubtitle/Providers/OpenAI/OpenAIClient.py,add proxy function for socks proxy">
+      <option name="closed" value="true" />
+      <created>1715581976431</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1715581976431</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -160,6 +167,7 @@
     <MESSAGE value="change readme, add batch_process.py" />
     <MESSAGE value="change readme" />
     <MESSAGE value="change batch_process.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="change batch_process.py" />
+    <MESSAGE value="change gpt-subtrans/PySubtitle/Providers/OpenAI/OpenAIClient.py,add proxy function for socks proxy" />
+    <option name="LAST_COMMIT_MESSAGE" value="change gpt-subtrans/PySubtitle/Providers/OpenAI/OpenAIClient.py,add proxy function for socks proxy" />
   </component>
 </project>
