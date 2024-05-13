@@ -36,9 +36,10 @@ class SplitBatchCommand(Command):
         split_batch : SubtitleBatch = scene.GetBatch(self.batch_number)
         new_batch : SubtitleBatch = scene.GetBatch(new_batch_number)
 
-        validator = SubtitleValidator(self.datamodel.project_options)
-        validator.ValidateBatch(split_batch)
-        validator.ValidateBatch(new_batch)
+        if split_batch.any_translated or new_batch.any_translated:
+            validator = SubtitleValidator(self.datamodel.project_options)
+            validator.ValidateBatch(split_batch)
+            validator.ValidateBatch(new_batch)
 
         # Remove lines from the original batch that are in the new batch now
         for line_removed in range(self.line_number, new_batch.last_line_number + 1):

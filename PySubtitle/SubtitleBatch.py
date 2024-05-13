@@ -47,6 +47,10 @@ class SubtitleBatch:
         return self.translated and (len(self.translated) == len(self.originals))
 
     @property
+    def any_translated(self):
+        return len(self.translated or []) > 0
+
+    @property
     def start(self) -> timedelta:
         return self.originals[0].start if self.originals else None
 

@@ -4,6 +4,8 @@ from PySubtitle.SubtitleProject import SubtitleProject
 
 import logging
 
+from PySubtitle.SubtitleValidator import SubtitleValidator
+
 class MergeBatchesCommand(Command):
     """
     Combine multiple batches into one
@@ -27,7 +29,12 @@ class MergeBatchesCommand(Command):
 
             project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
-            self.model_update.batches.replace((scene.number, merged_batch_number), scene.GetBatch(merged_batch_number))
+            merged_batch = scene.GetBatch(merged_batch_number)
+            if merged_batch.any_translated:
+                validator = SubtitleValidator(self.datamodel.project_options)
+                validator.ValidateBatch(merged_batch)
+
+            self.model_update.batches.replace((scene.number, merged_batch_number), merged_batch)
             for batch_number in self.batch_numbers[1:]:
                 self.model_update.batches.remove((scene.number, batch_number))
 
