@@ -31,11 +31,18 @@ try:
             
             logging.info(f"Translating with OpenAI model {self.model or 'default'}, Using API Base: {openai.base_url}")
 
-            # Optionally use httpx for requests
-            http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True) if self.api_base and self.settings.get('use_httpx') else None
+            http_client = None
+            if self.settings.get('proxy'):
+                # Use httpx with SOCKS proxy support
+                proxies = {
+                    'http://': self.settings.get('proxy'),
+                    'https://': self.settings.get('proxy')
+                }
+                http_client = httpx.Client(proxies=proxies)
+            elif self.settings.get('use_httpx'):
+                 http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True)
 
             self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
-
         @property
         def api_key(self):
             return self.settings.get('api_key')

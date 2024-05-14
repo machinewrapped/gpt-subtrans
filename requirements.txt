@@ -8,3 +8,5 @@ darkdetect
 setuptools
 pyside6==6.6.3
 httpx
+httpx[socks]
+
