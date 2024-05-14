@@ -27,3 +27,4 @@ gemini-subtrans.sh
 gpt-subtrans.sh
 gui-subtrans.sh
 llm-subtrans.sh
+.idea/
