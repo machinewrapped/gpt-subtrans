@@ -1,5 +1,6 @@
 from copy import deepcopy
 import logging
+import os
 
 from PySide6.QtCore import QThread, Signal, Slot, QRecursiveMutex, QMutexLocker
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
@@ -13,6 +14,12 @@ from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
+
+if os.environ.get("DEBUG_MODE") == "1":
+    try:
+        import debugpy
+    except ImportError:
+        pass
 
 class NewProjectSettings(QDialog):
     OPTIONS = {
@@ -121,7 +128,7 @@ class NewProjectSettings(QDialog):
             self._update_provider_settings(value)
         else:
             self.settings[key] = value
-            if value:
+            if value is not None:
                 self._preview_batches()
 
     def _update_provider_settings(self, provider : str):
@@ -168,7 +175,7 @@ class NewProjectSettings(QDialog):
             self._update_inputs()
 
             self.preview_count += 1
-            preview_thread = BatchPreviewWorker(self.preview_count, self.settings, deepcopy(self.project.subtitles.originals))
+            preview_thread = BatchPreviewWorker(self.preview_count, self.settings, self.project.subtitles.originals)
             preview_thread.update_preview.connect(self._update_preview_widget)
             preview_thread.finished.connect(self._remove_preview_thread)
             preview_thread.start()
@@ -207,13 +214,19 @@ class BatchPreviewWorker(QThread):
     def __init__(self, count : int, settings : dict, subtitles : list[SubtitleLine], parent=None):
         super().__init__(parent)
         self.count = count
-        self.settings = settings
-        self.subtitles = subtitles
+        self.settings = deepcopy(settings)
+        self.subtitles = deepcopy(subtitles)
 
     def run(self):
+        if 'debugpy' in globals():
+            debugpy.debug_this_thread()
+
         try:
-            preprocessor = SubtitleProcessor(self.settings)
-            lines = preprocessor.PreprocessSubtitles(self.subtitles)
+            if self.settings.get('preprocess_subtitles'):
+                preprocessor = SubtitleProcessor(self.settings)
+                lines = preprocessor.PreprocessSubtitles(self.subtitles)
+            else:
+                lines = self.subtitles
 
             batcher : BaseSubtitleBatcher = CreateSubtitleBatcher(self.settings)
             scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
