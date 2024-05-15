@@ -24,8 +24,6 @@ https://ai.google.dev/terms
 
 You will need a Google Gemini API key from https://ai.google.dev/ or from a project created on https://console.cloud.google.com/. You must ensure that Generative AI is enabled for the api key and project.
 
-Gemini support is new and should be considered experimental.
-
 ### Anthropic Claude
 https://support.anthropic.com/en/collections/4078534-privacy-legal
 
@@ -49,8 +47,7 @@ Prebuilt Linux packages are not provided so you will need to install from source
 ### Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
-step1 
-
+#### step1 
 
 1. Clone the GPT-Subtrans repository onto your local machine using the following command:
 ```
@@ -63,8 +60,7 @@ MacOS and Linux users should run `install.sh` instead (this should work on any u
 
 During the installing process, input the apikey you have, and the .env file will be created automatically. Thus, you can ignore step2, but you are recommended to read it.
 
-step2
-
+#### step2
 
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
 ```
@@ -80,7 +76,7 @@ If you are using Azure:
 AZURE_API_BASE=<your api_base, such as https://something.openai.azure.com>
 AZURE_DEPLOYMENT_NAME=<deployment_name>
 ```
-step3
+#### step3
 
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
 ```
@@ -89,7 +85,7 @@ step3
 
 notice： For linux user, the environment has already prepared during the installing process.
 
-step4
+#### step4
 
 4. Activate the virtual environment by running the appropriate command for your operating system:
 ```
@@ -97,14 +93,15 @@ step4
     .\envsubtrans\bin\activate
     soure path/to/gpt-subtrans/envsubtrans/bin/activate    # for linux user
 ```
-step5
+
+#### step5
 
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
 ```
     pip install -r requirements.txt
 ```
 
-step6
+#### step6
 
 6. Install the SDKs for the provider(s) you intend to use
 ```
