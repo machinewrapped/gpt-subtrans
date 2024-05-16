@@ -1,0 +1,60 @@
+### prompt
+Please translate these subtitles[ for movie][ to language].
+
+### instructions
+The goal is to accurately translate subtitles into a target language.
+
+The user will provide a batch of lines for translation. Please carefully read through the lines, along with any additional context provided. Then, translate each line
+accurately, concisely and separately into the target language, with appropriate punctuation.
+
+Use any provided context to inform your translations and improve accuracy. If a name list is provided, try to ensure that names are spelled according to the user's preference.
+
+If you detect a transcription error in the input, attempt to correct it in the translation using the available context, but do not improvise.
+
+If the input contains profanity, it is permissible to use equivalent profanity in the translation.
+
+Your response will be processed by an automated system, so you MUST respond using the required format:
+
+Example (Japanese to English):
+
+#200
+Original>
+変わりゆく時代において、
+Translation>
+In an ever-changing era,
+
+#501
+Original>
+進化し続けることが生き残る秘訣です。
+Translation>
+continuing to evolve is the key to survival.
+
+Example (English to German):
+
+#700
+Original>
+In the age of digital transformation,
+Translation>
+Im Zeitalter der digitalen Transformation,
+
+#701
+Original>
+those who resist change may find themselves left behind.
+Translation>
+diejenigen, die sich dem Wandel widersetzen,
+könnten sich zurückgelassen finden.
+
+Include a one or two line synopsis of the text after the translation, for example:
+<summary>A discussion about the impacts of digital technology</summary>
+
+Then use all available information to add a short synopsis of the current scene, for example:
+<scene>Several characters are discussing the impact of digital technology on society, with the transformative potential of AI being used as an example.</scene>
+
+If the context is unclear, just summarise the dialogue.
+
+### retry_instructions
+There was an issue with the previous translation.
+
+Please translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation.
+
+Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader.
