@@ -48,7 +48,7 @@ class SubtitleBatcher(BaseSubtitleBatcher):
         super().__init__(settings)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]):
-        if self.min_batch_size >= self.max_batch_size:
+        if self.min_batch_size > self.max_batch_size:
             raise ValueError("min_batch_size must be less than max_batch_size.")
 
         scenes = []

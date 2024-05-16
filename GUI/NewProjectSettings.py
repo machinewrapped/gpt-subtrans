@@ -229,6 +229,10 @@ class BatchPreviewWorker(QThread):
                 lines = self.subtitles
 
             batcher : BaseSubtitleBatcher = CreateSubtitleBatcher(self.settings)
+            if batcher.max_batch_size < batcher.min_batch_size:
+                self.update_preview.emit(self.count, "Max batch size is less than min batch size")
+                return
+
             scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
             batch_count = sum(scene.size for scene in scenes)
             line_count = sum(scene.linecount for scene in scenes)
