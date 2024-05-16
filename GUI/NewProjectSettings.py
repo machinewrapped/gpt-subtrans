@@ -2,7 +2,7 @@ from copy import deepcopy
 import logging
 import os
 
-from PySide6.QtCore import QThread, Signal, Slot, QRecursiveMutex, QMutexLocker
+from PySide6.QtCore import Qt, QThread, Signal, Slot, QRecursiveMutex, QMutexLocker
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
 
 from GUI.ProjectDataModel import ProjectDataModel
@@ -68,7 +68,7 @@ class NewProjectSettings(QDialog):
             key_type, tooltip = setting
             try:
                 field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
-                field.contentChanged.connect(lambda setting=field: self._on_setting_changed(setting.key, setting.GetValue()))
+                field.contentChanged.connect(lambda setting=field: self._on_setting_changed(setting.key, setting.GetValue()), type=Qt.ConnectionType.QueuedConnection)
                 self.form_layout.addRow(field.name, field)
                 self.fields[key] = field
 
@@ -82,10 +82,10 @@ class NewProjectSettings(QDialog):
         self.layout.addWidget(self.preview_widget)
 
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok, self)
-        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.accepted.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.layout.addWidget(self.buttonBox)
 
-        self.fields['instruction_file'].contentChanged.connect(self._update_instruction_file)
+        self.fields['instruction_file'].contentChanged.connect(self._update_instruction_file, type=Qt.ConnectionType.QueuedConnection)
 
         self.preview_threads = []
         self.preview_count = 0
@@ -176,8 +176,8 @@ class NewProjectSettings(QDialog):
 
             self.preview_count += 1
             preview_thread = BatchPreviewWorker(self.preview_count, self.settings, self.project.subtitles.originals)
-            preview_thread.update_preview.connect(self._update_preview_widget)
-            preview_thread.finished.connect(self._remove_preview_thread)
+            preview_thread.update_preview.connect(self._update_preview_widget, type=Qt.ConnectionType.QueuedConnection)
+            preview_thread.finished.connect(self._remove_preview_thread, type=Qt.ConnectionType.QueuedConnection)
             preview_thread.start()
 
             with QMutexLocker(self.preview_mutex):
