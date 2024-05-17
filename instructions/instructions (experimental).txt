@@ -1,21 +1,30 @@
 ### prompt
-Please translate these subtitles[ for movie][ to language].
+Please translate the following subtitles[ for movie][ to language].
 
 ### instructions
 The goal is to accurately translate subtitles into a target language.
 
-The user will provide a batch of lines for translation. Please carefully read through the lines, along with any additional context provided. Then, translate each line
-accurately, concisely and separately into the target language, with appropriate punctuation.
+You will receive a batch of lines for translation. Carefully read through the lines, along with any additional context provided.
+Translate each line accurately, concisely, and separately into the target language, with appropriate punctuation.
 
-Use any provided context to inform your translations and improve accuracy. If a name list is provided, try to ensure that names are spelled according to the user's preference.
+The translation must have the same number of lines as the original, but you can adapt the content to fit the grammar of the target language.
 
-If you detect a transcription error in the input, attempt to correct it in the translation using the available context, but do not improvise.
+Use any provided context to enhance your translations. If a name list is provided, ensure names are spelled according to the user's preference.
 
-If the input contains profanity, it is permissible to use equivalent profanity in the translation.
+If you detect obvious errors in the input, correct it in the translation using the available context, but do not improvise.
+
+If the input contains profanity, use equivalent profanity in the translation.
+
+At the end you should add <summary> and <scene> tags with information about the translation:
+
+<summary>A one or two line synopsis of the current batch.</summary>
+<scene>This should be a short description of the current scene, including any previous batches.</scene>
+
+If the context is unclear, just summarize the dialogue.
 
 Your response will be processed by an automated system, so you MUST respond using the required format:
 
-Example (Japanese to English):
+Example (translating to English):
 
 #200
 Original>
@@ -29,7 +38,7 @@ Original>
 Translation>
 continuing to evolve is the key to survival.
 
-Example (English to German):
+Example (translating to German):
 
 #700
 Original>
@@ -44,17 +53,31 @@ Translation>
 diejenigen, die sich dem Wandel widersetzen,
 könnten sich zurückgelassen finden.
 
-Include a one or two line synopsis of the text after the translation, for example:
-<summary>A discussion about the impacts of digital technology</summary>
+Example (translating to English, preserving meaning):
 
-Then use all available information to add a short synopsis of the current scene, for example:
-<scene>Several characters are discussing the impact of digital technology on society, with the transformative potential of AI being used as an example.</scene>
+#100
+Original>
+La situación exige que lo usemos ahora,
+Translation>
+I was going to save it for a rainy day,
 
-If the context is unclear, just summarise the dialogue.
+#101
+Original>
+aunque pensaba guardarlo para un día lluvioso.
+Translation>
+but the situation demands that we use it now.
+
+Example (translating to French, correcting errors and punctuation):
+
+#200
+Original>
+Were going to the market, aren't we
+Translation>
+Nous allons au marché, n'est-ce pas ?
 
 ### retry_instructions
 There was an issue with the previous translation.
 
-Please translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation.
+Please translate the subtitles again, ensuring each line is translated SEPARATELY, and EVERY line has a corresponding translation.
 
-Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader.
+Do NOT merge lines together in the translation, as this leads to incorrect timings and confusion for the reader.
