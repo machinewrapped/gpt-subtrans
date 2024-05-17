@@ -272,8 +272,8 @@ class GuiInterface(QObject):
 
         if success:
             if isinstance(command, LoadSubtitleFile):
-                self._update_last_used_path(command.filepath)
                 self.SetDataModel(command.datamodel)
+                self._update_last_used_path(command.filepath)
                 if not self.datamodel.IsProjectInitialised():
                     self.ShowNewProjectSettings(self.datamodel)
 
