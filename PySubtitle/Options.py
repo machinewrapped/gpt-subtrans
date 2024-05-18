@@ -142,6 +142,10 @@ class Options:
         return self.current_provider_settings.get('model')
 
     @property
+    def target_language(self) -> str:
+        return self.get('target_language')
+
+    @property
     def allow_multithreaded_translation(self):
         return self.get('max_threads') and self.get('max_threads') > 1
 

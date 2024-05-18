@@ -46,6 +46,10 @@ class ProjectDataModel:
     def selected_model(self):
         return self.translation_provider.selected_model if self.translation_provider else None
 
+    @property
+    def target_language(self):
+        return self.project_options.target_language
+
     def UpdateSettings(self, settings : dict):
         """ Update any options that have changed """
         self.project_options.update(settings)
