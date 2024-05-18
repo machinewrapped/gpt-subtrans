@@ -7,6 +7,8 @@ from GUI.ViewModel.ViewModelError import ViewModelError
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItem
 
+blank_line = f"<font color='lightgrey'>{emdash}</font>"
+
 class LineItem(QStandardItem):
     def __init__(self, line_number : int, model : dict):
         super(LineItem, self).__init__(f"Line {line_number}")
@@ -58,7 +60,11 @@ class LineItem(QStandardItem):
     @property
     def translation(self) -> str:
         translation = self.line_model.get('translation', None)
-        return translation if translation else (emdash if translation is not None else None)
+        return translation if translation else (blank_line if translation is not None else None)
+
+    @property
+    def translation_text(self) -> str:
+        return self.line_model.get('translation', None)
 
     @property
     def scene(self) -> int:

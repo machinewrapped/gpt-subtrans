@@ -68,7 +68,7 @@ class EditDialog(QDialog):
         Subclasses should override this method to add editable fields to the form layout
         """
         raise NotImplementedError
-    
+
     def UpdateModel(self):
         """
         Subclasses should override this method to update the model from the form
@@ -146,7 +146,7 @@ class EditSubtitleDialog(EditDialog):
         self.line = line
         self.model = {
             'original' : self.line.text if line else "",
-            'translated'  : self.line.translation if line else ""
+            'translated'  : self.line.translation_text if line else ""
         }
         super().__init__(self.model, parent, title=f"Line {self.line.number}: {self.line.start} --> {self.line.end}")
 
@@ -162,4 +162,3 @@ class EditSubtitleDialog(EditDialog):
     def UpdateModel(self):
         self.UpdateModelFromEditor('original')
         self.UpdateModelFromEditor('translated')
-        
