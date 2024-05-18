@@ -1,4 +1,5 @@
 import logging
+import os
 from PySide6.QtWidgets import (
     QGroupBox,
     QVBoxLayout,
@@ -81,6 +82,7 @@ class ProjectSettings(QGroupBox):
         self.settings = datamodel.project.GetProjectSettings()
         self.settings['model'] = datamodel.selected_model
         self.settings['provider'] = datamodel.provider
+        self.settings['project_path'] = os.path.dirname(datamodel.project.projectfile)
         self.BuildForm(self.settings)
 
     def Populate(self):
@@ -245,7 +247,10 @@ class ProjectSettings(QGroupBox):
         Copy project settings from another project file
         '''
         dialog_options = QFileDialog.Options()
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select project to copy settings from", "", "Subtrans Files (*.subtrans);;All Files (*)", options=dialog_options)
+        initial_path = self.settings.get('project_path') or self.settings.get('last_used_path')
+        filter = "Subtrans Files (*.subtrans);;All Files (*)"
+        caption = "Select project to copy settings from"
+        file_name, _ = QFileDialog.getOpenFileName(self, caption, dir=initial_path, filter=filter, options=dialog_options)
         if file_name:
             try:
                 project_options = Options({"project": 'read'})
