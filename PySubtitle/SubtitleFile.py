@@ -25,16 +25,16 @@ class SubtitleFile:
     project_settings = {
         'provider': None,
         'model': None,
-        'prompt': "",
-        'target_language': "",
-        'instructions': "",
-        'retry_instructions': "",
-        'movie_name': "",
-        'description': "",
+        'prompt': None,
+        'target_language': None,
+        'instructions': None,
+        'retry_instructions': None,
+        'movie_name': None,
+        'description': None,
         'names': None,
         'substitutions': None,
-        'substitution_mode': "Auto",
-        'include_original': False,
+        'substitution_mode': None,
+        'include_original': None,
         'instruction_file': None
     }
 
