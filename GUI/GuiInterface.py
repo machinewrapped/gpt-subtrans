@@ -302,9 +302,9 @@ class GuiInterface(QObject):
         """
         Update the last used path in the global options
         """
-        self.global_options.add('last_used_path', os.path.dirname(filepath))
         self.action_handler.last_used_path = self.global_options.get('last_used_path')
-        self.SaveSettings()
+        self.global_options.add('last_used_path', os.path.dirname(filepath))
+        self.global_options.SaveSettings()
 
     def _first_run(self, options: Options):
         """
