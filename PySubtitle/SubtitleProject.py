@@ -77,6 +77,8 @@ class SubtitleProject:
 
             if subtitles and subtitles.scenes:
                 self.load_subtitles = False
+                outputpath = outputpath or GetOutputPath(self.projectfile, subtitles.target_language)
+
                 if write_backup:
                     logging.info("Project file loaded, saving backup copy")
                     self.WriteBackupFile()
@@ -154,12 +156,12 @@ class SubtitleProject:
                 projectfile = self.projectfile
             elif projectfile and not self.projectfile:
                 self.projectfile = self.GetProjectFilepath(projectfile)
-                self.subtitles.outputpath = GetOutputPath(projectfile, self.subtitles.target_language)
 
             if not projectfile:
                 raise Exception("No file path provided")
 
             projectfile = os.path.normpath(projectfile)
+            self.subtitles.outputpath = GetOutputPath(projectfile, self.subtitles.target_language)
 
             logging.info(f"Writing project data to {str(projectfile)}")
 
