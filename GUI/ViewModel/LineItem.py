@@ -8,7 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItem
 
 class LineItem(QStandardItem):
-    def __init__(self, line_number, model):
+    def __init__(self, line_number : int, model : dict):
         super(LineItem, self).__init__(f"Line {line_number}")
         self.number = line_number
         self.line_model = model
@@ -16,7 +16,7 @@ class LineItem(QStandardItem):
 
         self.setData(self.line_model, Qt.ItemDataRole.UserRole)
 
-    def Update(self, line_update):
+    def Update(self, line_update : dict):
         if not isinstance(line_update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(line_update).__name__}")
 
@@ -36,33 +36,33 @@ class LineItem(QStandardItem):
         return f"{self.number}: {self.start} --> {self.end}"
 
     @property
-    def start(self):
+    def start(self) -> str:
         return self.line_model['start']
 
     @property
-    def end(self):
+    def end(self) -> str:
         return self.line_model['end']
 
     @property
-    def duration(self):
+    def duration(self) -> str:
         return self.line_model['duration']
 
     @property
-    def gap(self):
+    def gap(self) -> str:
         return self.line_model['gap']
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self.line_model['text']
 
     @property
-    def translation(self):
+    def translation(self) -> str:
         return self.line_model.get('translation')
 
     @property
-    def scene(self):
+    def scene(self) -> int:
         return self.line_model.get('scene')
 
     @property
-    def batch(self):
+    def batch(self) -> int:
         return self.line_model.get('batch')
