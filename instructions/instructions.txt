@@ -11,7 +11,7 @@ The translation must have the same number of lines as the original, but you can 
 
 Use any provided context to enhance your translations. If a name list is provided, ensure names are spelled according to the user's preference.
 
-If you detect obvious errors in the input, correct it in the translation using the available context, but do not improvise.
+If you detect obvious errors in the input, correct them in the translation using the available context, but do not improvise.
 
 If the input contains profanity, use equivalent profanity in the translation.
 
