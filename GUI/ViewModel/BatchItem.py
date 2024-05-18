@@ -14,7 +14,7 @@ from PySubtitle.TranslationPrompt import TranslationPrompt
 
 class BatchItem(ViewModelItem):
     """ Represents a subtitle batch in the view model"""
-    def __init__(self, scene_number, batch : SubtitleBatch, debug_view = False):
+    def __init__(self, scene_number : int, batch : SubtitleBatch, debug_view : bool = False):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
         self.scene = scene_number
         self.number = batch.number
@@ -74,31 +74,31 @@ class BatchItem(ViewModelItem):
         return self.batch_model.get('context')
 
     @property
-    def summary(self):
+    def summary(self) -> str:
         return self.batch_model.get('summary')
 
     @property
-    def response(self):
+    def response(self) -> str:
         return self.batch_model.get('response')
 
     @property
-    def prompt(self):
+    def prompt(self) -> str:
         return self.batch_model.get('prompt')
 
     @property
-    def first_line_number(self):
+    def first_line_number(self) -> int:
         if not self._first_line_num:
             self._update_first_and_last()
         return self._first_line_num
 
     @property
-    def last_line_number(self):
+    def last_line_number(self) -> int:
         if not self._last_line_num:
             self._update_first_and_last()
         return self._last_line_num
 
     @property
-    def has_errors(self):
+    def has_errors(self) -> bool:
         return True if self.batch_model.get('errors') else False
 
     def Update(self, update : dict):
@@ -204,7 +204,7 @@ class BatchItem(ViewModelItem):
         self._first_line_num = None
         self._last_line_num = None
 
-    def _get_errors(self, errors):
+    def _get_errors(self, errors) -> list[str]:
         if errors:
             if all(isinstance(e, Exception) for e in errors):
                 return [ str(e) for e in errors ]
