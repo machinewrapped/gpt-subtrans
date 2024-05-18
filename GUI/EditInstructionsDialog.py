@@ -23,6 +23,8 @@ class EditInstructionsDialog(QDialog):
 
         self.instructions : Instructions = Instructions(settings)
         self.target_language = None
+        self.filters = "Text Files (*.txt);;All Files (*)"
+
 
         self.form_layout = QFormLayout()
         self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, "Prompt for each translation request")
@@ -93,7 +95,8 @@ class EditInstructionsDialog(QDialog):
     def _load_instructions(self):
         '''Load instructions from a file'''
         options = QFileDialog.Options()
-        file_name, _ = QFileDialog.getOpenFileName(self, "Load Instructions", "instructions", "Text Files (*.txt);;All Files (*)", options=options)
+        path = GetInstructionsResourcePath(self.instructions.instruction_file)
+        file_name, _ = QFileDialog.getOpenFileName(self, "Load Instructions", dir=path, filter=self.filters, options=options)
         if file_name:
             try:
                 self.instructions.LoadInstructionsFile(file_name)
@@ -109,7 +112,7 @@ class EditInstructionsDialog(QDialog):
         '''Save instructions to a file'''
         options = QFileDialog.Options()
         filepath = GetInstructionsResourcePath(self.instructions.instruction_file)
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save Instructions", filepath, "Text Files (*.txt);;All Files (*)", options=options)
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save Instructions", dir=filepath, filter=self.filters, options=options)
         if file_name:
             try:
                 self.instructions.prompt = self.prompt_edit.GetValue()
