@@ -158,10 +158,10 @@ class SubtitleProcessor:
         Normalise dialog markers.
         Add line breaks to long lines.
         """
-        if not line.text:
-            return
+        text = line.text.strip()
 
-        text = line.text
+        if not text:
+            return line
 
         if self.remove_filler_words:
             text = RemoveFillerWords(text, self.filler_words_pattern)
