@@ -1,4 +1,5 @@
 from datetime import timedelta
+import logging
 from os import linesep
 import srt
 
@@ -78,11 +79,14 @@ class SubtitleLine:
 
     @property
     def line(self) -> str | None:
-        return self._item.to_srt() if self._item and self._item.start and self._item.end and self._item.content else None
+        if not self._item or not self._item.start or not self._item.end:
+            return None
+
+        return self._item.to_srt(strict=False)
 
     @property
     def translated(self) -> srt.Subtitle | None:
-        if not self._item or self.translation is None:
+        if self._item is None or self.translation is None:
             return None
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
 
@@ -91,7 +95,7 @@ class SubtitleLine:
         return self._item
 
     @item.setter
-    def item(self, item):
+    def item(self, item : srt.Subtitle | str):
         if isinstance(item, SubtitleLine):
             item = item.item
 
@@ -99,23 +103,23 @@ class SubtitleLine:
         self._duration = None
 
     @number.setter
-    def number(self, value):
+    def number(self, value : int):
         if self._item:
             self._item.index = value
 
     @text.setter
-    def text(self, text):
+    def text(self, text : str):
         if self._item:
             self._item.content = text
 
     @start.setter
-    def start(self, time):
+    def start(self, time : timedelta | str):
         if self._item:
             self._item.start = GetTimeDelta(time)
             self._duration = None
 
     @end.setter
-    def end(self, time):
+    def end(self, time : timedelta | str):
         if self._item:
             self._item.end = GetTimeDelta(time)
             self._duration = None
@@ -128,8 +132,8 @@ class SubtitleLine:
         number = int(number) if number else None
         start : timedelta = GetTimeDelta(start)
         end : timedelta = GetTimeDelta(end)
-        text : str = srt.make_legal_content(text.strip()) if text else None
-        original = srt.make_legal_content(original.strip()) if original else None
+        text : str = srt.make_legal_content(text.strip()) if text else ""
+        original = srt.make_legal_content(original.strip()) if original else ""
         item = srt.Subtitle(number, start, end, text)
         return SubtitleLine(item, original=original)
 
@@ -176,5 +180,7 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
             start = srt.srt_timestamp_to_timedelta(raw_start)
             end = srt.srt_timestamp_to_timedelta(raw_end)
             item = srt.Subtitle(index, start, end, content, proprietary)
+        else:
+            logging.error(f"Failed to parse line: {line}")
 
     return item

@@ -4,6 +4,7 @@ import regex
 common_punctuation = r"[.,!?;:…¡¿]"
 
 dialog_marker = "- "
+emdash = "—"
 
 standard_filler_words = "um,umm,uh,uhh,er,err,ah,ahh,oh,eh,hm,hmm,hmmm,huh,ha,mmm,ow,oww"
 

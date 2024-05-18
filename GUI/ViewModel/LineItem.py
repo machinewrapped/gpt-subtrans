@@ -1,6 +1,6 @@
 from GUI.GuiHelpers import GetLineHeight
 from PySubtitle.Helpers import UpdateFields
-from PySubtitle.Helpers.Text import Linearise
+from PySubtitle.Helpers.Text import Linearise, emdash
 
 from GUI.ViewModel.ViewModelError import ViewModelError
 
@@ -57,7 +57,8 @@ class LineItem(QStandardItem):
 
     @property
     def translation(self) -> str:
-        return self.line_model.get('translation')
+        translation = self.line_model.get('translation', None)
+        return translation if translation else (emdash if translation is not None else None)
 
     @property
     def scene(self) -> int:
