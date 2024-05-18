@@ -174,29 +174,29 @@ class NewProjectSettings(QDialog):
             self._update_settings()
             self._update_inputs()
 
-            self.preview_count += 1
-            preview_thread = BatchPreviewWorker(self.preview_count, self.settings, self.project.subtitles.originals)
-            preview_thread.update_preview.connect(self._update_preview_widget, type=Qt.ConnectionType.QueuedConnection)
-            preview_thread.finished.connect(self._remove_preview_thread, type=Qt.ConnectionType.QueuedConnection)
-            preview_thread.start()
-
             with QMutexLocker(self.preview_mutex):
+                self.preview_count += 1
+                preview_thread = BatchPreviewWorker(self.preview_count, self.settings, self.project.subtitles.originals)
+                preview_thread.update_preview.connect(self._update_preview_widget, type=Qt.ConnectionType.QueuedConnection)
+                preview_thread.finished.connect(self._remove_preview_thread, type=Qt.ConnectionType.QueuedConnection)
                 self.preview_threads.append(preview_thread)
+                preview_thread.start()
 
         except Exception as e:
             logging.error(f"Unable to preview batches: {e}")
 
     @Slot(int, str)
     def _update_preview_widget(self, count : int, text : str):
-        if count == self.preview_count:
-            with QMutexLocker(self.preview_mutex):
+        with QMutexLocker(self.preview_mutex):
+            if count == self.preview_count:
                 self.preview_widget.setText(text)
-                self.preview_threads = [x for x in self.preview_threads if x.count != count]
 
     @Slot()
     def _remove_preview_thread(self):
         with QMutexLocker(self.preview_mutex):
-            self.preview_threads = [x for x in self.preview_threads if x != self.sender()]
+            thread = self.sender()
+            self.preview_threads = [x for x in self.preview_threads if x != thread]
+            thread.deleteLater()
 
     def _wait_for_threads(self):
         if self.preview_threads:
@@ -207,6 +207,7 @@ class NewProjectSettings(QDialog):
                     thread.finished.disconnect(self._remove_preview_thread)
                     thread.quit()
                     thread.wait()
+                self.preview_threads = []
 
 class BatchPreviewWorker(QThread):
     update_preview = Signal(int, str)
