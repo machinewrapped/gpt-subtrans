@@ -9,7 +9,7 @@ from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossi
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:
-        import debugpy
+        import debugpy # type: ignore
     except ImportError:
         logging.warning("debugpy is not available, breakpoints on worker threads will not work")
 
@@ -81,7 +81,7 @@ class Command(QRunnable, QObject):
 
     def undo(self):
         raise NotImplementedError
-    
+
     def on_abort(self):
         pass
 

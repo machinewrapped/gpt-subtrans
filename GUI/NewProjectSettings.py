@@ -17,7 +17,7 @@ from PySubtitle.SubtitleScene import SubtitleScene
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:
-        import debugpy
+        import debugpy # type: ignore
     except ImportError:
         pass
 
