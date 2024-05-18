@@ -47,16 +47,16 @@ Prebuilt Linux packages are not provided so you will need to install from source
 ### Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
-#### step1 
+#### step1
 
 1. Clone the GPT-Subtrans repository onto your local machine using the following command:
 ```
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. You can then skip the remaining steps. 
+The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. You can then skip the remaining steps.
 
-MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system). 
+MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system).
 
 During the installing process, input the apikey you have, and the .env file will be created automatically. Thus, you can ignore step2, but you are recommended to read it.
 
@@ -147,7 +147,7 @@ python3 gpt-subtrans.py <path_to_srt_file> --target_language <target_language> -
 ```
 Remember to change the local port to yours and turn on your proxy tools such as v2ray, naiveproxy and clash.
 
-### batch process 
+### batch process
 
 you can process files with the following struct：
 
@@ -210,11 +210,6 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 
 - `--scenethreshold`:
   Number of seconds between lines to consider it a new scene.
-
-- `--batchthreshold`:
-  Number of seconds between lines to consider starting a new batch of subtitles to translate.
-  Smaller batches take longer and cost more, but introduce more sync points and reduce the scope for the AI to drift.
-  This setting is ignored with the new subtitle batcher, as it batches dynamically based on the gaps between lines.
 
 - `--minbatchsize`:
   Minimum number of lines to consider starting a new batch to send to the translator.

@@ -6,7 +6,7 @@ from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
 from PySubtitle.Instructions import Instructions
 from PySubtitle.Substitutions import Substitutions
-from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher
+from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -69,7 +69,7 @@ class SubtitleTranslator:
         if not self.client:
             raise ProviderError("Unable to create translation client")
 
-        self.batcher = CreateSubtitleBatcher(options)
+        self.batcher = SubtitleBatcher(options)
 
         self.postprocessor = SubtitleProcessor(options) if options.get('postprocess_translation') else None
 

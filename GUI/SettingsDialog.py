@@ -62,8 +62,6 @@ class SettingsDialog(QDialog):
             'min_batch_size': (int, "Avoid creating a new batch smaller than this"),
             'max_batch_size': (int, "Divide any batches larger than this into multiple batches"),
             'scene_threshold': (float, "Consider a new scene to have started after this many seconds without subtitles"),
-            'batch_threshold': (float, "Consider starting a new batch after a gap of this many seconds (simple batcher only)"),
-            'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
             'substitution_mode': (Substitutions.Mode, "Whether to substitute whole words or partial matches, or choose automatically based on input language"),
             'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
             'max_summary_length': (int, "Maximum length of the context summary to include with each translation batch"),

@@ -1,7 +1,7 @@
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher, SubtitleBatcher
+from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
 
@@ -29,7 +29,7 @@ class BatchSubtitlesCommand(Command):
             preprocessor = SubtitleProcessor(self.options)
             project.subtitles.PreProcess(preprocessor)
 
-        batcher : SubtitleBatcher = CreateSubtitleBatcher(self.options)
+        batcher : SubtitleBatcher = SubtitleBatcher(self.options)
         project.subtitles.AutoBatch(batcher)
 
         project.WriteProjectFile()

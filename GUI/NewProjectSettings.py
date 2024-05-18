@@ -9,7 +9,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
 from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
-from PySubtitle.SubtitleBatcher import CreateSubtitleBatcher, BaseSubtitleBatcher
+from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -30,8 +30,6 @@ class NewProjectSettings(QDialog):
         'min_batch_size': (int, "Fewest lines to send in separate batch"),
         'max_batch_size': (int, "Most lines to send in each batch"),
         'preprocess_subtitles': (bool, "Preprocess subtitles before batching"),
-        'use_simple_batcher': (bool, "Use old batcher instead of batching dynamically based on gap size"),
-        'batch_threshold': (float, "Number of seconds gap to consider starting a new batch (simple batcher)"),
         'instruction_file': (str, "Detailed instructions for the translator"),
         'prompt': (str, "High-level instructions for the translator")
     }
@@ -148,15 +146,6 @@ class NewProjectSettings(QDialog):
             field = layout.itemAt(row, QFormLayout.FieldRole).widget()
             self.settings[field.key] = field.GetValue()
 
-    def _update_inputs(self):
-        layout : QFormLayout = self.form_layout.layout()
-
-        for row in range(layout.rowCount()):
-            field = layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
-            if field.key == 'batch_threshold':
-                use_simple_batcher = self.settings.get('use_simple_batcher')
-                field.setEnabled(use_simple_batcher)
-
     def _update_instruction_file(self):
         """ Update the prompt when the instruction file is changed """
         instruction_file = self.fields['instruction_file'].GetValue()
@@ -172,7 +161,6 @@ class NewProjectSettings(QDialog):
     def _preview_batches(self):
         try:
             self._update_settings()
-            self._update_inputs()
 
             with QMutexLocker(self.preview_mutex):
                 self.preview_count += 1
@@ -229,7 +217,7 @@ class BatchPreviewWorker(QThread):
             else:
                 lines = self.subtitles
 
-            batcher : BaseSubtitleBatcher = CreateSubtitleBatcher(self.settings)
+            batcher : SubtitleBatcher = SubtitleBatcher(self.settings)
             if batcher.max_batch_size < batcher.min_batch_size:
                 self.update_preview.emit(self.count, "Max batch size is less than min batch size")
                 return

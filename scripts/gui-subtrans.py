@@ -46,7 +46,6 @@ def parse_arguments():
     logger_options = InitLogger("gui-subtrans", args.debug)
 
     arguments = {
-        'batch_threshold': args.batchthreshold,
         'firstrun': args.firstrun,
         'include_original': args.includeoriginal,
         'max_batch_size': args.maxbatchsize,

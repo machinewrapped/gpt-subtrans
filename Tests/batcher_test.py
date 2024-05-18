@@ -1,5 +1,5 @@
 import os
-from PySubtitle.SubtitleBatcher import OldSubtitleBatcher, SubtitleBatcher
+from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.Helpers.Tests import RunTestOnAllSrtFiles, separator
 
@@ -27,71 +27,33 @@ def analyze_scenes(scenes):
 
 def batcher_test(subtitles: SubtitleFile, logger, options):
     try:
-        old_batcher = OldSubtitleBatcher(options)
-        old_scenes = old_batcher.BatchSubtitles(subtitles.originals)
+        batcher = SubtitleBatcher(options)
+        scenes = batcher.BatchSubtitles(subtitles.originals)
     except Exception as e:
-        raise Exception(f"Error in old_batcher.BatchSubtitles: {e}")
-
-    try:
-        new_batcher = SubtitleBatcher(options)
-        new_scenes = new_batcher.BatchSubtitles(subtitles.originals)
-    except Exception as e:
-        raise Exception(f"Error in new_batcher.BatchSubtitles: {e}")
-
-    if len(old_scenes) != len(new_scenes):
-        raise Exception(f"Scene count mismatch (Old: {len(old_scenes)}, New: {len(new_scenes)})")
+        raise Exception(f"Error in batcher.BatchSubtitles: {e}")
 
     # Analyze scenes
-    old_num_scenes, old_num_batches_list, old_largest_batch_list, old_smallest_batch_list, old_avg_batch_list = analyze_scenes(old_scenes)
-    new_num_scenes, new_num_batches_list, new_largest_batch_list, new_smallest_batch_list, new_avg_batch_list = analyze_scenes(new_scenes)
+    num_scenes, num_batches_list, largest_batch_list, smallest_batch_list, avg_batch_list = analyze_scenes(scenes)
 
-    logger.info(f"{f'':<25}{'Old':<10}{'New':<10}{'Delta':<10}")
-
-    total_old_batches = sum(old_num_batches_list)
-    total_new_batches = sum(new_num_batches_list)
-    total_delta_batches = total_new_batches - total_old_batches
-
-    total_old_largest = max(old_largest_batch_list)
-    total_new_largest = max(new_largest_batch_list)
-    total_delta_largest = total_new_largest - total_old_largest
-
-    total_old_smallest = min(old_smallest_batch_list)
-    total_new_smallest = min(new_smallest_batch_list)
-    total_delta_smallest = total_new_smallest - total_old_smallest
-
-    total_old_avg = sum(old_avg_batch_list) / old_num_scenes
-    total_new_avg = sum(new_avg_batch_list) / new_num_scenes
-    total_delta_avg = total_new_avg - total_old_avg
+    total_batches = sum(num_batches_list)
+    total_largest = max(largest_batch_list)
+    total_smallest = min(smallest_batch_list)
+    total_avg = sum(avg_batch_list) / num_scenes
 
     logger.info(separator)
-    logger.info(f"Total (min {options['min_batch_size']}, max {options['max_batch_size']}, scene {options['scene_threshold']}, batch {options['batch_threshold']})")
+    logger.info(f"Total (min {options['min_batch_size']}, max {options['max_batch_size']}, scene {options['scene_threshold']})")
     logger.info(separator)
-    logger.info(f"{'Total Batches':<25}{total_old_batches:<10}{total_new_batches:<10}{' ' if total_delta_batches == 0 else total_delta_batches:<10}")
-    logger.info(f"{'Total Largest Batch':<25}{total_old_largest:<10}{total_new_largest:<10}{' ' if total_delta_largest == 0 else total_delta_largest:<10}")
-    logger.info(f"{'Total Smallest Batch':<25}{total_old_smallest:<10}{total_new_smallest:<10}{' ' if total_delta_smallest == 0 else total_delta_smallest:<10}")
-    logger.info(f"{'Average Batch Size':<25}{total_old_avg:<10.2f}{total_new_avg:<10.2f}{'' if abs(total_delta_avg) < 1.0 else f'{total_delta_avg:.2f}':<10}")
+    logger.info(f"{'Total Batches':<25}{total_batches:<10}")
+    logger.info(f"{'Total Largest Batch':<25}{total_largest:<10}")
+    logger.info(f"{'Total Smallest Batch':<25}{total_smallest:<10}")
+    logger.info(f"{'Average Batch Size':<25}{total_avg:<10.2f}")
     logger.info(separator)
-
-    for i in range(old_num_scenes):
-        scene_num = i + 1
-
-        delta_num_batches = new_num_batches_list[i] - old_num_batches_list[i]
-        delta_largest_batch = new_largest_batch_list[i] - old_largest_batch_list[i]
-        delta_smallest_batch = new_smallest_batch_list[i] - old_smallest_batch_list[i]
-        delta_avg_batch = new_avg_batch_list[i] - old_avg_batch_list[i]
-
-        logger.info(f"{f'-- Scene {scene_num} --':<25}")
-        logger.info(f"{'Num Batches':<25}{old_num_batches_list[i]:<10}{new_num_batches_list[i]:<10}{' ' if delta_num_batches == 0 else delta_num_batches:<10}")
-        logger.info(f"{'Largest Batch':<25}{old_largest_batch_list[i]:<10}{new_largest_batch_list[i]:<10}{' ' if delta_largest_batch == 0 else delta_largest_batch:<10}")
-        logger.info(f"{'Smallest Batch':<25}{old_smallest_batch_list[i]:<10}{new_smallest_batch_list[i]:<10}{' ' if delta_smallest_batch == 0 else delta_smallest_batch:<10}")
-        logger.info(f"{'Average Batch Size':<25}{old_avg_batch_list[i]:<10.2f}{new_avg_batch_list[i]:<10.2f}{'' if abs(delta_avg_batch) < 1.0 else f'{delta_avg_batch:.2f}':<10}")
-        logger.info("")
 
 def run_tests(directory_path, results_path):
     test_options = [
-        { 'min_batch_size': 10, 'max_batch_size': 100, 'scene_threshold': 60, 'batch_threshold': 20 },
-        { 'min_batch_size': 8, 'max_batch_size': 40, 'scene_threshold': 30, 'batch_threshold': 5 },
-        { 'min_batch_size': 16, 'max_batch_size': 80, 'scene_threshold': 40, 'batch_threshold': 8 },
+        { 'min_batch_size': 10, 'max_batch_size': 100, 'scene_threshold': 60 },
+        { 'min_batch_size': 8, 'max_batch_size': 40, 'scene_threshold': 30 },
+        { 'min_batch_size': 16, 'max_batch_size': 80, 'scene_threshold': 40 },
     ]
 
     RunTestOnAllSrtFiles(batcher_test, test_options, directory_path, results_path)

@@ -3,49 +3,13 @@ from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
 
-class BaseSubtitleBatcher:
+class SubtitleBatcher:
     def __init__(self, settings):
         self.min_batch_size = settings.get('min_batch_size', 0)
         self.max_batch_size = settings.get('max_batch_size', 99)
 
         scene_threshold_seconds = settings.get('scene_threshold', 30.0)
         self.scene_threshold = timedelta(seconds=scene_threshold_seconds)
-
-    def BatchSubtitles(self, lines : list[SubtitleLine]):
-        raise NotImplementedError
-
-class OldSubtitleBatcher(BaseSubtitleBatcher):
-    def __init__(self, settings):
-        super().__init__(settings)
-        self.batch_threshold_seconds = settings.get('batch_threshold', 2.0)
-
-    def BatchSubtitles(self, lines : list[SubtitleLine]):
-        batch_threshold = timedelta(seconds=self.batch_threshold_seconds)
-
-        scenes = []
-        last_endtime = None
-
-        for line in lines:
-            gap = line.start - last_endtime if last_endtime else None
-
-            if gap is None or gap > self.scene_threshold:
-                scene = SubtitleScene()
-                scenes.append(scene)
-                scene.number = len(scenes)
-                batch = None
-
-            if batch is None or (batch.size >= self.max_batch_size) or (batch.size >= self.min_batch_size and gap > batch_threshold):
-                batch = scene.AddNewBatch()
-
-            batch.AddLine(line)
-
-            last_endtime = line.end
-
-        return scenes
-
-class SubtitleBatcher(BaseSubtitleBatcher):
-    def __init__(self, settings):
-        super().__init__(settings)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]):
         if self.min_batch_size > self.max_batch_size:
@@ -119,11 +83,3 @@ class SubtitleBatcher(BaseSubtitleBatcher):
         # Recursively split the batches and concatenate the lists
         return self._split_lines(left) + self._split_lines(right)
 
-def CreateSubtitleBatcher(settings : dict) -> BaseSubtitleBatcher:
-    """
-    Helper to create an appropriate batcher for the settings
-    """
-    if settings.get('use_simple_batcher'):
-        return OldSubtitleBatcher(settings)
-
-    return SubtitleBatcher(settings)

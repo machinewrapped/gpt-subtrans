@@ -85,7 +85,6 @@ def CreateOptions(args: Namespace, provider: str, **kwargs) -> Options:
     """ Create options with additional arguments """
     options = {
         'api_key': args.apikey,
-        'batch_threshold': args.batchthreshold,
         'description': args.description,
         'include_original': args.includeoriginal,
         'instruction_args': args.instruction,
