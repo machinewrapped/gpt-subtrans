@@ -153,6 +153,8 @@ class ProjectSettings(QGroupBox):
 
         if key in settings:
             initial_value = settings[key]
+            if hasattr(initial_value, 'name'):
+                initial_value = initial_value.name
             combo_box.setCurrentIndex(combo_box.findText(initial_value))
 
         combo_box.currentTextChanged.connect(lambda x: self._option_changed(key, x))
