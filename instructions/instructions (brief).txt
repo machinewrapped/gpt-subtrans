@@ -17,7 +17,7 @@ If the input contains profanity, use equivalent profanity in the translation.
 Add <summary> and <scene> tags with information about the translation:
 
 <summary>A one or two line synopsis of the current batch.</summary>
-<scene>This should be a short description of the current scene, including any previous batches.</scene>
+<scene>This should be a short summary of the current scene, including any previous batches.</scene>
 
 Your response will be processed by an automated system, so you MUST respond using the required format:
 
