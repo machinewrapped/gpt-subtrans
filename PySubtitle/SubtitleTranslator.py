@@ -156,6 +156,7 @@ class SubtitleTranslator:
                     raise
 
                 except TranslationError as e:
+                    logging.warning(f"Error translating scene {batch.scene} batch {batch.number}: {str(e)}")
                     batch.errors.append(e)
 
                 if self.aborted:
