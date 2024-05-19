@@ -44,7 +44,7 @@ Building MacOS universal binaries with PyInstaller has not worked for some time 
 ### Linux
 Prebuilt Linux packages are not provided so you will need to install from source.
 
-### Installing from source
+## Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
 #### step1
