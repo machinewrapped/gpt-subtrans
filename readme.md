@@ -13,9 +13,9 @@ You will need an OpenAI API key from https://platform.openai.com/account/api-key
 
 If the API key is associated with a free trial account the translation speed will be severely restricted.
 
-You can use the custom api_base parameter to access a custom OpenAI instance or other models with a compatible API, e.g. locally hosted models.
+You can use the custom api_base parameter to access a custom OpenAI instance or other models with a compatible API.
 
-You can use an **OpenAI Azure** installation as a translation provider, but this is only advisable if you know what you're doing - in which case hopefully it will be clear how to configure the Azure provider settings. The Azure integration uses OpenAI's client library, so no additional installation is required.
+You can use an **OpenAI Azure** installation as a translation provider, but this is only advisable if you know what you're doing - in which case hopefully it will be clear how to configure the Azure provider settings.
 
 ### Google Gemini
 https://ai.google.dev/terms
@@ -27,19 +27,19 @@ You will need a Google Gemini API key from https://ai.google.dev/ or from a proj
 ### Anthropic Claude
 https://support.anthropic.com/en/collections/4078534-privacy-legal
 
-You will need an Anthropic API key from https://console.anthropic.com/settings/keys to use Claude as a provider. The Anthropic SDK does not provide a way to retrieve available models, so the latest Claude 3 model names are currently hardcoded in the GUI. Only the smallest Haiku model has been tested - it seems more than adequate for translation tasks.
+You will need an Anthropic API key from https://console.anthropic.com/settings/keys to use Claude as a provider. The Anthropic SDK does not provide a way to retrieve available models, so the latest Claude 3 model names are currently hardcoded.
 
-The API has very strict [rate limits](https://docs.anthropic.com/claude/reference/rate-limits) based on your credit tier, both on requests per minutes and tokens per day. The free credit tier limits should be sufficient to translate approximately one full movie per day.
-
-Claude support is new and should be considered experimental.
+The API has very strict [rate limits](https://docs.anthropic.com/claude/reference/rate-limits) based on your credit tier, both on requests per minutes and tokens per day. The free credit tier should be sufficient to translate approximately one full movie per day.
 
 ### Local Server
-GPT-Subtrans can interface with a locally hosted server which supports an OpenAI compatible API, e.g. [LM Studio](https://lmstudio.ai/). This is mainly for research and experimentation, and you should not expect particularly good results. LLMs like GPT and Gemini derive much of their power from their size, and small, quantized models running locally are likely to produce poor translations, fail to generate valid responses that follow instructions and frequently get stuck in endless generation loops. If you find a model that can run locally and reliably produces good results, please post about your experience in the Discussions area!
+GPT-Subtrans can interface with any server that supports an OpenAI compatible API, e.g. [LM Studio](https://lmstudio.ai/).
+
+This is mainly for research and you should not expect particularly good results. LLMs derive much of their power from their size, so the small, quantized models you can run on a GPU are likely to produce poor translations, fail to generate valid responses or get stuck in endless loops. If you find a model that reliably producess good results, please post about it in the Discussions area!
 
 Chat and completion endpoints are supported, you should configure the settings and endpoint based on the model the server is running (e.g. instruction tuned models will probably produce better results using the completions endpoint rather than chat/conversation). The prompt template can be edited in the GUI - make sure to include at least the {prompt} tag in the template, as this is where the subtitles that need translating in each batch will be provided.
 
 ### MacOS
-Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source to use the program. If anybody would like to volunteer to maintain Intel releases, please get in touch.
+Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source. If anybody would like to volunteer to maintain Intel releases, please get in touch.
 
 ### Linux
 Prebuilt Linux packages are not provided so you will need to install from source.
@@ -54,13 +54,11 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider.
+The easiest setup method is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat`. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system).
 
-MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system).
+During the installing process, input the apikey for the selected provider if requested. It will be saved in a .env file so that you don't need to provide it every time you run the program.
 
-During the installing process, input the apikey you have, and the .env file will be created automatically.
-
-**If you run the install script you can skip the other steps. Continue reading if you want to configure the environment manually instead.**
+**If you ran an install script you can skip the remaining steps. Continue reading if you want to configure the environment manually instead.**
 
 #### step2
 
@@ -119,17 +117,18 @@ The program works by dividing the subtitles up into small batches and sending ea
 
 By default The translated subtitles will be written to a new SRT file in the same directory with the target langugage appended to the original filename.
 
-It is highly recommended to use Subtitle Edit's (https://www.nikse.dk/subtitleedit) "Fix Common Errors" to clean up the translated subtitles (e.g. to add line breaks).
+Subtitle Edit's (https://www.nikse.dk/subtitleedit) "Fix Common Errors" can help to clean up the translated subtitles, though some of its functionality is now covered by the post-process option (`--postprocess`) in GPT-Subtrans.
 
 ### GUI
-For most people the [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans) is the best and easiest way to use the program. After installation, launch the GUI with the `gui-subtrans` command or shell script, and hopefully the rest should be self-explanatory.
+The [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans) is the best and easiest way to use the program. After installation, launch the GUI with the `gui-subtrans` command or shell script, and hopefully the rest should be self-explanatory.
 
 See the project wiki for further details on how to use the program.
 
 ### Command Line
 
-Before use these scripts, you need to change directory to scripts folder and activate the environment.
-GPT-Subtrans can be used as a console command or shell script. The most basic usage is:
+GPT-Subtrans can be used as a console command or shell script. The install scripts create a cmd or sh file in the project root for each provider, which will take care of activating the virtual environment and calling the corresponding translation script.
+
+The most basic usage is:
 ```
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
@@ -137,42 +136,7 @@ claude-subtrans <path_to_srt_file> --target_language <target_language>
 llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
 python3 batch_process.py  # process files in different folders
 ```
-
-This will activate the virtual environment and call the translation script with default parameters. If the target language is not specified the default is English.
-
-### Proxy
-
-If you need to use proxy in your location, you can use socks proxy by using command line
-
-```
-python3 gpt-subtrans.py <path_to_srt_file> --target_language <target_language> --proxy socks://127.0.0.1:1089
-```
-Remember to change the local port to yours and turn on your proxy tools such as v2ray, naiveproxy and clash.
-
-### batch process
-
-you can process files with the following struct：
-
-      #   -SRT
-      #   --fold1
-      #   ---1.srt
-      #   ---2.srt
-      #   ...
-      #   --fold2
-      #   ---1.srt
-      #   ---2.srt
-      #   ...
-
-```
-python3 batch_process.py  # process files in different folders
-```
-You need to modify the command line in batch_process.py accordingly
-
-
-### Developers
-It is recommended to use an IDE such as Visual Studio Code to run the program when installed from source, and set up a launch.json file to specify the arguments.
-
-Note: Remember to activate the virtual environment every time you work on the project.
+If the target language is not specified the default is English. Other options that can be specified on the command line are detailed below.
 
 ## Advanced usage
 
@@ -288,6 +252,39 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 
 - `-m`, `--model`:
   The model will usually be determined by the server, but the option is provided in case you need to specify it.
+
+### Proxy
+
+If you need to use proxy in your location, you can use socks proxy by using command line
+
+```
+python3 gpt-subtrans.py <path_to_srt_file> --target_language <target_language> --proxy socks://127.0.0.1:1089
+```
+Remember to change the local port to yours and turn on your proxy tools such as v2ray, naiveproxy and clash.
+
+### batch process
+
+you can process files with the following struct：
+
+      #   -SRT
+      #   --fold1
+      #   ---1.srt
+      #   ---2.srt
+      #   ...
+      #   --fold2
+      #   ---1.srt
+      #   ---2.srt
+      #   ...
+
+```
+python3 batch_process.py  # process files in different folders
+```
+You need to modify the command line in batch_process.py accordingly.
+
+### Developers
+It is recommended to use an IDE such as Visual Studio Code to run the program when installed from source, and set up a launch.json file to specify the arguments.
+
+Note: Remember to activate the virtual environment every time you work on the project.
 
 ## Project File
 
