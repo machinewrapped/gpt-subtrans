@@ -207,9 +207,12 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 - `--temperature`:
   A higher temperature increases the random variance of translations. Default 0.
 
-### OpenAI-specific arguments
+### Provider-specific arguments
+Some additional arguments are available for specific providers.
+
+#### OpenAI
 - `-k`, `--apikey`:
-  Your [OpenAI API Key](https://platform.openai.com/account/api-keys). Not required if it is set in the .env file.
+  Your [OpenAI API Key](https://platform.openai.com/account/api-keys).
 
 - `-b`, `--apibase`:
   API base URL if you are using a custom instance. if it is not set, the default URL will be used.
@@ -220,21 +223,34 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 - `-m`, `--model`:
   Specify the [AI model](https://platform.openai.com/docs/models) to use for translation
 
-### Gemini-specific arguments
+#### Gemini
 - `-k`, `--apikey`:
   Your [Google Gemini API Key](https://aistudio.google.com/app/apikey). Not required if it is set in the .env file.
 
 - `-m`, `--model`:
   Specify the [AI model](https://ai.google.dev/models/gemini) to use for translation
 
-### Claude-specific arguments
+#### Claude
 - `-k`, `--apikey`:
   Your [Anthropic API Key](https://console.anthropic.com/settings/keys). Not required if it is set in the .env file.
 
 - `-m`, `--model`:
   Specify the [AI model](https://docs.anthropic.com/claude/docs/models-overview#model-comparison) to use for translation. This should be the full model name, e.g. `claude-3-haiku-20240307`
 
-### Local Server specific arguments
+#### OpenAI Azure
+- `--deploymentname`:
+  Azure deployment name
+
+- `-k`, `--apikey`:
+  API key [for your deployment](https://learn.microsoft.com/en-us/azure/ai-services/openai/).
+
+- `-b`, `--apibase`:
+  API backend base address.
+
+- `-a`, `--apiversion`:
+  Azure API version.
+
+#### Local Server specific arguments
 - `-s`, `--server`:
   The address the server is running on, including port (e.g. http://localhost:1234). Should be provided by the server
 
