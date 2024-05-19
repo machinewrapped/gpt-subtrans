@@ -54,11 +54,13 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
 ```
 
-The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. You can then skip the remaining steps.
+The easiest setup method for most users is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat` at this point and enter your API key when prompted. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider.
 
 MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system).
 
-During the installing process, input the apikey you have, and the .env file will be created automatically. Thus, you can ignore step2, but you are recommended to read it.
+During the installing process, input the apikey you have, and the .env file will be created automatically.
+
+**If you run the install script you can skip the other steps. Continue reading if you want to configure the environment manually instead.**
 
 #### step2
 
