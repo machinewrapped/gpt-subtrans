@@ -317,6 +317,7 @@ Other valid options include `preview`, `resume`, `reparse` and `retranslate`. Th
 you should be able to see what they do.
 
 ## Version History
+Version 0.7 introduced optional post-processing of translated subtitles to try to fix some of the common issues with LLM-translated subtitles (e.g. adding line breaks), along with new default instructions that tend to produce fewer errors.
 
 Version 0.6 changes the architecture to a provider-based system, allowing multiple AI services to be used as translators.
 Settings are compartmentalised for each provider. For the intial release the only supported provider is **OpenAI**.
