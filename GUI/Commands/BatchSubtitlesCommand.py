@@ -1,5 +1,7 @@
+from copy import deepcopy
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
@@ -26,8 +28,15 @@ class BatchSubtitlesCommand(Command):
             logging.error("No subtitles to batch")
 
         if self.preprocess_subtitles:
+            originals = deepcopy(project.subtitles.originals)
             preprocessor = SubtitleProcessor(self.options)
             project.subtitles.PreProcess(preprocessor)
+
+            changed = len(originals) != len(project.subtitles.originals) or any(o != n for o, n in zip(originals, project.subtitles.originals))
+            if changed:
+                output_path = GetOutputPath(project.projectfile, "preprocessed")
+                logging.info(f"Saving preprocessed subtitles to {output_path}")
+                project.SaveOriginal(output_path)
 
         batcher : SubtitleBatcher = SubtitleBatcher(self.options)
         project.subtitles.AutoBatch(batcher)

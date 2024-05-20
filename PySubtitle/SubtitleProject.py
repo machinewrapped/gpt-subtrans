@@ -105,6 +105,16 @@ class SubtitleProject:
         if not subtitles.has_subtitles:
             raise ValueError(f"No subtitles to translate in {filepath}")
 
+    def SaveOriginal(self, outputpath : str = None):
+        """
+        Write the original subtitles to a file
+        """
+        try:
+            self.subtitles.SaveOriginal(outputpath)
+
+        except Exception as e:
+            logging.error(f"Unable to save original subtitles: {e}")
+
     def SaveTranslation(self, outputpath : str = None):
         """
         Write output file

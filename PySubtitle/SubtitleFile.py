@@ -159,6 +159,8 @@ class SubtitleFile:
             raise SubtitleError(f"Failed to find batch {batch_number} in scene {scene_number}")
 
         context = {
+            'scene_number': scene.number,
+            'batch_number': batch.number,
             'scene': f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}",
             'batch': f"Batch {batch.number}: {batch.summary}" if batch.summary else f"Batch {batch.number}"
         }
@@ -212,7 +214,7 @@ class SubtitleFile:
             logging.error(f"Failed to parse SRT string: {str(e)}")
 
 
-    def SaveOriginals(self, path : str = None):
+    def SaveOriginal(self, path : str = None):
         """
         Write original subtitles to an SRT file
         """
