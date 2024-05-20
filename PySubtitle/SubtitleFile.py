@@ -51,6 +51,10 @@ class SubtitleFile:
         self.settings = self.project_settings
 
     @property
+    def movie_name(self):
+        return self.settings.get('movie_name')
+
+    @property
     def target_language(self):
         return self.settings.get('target_language')
 
@@ -81,6 +85,9 @@ class SubtitleFile:
             self.Renumber()
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
+        """
+        Get a scene by number
+        """
         if not self.scenes:
             raise SubtitleError("Subtitles have not been batched")
 
@@ -96,6 +103,9 @@ class SubtitleFile:
         return matches[0]
 
     def GetBatch(self, scene_number : int, batch_number : int) -> SubtitleBatch:
+        """
+        Get a batch by scene and batch number
+        """
         scene = self.GetScene(scene_number)
         for batch in scene.batches:
             if batch.number == batch_number:
@@ -103,7 +113,24 @@ class SubtitleFile:
 
         raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
 
+    def GetOriginalLine(self, line_number : int) -> SubtitleLine:
+        """
+        Get a line by number
+        """
+        with self.lock:
+            return next((line for line in self.originals if line.number == line_number), None)
+
+    def GetTranslatedLine(self, line_number : int) -> SubtitleLine:
+        """
+        Get a translated line by number
+        """
+        with self.lock:
+            return next((line for line in self.translated if line.number == line_number), None)
+
     def GetBatchContainingLine(self, line_number : int):
+        """
+        Get the batch containing a line number
+        """
         if not self.scenes:
             raise SubtitleError("Subtitles have not been batched yet")
 
@@ -170,6 +197,20 @@ class SubtitleFile:
 
         with self.lock:
             self.originals = [ SubtitleLine(item) for item in source ]
+
+    def LoadSubtitlesFromString(self, srt_string : str):
+        """
+        Load subtitles from an SRT string
+        """
+        try:
+            source = list(srt.parse(srt_string))
+
+            with self.lock:
+                self.originals = [ SubtitleLine(item) for item in source ]
+
+        except srt.SRTParseError as e:
+            logging.error(f"Failed to parse SRT string: {str(e)}")
+
 
     def SaveOriginals(self, path : str = None):
         """
@@ -446,12 +487,14 @@ class SubtitleFile:
         history_lines = []
         last_summary = ""
 
-        for scene in [scene for scene in self.scenes if scene.number < scene_number and scene.summary]:
+        scenes = [scene for scene in self.scenes if scene.number < scene_number]
+        for scene in [scene for scene in scenes if scene.summary]:
             if scene.summary != last_summary:
                 history_lines.append(f"scene {scene.number}: {scene.summary}")
                 last_summary = scene.summary
 
-        for batch in [batch for batch in self.GetScene(scene_number).batches if batch.number < batch_number and batch.summary]:
+        batches = [batch for batch in self.GetScene(scene_number).batches if batch.number < batch_number]
+        for batch in [batch for batch in batches if batch.summary]:
             if batch.summary != last_summary:
                 history_lines.append(f"scene {batch.scene} batch {batch.number}: {batch.summary}")
                 last_summary = batch.summary

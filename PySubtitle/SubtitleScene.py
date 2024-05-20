@@ -3,6 +3,7 @@ import logging
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.Helpers.Subtitles import ResyncTranslatedLines
+from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleScene:
     def __init__(self, dct = None):
@@ -28,6 +29,14 @@ class SubtitleScene:
     @property
     def linecount(self):
         return sum(batch.size for batch in self.batches)
+
+    @property
+    def originals(self) -> list[SubtitleLine]:
+        return [ line for batch in self.batches for line in batch.originals ] if self.batches else None
+
+    @property
+    def translated(self) -> list[SubtitleLine]:
+        return [ line for batch in self.batches for line in batch.translated ] if self.batches else None
 
     @property
     def first_line_number(self):

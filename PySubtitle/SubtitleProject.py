@@ -14,8 +14,8 @@ from PySubtitle.TranslationEvents import TranslationEvents
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
-    def __init__(self, options : Options):
-        self.subtitles : SubtitleFile = None
+    def __init__(self, options : Options, subtitles : SubtitleFile = None):
+        self.subtitles : SubtitleFile = subtitles
         self.events = TranslationEvents()
         self.projectfile = None
         self.needsupdate = False
@@ -39,6 +39,9 @@ class SubtitleProject:
         options.add("reparse", project_mode in ["reparse"])
         options.add("retranslate", project_mode in ["retranslate"])
 
+        if subtitles:
+            self.UpdateProjectSettings(options)
+
         if self.update_project and options.get('autosave'):
             self._start_autosave_thread
 
@@ -50,6 +53,10 @@ class SubtitleProject:
     @property
     def target_language(self):
         return self.subtitles.target_language if self.subtitles else None
+
+    @property
+    def movie_name(self):
+        return self.subtitles.movie_name if self.subtitles else None
 
     def InitialiseProject(self, filepath, outputpath = None, write_backup = False):
         """
@@ -130,7 +137,6 @@ class SubtitleProject:
         with self.lock:
             self.subtitles = SubtitleFile(filepath)
             self.subtitles.LoadSubtitles()
-            self.subtitles.project = self
 
         return self.subtitles
 
@@ -192,7 +198,6 @@ class SubtitleProject:
                     subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
 
                 subtitles.Sanitise()
-                subtitles.project = self
                 self.subtitles = subtitles
                 return subtitles
 
