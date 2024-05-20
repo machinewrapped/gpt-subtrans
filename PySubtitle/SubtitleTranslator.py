@@ -140,14 +140,10 @@ class SubtitleTranslator:
         Send a scene for translation
         """
         try:
-            context = deepcopy(scene.context)
-
             batches = [ batch for batch in scene.batches if batch.number in batch_numbers ] if batch_numbers else scene.batches
 
-            context['scene'] = f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}"
-
             for batch in batches:
-                context['history'] = subtitles.GetBatchContext(scene.number, batch.number, self.max_history)
+                context = subtitles.GetBatchContext(scene.number, batch.number, self.max_history)
 
                 try:
                     self.TranslateBatch(batch, line_numbers, context)

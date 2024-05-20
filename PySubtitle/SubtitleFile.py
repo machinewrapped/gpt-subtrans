@@ -123,31 +123,34 @@ class SubtitleFile:
         """
         Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
         """
-        context_lines = []
-        last_summary = ""
-        for scene in self.scenes:
-            if scene.number == scene_number:
-                break
-
-            if scene.summary and scene.summary != last_summary:
-                context_lines.append(f"scene {scene.number}: {scene.summary}")
-                last_summary = scene.summary
-
+        scene = self.GetScene(scene_number)
         if not scene:
             raise SubtitleError(f"Failed to find scene {scene_number}")
 
-        for batch in scene.batches:
-            if batch.number == batch_number:
-                break
+        batch = self.GetBatch(scene_number, batch_number)
+        if not batch:
+            raise SubtitleError(f"Failed to find batch {batch_number} in scene {scene_number}")
 
-            if batch.summary and batch.summary != last_summary:
-                context_lines.append(f"scene {scene.number} batch {batch.number}: {batch.summary}")
-                last_summary = batch.summary
+        context = {
+            'scene': f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}",
+            'batch': f"Batch {batch.number}: {batch.summary}" if batch.summary else f"Batch {batch.number}"
+        }
 
-        if max_lines:
-            context_lines = context_lines[-max_lines:]
+        if self.settings.get('movie_name'):
+            context['movie_name'] = self.settings.get('movie_name')
 
-        return context_lines
+        if self.settings.get('description'):
+            context['description'] = self.settings.get('description')
+
+        if self.settings.get('names'):
+            context['names'] = ParseNames(self.settings.get('names'))
+
+        history_lines = self._get_history(scene_number, batch_number, max_lines)
+
+        if history_lines:
+            context['history'] = history_lines
+
+        return context
 
     def LoadSubtitles(self, filepath : str = None):
         """
@@ -435,6 +438,28 @@ class SubtitleFile:
                         batch.translated = [line for line in batch.translated if line.number and line.start is not None]
 
         self.scenes = [scene for scene in self.scenes if scene.batches]
+
+    def _get_history(self, scene_number : int, batch_number : int, max_lines : int):
+        """
+        Get a list of historical summaries up to a given scene and batch number
+        """
+        history_lines = []
+        last_summary = ""
+
+        for scene in [scene for scene in self.scenes if scene.number < scene_number and scene.summary]:
+            if scene.summary != last_summary:
+                history_lines.append(f"scene {scene.number}: {scene.summary}")
+                last_summary = scene.summary
+
+        for batch in [batch for batch in self.GetScene(scene_number).batches if batch.number < batch_number and batch.summary]:
+            if batch.summary != last_summary:
+                history_lines.append(f"scene {batch.scene} batch {batch.number}: {batch.summary}")
+                last_summary = batch.summary
+
+        if max_lines:
+            history_lines = history_lines[-max_lines:]
+
+        return history_lines
 
     def _merge_original_and_translated(self, originals : list[SubtitleLine], translated : list[SubtitleLine]):
         lines = {item.key: SubtitleLine(item.line) for item in originals if item.key}
