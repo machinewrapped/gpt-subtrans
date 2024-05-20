@@ -46,10 +46,11 @@ class SubtitleTranslator:
         self.reparse = options.get('reparse')
         self.preview = options.get('preview')
 
-        self.settings = options.GetSettings()
         self.instructions : Instructions = options.GetInstructions()
         self.user_prompt : str = options.BuildUserPrompt()
         self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode', 'Auto'))
+
+        self.settings = options.GetSettings()
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 
@@ -265,7 +266,7 @@ class SubtitleTranslator:
         # Filter out empty lines
         originals = [ line for line in batch.originals if line.text and line.text.strip() ]
 
-        # A=Apply the max_lines limit
+        # Apply the max_lines limit
         with self.lock:
             line_count = min(self.max_lines - self.lines_processed, len(originals)) if self.max_lines else len(originals)
             self.lines_processed += line_count
