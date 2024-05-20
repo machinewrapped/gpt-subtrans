@@ -6,10 +6,11 @@ def ParseNames(name_list : str | list[str]) -> list[str]:
     Parse a list of names from a string or list of strings
     """
     if isinstance(name_list, str):
-        name_list = regex.split(r"[\n,]\s+", name_list)
+        name_list = regex.split(r"[\n,]\s*", name_list)
 
     if isinstance(name_list, list):
-        return [ name.strip() for name in name_list if name.strip() ]
+        # Split each string in the list by comma or newline
+        return [name.strip() for name in name_list for name in regex.split(r"[\n,]\s*", name) if name.strip()]
 
     return []
 
