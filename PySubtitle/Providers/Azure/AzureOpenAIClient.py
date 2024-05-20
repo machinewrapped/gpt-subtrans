@@ -142,8 +142,5 @@ try:
             self.client.close()
             return super()._abort()
 
-        def GetParser(self):
-            return TranslationParser(self.settings)
-
 except ImportError:
     logging.debug("OpenAI SDK not installed.")

@@ -25,27 +25,27 @@ class LocalClient(TranslationClient):
     @property
     def server_address(self):
         return self.settings.get('server_address')
-    
+
     @property
     def endpoint(self):
         return self.settings.get('endpoint')
-    
+
     @property
     def supports_conversation(self):
         return self.settings.get('supports_conversation', False)
-    
+
     @property
     def api_key(self):
         return self.settings.get('api_key')
-    
+
     @property
     def model(self):
         return self.settings.get('model')
-    
+
     @property
     def max_tokens(self):
         return self.settings.get('max_tokens', None)
-    
+
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Request a translation based on the provided prompt
@@ -58,9 +58,6 @@ class LocalClient(TranslationClient):
         translation = Translation(response) if response else None
 
         return translation
-
-    def GetParser(self):
-        return TranslationParser(self.settings)
 
     def _abort(self):
         if self.client:
@@ -87,7 +84,7 @@ class LocalClient(TranslationClient):
 
                 if self.aborted:
                     return None
-                
+
                 if result.is_error:
                     if result.is_client_error:
                         raise TranslationImpossibleError(f"Client error: {result.status_code} {result.text}", response=result)
@@ -120,13 +117,13 @@ class LocalClient(TranslationClient):
                         response['text'] = choice.get('message', {}).get('content')
                         response['finish_reason'] = choice.get('finish_reason')
                         break
-                
+
                 if not response.get('text'):
                     raise TranslationResponseError("No text returned in the response", response=result)
 
                 # Return the response if the API call succeeds
                 return response
-            
+
             except httpx.ConnectError as e:
                 if self.aborted:
                     return None
@@ -139,7 +136,7 @@ class LocalClient(TranslationClient):
                     return None
 
                 raise TranslationError(str(e), error=e)
-        
+
             except httpx.ReadTimeout as e:
                 raise TranslationError("Request to server timed out", error=e)
 

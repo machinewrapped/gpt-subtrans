@@ -25,10 +25,10 @@ try:
 
             if not openai.api_key:
                 raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
-            
+
             if self.api_base:
                 openai.base_url = self.api_base
-            
+
             logging.info(f"Translating with OpenAI model {self.model or 'default'}, Using API Base: {openai.base_url}")
 
             http_client = None
@@ -46,15 +46,15 @@ try:
         @property
         def api_key(self):
             return self.settings.get('api_key')
-        
+
         @property
         def api_base(self):
             return self.settings.get('api_base')
-        
+
         @property
         def model(self):
             return self.settings.get('model')
-        
+
         def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
             """
             Request a translation based on the provided prompt
@@ -85,9 +85,6 @@ try:
             self.client.close()
             return super()._abort()
 
-        def GetParser(self):
-            return TranslationParser(self.settings)
-    
 
 except ImportError as e:
     logging.debug(f"Failed to import openai: {e}")

@@ -18,28 +18,28 @@ class GeminiClient(TranslationClient):
         super().__init__(settings)
 
         genai.configure(api_key=self.api_key)
-        
+
         logging.info(f"Translating with Gemini {self.model or 'default'} model")
 
         self.safety_settings = {
             "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
             "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
             "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
-            "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",            
+            "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
         }
 
     @property
     def api_key(self):
         return self.settings.get('api_key')
-    
+
     @property
     def model(self):
         return self.settings.get('model')
-    
+
     @property
     def rate_limit(self):
         return self.settings.get('rate_limit')
-    
+
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
         Request a translation based on the provided prompt
@@ -50,14 +50,11 @@ class GeminiClient(TranslationClient):
         response = self._send_messages(prompt.content, temperature)
 
         return Translation(response) if response else None
-    
+
     def _abort(self):
         # TODO cancel any ongoing requests
         return super()._abort()
 
-    def GetParser(self):
-        return TranslationParser(self.settings)
-    
     def _send_messages(self, completion : str, temperature):
         """
         Make a request to the Gemini API to provide a translation
@@ -68,8 +65,8 @@ class GeminiClient(TranslationClient):
             try:
                 gemini_model = genai.GenerativeModel(self.model)
                 config = genai.GenerationConfig(candidate_count=1, temperature=temperature)
-                gcr : GenerateContentResponse = gemini_model.generate_content(completion, 
-                                                                            generation_config=config, 
+                gcr : GenerateContentResponse = gemini_model.generate_content(completion,
+                                                                            generation_config=config,
                                                                             safety_settings=self.safety_settings)
 
             except Exception as e:
@@ -79,12 +76,12 @@ class GeminiClient(TranslationClient):
                 if not self.aborted:
                     logging.warning(f"Gemini request failure {str(e)}, trying to reconnect...")
                     sleep_time = self.backoff_time * 2.0**retry
-                    time.sleep(sleep_time)                
+                    time.sleep(sleep_time)
                     continue
 
             if self.aborted:
                 return None
-            
+
             if not gcr:
                 raise TranslationImpossibleError("No response from Gemini")
 

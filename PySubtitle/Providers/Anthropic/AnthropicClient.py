@@ -61,9 +61,6 @@ try:
 
             return translation
 
-        def GetParser(self):
-            return TranslationParser(self.settings)
-
         def _send_messages(self, system_prompt : str, messages : list[str], temperature):
             """
             Make a request to the LLM to provide a translation

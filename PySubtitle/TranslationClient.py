@@ -2,6 +2,7 @@ import logging
 import time
 
 from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.TranslationPrompt import TranslationPrompt, default_prompt_template
 from PySubtitle.Translation import Translation
 
@@ -72,7 +73,7 @@ class TranslationClient:
         # Perform the translation
         translation : Translation = self._request_translation(prompt, temperature)
 
-        if self.aborted:
+        if self.aborted or translation is None:
             return None
 
         if translation.text:
@@ -90,6 +91,12 @@ class TranslationClient:
                 time.sleep(sleep_time)
 
         return translation
+
+    def GetParser(self):
+        """
+        Return a parser that can process the provider's response
+        """
+        return TranslationParser(self.settings)
 
     def AbortTranslation(self):
         self.aborted = True

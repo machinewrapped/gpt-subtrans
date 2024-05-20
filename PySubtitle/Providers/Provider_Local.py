@@ -77,9 +77,6 @@ class Provider_LocalServer(TranslationProvider):
         # Choose the model on the server
         return []
 
-    def GetParser(self):
-        return TranslationParser(self.settings)
-
     def GetInformation(self):
         if self.ValidateSettings():
             return self.information

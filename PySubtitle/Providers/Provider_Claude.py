@@ -35,11 +35,11 @@ try:
             })
 
             self.refresh_when_changed = ['api_key', 'model']
-            
+
         @property
         def api_key(self):
             return self.settings.get('api_key')
-        
+
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             client_settings : dict = deepcopy(self.settings)
             client_settings.update(settings)
@@ -49,7 +49,7 @@ try:
                 'supports_system_prompt': True
                 })
             return AnthropicClient(client_settings)
-        
+
         def GetAvailableModels(self) -> list[str]:
             if not self.api_key:
                 return []
@@ -60,19 +60,16 @@ try:
             models = [ 'claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229' ]
 
             return models
-        
-        def GetParser(self):
-            return TranslationParser(self.settings)
-        
+
         def GetInformation(self):
             return self.information if self.api_key else self.information_noapikey
-        
+
         def GetOptions(self) -> dict:
             options = {'api_key': (str, "An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)")}
 
             if not self.api_key:
-                return options 
-            
+                return options
+
             if self.available_models:
                 options.update({
                     'model': (self.available_models, "The model to use for translations"),
@@ -82,6 +79,6 @@ try:
                 })
 
             return options
-        
+
 except ImportError:
     logging.info("Anthropic SDK not installed. Claude provider will not be available")
