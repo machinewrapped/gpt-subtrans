@@ -32,6 +32,7 @@ class SubtitleProject:
         self.write_project = project_mode in ["true", "write", "preview", "resume", "retranslate", "reparse"]
         self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
+        self.save_subtitles = project_mode not in ['preview', 'test']
 
         # Yes, this is a stupid way to set these settings
         options.add("preview", project_mode in ["preview"])
@@ -277,14 +278,14 @@ class SubtitleProject:
             translator.events.batch_translated -= self._on_batch_translated
             translator.events.scene_translated -= self._on_scene_translated
 
-            if not translator.aborted:
+            if self.save_subtitles and not translator.aborted:
                 self.SaveTranslation()
 
         except TranslationAbortedError:
             logging.info(f"Translation aborted")
 
         except Exception as e:
-            if self.subtitles and translator.stop_on_error:
+            if self.subtitles and self.save_subtitles and translator.stop_on_error:
                 self.SaveTranslation()
 
             logging.error(f"Failed to translate subtitles: {str(e)}")
@@ -305,7 +306,7 @@ class SubtitleProject:
 
             translator.TranslateScene(self.subtitles, scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
 
-            if not translator.aborted:
+            if self.save_subtitles and not translator.aborted:
                 self.SaveTranslation()
 
             return scene
@@ -343,6 +344,8 @@ class SubtitleProject:
 
     def _on_scene_translated(self, scene):
         logging.debug("Scene translated")
-        self.SaveTranslation()
         self.needsupdate = self.update_project
+        if self.save_subtitles:
+            self.SaveTranslation()
+
         self.events.scene_translated(scene)
