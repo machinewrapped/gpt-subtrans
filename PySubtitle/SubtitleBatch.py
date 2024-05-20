@@ -31,7 +31,7 @@ class SubtitleBatch:
         return self._originals
 
     @property
-    def size(self):
+    def size(self) -> int:
         return len(self._originals)
 
     @property
@@ -39,15 +39,15 @@ class SubtitleBatch:
         return self._translated
 
     @property
-    def untranslated(self):
+    def untranslated(self) -> list[SubtitleLine]:
         return [sub for sub in self.originals if not sub.translated]
 
     @property
-    def all_translated(self):
-        return self.translated and (len(self.translated) == len(self.originals))
+    def all_translated(self) -> bool:
+        return True if (self.translated and (len(self.translated) == len(self.originals))) else False
 
     @property
-    def any_translated(self):
+    def any_translated(self) -> bool:
         return len(self.translated or []) > 0
 
     @property
@@ -75,15 +75,15 @@ class SubtitleBatch:
         return self.originals[-1].txt_end if self.originals else ""
 
     @property
-    def duration(self):
+    def duration(self) -> timedelta:
         return self.end - self.start if self.start and self.end else timedelta(seconds=0)
 
     @property
-    def first_line_number(self):
+    def first_line_number(self) -> int:
         return self.originals[0].number if self.originals else None
 
     @property
-    def last_line_number(self):
+    def last_line_number(self) -> int:
         return self.originals[-1].number if self.originals else None
 
     @originals.setter
