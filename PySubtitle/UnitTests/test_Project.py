@@ -16,7 +16,6 @@ class ChineseDinnerTests(unittest.TestCase):
         'scene_threshold': 60.0,
         'max_batch_size': 100,
         'preprocess_subtitles': False,
-        'postprocess_subtitles': False,
         'project': False
     })
 
@@ -33,7 +32,7 @@ class ChineseDinnerTests(unittest.TestCase):
             self.assertTrue(subtitles.has_subtitles)
             self.assertIsNotNone(subtitles.originals)
 
-            self.assertEqual(subtitles.linecount, 63)
+            self.assertEqual(subtitles.linecount, 64)
             self.assertEqual(subtitles.linecount, len(subtitles.originals))
             self.assertEqual(subtitles.scenecount, 0)
             self.assertEqual(subtitles.start_line_number, 1)
@@ -77,14 +76,14 @@ class ChineseDinnerTests(unittest.TestCase):
         """
         log_test_name("Test batch subtitles")
         scene_count = 4
-        scene_lengths = [30, 25, 5, 3]
+        scene_lengths = [30, 25, 6, 3]
         first_lines = [
             "いつものように食事が終わるまでは誰も入れないでくれ.",
             "選んで何を食事の後.",
-            "お前どこの丸だ興味があるんだよ 殺し屋になるような人間ってのはどんなやつなのか\nましてお前みたいな格好した 殺し屋なんてのは珍しいからな.",
+            "お前どこの丸だ興味があるんだよ 殺し屋になるような人間ってのはどんなやつなのか",
             "本物の中華でもこうなのか."
         ]
-        batch_containing_line = [(1, 1, 1), (10, 1,1), (32, 2, 1), (55, 2, 1), (61, 4, 1)]
+        batch_containing_line = [(1, 1, 1), (10, 1,1), (32, 2, 1), (55, 2, 1), (63, 4, 1)]
 
         subtitles = PrepareSubtitles(chinese_dinner_data)
 
@@ -148,12 +147,12 @@ class ChineseDinnerTests(unittest.TestCase):
             self.assertIsNotNone(merged_scene)
             log_input_expected_result("Batch count", 2, merged_scene.size)
             self.assertEqual(merged_scene.size, 2)
-            log_input_expected_result("Line count", 8, merged_scene.linecount)
-            self.assertEqual(merged_scene.linecount, 8)
+            log_input_expected_result("Line count", 9, merged_scene.linecount)
+            self.assertEqual(merged_scene.linecount, 9)
             log_input_expected_result("First line number", 56, merged_scene.first_line_number)
             self.assertEqual(merged_scene.first_line_number, 56)
-            log_input_expected_result("Last line number", 63, merged_scene.last_line_number)
-            self.assertEqual(merged_scene.last_line_number, 63)
+            log_input_expected_result("Last line number", 64, merged_scene.last_line_number)
+            self.assertEqual(merged_scene.last_line_number, 64)
 
             first_batch : SubtitleBatch = merged_scene.GetBatch(1)
             self.assertIsNotNone(first_batch)
@@ -162,8 +161,8 @@ class ChineseDinnerTests(unittest.TestCase):
             self.assertEqual(first_batch.number, 1)
             log_input_expected_result("First line number", 56, first_batch.first_line_number)
             self.assertEqual(first_batch.first_line_number, 56)
-            log_input_expected_result("Last line number", 60, first_batch.last_line_number)
-            self.assertEqual(first_batch.last_line_number, 60)
+            log_input_expected_result("Last line number", 61, first_batch.last_line_number)
+            self.assertEqual(first_batch.last_line_number, 61)
 
             first_batch_context = subtitles.GetBatchContext(3, 1, 10)
             self.assertIsNotNone(first_batch_context)
@@ -180,15 +179,15 @@ class ChineseDinnerTests(unittest.TestCase):
             # Add a summary for the first batch
             first_batch.summary = "Summary of batch 1"
 
-            second_batch : SubtitleBatch = subtitles.GetBatchContainingLine(61)
+            second_batch : SubtitleBatch = subtitles.GetBatchContainingLine(62)
             self.assertIsNotNone(second_batch)
             log_input_expected_result("Line 61 in batch", (3, 2), (second_batch.scene, second_batch.number))
             self.assertEqual(second_batch.scene, 3)
             self.assertEqual(second_batch.number, 2)
-            log_input_expected_result("First line number", 61, second_batch.first_line_number)
-            self.assertEqual(second_batch.first_line_number, 61)
-            log_input_expected_result("Last line number", 63, second_batch.last_line_number)
-            self.assertEqual(second_batch.last_line_number, 63)
+            log_input_expected_result("First line number", 62, second_batch.first_line_number)
+            self.assertEqual(second_batch.first_line_number, 62)
+            log_input_expected_result("Last line number", 64, second_batch.last_line_number)
+            self.assertEqual(second_batch.last_line_number, 64)
 
             second_batch_context = subtitles.GetBatchContext(3, 2, 10)
             self.assertIsNotNone(second_batch_context)
@@ -216,17 +215,17 @@ class ChineseDinnerTests(unittest.TestCase):
             log_input_expected_result("Batch count", 1, merged_scene.size)
             self.assertEqual(merged_scene.size, 1)
 
-            log_input_expected_result("Scene line count", 8, merged_scene.linecount)
-            self.assertEqual(merged_scene.linecount, 8)
+            log_input_expected_result("Scene line count", 9, merged_scene.linecount)
+            self.assertEqual(merged_scene.linecount, 9)
 
             merged_batch : SubtitleBatch = merged_scene.GetBatch(1)
             self.assertIsNotNone(merged_batch)
 
-            log_input_expected_result("Batch line count", 8, merged_batch.size)
-            self.assertEqual(merged_batch.size, 8)
+            log_input_expected_result("Batch line count", 9, merged_batch.size)
+            self.assertEqual(merged_batch.size, 9)
 
             self.assertEqual(merged_batch.first_line_number, 56)
-            self.assertEqual(merged_batch.last_line_number, 63)
+            self.assertEqual(merged_batch.last_line_number, 64)
 
             self.assertEqual(merged_batch.summary, "Summary of batch 1\nSummary of batch 2")
 

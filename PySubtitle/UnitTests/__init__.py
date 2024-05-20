@@ -4,4 +4,5 @@ from PySubtitle.UnitTests.test_Parse import TestParseDelayFromHeader, TestParseN
 from PySubtitle.UnitTests.test_Substitutions import TestSubstitutions
 from PySubtitle.UnitTests.test_Time import TestTimeHelpers
 from PySubtitle.UnitTests.test_Project import ChineseDinnerTests
+from PySubtitle.UnitTests.test_Translator import SubtitleTranslatorTests
 

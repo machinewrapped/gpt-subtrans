@@ -1,3 +1,15 @@
+_movie = "Chinese Dinner (2001)"
+_description = "Hoshino is the owner of a Chinese restaurant. One evening he’s sitting down in a private room to enjoy an elaborate dinner. He is in the mood for celebrating when a surprise visitor arrives. The longest meal of Hoshino’s life has just begun."
+_names = [
+        "Hoshino",
+        "Nagasato",
+        "Yamaneko",
+        "Dokumitsu",
+        "Tachikawa group",
+        "Soudan-gumi",
+        "Kojima Kurosaki"
+    ]
+
 chinese_dinner_jp = """
 1
 00:02:12,250 --> 00:02:15,630
@@ -220,35 +232,38 @@ chinese_dinner_jp = """
 金は欲しくないが命は惜しい.
 
 56
-00:22:32,480 --> 00:22:47,760
+00:22:32,480 --> 00:22:41,287
 お前どこの丸だ興味があるんだよ 殺し屋になるような人間ってのはどんなやつなのか
-ましてお前みたいな格好した 殺し屋なんてのは珍しいからな.
 
 57
+00:22:41,337 --> 00:22:47,760
+ましてお前みたいな格好した 殺し屋なんてのは珍しいからな.
+
+58
 00:22:49,300 --> 00:22:52,980
 どうせ死ぬんだ教えてくれてもいいだろう.
 
-58
+59
 00:22:58,390 --> 00:23:13,230
 東京でその髪型なんてんだ.
 
-59
+60
 00:23:33,550 --> 00:23:35,250
 完璧だろう.
 
-60
+61
 00:23:43,790 --> 00:23:44,690
 辛い.
 
-61
+62
 00:24:49,470 --> 00:24:52,110
 本物の中華でもこうなのか.
 
-62
+63
 00:24:54,050 --> 00:24:57,230
 何が料理の順番だよ.
 
-63
+64
 00:24:58,150 --> 00:24:59,390
 これは俺の趣味だ.
 """
@@ -266,7 +281,7 @@ Hoshino, asking for the boss.
 
 3
 00:03:29,140 --> 00:03:31,040
-Everything is going well.
+Everything is going smoothly.
 
 4
 00:03:32,300 --> 00:03:34,980
@@ -279,15 +294,15 @@ Leave it to me.
 
 6
 00:04:01,660 --> 00:04:10,270
-Who is it? You better not move.
+Who is it? It's better if you don't move.
 
 7
 00:04:59,230 --> 00:05:00,930
-It's a pretty nice room, isn't it?
+It's quite a nice room, isn't it?
 
 8
 00:05:01,890 --> 00:05:03,650
-It cost a lot of money.
+Because it cost a lot of money.
 
 9
 00:05:14,860 --> 00:05:17,060
@@ -353,7 +368,7 @@ Don't hold back.
 
 24
 00:08:20,170 --> 00:08:24,550
-These days, even the yakuza carry ten.
+These days, even civilians carry guns.
 
 25
 00:08:26,970 --> 00:08:30,010
@@ -372,7 +387,7 @@ What will you do?
 28
 00:08:43,690 --> 00:08:47,370
 Your life isn't included
-in the reward for the kill.
+in the price for the hit.
 
 29
 00:08:48,890 --> 00:08:50,370
@@ -388,7 +403,7 @@ Choose what to eat after the meal.
 
 32
 00:10:30,960 --> 00:10:58,770
-Or is it dinner now?
+Or eat now.
 
 33
 00:11:15,760 --> 00:11:28,560
@@ -405,7 +420,7 @@ Who asked you tonight?
 
 36
 00:15:35,590 --> 00:15:36,790
-Why are you going to kill me?
+Why are you trying to kill me?
 
 37
 00:15:40,010 --> 00:15:41,350
@@ -438,7 +453,7 @@ How much were you hired for?
 
 44
 00:17:57,440 --> 00:17:58,400
-I'll pay you double.
+I'll pay double.
 
 45
 00:18:03,340 --> 00:18:04,580
@@ -454,7 +469,7 @@ Don't tell my old man.
 
 48
 00:18:21,200 --> 00:18:24,540
-Four times the amount, take it or leave it.
+Four times the amount, let's settle it.
 
 49
 00:18:59,080 --> 00:19:01,600
@@ -462,12 +477,11 @@ Just take out the goods.
 
 50
 00:19:38,920 --> 00:19:41,920
-Take everything.
-The money will be there tomorrow.
+Take everything, the money is tomorrow.
 
 51
 00:19:47,830 --> 00:19:52,670
-I could kill you and take it myself.
+I could kill you and take it.
 
 52
 00:19:53,290 --> 00:19:56,030
@@ -479,28 +493,26 @@ Is your life that precious?
 
 54
 00:20:11,400 --> 00:20:17,780
-Yes, it is.
-Even in this line of work, after 25 years.
+Yes, even in this job, after 25 years.
 
 55
 00:20:19,520 --> 00:20:24,340
-I don't want the money,
-but I do value my life.
+I don't want the money, but I value my life.
 
 56
 00:22:32,480 --> 00:22:41,287
-I'm curious, where are you from?
-What kind of person becomes an assassin?
+I'm curious,
+what kind of person becomes an assassin?
 
 57
 00:22:41,337 --> 00:22:47,760
-Especially an assassin dressed like you,
+Especially one dressed like you,
 that's quite rare.
 
 58
 00:22:49,300 --> 00:22:52,980
-Since you're going to die anyway,
-you might as well tell me.
+We're all going to die anyway,
+so you might as well tell me.
 
 59
 00:22:58,390 --> 00:23:13,230
@@ -512,30 +524,47 @@ It's perfect, right?
 
 61
 00:23:43,790 --> 00:23:44,690
-Spicy.
+It's tough.
 
 62
 00:24:49,470 --> 00:24:52,110
-Is it like this even with
-authentic Chinese food?
+Is this how authentic Chinese food is?
 
 63
 00:24:54,050 --> 00:24:57,230
 What's with the order of the dishes?
+
+64
+00:24:58,150 --> 00:24:59,390
+This is my preference.
+"""
+
+response_S1B1 = """
+#1\nOriginal>\nいつものように食事が終わるまでは誰も入れないでくれ.\nTranslation>\nAs usual, don't let anyone in until the meal is over.\n\n#2\nOriginal>\nいつものやつを頼む星野だ 親父を頼む星野です.\nTranslation>\nIt's Hoshino, ordering the usual. Hoshino, asking for the boss.\n\n#3\nOriginal>\n万事うまくいってます.\nTranslation>\nEverything is going smoothly.\n\n#4\nOriginal>\n9時に頼むから電話がありますから.\nTranslation>\nThere's a call at 9, so please take care of it.\n\n#5\nOriginal>\n任せてください.\nTranslation>\nLeave it to me.\n\n#6\nOriginal>\n誰だ動かない方がいいよ.\nTranslation>\nWho is it? It's better if you don't move.\n\n#7\nOriginal>\nなかなかいい部屋だろう.\nTranslation>\nIt's quite a nice room, isn't it?\n\n#8\nOriginal>\n金がかかってるからな.\nTranslation>\nBecause it cost a lot of money.\n\n#9\nOriginal>\n食事を始めませんか.\nTranslation>\nShall we start the meal?\n\n#10\nOriginal>\nここで食事をしたいなら.\nTranslation>\nIf you want to eat here,\n\n#11\nOriginal>\n日を改めて予約を入れてもらおう.\nTranslation>\nyou'll have to make a reservation for another day.\n\n#12\nOriginal>\n今日しか開いてないのか.\nTranslation>\nIs today the only day available?\n\n#13\nOriginal>\n動かないでって言ったでしょ.\nTranslation>\nI told you not to move.\n\n#14\nOriginal>\n携帯だ.\nTranslation>\nIt's a cell phone.\n\n#15\nOriginal>\n俺は肩にだぞ.\nTranslation>\nI'm on the shoulder.\n\n#16\nOriginal>\n座ったらどうだ.\nTranslation>\nWhy don't you sit down?\n\n#17\nOriginal>\n何が欲しい.\nTranslation>\nWhat do you want?\n\n#18\nOriginal>\n欲しいものは何でもやろう 言ってみろ.\nTranslation>\nI'll give you anything you want. Just say it.\n\n#19\nOriginal>\n早く言え何が欲しいんだ.\nTranslation>\nHurry up and tell me, what do you want?\n\n#20\nOriginal>\nあんたの命だが.\nTranslation>\nYour life.\n\n#21\nOriginal>\nその前にタバコ一本させろ.\nTranslation>\nLet me have a cigarette first.\n\n#22\nOriginal>\nそれぐらいだろう.\nTranslation>\nThat's about it.\n\n#23\nOriginal>\n遠慮するな.\nTranslation>\nDon't hold back.\n\n#24\nOriginal>\n近頃は肩着でも10持ってるんだよ.\nTranslation>\nThese days, even civilians carry guns.\n\n#25\nOriginal>\n余裕だな 売ってないと思ってるのか.\nTranslation>\nYou're confident. Do you think I won't shoot?\n\n#26\nOriginal>\n死体はここ俺の店だ.\nTranslation>\nThe body will be here, in my restaurant.\n\n#27\nOriginal>\n従業員は何も見ないし 何も聞かないどうする.\nTranslation>\nThe staff won't see or hear anything. What will you do?\n\n#28\nOriginal>\n殺しの報酬に お前の命の値段は入ってないだろう.\nTranslation>\nYour life isn't included in the price for the hit.\n\n#29\nOriginal>\nありのままな証拠だ.\nTranslation>\nIt's undeniable evidence.\n\n#30\nOriginal>\n諦めてとっとと消えろ.\nTranslation>\nGive up and get lost.\n\n<summary>Hoshino is negotiating and making threats, with a tense atmosphere and demands being exchanged.</summary>\n<scene>Hoshino is in a private room, discussing terms and making threats, possibly in a restaurant or a private setting.</scene>
+"""
+
+response_S2B1 = """
+#31\nOriginal>\n選んで何を食事の後.\nTranslation>\nChoose what to eat after the meal.\n\n#32\nOriginal>\nそれとも今飯だ.\nTranslation>\nOr eat now.\n\n#33\nOriginal>\n今夜はお弁当.\nTranslation>\nTonight is a bento.\n\n#34\nOriginal>\n今夜はお弁当 今夜はお弁当 やれるもんならどうぞってわけか.\nTranslation>\nTonight is a bento, tonight is a bento. If you can do it, go ahead.\n\n#35\nOriginal>\n今夜誰に頼まれた.\nTranslation>\nWho asked you tonight?\n\n#36\nOriginal>\nどうして俺を殺すんだ.\nTranslation>\nWhy are you trying to kill me?\n\n#37\nOriginal>\nどうせ殺されるんだ.\nTranslation>\nI'm going to be killed anyway.\n\n#38\nOriginal>\n教えてくれプロの美学か.\nTranslation>\nTell me, is it the professional's code?\n\n#39\nOriginal>\n風が強いな明日晴れてくれるといいんだ.\nTranslation>\nThe wind is strong. I hope it clears up tomorrow.\n\n#40\nOriginal>\n明日は雨だよ.\nTranslation>\nIt will rain tomorrow.\n\n#41\nOriginal>\n天気予報が何でわかる.\nTranslation>\nHow do you know the weather forecast?\n\n#42\nOriginal>\nせっかくの料理だ.\nTranslation>\nIt's a special meal.\n\n#43\nOriginal>\nいくらで雇われた.\nTranslation>\nHow much were you hired for?\n\n#44\nOriginal>\n二倍出そう.\nTranslation>\nI'll pay double.\n\n#45\nOriginal>\nここから出て行って.\nTranslation>\nGet out of here.\n\n#46\nOriginal>\nお前はその依頼人を消してくれたら 販売だ.\nTranslation>\nIf you take out your client, it's a deal.\n\n#47\nOriginal>\n親父にも黙っててよ.\nTranslation>\nDon't tell my old man.\n\n#48\nOriginal>\n4倍だそれで手を打って.\nTranslation>\nFour times the amount, let's settle it.\n\n#49\nOriginal>\n荷物を出すだけだ.\nTranslation>\nJust take out the goods.\n\n#50\nOriginal>\n全部持ってけ明日金だ.\nTranslation>\nTake everything, the money is tomorrow.\n\n#51\nOriginal>\nあんたを殺してそれをいただくこともできる.\nTranslation>\nI could kill you and take it.\n\n#52\nOriginal>\nお前そんなことやんないだろう.\nTranslation>\nYou wouldn't do that.\n\n#53\nOriginal>\nそんなに命が惜しい.\nTranslation>\nIs your life that precious?\n\n#54\nOriginal>\n惜しいねこんな仕事でも 25年もやってるとな.\nTranslation>\nYes, even in this job, after 25 years.\n\n#55\nOriginal>\n金は欲しくないが命は惜しい.\nTranslation>\nI don't want the money, but I value my life.\n\n<summary>A negotiation about a hit job, discussing the value of life and money.</summary>\n<scene>Scene 2: A tense conversation between two individuals, one trying to hire the other for a hit job, discussing terms and the value of life.</scene>
+"""
+
+response_S3B1 = """
+#56\nOriginal>\nお前どこの丸だ興味があるんだよ 殺し屋になるような人間ってのはどんなやつなのか\nTranslation>\nI'm curious, what kind of person becomes an assassin?\n\n#57\nOriginal>\nましてお前みたいな格好した 殺し屋なんてのは珍しいからな.\nTranslation>\nEspecially one dressed like you, that's quite rare.\n\n#58\nOriginal>\nどうせ死ぬんだ教えてくれてもいいだろう.\nTranslation>\nWe're all going to die anyway, so you might as well tell me.\n\n#59\nOriginal>\n東京でその髪型なんてんだ.\nTranslation>\nWhat's that hairstyle called in Tokyo?\n\n#60\nOriginal>\n完璧だろう.\nTranslation>\nIt's perfect, right?\n\n#61\nOriginal>\n辛い.\nTranslation>\nIt's tough.\n\n<summary>The speaker is curious about the kind of person who becomes an assassin, especially one with a rare appearance. They ask about a hairstyle and comment that something is perfect but tough.</summary>\n<scene>Scene 3: One character interrogates another, showing curiosity about their profession as an assassin and their appearance. The conversation touches on the inevitability of death and includes a brief mention of a hairstyle.</scene>
+"""
+
+response_S4B1 = """
+#62\nOriginal>\n本物の中華でもこうなのか.\nTranslation>\nIs this how authentic Chinese food is?\n\n#63\nOriginal>\n何が料理の順番だよ.\nTranslation>\nWhat's with the order of the dishes?\n\n#64\nOriginal>\nこれは俺の趣味だ.\nTranslation>\nThis is my preference.\n\n<summary>Discussion about the authenticity of Chinese food and personal preferences in cooking.</summary>\n<scene>Characters are discussing the authenticity of Chinese food and personal preferences in cooking.</scene>
 """
 
 chinese_dinner_data = {
-    'movie_name': "Chinese Dinner (2001)",
-    'description': "Hoshino is the owner of a Chinese restaurant. One evening he’s sitting down in a private room to enjoy an elaborate dinner. He is in the mood for celebrating when an unexpected visitor arrives. The longest meal of Hoshino’s life has just begun.",
-    'names': [
-        "Hoshino",
-        "Nagasato",
-        "Yamaneko",
-        "Dokumitsu",
-        "Tachikawa group",
-        "Soudan-gumi",
-        "Kojima Kurosaki"
-    ],
+    'movie_name': _movie,
+    'description': _description,
+    'names': _names,
     'original': chinese_dinner_jp,
     'translated': chinese_dinner_en,
+    'response_map': {
+        "Translate scene 1 batch 1": response_S1B1,
+        "Translate scene 2 batch 1": response_S2B1,
+        "Translate scene 3 batch 1": response_S3B1,
+        "Translate scene 4 batch 1": response_S4B1
+    }
 }
