@@ -1,6 +1,6 @@
 import unittest
 
-from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
+from PySubtitle.Helpers.Tests import PrepareSubtitles, log_info, log_input_expected_result, log_test_name
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
@@ -20,15 +20,6 @@ class ChineseDinnerTests(unittest.TestCase):
         'project': False
     })
 
-    original_srt = chinese_dinner_data.get('original')
-    line_count = 63
-
-    def _prepare_subtitles(self):
-        subtitles : SubtitleFile = SubtitleFile()
-        subtitles.LoadSubtitlesFromString(self.original_srt)
-        subtitles.UpdateProjectSettings(chinese_dinner_data)
-        return subtitles
-
     def test_ChineseDinner(self):
         log_test_name("Chinese Dinner Tests")
 
@@ -36,12 +27,13 @@ class ChineseDinnerTests(unittest.TestCase):
 
         with self.subTest("Load subtitles from string"):
             log_test_name("Load subtitles from string")
-            subtitles.LoadSubtitlesFromString(self.original_srt)
+            original_srt = chinese_dinner_data.get('original')
+            subtitles.LoadSubtitlesFromString(original_srt)
 
             self.assertTrue(subtitles.has_subtitles)
             self.assertIsNotNone(subtitles.originals)
 
-            self.assertEqual(subtitles.linecount, self.line_count)
+            self.assertEqual(subtitles.linecount, 63)
             self.assertEqual(subtitles.linecount, len(subtitles.originals))
             self.assertEqual(subtitles.scenecount, 0)
             self.assertEqual(subtitles.start_line_number, 1)
@@ -94,7 +86,7 @@ class ChineseDinnerTests(unittest.TestCase):
         ]
         batch_containing_line = [(1, 1, 1), (10, 1,1), (32, 2, 1), (55, 2, 1), (61, 4, 1)]
 
-        subtitles = self._prepare_subtitles()
+        subtitles = PrepareSubtitles(chinese_dinner_data)
 
         batcher = SubtitleBatcher(self.options)
         subtitles.AutoBatch(batcher)
@@ -154,8 +146,8 @@ class ChineseDinnerTests(unittest.TestCase):
 
             merged_scene : SubtitleScene = subtitles.GetScene(3)
             self.assertIsNotNone(merged_scene)
-            log_input_expected_result("Batch count", 2, len(merged_scene.batches))
-            self.assertEqual(len(merged_scene.batches), 2)
+            log_input_expected_result("Batch count", 2, merged_scene.size)
+            self.assertEqual(merged_scene.size, 2)
             log_input_expected_result("Line count", 8, merged_scene.linecount)
             self.assertEqual(merged_scene.linecount, 8)
             log_input_expected_result("First line number", 56, merged_scene.first_line_number)
@@ -215,16 +207,14 @@ class ChineseDinnerTests(unittest.TestCase):
             second_batch.summary = "Summary of batch 2"
 
         with self.subTest("Merge batches"):
-            # Merge the batches in the last scene
+            log_test_name("Merge scene 3 batches 1 & 2")
             subtitles.MergeBatches(3, [1,2])
-
-            log_info("Merged batches 1 & 2 in scene 3")
 
             log_input_expected_result("Scene count", 3, subtitles.scenecount)
             self.assertEqual(subtitles.scenecount, 3)
 
-            log_input_expected_result("Batch count", 1, len(merged_scene.batches))
-            self.assertEqual(len(merged_scene.batches), 1)
+            log_input_expected_result("Batch count", 1, merged_scene.size)
+            self.assertEqual(merged_scene.size, 1)
 
             log_input_expected_result("Scene line count", 8, merged_scene.linecount)
             self.assertEqual(merged_scene.linecount, 8)
@@ -253,12 +243,69 @@ class ChineseDinnerTests(unittest.TestCase):
                 "scene 2: Summary of scene 2",
                 ])
 
+        with self.subTest("Auto-split scene 1, batch 1"):
+            log_test_name("Auto-split scene 1, batch 1")
+            scene_1 = subtitles.GetScene(1)
+            self.assertIsNotNone(scene_1)
+
+            min_batch_size = 5
+            scene_1.AutoSplitBatch(1, min_batch_size)
+
+            log_input_expected_result("Scene count", 3, subtitles.scenecount)
+            self.assertEqual(subtitles.scenecount, 3)
+
+            log_input_expected_result("Scene 1 batches", 2, scene_1.size)
+            self.assertEqual(scene_1.size, 2)
+
+            expected_batch_sizes = [14, 16]
+            expected_first_lines = [
+                (1, "いつものように食事が終わるまでは誰も入れないでくれ."),
+                (15, "俺は肩にだぞ.")
+            ]
+
+            for i in range(2):
+                batch = scene_1.GetBatch(i+1)
+                self.assertIsNotNone(batch)
+
+                log_input_expected_result(f"Batch {batch.number} size", expected_batch_sizes[i], batch.size)
+                self.assertEqual(expected_batch_sizes[i], batch.size)
+
+                log_input_expected_result(f"First line ", expected_first_lines[i], (batch.first_line_number, batch.originals[0].text))
+                self.assertEqual(expected_first_lines[i][0], batch.first_line_number)
+                self.assertEqual(expected_first_lines[i][1], batch.originals[0].text)
+
+        with self.subTest("Split scene 1"):
+            log_test_name("Split scene 1")
+
+            subtitles.SplitScene(1, 2)
+
+            log_input_expected_result("Scene count", 4, subtitles.scenecount)
+            self.assertEqual(subtitles.scenecount, 4)
+
+            scene_1 = subtitles.GetScene(1)
+            self.assertIsNotNone(scene_1)
+
+            log_input_expected_result("Scene 1 batches", (1, 14), (scene_1.size, scene_1.linecount))
+            self.assertEqual(scene_1.size, 1)
+            self.assertEqual(scene_1.linecount, 14)
+            self.assertEqual(scene_1.first_line_number, 1)
+            self.assertEqual(scene_1.last_line_number, 14)
+
+            scene_2 = subtitles.GetScene(2)
+            self.assertIsNotNone(scene_2)
+
+            log_input_expected_result("Scene 2 batches", (1, 16), (scene_2.size, scene_2.linecount))
+            self.assertEqual(scene_2.size, 1)
+            self.assertEqual(scene_2.linecount, 16)
+            self.assertEqual(scene_2.first_line_number, 15)
+            self.assertEqual(scene_2.last_line_number, 30)
+
     def test_SubtitleLine(self):
         """
         Test fetching and modifying a subtitle line
         """
         log_test_name("Subtitle line tests")
-        subtitles = self._prepare_subtitles()
+        subtitles = PrepareSubtitles(chinese_dinner_data)
 
         line : SubtitleLine = subtitles.GetOriginalLine(36)
         self.assertIsNotNone(line)
