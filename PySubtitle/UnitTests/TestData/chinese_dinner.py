@@ -271,13 +271,11 @@ chinese_dinner_jp = """
 chinese_dinner_en = """
 1
 00:02:12,250 --> 00:02:15,630
-As usual,
-don't let anyone in until the meal is over.
+As usual, don't let anyone in until the meal is over.
 
 2
 00:03:00,780 --> 00:03:25,700
-It's Hoshino, ordering the usual.
-Hoshino, asking for the boss.
+It's Hoshino, ordering the usual. Hoshino, asking for the boss.
 
 3
 00:03:29,140 --> 00:03:31,040
@@ -285,8 +283,7 @@ Everything is going smoothly.
 
 4
 00:03:32,300 --> 00:03:34,980
-There's a call at 9,
-so please take care of it.
+There's a call at 9, so please take care of it.
 
 5
 00:03:36,960 --> 00:03:38,060
@@ -314,8 +311,7 @@ If you want to eat here,
 
 11
 00:05:21,910 --> 00:05:25,670
-you'll have to make a
-reservation for another day.
+you'll have to make a reservation for another day.
 
 12
 00:05:30,660 --> 00:05:32,820
@@ -343,8 +339,7 @@ What do you want?
 
 18
 00:06:41,530 --> 00:06:44,130
-I'll give you anything you want.
-Just say it.
+I'll give you anything you want. Just say it.
 
 19
 00:06:48,000 --> 00:06:50,200
@@ -372,8 +367,7 @@ These days, even civilians carry guns.
 
 25
 00:08:26,970 --> 00:08:30,010
-You're confident.
-Do you think I won't shoot?
+You're confident. Do you think I won't shoot?
 
 26
 00:08:30,550 --> 00:08:33,670
@@ -381,13 +375,11 @@ The body will be here, in my restaurant.
 
 27
 00:08:34,670 --> 00:08:40,490
-The staff won't see or hear anything.
-What will you do?
+The staff won't see or hear anything. What will you do?
 
 28
 00:08:43,690 --> 00:08:47,370
-Your life isn't included
-in the price for the hit.
+Your life isn't included in the price for the hit.
 
 29
 00:08:48,890 --> 00:08:50,370
@@ -411,8 +403,7 @@ Tonight is a bento.
 
 34
 00:11:29,540 --> 00:13:40,620
-Tonight is a bento, tonight is a bento.
-If you can do it, go ahead.
+Tonight is a bento, tonight is a bento. If you can do it, go ahead.
 
 35
 00:13:46,840 --> 00:15:31,500
@@ -432,8 +423,7 @@ Tell me, is it the professional's code?
 
 39
 00:16:12,260 --> 00:16:16,460
-The wind is strong.
-I hope it clears up tomorrow.
+The wind is strong. I hope it clears up tomorrow.
 
 40
 00:16:23,220 --> 00:16:25,700
@@ -501,18 +491,15 @@ I don't want the money, but I value my life.
 
 56
 00:22:32,480 --> 00:22:41,287
-I'm curious,
-what kind of person becomes an assassin?
+I'm curious, what kind of person becomes an assassin?
 
 57
 00:22:41,337 --> 00:22:47,760
-Especially one dressed like you,
-that's quite rare.
+Especially one dressed like you, that's quite rare.
 
 58
 00:22:49,300 --> 00:22:52,980
-We're all going to die anyway,
-so you might as well tell me.
+We're all going to die anyway, so you might as well tell me.
 
 59
 00:22:58,390 --> 00:23:13,230

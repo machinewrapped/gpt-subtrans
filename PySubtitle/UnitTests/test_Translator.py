@@ -85,7 +85,7 @@ class SubtitleTranslatorTests(unittest.TestCase):
         'scene_threshold': 60.0,
         'max_batch_size': 100,
         'preprocess_subtitles': False,
-        'postprocess_translation': True,
+        'postprocess_translation': False,
         'project': 'test',
         'retry_on_error': False,
         'stop_on_error': True
