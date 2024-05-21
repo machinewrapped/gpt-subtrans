@@ -548,6 +548,8 @@ chinese_dinner_data = {
     'names': _names,
     'original': chinese_dinner_jp,
     'translated': chinese_dinner_en,
+    'expected_postprocess_differences': 13,
+    'expected_postprocess_unchanged': 51,
     'response_map': {
         "Translate scene 1 batch 1": response_S1B1,
         "Translate scene 2 batch 1": response_S2B1,

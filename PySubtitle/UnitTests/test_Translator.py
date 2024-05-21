@@ -162,3 +162,42 @@ class SubtitleTranslatorTests(unittest.TestCase):
         self.assertEqual(reference_scene.linecount, scene.linecount)
 
 
+    def test_PostProcessTranslation(self):
+        log_test_name("Post process translation tests")
+
+        test_data = [ chinese_dinner_data ]
+
+        for data in test_data:
+            log_test_name(f"Testing translation of {data.get('movie_name')}")
+
+            provider = DummyProvider(data=data)
+
+            originals : SubtitleFile = PrepareSubtitles(data, 'original')
+            reference : SubtitleFile = PrepareSubtitles(data, 'translated')
+
+            self.assertEqual(originals.linecount, reference.linecount)
+
+            batcher = SubtitleBatcher(self.options)
+            originals.AutoBatch(batcher)
+            reference.AutoBatch(batcher)
+
+            self.assertEqual(len(originals.scenes), len(reference.scenes))
+
+            options = deepcopy(self.options)
+            options.add('postprocess_translation', True)
+            translator = SubtitleTranslator(options, translation_provider=provider)
+            translator.TranslateSubtitles(originals)
+
+            differences = sum(1 if reference.originals[i] != originals.translated[i] else 0 for i in range(len(originals.originals)))
+            unchanged = sum (1 if reference.originals[i] == originals.translated[i] else 0 for i in range(len(originals.originals)))
+
+            expected_differences = data['expected_postprocess_differences']
+            expected_unchanged = data['expected_postprocess_unchanged']
+
+            log_input_expected_result("Differences", expected_differences, differences)
+            self.assertEqual(differences, expected_differences)
+
+            log_input_expected_result("Unchanged", expected_unchanged, unchanged)
+            self.assertEqual(unchanged, expected_unchanged)
+
+
