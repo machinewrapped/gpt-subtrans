@@ -242,10 +242,6 @@ class SubtitleTranslator:
                 #context['names'] = translation.names or context.get('names', []) or options.get('names')
                 batch.UpdateContext(context)
 
-            # Post-process the translation
-            if self.postprocessor:
-                batch.translated = self.postprocessor.PostprocessSubtitles(batch.translated)
-
     def PreprocessBatch(self, batch : SubtitleBatch, context : dict):
         """
         Preprocess the batch before translation
@@ -318,6 +314,10 @@ class SubtitleTranslator:
 
         # Perform substitutions on the output
         translation.PerformSubstitutions(self.substitutions)
+
+        # Post-process the translation
+        if self.postprocessor:
+            batch.translated = self.postprocessor.PostprocessSubtitles(batch.translated)
 
         logging.info(f"Scene {batch.scene} batch {batch.number}: {len(batch.translated or [])} lines and {len(batch.untranslated or [])} untranslated.")
 
