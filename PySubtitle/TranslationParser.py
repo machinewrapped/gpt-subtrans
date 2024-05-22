@@ -13,7 +13,7 @@ default_pattern = regex.compile(
     r"#(?P<number>\d+)"
     r"(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?"
     r"[\s\r\n]+Translation>"
-    r"(?:[\s\r\n]+(?P<body>[\s\S]*?))?"
+    r"(?:[\s\r\n]?(?P<body>[\s\S]*?))?"
     r"(?=\n#\d|\Z)",
     regex.MULTILINE)
 

@@ -161,7 +161,7 @@ class SubtitleProcessor:
         text = line.text.strip()
 
         if not text:
-            return line
+            return [line]
 
         if self.remove_filler_words:
             text = RemoveFillerWords(text, self.filler_words_pattern)
