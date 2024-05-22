@@ -13,7 +13,7 @@ from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
-from GUI.Commands.ReparseBatchesCommand import ReparseTranslationsCommand
+from GUI.Commands.ReparseTranslationsCommand import ReparseTranslationsCommand
 from GUI.Commands.ResumeTranslationCommand import ResumeTranslationCommand
 from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
