@@ -224,7 +224,8 @@ class SubtitleProcessorTests(unittest.TestCase):
             { 'remove_filler_words': True, 'filler_words': standard_filler_words, 'break_long_lines': True, 'max_single_line_length': 30, 'min_single_line_length': 10},
             [
                 "9\n00:01:00,000 --> 00:01:05,000\nThis subtitle has some filler\nwords that should be removed."
-            ])
+            ]),
+        (["227\n00:22:53,260 --> 00:22:56,196\n"], { }, [ "227\n00:22:53,260 --> 00:22:56,196\n"])
     ]
 
     def test_Postprocess(self):
