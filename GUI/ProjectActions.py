@@ -13,6 +13,7 @@ from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
+from GUI.Commands.ReparseBatchesCommand import ReparseTranslationsCommand
 from GUI.Commands.ResumeTranslationCommand import ResumeTranslationCommand
 from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
@@ -73,6 +74,7 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Validate Provider Settings', self._check_provider_settings)
         ProjectDataModel.RegisterActionHandler('Show Provider Settings', self._show_provider_settings)
         ProjectDataModel.RegisterActionHandler('Translate Selection', self._translate_selection)
+        ProjectDataModel.RegisterActionHandler('Reparse Translation', self._reparse_selection)
         ProjectDataModel.RegisterActionHandler('Update Scene', self._update_scene)
         ProjectDataModel.RegisterActionHandler('Update Batch', self._update_batch)
         ProjectDataModel.RegisterActionHandler('Update Line', self._update_line)
@@ -238,6 +240,20 @@ class ProjectActions(QObject):
                 command = TranslateSceneCommand(scene.number, batch_numbers, line_numbers, datamodel)
 
             self._issue_command(command)
+
+    def _reparse_selection(self, datamodel : ProjectDataModel, selection : ProjectSelection):
+        """
+        Reparse selected batches
+        """
+        if not selection.AnyBatches():
+            raise ActionError("Nothing selected to reparse")
+
+        self._validate_datamodel(datamodel)
+
+        batch_numbers = [ (batch.scene, batch.number) for batch in selection.selected_batches ]
+        line_numbers = [ line.number for line in selection.selected_lines ]
+        command = ReparseTranslationsCommand(batch_numbers, line_numbers, datamodel)
+        self._issue_command(command)
 
     def _update_scene(self, datamodel : ProjectDataModel, scene_number : int, update : dict):
         """

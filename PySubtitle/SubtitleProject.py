@@ -4,9 +4,11 @@ import logging
 import threading
 from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossibleError
+from PySubtitle.SubtitleError import SubtitleError, TranslationAbortedError
 from PySubtitle.SubtitleFile import SubtitleFile
 
+from PySubtitle.SubtitleBatch import SubtitleBatch
+from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleSerialisation import SubtitleDecoder, SubtitleEncoder
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.TranslationEvents import TranslationEvents
@@ -302,7 +304,7 @@ class SubtitleProject:
         translator.events.batch_translated += self._on_batch_translated
 
         try:
-            scene = self.subtitles.GetScene(scene_number)
+            scene : SubtitleScene = self.subtitles.GetScene(scene_number)
 
             translator.TranslateScene(self.subtitles, scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
 
@@ -317,6 +319,25 @@ class SubtitleProject:
         finally:
             translator.events.preprocessed -= self._on_preprocessed
             translator.events.batch_translated -= self._on_batch_translated
+
+    def ReparseBatchTranslation(self, translator : SubtitleTranslator, scene_number : int, batch_number : int, line_numbers : list[int] = None):
+        """
+        Reparse the translation of a batch of subtitles
+        """
+        batch : SubtitleBatch = self.subtitles.GetBatch(scene_number, batch_number)
+
+        if not batch:
+            raise SubtitleError(f"Unable to find batch {batch_number} in scene {scene_number}")
+
+        if not batch.translation:
+            raise SubtitleError(f"Batch {batch} is not translated")
+
+        with self.lock:
+            translator.ProcessBatchTranslation(batch, batch.translation, line_numbers=line_numbers)
+
+            self.events.batch_translated(batch)
+
+        return batch
 
     def _start_autosave_thread(self):
         self.stop_event = threading.Event()

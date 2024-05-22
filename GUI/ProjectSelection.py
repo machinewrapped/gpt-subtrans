@@ -11,20 +11,21 @@ class SelectionScene:
 
     def __getitem__(self, index):
         return self.batches[index]
-    
+
     def __setitem__(self, index, value):
         self.batches[index] = value
 
     def __str__(self) -> str:
         return f"scene {self.number} [*]" if self.selected else f"scene {self.number}"
-    
+
     def __repr__(self) -> str:
         return str(self)
 
 class SelectionBatch:
-    def __init__(self, batch_number : tuple, selected : bool = True) -> None:
+    def __init__(self, batch_number : tuple, selected : bool = True, translated : bool = False) -> None:
         self.scene, self.number = batch_number
         self.selected = selected
+        self.translated = translated
 
     @property
     def key(self):
@@ -33,7 +34,7 @@ class SelectionBatch:
     def __str__(self) -> str:
         str = f"scene {self.scene}:batch {self.number}"
         return f"{str} [*]" if self.selected else str
-    
+
     def __repr__(self) -> str:
         return str(self)
 
@@ -51,7 +52,7 @@ class SelectionLine:
     def __str__(self) -> str:
         str = f"scene {self.scene}:batch {self.batch}:line {self.number}"
         return f"{str} [*]" if self.selected else str
-    
+
     def __repr__(self) -> str:
         return str(self)
 
@@ -66,11 +67,11 @@ class ProjectSelection():
     @property
     def scene_numbers(self) -> list[int]:
         return sorted([ number for number in self.scenes.keys() ])
-    
+
     @property
     def selected_scenes(self) -> list[SelectionScene]:
         return [ scene for scene in self.scenes.values() if scene.selected]
-    
+
     @property
     def batch_numbers(self) -> list[(int,int)]:
         return sorted([ (batch.scene, batch.number) for batch in self.batches.values() ])
@@ -82,20 +83,20 @@ class ProjectSelection():
     @property
     def line_numbers(self) -> list[SelectionLine]:
         return sorted([ number for number in self.lines.keys() if number is not None ])
-    
-    @property 
+
+    @property
     def selected_lines(self) -> list[SelectionLine]:
         return [line for line in self.lines.values() if line.selected ]
 
     def Any(self) -> bool:
         return self.scene_numbers or self.batch_numbers or self.lines
-    
+
     def AnyScenes(self) -> bool:
         return True if self.selected_scenes else False
-    
+
     def OnlyScenes(self) -> bool:
         return self.selected_scenes and not (self.selected_batches or self.selected_lines)
-    
+
     def AnyBatches(self) -> bool:
         return True if self.selected_batches else False
 
@@ -104,7 +105,7 @@ class ProjectSelection():
 
     def AnyLines(self) -> bool:
         return self.selected_lines
-    
+
     def AllLinesInSameBatch(self) -> bool:
         """
         Are all selected lines part of the same batch?
@@ -145,7 +146,13 @@ class ProjectSelection():
             return False
 
         return True
-    
+
+    def AllTranslated(self) -> bool:
+        """
+        Are all selected batches translated?
+        """
+        return all(batch.translated for batch in self.selected_batches)
+
     def IsFirstInBatchSelected(self) -> bool:
         """
         Check whether the first line of any batch is selected
@@ -156,7 +163,7 @@ class ProjectSelection():
                 return True
 
         return False
-    
+
     def IsFirstOrLastInBatchSelected(self) -> bool:
         """
         Check whether the first or last line of any batch is selected
@@ -168,20 +175,20 @@ class ProjectSelection():
                 line_dict[key].selected = line_dict[key].selected or line.selected
             else:
                 line_dict[key] = line
-        
+
         for batch_lines in groupby(sorted(line_dict.values(), key=lambda x: (x.scene, x.batch, x.number)), key=lambda x: (x.scene, x.batch)):
             batch_lines = list(batch_lines[1])
             if batch_lines[0].selected or batch_lines[-1].selected:
                 return True
-        
+
         return False
-    
+
     def IsFirstInSceneSelected(self) -> bool:
         """
         Check whether the first or last batch of any scene is selected
         """
         return next((batch.number for batch in self.selected_batches if batch.number == 1), False) and True
-    
+
     def IsFirstOrLastInSceneSelected(self) -> bool:
         """
         Check whether the first or last batch of any scene is selected
@@ -201,7 +208,7 @@ class ProjectSelection():
         Hierarchical representation of selected lines/batches/scenes
         """
         scenes = {}
-        
+
         for scene in self.selected_scenes:
             scenes[scene.number] = {}
         for batch in self.selected_batches:
@@ -232,7 +239,7 @@ class ProjectSelection():
         elif isinstance(item, BatchItem):
             key = (item.scene, item.number)
             if selected or not key in self.batches:
-                batch = SelectionBatch((item.scene, item.number), selected)
+                batch = SelectionBatch((item.scene, item.number), selected=selected, translated=item.translated)
                 self.batches[key] = batch
                 if not self.scenes.get(item.scene):
                     self.AppendItem(model, model.parent(index), False)
@@ -264,7 +271,7 @@ class ProjectSelection():
             return f"{self.str_scenes}"
         else:
             return "Nothing selected"
-        
+
     def __repr__(self):
         return str(self)
 
@@ -285,7 +292,7 @@ class ProjectSelection():
     @property
     def str_lines(self):
         return self._count(len(self.lines), "line", "lines")
-    
+
     @property
     def str_selected_lines(self):
         return self._count(len(self.selected_lines), "line", "lines")

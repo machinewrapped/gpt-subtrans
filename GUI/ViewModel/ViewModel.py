@@ -367,7 +367,7 @@ class ProjectViewModel(QStandardItemModel):
 
         self.endInsertRows()
 
-    def UpdateLine(self, scene_number, batch_number, line_number, line_update : dict):
+    def UpdateLine(self, scene_number : int, batch_number : int, line_number : int, line_update : dict):
         logging.debug(f"Updating line ({scene_number}, {batch_number}, {line_number})")
         if not isinstance(line_update, dict):
             raise ViewModelError("Expected a patch dictionary")
@@ -380,7 +380,7 @@ class ProjectViewModel(QStandardItemModel):
         line_item : LineItem = batch_item.lines[line_number]
         line_item.Update(line_update)
 
-    def UpdateLines(self, scene_number, batch_number, lines):
+    def UpdateLines(self, scene_number : int, batch_number : int, lines : dict):
         logging.debug(f"Updating lines in ({scene_number}, {batch_number})")
         scene_item : SceneItem = self.model[scene_number]
         batch_item : BatchItem = scene_item.batches[batch_number]

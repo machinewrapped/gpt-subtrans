@@ -24,7 +24,8 @@ class BatchItem(ViewModelItem):
             'start': batch.txt_start,
             'end': batch.srt_end,
             'summary': batch.summary,
-            'errors': self._get_errors(batch.errors)
+            'errors': self._get_errors(batch.errors),
+            'translated': batch.translation is not None
         }
 
         # cache on demand
@@ -60,6 +61,10 @@ class BatchItem(ViewModelItem):
     @property
     def all_translated(self) -> bool:
         return self.translated_count == self.line_count
+
+    @property
+    def translated(self) -> bool:
+        return self.batch_model.get('translated')
 
     @property
     def start(self) -> str:
