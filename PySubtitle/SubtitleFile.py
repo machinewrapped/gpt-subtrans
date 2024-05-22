@@ -218,13 +218,13 @@ class SubtitleFile:
         """
         Write original subtitles to an SRT file
         """
-        self.sourcepath = path or self.sourcepath
-        if not self.sourcepath:
+        path = path or self.sourcepath
+        if not path:
             raise ValueError("No file path set")
 
         with self.lock:
             srtfile = srt.compose([ line.item for line in self.originals ], reindex=False)
-            with open(self.sourcepath, 'w', encoding=default_encoding) as f:
+            with open(path, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
     def SaveTranslation(self, outputpath : str = None):
