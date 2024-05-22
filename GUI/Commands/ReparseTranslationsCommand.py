@@ -6,6 +6,8 @@ from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 import logging
 
+from PySubtitle.SubtitleValidator import SubtitleValidator
+
 #############################################################
 
 class ReparseTranslationsCommand(Command):
@@ -28,10 +30,13 @@ class ReparseTranslationsCommand(Command):
         translation_provider = self.datamodel.translation_provider
 
         translator = SubtitleTranslator(options, translation_provider)
+        validator = SubtitleValidator(options)
 
         for scene_number, batch_number in self.batch_numbers:
             try:
                 batch : SubtitleBatch = project.ReparseBatchTranslation(translator, scene_number, batch_number, line_numbers=self.line_numbers)
+
+                validator.ValidateBatch(batch)
 
                 self.model_update.batches.update((scene_number, batch_number), {
                     'summary' : batch.summary,

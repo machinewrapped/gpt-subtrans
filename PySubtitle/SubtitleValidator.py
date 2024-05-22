@@ -16,7 +16,7 @@ class SubtitleValidator:
         if batch.translated:
             self.ValidateTranslations(batch.translated)
 
-        if not batch.all_translated:
+        if batch.any_translated and not batch.all_translated:
             self.errors.append(UntranslatedLinesError(f"No translation found for {len(batch.originals) - len(batch.translated)} lines", translation=batch.translation))
 
         batch.errors = self.errors
@@ -27,7 +27,7 @@ class SubtitleValidator:
         """
         if not translated:
             return [ UntranslatedLinesError(f"Failed to extract any translations") ]
-        
+
         max_characters = self.options.get('max_characters')
         max_newlines = self.options.get('max_newlines')
 
@@ -63,5 +63,5 @@ class SubtitleValidator:
 
         if too_many_newlines:
             errors.append(TooManyNewlinesError(f"One or more lines contain more than {max_newlines} newlines", lines=too_many_newlines))
-        
+
         return errors
