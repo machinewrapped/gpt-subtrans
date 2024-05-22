@@ -53,20 +53,6 @@ Translation>
 diejenigen, die sich dem Wandel widersetzen,
 könnten sich zurückgelassen finden.
 
-Example (translating to English, preserving meaning):
-
-#100
-Original>
-La situación exige que lo usemos ahora,
-Translation>
-I was going to save it for a rainy day,
-
-#101
-Original>
-aunque pensaba guardarlo para un día lluvioso.
-Translation>
-but the situation demands that we use it now.
-
 Example (translating to French, correcting errors and punctuation):
 
 #200
@@ -74,6 +60,20 @@ Original>
 Were going to the market, aren't we
 Translation>
 Nous allons au marché, n'est-ce pas ?
+
+Example (translating to English, adapting an idiom):
+
+#100
+Original>
+Al mal tiempo,
+Translation>
+When life gives you lemons,
+
+#101
+Original>
+buena cara.
+Translation>
+make lemonade.
 
 ### retry_instructions
 There was an issue with the previous translation.
