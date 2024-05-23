@@ -77,6 +77,10 @@ class TranslationParser:
 
         self.errors = self.ValidateTranslations()
 
+        if self.errors and self.translated:
+            self._fix_unclosed_tags()
+            self.errors = self.ValidateTranslations()
+
         return self.translated
 
     def FindMatches(self, text, template):
@@ -165,3 +169,14 @@ class TranslationParser:
 
         validator = SubtitleValidator(self.options)
         return validator.ValidateTranslations(self.translated)
+
+    def _fix_unclosed_tags(self):
+        """
+        Check if the last line of the translation picked up a summary without a closing tag
+        """
+        last_line : SubtitleLine = self.translated[-1]
+        split = last_line.text.split("<summary>")
+        if len (split) > 1:
+            logging.warning(f"Fixed unclosed <summary> tag in last line of translation")
+            self.translated[-1].text = split[0].trim()
+
