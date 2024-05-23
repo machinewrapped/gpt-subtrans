@@ -22,7 +22,7 @@ class SubtitleEncoder(json.JSONEncoder):
             return {
                 "__class": classname(TranslationError),
                 "type": classname(obj),
-                "problem": str(obj)             
+                "problem": str(obj)
             }
 
         _class = classname(obj)
@@ -36,7 +36,7 @@ class SubtitleEncoder(json.JSONEncoder):
     def serialize_object(self, obj):
         if obj is None:
             return None
-        
+
         if isinstance(obj, SubtitleFile):
             return {
                 "sourcepath": obj.sourcepath,
@@ -91,8 +91,9 @@ class SubtitleEncoder(json.JSONEncoder):
                 "supports_system_messages": obj.supports_system_messages,
                 "supports_system_prompt": obj.supports_system_prompt,
                 "conversation": obj.conversation,
-
             }
+        elif hasattr(obj, "name"):
+            return obj.name
 
         return super().default(obj)
 
@@ -133,7 +134,7 @@ class SubtitleDecoder(json.JSONDecoder):
                     'synopsis': dct.get('synopsis'),
                     'names': dct.get('names') or dct.get('characters')
                     }
-                
+
                 if isinstance(content['text'], list):
                     # This shouldn't happen, but try to recover if it does
                     content['text'] = '\n'.join(content['text'])
@@ -151,6 +152,6 @@ class SubtitleDecoder(json.JSONDecoder):
                 return obj
             elif class_name == classname(TranslationError):
                 return TranslationError(dct.get('message'))
-            
+
         return dct
 
