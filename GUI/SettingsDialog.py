@@ -56,6 +56,7 @@ class SettingsDialog(QDialog):
             'min_single_line_length': (int, "Minimum length of a single line of subtitles"),
             'remove_filler_words': (bool, "Remove filler_words and filler words from subtitles"),
             'filler_words': (str, "Comma-separated list of filler_words to remove"),
+            'save_preprocessed_subtitles': (bool, "Save preprocessed subtitles to a separate file"),
         },
         'Advanced': {
             'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation"),
@@ -76,7 +77,8 @@ class SettingsDialog(QDialog):
         'Processing' : [
             { 'preprocess_subtitles': True },
             { 'postprocess_translation': True }
-        ]
+        ],
+        'save_preprocessed_subtitles': { 'preprocess_subtitles': True },
     }
 
     def __init__(self, options : Options, provider_cache = None, parent=None, focus_provider_settings : bool = False):
@@ -125,6 +127,7 @@ class SettingsDialog(QDialog):
 
         # Conditionally hide or show tabs
         self._update_section_visibility()
+        self._update_setting_visibility()
 
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
@@ -212,6 +215,38 @@ class SettingsDialog(QDialog):
                     visible = all(self.settings.get(key) == value for key, value in dependencies.items())
 
                 self.tabs.setTabVisible(self.tabs.indexOf(section_tab), visible)
+    
+    def _update_setting_visibility(self):
+        """
+        Update the visibility of individual settings based on dependencies
+        """
+        for key, field in self.widgets.items():
+            if key in self.VISIBILITY_DEPENDENCIES:
+                dependencies = self.VISIBILITY_DEPENDENCIES.get(key)
+                if dependencies:
+                    if isinstance(dependencies, list):
+                        visible = any(all(self.settings.get(key) == value for key, value in dependency.items()) for dependency in dependencies)
+                    else:
+                        visible = all(self.settings.get(key) == value for key, value in dependencies.items())
+
+                    self._update_setting_row_visibility(field, visible)
+    
+    def _update_setting_row_visibility(self, field, visible):
+        """
+        Update the visibility of a setting field
+        """
+        # Find the layout that contains the field
+        # Find the parent row that contains the widget
+        parent_widget : QWidget = field.parentWidget()      
+        layout : QFormLayout = parent_widget.layout()
+        if not layout:
+            raise ValueError("Field is not in a layout")
+
+        # Find the index of the row in the layout
+        for row in range(layout.rowCount()):
+            if layout.itemAt(row, QFormLayout.FieldRole).widget() == field:
+                layout.setRowVisible(row, visible)
+
 
     def _initialise_translation_provider(self):
         """
@@ -298,10 +333,6 @@ class SettingsDialog(QDialog):
             self.settings[key] = value
             self._update_instruction_file()
 
-        elif key == 'preprocess_subtitles' or key == 'postprocess_translation':
-            self.settings[key] = value
-            self._update_section_visibility()
-
         elif section_name == self.PROVIDER_SECTION:
             provider = self.settings.get('provider')
             self.provider_settings[provider][key] = value
@@ -310,6 +341,8 @@ class SettingsDialog(QDialog):
                 self._refresh_provider_options()
         else:
             self.settings[key] = value
+            self._update_section_visibility()
+            self._update_setting_visibility()
 
     def _update_instruction_file(self):
         """
