@@ -15,7 +15,7 @@ try:
         name = "Gemini"
 
         information = """
-        <p>Select the <a href="https://ai.google.dev/models/gemini">AI model</a> to use as a translator.</p> 
+        <p>Select the <a href="https://ai.google.dev/models/gemini">AI model</a> to use as a translator.</p>
         <p>Please note that the Gemini API can currently only be accessed from IP addresses in <a href="https://ai.google.dev/available_regions">certain regions</a>.</p>
         <p>You must ensure that the Generative Language API is enabled for your project and/or API key.</p>
         """
@@ -40,7 +40,7 @@ try:
         @property
         def api_key(self):
             return self.settings.get('api_key')
-        
+
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             genai.configure(api_key=self.api_key)
             client_settings = self.settings.copy()
@@ -56,7 +56,7 @@ try:
             options = {
                 'api_key': (str, "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)")
             }
-            
+
             if self.api_key:
                 try:
                     models = self.available_models
@@ -72,7 +72,7 @@ try:
 
                 except FailedPrecondition as e:
                     options['model'] = (["Unable to access the Gemini API"], str(e))
-                    
+
             return options
 
         def GetAvailableModels(self) -> list[str]:
@@ -93,8 +93,8 @@ try:
             if not self.api_key:
                 self.validation_message = "API Key is required"
                 return False
-            
-            if not self.gemini_models:
+
+            if not self.GetAvailableModels():
                 self.validation_message = "Unable to retrieve models. Gemini API may be unavailable in your region."
                 return False
 
@@ -120,7 +120,7 @@ try:
             for m in self.gemini_models:
                 if m.display_name == display_name:
                     return m.name
-            
+
             raise ValueError(f"Model {display_name} not found")
 
 except ImportError:
