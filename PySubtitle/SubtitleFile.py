@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 import logging
 import threading
@@ -22,7 +23,7 @@ class SubtitleFile:
     """
     High level class for manipulating subtitle files
     """
-    project_settings = {
+    DEFAULT_PROJECT_SETTINGS = {
         'provider': None,
         'model': None,
         'prompt': None,
@@ -48,7 +49,7 @@ class SubtitleFile:
         self.sourcepath = GetInputPath(filepath)
         self.outputpath = outputpath or None
 
-        self.settings = self.project_settings
+        self.settings = deepcopy(self.DEFAULT_PROJECT_SETTINGS)
 
     @property
     def movie_name(self):
@@ -283,7 +284,7 @@ class SubtitleFile:
             return self.UpdateProjectSettings(settings.options)
 
         with self.lock:
-            self.settings.update({key: settings[key] for key in settings if key in self.project_settings})
+            self.settings.update({key: settings[key] for key in settings if key in self.DEFAULT_PROJECT_SETTINGS})
 
             self.settings['names'] = ParseNames(self.settings.get('names'))
             self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions'))
