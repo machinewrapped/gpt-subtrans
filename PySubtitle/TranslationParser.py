@@ -178,5 +178,5 @@ class TranslationParser:
         split = last_line.text.split("<summary>")
         if len (split) > 1:
             logging.warning(f"Fixed unclosed <summary> tag in last line of translation")
-            self.translated[-1].text = split[0].trim()
+            self.translated[-1].text = split[0].strip()
 
