@@ -31,8 +31,6 @@ class SettingsDialog(QDialog):
             'instruction_file': (str, "Instructions for the translation provider to follow"),
             'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
             'theme': [],
-            'preprocess_subtitles': (bool, "Preprocess subtitles when they are loaded"),
-            'postprocess_translation': (bool, "Postprocess subtitles after translation"),
             'autosave': (bool, "Automatically save the project after each translation batch"),
             'write_backup': (bool, "Save a backup copy of the project when opening it"),
             # 'autosplit_incomplete': (bool, "If true, incomplete translations will be split into smaller batches and retried"),
@@ -44,6 +42,9 @@ class SettingsDialog(QDialog):
             'provider_settings': TranslationProvider,
         },
         'Processing': {
+            'preprocess_subtitles': (bool, "Preprocess subtitles when they are loaded"),
+            'postprocess_translation': (bool, "Postprocess subtitles after translation"),
+            'save_preprocessed_subtitles': (bool, "Save preprocessed subtitles to a separate file"),
             'max_line_duration': (float, "Maximum duration of a single line of subtitles"),
             'min_line_duration': (float, "Minimum duration of a single line of subtitles"),
             'min_split_chars': (int, "Minimum number of characters to split a line at"),
@@ -72,10 +73,30 @@ class SettingsDialog(QDialog):
         }
     }
 
+    _preprocessor_setting = { 'preprocess_subtitles': True }
+    _postprocessor_setting = { 'postprocess_translation': True }
+    _prepostprocessor_setting = [ _preprocessor_setting, _postprocessor_setting ]
+
     VISIBILITY_DEPENDENCIES = {
-        'Processing' : [
-            { 'preprocess_subtitles': True },
-            { 'postprocess_translation': True }
+        # 'Processing' : [
+        #     { 'preprocess_subtitles': True },
+        #     { 'postprocess_translation': True }
+        # ],
+        'save_preprocessed_subtitles': _preprocessor_setting,
+        'max_line_duration': _preprocessor_setting,
+        'min_line_duration': _preprocessor_setting,
+        'min_split_chars': _preprocessor_setting,
+        'whitespaces_to_newline': _preprocessor_setting,
+        'break_dialog_on_one_line': _prepostprocessor_setting,
+        'normalise_dialog_tags': _prepostprocessor_setting,
+        'full_width_punctuation': _prepostprocessor_setting,
+        'break_long_lines': _postprocessor_setting,
+        'max_single_line_length': { 'postprocess_translation' : True, 'break_long_lines': True },
+        'min_single_line_length': { 'postprocess_translation' : True, 'break_long_lines': True },
+        'remove_filler_words': _prepostprocessor_setting,
+        'filler_words': [
+            { 'preprocess_subtitles': True, 'remove_filler_words': True },
+            { 'postprocess_translation' : True, 'remove_filler_words': True }
         ]
     }
 
@@ -125,6 +146,7 @@ class SettingsDialog(QDialog):
 
         # Conditionally hide or show tabs
         self._update_section_visibility()
+        self._update_setting_visibility()
 
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
@@ -213,6 +235,38 @@ class SettingsDialog(QDialog):
 
                 self.tabs.setTabVisible(self.tabs.indexOf(section_tab), visible)
 
+    def _update_setting_visibility(self):
+        """
+        Update the visibility of individual settings based on dependencies
+        """
+        for key, field in self.widgets.items():
+            if key in self.VISIBILITY_DEPENDENCIES:
+                dependencies = self.VISIBILITY_DEPENDENCIES.get(key)
+                if dependencies:
+                    if isinstance(dependencies, list):
+                        visible = any(all(self.settings.get(key) == value for key, value in dependency.items()) for dependency in dependencies)
+                    else:
+                        visible = all(self.settings.get(key) == value for key, value in dependencies.items())
+
+                    self._update_setting_row_visibility(field, visible)
+
+    def _update_setting_row_visibility(self, field, visible):
+        """
+        Update the visibility of a setting field
+        """
+        # Find the layout that contains the field
+        # Find the parent row that contains the widget
+        parent_widget : QWidget = field.parentWidget()
+        layout : QFormLayout = parent_widget.layout()
+        if not layout:
+            raise ValueError("Field is not in a layout")
+
+        # Find the index of the row in the layout
+        for row in range(layout.rowCount()):
+            if layout.itemAt(row, QFormLayout.FieldRole).widget() == field:
+                layout.setRowVisible(row, visible)
+
+
     def _initialise_translation_provider(self):
         """
         Initialise translation provider
@@ -298,10 +352,6 @@ class SettingsDialog(QDialog):
             self.settings[key] = value
             self._update_instruction_file()
 
-        elif key == 'preprocess_subtitles' or key == 'postprocess_translation':
-            self.settings[key] = value
-            self._update_section_visibility()
-
         elif section_name == self.PROVIDER_SECTION:
             provider = self.settings.get('provider')
             self.provider_settings[provider][key] = value
@@ -310,6 +360,8 @@ class SettingsDialog(QDialog):
                 self._refresh_provider_options()
         else:
             self.settings[key] = value
+            self._update_section_visibility()
+            self._update_setting_visibility()
 
     def _update_instruction_file(self):
         """

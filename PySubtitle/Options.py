@@ -40,6 +40,7 @@ default_options = {
     'min_single_line_length': int(os.getenv('MIN_SINGLE_LINE_LENGTH', 8)),
     'postprocess_translation': env_bool('POSTPROCESS_TRANSLATION', False),
     'preprocess_subtitles': env_bool('PREPROCESS_SUBTITLES', False),
+    'save_preprocessed_subtitles': env_bool('SAVE_PREPROCESSED_SUBTITLES', False),
     'break_long_lines': env_bool('BREAK_LONG_LINES', True),
     'break_dialog_on_one_line': env_bool('break_dialog_on_one_line', True),
     'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.0)),
