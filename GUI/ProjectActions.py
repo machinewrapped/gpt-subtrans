@@ -42,6 +42,7 @@ class ActionError(Exception):
 class ProjectActions(QObject):
     issueCommand = Signal(object)
     actionError = Signal(object)
+    undoLastCommand = Signal()
     saveSettings = Signal()
     showSettings = Signal()
     showProviderSettings = Signal()
@@ -67,6 +68,7 @@ class ProjectActions(QObject):
         self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
         self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
         self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
+        self.AddAction("Undo", self.undoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', 'Undo last action')
         self.AddAction('About', self.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
         #TODO: Mixing different concepts of "action" here, is there a better separation?

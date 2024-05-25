@@ -32,11 +32,12 @@ class DeleteLinesCommand(Command):
         if not self.deletions:
             raise CommandError("No lines were deleted", command=self)
 
-        # Update the viewmodel. Currently assumes original and translated lines are deleted together
+        # Update the viewmodel. Priginal and translated lines are currently linked, deleting one means deleting both
         for scene_number, batch_number, originals, translated in self.deletions:
             for line in originals:
                 self.model_update.lines.remove((scene_number, batch_number, line.number))
 
+        self.can_undo = True
         return True
 
     def undo(self):
@@ -46,7 +47,17 @@ class DeleteLinesCommand(Command):
         logging.info(f"Restoring deleted lines")
         project : SubtitleProject = self.datamodel.project
         subtitles = project.subtitles
+
+        self.ResetModelUpdate()
+
         for scene_number, batch_number, deleted_originals, deleted_translated in self.deletions:
             batch = subtitles.GetBatch(scene_number, batch_number)
             batch.InsertLines(deleted_originals, deleted_translated)
+
+            for line in deleted_originals:
+                deleted_translated = next((line for line in deleted_translated if line.number == line.number), None)
+                if deleted_translated:
+                    line.translation = deleted_translated.text
+
+                self.model_update.lines.add((scene_number, batch_number), line)
 

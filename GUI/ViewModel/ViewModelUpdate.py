@@ -55,13 +55,13 @@ class ModelUpdate:
             viewmodel.AddBatch(batch)
 
         for key, line in self.lines.additions.items():
-            scene_number, batch_number, line_number = key
-            viewmodel.AddLine(scene_number, batch_number, line_number, line)
+            scene_number, batch_number = key
+            viewmodel.AddLine(scene_number, batch_number, line)
 
     def GetRemovedLinesInBatches(self):
-        """ 
-        Returns a dictionary of removed lines in batches. 
-        
+        """
+        Returns a dictionary of removed lines in batches.
+
         returns:
             dict: The key is a tuple of (scene_number, batch_number) and the value is a list of line numbers.
         """
@@ -77,8 +77,8 @@ class ModelUpdate:
 
     def GetUpdatedLinesInBatches(self):
         """
-        Returns a dictionary of updated lines in batches. 
-        
+        Returns a dictionary of updated lines in batches.
+
         returns:
             dict: The key is a tuple of (scene_number, batch_number) and the value is a dictionary of line numbers and their updates.
         """

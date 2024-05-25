@@ -365,6 +365,9 @@ class ProjectViewModel(QStandardItemModel):
                 'text': line.text
             })
 
+        if line.translation:
+            batch_item.AddTranslation(line.number, line.translation)
+
         self.endInsertRows()
 
     def UpdateLine(self, scene_number : int, batch_number : int, line_number : int, line_update : dict):

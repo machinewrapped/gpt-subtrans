@@ -35,6 +35,7 @@ class GuiInterface(QObject):
     dataModelChanged = Signal(object)
     commandAdded = Signal(object)
     commandComplete = Signal(object, bool)
+    commandUndone = Signal(object)
     actionRequested = Signal(str)
     prepareForSave = Signal()
     toggleProjectSettings = Signal()
@@ -61,11 +62,13 @@ class GuiInterface(QObject):
         self.command_queue.SetMaxThreadCount(options.get('max_threads', 1))
         self.command_queue.commandExecuted.connect(self._on_command_complete)
         self.command_queue.commandAdded.connect(self._on_command_added)
+        self.command_queue.commandUndone.connect(self._on_command_undone)
 
         # Create centralised action handler
         self.action_handler = ProjectActions()
         self.action_handler.issueCommand.connect(self.QueueCommand)
         self.action_handler.actionError.connect(self._on_error)
+        self.action_handler.undoLastCommand.connect(self.UndoLastCommand)
         self.action_handler.showSettings.connect(self.ShowSettingsDialog)
         self.action_handler.showProviderSettings.connect(self.ShowProviderSettingsDialog)
         self.action_handler.toggleProjectSettings.connect(self.toggleProjectSettings)
@@ -88,6 +91,16 @@ class GuiInterface(QObject):
         Add a command to the command queue and set the datamodel
         """
         self.command_queue.AddCommand(command, self.datamodel)
+
+    def UndoLastCommand(self):
+        """
+        Undo the last command
+        """
+        if not self.command_queue.can_undo:
+            logging.error("Cannot undo the last command")
+            return
+
+        self.command_queue.UndoLastCommand()
 
     def GetCommandQueue(self):
         """
@@ -217,7 +230,7 @@ class GuiInterface(QObject):
         """
         Clear the command queue and exit the program
         """
-        if self.command_queue and self.command_queue.AnyCommands():
+        if self.command_queue and self.command_queue.has_commands:
             self.QueueCommand(ClearCommandQueue())
             self.command_queue.Stop()
 
@@ -260,6 +273,17 @@ class GuiInterface(QObject):
         logging.debug(f"Added a {type(command).__name__} command to the queue")
         self.commandAdded.emit(command)
 
+    def _on_command_undone(self, command : Command):
+        """
+        Handle the undoing of a command
+        """
+        logging.debug(f"Undid a {type(command).__name__} command")
+        if command.model_update.HasUpdate():
+            self.datamodel.UpdateViewModel(command.model_update)
+            command.ResetModelUpdate()
+
+        self.commandUndone.emit(command)
+
     def _on_command_complete(self, command : Command, success):
         """
         Handle the completion of a command
@@ -283,6 +307,7 @@ class GuiInterface(QObject):
 
             if command.model_update.HasUpdate():
                 self.datamodel.UpdateViewModel(command.model_update)
+                command.ResetModelUpdate()
 
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often?
@@ -293,7 +318,7 @@ class GuiInterface(QObject):
 
         # Auto-save if the commmand queue is empty and the project has changed
         if self.datamodel and self.datamodel.NeedsAutosave():
-            if not self.command_queue.AnyCommands():
+            if not self.command_queue.has_commands:
                 self.datamodel.SaveProject()
 
         self.commandComplete.emit(command, success)

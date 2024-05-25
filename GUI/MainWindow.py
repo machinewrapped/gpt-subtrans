@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
         self.gui_interface.actionRequested.connect(self._on_action_requested)
         self.gui_interface.commandAdded.connect(self._on_command_added)
         self.gui_interface.commandComplete.connect(self._on_command_complete)
+        self.gui_interface.commandUndone.connect(self._on_command_undone)
         self.gui_interface.dataModelChanged.connect(self._on_data_model_changed)
         self.gui_interface.prepareForSave.connect(self._prepare_for_save)
         self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings)
@@ -105,13 +106,19 @@ class MainWindow(QMainWindow):
 
     def _on_command_complete(self, command : Command, success):
         self.toolbar.UpdateBusyStatus()
-        self._update_status_bar(command, success)
+        self._update_status_bar(command, succeeded=success)
 
-    def _update_status_bar(self, command : Command, succeeded : bool = None):
+    def _on_command_undone(self, command : Command):
+        self.toolbar.UpdateBusyStatus()
+        self._update_status_bar(command, undone=True)
+
+    def _update_status_bar(self, command : Command, succeeded : bool = None, undone : bool = False):
         command_queue = self.gui_interface.GetCommandQueue()
 
         if not command:
             self.statusBar().showMessage("")
+        elif undone:
+            self.statusBar().showMessage(f"{type(command).__name__} undone.")
         elif succeeded is None:
             self.statusBar().showMessage(f"{type(command).__name__} executed. {command_queue.queue_size} commands in queue.")
         elif command.aborted:
