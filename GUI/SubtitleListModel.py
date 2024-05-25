@@ -1,5 +1,7 @@
 import logging
 from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt
+from PySide6.QtWidgets import QWidget
+
 from GUI.ViewModel.SceneItem import SceneItem
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.LineItem import LineItem
@@ -9,7 +11,7 @@ from GUI.ViewModel.ViewModelItem import ViewModelItem
 from GUI.Widgets.Widgets import LineItemView
 
 class SubtitleListModel(QAbstractProxyModel):
-    def __init__(self, viewmodel=None, parent=None):
+    def __init__(self, viewmodel : ProjectViewModel = None, parent : QWidget = None):
         super().__init__(parent)
         self.viewmodel : ProjectViewModel = viewmodel
         self.selected_batch_numbers = []
@@ -48,12 +50,12 @@ class SubtitleListModel(QAbstractProxyModel):
                 if not batch_item or not isinstance(batch_item, BatchItem):
                     logging.error(f"Scene Item {scene_index} has invalid child {batch_index}: {type(batch_item).__name__}")
                     break
-                
+
                 if (scene_item.number, batch_item.number) in batch_numbers:
                     lines = batch_item.lines
                     visible_lines = [ (scene_item.number, batch_item.number, line) for line in lines.keys() ]
                     visible.extend(visible_lines)
-        
+
         self.visible = visible
         self.visible_row_map = { item[2] : row for row, item in enumerate(self.visible) }
         self.layoutChanged.emit()
@@ -100,7 +102,7 @@ class SubtitleListModel(QAbstractProxyModel):
 
     def index(self, row, column, parent=QModelIndex()):
         """
-        Create a model index for the given model row 
+        Create a model index for the given model row
         """
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
@@ -147,7 +149,7 @@ class SubtitleListModel(QAbstractProxyModel):
 
         if role == Qt.ItemDataRole.DisplayRole:
             return LineItemView(item)
-        
+
         if role == Qt.ItemDataRole.SizeHintRole:
             if not item.height:
                 return LineItemView(item).sizeHint()
