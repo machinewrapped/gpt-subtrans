@@ -208,7 +208,7 @@ class SubtitleBatch:
         translated = [line for line in self.translated if line.number not in line_numbers]
 
         if len(originals) == len(self.originals) and len(translated) == len(self.translated):
-            return False
+            return [],[]
 
         # TODO: Update line numbers?
 
