@@ -200,3 +200,80 @@ class SubtitleBatch:
                 # Merge translated lines and resync to source... not sure why this would happen
                 raise SubtitleError("Merging multiple translated lines with a single source line is not yet supported")
 
+    def DeleteLines(self, line_numbers : list[int]) -> bool:
+        """
+        Delete lines from the batch
+        """
+        originals = [line for line in self.originals if line.number not in line_numbers]
+        translated = [line for line in self.translated if line.number not in line_numbers]
+
+        if len(originals) == len(self.originals) and len(translated) == len(self.translated):
+            return False
+
+        # TODO: Update line numbers?
+
+        deleted_originals = [line for line in self.originals if line.number in line_numbers]
+        deleted_translated = [line for line in self.translated if line.number in line_numbers]
+
+        self.originals = originals
+        self.translated = translated
+
+        return deleted_originals, deleted_translated
+
+    def InsertOriginalLine(self, line : SubtitleLine):
+        """
+        Insert a line into the batch
+        """
+        if not line:
+            raise SubtitleError("No line provided to insert")
+
+        if not self.originals:
+            self.originals = [line]
+
+        if line.number < self.first_line_number:
+            self.originals.insert(0, line)
+
+        elif line.number > self.last_line_number:
+            self.originals.append(line)
+
+        else:
+            for index, item in enumerate(self.originals):
+                if item.number >= line.number:
+                    self.originals.insert(index, line)
+                    break
+
+    def InsertTranslatedLine(self, line : SubtitleLine):
+        """
+        Insert a translated line into the batch
+        """
+        if not line:
+            raise SubtitleError("No line provided to insert")
+
+        if not self.translated:
+            self.translated = [line]
+
+        if line.number < self.translated[0].number:
+            self.translated.insert(0, line)
+
+        elif line.number > self.translated[-1].number:
+            self.translated.append(line)
+
+        else:
+            for index, item in enumerate(self.translated):
+                if item.number >= line.number:
+                    self.translated.insert(index, line)
+                    break
+
+    def InsertLines(self, originals : list[SubtitleLine], translated : list[SubtitleLine] = None):
+        """
+        Insert multiple lines into the batch, with optional translations
+        """
+        if not originals:
+            raise SubtitleError("No original lines provided to insert")
+
+        for line in originals:
+            self.InsertOriginalLine(line)
+
+        for line in translated:
+            self.InsertTranslatedLine(line)
+

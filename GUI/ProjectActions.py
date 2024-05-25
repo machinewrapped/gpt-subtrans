@@ -10,6 +10,7 @@ from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.GUICommands import CheckProviderSettings
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
+from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
@@ -79,6 +80,7 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Update Batch', self._update_batch)
         ProjectDataModel.RegisterActionHandler('Update Line', self._update_line)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
+        ProjectDataModel.RegisterActionHandler('Delete Selection', self._delete_selection)
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Split Scene', self._split_scene)
         ProjectDataModel.RegisterActionHandler('Auto-Split Batch', self._autosplit_batch)
@@ -307,7 +309,7 @@ class ProjectActions(QObject):
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
         """
-        Merge selected scenes or batches (TODO: lines)
+        Merge selected scenes, batches or lines
         """
         if not selection.Any():
             raise ActionError("Nothing selected to merge")
@@ -328,6 +330,21 @@ class ProjectActions(QObject):
 
         else:
             raise ActionError(f"Unable to merge selection ({str(selection)})")
+
+    def _delete_selection(self, datamodel : ProjectDataModel, selection : ProjectSelection):
+        """
+        Delete scenes, batches or lines from the project
+        """
+        self._validate_datamodel(datamodel)
+
+        if not selection.Any():
+            raise ActionError("Nothing selected to delete")
+
+        if not selection.AnyLines():
+            raise ActionError("Cannot delete scenes or batches yet")
+
+        line_numbers = [ line.number for line in selection.selected_lines ]
+        self._issue_command(DeleteLinesCommand(line_numbers, datamodel))
 
     def _split_batch(self, datamodel, selection : ProjectSelection):
         """

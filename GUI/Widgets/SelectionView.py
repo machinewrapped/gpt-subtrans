@@ -30,6 +30,7 @@ class SelectionView(QFrame):
         self._merge_lines_button = self._create_button("Merge Lines", self._on_merge_selection)
         self._merge_scenes_button = self._create_button("Merge Scenes", self._on_merge_selection)
         self._merge_batches_button = self._create_button("Merge Batches", self._on_merge_selection)
+        self._delete_lines_button = self._create_button("Delete Lines", self._on_delete_lines)
         self._swap_text_button = self._create_button("Swap Text", self._on_swap_text)
 
         self.ShowSelection(ProjectSelection())
@@ -43,6 +44,7 @@ class SelectionView(QFrame):
         layout.addWidget(self._merge_lines_button)
         layout.addWidget(self._merge_scenes_button)
         layout.addWidget(self._merge_batches_button)
+        layout.addWidget(self._delete_lines_button)
         layout.addWidget(self._reparse_button)
         layout.addWidget(self._translate_button)
 
@@ -64,6 +66,7 @@ class SelectionView(QFrame):
         _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsContiguous())
         _show(self._merge_batches_button, selection.OnlyBatches() and selection.MultipleSelected() and selection.IsContiguous())
         _show(self._merge_lines_button, selection.AnyLines() and selection.MultipleSelected(max=2) and selection.IsContiguous() and selection.AllLinesInSameBatch())
+        _show(self._delete_lines_button, selection.AnyLines())
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
     def _create_button(self, text, on_click):
@@ -91,6 +94,10 @@ class SelectionView(QFrame):
     def _on_merge_selection(self):
         if self.selection:
             self.gui.PerformModelAction('Merge Selection', (self.selection,))
+
+    def _on_delete_lines(self):
+        if self.selection and self.selection.AnyLines():
+            self.gui.PerformModelAction('Delete Selection', (self.selection,))
 
     def _on_split_batch(self):
         if self.selection and self.selection.AnyLines() and not self.selection.MultipleSelected():

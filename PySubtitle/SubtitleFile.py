@@ -147,6 +147,54 @@ class SubtitleFile:
                     if batch.last_line_number >= line_number:
                         return batch
 
+    def GetBatchesContainingLines(self, line_numbers : list[int]):
+        """
+        Find the set of unique batches containing the line numbers
+        """
+        if not line_numbers:
+            raise SubtitleError("No line numbers supplied")
+
+        if not self.scenes:
+            raise SubtitleError("Subtitles have not been batched yet")
+
+        sorted_line_numbers = sorted(line_numbers)
+
+        next_line_index = 0
+        line_number_count = len(sorted_line_numbers)
+        last_line_number = sorted_line_numbers[-1]
+        out_batches : list[SubtitleBatch] = []
+
+        for scene in self.scenes:
+            next_line_number = sorted_line_numbers[next_line_index]
+            if scene.last_line_number < next_line_number:
+                continue
+
+            if scene.first_line_number > next_line_number:
+                raise SubtitleError(f"Line {next_line_number} not found in any scene")
+
+            for batch in scene.batches:
+                if batch.last_line_number < next_line_number:
+                    continue
+
+                if batch.first_line_number > next_line_number:
+                    raise SubtitleError(f"Line {next_line_number} not found in any batch")
+
+                out_batches.append(batch)
+
+                last_line_in_batch = batch.last_line_number
+                while next_line_index < line_number_count and last_line_in_batch >= sorted_line_numbers[next_line_index]:
+                    next_line_index += 1
+
+                if next_line_index >= line_number_count:
+                    return out_batches
+
+                next_line_number = sorted_line_numbers[next_line_index]
+
+        return out_batches
+
+
+
+
     def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int = None) -> list[str]:
         """
         Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
@@ -359,6 +407,25 @@ class SubtitleFile:
 
             insertIndex = bisect.bisect_left([line.number for line in self.translated], line_number)
             self.translated.insert(insertIndex, translated_line)
+
+    def DeleteLines(self, line_numbers : list[int]):
+        """
+        Delete lines from the subtitles
+        """
+        deletions = []
+        with self.lock:
+            batches = self.GetBatchesContainingLines(line_numbers)
+
+            for batch in batches:
+                deleted_originals, deleted_translated = batch.DeleteLines(line_numbers)
+                if len(deleted_originals) > 0 or len(deleted_translated) > 0:
+                    deletion = (batch.scene, batch.number, deleted_originals, deleted_translated)
+                    deletions.append(deletion)
+
+            if not deletions:
+                raise ValueError("No lines were deleted from any batches")
+
+        return deletions
 
     def MergeScenes(self, scene_numbers: list[int]):
         """
