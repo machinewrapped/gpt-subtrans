@@ -28,6 +28,7 @@ class ContentView(QWidget):
         self.subtitle_view = SubtitleView(parent=self)
 
         self.selection_view = SelectionView(gui_interface=self.gui, parent=self)
+        self.selection_view.resetSelection.connect(self.ClearSelectedLines)
 
         # connect the selection handlers
         self.subtitle_view.linesSelected.connect(self._lines_selected)

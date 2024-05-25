@@ -12,6 +12,8 @@ def _show(widget, condition):
         widget.hide()
 
 class SelectionView(QFrame):
+    resetSelection = Signal()
+
     def __init__(self, gui_interface : GuiInterface, parent=None):
         super().__init__(parent=parent)
 
@@ -98,6 +100,7 @@ class SelectionView(QFrame):
     def _on_delete_lines(self):
         if self.selection and self.selection.AnyLines():
             self.gui.PerformModelAction('Delete Selection', (self.selection,))
+            self.resetSelection.emit()
 
     def _on_split_batch(self):
         if self.selection and self.selection.AnyLines() and not self.selection.MultipleSelected():
