@@ -19,7 +19,10 @@ class SubtitleLine:
         return self.item.to_srt() if self.item else None
 
     def __repr__(self):
-        return f"Line({TimeDeltaToText(self.start) if self.start is not None else self.number}, {repr(self.text)})"
+        return f"Line({self.number}:{TimeDeltaToText(self.start)}, {repr(self.text)})"
+
+    def __eq__(self, other):
+        return self._item == other._item if isinstance(other, SubtitleLine) else False
 
     @property
     def key(self) -> int | str:
@@ -123,9 +126,6 @@ class SubtitleLine:
         if self._item:
             self._item.end = GetTimeDelta(time)
             self._duration = None
-
-    def __eq__(self, other):
-        return self._item == other._item if isinstance(other, SubtitleLine) else False
 
     @classmethod
     def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str = None):
