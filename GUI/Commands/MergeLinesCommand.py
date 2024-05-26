@@ -45,9 +45,24 @@ class MergeLinesCommand(Command):
 
             self.undo_data.append((batch.scene, batch.number, originals, translated))
 
-            subtitles.MergeLinesInBatch(batch.scene, batch.number, batch_lines)
+            merged_line, merged_translated = subtitles.MergeLinesInBatch(batch.scene, batch.number, batch_lines)
 
-            model_update.batches.replace((batch.scene, batch.number), batch)
+            if not merged_line:
+                raise CommandError("Failed to merge lines", command=self)
+
+            line_update = {
+                'start': merged_line.start,
+                'end': merged_line.end,
+                'text': merged_line.text,
+                }
+
+            if merged_translated:
+                line_update['translation'] = merged_translated.text
+
+            model_update.lines.update((batch.scene, batch.number, merged_line.number), line_update)
+
+            for line in batch_lines[1:]:
+                model_update.lines.remove((batch.scene, batch.number, line))
 
         return True
 

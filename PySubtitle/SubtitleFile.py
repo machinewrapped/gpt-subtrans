@@ -473,7 +473,7 @@ class SubtitleFile:
         """
         with self.lock:
             batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
-            batch.MergeLines(line_numbers)
+            return batch.MergeLines(line_numbers)
 
     def SplitScene(self, scene_number : int, batch_number : int):
         """

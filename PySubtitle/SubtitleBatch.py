@@ -199,6 +199,10 @@ class SubtitleBatch:
             merged_translated = MergeSubtitles(translated_lines)
             self.translated = self.translated[:first_translated_index] + [ merged_translated ] + self.translated[last_translated_index:]
 
+            return merged, merged_translated
+
+        return merged, None
+
     def DeleteLines(self, line_numbers : list[int]) -> bool:
         """
         Delete lines from the batch
