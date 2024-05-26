@@ -102,3 +102,6 @@ class CommandError(Exception):
         super().__init__(*args)
         self.command = command
 
+class UndoError(CommandError):
+    pass
+

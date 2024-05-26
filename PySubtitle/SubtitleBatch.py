@@ -3,7 +3,7 @@ from datetime import timedelta
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Subtitles import MergeSubtitles
+from PySubtitle.Helpers.Subtitles import AddOrUpdateLine, MergeSubtitles
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.Translation import Translation
 
@@ -95,16 +95,28 @@ class SubtitleBatch:
         self._translated = [ SubtitleLine(line) for line in value if line.number ] if value else []
 
     def AddLine(self, line):
-        self._originals.append(SubtitleLine(line))
+        """
+        Insert a line into the batch or replace an existing line
+        """
+        AddOrUpdateLine(self._originals, SubtitleLine(line))
 
     def AddTranslatedLine(self, line):
-        self._translated.append(SubtitleLine(line))
+       """
+       Insert a translated line into the batch or replace an existing translation
+       """
+       AddOrUpdateLine(self._translated, SubtitleLine(line))
 
     def HasTranslatedLine(self, line_number):
         if line_number < self.first_line_number or line_number > self.last_line_number:
             return False
 
         return any(line for line in self._translated if line.number == line_number)
+
+    def GetOriginalLine(self, line_number):
+        return next((line for line in self._originals if line.number == line_number), None)
+
+    def GetTranslatedLine(self, line_number):
+        return next((line for line in self._translated if line.number == line_number), None)
 
     def AddContext(self, key, value):
         self.context[key] = value
@@ -164,41 +176,28 @@ class SubtitleBatch:
 
             return replacements
 
-    def MergeLines(self, original_lines : list[int], translated_lines : list[int]):
+    def MergeLines(self, line_numbers : list[int]):
         """
         Merge multiple lines into a single line with the same start/end times
         """
-        first_line = next((line for line in self.originals if line.number == original_lines[0]), None)
-        last_line = next((line for line in self.originals if line.number == original_lines[-1]), None)
+        lines = [line for line in self.originals if line.number in line_numbers]
 
-        if first_line and last_line:
-            first_index = self.originals.index(first_line)
-            last_index = self.originals.index(last_line)
+        if len(lines) < 2:
+            raise SubtitleError(f"Cannot merge {len(lines)} lines")
 
-            merged = MergeSubtitles(self.originals[first_index : last_index + 1])
-            self.originals = self.originals[:first_index] + [ merged ] + self.originals[last_index + 1:]
+        first_index = self.originals.index(lines[0])
+        last_index = self.originals.index(lines[-1])
+
+        merged = MergeSubtitles(lines)
+        self.originals = self.originals[:first_index] + [ merged ] + self.originals[last_index + 1:]
+
+        translated_lines = [line for line in self.translated if line.number in line_numbers]
 
         if translated_lines and len(translated_lines) > 1:
-            if translated_lines == original_lines:
-                if translated_lines:
-                    merged = MergeSubtitles(self.translated[first_index : last_index + 1])
-                    self.translated = self.translated[:first_index] + [ merged ] + self.translated[last_index:]
-
-            elif len(original_lines) > len(translated_lines):
-                first_translated_line = next((line for line in self.translated if line.number == translated_lines[0]), None)
-                last_translated_line = next((line for line in self.translated if line.number == translated_lines[-1]), None)
-
-                if first_translated_line and last_translated_line:
-                    first_translated_index = self.translated.index(first_translated_line)
-                    last_translated_index = self.translated.index(last_translated_line)
-
-                    if first_translated_index != last_translated_index:
-                        merged = MergeSubtitles(self.translated[first_translated_index : last_translated_index + 1])
-                        self.translated = self.translated[:first_translated_index] + [ merged ] + self.translated[last_translated_index:]
-
-            else:
-                # Merge translated lines and resync to source... not sure why this would happen
-                raise SubtitleError("Merging multiple translated lines with a single source line is not yet supported")
+            first_translated_index = self.translated.index(translated_lines[0])
+            last_translated_index = self.translated.index(translated_lines[-1])
+            merged_translated = MergeSubtitles(translated_lines)
+            self.translated = self.translated[:first_translated_index] + [ merged_translated ] + self.translated[last_translated_index:]
 
     def DeleteLines(self, line_numbers : list[int]) -> bool:
         """

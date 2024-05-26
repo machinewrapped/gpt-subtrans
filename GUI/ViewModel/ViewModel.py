@@ -392,7 +392,14 @@ class ProjectViewModel(QStandardItemModel):
             if line_item:
                 line_item.Update(line_update)
             else:
-                logging.warning(f"Line {line_number} not found in batch {batch_number}")
+                line = SubtitleLine.FromDictionary({
+                    'number' : line_number,
+                    'start' : line_update.get('start'),
+                    'end' : line_update.get('end'),
+                    'body' : line_update.get('text'),
+                })
+                line.translation = line_update.get('translation')
+                self.AddLine(scene_number, batch_number, line)
 
     def RemoveLine(self, scene_number, batch_number, line_number):
         logging.debug(f"Removing line ({scene_number}, {batch_number}, {line_number})")

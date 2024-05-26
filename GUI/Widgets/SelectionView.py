@@ -96,6 +96,7 @@ class SelectionView(QFrame):
     def _on_merge_selection(self):
         if self.selection:
             self.gui.PerformModelAction('Merge Selection', (self.selection,))
+            self.resetSelection.emit()
 
     def _on_delete_lines(self):
         if self.selection and self.selection.AnyLines():

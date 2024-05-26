@@ -161,7 +161,6 @@ class SubtitleFile:
 
         next_line_index = 0
         line_number_count = len(sorted_line_numbers)
-        last_line_number = sorted_line_numbers[-1]
         out_batches : list[SubtitleBatch] = []
 
         for scene in self.scenes:
@@ -191,9 +190,6 @@ class SubtitleFile:
                 next_line_number = sorted_line_numbers[next_line_index]
 
         return out_batches
-
-
-
 
     def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int = None) -> list[str]:
         """
@@ -468,22 +464,13 @@ class SubtitleFile:
 
             scene.MergeBatches(batch_numbers)
 
-    def MergeLines(self, hierarchy : dict):
+    def MergeLinesInBatch(self, scene_number : int, batch_number : int, line_numbers : list[int]):
         """
         Merge several sequential lines together, remapping originals and translated lines if necessary.
         """
         with self.lock:
-            for scene_number in hierarchy.keys():
-                for batch_number in hierarchy[scene_number].keys():
-                    batch_dict = hierarchy[scene_number][batch_number]
-                    batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
-                    if 'originals' in batch_dict:
-                        originals = list(batch_dict['originals'].keys())
-                        translated = list(batch_dict.get('translated', {}).keys())
-                        batch.MergeLines(originals, translated)
-                    else:
-                        lines = list(batch_dict['lines'].keys())
-                        batch.MergeLines(lines, None)
+            batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
+            batch.MergeLines(line_numbers)
 
     def SplitScene(self, scene_number : int, batch_number : int):
         """

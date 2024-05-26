@@ -5,10 +5,33 @@ import srt
 
 from PySubtitle.SubtitleLine import SubtitleLine
 
+def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int:
+    """
+    Insert a line into a list of lines at the correct position, or replace any existing line.
+    """
+    if not lines or line.number > lines[-1].number:
+        lines.append(line)
+        return len(lines) - 1
+
+    for i, item in enumerate(lines):
+        if item.number == line.number:
+            lines[i] = line
+            return i
+
+        if item.number > line.number:
+            lines.insert(i, line)
+            return i
+
 def MergeSubtitles(merged_lines : list[SubtitleLine]) -> SubtitleLine:
     """
     Merge multiple lines into a single line with the same start and end times.
     """
+    if not merged_lines:
+        raise ValueError("No lines to merge")
+
+    if len(merged_lines) < 2:
+        raise ValueError("Need more than one line to merge")
+
     first_line = merged_lines[0]
     last_line = merged_lines[-1]
     merged_number = first_line.number

@@ -14,32 +14,33 @@ class ModelUpdate:
 
     def ApplyToViewModel(self, viewmodel : ProjectViewModel):
         """ Apply the updates to the viewmodel """
-        for scene_number, scene_update in self.scenes.updates.items():
-            viewmodel.UpdateScene(scene_number, scene_update)
-
-        for key, batch_update in self.batches.updates.items():
-            scene_number, batch_number = key
-            viewmodel.UpdateBatch(scene_number, batch_number, batch_update)
-
-        if self.lines.updates:
-            batched_line_updates = self.GetUpdatedLinesInBatches()
-            for key, line_updates in batched_line_updates.items():
-                scene_number, batch_number = key
-                viewmodel.UpdateLines(scene_number, batch_number, line_updates)
-
         for scene_number, scene in self.scenes.replacements.items():
             viewmodel.ReplaceScene(scene)
+
+        for scene_number in reversed(self.scenes.removals):
+            viewmodel.RemoveScene(scene_number)
+
+        for scene_number, scene in self.scenes.additions.items():
+            viewmodel.AddScene(scene)
+
+        for scene_number, scene_update in self.scenes.updates.items():
+            viewmodel.UpdateScene(scene_number, scene_update)
 
         for key, batch in self.batches.replacements.items():
             scene_number, batch_number = key
             viewmodel.ReplaceBatch(batch)
 
-        for scene_number in reversed(self.scenes.removals):
-            viewmodel.RemoveScene(scene_number)
-
         for key in reversed(self.batches.removals):
             scene_number, batch_number = key
             viewmodel.RemoveBatch(scene_number, batch_number)
+
+        for key, batch in self.batches.additions.items():
+            scene_number, batch_number = key
+            viewmodel.AddBatch(batch)
+
+        for key, batch_update in self.batches.updates.items():
+            scene_number, batch_number = key
+            viewmodel.UpdateBatch(scene_number, batch_number, batch_update)
 
         if self.lines.removals:
             batched_line_removals = self.GetRemovedLinesInBatches()
@@ -47,16 +48,15 @@ class ModelUpdate:
                 scene_number, batch_number = key
                 viewmodel.RemoveLines(scene_number, batch_number, line_numbers)
 
-        for scene_number, scene in self.scenes.additions.items():
-            viewmodel.AddScene(scene)
-
-        for key, batch in self.batches.additions.items():
-            scene_number, batch_number = key
-            viewmodel.AddBatch(batch)
-
         for key, line in self.lines.additions.items():
             scene_number, batch_number = key
             viewmodel.AddLine(scene_number, batch_number, line)
+
+        if self.lines.updates:
+            batched_line_updates = self.GetUpdatedLinesInBatches()
+            for key, line_updates in batched_line_updates.items():
+                scene_number, batch_number = key
+                viewmodel.UpdateLines(scene_number, batch_number, line_updates)
 
     def GetRemovedLinesInBatches(self):
         """
@@ -83,11 +83,12 @@ class ModelUpdate:
             dict: The key is a tuple of (scene_number, batch_number) and the value is a dictionary of line numbers and their updates.
         """
         batches = {}
-        for scene_number, batch_number, line in self.lines.updates:
-            key = (scene_number, batch_number)
-            if key not in batches:
-                batches[key] = [ line ]
+        for line_key, line in self.lines.updates.items():
+            scene_number, batch_number, line_number = line_key
+            batch_key = (scene_number, batch_number)
+            if batch_key in batches:
+                batches[batch_key][line_number] = line
             else:
-                batches[key].append(line)
+                batches[batch_key] = { line_number: line }
 
         return batches
