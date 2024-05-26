@@ -32,13 +32,14 @@ class ReparseTranslationsCommand(Command):
         translator = SubtitleTranslator(options, translation_provider)
         validator = SubtitleValidator(options)
 
+        model_update = self.AddModelUpdate()
         for scene_number, batch_number in self.batch_numbers:
             try:
                 batch : SubtitleBatch = project.ReparseBatchTranslation(translator, scene_number, batch_number, line_numbers=self.line_numbers)
 
                 validator.ValidateBatch(batch)
 
-                self.model_update.batches.update((scene_number, batch_number), {
+                model_update.batches.update((scene_number, batch_number), {
                     'summary' : batch.summary,
                     'errors' : batch.errors,
                     'lines' : { line.number : { 'translation' : line.text } for line in batch.translated if line.number }

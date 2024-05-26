@@ -38,13 +38,14 @@ class AutoSplitBatchCommand(Command):
         validator.ValidateBatch(new_batch)
 
         # Remove lines from the original batch that are in the new batch now
+        model_update = self.AddModelUpdate()
         for line_removed in range(new_batch.first_line_number, new_batch.last_line_number + 1):
-            self.model_update.lines.remove((self.scene_number, self.batch_number, line_removed))
+            model_update.lines.remove((self.scene_number, self.batch_number, line_removed))
 
         for batch_number in range(self.batch_number + 1, len(scene.batches)):
-             self.model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
+             model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
 
-        self.model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.errors })
-        self.model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+        model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.errors })
+        model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
         return True

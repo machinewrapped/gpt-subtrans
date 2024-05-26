@@ -27,8 +27,8 @@ class Command(QRunnable, QObject):
         self.terminal : bool = False
         self.callback = None
         self.undo_callback = None
-        self.model_update = ModelUpdate()
-        self.commands_to_queue : list = []
+        self.model_updates : list[ModelUpdate] = []
+        self.commands_to_queue : list[Command] = []
         self.can_undo : bool = False
 
     def SetDataModel(self, datamodel):
@@ -45,8 +45,13 @@ class Command(QRunnable, QObject):
             self.aborted = True
             self.on_abort()
 
-    def ResetModelUpdate(self):
-        self.model_update = ModelUpdate()
+    def AddModelUpdate(self) -> ModelUpdate:
+        update = ModelUpdate()
+        self.model_updates.append(update)
+        return update
+
+    def ResetModelUpdates(self):
+        self.model_updates = []
 
     @Slot()
     def run(self):

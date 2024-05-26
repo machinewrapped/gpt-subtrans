@@ -3,7 +3,6 @@ from GUI.ViewModel.ViewModel import ProjectViewModel
 
 class ModelUpdate:
     def __init__(self):
-        self.rebuild = False
         self.scenes = ModelUpdateSection()
         self.batches = ModelUpdateSection()
         self.lines = ModelUpdateSection()
@@ -17,18 +16,22 @@ class ModelUpdate:
         for scene_number, scene in self.scenes.replacements.items():
             viewmodel.ReplaceScene(scene)
 
+        for scene_number, scene_update in self.scenes.updates.items():
+            viewmodel.UpdateScene(scene_number, scene_update)
+
         for scene_number in reversed(self.scenes.removals):
             viewmodel.RemoveScene(scene_number)
 
         for scene_number, scene in self.scenes.additions.items():
             viewmodel.AddScene(scene)
 
-        for scene_number, scene_update in self.scenes.updates.items():
-            viewmodel.UpdateScene(scene_number, scene_update)
-
         for key, batch in self.batches.replacements.items():
             scene_number, batch_number = key
             viewmodel.ReplaceBatch(batch)
+
+        for key, batch_update in self.batches.updates.items():
+            scene_number, batch_number = key
+            viewmodel.UpdateBatch(scene_number, batch_number, batch_update)
 
         for key in reversed(self.batches.removals):
             scene_number, batch_number = key
@@ -38,9 +41,11 @@ class ModelUpdate:
             scene_number, batch_number = key
             viewmodel.AddBatch(batch)
 
-        for key, batch_update in self.batches.updates.items():
-            scene_number, batch_number = key
-            viewmodel.UpdateBatch(scene_number, batch_number, batch_update)
+        if self.lines.updates:
+            batched_line_updates = self.GetUpdatedLinesInBatches()
+            for key, line_updates in batched_line_updates.items():
+                scene_number, batch_number = key
+                viewmodel.UpdateLines(scene_number, batch_number, line_updates)
 
         if self.lines.removals:
             batched_line_removals = self.GetRemovedLinesInBatches()
@@ -51,12 +56,6 @@ class ModelUpdate:
         for key, line in self.lines.additions.items():
             scene_number, batch_number = key
             viewmodel.AddLine(scene_number, batch_number, line)
-
-        if self.lines.updates:
-            batched_line_updates = self.GetUpdatedLinesInBatches()
-            for key, line_updates in batched_line_updates.items():
-                scene_number, batch_number = key
-                viewmodel.UpdateLines(scene_number, batch_number, line_updates)
 
     def GetRemovedLinesInBatches(self):
         """

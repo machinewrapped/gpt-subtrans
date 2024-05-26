@@ -2,6 +2,7 @@ import logging
 import os
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 from GUI.ViewModel.ViewModel import ProjectViewModel
+from GUI.ViewModel.ViewModelError import ViewModelError
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -139,12 +140,10 @@ class ProjectDataModel:
         if not isinstance(update, ModelUpdate):
             raise ValueError("Invalid model update")
 
-        if update.rebuild:
-            # TODO: rebuild on the main thread
-            self.CreateViewModel()
+        if not self.viewmodel:
+            raise ViewModelError("No viewmodel to update")
 
-        elif self.viewmodel:
-            self.viewmodel.AddUpdate(lambda viewmodel=self.viewmodel, model_update=update : model_update.ApplyToViewModel(viewmodel))
+        self.viewmodel.AddUpdate(lambda viewmodel=self.viewmodel, model_update=update : model_update.ApplyToViewModel(viewmodel))
 
     def _update_translation_provider(self):
         """

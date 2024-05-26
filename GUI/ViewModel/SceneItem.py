@@ -51,11 +51,17 @@ class SceneItem(ViewModelItem):
 
     @property
     def first_line_number(self):
+        if not self.batches:
+            return None
+
         batch_number = sorted(self.batches.keys())[0]
         return self.batches[batch_number].first_line_number if self.batches else None
 
     @property
     def last_line_number(self):
+        if not self.batches:
+            return None
+
         batch_number = sorted(self.batches.keys())[-1]
         return self.batches[batch_number].last_line_number if self.batches else None
 

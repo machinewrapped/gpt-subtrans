@@ -282,9 +282,10 @@ class GuiInterface(QObject):
         Handle the undoing of a command
         """
         logging.debug(f"Undid a {type(command).__name__} command")
-        if command.model_update.HasUpdate():
-            self.datamodel.UpdateViewModel(command.model_update)
-            command.ResetModelUpdate()
+        for model_update in command.model_updates:
+            self.datamodel.UpdateViewModel(model_update)
+
+        command.ResetModelUpdates()
 
         self.commandUndone.emit(command)
 
@@ -309,9 +310,11 @@ class GuiInterface(QObject):
                 self._update_last_used_path(command.filepath)
                 self.SetDataModel(command.datamodel)
 
-            if command.model_update.HasUpdate():
-                self.datamodel.UpdateViewModel(command.model_update)
-                command.ResetModelUpdate()
+            if command.model_updates:
+                for model_update in command.model_updates:
+                    self.datamodel.UpdateViewModel(model_update)
+
+                command.ResetModelUpdates()
 
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often?

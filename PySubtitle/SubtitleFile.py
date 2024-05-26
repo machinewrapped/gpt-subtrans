@@ -440,7 +440,8 @@ class SubtitleFile:
                 raise ValueError(f"Could not find scenes {','.join(scene_numbers)}")
 
             # Merge all scenes into the first
-            scenes[0].MergeScenes(scenes[1:])
+            merged_scene = scenes[0]
+            merged_scene.MergeScenes(scenes[1:])
 
             # Slice out the merged scenes
             start_index = self.scenes.index(scenes[0])
@@ -449,6 +450,8 @@ class SubtitleFile:
 
             for number, scene in enumerate(self.scenes, start = 1):
                 scene.number = number
+
+        return merged_scene
 
     def MergeBatches(self, scene_number : int, batch_numbers: list[int]):
         """

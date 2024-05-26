@@ -27,8 +27,9 @@ class SwapTextAndTranslations(Command):
         batch : SubtitleBatch = scene.GetBatch(self.batch_number)
 
         # Swap original and translated text (only in the viewmodel)
+        model_update = self.AddModelUpdate()
         for original, translated in zip(batch.originals, batch.translated):
             if original and translated:
-                self.model_update.lines.update((scene.number, batch.number, original.number), { 'text': translated.text, 'translation': original.text } )
+                model_update.lines.update((scene.number, batch.number, original.number), { 'text': translated.text, 'translation': original.text } )
 
         return True

@@ -51,18 +51,19 @@ class TranslateSceneCommand(Command):
 
         except Exception as e:
             logging.error(f"Error translating scene {self.scene_number}: {e}")
-        
+
         self.translator.events.batch_translated -= self._on_batch_translated
 
         if scene:
-            self.model_update.scenes.update(scene.number, {
+            model_update = self.AddModelUpdate()
+            model_update.scenes.update(scene.number, {
                 'summary' : scene.summary
             })
 
             for batch in scene.batches:
                 if batch.translated:
                     if not self.batch_numbers or batch.number in self.batch_numbers:
-                        self.model_update.batches.update((scene.number, batch.number), {
+                        model_update.batches.update((scene.number, batch.number), {
                             'summary' : batch.summary,
                             'context' : batch.context,
                             'errors' : batch.errors,
@@ -77,7 +78,7 @@ class TranslateSceneCommand(Command):
             self.translator.StopTranslating()
 
     def _on_batch_translated(self, batch : SubtitleBatch):
-        # Update viewmodel as each batch is translated 
+        # Update viewmodel as each batch is translated
         if self.datamodel and batch.translated:
             update = ModelUpdate()
             update.batches.update((batch.scene, batch.number), {

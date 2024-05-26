@@ -34,10 +34,12 @@ class MergeBatchesCommand(Command):
                 validator = SubtitleValidator(self.datamodel.project_options)
                 validator.ValidateBatch(merged_batch)
 
-            self.model_update.batches.replace((scene.number, merged_batch_number), merged_batch)
+            model_update = self.AddModelUpdate()
+            model_update.batches.replace((scene.number, merged_batch_number), merged_batch)
             for batch_number in self.batch_numbers[1:]:
-                self.model_update.batches.remove((scene.number, batch_number))
+                model_update.batches.remove((scene.number, batch_number))
 
+        self.can_undo = True
         return True
 
     def undo(self):
@@ -48,6 +50,7 @@ class MergeBatchesCommand(Command):
         for i in range(1, len(self.original_first_line_numbers)):
             scene.SplitBatch(self.batch_numbers[0], self.original_first_line_numbers[i])
 
-        self.model_update.scenes.replace(scene.number, scene)
+        model_update = self.AddModelUpdate()
+        model_update.scenes.replace(scene.number, scene)
 
         return True

@@ -206,15 +206,16 @@ class ProjectViewModel(QStandardItemModel):
             raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")
 
         root_item = self.getRootItem()
-        scene_item = SceneItem(scene)
+        scene_item = self.CreateSceneItem(scene)
         scene_index = self.indexFromItem(self.model[scene.number])
 
-        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
-        root_item.removeRow(scene_index.row())
+        row = scene_index.row()
+        self.beginRemoveRows(QModelIndex(), row, row)
+        root_item.removeRow(row)
         self.endRemoveRows()
 
-        self.beginInsertRows(QModelIndex(), scene_index.row(), scene_index.row())
-        root_item.insertRow(scene_index.row(), scene_item)
+        self.beginInsertRows(QModelIndex(), row, row)
+        root_item.insertRow(row, scene_item)
         self.model[scene.number] = scene_item
         self.endInsertRows()
 

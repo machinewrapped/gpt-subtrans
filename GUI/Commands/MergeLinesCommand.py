@@ -30,6 +30,7 @@ class MergeLinesCommand(Command):
         if not batches:
             raise CommandError("No batches found for lines to merge", command=self)
 
+        model_update = self.AddModelUpdate()
         for batch in batches:
             batch_lines = [number for number in line_numbers if number >= batch.first_line_number and number <= batch.last_line_number]
             originals = [batch.GetOriginalLine(line_number) for line_number in batch_lines]
@@ -46,7 +47,7 @@ class MergeLinesCommand(Command):
 
             subtitles.MergeLinesInBatch(batch.scene, batch.number, batch_lines)
 
-            self.model_update.batches.replace((batch.scene, batch.number), batch)
+            model_update.batches.replace((batch.scene, batch.number), batch)
 
         return True
 
@@ -67,4 +68,5 @@ class MergeLinesCommand(Command):
                 batch.AddTranslatedLine(line)
                 updates[(scene_number, batch_number, line.number)]['translation'] = line.text
 
-        self.model_update.lines.updates = updates
+        model_update = self.AddModelUpdate()
+        model_update.lines.updates = updates
