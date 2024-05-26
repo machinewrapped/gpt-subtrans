@@ -46,15 +46,19 @@ class SplitSceneCommand(Command):
 
         try:
             scene_numbers = [self.scene_number, self.scene_number + 1]
+            later_scenes = [scene.number for scene in project.subtitles.scenes if scene.number > scene_numbers[1]]
+
             merged_scene = project.subtitles.MergeScenes(scene_numbers)
 
+            # Recombine the split scenes
             model_update = self.AddModelUpdate()
-            model_update.scenes.replace(self.scene_number, merged_scene)
-            model_update.scenes.remove(self.scene_number + 1)
+            model_update.scenes.replace(scene_numbers[0], merged_scene)
+            model_update.scenes.remove(scene_numbers[1])
 
-            later_scenes = [scene for scene in project.subtitles.scenes if scene.number > self.scene_number]
-            for scene in later_scenes:
-                model_update.scenes.update(scene.number, { 'number' : scene.number - 1 })
+            # Renumber the later scenes (must be done after the merge to avoid conflicts)
+            renumber_update = self.AddModelUpdate()
+            for scene_number in later_scenes:
+                renumber_update.scenes.update(scene_number, { 'number' : scene_number - 1 })
 
             return True
 
