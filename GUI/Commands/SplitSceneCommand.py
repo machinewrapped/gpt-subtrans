@@ -35,6 +35,7 @@ class SplitSceneCommand(Command):
 
         model_update.scenes.add(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
 
+        self.can_undo = True
         return True
 
     def undo(self):
@@ -44,7 +45,6 @@ class SplitSceneCommand(Command):
             raise CommandError("No subtitles", command=self)
 
         try:
-            project.subtitles.MergeScenes([self.scene_number, self.scene_number + 1])
             scene_numbers = [self.scene_number, self.scene_number + 1]
             merged_scene = project.subtitles.MergeScenes(scene_numbers)
 
