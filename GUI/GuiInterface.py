@@ -1,7 +1,7 @@
 import logging
 import os
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -60,9 +60,9 @@ class GuiInterface(QObject):
         # Create the command queue
         self.command_queue = CommandQueue(mainwindow)
         self.command_queue.SetMaxThreadCount(options.get('max_threads', 1))
-        self.command_queue.commandExecuted.connect(self._on_command_complete)
-        self.command_queue.commandAdded.connect(self._on_command_added)
-        self.command_queue.commandUndone.connect(self._on_command_undone)
+        self.command_queue.commandExecuted.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
+        self.command_queue.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
+        self.command_queue.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
 
         # Create centralised action handler
         self.action_handler = ProjectActions()
@@ -100,7 +100,11 @@ class GuiInterface(QObject):
             logging.error("Cannot undo the last command")
             return
 
-        self.command_queue.UndoLastCommand()
+        try:
+            self.command_queue.UndoLastCommand()
+
+        except Exception as e:
+            logging.error(f"Error undoing the last command: {str(e)}")
 
     def GetCommandQueue(self):
         """

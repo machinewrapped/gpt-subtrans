@@ -1,5 +1,5 @@
 import os
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QLabel, QFrame, QHBoxLayout, QPushButton, QSizePolicy
 
 from GUI.GuiInterface import GuiInterface
@@ -73,7 +73,7 @@ class SelectionView(QFrame):
 
     def _create_button(self, text, on_click):
         button = QPushButton(text, self)
-        button.clicked.connect(on_click)
+        button.clicked.connect(on_click, Qt.ConnectionType.QueuedConnection)
         return button
 
 

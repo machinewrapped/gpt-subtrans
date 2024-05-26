@@ -30,13 +30,13 @@ class MainWindow(QMainWindow):
         self._load_icon("gui-subtrans")
 
         self.gui_interface = GuiInterface(self, options)
-        self.gui_interface.actionRequested.connect(self._on_action_requested)
-        self.gui_interface.commandAdded.connect(self._on_command_added)
-        self.gui_interface.commandComplete.connect(self._on_command_complete)
-        self.gui_interface.commandUndone.connect(self._on_command_undone)
-        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed)
-        self.gui_interface.prepareForSave.connect(self._prepare_for_save)
-        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings)
+        self.gui_interface.actionRequested.connect(self._on_action_requested, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings, Qt.ConnectionType.QueuedConnection)
 
         # Create the main widget
         main_widget = QWidget(self)

@@ -49,11 +49,11 @@ class ModelView(QWidget):
         layout.addWidget(splitter)
         self.setLayout(layout)
 
-        self.scenes_view.onSelection.connect(self._items_selected)
-        self.content_view.onSelection.connect(self._lines_selected)
+        self.scenes_view.onSelection.connect(self._items_selected, Qt.ConnectionType.QueuedConnection)
+        self.content_view.onSelection.connect(self._lines_selected, Qt.ConnectionType.QueuedConnection)
 
-        self.scenes_view.onBatchEdited.connect(self._on_batch_edited)
-        self.scenes_view.onSceneEdited.connect(self._on_scene_edited)
+        self.scenes_view.onBatchEdited.connect(self._on_batch_edited, Qt.ConnectionType.QueuedConnection)
+        self.scenes_view.onSceneEdited.connect(self._on_scene_edited, Qt.ConnectionType.QueuedConnection)
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.SetViewModel(datamodel.viewmodel)

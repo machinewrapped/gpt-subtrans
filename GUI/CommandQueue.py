@@ -1,6 +1,6 @@
 import logging
 
-from PySide6.QtCore import QObject, Signal, QThreadPool, QRecursiveMutex, QMutexLocker
+from PySide6.QtCore import Qt, QObject, Signal, QThreadPool, QRecursiveMutex, QMutexLocker
 
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
@@ -176,7 +176,7 @@ class CommandQueue(QObject):
         if undo_callback:
             command.SetUndoCallback(undo_callback)
 
-        command.commandExecuted.connect(self._on_command_executed)
+        command.commandExecuted.connect(self._on_command_executed, Qt.ConnectionType.QueuedConnection)
 
     def _start_command_queue(self):
         """
