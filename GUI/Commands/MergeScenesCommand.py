@@ -48,14 +48,21 @@ class MergeScenesCommand(Command):
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         model_update = self.AddModelUpdate()
-        model_update.scenes.remove(self.scene_numbers[0])
 
+        # Remove the previously merged batches from the merged scene
+        scene_to_split = subtitles.GetScene(self.scene_numbers[0])
+        for batch_number in [batch.number for batch in scene_to_split.batches[self.scene_sizes[0]:]]:
+            model_update.batches.remove((scene_to_split.number, batch_number))
+
+        # Renumber later scenes to their original numbers
         later_scenes = [scene.number for scene in subtitles.scenes if scene.number > self.scene_numbers[0]]
-        for new_number, current_number in enumerate(later_scenes, start=self.scene_numbers[-1] + 1):
-            model_update.scenes.update(current_number, { 'number' : new_number })
+        later_scene_start_number = self.scene_numbers[-1] + 1
+        for scene_number, current_number in enumerate(later_scenes, start=later_scene_start_number):
+            model_update.scenes.update(current_number, { 'number' : scene_number })
 
-        for new_number, scene_size in enumerate(self.scene_sizes[:-1], start=self.scene_numbers[0]):
-            subtitles.SplitScene(new_number, scene_size + 1)
-            model_update.scenes.add(new_number, subtitles.GetScene(new_number))
+        # Split the merged scene according to the saved scene sizes and add the new scenes to the viewmodel
+        for scene_number, scene_size in enumerate(self.scene_sizes[:-1], start=self.scene_numbers[0]):
+            subtitles.SplitScene(scene_number, scene_size + 1)
+            model_update.scenes.add(scene_number + 1, subtitles.GetScene(scene_number + 1))
 
         return True
