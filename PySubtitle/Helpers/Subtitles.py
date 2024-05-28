@@ -30,7 +30,7 @@ def MergeSubtitles(merged_lines : list[SubtitleLine]) -> SubtitleLine:
         raise ValueError("No lines to merge")
 
     if len(merged_lines) < 2:
-        raise ValueError("Need more than one line to merge")
+        return merged_lines[0]
 
     first_line = merged_lines[0]
     last_line = merged_lines[-1]
