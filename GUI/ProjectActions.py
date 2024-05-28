@@ -68,7 +68,8 @@ class ProjectActions(QObject):
         self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
         self.AddAction('About', self.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
-        #TODO: Mixing different concepts of "action" here, is there a better separation?
+        #TODO: Mixing different concepts of "action" here - should just be able to pass a ProjectActions instance around
+
         # self.AddAction('Translate Selection', self._translate_selection, shortcut='Ctrl+T')
         # self.AddAction('Merge Selection', self._merge_selection, shortcut='Ctrl+Shift+M')
         ProjectDataModel.RegisterActionHandler('Validate Provider Settings', self._check_provider_settings)
@@ -83,6 +84,9 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Split Scene', self._split_scene)
         ProjectDataModel.RegisterActionHandler('Auto-Split Batch', self._autosplit_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
+
+        #TODO: ProjectDataModel.RegisterActionHandler('Auto-split line', self._autosplit_line)
+        #TODO: ProjectDataModel.RegisterActionHandler('Auto-break line', self._autobreak_line)
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
