@@ -37,6 +37,7 @@ class TranslationParser:
         self.translations = {}
         self.translated = []
         self.errors = []
+        self.metatags = ["<summary>", "scene"]
         self.regex_patterns = self.GetRegularExpressionPatterns()
 
     def GetRegularExpressionPatterns(self):
@@ -175,8 +176,12 @@ class TranslationParser:
         Check if the last line of the translation picked up a summary without a closing tag
         """
         last_line : SubtitleLine = self.translated[-1]
-        split = last_line.text.split("<summary>")
-        if len (split) > 1:
-            logging.warning(f"Fixed unclosed <summary> tag in last line of translation")
-            self.translated[-1].text = split[0].strip()
 
+        # Use a regex to check for opening metatags and ensure there is a matching close tag. If not, truncate the text at the tag.
+        re_opening = regex.compile(rf"<({'|'.join(self.metatags)})>", regex.IGNORECASE)
+
+        for match in re_opening.finditer(last_line.text):
+            tag = match.group(1)
+            if not regex.search(rf"</{tag}>", last_line.text):
+                logging.warning(f"Found unclosed tag {tag} in translation: {tag}")
+                last_line.text = last_line.text[:match.start()]
