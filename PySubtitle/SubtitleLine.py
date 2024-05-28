@@ -19,7 +19,7 @@ class SubtitleLine:
         return self.item.to_srt() if self.item else None
 
     def __repr__(self):
-        return f"Line({self.number}:{TimeDeltaToText(self.start)}, {repr(self.text)})"
+        return f"[Line {self.number}] {TimeDeltaToText(self.start)}, {repr(self.text)}"
 
     def __eq__(self, other):
         return self._item == other._item if isinstance(other, SubtitleLine) else False
