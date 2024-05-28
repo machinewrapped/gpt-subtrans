@@ -42,7 +42,8 @@ class BatchSubtitlesCommand(Command):
         batcher : SubtitleBatcher = SubtitleBatcher(self.options)
         project.subtitles.AutoBatch(batcher)
 
-        project.WriteProjectFile()
+        if project.write_project:
+            project.WriteProjectFile()
 
         self.datamodel : ProjectDataModel = ProjectDataModel(project, self.options)
         self.datamodel.CreateViewModel()
