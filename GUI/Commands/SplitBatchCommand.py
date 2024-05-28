@@ -77,5 +77,5 @@ class SplitBatchCommand(Command):
             return True
 
         except Exception as e:
-            self.ResetModelUpdates()
+            self.ClearModelUpdates()
             raise CommandError(f"Unable to undo SplitBatchCommand command: {str(e)}", command=self)

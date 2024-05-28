@@ -50,7 +50,7 @@ class Command(QRunnable, QObject):
         self.model_updates.append(update)
         return update
 
-    def ResetModelUpdates(self):
+    def ClearModelUpdates(self):
         self.model_updates = []
 
     @Slot()

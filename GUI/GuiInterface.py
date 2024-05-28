@@ -285,7 +285,7 @@ class GuiInterface(QObject):
         for model_update in command.model_updates:
             self.datamodel.UpdateViewModel(model_update)
 
-        command.ResetModelUpdates()
+        command.ClearModelUpdates()
 
         self.commandUndone.emit(command)
 
@@ -314,7 +314,7 @@ class GuiInterface(QObject):
                 for model_update in command.model_updates:
                     self.datamodel.UpdateViewModel(model_update)
 
-                command.ResetModelUpdates()
+                command.ClearModelUpdates()
 
             elif command.datamodel:
                 # Shouldn't need to do a full model rebuild often?
