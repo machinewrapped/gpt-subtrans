@@ -47,8 +47,8 @@ class MergeBatchesCommand(Command):
         scene = project.subtitles.GetScene(self.scene_number)
 
         # Split the merged batch back into the original batches using the stored first line numbers
-        for i in range(1, len(self.original_first_line_numbers)):
-            scene.SplitBatch(self.batch_numbers[0], self.original_first_line_numbers[i])
+        for i in range(0, len(self.batch_numbers) - 1):
+            scene.SplitBatch(self.batch_numbers[i], self.original_first_line_numbers[i+1])
 
         model_update = self.AddModelUpdate()
         model_update.scenes.replace(scene.number, scene)
