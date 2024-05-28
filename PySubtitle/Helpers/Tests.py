@@ -153,3 +153,16 @@ def PrepareSubtitles(subtitle_data : dict, key : str = 'original'):
     subtitles.UpdateProjectSettings(subtitle_data)
     return subtitles
 
+def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 'translated'):
+    """
+    Adds translations to the subtitles.
+    """
+    translated_file = PrepareSubtitles(subtitle_data, key)
+
+    subtitles.translated = translated_file.originals
+
+    for scene in subtitles.scenes:
+        for batch in scene.batches:
+            line_numbers = [ line.number for line in batch.originals ]
+            batch_translated = [ line for line in subtitles.translated if line.number in line_numbers ]
+            batch.translated = batch_translated

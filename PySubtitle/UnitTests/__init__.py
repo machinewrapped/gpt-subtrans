@@ -5,4 +5,4 @@ from PySubtitle.UnitTests.test_Substitutions import TestSubstitutions
 from PySubtitle.UnitTests.test_Time import TestTimeHelpers
 from PySubtitle.UnitTests.test_Project import ChineseDinnerTests
 from PySubtitle.UnitTests.test_Translator import SubtitleTranslatorTests
-
+from PySubtitle.UnitTests.test_Commands import CommandsTests

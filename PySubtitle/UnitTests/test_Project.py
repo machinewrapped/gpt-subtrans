@@ -75,8 +75,8 @@ class ChineseDinnerTests(unittest.TestCase):
         Test subtitle batcher, batch context and batch merging
         """
         log_test_name("Test batch subtitles")
-        scene_count = 4
-        scene_lengths = [30, 25, 6, 3]
+        scene_count = chinese_dinner_data.get('expected_scene_count')
+        scene_lengths = chinese_dinner_data.get('expected_scene_linecounts')
         first_lines = [
             "いつものように食事が終わるまでは誰も入れないでくれ.",
             "選んで何を食事の後.",

@@ -17,6 +17,8 @@ from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
 class DummyProvider(TranslationProvider):
+    name = "Dummy Provider"
+
     def __init__(self, data : dict):
         super().__init__("Dummy Provider", {
             "model": "dummy",
