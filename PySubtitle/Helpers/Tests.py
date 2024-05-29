@@ -2,9 +2,11 @@ import logging
 import os
 from datetime import datetime
 
+from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleProject import SubtitleProject
 
 separator = "".center(60, "-")
 wide_separator = "".center(120, "-")
@@ -166,3 +168,12 @@ def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 
             line_numbers = [ line.number for line in batch.originals ]
             batch_translated = [ line for line in subtitles.translated if line.number in line_numbers ]
             batch.translated = batch_translated
+
+def CreateTestDataModel(test_data : dict, options : Options = None):
+    """
+    Creates a ProjectDataModel from test data.
+    """
+    file : SubtitleFile = PrepareSubtitles(test_data, 'original')
+    datamodel = ProjectDataModel(options = options)
+    datamodel.project = SubtitleProject(options, file)
+    return datamodel
