@@ -6,3 +6,4 @@ from PySubtitle.UnitTests.test_Time import TestTimeHelpers
 from PySubtitle.UnitTests.test_Project import ChineseDinnerTests
 from PySubtitle.UnitTests.test_Translator import SubtitleTranslatorTests
 from PySubtitle.UnitTests.test_MergeSplitCommands import MergeSplitCommandsTests
+from PySubtitle.UnitTests.test_MergeLinesCommand import MergeLinesCommandTest
