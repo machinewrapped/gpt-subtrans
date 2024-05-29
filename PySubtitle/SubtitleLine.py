@@ -127,6 +127,10 @@ class SubtitleLine:
             self._item.end = GetTimeDelta(time)
             self._duration = None
 
+    @translated.setter
+    def translated(self, translated):
+        self.translation = SubtitleLine(translated).text
+
     @classmethod
     def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str = None):
         number = int(number) if number else None

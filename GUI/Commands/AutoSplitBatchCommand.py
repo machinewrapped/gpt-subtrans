@@ -11,6 +11,7 @@ class AutoSplitBatchCommand(Command):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_number = batch_number
+        self.split_line = None
 
     def execute(self):
         logging.info(f"Auto-splitting batch {str(self.scene_number)} batch {str(self.batch_number)}")
@@ -47,5 +48,32 @@ class AutoSplitBatchCommand(Command):
 
         model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.errors })
         model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+
+        self.split_line = new_batch.first_line_number
+        self.can_undo = True
+        return True
+
+    def undo(self):
+        project: SubtitleProject = self.datamodel.project
+
+        scene = project.subtitles.GetScene(self.scene_number)
+
+        if not scene or not scene.GetBatch(self.batch_number):
+            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
+
+        scene.MergeBatches([self.batch_number, self.batch_number + 1])
+
+        merged_batch = scene.GetBatch(self.batch_number)
+
+        model_update = self.AddModelUpdate()
+        model_update.batches.remove((self.scene_number, self.batch_number + 1))
+        model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : merged_batch.errors })
+
+        model_update = self.AddModelUpdate()
+        for line_number in range(self.split_line, merged_batch.last_line_number + 1):
+            key = (self.scene_number, self.batch_number, line_number)
+            line = merged_batch.GetOriginalLine(line_number)
+            line.translated = merged_batch.GetTranslatedLine(line_number)
+            model_update.lines.add(key, line)
 
         return True
