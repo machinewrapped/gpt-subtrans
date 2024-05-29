@@ -30,7 +30,12 @@ class CommandsTests(unittest.TestCase):
     command_test_cases = [
         {
             'data': chinese_dinner_data,
-            'commands' : [
+            'BatchSubtitlesCommand': {
+                'expected_scene_count': 4,
+                'expected_scene_sizes': [2, 2, 1, 1],
+                'expected_scene_linecounts': [30, 25, 6, 3],
+            },
+            'tests' : [
                 {
                     'command': 'MergeSceneCommandTest',
                     'scene_numbers': [2, 3],
@@ -90,11 +95,11 @@ class CommandsTests(unittest.TestCase):
             file, datamodel = self._create_datamodel(data)
 
             with self.subTest("BatchSubtitlesCommand"):
-                self.BatchSubtitlesCommandTests(file, datamodel, data)
+                self.BatchSubtitlesCommandTests(file, datamodel, test_case.get('BatchSubtitlesCommand'))
 
             AddTranslations(file, data, 'translated')
 
-            for command_data in test_case['commands']:
+            for command_data in test_case['tests']:
                 command = command_data['command']
 
                 with self.subTest(command):

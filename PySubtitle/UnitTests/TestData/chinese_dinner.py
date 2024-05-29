@@ -548,9 +548,6 @@ chinese_dinner_data = {
     'names': _names,
     'original': chinese_dinner_jp,
     'translated': chinese_dinner_en,
-    'expected_scene_count': 4,
-    'expected_scene_sizes': [2, 2, 1, 1],
-    'expected_scene_linecounts': [30, 25, 6, 3],
     'expected_postprocess_differences': 13,
     'expected_postprocess_unchanged': 51,
     'response_map': {
