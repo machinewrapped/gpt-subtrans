@@ -4,6 +4,7 @@ import unittest
 from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
+from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Helpers.Tests import AddTranslations, CreateTestDataModel, log_input_expected_result, log_test_name
@@ -37,7 +38,7 @@ class MergeSplitCommandsTests(unittest.TestCase):
             },
             'tests' : [
                 {
-                    'command': 'MergeSceneCommandTest',
+                    'test': 'MergeSceneCommandTest',
                     'scene_numbers': [2, 3],
                     'expected_scene_count': 3,
                     'expected_merged_scene_numbers': [1, 2, 3],
@@ -46,7 +47,7 @@ class MergeSplitCommandsTests(unittest.TestCase):
                     'expected_merged_scene_sizes': [3, 3, 2],
                 },
                 {
-                    'command': 'MergeSceneCommandTest',
+                    'test': 'MergeSceneCommandTest',
                     'scene_numbers': [1, 2,3],
                     'expected_scene_count': 2,
                     'expected_merged_scene_numbers': [1, 2],
@@ -55,7 +56,7 @@ class MergeSplitCommandsTests(unittest.TestCase):
                     'expected_merged_scene_sizes': [5, 2],
                 },
                 {
-                    'command': 'MergeSceneCommandTest',
+                    'test': 'MergeSceneCommandTest',
                     'scene_numbers': [1, 2, 3, 4],
                     'expected_scene_count': 1,
                     'expected_merged_scene_numbers': [1],
@@ -64,7 +65,7 @@ class MergeSplitCommandsTests(unittest.TestCase):
                     'expected_merged_scene_sizes': [7],
                 },
                 {
-                    'command': 'MergeBatchesCommandTest',
+                    'test': 'MergeBatchesCommandTest',
                     'scene_number': 2,
                     'batch_numbers': [1, 2],
                     'expected_batch_count': 1,
@@ -73,7 +74,7 @@ class MergeSplitCommandsTests(unittest.TestCase):
                     'expected_batch_sizes': [25]
                 },
                 {
-                    'command': 'MergeScenesMergeBatchesCommandTest',
+                    'test': 'MergeScenesMergeBatchesCommandTest',
                     'scene_numbers': [1, 2, 3],
                     'batch_numbers': [2, 3, 4],
                     'expected_scene_count': 2,
@@ -84,7 +85,7 @@ class MergeSplitCommandsTests(unittest.TestCase):
                     'expected_scene_batch_sizes': [[14, 41, 6], [3]]
                 },
                 {
-                    'command': 'MergeSplitScenesCommandTest',
+                    'test': 'MergeSplitScenesCommandTest',
                     'scene_numbers': [1,2,3,4],
                     'expected_merge_scene_count': 1,
                     'expected_merge_scene_linecount': 64,
@@ -97,6 +98,19 @@ class MergeSplitCommandsTests(unittest.TestCase):
                         (1,"いつものように食事が終わるまでは誰も入れないでくれ.", "As usual, don't let anyone in until the meal is over."),
                         (43, "いくらで雇われた.", "How much were you hired for?")
                         ]
+                },
+                {
+                    'test': 'SplitBatchCommandTest',
+                    'batch_number': (1,1),
+                    'split_line_number': 5,
+                    'expected_batch_count': 3,
+                    'expected_batch_numbers': [1, 2, 3],
+                    'expected_batch_sizes': [4, 10, 16],
+                    'expected_batch_first_lines': [
+                        (1, "いつものように食事が終わるまでは誰も入れないでくれ.", "As usual, don't let anyone in until the meal is over."),
+                        (5, "任せてください." ,"Leave it to me."),
+                        (15, "俺は肩にだぞ.", "I'm on the shoulder.")
+                    ]
                 }
             ]
         }
@@ -113,21 +127,24 @@ class MergeSplitCommandsTests(unittest.TestCase):
             with self.subTest("BatchSubtitlesCommand"):
                 self.BatchSubtitlesCommandTests(file, datamodel, test_case.get('BatchSubtitlesCommand'))
 
+            # TODO: extend batching to included translated subtitles if they exist
             AddTranslations(file, data, 'translated')
 
             for command_data in test_case['tests']:
-                command = command_data['command']
+                test = command_data['test']
 
-                with self.subTest(command):
-                    log_test_name(f"{command} test")
-                    if command == 'MergeSceneCommandTest':
+                with self.subTest(test):
+                    log_test_name(f"{test} test")
+                    if test == 'MergeSceneCommandTest':
                         self.MergeSceneCommandTest(file, datamodel, command_data)
-                    elif command == 'MergeBatchesCommandTest':
+                    elif test == 'MergeBatchesCommandTest':
                         self.MergeBatchesCommandTest(file, datamodel, command_data)
-                    elif command == 'MergeScenesMergeBatchesCommandTest':
+                    elif test == 'MergeScenesMergeBatchesCommandTest':
                         self.MergeScenesMergeBatchesCommandTest(file, datamodel, command_data)
-                    elif command == 'MergeSplitScenesCommandTest':
+                    elif test == 'MergeSplitScenesCommandTest':
                         self.MergeSplitScenesCommandTest(file, datamodel, command_data)
+                    elif test == 'SplitBatchCommandTest':
+                        self.SplitBatchCommandTest(file, datamodel, command_data)
 
     def BatchSubtitlesCommandTests(self, file : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
         expected_scene_count = test_data['expected_scene_count']
@@ -353,5 +370,56 @@ class MergeSplitCommandsTests(unittest.TestCase):
         self.assertSequenceEqual([scene.linecount for scene in file.scenes], undo_merge_expected_scene_linecount)
         self.assertSequenceEqual([[batch.number for batch in scene.batches] for scene in file.scenes], undo_merge_expected_scene_batches)
 
+    def SplitBatchCommandTest(self, file : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
+        scene_number, batch_number = test_data['batch_number']
+        split_line_number = test_data['split_line_number']
 
+        scene = file.GetScene(scene_number)
+
+        undo_expected_batch_count = len(scene.batches)
+        undo_expected_batch_numbers = [batch.number for batch in scene.batches]
+        undo_expected_batch_sizes = [batch.size for batch in scene.batches]
+        undo_expected_batch_first_lines = [(batch.first_line_number, batch.originals[0].text, batch.translated[0].text) for batch in scene.batches]
+
+        split_batch_command = SplitBatchCommand(scene_number, batch_number, split_line_number, split_line_number, datamodel=datamodel)
+        self.assertTrue(split_batch_command.execute())
+
+        expected_batch_count = test_data['expected_batch_count']
+        expected_batch_numbers = test_data['expected_batch_numbers']
+        expected_batch_sizes = test_data['expected_batch_sizes']
+        expected_batch_first_lines = test_data['expected_batch_first_lines']
+
+        log_input_expected_result("Split batch count", expected_batch_count, len(scene.batches))
+        self.assertEqual(len(scene.batches), expected_batch_count)
+
+        split_scene_batches = [batch.number for batch in scene.batches]
+        log_input_expected_result("Split batch numbers", expected_batch_numbers, split_scene_batches)
+        self.assertSequenceEqual(split_scene_batches, expected_batch_numbers)
+
+        split_scene_batch_sizes = [batch.size for batch in scene.batches]
+        log_input_expected_result("Split batch sizes", expected_batch_sizes, split_scene_batch_sizes)
+        self.assertSequenceEqual(split_scene_batch_sizes, expected_batch_sizes)
+
+        for i in range(len(scene.batches)):
+            batch = scene.batches[i]
+            expected_line_number, expected_original, expected_translated = expected_batch_first_lines[i]
+            log_input_expected_result(f"Batch {batch.number} first line", (expected_line_number, expected_original), (batch.first_line_number, batch.originals[0].text))
+            self.assertEqual(batch.first_line_number, expected_line_number)
+            self.assertEqual(batch.originals[0].text, expected_original)
+            self.assertEqual(batch.translated[0].text, expected_translated)
+
+        self.assertTrue(split_batch_command.can_undo)
+        self.assertTrue(split_batch_command.undo())
+
+        log_input_expected_result("Batches after undo", (undo_expected_batch_count, undo_expected_batch_numbers), (len(scene.batches), [batch.number for batch in scene.batches]))
+        self.assertEqual(len(scene.batches), undo_expected_batch_count)
+        self.assertSequenceEqual([batch.number for batch in scene.batches], undo_expected_batch_numbers)
+        self.assertSequenceEqual([batch.size for batch in scene.batches], undo_expected_batch_sizes)
+
+        for i in range(len(scene.batches)):
+            batch = scene.batches[i]
+            expected_line_number, expected_original, expected_translated = undo_expected_batch_first_lines[i]
+            self.assertEqual(batch.first_line_number, expected_line_number)
+            self.assertEqual(batch.originals[0].text, expected_original)
+            self.assertEqual(batch.translated[0].text, expected_translated)
 
