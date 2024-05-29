@@ -332,7 +332,7 @@ class ProjectActions(QObject):
             self._issue_command(MergeBatchesCommand(scene_number, batch_numbers, datamodel))
 
         elif selection.AnyLines():
-            self._issue_command(MergeLinesCommand(selection))
+            self._issue_command(MergeLinesCommand(selection.selected_lines))
 
         else:
             raise ActionError(f"Unable to merge selection ({str(selection)})")

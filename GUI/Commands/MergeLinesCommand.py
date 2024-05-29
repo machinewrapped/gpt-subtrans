@@ -1,6 +1,5 @@
 from GUI.Command import Command, CommandError, UndoError
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.ProjectSelection import ProjectSelection
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -11,9 +10,9 @@ class MergeLinesCommand(Command):
     """
     Merge one or several lines together
     """
-    def __init__(self, selection : ProjectSelection, datamodel: ProjectDataModel = None):
+    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel = None):
         super().__init__(datamodel)
-        self.selection = selection
+        self.line_numbers = sorted(line_numbers)
         self.undo_data = []
         self.can_undo = True
 
@@ -23,16 +22,14 @@ class MergeLinesCommand(Command):
         if not subtitles:
             raise CommandError("No subtitles", command=self)
 
-        line_numbers = sorted([line.number for line in self.selection.selected_lines])
-
-        batches = subtitles.GetBatchesContainingLines(line_numbers)
+        batches = subtitles.GetBatchesContainingLines(self.line_numbers)
 
         if not batches:
             raise CommandError("No batches found for lines to merge", command=self)
 
         model_update = self.AddModelUpdate()
         for batch in batches:
-            batch_lines = [number for number in line_numbers if number >= batch.first_line_number and number <= batch.last_line_number]
+            batch_lines = [number for number in self.line_numbers if number >= batch.first_line_number and number <= batch.last_line_number]
             originals = [batch.GetOriginalLine(line_number) for line_number in batch_lines]
             translated = [batch.GetTranslatedLine(line_number) for line_number in batch_lines]
 
@@ -85,3 +82,5 @@ class MergeLinesCommand(Command):
 
         model_update = self.AddModelUpdate()
         model_update.lines.updates = updates
+
+        return True
