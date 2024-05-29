@@ -8,10 +8,9 @@ from GUI.Commands.MergeScenesCommand import MergeScenesCommand
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
+
 from PySubtitle.Helpers.Tests import AddTranslations, CreateTestDataModel, log_input_expected_result, log_test_name
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleBatch import SubtitleBatch
-
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
