@@ -1,6 +1,3 @@
-from copy import deepcopy
-import unittest
-
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
@@ -9,12 +6,13 @@ from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
 
-from PySubtitle.Helpers.Tests import AddTranslations, CreateTestDataModel, log_input_expected_result, log_test_name
+from PySubtitle.Helpers.TestCases import AddTranslations, CreateTestDataModel, SubtitleTestCase
+from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
-class MergeSplitCommandsTests(unittest.TestCase):
+class MergeSplitCommandsTests(SubtitleTestCase):
     options = Options({
         'provider': 'Dummy Provider',
         'provider_options': { 'Dummy Provider' : {} },

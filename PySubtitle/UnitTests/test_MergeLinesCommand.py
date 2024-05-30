@@ -3,13 +3,13 @@ import unittest
 
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.ProjectSelection import ProjectSelection, SelectionLine
-from PySubtitle.Helpers.Tests import CreateTestDataModelBatched, log_info, log_input_expected_result, log_test_name
+from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, SubtitleTestCase
+from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
-class MergeLinesCommandTest(unittest.TestCase):
+class MergeLinesCommandTest(SubtitleTestCase):
     options = Options({
         'provider': 'Dummy Provider',
         'provider_options': { 'Dummy Provider' : {} },
@@ -24,7 +24,7 @@ class MergeLinesCommandTest(unittest.TestCase):
         'stop_on_error': True
     })
 
-    lines_test_cases = [
+    merge_lines_test_cases = [
         {
             'batch_number': (1,1),
             'lines_to_merge': [1,2,3],
@@ -42,7 +42,7 @@ class MergeLinesCommandTest(unittest.TestCase):
 
     ]
 
-    def test_MergeLines(self):
+    def test_MergeLinesCommand(self):
         log_test_name("MergeLinesCommand")
 
         data = deepcopy(chinese_dinner_data)
@@ -52,7 +52,7 @@ class MergeLinesCommandTest(unittest.TestCase):
 
         undo_stack = []
 
-        for test_case in self.lines_test_cases:
+        for test_case in self.merge_lines_test_cases:
             scene_number, batch_number = test_case['batch_number']
             lines_to_merge = test_case['lines_to_merge']
             expected_batch_size = test_case['expected_batch_size']
@@ -89,22 +89,11 @@ class MergeLinesCommandTest(unittest.TestCase):
 
         # Verify that undoing the command stack restores the original state
         for command in reversed(undo_stack):
+            self.assertTrue(command.can_undo)
             self.assertTrue(command.undo())
 
         reference_datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options)
-        reference_subtitles: SubtitleFile = reference_datamodel.project.subtitles
 
-        for scene_number in range(1, len(subtitles.scenes) + 1):
-            for batch_number in range(1, len(subtitles.GetScene(scene_number).batches) + 1):
-                batch = subtitles.GetBatch(scene_number, batch_number)
-                reference_batch = reference_subtitles.GetBatch(scene_number, batch_number)
-
-                self.assertEqual(len(batch.originals), len(reference_batch.originals))
-                self.assertEqual(len(batch.translated), len(reference_batch.translated))
-
-                self.assertSequenceEqual([ line.text for line in batch.originals ], [ line.text for line in reference_batch.originals ])
-                self.assertSequenceEqual([ line.text for line in batch.translated ], [ line.text for line in reference_batch.translated ])
-                self.assertSequenceEqual([ line.start for line in batch.originals ], [ line.start for line in reference_batch.originals ])
-                self.assertSequenceEqual([ line.end for line in batch.originals ], [ line.end for line in reference_batch.originals ])
+        self._assert_same_as_reference(subtitles, reference_datamodel.project.subtitles)
 
 

@@ -2,61 +2,10 @@ import logging
 import os
 from datetime import datetime
 
-from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.Options import Options
-from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.SubtitleProject import SubtitleProject
 
 separator = "".center(60, "-")
 wide_separator = "".center(120, "-")
-
-def PrepareSubtitles(subtitle_data : dict, key : str = 'original') -> SubtitleFile:
-    """
-    Prepares a SubtitleFile object from subtitle data.
-    """
-    subtitles : SubtitleFile = SubtitleFile()
-    subtitles.LoadSubtitlesFromString(subtitle_data[key])
-    subtitles.UpdateProjectSettings(subtitle_data)
-    return subtitles
-
-def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 'translated'):
-    """
-    Adds translations to the subtitles.
-    """
-    translated_file = PrepareSubtitles(subtitle_data, key)
-    subtitles.translated = translated_file.originals
-
-    for scene in subtitles.scenes:
-        for batch in scene.batches:
-            line_numbers = [ line.number for line in batch.originals ]
-            batch_translated = [ line for line in subtitles.translated if line.number in line_numbers ]
-            batch.translated = batch_translated
-
-            for line in batch.originals:
-                line.translated = next((l for l in batch_translated if l.number == line.number), None)
-                line.translation = line.translated.text if line.translated else None
-
-def CreateTestDataModel(test_data : dict, options : Options = None) -> ProjectDataModel:
-    """
-    Creates a ProjectDataModel from test data.
-    """
-    file : SubtitleFile = PrepareSubtitles(test_data, 'original')
-    datamodel = ProjectDataModel(options = options)
-    datamodel.project = SubtitleProject(options, file)
-    return datamodel
-
-def CreateTestDataModelBatched(test_data : dict, options : Options = None) -> ProjectDataModel:
-    """
-    Creates a SubtitleBatcher from test data.
-    """
-    datamodel : ProjectDataModel = CreateTestDataModel(test_data, options)
-    subtitles : SubtitleFile = datamodel.project.subtitles
-    batcher = SubtitleBatcher(options.GetSettings())
-    subtitles.AutoBatch(batcher)
-    AddTranslations(subtitles, test_data, 'translated')
-    return datamodel
-
 
 def log_info(text: str, prefix: str = ""):
     """
