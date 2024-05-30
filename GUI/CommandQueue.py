@@ -121,9 +121,10 @@ class CommandQueue(QObject):
                 self.logger.error(f"Cannot undo the last {type(command).__name__} command")
                 return
 
-            self.logger.info(f"Undoing {type(command).__name__}")
             self.redo_stack.append(command)
-            command.undo()
+
+        self.logger.info(f"Undoing {type(command).__name__}")
+        command.undo()
 
         self.commandUndone.emit(command)
 
@@ -133,13 +134,13 @@ class CommandQueue(QObject):
         """
         with QMutexLocker(self.mutex):
             command = self.redo_stack.pop()
+            if not command:
+                self.logger.warning("No commands to redo")
+                return
 
-        if not command:
-            self.logger.warning("No commands to redo")
-            return
+            self._queue_command(command)
 
         self.logger.info(f"Redoing {type(command).__name__}")
-        self._queue_command(command)
         self.commandAdded.emit(command)
         self._start_command_queue()
 
