@@ -1,12 +1,11 @@
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
-from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
 
-from PySubtitle.Helpers.TestCases import AddTranslations, CreateTestDataModel, SubtitleTestCase
+from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -30,12 +29,6 @@ class MergeSplitCommandsTests(SubtitleTestCase):
     command_test_cases = [
         {
             'data': chinese_dinner_data,
-            'BatchSubtitlesCommand': {
-                'expected_scene_count': 4,
-                'expected_scene_sizes': [2, 2, 1, 1],
-                'expected_scene_linecounts': [30, 25, 6, 3],
-                'expected_scene_batch_sizes': [[14, 16], [12, 13], [6], [3]],
-            },
             'tests' : [
                 {
                     'test': 'MergeSceneCommandTest',
@@ -139,14 +132,8 @@ class MergeSplitCommandsTests(SubtitleTestCase):
             data = test_case['data']
             log_test_name(f"Testing commands on {data.get('movie_name')}")
 
-            datamodel : ProjectDataModel = CreateTestDataModel(data, self.options)
-            file : SubtitleFile = datamodel.project.subtitles
-
-            with self.subTest("BatchSubtitlesCommand"):
-                self.BatchSubtitlesCommandTests(file, datamodel, test_case.get('BatchSubtitlesCommand'))
-
-            # TODO: extend batching to included translated subtitles if they exist
-            AddTranslations(file, data, 'translated')
+            datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options)
+            subtitles: SubtitleFile = datamodel.project.subtitles
 
             for command_data in test_case['tests']:
                 test = command_data['test']
@@ -154,42 +141,17 @@ class MergeSplitCommandsTests(SubtitleTestCase):
                 with self.subTest(test):
                     log_test_name(f"{test} test")
                     if test == 'MergeSceneCommandTest':
-                        self.MergeSceneCommandTest(file, datamodel, command_data)
+                        self.MergeSceneCommandTest(subtitles, datamodel, command_data)
                     elif test == 'MergeBatchesCommandTest':
-                        self.MergeBatchesCommandTest(file, datamodel, command_data)
+                        self.MergeBatchesCommandTest(subtitles, datamodel, command_data)
                     elif test == 'MergeScenesMergeBatchesCommandTest':
-                        self.MergeScenesMergeBatchesCommandTest(file, datamodel, command_data)
+                        self.MergeScenesMergeBatchesCommandTest(subtitles, datamodel, command_data)
                     elif test == 'MergeSplitScenesCommandTest':
-                        self.MergeSplitScenesCommandTest(file, datamodel, command_data)
+                        self.MergeSplitScenesCommandTest(subtitles, datamodel, command_data)
                     elif test == 'SplitBatchCommandTest':
-                        self.SplitBatchCommandTest(file, datamodel, command_data)
+                        self.SplitBatchCommandTest(subtitles, datamodel, command_data)
                     elif test == 'AutoSplitBatchCommandTest':
-                        self.AutoSplitBatchCommandTest(file, datamodel, command_data)
-
-    def BatchSubtitlesCommandTests(self, file : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
-        expected_scene_count = test_data['expected_scene_count']
-        expected_scene_sizes = test_data['expected_scene_sizes']
-        expected_scene_linecounts = test_data['expected_scene_linecounts']
-        expected_scene_batch_sizes = test_data['expected_scene_batch_sizes']
-
-        batch_command = BatchSubtitlesCommand(datamodel.project, datamodel.project_options)
-        self.assertTrue(batch_command.execute())
-        self.assertTrue(len(file.scenes) > 0)
-
-        log_input_expected_result("Scene count", expected_scene_count, len(file.scenes))
-        self.assertEqual(len(file.scenes), 4)
-
-        scene_sizes = [scene.size for scene in file.scenes]
-        scene_linecounts = [scene.linecount for scene in file.scenes]
-        scene_batch_sizes = [[batch.size for batch in scene.batches] for scene in file.scenes]
-
-        log_input_expected_result("Scene size", expected_scene_sizes, scene_sizes)
-        log_input_expected_result("Scene line count", expected_scene_linecounts, scene_linecounts)
-        log_input_expected_result("Scene batch sizes", expected_scene_batch_sizes, scene_batch_sizes)
-
-        self.assertEqual(scene_sizes, expected_scene_sizes)
-        self.assertEqual(scene_linecounts, expected_scene_linecounts)
-        self.assertSequenceEqual(scene_batch_sizes, expected_scene_batch_sizes)
+                        self.AutoSplitBatchCommandTest(subtitles, datamodel, command_data)
 
     def MergeSceneCommandTest(self, file : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
         merge_scene_numbers = test_data['scene_numbers']
@@ -501,5 +463,4 @@ class MergeSplitCommandsTests(SubtitleTestCase):
         self.assertSequenceEqual([batch.size for batch in scene.batches], undo_expected_batch_sizes)
         self.assertSequenceEqual(undo_line_numbers, undo_expected_line_numbers)
         self.assertSequenceEqual(undo_first_lines, undo_expected_batch_first_lines)
-
 

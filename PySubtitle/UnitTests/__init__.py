@@ -5,6 +5,7 @@ from PySubtitle.UnitTests.test_Substitutions import TestSubstitutions
 from PySubtitle.UnitTests.test_Time import TestTimeHelpers
 from PySubtitle.UnitTests.test_ChineseDinner import ChineseDinnerTests
 from PySubtitle.UnitTests.test_Translator import SubtitleTranslatorTests
+from PySubtitle.UnitTests.test_BatchCommands import BatchCommandTests
 from PySubtitle.UnitTests.test_MergeSplitCommands import MergeSplitCommandsTests
 from PySubtitle.UnitTests.test_MergeLinesCommand import MergeLinesCommandTest
 from PySubtitle.UnitTests.test_DeleteLinesCommand import DeleteLinesCommandTest
