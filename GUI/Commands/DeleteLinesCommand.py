@@ -1,6 +1,5 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.ProjectSelection import ProjectSelection
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -34,7 +33,8 @@ class DeleteLinesCommand(Command):
 
         # Update the viewmodel. Priginal and translated lines are currently linked, deleting one means deleting both
         model_update = self.AddModelUpdate()
-        for scene_number, batch_number, originals, translated in self.deletions:
+        for deletion in self.deletions:
+            scene_number, batch_number, originals, translated = deletion
             for line in originals:
                 model_update.lines.remove((scene_number, batch_number, line.number))
 
@@ -56,7 +56,7 @@ class DeleteLinesCommand(Command):
             batch.InsertLines(deleted_originals, deleted_translated)
 
             for line in deleted_originals:
-                translated = next((line for line in deleted_translated if line.number == line.number), None)
+                translated : SubtitleLine = next((line for line in deleted_translated if line.number == line.number), None)
                 if translated:
                     line.translated = translated
 
