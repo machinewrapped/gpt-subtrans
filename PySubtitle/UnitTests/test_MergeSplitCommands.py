@@ -34,6 +34,7 @@ class MergeSplitCommandsTests(SubtitleTestCase):
                 'expected_scene_count': 4,
                 'expected_scene_sizes': [2, 2, 1, 1],
                 'expected_scene_linecounts': [30, 25, 6, 3],
+                'expected_scene_batch_sizes': [[14, 16], [12, 13], [6], [3]],
             },
             'tests' : [
                 {
@@ -169,6 +170,7 @@ class MergeSplitCommandsTests(SubtitleTestCase):
         expected_scene_count = test_data['expected_scene_count']
         expected_scene_sizes = test_data['expected_scene_sizes']
         expected_scene_linecounts = test_data['expected_scene_linecounts']
+        expected_scene_batch_sizes = test_data['expected_scene_batch_sizes']
 
         batch_command = BatchSubtitlesCommand(datamodel.project, datamodel.project_options)
         self.assertTrue(batch_command.execute())
@@ -177,11 +179,17 @@ class MergeSplitCommandsTests(SubtitleTestCase):
         log_input_expected_result("Scene count", expected_scene_count, len(file.scenes))
         self.assertEqual(len(file.scenes), 4)
 
-        for i in range(len(file.scenes)):
-            log_input_expected_result("Scene size", expected_scene_sizes[i], file.scenes[i].size)
-            log_input_expected_result("Scene line count", expected_scene_linecounts[i], file.scenes[i].linecount)
-            self.assertEqual(file.scenes[i].size, expected_scene_sizes[i])
-            self.assertEqual(file.scenes[i].linecount, expected_scene_linecounts[i])
+        scene_sizes = [scene.size for scene in file.scenes]
+        scene_linecounts = [scene.linecount for scene in file.scenes]
+        scene_batch_sizes = [[batch.size for batch in scene.batches] for scene in file.scenes]
+
+        log_input_expected_result("Scene size", expected_scene_sizes, scene_sizes)
+        log_input_expected_result("Scene line count", expected_scene_linecounts, scene_linecounts)
+        log_input_expected_result("Scene batch sizes", expected_scene_batch_sizes, scene_batch_sizes)
+
+        self.assertEqual(scene_sizes, expected_scene_sizes)
+        self.assertEqual(scene_linecounts, expected_scene_linecounts)
+        self.assertSequenceEqual(scene_batch_sizes, expected_scene_batch_sizes)
 
     def MergeSceneCommandTest(self, file : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
         merge_scene_numbers = test_data['scene_numbers']
