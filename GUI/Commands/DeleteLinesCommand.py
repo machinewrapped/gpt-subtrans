@@ -43,7 +43,7 @@ class DeleteLinesCommand(Command):
 
     def undo(self):
         if not self.deletions:
-            return True
+            return False
 
         logging.info(f"Restoring deleted lines")
         project : SubtitleProject = self.datamodel.project
@@ -52,13 +52,14 @@ class DeleteLinesCommand(Command):
         model_update = self.AddModelUpdate()
 
         for scene_number, batch_number, deleted_originals, deleted_translated in self.deletions:
-            batch = subtitles.GetBatch(scene_number, batch_number)
+            batch : SubtitleBatch = subtitles.GetBatch(scene_number, batch_number)
             batch.InsertLines(deleted_originals, deleted_translated)
 
             for line in deleted_originals:
-                deleted_translated = next((line for line in deleted_translated if line.number == line.number), None)
-                if deleted_translated:
-                    line.translation = deleted_translated.text
+                translated = next((line for line in deleted_translated if line.number == line.number), None)
+                if translated:
+                    line.translated = translated
 
                 model_update.lines.add((scene_number, batch_number), line)
 
+        return True
