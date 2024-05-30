@@ -65,6 +65,8 @@ class DeleteLinesCommandTest(SubtitleTestCase):
 
             initial_batch_size = len(batch.originals)
             initial_line_numbers = [line.number for line in batch.originals]
+            initial_line_contents = [line.text for line in batch.originals]
+            initial_translated_contents = [line.text for line in batch.translated]
 
             log_info(f"Deleting lines {lines_to_delete} from batch {scene_number}.{batch_number}")
 
@@ -83,5 +85,7 @@ class DeleteLinesCommandTest(SubtitleTestCase):
             log_input_expected_result("After Undo", initial_batch_size, len(batch.originals))
             self.assertEqual(len(batch.originals), initial_batch_size)
             self.assertSequenceEqual([line.number for line in batch.originals], initial_line_numbers)
+            self.assertSequenceEqual([line.text for line in batch.originals], initial_line_contents)
+            self.assertSequenceEqual([line.text for line in batch.translated], initial_translated_contents)
 
 
