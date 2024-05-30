@@ -213,8 +213,6 @@ class SubtitleBatch:
         if len(originals) == len(self.originals) and len(translated) == len(self.translated):
             return [],[]
 
-        # TODO: Update line numbers?
-
         deleted_originals = [line for line in self.originals if line.number in line_numbers]
         deleted_translated = [line for line in self.translated if line.number in line_numbers]
 
