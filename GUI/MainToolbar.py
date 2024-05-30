@@ -11,7 +11,7 @@ class MainToolbar(QToolBar):
     """
     Main toolbar for the application
     """
-    _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Start Translating Fast", "Stop Translating"], ["Undo"], ["Settings"], ["About", "Quit"] ]
+    _action_groups = [ ["Load Subtitles", "Save Project"], ["Start Translating", "Start Translating Fast", "Stop Translating"], ["Undo", "Redo"], ["Settings"], ["About", "Quit"] ]
 
     def __init__(self,  gui_interface : GuiInterface):
         super().__init__("Main Toolbar")
@@ -61,14 +61,14 @@ class MainToolbar(QToolBar):
         datamodel : ProjectDataModel = self.gui.GetDataModel()
 
         if not datamodel or not datamodel.IsProjectInitialised():
-            self.DisableActions([ "Save Project", "Start Translating", "Start Translating Fast", "Stop Translating", "Undo" ])
+            self.DisableActions([ "Save Project", "Start Translating", "Start Translating Fast", "Stop Translating", "Undo", "Redo" ])
             self.EnableActions([ "Load Subtitles" ])
             return
 
         # Enable or disable toolbar commands  depending on whether any translations are ongoing
         command_queue : CommandQueue = self.gui.GetCommandQueue()
         if command_queue.Contains(type_list = [TranslateSceneCommand, TranslateSceneMultithreadedCommand, ResumeTranslationCommand]):
-            self.DisableActions([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast", "Undo"])
+            self.DisableActions([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast", "Undo", "Redo"])
             self.EnableActions([ "Stop Translating" ])
             return
 
@@ -77,4 +77,5 @@ class MainToolbar(QToolBar):
         no_blocking_commands = not command_queue.has_blocking_commands
         self.SetCommandsEnabled([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast" ], no_blocking_commands)
         self.SetCommandsEnabled([ "Undo" ], no_blocking_commands and command_queue.can_undo)
+        self.SetCommandsEnabled([ "Redo" ], no_blocking_commands and command_queue.can_redo)
 

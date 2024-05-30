@@ -34,10 +34,12 @@ class CommandQueue(QObject):
 
         self.queue : list[Command] = []
         self.undo_stack : list[Command] = []
+        self.redo_stack : list[Command] = []
 
         self.mutex = QRecursiveMutex()
 
         self.command_pool = QThreadPool(self)
+
         self.SetMaxThreadCount(1)
 
     def SetMaxThreadCount(self, count):
@@ -72,6 +74,11 @@ class CommandQueue(QObject):
         with QMutexLocker(self.mutex):
             return len(self.undo_stack) > 0 and self.undo_stack[-1].can_undo
 
+    @property
+    def can_redo(self) -> bool:
+        with QMutexLocker(self.mutex):
+            return len(self.redo_stack) > 0
+
     def Stop(self):
         """
         Shut the background thread down
@@ -90,6 +97,7 @@ class CommandQueue(QObject):
 
         self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
         command.setParent(self)
+        command.setAutoDelete(False)
 
         with QMutexLocker(self.mutex):
             if isinstance(command, ClearCommandQueue):
@@ -97,6 +105,7 @@ class CommandQueue(QObject):
                 self._clear_command_queue()
             else:
                 self._queue_command(command, datamodel, callback, undo_callback)
+                self._clear_redo_stack()
 
         self.commandAdded.emit(command)
 
@@ -113,9 +122,26 @@ class CommandQueue(QObject):
                 return
 
             self.logger.info(f"Undoing {type(command).__name__}")
+            self.redo_stack.append(command)
             command.undo()
 
         self.commandUndone.emit(command)
+
+    def RedoLastCommand(self):
+        """
+        Redo the last command in the redo stack
+        """
+        with QMutexLocker(self.mutex):
+            command = self.redo_stack.pop()
+
+        if not command:
+            self.logger.warning("No commands to redo")
+            return
+
+        self.logger.info(f"Redoing {type(command).__name__}")
+        self._queue_command(command)
+        self.commandAdded.emit(command)
+        self._start_command_queue()
 
     def Contains(self, command_type: type = None, type_list : list[type] = None):
         """
@@ -136,7 +162,13 @@ class CommandQueue(QObject):
         Clear the undo stack
         """
         with QMutexLocker(self.mutex):
+            for command in self.undo_stack:
+                command.deleteLater()
+            for command in self.redo_stack:
+                command.deleteLater()
+
             self.undo_stack = []
+            self.redo_stack = []
 
     def _on_command_executed(self, command: Command, success: bool):
         """
@@ -144,6 +176,8 @@ class CommandQueue(QObject):
         """
         if not command.aborted:
             self.logger.debug(f"A {type(command).__name__} command was completed")
+
+        command.commandExecuted.disconnect(self._on_command_executed)
 
         with QMutexLocker(self.mutex):
             self.undo_stack.append(command)
@@ -176,6 +210,7 @@ class CommandQueue(QObject):
         if undo_callback:
             command.SetUndoCallback(undo_callback)
 
+        command.started = False
         command.commandExecuted.connect(self._on_command_executed, Qt.ConnectionType.QueuedConnection)
 
     def _start_command_queue(self):
@@ -216,3 +251,12 @@ class CommandQueue(QObject):
 
             command.Abort()
 
+    def _clear_redo_stack(self):
+        """
+        Remove commands from the redo stack and delete them
+        """
+        with QMutexLocker(self.mutex):
+            for command in self.redo_stack:
+                command.deleteLater()
+
+            self.redo_stack = []

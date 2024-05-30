@@ -43,6 +43,7 @@ class ProjectActions(QObject):
     issueCommand = Signal(object)
     actionError = Signal(object)
     undoLastCommand = Signal()
+    redoLastCommand = Signal()
     saveSettings = Signal()
     showSettings = Signal()
     showProviderSettings = Signal()
@@ -69,6 +70,7 @@ class ProjectActions(QObject):
         self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
         self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
         self.AddAction("Undo", self.undoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', 'Undo last action')
+        self.AddAction("Redo", self.redoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Sift+Z', 'Redo last undone action')
         self.AddAction('About', self.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
         #TODO: Mixing different concepts of "action" here - should just be able to pass a ProjectActions instance around

@@ -69,6 +69,7 @@ class GuiInterface(QObject):
         self.action_handler.issueCommand.connect(self.QueueCommand)
         self.action_handler.actionError.connect(self._on_error)
         self.action_handler.undoLastCommand.connect(self.UndoLastCommand)
+        self.action_handler.redoLastCommand.connect(self.RedoLastCommand)
         self.action_handler.showSettings.connect(self.ShowSettingsDialog)
         self.action_handler.showProviderSettings.connect(self.ShowProviderSettingsDialog)
         self.action_handler.toggleProjectSettings.connect(self.toggleProjectSettings)
@@ -105,6 +106,21 @@ class GuiInterface(QObject):
 
         except Exception as e:
             logging.error(f"Error undoing the last command: {str(e)}")
+            self.command_queue.ClearUndoStack()
+
+    def RedoLastCommand(self):
+        """
+        Redo the last command
+        """
+        if not self.command_queue.can_redo:
+            logging.error("Cannot redo the last command")
+            return
+
+        try:
+            self.command_queue.RedoLastCommand()
+
+        except Exception as e:
+            logging.error(f"Error redoing the last command: {str(e)}")
 
     def GetCommandQueue(self):
         """
