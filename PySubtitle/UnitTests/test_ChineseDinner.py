@@ -10,13 +10,10 @@ from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
 class ChineseDinnerTests(SubtitleTestCase):
-    options = Options({
-        'target_language': 'English',
-        'scene_threshold': 60.0,
-        'max_batch_size': 100,
-        'preprocess_subtitles': False,
-        'project': False
-    })
+    def __init__(self, methodName):
+        super().__init__(methodName, custom_options={
+            'max_batch_size': 100,
+        })
 
     def test_ChineseDinner(self):
         log_test_name("Chinese Dinner Tests")

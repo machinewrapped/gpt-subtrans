@@ -13,6 +13,27 @@ from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SubtitleTestCase(unittest.TestCase):
+    def __init__(self, methodName: str = "runTest", custom_options : dict = None) -> None:
+        super().__init__(methodName)
+
+        options = {
+            'provider': 'Dummy Provider',
+            'provider_options': { 'Dummy Provider' : {} },
+            'target_language': 'English',
+            'scene_threshold': 60.0,
+            'min_batch_size': 10,
+            'max_batch_size': 20,
+            'preprocess_subtitles': False,
+            'postprocess_translation': False,
+            'project': 'test',
+            'retry_on_error': False,
+            'stop_on_error': True
+        }
+
+        if custom_options:
+            options.update(custom_options)
+
+        self.options = Options(options)
 
     def _assert_same_as_reference(self, subtitles : SubtitleFile, reference_subtitles: SubtitleFile):
         """

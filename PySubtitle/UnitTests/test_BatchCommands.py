@@ -8,20 +8,6 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
 class BatchCommandTests(SubtitleTestCase):
-    options = Options({
-        'provider': 'Dummy Provider',
-        'provider_options': { 'Dummy Provider' : {} },
-        'target_language': 'English',
-        'scene_threshold': 60.0,
-        'min_batch_size': 10,
-        'max_batch_size': 20,
-        'preprocess_subtitles': False,
-        'postprocess_translation': False,
-        'project': 'test',
-        'retry_on_error': False,
-        'stop_on_error': True
-    })
-
     batch_command_test_cases = [
         {
             'data': chinese_dinner_data,

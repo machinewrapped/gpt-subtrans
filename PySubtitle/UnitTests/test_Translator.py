@@ -2,7 +2,6 @@ from copy import deepcopy
 
 from PySubtitle.Helpers.TestCases import DummyProvider, PrepareSubtitles, SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
-from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -12,16 +11,10 @@ from PySubtitle.SubtitleTranslator import SubtitleTranslator
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
 class SubtitleTranslatorTests(SubtitleTestCase):
-    options = Options({
-        'target_language': 'English',
-        'scene_threshold': 60.0,
-        'max_batch_size': 100,
-        'preprocess_subtitles': False,
-        'postprocess_translation': False,
-        'project': 'test',
-        'retry_on_error': False,
-        'stop_on_error': True
-    })
+    def __init__(self, methodName):
+        super().__init__(methodName, custom_options={
+            'max_batch_size': 100,
+        })
 
     def test_SubtitleTranslator(self):
         log_test_name("Subtitle translator tests")
