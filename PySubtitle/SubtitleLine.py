@@ -11,9 +11,15 @@ class SubtitleLine:
     and (optionally) an associated translation.
     """
     def __init__(self, line : srt.Subtitle | str, translation : str = None, original : str = None):
-        self.item = line
-        self.translation = translation
-        self.original = original
+        if isinstance(line, SubtitleLine):
+            self._item = line._item
+            self._duration = line._duration
+            self.translation = translation or line.translation
+            self.original = original or line.original
+        else:
+            self.item = line
+            self.translation = translation
+            self.original = original
 
     def __str__(self):
         return self.item.to_srt() if self.item else None
@@ -99,9 +105,6 @@ class SubtitleLine:
 
     @item.setter
     def item(self, item : srt.Subtitle | str):
-        if isinstance(item, SubtitleLine):
-            item = item.item
-
         self._item : srt.Subtitle = CreateSrtSubtitle(item)
         self._duration = None
 

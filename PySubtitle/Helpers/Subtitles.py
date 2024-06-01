@@ -38,8 +38,10 @@ def MergeSubtitles(merged_lines : list[SubtitleLine]) -> SubtitleLine:
     merged_start = first_line.start
     merged_end = last_line.end
     merged_content = "\n".join(line.text for line in merged_lines)
+    merged_translation = "\n".join(line.translation for line in merged_lines if line.translation)
+    merged_original = "\n".join(line.original for line in merged_lines if line.original)
     subtitle = srt.Subtitle(merged_number, merged_start, merged_end, merged_content)
-    return SubtitleLine(subtitle)
+    return SubtitleLine(subtitle, translation=merged_translation, original=merged_original)
 
 def MergeTranslations(lines : list[SubtitleLine], translated : list[SubtitleLine]) -> list[SubtitleLine]:
     """
