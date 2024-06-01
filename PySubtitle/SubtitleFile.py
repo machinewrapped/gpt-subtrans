@@ -289,10 +289,7 @@ class SubtitleFile:
             raise ValueError("No scenes in subtitles")
 
         with self.lock:
-            # Regenerate sequential line numbers
-            self.Renumber()
-
-            # Linearise the translated scenes
+            # Linearise the translation
             originals, translated, untranslated = UnbatchScenes(self.scenes)
 
             if not translated:
@@ -301,6 +298,10 @@ class SubtitleFile:
 
             if self.settings.get('include_original'):
                 translated = self._merge_original_and_translated(originals, translated)
+
+            # Renumber the lines to ensure compliance with SRT format
+            for line_number, line in enumerate(translated, start=self.start_line_number or 1):
+                line.number = line_number
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
