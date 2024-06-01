@@ -38,7 +38,6 @@ class DeleteLinesCommand(Command):
             for line in originals:
                 model_update.lines.remove((scene_number, batch_number, line.number))
 
-        self.can_undo = True
         return True
 
     def undo(self):

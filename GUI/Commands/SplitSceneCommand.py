@@ -35,7 +35,6 @@ class SplitSceneCommand(Command):
 
         model_update.scenes.add(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
 
-        self.can_undo = True
         return True
 
     def undo(self):

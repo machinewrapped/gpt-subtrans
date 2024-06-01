@@ -20,6 +20,7 @@ class Command(QRunnable, QObject):
         QRunnable.__init__(self)
         QObject.__init__(self)
         self.datamodel = datamodel
+        self.can_undo : bool = True
         self.is_blocking : bool = True
         self.started : bool = False
         self.executed : bool = False
@@ -29,7 +30,6 @@ class Command(QRunnable, QObject):
         self.undo_callback = None
         self.model_updates : list[ModelUpdate] = []
         self.commands_to_queue : list[Command] = []
-        self.can_undo : bool = False
 
     def SetDataModel(self, datamodel):
         self.datamodel = datamodel

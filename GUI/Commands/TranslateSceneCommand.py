@@ -20,6 +20,7 @@ class TranslateSceneCommand(Command):
         self.scene_number = scene_number
         self.batch_numbers = batch_numbers
         self.line_numbers = line_numbers
+        self.can_undo = False
 
     def execute(self):
         if self.batch_numbers:

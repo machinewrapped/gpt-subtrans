@@ -52,7 +52,6 @@ class SplitBatchCommand(Command):
         model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.errors })
         model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
-        self.can_undo = True
         return True
 
     def undo(self):

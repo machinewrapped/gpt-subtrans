@@ -14,7 +14,6 @@ class MergeLinesCommand(Command):
         super().__init__(datamodel)
         self.line_numbers = sorted(line_numbers)
         self.undo_data = []
-        self.can_undo = True
 
     def execute(self):
         subtitles : SubtitleFile = self.datamodel.project.subtitles

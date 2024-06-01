@@ -50,7 +50,6 @@ class AutoSplitBatchCommand(Command):
         model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
         self.split_line = new_batch.first_line_number
-        self.can_undo = True
         return True
 
     def undo(self):

@@ -35,7 +35,6 @@ class MergeScenesCommand(Command):
         model_update.scenes.replace(merged_scene.number, merged_scene)
         model_update.scenes.removals = self.scene_numbers[1:]
 
-        self.can_undo = True
         return True
 
     def undo(self):

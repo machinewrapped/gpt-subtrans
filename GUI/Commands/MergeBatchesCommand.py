@@ -39,7 +39,6 @@ class MergeBatchesCommand(Command):
             for batch_number in self.batch_numbers[1:]:
                 model_update.batches.remove((scene.number, batch_number))
 
-        self.can_undo = True
         return True
 
     def undo(self):
