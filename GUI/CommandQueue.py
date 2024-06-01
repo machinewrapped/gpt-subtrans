@@ -180,7 +180,8 @@ class CommandQueue(QObject):
         command.commandExecuted.disconnect(self._on_command_executed)
 
         with QMutexLocker(self.mutex):
-            self.undo_stack.append(command)
+            if not command.skip_undo:
+                self.undo_stack.append(command)
             self.queue.remove(command)
 
         if not command.can_undo:

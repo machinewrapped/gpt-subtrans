@@ -11,6 +11,7 @@ class ExitProgramCommand(Command):
     def __init__(self):
         super().__init__()
         self.is_blocking = True
+        self.can_undo = False
 
     def execute(self):
         logging.info("Exiting Program")
@@ -22,6 +23,7 @@ class CheckProviderSettings(Command):
     def __init__(self, options : Options):
         super().__init__()
         self.is_blocking = True
+        self.skip_undo = True
         self.options = options
 
     def execute(self):
@@ -36,3 +38,4 @@ class CheckProviderSettings(Command):
             logging.error(f"CheckProviderSettings: {e}")
 
         return True
+

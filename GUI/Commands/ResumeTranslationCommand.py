@@ -10,6 +10,7 @@ class ResumeTranslationCommand(Command):
     def __init__(self, datamodel: ProjectDataModel = None, multithreaded = False):
         super().__init__(datamodel)
         self.multithreaded = multithreaded
+        self.skip_undo = True
 
     def execute(self):
         if not self.datamodel or not self.datamodel.project or not self.datamodel.project.subtitles:
