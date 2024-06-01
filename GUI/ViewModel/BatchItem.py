@@ -216,8 +216,10 @@ class BatchItem(ViewModelItem):
         if errors:
             if all(isinstance(e, Exception) for e in errors):
                 return [ str(e) for e in errors ]
-            if all(isinstance(e, dict) for e in errors):
+            elif all(isinstance(e, dict) for e in errors):
                 return [ e.get('problem') for e in errors if e.get('problem') ]
+            elif all(isinstance(e, str) for e in errors):
+                return errors
         return []
 
     def __str__(self) -> str:
