@@ -15,14 +15,14 @@ class ReparseTranslationsCommandTest(SubtitleTestCase):
 
     reparse_test_cases = [
         {
-            'data': deepcopy(chinese_dinner_data),
-            'batch_numbers': [(1,1), (2,1), (3,1), (4,1)],
-            'line_numbers': None
-        },
-        {
-            'data': deepcopy(chinese_dinner_data),
+            'data': chinese_dinner_data,
             'batch_numbers': [(2,1)],
             'line_numbers': [41,42,43,44,45]
+        },
+        {
+            'data': chinese_dinner_data,
+            'batch_numbers': [(1,1), (2,1), (3,1), (4,1)],
+            'line_numbers': None
         }
     ]
 
@@ -47,7 +47,7 @@ class ReparseTranslationsCommandTest(SubtitleTestCase):
             # Add the translator responses to the test data model
             AddResponsesFromMap(test_subtitles, test_data)
 
-            command = ReparseTranslationsCommand(batch_numbers, None, datamodel=test_datamodel)
+            command = ReparseTranslationsCommand(batch_numbers, line_numbers, datamodel=test_datamodel)
             self.assertTrue(command.execute())
 
             for scene_number, batch_number in batch_numbers:
@@ -59,10 +59,12 @@ class ReparseTranslationsCommandTest(SubtitleTestCase):
                 self.assertIsNotNone(reference_batch)
 
                 if line_numbers:
-                    for line in batch.originals:
+                    for line in batch.translated:
                         reference_line = reference_batch.GetTranslatedLine(line.number) if line.number in line_numbers else batch.GetOriginalLine(line.number)
                         self.assertIsNotNone(reference_line)
-                        self.assertEqual(line, reference_line)
+                        self.assertEqual(line.start, reference_line.start)
+                        self.assertEqual(line.end, reference_line.end)
+                        self.assertEqual(line.text, reference_line.text)
                 else:
                     self._assert_same_as_reference_batch(batch, reference_batch)
 
