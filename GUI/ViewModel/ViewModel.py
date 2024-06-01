@@ -206,15 +206,16 @@ class ProjectViewModel(QStandardItemModel):
             raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")
 
         root_item = self.getRootItem()
-        scene_item = SceneItem(scene)
+        scene_item = self.CreateSceneItem(scene)
         scene_index = self.indexFromItem(self.model[scene.number])
 
-        self.beginRemoveRows(QModelIndex(), scene_index.row(), scene_index.row())
-        root_item.removeRow(scene_index.row())
+        row = scene_index.row()
+        self.beginRemoveRows(QModelIndex(), row, row)
+        root_item.removeRow(row)
         self.endRemoveRows()
 
-        self.beginInsertRows(QModelIndex(), scene_index.row(), scene_index.row())
-        root_item.insertRow(scene_index.row(), scene_item)
+        self.beginInsertRows(QModelIndex(), row, row)
+        root_item.insertRow(row, scene_item)
         self.model[scene.number] = scene_item
         self.endInsertRows()
 
@@ -365,6 +366,9 @@ class ProjectViewModel(QStandardItemModel):
                 'text': line.text
             })
 
+        if line.translation:
+            batch_item.AddTranslation(line.number, line.translation)
+
         self.endInsertRows()
 
     def UpdateLine(self, scene_number : int, batch_number : int, line_number : int, line_update : dict):
@@ -389,7 +393,14 @@ class ProjectViewModel(QStandardItemModel):
             if line_item:
                 line_item.Update(line_update)
             else:
-                logging.warning(f"Line {line_number} not found in batch {batch_number}")
+                line = SubtitleLine.FromDictionary({
+                    'number' : line_number,
+                    'start' : line_update.get('start'),
+                    'end' : line_update.get('end'),
+                    'body' : line_update.get('text'),
+                })
+                line.translation = line_update.get('translation')
+                self.AddLine(scene_number, batch_number, line)
 
     def RemoveLine(self, scene_number, batch_number, line_number):
         logging.debug(f"Removing line ({scene_number}, {batch_number}, {line_number})")

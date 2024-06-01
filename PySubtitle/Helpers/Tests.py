@@ -2,8 +2,6 @@ import logging
 import os
 from datetime import datetime
 
-from PySubtitle.Options import Options
-from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
 
 separator = "".center(60, "-")
@@ -143,13 +141,4 @@ def RunTestOnAllSrtFiles(run_test: callable, test_options: list[dict], directory
         finally:
             logger.removeHandler(file_handler)
 
-
-def PrepareSubtitles(subtitle_data : dict, key : str = 'original'):
-    """
-    Prepares a SubtitleFile object from subtitle data.
-    """
-    subtitles : SubtitleFile = SubtitleFile()
-    subtitles.LoadSubtitlesFromString(subtitle_data[key])
-    subtitles.UpdateProjectSettings(subtitle_data)
-    return subtitles
 

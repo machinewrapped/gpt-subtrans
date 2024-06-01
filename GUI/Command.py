@@ -20,6 +20,7 @@ class Command(QRunnable, QObject):
         QRunnable.__init__(self)
         QObject.__init__(self)
         self.datamodel = datamodel
+        self.can_undo : bool = True
         self.is_blocking : bool = True
         self.started : bool = False
         self.executed : bool = False
@@ -27,8 +28,8 @@ class Command(QRunnable, QObject):
         self.terminal : bool = False
         self.callback = None
         self.undo_callback = None
-        self.model_update = ModelUpdate()
-        self.commands_to_queue : list = []
+        self.model_updates : list[ModelUpdate] = []
+        self.commands_to_queue : list[Command] = []
 
     def SetDataModel(self, datamodel):
         self.datamodel = datamodel
@@ -43,6 +44,14 @@ class Command(QRunnable, QObject):
         if not self.aborted:
             self.aborted = True
             self.on_abort()
+
+    def AddModelUpdate(self) -> ModelUpdate:
+        update = ModelUpdate()
+        self.model_updates.append(update)
+        return update
+
+    def ClearModelUpdates(self):
+        self.model_updates = []
 
     @Slot()
     def run(self):
@@ -97,4 +106,7 @@ class CommandError(Exception):
     def __init__(self, command : Command, *args: object) -> None:
         super().__init__(*args)
         self.command = command
+
+class UndoError(CommandError):
+    pass
 

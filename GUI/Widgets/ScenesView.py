@@ -30,12 +30,12 @@ class ScenesView(QTreeView):
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
-        self.doubleClicked.connect(self._on_double_click)
+        self.doubleClicked.connect(self._on_double_click, Qt.ConnectionType.QueuedConnection)
 
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.verticalScrollBar().setSingleStep(16)  # Per-pixel scrolling doesn't work unless we set a step
 
-        self.setItemDelegate(ScenesBatchesDelegate(self))  
+        self.setItemDelegate(ScenesBatchesDelegate(self))
         self.Populate(viewmodel)
 
     def Clear(self):
@@ -60,7 +60,7 @@ class ScenesView(QTreeView):
         selection.append(selection_range)
 
         self.selectionModel().select(selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-    
+
     def _item_selected(self, selected, deselected):
         model : QAbstractItemModel = self.model()
 
@@ -109,7 +109,7 @@ class ScenesView(QTreeView):
         else:
             # Call the base class method to handle other key events
             super().keyPressEvent(event)
-    
+
     def _on_double_click(self, index):
         model : QAbstractItemModel = self.model()
         item: ViewModelItem = model.data(index, role=Qt.ItemDataRole.UserRole)

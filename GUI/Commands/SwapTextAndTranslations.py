@@ -21,14 +21,23 @@ class SwapTextAndTranslations(Command):
         if not self.datamodel.project:
             raise CommandError("Unable to translate scene because project is not set on datamodel", command=self)
 
-        project : SubtitleProject = self.datamodel.project
-        file : SubtitleFile = project.subtitles
-        scene : SubtitleScene = file.GetScene(self.scene_number)
-        batch : SubtitleBatch = scene.GetBatch(self.batch_number)
-
-        # Swap original and translated text (only in the viewmodel)
-        for original, translated in zip(batch.originals, batch.translated):
-            if original and translated:
-                self.model_update.lines.update((scene.number, batch.number, original.number), { 'text': translated.text, 'translation': original.text } )
+        self._swap_text_and_translation()
 
         return True
+
+    def undo(self):
+        logging.info(f"Undoing swap text and translations")
+        self._swap_text_and_translation()
+        return True
+
+    def _swap_text_and_translation(self):
+        project : SubtitleProject = self.datamodel.project
+        subtitles : SubtitleFile = project.subtitles
+        batch = subtitles.GetBatch(self.scene_number, self.batch_number)
+
+        # Swap original and translated text (only in the viewmodel)
+        model_update = self.AddModelUpdate()
+        for original, translated in zip(batch.originals, batch.translated):
+            if original and translated:
+                model_update.lines.update((batch.scene, batch.number, original.number), { 'text': translated.text, 'translation': original.text } )
+

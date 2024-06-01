@@ -53,6 +53,9 @@ def TimeDeltaToText(time: datetime.timedelta, include_milliseconds = True) -> st
     - Milliseconds are appended after a comma if they are present.
     - Seconds can be a single digit if no preceding hours or minutes are present.
     """
+    if time is None:
+        return ""
+
     total_seconds = int(time.total_seconds())
     milliseconds = time.microseconds // 1000
 

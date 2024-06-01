@@ -143,7 +143,6 @@ class SubtitleScene:
             if batch.translated:
                 merged_batch.translated.extend(batch.translated)
 
-
         start_index = self._batches.index(batches[0])
         end_index = self._batches.index(batches[-1])
 
@@ -238,8 +237,8 @@ def UnbatchScenes(scenes : list[SubtitleScene]):
     translations = []
     untranslated = []
 
-    for i_scene, scene in enumerate(scenes):
-        for i_batch, batch in enumerate(scene.batches):
+    for scene in scenes:
+        for batch in scene.batches:
             if batch.originals:
                 originals.extend(batch.originals)
             if batch.translated:

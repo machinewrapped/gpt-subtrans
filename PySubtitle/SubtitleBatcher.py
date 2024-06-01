@@ -28,9 +28,7 @@ class SubtitleBatcher:
 
             if gap is not None and gap > self.scene_threshold:
                 if current_lines:
-                    scene = self._create_scene(current_lines)
-
-                    scenes.append(scene)
+                    self.CreateNewScene(scenes, current_lines)
                     current_lines = []
 
             current_lines.append(line)
@@ -38,16 +36,18 @@ class SubtitleBatcher:
 
         # Handle any remaining lines
         if current_lines:
-            scene = self._create_scene(current_lines)
-            scenes.append(scene)
+            self.CreateNewScene(scenes, current_lines)
 
         return scenes
 
-    def _create_scene(self, current_lines : list[SubtitleLine]):
+    def CreateNewScene(self, scenes : list[SubtitleScene], current_lines : list[SubtitleLine]):
         """
         Create a scene and lines to it in batches
         """
         scene = SubtitleScene()
+        scenes.append(scene)
+        scene.number = len(scenes)
+
         split_lines = self._split_lines(current_lines)
 
         for lines in split_lines:

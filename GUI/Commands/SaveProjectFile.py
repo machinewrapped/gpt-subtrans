@@ -15,4 +15,5 @@ class SaveProjectFile(Command):
 
         if self.project.subtitles.translated:
             self.project.SaveTranslation()
+
         return True

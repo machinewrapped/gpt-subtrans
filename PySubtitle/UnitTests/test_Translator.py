@@ -1,95 +1,20 @@
 from copy import deepcopy
-import unittest
 
-from PySubtitle.Helpers.Tests import PrepareSubtitles, log_info, log_input_expected_result, log_test_name
-from PySubtitle.Options import Options
+from PySubtitle.Helpers.TestCases import DummyProvider, PrepareSubtitles, SubtitleTestCase
+from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
-from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
-from PySubtitle.Translation import Translation
-from PySubtitle.TranslationClient import TranslationClient
-from PySubtitle.TranslationPrompt import TranslationPrompt
-from PySubtitle.TranslationProvider import TranslationProvider
 
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
-class DummyProvider(TranslationProvider):
-    def __init__(self, data : dict):
-        super().__init__("Dummy Provider", {
-            "model": "dummy",
-            "data": data,
+class SubtitleTranslatorTests(SubtitleTestCase):
+    def __init__(self, methodName):
+        super().__init__(methodName, custom_options={
+            'max_batch_size': 100,
         })
-
-    def GetTranslationClient(self, settings : dict) -> TranslationClient:
-        client_settings : dict = deepcopy(self.settings)
-        client_settings.update(settings)
-        return DummyTranslationClient(settings=client_settings)
-
-class DummyTranslationClient(TranslationClient):
-    def __init__(self, settings : dict):
-        super().__init__(settings)
-        self.data = settings.get('data', {})
-        self.response_map = self.data.get('response_map', {})
-
-    def BuildTranslationPrompt(self, dummy_prompt : str, instructions : str, lines : list, context : dict):
-        """
-        Validate parameters and generate a basic dummy prompt
-        """
-        if not instructions:
-            raise TranslationError("Translator did not receive instructions")
-
-        if not lines:
-            raise TranslationError("Translator did not receive lines")
-
-        if not context:
-            raise TranslationError("Translator did not receive context")
-
-        if not context.get('movie_name'):
-            raise TranslationError("Translator did not receive movie name")
-
-        if not context.get('description'):
-            raise TranslationError("Translator did not receive description")
-
-        names = context.get('names', None)
-        if not names:
-            raise TranslationError("Translator did not receive name list")
-
-        expected_names = self.data.get('names')
-        if len(names) < len(expected_names):
-            raise TranslationError("Translator did not receive the expected number of names")
-
-        scene_number = context.get('scene_number')
-        batch_number = context.get('batch_number')
-        dummy_prompt = f"Translate scene {scene_number} batch {batch_number}"
-
-        prompt = TranslationPrompt(dummy_prompt, False)
-        prompt.prompt_template = "{prompt}"
-        prompt.supports_system_prompt = True
-        prompt.GenerateMessages(instructions, lines, context)
-
-        return prompt
-
-    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
-        for user_prompt, text in self.response_map.items():
-            if user_prompt == prompt.user_prompt:
-                text = text.replace("\\n", "\n")
-                return Translation({'text': text})
-
-
-class SubtitleTranslatorTests(unittest.TestCase):
-    options = Options({
-        'target_language': 'English',
-        'scene_threshold': 60.0,
-        'max_batch_size': 100,
-        'preprocess_subtitles': False,
-        'postprocess_translation': False,
-        'project': 'test',
-        'retry_on_error': False,
-        'stop_on_error': True
-    })
 
     def test_SubtitleTranslator(self):
         log_test_name("Subtitle translator tests")

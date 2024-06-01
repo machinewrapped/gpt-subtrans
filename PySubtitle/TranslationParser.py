@@ -103,6 +103,7 @@ class TranslationParser:
         if not originals:
             raise ValueError("Original subtitles not provided")
 
+        matched = []
         unmatched = []
 
         for item in originals:
@@ -118,6 +119,8 @@ class TranslationParser:
                     translation.original = item.text
 
                 item.translation = translation.text
+                matched.append(translation)
+
             else:
                 item.translation = None
                 unmatched.append(item)
@@ -125,14 +128,10 @@ class TranslationParser:
         if unmatched:
             self.TryFuzzyMatches(unmatched)
 
-        self.translated = MergeTranslations(self.translated, self.translations.values())
-
-        self.errors = self.ValidateTranslations()
-
         if unmatched:
             self.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", lines=unmatched, translation=translation))
 
-        return self.translated, unmatched
+        return matched, unmatched
 
     def TryFuzzyMatches(self, unmatched : list [SubtitleLine]):
         """

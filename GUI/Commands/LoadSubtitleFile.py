@@ -1,4 +1,4 @@
-from GUI.Command import Command
+from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -12,12 +12,13 @@ class LoadSubtitleFile(Command):
         self.project : SubtitleProject = None
         self.options : Options = Options(options)
         self.write_backup = self.options.get('write_backup', False)
+        self.can_undo = False
 
     def execute(self):
         logging.debug(f"Executing LoadSubtitleFile {self.filepath}")
 
         if not self.filepath:
-            return False
+            raise CommandError("No file path specified", command=self)
 
         try:
             self.options.InitialiseInstructions()
@@ -26,8 +27,7 @@ class LoadSubtitleFile(Command):
             project.InitialiseProject(self.filepath, write_backup=self.write_backup)
 
             if not project.subtitles:
-                logging.error("Unable to load subtitles from {self.filepath}")
-                return False
+                raise CommandError(f"Unable to load subtitles from {self.filepath}", command=self)
 
             self.project = project
             self.datamodel = ProjectDataModel(project, self.options)
@@ -38,9 +38,4 @@ class LoadSubtitleFile(Command):
             return True
 
         except Exception as e:
-            logging.error(f"Unable to load {self.filepath} ({str(e)})")
-            return False
-
-    def undo(self):
-        # I suppose we _could_ store a reference to the previous project...
-        pass
+            raise CommandError(f"Unable to load {self.filepath} ({str(e)})", command=self)

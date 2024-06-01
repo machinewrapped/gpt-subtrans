@@ -78,6 +78,7 @@ class SubtitleEncoder(json.JSONEncoder):
             return {
                 "line": obj.line,
                 "translation": getattr(obj, 'translation'),
+                "original": getattr(obj, 'original')
             }
         elif isinstance(obj, Translation):
             return {
@@ -120,7 +121,7 @@ class SubtitleDecoder(json.JSONDecoder):
                 obj = SubtitleBatch(dct)
                 return obj
             elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-                return SubtitleLine(dct.get('line'), translation=dct.get('translation'))
+                return SubtitleLine(dct.get('line'), translation=dct.get('translation'), original=dct.get('original'))
             elif class_name == classname(Translation) or class_name == "GPTTranslation":
                 content = dct.get('content') or {
                     'text' : dct.get('text'),

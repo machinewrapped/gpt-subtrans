@@ -30,12 +30,13 @@ class MainWindow(QMainWindow):
         self._load_icon("gui-subtrans")
 
         self.gui_interface = GuiInterface(self, options)
-        self.gui_interface.actionRequested.connect(self._on_action_requested)
-        self.gui_interface.commandAdded.connect(self._on_command_added)
-        self.gui_interface.commandComplete.connect(self._on_command_complete)
-        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed)
-        self.gui_interface.prepareForSave.connect(self._prepare_for_save)
-        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings)
+        self.gui_interface.actionRequested.connect(self._on_action_requested, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings, Qt.ConnectionType.QueuedConnection)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -46,7 +47,7 @@ class MainWindow(QMainWindow):
 
         # Create the toolbar
         self.toolbar = MainToolbar(self.gui_interface)
-        self.toolbar.UpdateBusyStatus()
+        self.toolbar.UpdateToolbar()
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -100,18 +101,24 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"Performing {action_name}")
 
     def _on_command_added(self, command : Command):
-        self.toolbar.UpdateBusyStatus()
+        self.toolbar.UpdateToolbar()
         self._update_status_bar(command)
 
     def _on_command_complete(self, command : Command, success):
-        self.toolbar.UpdateBusyStatus()
-        self._update_status_bar(command, success)
+        self.toolbar.UpdateToolbar()
+        self._update_status_bar(command, succeeded=success)
 
-    def _update_status_bar(self, command : Command, succeeded : bool = None):
+    def _on_command_undone(self, command : Command):
+        self.toolbar.UpdateToolbar()
+        self._update_status_bar(command, undone=True)
+
+    def _update_status_bar(self, command : Command, succeeded : bool = None, undone : bool = False):
         command_queue = self.gui_interface.GetCommandQueue()
 
         if not command:
             self.statusBar().showMessage("")
+        elif undone:
+            self.statusBar().showMessage(f"{type(command).__name__} undone.")
         elif succeeded is None:
             self.statusBar().showMessage(f"{type(command).__name__} executed. {command_queue.queue_size} commands in queue.")
         elif command.aborted:

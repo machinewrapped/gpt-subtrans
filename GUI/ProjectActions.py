@@ -10,6 +10,7 @@ from GUI.CommandQueue import ClearCommandQueue
 
 from GUI.GUICommands import CheckProviderSettings
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
+from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
@@ -41,6 +42,8 @@ class ActionError(Exception):
 class ProjectActions(QObject):
     issueCommand = Signal(object)
     actionError = Signal(object)
+    undoLastCommand = Signal()
+    redoLastCommand = Signal()
     saveSettings = Signal()
     showSettings = Signal()
     showProviderSettings = Signal()
@@ -66,6 +69,8 @@ class ProjectActions(QObject):
         self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
         self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
         self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
+        self.AddAction("Undo", self.undoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', 'Undo last action')
+        self.AddAction("Redo", self.redoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Sift+Z', 'Redo last undone action')
         self.AddAction('About', self.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
         #TODO: Mixing different concepts of "action" here - should just be able to pass a ProjectActions instance around
@@ -80,12 +85,13 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Update Batch', self._update_batch)
         ProjectDataModel.RegisterActionHandler('Update Line', self._update_line)
         ProjectDataModel.RegisterActionHandler('Merge Selection', self._merge_selection)
+        ProjectDataModel.RegisterActionHandler('Delete Selection', self._delete_selection)
         ProjectDataModel.RegisterActionHandler('Split Batch', self._split_batch)
         ProjectDataModel.RegisterActionHandler('Split Scene', self._split_scene)
         ProjectDataModel.RegisterActionHandler('Auto-Split Batch', self._autosplit_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
-        #TODO: ProjectDataModel.RegisterActionHandler('Auto-split line', self._autosplit_line)
+        #TODO: ProjectDataModel.RegisterActionHandler('Auto-split line', self._autosplit_line)      - this would not be safe if the line/batch is translated
         #TODO: ProjectDataModel.RegisterActionHandler('Auto-break line', self._autobreak_line)
 
     def SetDataModel(self, datamodel : ProjectDataModel):
@@ -311,7 +317,7 @@ class ProjectActions(QObject):
 
     def _merge_selection(self, datamodel, selection : ProjectSelection):
         """
-        Merge selected scenes or batches (TODO: lines)
+        Merge selected scenes, batches or lines
         """
         if not selection.Any():
             raise ActionError("Nothing selected to merge")
@@ -328,10 +334,25 @@ class ProjectActions(QObject):
             self._issue_command(MergeBatchesCommand(scene_number, batch_numbers, datamodel))
 
         elif selection.AnyLines():
-            self._issue_command(MergeLinesCommand(selection))
+            self._issue_command(MergeLinesCommand(selection.selected_lines))
 
         else:
             raise ActionError(f"Unable to merge selection ({str(selection)})")
+
+    def _delete_selection(self, datamodel : ProjectDataModel, selection : ProjectSelection):
+        """
+        Delete scenes, batches or lines from the project
+        """
+        self._validate_datamodel(datamodel)
+
+        if not selection.Any():
+            raise ActionError("Nothing selected to delete")
+
+        if not selection.AnyLines():
+            raise ActionError("Cannot delete scenes or batches yet")
+
+        line_numbers = [ line.number for line in selection.selected_lines ]
+        self._issue_command(DeleteLinesCommand(line_numbers, datamodel))
 
     def _split_batch(self, datamodel, selection : ProjectSelection):
         """

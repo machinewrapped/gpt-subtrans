@@ -18,6 +18,7 @@ class BatchSubtitlesCommand(Command):
         self.project : SubtitleProject = project
         self.options : Options = options
         self.preprocess_subtitles = options.get('preprocess_subtitles', False)
+        self.can_undo = False
 
     def execute(self):
         logging.info("Executing BatchSubtitlesCommand")
@@ -42,12 +43,10 @@ class BatchSubtitlesCommand(Command):
         batcher : SubtitleBatcher = SubtitleBatcher(self.options)
         project.subtitles.AutoBatch(batcher)
 
-        project.WriteProjectFile()
+        if project.write_project:
+            project.WriteProjectFile()
 
         self.datamodel : ProjectDataModel = ProjectDataModel(project, self.options)
         self.datamodel.CreateViewModel()
         return True
 
-    def undo(self):
-        # Do we flatten, or do we cache the previous batches?
-        pass

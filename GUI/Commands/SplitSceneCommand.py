@@ -26,13 +26,14 @@ class SplitSceneCommand(Command):
 
         project.subtitles.SplitScene(self.scene_number, self.batch_number)
 
+        model_update = self.AddModelUpdate()
         for scene_number in range(self.scene_number + 1, len(project.subtitles.scenes)):
-             self.model_update.scenes.update(scene_number, { 'number' : scene_number + 1})
+             model_update.scenes.update(scene_number, { 'number' : scene_number + 1})
 
         for batch_removed in range(self.batch_number, last_batch + 1):
-            self.model_update.batches.remove((self.scene_number, batch_removed))
+            model_update.batches.remove((self.scene_number, batch_removed))
 
-        self.model_update.scenes.add(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
+        model_update.scenes.add(self.scene_number + 1, project.subtitles.GetScene(self.scene_number + 1))
 
         return True
 
@@ -43,8 +44,20 @@ class SplitSceneCommand(Command):
             raise CommandError("No subtitles", command=self)
 
         try:
-            project.subtitles.MergeScenes([self.scene_number, self.scene_number + 1])
-            self.model_update.rebuild = True
+            scene_numbers = [self.scene_number, self.scene_number + 1]
+            later_scenes = [scene.number for scene in project.subtitles.scenes if scene.number > scene_numbers[1]]
+
+            merged_scene = project.subtitles.MergeScenes(scene_numbers)
+
+            # Recombine the split scenes
+            model_update = self.AddModelUpdate()
+            model_update.scenes.replace(scene_numbers[0], merged_scene)
+            model_update.scenes.remove(scene_numbers[1])
+
+            # Renumber the later scenes (must be done after the merge to avoid conflicts)
+            renumber_update = self.AddModelUpdate()
+            for scene_number in later_scenes:
+                renumber_update.scenes.update(scene_number, { 'number' : scene_number - 1 })
 
             return True
 

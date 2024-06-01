@@ -157,16 +157,19 @@ class BatchItem(ViewModelItem):
                 if row_item.number < line_number:
                     continue
 
-                if row_item.number == line_number:
+                # Insert the new line at the first opportunity
+                if line_item:
                     self.insertRow(row, line_item)
+                    self.lines[line_number] = line_item
+                    line_item = None
+                    if row_item.number > line_number:
+                        # No need to adjust the following line numbers
+                        break
 
                 row_item.number = row_item.number + 1
-                self.lines[line_number] = line_item
+                self.lines[row_item.number] = row_item
 
-        if self._last_line_num and self._last_line_num < line_number:
-            self._last_line_num = line_number
-        if self._first_line_num and self._first_line_num > line_number:
-            self._first_line_num = line_number
+        self._invalidate_first_and_last()
 
     def AddTranslation(self, line_number : int, text : str):
         """

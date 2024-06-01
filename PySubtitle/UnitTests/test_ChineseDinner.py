@@ -1,7 +1,5 @@
-import unittest
-
-from PySubtitle.Helpers.Tests import PrepareSubtitles, log_info, log_input_expected_result, log_test_name
-from PySubtitle.Options import Options
+from PySubtitle.Helpers.TestCases import PrepareSubtitles, SubtitleTestCase
+from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -10,14 +8,11 @@ from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
-class ChineseDinnerTests(unittest.TestCase):
-    options = Options({
-        'target_language': 'English',
-        'scene_threshold': 60.0,
-        'max_batch_size': 100,
-        'preprocess_subtitles': False,
-        'project': False
-    })
+class ChineseDinnerTests(SubtitleTestCase):
+    def __init__(self, methodName):
+        super().__init__(methodName, custom_options={
+            'max_batch_size': 100,
+        })
 
     def test_ChineseDinner(self):
         log_test_name("Chinese Dinner Tests")
@@ -85,13 +80,14 @@ class ChineseDinnerTests(unittest.TestCase):
         ]
         batch_containing_line = [(1, 1, 1), (10, 1,1), (32, 2, 1), (55, 2, 1), (63, 4, 1)]
 
-        subtitles = PrepareSubtitles(chinese_dinner_data)
+        subtitles : SubtitleFile = PrepareSubtitles(chinese_dinner_data)
 
         batcher = SubtitleBatcher(self.options)
         subtitles.AutoBatch(batcher)
 
         log_info("Line count: " + str(subtitles.linecount))
         log_info("Scene count: " + str(subtitles.scenecount))
+        log_info("Scene batches", [scene.size for scene in subtitles.scenes])
         log_info("Scene line counts: " + ", ".join([str(scene.linecount) for scene in subtitles.scenes]))
 
         self.assertEqual(subtitles.scenecount, scene_count)
