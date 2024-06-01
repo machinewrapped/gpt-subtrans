@@ -97,7 +97,6 @@ class CommandQueue(QObject):
 
         self.logger.debug(f"Adding a {type(command).__name__} command to the queue")
         command.setParent(self)
-        command.setAutoDelete(False)
 
         with QMutexLocker(self.mutex):
             if isinstance(command, ClearCommandQueue):
@@ -215,6 +214,7 @@ class CommandQueue(QObject):
             command.SetUndoCallback(undo_callback)
 
         command.started = False
+        command.setAutoDelete(False)
         command.commandExecuted.connect(self._on_command_executed, Qt.ConnectionType.QueuedConnection)
 
     def _start_command_queue(self):
