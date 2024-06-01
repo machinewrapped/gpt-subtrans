@@ -58,8 +58,6 @@ class ReparseTranslationsCommand(Command):
             except Exception as e:
                 raise CommandError(f"Error reparsing scene {scene_number} batch {batch_number}: {e}", command=self)
 
-        project.UpdateProjectFile()
-
         return True
 
     def _generate_undo_data(self, batch : SubtitleBatch, original_summary : str, original_translations : dict[int,str]):
