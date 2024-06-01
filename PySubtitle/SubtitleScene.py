@@ -143,7 +143,6 @@ class SubtitleScene:
             if batch.translated:
                 merged_batch.translated.extend(batch.translated)
 
-
         start_index = self._batches.index(batches[0])
         end_index = self._batches.index(batches[-1])
 

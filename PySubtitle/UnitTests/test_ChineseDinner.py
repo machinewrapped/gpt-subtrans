@@ -87,6 +87,7 @@ class ChineseDinnerTests(SubtitleTestCase):
 
         log_info("Line count: " + str(subtitles.linecount))
         log_info("Scene count: " + str(subtitles.scenecount))
+        log_info("Scene batches", [scene.size for scene in subtitles.scenes])
         log_info("Scene line counts: " + ", ".join([str(scene.linecount) for scene in subtitles.scenes]))
 
         self.assertEqual(subtitles.scenecount, scene_count)

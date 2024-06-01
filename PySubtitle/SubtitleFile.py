@@ -448,8 +448,7 @@ class SubtitleFile:
             end_index = self.scenes.index(scenes[-1])
             self.scenes = self.scenes[:start_index + 1] + self.scenes[end_index+1:]
 
-            for number, scene in enumerate(self.scenes, start = 1):
-                scene.number = number
+            self._renumber_scenes()
 
         return merged_scene
 
@@ -502,28 +501,7 @@ class SubtitleFile:
             else:
                 self.scenes.append(new_scene)
 
-    def Renumber(self):
-        """
-        Force monotonic numbering of scenes, batches, lines and translated lines
-        """
-        with self.lock:
-            for scene_number, scene in enumerate(self.scenes, start=1):
-                scene.number = scene_number
-                for batch_number, batch in enumerate(scene.batches, start=1):
-                    batch.number = batch_number
-                    batch.scene = scene.number
-
-            # Renumber lines sequentially and remap translated indexes
-            translated_map = { translated.number: translated for translated in self.translated } if self.translated else None
-
-            for number, line in enumerate(self.originals, start=self.start_line_number or 1):
-                # If there is a matching translation, remap its number
-                if translated_map and line.number in translated_map:
-                    translated = translated_map[line.number]
-                    translated.number = number
-                    del translated_map[line.number]
-
-                line.number = number
+            self._renumber_scenes()
 
     def Sanitise(self):
         """
@@ -539,6 +517,17 @@ class SubtitleFile:
                         batch.translated = [line for line in batch.translated if line.number and line.start is not None]
 
         self.scenes = [scene for scene in self.scenes if scene.batches]
+        self._renumber_scenes()
+
+    def _renumber_scenes(self):
+        """
+        Ensure scenes are numbered sequentially
+        """
+        for scene_number, scene in enumerate(self.scenes, start = 1):
+            scene.number = scene_number
+            for batch_number, batch in enumerate(scene.batches, start = 1):
+                batch.scene = scene.number
+                batch.number = batch_number
 
     def _get_history(self, scene_number : int, batch_number : int, max_lines : int):
         """
