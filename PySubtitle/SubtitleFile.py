@@ -298,13 +298,15 @@ class SubtitleFile:
             if self.settings.get('include_original'):
                 translated = self._merge_original_and_translated(originals, translated)
 
+
             # Renumber the lines to ensure compliance with SRT format
+            output_lines = []
             for line_number, line in enumerate(translated, start=self.start_line_number or 1):
-                line.number = line_number
+                output_lines.append(SubtitleLine.Construct(line_number, line.start, line.end, line.text))
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
-            srtfile = srt.compose([ line.item for line in translated if line.text and line.start], reindex=False)
+            srtfile = srt.compose([ line.item for line in output_lines if line.text and line.start], reindex=False)
             with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
