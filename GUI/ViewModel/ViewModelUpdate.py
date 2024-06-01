@@ -54,7 +54,9 @@ class ModelUpdate:
                 viewmodel.RemoveLines(scene_number, batch_number, line_numbers)
 
         for key, line in self.lines.additions.items():
-            scene_number, batch_number = key
+            scene_number, batch_number, line_number = key
+            if line_number != line.number:
+                raise ValueError(f"Line number mismatch: {line_number} != {line.number}")
             viewmodel.AddLine(scene_number, batch_number, line)
 
     def GetRemovedLinesInBatches(self):

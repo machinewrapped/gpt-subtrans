@@ -265,16 +265,22 @@ class SubtitleBatch:
                     self.translated.insert(index, line)
                     break
 
-    def InsertLines(self, originals : list[SubtitleLine], translated : list[SubtitleLine] = None):
+    def InsertLines(self, originals: list[SubtitleLine], translated: list[SubtitleLine] = None) -> None:
         """
         Insert multiple lines into the batch, with optional translations
         """
         if not originals:
             raise SubtitleError("No original lines provided to insert")
 
-        for line in originals:
-            self.InsertOriginalLine(line)
+        # Merge existing and new originals
+        original_line_map = {line.number: line for line in self.originals}
+        original_line_map.update({line.number: line for line in originals})
+        self.originals = [original_line_map[num] for num in sorted(original_line_map)]
 
-        for line in translated:
-            self.InsertTranslatedLine(line)
+        if translated:
+            # Merge existing and new translations
+            translated_line_map = {line.number: line for line in self.translated}
+            translated_line_map.update({line.number: line for line in translated})
+            self.translated = [translated_line_map[num] for num in sorted(translated_line_map)]
+
 
