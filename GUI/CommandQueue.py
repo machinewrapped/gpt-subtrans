@@ -184,6 +184,9 @@ class CommandQueue(QObject):
             self.undo_stack.append(command)
             self.queue.remove(command)
 
+        if not command.can_undo:
+            self.ClearUndoStack()
+
         self.commandExecuted.emit(command, success)
 
         can_proceed = not command.aborted and not command.terminal
