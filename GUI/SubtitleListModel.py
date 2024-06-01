@@ -169,6 +169,8 @@ class SubtitleListModel(QAbstractProxyModel):
         else:
             self.ShowSelection(ProjectSelection())
 
+        self.layoutChanged.emit()
+
     def _reset_visible_batches(self):
         self.ShowSelection(ProjectSelection())
 

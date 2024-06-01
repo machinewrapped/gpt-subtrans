@@ -102,14 +102,17 @@ class SubtitleView(QListView):
         self.editLine.emit(item)
 
     def selectionChanged(self, selected, deselected):
+        super().selectionChanged(selected, deselected)
+
         model : SubtitleListModel = self.model()
 
+        selected_lines = []
         selected_indexes = self.selectedIndexes()
         if selected_indexes:
             selected_items = [ model.data(index, role=Qt.ItemDataRole.UserRole) for index in selected_indexes]
             selected_lines = [item for item in selected_items if isinstance(item, LineItem)]
 
-            self.linesSelected.emit(selected_lines)
+        self.linesSelected.emit(selected_lines)
 
     def keyPressEvent(self, event):
         """

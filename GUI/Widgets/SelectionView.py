@@ -96,11 +96,15 @@ class SelectionView(QFrame):
     def _on_merge_selection(self):
         if self.selection:
             self.gui.PerformModelAction('Merge Selection', (self.selection,))
+
+            # HACK: the selection should be updated automatically when lines are merged, but it doesn't work correctly
             self.resetSelection.emit()
 
     def _on_delete_lines(self):
         if self.selection and self.selection.AnyLines():
             self.gui.PerformModelAction('Delete Selection', (self.selection,))
+
+            # HACK: the selection should be updated automatically when lines are deleted, but it doesn't work correctly
             self.resetSelection.emit()
 
     def _on_split_batch(self):
