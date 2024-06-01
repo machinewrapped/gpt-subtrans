@@ -83,7 +83,6 @@ class SubtitleFile:
             self._scenes = scenes
             self.originals, self.translated, _ = UnbatchScenes(scenes)
             self.start_line_number = (self.originals[0].number if self.originals else 1) or 1
-            self.Renumber()
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
         """

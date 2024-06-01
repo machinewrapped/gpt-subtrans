@@ -238,8 +238,8 @@ def UnbatchScenes(scenes : list[SubtitleScene]):
     translations = []
     untranslated = []
 
-    for i_scene, scene in enumerate(scenes):
-        for i_batch, batch in enumerate(scene.batches):
+    for scene in scenes:
+        for batch in scene.batches:
             if batch.originals:
                 originals.extend(batch.originals)
             if batch.translated:
