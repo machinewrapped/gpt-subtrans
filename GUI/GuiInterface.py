@@ -297,7 +297,7 @@ class GuiInterface(QObject):
         """
         Handle the undoing of a command
         """
-        logging.debug(f"Undid a {type(command).__name__} command")
+        logging.debug(f"{type(command).__name__} command undone")
         for model_update in command.model_updates:
             self.datamodel.UpdateViewModel(model_update)
 
