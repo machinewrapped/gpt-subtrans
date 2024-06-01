@@ -9,4 +9,5 @@ from PySubtitle.UnitTests.test_BatchCommands import BatchCommandTests
 from PySubtitle.UnitTests.test_MergeSplitCommands import MergeSplitCommandsTests
 from PySubtitle.UnitTests.test_MergeLinesCommand import MergeLinesCommandTest
 from PySubtitle.UnitTests.test_DeleteLinesCommand import DeleteLinesCommandTest
+from PySubtitle.UnitTests.test_ReparseTranslationCommand import ReparseTranslationsCommandTest
 

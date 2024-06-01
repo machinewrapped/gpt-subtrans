@@ -1,8 +1,11 @@
 from copy import deepcopy
 import unittest
 
+import regex
+
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options
+from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -37,20 +40,26 @@ class SubtitleTestCase(unittest.TestCase):
 
     def _assert_same_as_reference(self, subtitles : SubtitleFile, reference_subtitles: SubtitleFile):
         """
-        Compare the current state of the subtitles to the reference datamodel
+        Assert that the current state of the subtitles is identical to the reference datamodel
         """
         for scene_number in range(1, len(subtitles.scenes) + 1):
             for batch_number in range(1, len(subtitles.GetScene(scene_number).batches) + 1):
                 batch = subtitles.GetBatch(scene_number, batch_number)
                 reference_batch = reference_subtitles.GetBatch(scene_number, batch_number)
 
-                self.assertEqual(len(batch.originals), len(reference_batch.originals))
-                self.assertEqual(len(batch.translated), len(reference_batch.translated))
+                self._assert_same_as_reference_batch(batch, reference_batch)
 
-                self.assertSequenceEqual([ line.text for line in batch.originals ], [ line.text for line in reference_batch.originals ])
-                self.assertSequenceEqual([ line.text for line in batch.translated ], [ line.text for line in reference_batch.translated ])
-                self.assertSequenceEqual([ line.start for line in batch.originals ], [ line.start for line in reference_batch.originals ])
-                self.assertSequenceEqual([ line.end for line in batch.originals ], [ line.end for line in reference_batch.originals ])
+    def _assert_same_as_reference_batch(self, batch : SubtitleBatch, reference_batch : SubtitleBatch):
+        """
+        Assert that the current state of the batch is identical to the reference batch
+        """
+        self.assertEqual(len(batch.originals), len(reference_batch.originals))
+        self.assertEqual(len(batch.translated), len(reference_batch.translated))
+
+        self.assertSequenceEqual([ line.text for line in batch.originals ], [ line.text for line in reference_batch.originals ])
+        self.assertSequenceEqual([ line.text for line in batch.translated ], [ line.text for line in reference_batch.translated ])
+        self.assertSequenceEqual([ line.start for line in batch.originals ], [ line.start for line in reference_batch.originals ])
+        self.assertSequenceEqual([ line.end for line in batch.originals ], [ line.end for line in reference_batch.originals ])
 
 
 def PrepareSubtitles(subtitle_data : dict, key : str = 'original') -> SubtitleFile:
@@ -96,9 +105,23 @@ def CreateTestDataModelBatched(test_data : dict, options : Options = None) -> Pr
     subtitles : SubtitleFile = datamodel.project.subtitles
     batcher = SubtitleBatcher(options.GetSettings())
     subtitles.AutoBatch(batcher)
-    AddTranslations(subtitles, test_data, 'translated')
+
+    if 'translated' in test_data:
+        AddTranslations(subtitles, test_data, 'translated')
+
     return datamodel
 
+def AddResponsesFromMap(subtitles : SubtitleFile, test_data : dict):
+    """
+    Add translator responses to the subtitles if test_data has a response map.
+    """
+    for prompt, response_text in test_data.get('response_map', []).items():
+        # Find scene and batch number from the prompt, e.g. "Translate scene 1 batch 1"
+        re_match = regex.match(r"Translate scene (\d+) batch (\d+)", prompt)
+        scene_number = int(re_match.group(1))
+        batch_number = int(re_match.group(2))
+        batch = subtitles.GetBatch(scene_number, batch_number)
+        batch.translation = Translation({'text': response_text})
 
 class DummyProvider(TranslationProvider):
     name = "Dummy Provider"
