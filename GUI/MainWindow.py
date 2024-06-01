@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
 
         # Create the toolbar
         self.toolbar = MainToolbar(self.gui_interface)
-        self.toolbar.UpdateBusyStatus()
+        self.toolbar.UpdateToolbar()
         main_layout.addWidget(self.toolbar)
 
         # Create a splitter widget to divide the remaining vertical space between the project viewer and log window
@@ -101,15 +101,15 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"Performing {action_name}")
 
     def _on_command_added(self, command : Command):
-        self.toolbar.UpdateBusyStatus()
+        self.toolbar.UpdateToolbar()
         self._update_status_bar(command)
 
     def _on_command_complete(self, command : Command, success):
-        self.toolbar.UpdateBusyStatus()
+        self.toolbar.UpdateToolbar()
         self._update_status_bar(command, succeeded=success)
 
     def _on_command_undone(self, command : Command):
-        self.toolbar.UpdateBusyStatus()
+        self.toolbar.UpdateToolbar()
         self._update_status_bar(command, undone=True)
 
     def _update_status_bar(self, command : Command, succeeded : bool = None, undone : bool = False):

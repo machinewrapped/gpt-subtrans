@@ -30,6 +30,13 @@ class MainToolbar(QToolBar):
             for action in actions:
                 self.addAction(action)
 
+    def UpdateToolbar(self):
+        """
+        Update the toolbar
+        """
+        self.UpdateBusyStatus()
+        self.UpdateTooltips()
+
     def EnableActions(self, action_list : list[str]):
         """
         Enable a list of commands
@@ -53,6 +60,14 @@ class MainToolbar(QToolBar):
         for action in self.actions():
             if action.text() in action_list:
                 action.setEnabled(enabled)
+
+    def UpdateTooltip(self, action_name : str, label : str):
+        """
+        Update the label of a command
+        """
+        for action in self.actions():
+            if action.text() == action_name:
+                action.setToolTip(label)
 
     def UpdateBusyStatus(self):
         """
@@ -79,3 +94,19 @@ class MainToolbar(QToolBar):
         self.SetCommandsEnabled([ "Undo" ], no_blocking_commands and command_queue.can_undo)
         self.SetCommandsEnabled([ "Redo" ], no_blocking_commands and command_queue.can_redo)
 
+    def UpdateTooltips(self):
+        """
+        Update the labels on the toolbar
+        """
+        command_queue : CommandQueue = self.gui.GetCommandQueue()
+        if command_queue.can_undo:
+            last_command = command_queue.undo_stack[-1]
+            self.UpdateTooltip("Undo", f"Undo {type(last_command).__name__}")
+        else:
+            self.UpdateTooltip("Undo", "Nothing to undo")
+
+        if command_queue.can_redo:
+            next_command = command_queue.redo_stack[-1]
+            self.UpdateTooltip("Redo", f"Redo {type(next_command).__name__}")
+        else:
+            self.UpdateTooltip("Redo", "Nothing to redo")
