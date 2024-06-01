@@ -123,7 +123,10 @@ class CommandQueue(QObject):
             self.redo_stack.append(command)
 
         self.logger.info(f"Undoing {type(command).__name__}")
+
         command.undo()
+
+        command.execute_undo_callback()
 
         self.commandUndone.emit(command)
 
@@ -178,6 +181,8 @@ class CommandQueue(QObject):
             self.logger.debug(f"A {type(command).__name__} command was completed")
 
         command.commandExecuted.disconnect(self._on_command_executed)
+
+        command.execute_callback()
 
         with QMutexLocker(self.mutex):
             if not command.skip_undo:

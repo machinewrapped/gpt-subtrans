@@ -50,6 +50,7 @@ class ProjectActions(QObject):
     toggleProjectSettings = Signal()
     showAboutDialog = Signal()
     loadProject = Signal(str)
+    saveProject = Signal(str)
     exitProgram = Signal()
 
     _actions = {}
@@ -155,7 +156,7 @@ class ProjectActions(QObject):
             filepath, _ = QFileDialog.getSaveFileName(self._mainwindow, "Save Project File", filepath, "Subtrans projects (*.subtrans);;All Files (*)")
 
         if filepath:
-            self._issue_command(SaveProjectFile(project, filepath))
+            self.saveProject.emit(filepath)
 
     def _is_shift_pressed(self):
         return QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier

@@ -75,6 +75,7 @@ class GuiInterface(QObject):
         self.action_handler.toggleProjectSettings.connect(self.toggleProjectSettings)
         self.action_handler.saveSettings.connect(self.SaveSettings)
         self.action_handler.loadProject.connect(self.LoadProject)
+        self.action_handler.saveProject.connect(self.SaveProject)
         self.action_handler.showAboutDialog.connect(self.ShowAboutDialog)
         self.action_handler.exitProgram.connect(self._exit_program)
 
@@ -87,11 +88,11 @@ class GuiInterface(QObject):
         """
         return self.mainwindow
 
-    def QueueCommand(self, command : Command):
+    def QueueCommand(self, command : Command, callback = None, undo_callback = None):
         """
         Add a command to the command queue and set the datamodel
         """
-        self.command_queue.AddCommand(command, self.datamodel)
+        self.command_queue.AddCommand(command, self.datamodel, callback=callback, undo_callback=undo_callback)
 
     def UndoLastCommand(self):
         """
@@ -235,7 +236,7 @@ class GuiInterface(QObject):
         elif filepath:
             # Load file if we were opened with one
             filepath = os.path.abspath(filepath)
-            self.QueueCommand(LoadSubtitleFile(filepath, options))
+            self.LoadProject(filepath)
         else:
             # Check if the translation provider is configured correctly
             self.QueueCommand(CheckProviderSettings(options))
@@ -262,7 +263,13 @@ class GuiInterface(QObject):
         """
         Load a project file
         """
-        self.QueueCommand(LoadSubtitleFile(filepath, self.global_options))
+        self.QueueCommand(LoadSubtitleFile(filepath, self.global_options), callback=self._on_project_loaded)
+
+    def SaveProject(self, filepath : str = None):
+        """
+        Save the project file
+        """
+        self.QueueCommand(SaveProjectFile(self.datamodel.project, filepath), callback=self._on_project_saved)
 
     def ShowNewProjectSettings(self, datamodel : ProjectDataModel):
         """
@@ -316,27 +323,17 @@ class GuiInterface(QObject):
         logging.debug(f"A {type(command).__name__} command {'succeeded' if success else 'failed'}")
 
         if success:
-            if isinstance(command, LoadSubtitleFile):
-                self.SetDataModel(command.datamodel)
-                self._update_last_used_path(command.filepath)
-                if not self.datamodel.IsProjectInitialised():
-                    self.ShowNewProjectSettings(self.datamodel)
-
-            elif isinstance(command, SaveProjectFile):
-                self._update_last_used_path(command.filepath)
-                self.SetDataModel(command.datamodel)
-
             if command.model_updates:
                 for model_update in command.model_updates:
                     self.datamodel.UpdateViewModel(model_update)
 
                 command.ClearModelUpdates()
 
-            elif command.datamodel:
+            elif command.datamodel != self.datamodel:
                 # Shouldn't need to do a full model rebuild often?
                 self.SetDataModel(command.datamodel)
 
-            else:
+            elif command.datamodel is None:
                 self.dataModelChanged.emit(None)
 
         # Auto-save if the commmand queue is empty and the project has changed
@@ -345,6 +342,22 @@ class GuiInterface(QObject):
                 self.datamodel.SaveProject()
 
         self.commandComplete.emit(command, success)
+
+    def _on_project_loaded(self, command : LoadSubtitleFile):
+        """
+        Update the data model and last used path after loading a project
+        """
+        self.SetDataModel(command.datamodel)
+        self._update_last_used_path(command.filepath)
+        if not self.datamodel.IsProjectInitialised():
+            self.ShowNewProjectSettings(self.datamodel)
+
+    def _on_project_saved(self, command : SaveProjectFile):
+        """
+        Update the data model and last used path after saving a project
+        """
+        self._update_last_used_path(command.filepath)
+        self.SetDataModel(command.datamodel)
 
     def _update_last_used_path(self, filepath : str):
         """
