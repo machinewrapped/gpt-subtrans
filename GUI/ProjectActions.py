@@ -91,7 +91,7 @@ class ProjectActions(QObject):
         ProjectDataModel.RegisterActionHandler('Auto-Split Batch', self._autosplit_batch)
         ProjectDataModel.RegisterActionHandler('Swap Text', self._swap_text_and_translation)
 
-        #TODO: ProjectDataModel.RegisterActionHandler('Auto-split line', self._autosplit_line)
+        #TODO: ProjectDataModel.RegisterActionHandler('Auto-split line', self._autosplit_line)      - this would not be safe if the line/batch is translated
         #TODO: ProjectDataModel.RegisterActionHandler('Auto-break line', self._autobreak_line)
 
     def SetDataModel(self, datamodel : ProjectDataModel):
