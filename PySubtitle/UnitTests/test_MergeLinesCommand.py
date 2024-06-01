@@ -60,12 +60,13 @@ class MergeLinesCommandTest(SubtitleTestCase):
                 log_input_expected_result(f"Line {line_number}", (line.srt_start, line.srt_end), (line_data['start'], line_data['end']))
                 log_input_expected_result("Batch size", len(batch.originals), expected_batch_size)
                 log_input_expected_result("Original", line.text, line_data['original'])
-                log_input_expected_result("Translated", line.translated, line_data['translated'])
+                log_input_expected_result("Translated", line.translation, line_data['translated'])
 
                 self.assertEqual(len(batch.originals), expected_batch_size)
                 self.assertEqual(line.srt_start, line_data['start'])
                 self.assertEqual(line.srt_end, line_data['end'])
                 self.assertEqual(line.text, line_data['original'])
+                self.assertEqual(line.translation, line_data['translated'])
 
                 if translated_line:
                     self.assertEqual(translated_line.srt_start, line_data['start'])
