@@ -105,14 +105,11 @@ class SubtitleProcessor:
             return []
 
         processed = []
-        line_number = lines[0].number
 
         for line in lines:
-            line.number = line_number
-            output = self._postprocess_line(line)
-            if output:
-                processed.extend(output)
-                line_number += len(output)
+            processed_line = self._postprocess_line(line)
+            if processed_line:
+                processed.append(processed_line)
 
         # TODO: fix minimum durations
         # TODO: fix overlapping start/end times (or merge the lines?)
@@ -161,7 +158,7 @@ class SubtitleProcessor:
         text = line.text.strip()
 
         if not text:
-            return [line]
+            return line
 
         if self.remove_filler_words:
             text = RemoveFillerWords(text, self.filler_words_pattern)
@@ -179,11 +176,11 @@ class SubtitleProcessor:
             text = self._break_long_lines(text)
 
         if text == line.text:
-            return [line]
+            return line
 
         logging.debug(f"Postprocessed line {line.number}:\n{line.text}\n-->\n{text}")
         processed_line = SubtitleLine.Construct(line.number, line.start, line.end, text)
-        return [processed_line]
+        return processed_line
 
     def _break_long_lines(self, text):
         """
