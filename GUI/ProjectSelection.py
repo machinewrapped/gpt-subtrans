@@ -305,7 +305,7 @@ class ProjectSelection():
             selected_batch_numbers = [ batch.number for batch in self.selected_batches ]
             batch_lines = [ x for x in self.lines.values() if x.batch in selected_batch_numbers ]
             if batch_lines:
-                return f"{len(batch_lines)} original lines"
+                return f"{len(batch_lines)} lines"
         elif self.lines:
             return f"{len(self.lines)} lines"
         else:
