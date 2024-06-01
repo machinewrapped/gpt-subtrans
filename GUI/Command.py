@@ -89,6 +89,10 @@ class Command(QRunnable, QObject):
         raise NotImplementedError
 
     def undo(self):
+        if self.skip_undo:
+            logging.warning(f"Command {type(self).__name__} has no undo function and is not set to skip undo")
+            return False
+
         raise NotImplementedError
 
     def on_abort(self):
