@@ -272,15 +272,11 @@ class SubtitleBatch:
         if not originals:
             raise SubtitleError("No original lines provided to insert")
 
-        # Merge existing and new originals
-        original_line_map = {line.number: line for line in self.originals}
-        original_line_map.update({line.number: line for line in originals})
-        self.originals = [original_line_map[num] for num in sorted(original_line_map)]
+        originals = sorted(originals, key=lambda item: item.number)
 
-        if translated:
-            # Merge existing and new translations
-            translated_line_map = {line.number: line for line in self.translated}
-            translated_line_map.update({line.number: line for line in translated})
-            self.translated = [translated_line_map[num] for num in sorted(translated_line_map)]
+        for line in originals:
+            self.InsertOriginalLine(line)
 
-
+        for line in translated or []:
+            translated = sorted(translated, key=lambda item: item.number)
+            self.InsertTranslatedLine(line)
