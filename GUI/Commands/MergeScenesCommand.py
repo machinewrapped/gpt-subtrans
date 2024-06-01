@@ -12,6 +12,7 @@ class MergeScenesCommand(Command):
         super().__init__(datamodel)
         self.scene_numbers = sorted(scene_numbers)
         self.scene_sizes = []
+        self.original_summaries = {}
 
     def execute(self):
         logging.info(f"Merging scenes {','.join(str(x) for x in self.scene_numbers)}")
@@ -23,6 +24,7 @@ class MergeScenesCommand(Command):
 
         scenes_to_merge = [ subtitles.GetScene(scene_number) for scene_number in self.scene_numbers ]
         self.scene_sizes = [ scene.size for scene in scenes_to_merge ]
+        self.original_summaries = { scene.number: scene.summary for scene in scenes_to_merge }
 
         later_scenes = [scene.number for scene in subtitles.scenes if scene.number > self.scene_numbers[-1]]
 
@@ -53,6 +55,10 @@ class MergeScenesCommand(Command):
         for batch_number in [batch.number for batch in scene_to_split.batches[self.scene_sizes[0]:]]:
             model_update.batches.remove((scene_to_split.number, batch_number))
 
+        # Restore the original summary
+        scene_to_split.summary = self.original_summaries.get(scene_to_split.number, None)
+        model_update.scenes.update(scene_to_split.number, { 'summary' : scene_to_split.summary })
+
         # Renumber later scenes to their original numbers
         later_scenes = [scene.number for scene in subtitles.scenes if scene.number > self.scene_numbers[0]]
         later_scene_start_number = self.scene_numbers[-1] + 1
@@ -62,6 +68,10 @@ class MergeScenesCommand(Command):
         # Split the merged scene according to the saved scene sizes and add the new scenes to the viewmodel
         for scene_number, scene_size in enumerate(self.scene_sizes[:-1], start=self.scene_numbers[0]):
             subtitles.SplitScene(scene_number, scene_size + 1)
-            model_update.scenes.add(scene_number + 1, subtitles.GetScene(scene_number + 1))
+            new_scene = subtitles.GetScene(scene_number + 1)
+            if new_scene.number in self.original_summaries:
+                new_scene.summary = self.original_summaries.get(new_scene.number, None)
+
+            model_update.scenes.add(scene_number + 1, new_scene)
 
         return True
