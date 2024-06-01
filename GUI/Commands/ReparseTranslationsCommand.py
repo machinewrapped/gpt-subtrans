@@ -38,11 +38,15 @@ class ReparseTranslationsCommand(Command):
         for scene_number, batch_number in self.batch_numbers:
             try:
                 batch : SubtitleBatch = subtitles.GetBatch(scene_number, batch_number)
-                self.undo_data.append( (scene_number, batch_number, self._generate_undo_data(batch, self.line_numbers)) )
+
+                original_summary = batch.summary
+                original_translations = { line.number : line.text for line in batch.translated if line.number }
 
                 project.ReparseBatchTranslation(translator, scene_number, batch_number, line_numbers=self.line_numbers)
 
                 validator.ValidateBatch(batch)
+
+                self._generate_undo_data(batch, original_summary, original_translations)
 
                 model_update = self.AddModelUpdate()
                 model_update.batches.update((scene_number, batch_number), {
@@ -58,17 +62,23 @@ class ReparseTranslationsCommand(Command):
 
         return True
 
-    def _generate_undo_data(self, batch : SubtitleBatch, line_numbers : list[int] = None):
-        lines = [line for line in batch.translated if line.number in line_numbers] if line_numbers is not None else batch.translated
+    def _generate_undo_data(self, batch : SubtitleBatch, original_summary : str, original_translations : dict[int,str]):
+        undo_data = { 'summary' : None, 'lines' : {} }
+        if batch.summary != original_summary:
+            undo_data['summary'] = original_summary
 
-        return {
-            'summary' : batch.summary,
-            'lines' : { line.number : line.text for line in lines }
-        }
+        for line in batch.translated:
+            original_translation = original_translations.get(line.number, None)
+            if original_translation and line.text != original_translation:
+                undo_data['lines'][line.number] = original_translation
+
+        self.undo_data.append((batch.scene, batch.number, undo_data))
 
     def undo(self):
         project : SubtitleProject = self.datamodel.project
         subtitles : SubtitleFile = project.subtitles
+        options = self.datamodel.project_options
+        validator = SubtitleValidator(options)
 
         for scene_number, batch_number, undo_data in self.undo_data:
             batch : SubtitleBatch = subtitles.GetBatch(scene_number, batch_number)
@@ -78,9 +88,19 @@ class ReparseTranslationsCommand(Command):
             if summary:
                 batch.summary = summary
 
+            lines_update = self.AddModelUpdate()
             for line in batch.translated:
                 undo_translated = undo_lines.get(line.number, None)
                 if undo_translated:
                     line.text = undo_translated
+                    lines_update.lines.update((scene_number, batch_number, line.number), { 'translation' : line.text })
+
+            validator.ValidateBatch(batch)
+
+            model_update = self.AddModelUpdate()
+            model_update.batches.update((scene_number, batch_number), {
+                'summary' : batch.summary,
+                'errors' : batch.errors
+            })
 
         return True
