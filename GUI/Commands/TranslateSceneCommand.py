@@ -2,7 +2,7 @@ from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.SubtitleBatch import SubtitleBatch
-from PySubtitle.SubtitleError import TranslationImpossibleError
+from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossibleError
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
@@ -45,8 +45,14 @@ class TranslateSceneCommand(Command):
 
             project.UpdateProjectFile()
 
+        except TranslationAbortedError as e:
+            logging.info(f"Aborted translation of scene {self.scene_number}")
+            self.aborted = True
+            self.terminal = True
+            scene = None
+
         except TranslationImpossibleError as e:
-            logging.error(f"Unable to translate scene {self.scene_number}: {e}")
+            logging.error(f"Error translating scene {self.scene_number}: {e}")
             self.terminal = True
             scene = None
 

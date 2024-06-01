@@ -25,7 +25,7 @@ class Command(QRunnable, QObject):
         self.started : bool = False
         self.executed : bool = False
         self.aborted : bool = False
-        self.terminal : bool = False
+        self.terminal : bool = False        # Command ended with a fatal error, no further commands can be executed
         self.callback = None
         self.undo_callback = None
         self.model_updates : list[ModelUpdate] = []
@@ -56,7 +56,7 @@ class Command(QRunnable, QObject):
     @Slot()
     def run(self):
         if self.aborted:
-            logging.debug(f"{type(self).__name__} command aborted before it started")
+            logging.debug(f"Aborted {type(self).__name__} before it started")
             self.commandExecuted.emit(self, False)
             return
 
@@ -67,22 +67,17 @@ class Command(QRunnable, QObject):
             success = self.execute()
 
             if self.aborted:
-                logging.info(f"Aborted {type(self).__name__} command")
+                logging.info(f"Aborted {type(self).__name__}")
+                success = False
+
+            elif self.terminal:
+                logging.error(f"Unrecoverable error in {type(self).__name__}")
                 success = False
 
             self.commandExecuted.emit(self, success)
 
-        except TranslationAbortedError:
-            logging.info(f"Aborted {type(self).__name__} command")
-            self.commandExecuted.emit(self, False)
-
-        except TranslationImpossibleError as e:
-            logging.error(f"Unrecoverable error executing {type(self).__name__} command")
-            self.terminal = True
-            self.commandExecuted.emit(self, False)
-
         except Exception as e:
-            logging.error(f"Error executing {type(self).__name__} command ({str(e)})")
+            logging.error(f"Error executing {type(self).__name__}: ({str(e)})")
             self.commandExecuted.emit(self, False)
 
     def execute(self):
