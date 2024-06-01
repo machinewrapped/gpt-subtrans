@@ -20,8 +20,9 @@ class Command(QRunnable, QObject):
         QRunnable.__init__(self)
         QObject.__init__(self)
         self.datamodel = datamodel
-        self.can_undo : bool = True
-        self.is_blocking : bool = True
+        self.can_undo : bool = True         # Cannot undo past this command
+        self.skip_undo : bool = False       # Do not add this command to the undo stack
+        self.is_blocking : bool = True      # Do not execute any other commands in parallel
         self.started : bool = False
         self.executed : bool = False
         self.aborted : bool = False
