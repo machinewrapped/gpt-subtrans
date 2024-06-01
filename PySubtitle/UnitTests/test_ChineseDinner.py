@@ -1,6 +1,5 @@
 from PySubtitle.Helpers.TestCases import PrepareSubtitles, SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
-from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleFile import SubtitleFile

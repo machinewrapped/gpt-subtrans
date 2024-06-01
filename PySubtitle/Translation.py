@@ -8,9 +8,6 @@ class Translation:
         self._text, context = self.ParseTranslation(translation_text)
         self.content.update(context)
 
-    def ParseResponse(self):
-        pass
-
     @property
     def text(self):
         return self._text.strip() if self._text else None
