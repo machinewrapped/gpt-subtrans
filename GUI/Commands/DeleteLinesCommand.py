@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -37,6 +38,12 @@ class DeleteLinesCommand(Command):
             scene_number, batch_number, originals, translated = deletion
             for line in originals:
                 model_update.lines.remove((scene_number, batch_number, line.number))
+
+            batch = project.subtitles.GetBatch(scene_number, batch_number)
+            if batch.errors:
+                validator = SubtitleValidator(self.datamodel.project_options)
+                validator.ValidateBatch(batch)
+                model_update.batches.update((scene_number, batch_number), {'errors': batch.errors})
 
         return True
 
