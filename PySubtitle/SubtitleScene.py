@@ -11,6 +11,7 @@ class SubtitleScene:
         self.number = dct.get('scene') or dct.get('number')
         self.context = dct.get('context', {})
         self._batches = dct.get('batches', [])
+        self.errors = dct.get('errors', [])
 
     def __str__(self) -> str:
         return f"SubtitleScene {self.number} with {self.size} batches and {self.linecount} lines"
