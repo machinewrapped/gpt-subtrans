@@ -284,10 +284,10 @@ class SubtitleFile:
 
         outputpath = os.path.normpath(outputpath)
 
-        if not self.scenes:
-            raise ValueError("No scenes in subtitles")
-
         with self.lock:
+            if not self.scenes:
+                raise ValueError("No scenes in subtitles")
+
             # Linearise the translation
             originals, translated, untranslated = UnbatchScenes(self.scenes)
 

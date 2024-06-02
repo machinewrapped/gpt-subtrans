@@ -20,6 +20,7 @@ class ReparseTranslationsCommand(Command):
         self.batch_numbers = batch_numbers
         self.line_numbers = line_numbers
         self.undo_data = []
+        self.is_blocking = False
 
     def execute(self):
         logging.info(f"Reparse batches {','.join(str(x) for x in self.batch_numbers)}")
