@@ -20,13 +20,13 @@ class Command(QRunnable, QObject):
         QRunnable.__init__(self)
         QObject.__init__(self)
         self.datamodel = datamodel
-        self.can_undo : bool = True         # Cannot undo past this command
-        self.skip_undo : bool = False       # Do not add this command to the undo stack
-        self.is_blocking : bool = True      # Do not execute any other commands in parallel
+        self.can_undo : bool = True         # If true, cannot undo past this command
+        self.skip_undo : bool = False       # If true, do not add this command to the undo stack
+        self.is_blocking : bool = True      # If true, do not execute any other commands in parallel
         self.started : bool = False
         self.executed : bool = False
         self.aborted : bool = False
-        self.terminal : bool = False        # Command ended with a fatal error, no further commands can be executed
+        self.terminal : bool = False        # If true, command ended with a fatal error, no further commands can be executed
         self.callback = None
         self.undo_callback = None
         self.model_updates : list[ModelUpdate] = []
