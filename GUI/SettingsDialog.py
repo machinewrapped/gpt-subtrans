@@ -47,6 +47,7 @@ class SettingsDialog(QDialog):
             'save_preprocessed_subtitles': (bool, "Save preprocessed subtitles to a separate file"),
             'max_line_duration': (float, "Maximum duration of a single line of subtitles"),
             'min_line_duration': (float, "Minimum duration of a single line of subtitles"),
+            'merge_line_duration': (float, "Merge lines with a duration less than this with the previous line"),
             'min_split_chars': (int, "Minimum number of characters to split a line at"),
             'break_dialog_on_one_line': (bool, "Add line breaks to text with dialog markers"),
             'normalise_dialog_tags': (bool, "Ensure dialog markers match in multi-line subtitles"),

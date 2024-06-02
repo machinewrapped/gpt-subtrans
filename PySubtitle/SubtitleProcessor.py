@@ -7,6 +7,7 @@ from PySubtitle.Helpers.Text import (
     dialog_marker,
     split_sequences,
     break_sequences,
+    sentence_end_punctuation,
     BreakLongLine,
     BreakDialogOnOneLine,
     CompileDialogSplitPattern,
@@ -42,6 +43,7 @@ class SubtitleProcessor:
 
         self.max_line_duration = timedelta(seconds = settings.get('max_line_duration', 0.0))
         self.min_line_duration = timedelta(seconds = settings.get('min_line_duration', 0.0))
+        self.merge_line_duration = timedelta(seconds = settings.get('merge_line_duration', 0.0))
         self.min_gap = timedelta(seconds=settings.get('min_gap', 0.05))
         self.min_split_chars = settings.get('min_split_chars', 4)
 
@@ -71,6 +73,9 @@ class SubtitleProcessor:
 
         processed = []
         line_number = lines[0].number
+
+        if self.merge_line_duration.total_seconds() > 0.0:
+            lines = self._merge_short_lines(lines, self.merge_line_duration)
 
         for line in lines:
             line.number = line_number
@@ -235,6 +240,36 @@ class SubtitleProcessor:
             result_line.number = line.number + i
 
         return result
+
+    def _merge_short_lines(self, lines : list[SubtitleLine], short_duration : timedelta) -> list[SubtitleLine]:
+        """
+        Merge lines with very short durations into the previous line
+        """
+        if not lines:
+            return []
+
+        merged_lines = []
+        current_line = lines[0]
+
+        for line in lines[1:]:
+            if not current_line.text.strip():
+                current_line = line
+                continue
+
+            if line.duration < short_duration:
+                if current_line.text[-1] in sentence_end_punctuation:
+                    # If the line ends with a sentence-ending punctuation mark, assume different speakers (questionable logic)
+                    current_line.text = f"{dialog_marker}{current_line.text}\n{dialog_marker}{line.text}"
+                else:
+                    current_line.text = f"{current_line.text}\n{line.text}"
+
+                current_line.end = line.end
+            else:
+                merged_lines.append(current_line)
+                current_line = line
+
+        merged_lines.append(current_line)
+        return merged_lines
 
     def _compile_split_sequences(self):
         self._compiled_split_sequences = [regex.compile(seq) for seq in self.split_sequences]

@@ -2,6 +2,7 @@ import unicodedata
 import regex
 
 common_punctuation = r"[.,!?;:…¡¿]"
+sentence_end_punctuation = r"[.!?…？！。﹑]"
 
 dialog_marker = "- "
 emdash = "—"
