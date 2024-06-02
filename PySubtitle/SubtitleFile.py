@@ -284,10 +284,10 @@ class SubtitleFile:
 
         outputpath = os.path.normpath(outputpath)
 
-        if not self.scenes:
-            raise ValueError("No scenes in subtitles")
-
         with self.lock:
+            if not self.scenes:
+                raise ValueError("No scenes in subtitles")
+
             # Linearise the translation
             originals, translated, untranslated = UnbatchScenes(self.scenes)
 
@@ -297,7 +297,6 @@ class SubtitleFile:
 
             if self.settings.get('include_original'):
                 translated = self._merge_original_and_translated(originals, translated)
-
 
             # Renumber the lines to ensure compliance with SRT format
             output_lines = []
