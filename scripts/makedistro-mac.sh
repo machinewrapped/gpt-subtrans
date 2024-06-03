@@ -3,6 +3,7 @@
 source ./envsubtrans/bin/activate
 pip3 install --upgrade pip
 pip install --upgrade --target ./envsubtrans/lib pyinstaller
+pip install --upgrade --target ./envsubtrans/lib PyInstaller pyinstaller-hooks-contrib
 pip install --upgrade --target ./envsubtrans/lib charset_normalizer
 pip install --upgrade --target ./envsubtrans/lib -r requirements.txt
 pip install --upgrade --target ./envsubtrans/lib openai
@@ -17,4 +18,4 @@ if [ $? -ne 0 ]; then
     exit $?
 fi
 
-pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --hidden-import="PySide6.QtGui" --paths="./envsubtrans/lib" --paths="./envsubtrans/lib/python3.12/site-packages" --add-data "theme/*:theme/" --add-data "assets/*:assets/"  --add-data "instructions*:instructions/" --add-data "LICENSE:." --noconfirm scripts/gui-subtrans.py
+pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --hidden-import="PySide6.QtGui" --hidden-import="pkg_resources.extern" --paths="./envsubtrans/lib" --paths="./envsubtrans/lib/python3.12/site-packages" --add-data "theme/*:theme/" --add-data "assets/*:assets/"  --add-data "instructions*:instructions/" --add-data "LICENSE:." --noconfirm scripts/gui-subtrans.py
