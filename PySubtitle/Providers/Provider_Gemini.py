@@ -123,6 +123,15 @@ try:
 
             raise ValueError(f"Model {display_name} not found")
 
+        def _allow_multithreaded_translation(self) -> bool:
+            """
+            If user has set a rate limit don't attempt parallel requests to make sure we respect it
+            """
+            if self.settings.get('rate_limit', 0.0) != 0.0:
+                return False
+
+            return True
+
 except ImportError:
     logging.info("Google Generative AI SDK not installed. Gemini provider will not be available")
 

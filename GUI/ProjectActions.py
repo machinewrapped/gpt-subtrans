@@ -234,7 +234,7 @@ class ProjectActions(QObject):
 
         logging.debug(f"Translate selection of {str(selection)}")
 
-        multithreaded = len(selection.scenes) > 1 and datamodel.project_options.allow_multithreaded_translation
+        multithreaded = len(selection.scenes) > 1 and datamodel.allow_multithreaded_translation
 
         for scene in selection.scenes.values():
             line_numbers = [ line.number for line in selection.selected_lines if line.scene == scene.number ]

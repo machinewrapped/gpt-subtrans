@@ -90,7 +90,8 @@ class MainToolbar(QToolBar):
         self.DisableActions("Stop Translating")
 
         no_blocking_commands = not command_queue.has_blocking_commands
-        self.SetCommandsEnabled([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast" ], no_blocking_commands)
+        self.SetCommandsEnabled([ "Load Subtitles", "Save Project", "Start Translating" ], no_blocking_commands)
+        self.SetCommandsEnabled([ "Start Translating Fast" ], no_blocking_commands and datamodel.allow_multithreaded_translation)
         self.SetCommandsEnabled([ "Undo" ], no_blocking_commands and command_queue.can_undo)
         self.SetCommandsEnabled([ "Redo" ], no_blocking_commands and command_queue.can_redo)
 

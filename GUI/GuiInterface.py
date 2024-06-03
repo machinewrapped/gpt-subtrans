@@ -33,6 +33,7 @@ class GuiInterface(QObject):
     Interface to interact with the GUI
     """
     dataModelChanged = Signal(object)
+    settingsChanged = Signal(dict)
     commandAdded = Signal(object)
     commandComplete = Signal(object, bool)
     commandUndone = Signal(object)
@@ -212,6 +213,8 @@ class GuiInterface(QObject):
         if not self.datamodel.ValidateProviderSettings():
             logging.warning("Translation provider settings are not valid. Please check the settings.")
 
+        self.settingsChanged.emit(updated_settings)
+
         if 'theme' in updated_settings:
             LoadStylesheet(self.global_options.theme)
 
@@ -221,6 +224,7 @@ class GuiInterface(QObject):
         """
         if settings:
             self.datamodel.UpdateProjectSettings(settings)
+            self.settingsChanged.emit(settings)
 
     def Startup(self, filepath : str = None):
         """

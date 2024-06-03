@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
         self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.settingsChanged.connect(self._settings_changed, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings, Qt.ConnectionType.QueuedConnection)
 
@@ -132,6 +133,9 @@ class MainWindow(QMainWindow):
                 self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
             else:
                 self.statusBar().showMessage(f"{type(command).__name__} was successful.")
+
+    def _settings_changed(self, settings : dict):
+        self.toolbar.UpdateToolbar()
 
     def _toggle_project_settings(self, show = None):
         self.model_viewer.ShowProjectSettings(show)

@@ -5,7 +5,6 @@ from copy import deepcopy
 from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger, GetEnvBool
 from PySubtitle.Options import MULTILINE_OPTION
 from PySubtitle.TranslationClient import TranslationClient
-from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.TranslationPrompt import default_prompt_template
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.Providers.Local.LocalClient import LocalClient
@@ -37,7 +36,8 @@ class Provider_LocalServer(TranslationProvider):
             'temperature': settings.get('temperature', GetEnvFloat('LOCAL_TEMPERATURE', 0.0)),
             'max_tokens': settings.get('max_tokens', GetEnvInteger('LOCAL_MAX_TOKENS', 0)),
             "api_key": settings.get('api_key', os.getenv('LOCAL_API_KEY')),
-            "model": settings.get('model', os.getenv('LOCAL_MODEL'))
+            "model": settings.get('model', os.getenv('LOCAL_MODEL')),
+            'supports_parallel_threads': settings.get('supports_parallel_threads', GetEnvBool('LOCAL_SUPPORTS_PARALLEL_THREADS', False))
             })
 
         #TODO: Add additional parameters option
@@ -100,7 +100,8 @@ class Provider_LocalServer(TranslationProvider):
                 'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
                 'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)"),
                 'api_key': (str, "An API key is normally not needed for a local server"),
-                'model': (str, "The model is normally set by the server, and should not need to be specified here")
+                'model': (str, "The model is normally set by the server, and should not need to be specified here"),
+                'supports_parallel_threads': (bool, "Use parallel threads for translation requests (may be faster but may not work with the server)")
             })
 
         return options
@@ -119,3 +120,8 @@ class Provider_LocalServer(TranslationProvider):
 
         return True
 
+    def _allow_multithreaded_translation(self) -> bool:
+        """
+        User can decide whether to use parallel threads with their model
+        """
+        return self.settings.get('supports_parallel_threads', False)

@@ -51,6 +51,16 @@ class ProjectDataModel:
     def target_language(self):
         return self.project_options.target_language
 
+    @property
+    def allow_multithreaded_translation(self):
+        if not self.translation_provider:
+            return False
+
+        if self.project_options.get('max_threads', 1) == 1:
+            return False
+
+        return self.translation_provider.allow_multithreaded_translation
+
     def UpdateSettings(self, settings : dict):
         """ Update any options that have changed """
         self.project_options.update(settings)

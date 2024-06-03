@@ -138,5 +138,17 @@ try:
 
             return True
 
+        def _allow_multithreaded_translation(self) -> bool:
+            """
+            If user is on the free plan or has set a rate limit it is better not to try parallel requests
+            """
+            if self.settings.get('free_plan'):
+                return False
+
+            if self.settings.get('rate_limit', 0.0) != 0.0:
+                return False
+
+            return True
+
 except ImportError:
     logging.info("OpenAI SDK not installed. OpenAI provider will not be available")

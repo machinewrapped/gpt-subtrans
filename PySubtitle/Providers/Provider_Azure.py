@@ -33,11 +33,11 @@ try:
         @property
         def api_base(self):
             return self.settings.get('api_base')
-        
+
         @property
         def api_version(self):
             return self.settings.get('api_version')
-        
+
         @property
         def deployment_name(self):
             return self.settings.get('deployment_name')
@@ -67,6 +67,9 @@ try:
                 information = information + f"<p>{self.validation_message}</p>"
             return information
 
+        def GetAvailableModels(self) -> list[str]:
+            return []
+
         def ValidateSettings(self) -> bool:
             """
             Validate the settings for the provider
@@ -87,6 +90,12 @@ try:
                 self.validation_message = "Azure API base is required"
                 return False
 
+            return True
+
+        def _allow_multithreaded_translation(self) -> bool:
+            """
+            Assume the Aazure provider can handle multiple requests
+            """
             return True
 
 except ImportError:
