@@ -60,9 +60,9 @@ class SelectionLine:
 
 class ProjectSelection():
     def __init__(self) -> None:
-        self.scenes = {}
-        self.batches = {}
-        self.lines = {}
+        self.scenes  : dict[int, SelectionScene] = {}
+        self.batches : dict[(int,int), SelectionBatch] = {}
+        self.lines : dict[int, SelectionLine] = {}
 
     @property
     def scene_numbers(self) -> list[int]:

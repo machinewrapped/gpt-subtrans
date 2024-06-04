@@ -25,7 +25,7 @@ class Command(QRunnable, QObject):
         self.started : bool = False
         self.executed : bool = False
         self.aborted : bool = False
-        self.terminal : bool = False        # Command ended with a fatal error, no further commands can be executed
+        self.terminal : bool = False        # If true, command ended with a fatal error, no further commands can be executed
         self.callback = None
         self.undo_callback = None
         self.model_updates : list[ModelUpdate] = []

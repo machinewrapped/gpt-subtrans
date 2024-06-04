@@ -79,6 +79,8 @@ class ContentView(QWidget):
             if dialog.model:
                 original_text = dialog.model.get('original')
                 translated_text = dialog.model.get('translated')
+                if not translated_text and not dialog.model.get('was_translated'):
+                    translated_text = None
 
                 self.gui.PerformModelAction('Update Line', (item.number, original_text, translated_text,))
 

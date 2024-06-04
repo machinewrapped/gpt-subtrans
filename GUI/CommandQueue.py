@@ -265,6 +265,10 @@ class CommandQueue(QObject):
         self.logger.debug(f"Clearing command queue")
 
         with QMutexLocker(self.mutex):
+            # Disconnect the command executed handler
+            for command in self.queue:
+                command.commandExecuted.disconnect(self._on_command_executed)
+
             # Remove commands that haven't been started
             self.queue = [command for command in self.queue if command.started]
 

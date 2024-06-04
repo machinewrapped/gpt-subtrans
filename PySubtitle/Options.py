@@ -45,6 +45,7 @@ default_options = {
     'break_dialog_on_one_line': env_bool('break_dialog_on_one_line', True),
     'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.0)),
     'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
+    'merge_line_duration': float(os.getenv('MERGE_LINE_DURATION', 0.0)),
     'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 3)),
     'normalise_dialog_tags': env_bool('NORMALISE_DIALOG_TAGS', True),
     'remove_filler_words': env_bool('REMOVE_FILLER_WORDS', True),

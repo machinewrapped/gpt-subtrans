@@ -298,7 +298,6 @@ class SubtitleFile:
             if self.settings.get('include_original'):
                 translated = self._merge_original_and_translated(originals, translated)
 
-
             # Renumber the lines to ensure compliance with SRT format
             output_lines = []
             for line_number, line in enumerate(translated, start=self.start_line_number or 1):

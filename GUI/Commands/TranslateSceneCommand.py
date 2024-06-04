@@ -70,17 +70,6 @@ class TranslateSceneCommand(Command):
                 'summary' : scene.summary
             })
 
-            for batch in scene.batches:
-                if batch.translated:
-                    if not self.batch_numbers or batch.number in self.batch_numbers:
-                        model_update.batches.update((scene.number, batch.number), {
-                            'summary' : batch.summary,
-                            'context' : batch.context,
-                            'errors' : batch.errors,
-                            'translation': batch.translation,
-                            'lines' : { line.number : { 'translation' : line.text } for line in batch.translated }
-                        })
-
         return True
 
     def on_abort(self):
