@@ -14,7 +14,6 @@ class DeleteLinesCommand(Command):
         super().__init__(datamodel)
         self.line_numbers = line_numbers
         self.deletions = []
-        self.is_blocking = False
 
     def execute(self):
         if not self.line_numbers:

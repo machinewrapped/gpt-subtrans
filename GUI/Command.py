@@ -5,7 +5,6 @@ from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
-from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossibleError
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:
@@ -22,7 +21,7 @@ class Command(QRunnable, QObject):
         self.datamodel = datamodel
         self.can_undo : bool = True         # Cannot undo past this command
         self.skip_undo : bool = False       # Do not add this command to the undo stack
-        self.is_blocking : bool = True      # Do not execute any other commands in parallel
+        self.is_blocking : bool = False      # Do not execute any other commands in parallel
         self.started : bool = False
         self.executed : bool = False
         self.aborted : bool = False

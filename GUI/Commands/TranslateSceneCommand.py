@@ -22,6 +22,9 @@ class TranslateSceneCommand(Command):
         self.line_numbers = line_numbers
         self.can_undo = False
 
+        # Do not allow other commands to run in parallel
+        self.is_blocking = True
+
     def execute(self):
         if self.batch_numbers:
             logging.info(f"Translating scene number {self.scene_number} batch {','.join(str(x) for x in self.batch_numbers)}")
@@ -107,5 +110,6 @@ class TranslateSceneMultithreadedCommand(TranslateSceneCommand):
     """
     def __init__(self, scene_number: int, batch_numbers: list[int] = None, line_numbers : list[int] = None, datamodel: ProjectDataModel = None):
         super().__init__(scene_number, batch_numbers, line_numbers, datamodel)
-        self.is_blocking = False
 
+        # Allow other commands to run in parallel
+        self.is_blocking = False

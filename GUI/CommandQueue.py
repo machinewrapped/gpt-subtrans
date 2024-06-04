@@ -59,23 +59,40 @@ class CommandQueue(QObject):
     @property
     def has_commands(self) -> bool:
         """
-        Check if the queue has any commands
+        True if the queue has any commands
         """
         with QMutexLocker(self.mutex):
             return len(self.queue) > 0
 
     @property
+    def has_running_commands(self) -> bool:
+        """
+        True if the queue has any commands that are currently running
+        """
+        with QMutexLocker(self.mutex):
+            return any( command.started for command in self.queue )
+
+    @property
     def has_blocking_commands(self) -> bool:
+        """
+        True if the queue has any commands that are blocking
+        """
         with QMutexLocker(self.mutex):
             return any( command.is_blocking for command in self.queue )
 
     @property
     def can_undo(self) -> bool:
+        """
+        True if there are any undoable commands in the undo stack
+        """
         with QMutexLocker(self.mutex):
             return len(self.undo_stack) > 0 and self.undo_stack[-1].can_undo
 
     @property
     def can_redo(self) -> bool:
+        """
+        True if there are any commands in the redo stack
+        """
         with QMutexLocker(self.mutex):
             return len(self.redo_stack) > 0
 
@@ -234,7 +251,7 @@ class CommandQueue(QObject):
 
         with QMutexLocker(self.mutex):
             for command in self.queue:
-                if not command.started:
+                if not command.started and (not command.is_blocking or not self.has_running_commands):
                     command.started = True
                     self.command_pool.start(command)
 
