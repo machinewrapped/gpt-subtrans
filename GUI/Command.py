@@ -13,7 +13,8 @@ if os.environ.get("DEBUG_MODE") == "1":
         logging.warning("debugpy is not available, breakpoints on worker threads will not work")
 
 class Command(QRunnable, QObject):
-    commandExecuted = Signal(object, bool)
+    commandStarted = Signal(object)
+    commandCompleted = Signal(object)
 
     def __init__(self, datamodel : ProjectDataModel = None):
         QRunnable.__init__(self)
@@ -22,8 +23,10 @@ class Command(QRunnable, QObject):
         self.can_undo : bool = True         # Cannot undo past this command
         self.skip_undo : bool = False       # Do not add this command to the undo stack
         self.is_blocking : bool = False      # Do not execute any other commands in parallel
+        self.queued : bool = False
         self.started : bool = False
         self.executed : bool = False
+        self.succeeded : bool = False
         self.aborted : bool = False
         self.terminal : bool = False        # If true, command ended with a fatal error, no further commands can be executed
         self.callback = None
@@ -55,30 +58,34 @@ class Command(QRunnable, QObject):
 
     @Slot()
     def run(self):
+        self.succeeded = None
+
         if self.aborted:
             logging.debug(f"Aborted {type(self).__name__} before it started")
-            self.commandExecuted.emit(self, False)
+            self.commandCompleted.emit(self)
             return
 
         if 'debugpy' in globals():
             debugpy.debug_this_thread()
 
         try:
+            self.started = True
+            self.commandStarted.emit(self)
+
             success = self.execute()
 
             if self.aborted:
                 logging.info(f"Aborted {type(self).__name__}")
-                success = False
-
             elif self.terminal:
                 logging.error(f"Unrecoverable error in {type(self).__name__}")
-                success = False
+            else:
+                self.succeeded = success
 
-            self.commandExecuted.emit(self, success)
+            self.commandCompleted.emit(self)
 
         except Exception as e:
             logging.error(f"Error executing {type(self).__name__}: ({str(e)})")
-            self.commandExecuted.emit(self, False)
+            self.commandCompleted.emit(self)
 
     def execute(self):
         raise NotImplementedError

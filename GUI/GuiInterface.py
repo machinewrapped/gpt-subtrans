@@ -35,7 +35,8 @@ class GuiInterface(QObject):
     dataModelChanged = Signal(object)
     settingsChanged = Signal(dict)
     commandAdded = Signal(object)
-    commandComplete = Signal(object, bool)
+    commandStarted = Signal(object)
+    commandComplete = Signal(object)
     commandUndone = Signal(object)
     actionRequested = Signal(str)
     prepareForSave = Signal()
@@ -61,6 +62,7 @@ class GuiInterface(QObject):
         # Create the command queue
         self.command_queue = CommandQueue(mainwindow)
         self.command_queue.SetMaxThreadCount(options.get('max_threads', 1))
+        self.command_queue.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
         self.command_queue.commandExecuted.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
         self.command_queue.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
         self.command_queue.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
@@ -304,6 +306,13 @@ class GuiInterface(QObject):
         logging.debug(f"Added a {type(command).__name__} command to the queue")
         self.commandAdded.emit(command)
 
+    def _on_command_started(self, command : Command):
+        """
+        Handle the start of a command
+        """
+        logging.debug(f"{type(command).__name__} command started")
+        self.commandStarted.emit(command)
+
     def _on_command_undone(self, command : Command):
         """
         Handle the undoing of a command
@@ -316,7 +325,7 @@ class GuiInterface(QObject):
 
         self.commandUndone.emit(command)
 
-    def _on_command_complete(self, command : Command, success):
+    def _on_command_complete(self, command : Command):
         """
         Handle the completion of a command
         """
@@ -324,9 +333,9 @@ class GuiInterface(QObject):
             QApplication.instance().quit()
             return
 
-        logging.debug(f"A {type(command).__name__} command {'succeeded' if success else 'failed'}")
+        logging.debug(f"A {type(command).__name__} command {'succeeded' if command.succeeded else 'failed'}")
 
-        if success:
+        if command.succeeded:
             if command.model_updates:
                 for model_update in command.model_updates:
                     self.datamodel.UpdateViewModel(model_update)
@@ -345,7 +354,7 @@ class GuiInterface(QObject):
             if not self.command_queue.has_commands:
                 self.datamodel.SaveProject()
 
-        self.commandComplete.emit(command, success)
+        self.commandComplete.emit(command)
 
     def _on_project_loaded(self, command : LoadSubtitleFile):
         """

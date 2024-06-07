@@ -32,6 +32,7 @@ class MainWindow(QMainWindow):
         self.gui_interface = GuiInterface(self, options)
         self.gui_interface.actionRequested.connect(self._on_action_requested, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
@@ -105,34 +106,51 @@ class MainWindow(QMainWindow):
         self.toolbar.UpdateToolbar()
         self._update_status_bar(command)
 
-    def _on_command_complete(self, command : Command, success):
+    def _on_command_started(self, command : Command):
         self.toolbar.UpdateToolbar()
-        self._update_status_bar(command, succeeded=success)
+        self._update_status_bar(command)
+
+    def _on_command_complete(self, command : Command):
+        self.toolbar.UpdateToolbar()
+        self._update_status_bar(command)
 
     def _on_command_undone(self, command : Command):
         self.toolbar.UpdateToolbar()
         self._update_status_bar(command, undone=True)
 
-    def _update_status_bar(self, command : Command, succeeded : bool = None, undone : bool = False):
+    def _update_status_bar(self, command : Command, undone : bool = False):
         command_queue = self.gui_interface.GetCommandQueue()
 
-        if not command:
-            self.statusBar().showMessage("")
-        elif undone:
-            self.statusBar().showMessage(f"{type(command).__name__} undone.")
-        elif succeeded is None:
-            self.statusBar().showMessage(f"{type(command).__name__} executed. {command_queue.queue_size} commands in queue.")
-        elif command.aborted:
-            self.statusBar().showMessage(f"{type(command).__name__} aborted.")
-        elif not succeeded:
-            self.statusBar().showMessage(f"{type(command).__name__} failed.")
-        else:
-            if command_queue.queue_size > 1:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful. {command_queue.queue_size} commands in queue.")
-            elif command_queue.queue_size == 1:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
+        messages = []
+
+        if command:
+            if undone:
+                messages.append(f"{type(command).__name__} undone.")
+            elif command.aborted:
+                messages.append(f"{type(command).__name__} aborted.")
+            elif not command.started:
+                messages.append(f"{type(command).__name__} added to queue.")
+            elif command.succeeded is None:
+                messages.append(f"{type(command).__name__} started.")
+            elif command.succeeded:
+                messages.append(f"{type(command).__name__} was successful.")
             else:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful.")
+                messages.append(f"{type(command).__name__} failed.")
+
+        if command_queue.queue_size > 1:
+            messages.append(f"{command_queue.queue_size} commands in queue.")
+
+        undoable_text = command_queue.undoable_command_text
+        if undoable_text:
+            messages.append(undoable_text)
+
+        redoable_text = command_queue.redoable_command_text
+        if redoable_text:
+            messages.append(redoable_text)
+
+        message = " ".join(messages)
+
+        self.statusBar().showMessage(message)
 
     def _settings_changed(self, settings : dict):
         self.toolbar.UpdateToolbar()
