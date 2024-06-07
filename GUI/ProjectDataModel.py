@@ -9,8 +9,6 @@ from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class ProjectDataModel:
-    _action_handlers = {}
-
     def __init__(self, project : SubtitleProject = None, options : Options = None):
         self.project : SubtitleProject = project
         self.viewmodel : ProjectViewModel = None
@@ -128,16 +126,6 @@ class ProjectDataModel:
 
         return True
 
-    def PerformModelAction(self, action_name : str, params = None):
-        params = params or {}
-        with QMutexLocker(self.mutex):
-            handlers = self._action_handlers.get(action_name)
-            if handlers:
-                for handler in handlers:
-                    handler(self, *params)
-            else:
-                raise ValueError(f"No handler defined for action {action_name}")
-
     def CreateViewModel(self):
         """
         Create a viewmodel for the subtitles
@@ -175,9 +163,4 @@ class ProjectDataModel:
 
         self.CreateTranslationProvider()
 
-    @classmethod
-    def RegisterActionHandler(cls, action_name : str, handler : callable):
-        handlers = cls._action_handlers.get(action_name) or []
-        handlers.append(handler)
-        cls._action_handlers[action_name] = handlers
 

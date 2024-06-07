@@ -1,7 +1,7 @@
 import logging
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QDialog
 from PySide6.QtCore import Qt, Signal, Slot
-from GUI.GuiInterface import GuiInterface
+from GUI.ProjectActions import ProjectActions
 from GUI.ViewModel.LineItem import LineItem
 from GUI.ProjectSelection import ProjectSelection
 from GUI.ViewModel.ViewModel import ProjectViewModel
@@ -16,18 +16,18 @@ class ContentView(QWidget):
     """
     onSelection = Signal()
 
-    def __init__(self, gui_interface : GuiInterface, parent=None):
+    def __init__(self, action_handler : ProjectActions, parent=None):
         super().__init__(parent)
 
-        if not isinstance(gui_interface, GuiInterface):
-            raise Exception("Invalid GUI Interface")
+        if not isinstance(action_handler, ProjectActions):
+            raise Exception("Invalid action handler supplied to ContentView")
 
-        self.gui = gui_interface
+        self.action_handler = action_handler
         self.viewmodel = None
 
         self.subtitle_view = SubtitleView(parent=self)
 
-        self.selection_view = SelectionView(gui_interface=self.gui, parent=self)
+        self.selection_view = SelectionView(action_handler=action_handler, parent=self)
         self.selection_view.resetSelection.connect(self.ClearSelectedLines)
 
         # connect the selection handlers
@@ -82,7 +82,7 @@ class ContentView(QWidget):
                 if not translated_text and not dialog.model.get('was_translated'):
                     translated_text = None
 
-                self.gui.PerformModelAction('Update Line', (item.number, original_text, translated_text,))
+                self.action_handler.UpdateLine(item.number, original_text, translated_text)
 
     @Slot()
     def _update_view_model(self):

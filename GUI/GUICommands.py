@@ -25,6 +25,7 @@ class CheckProviderSettings(Command):
         self.is_blocking = True
         self.skip_undo = True
         self.options = options
+        self.show_provider_settings = False
 
     def execute(self):
         try:
@@ -32,7 +33,7 @@ class CheckProviderSettings(Command):
             if not translation_provider or not translation_provider.ValidateSettings():
                 if translation_provider:
                     logging.warning(f"Provider {translation_provider.name} needs configuring: {translation_provider.validation_message}")
-                self.datamodel.PerformModelAction('Show Provider Settings')
+                    self.show_provider_settings = True
 
         except Exception as e:
             logging.error(f"CheckProviderSettings: {e}")

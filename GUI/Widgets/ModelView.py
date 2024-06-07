@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
-from GUI.GuiInterface import GuiInterface
+from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.ProjectSelection import ProjectSelection
@@ -13,10 +13,13 @@ from GUI.Widgets.ProjectSettings import ProjectSettings
 class ModelView(QWidget):
     settingsChanged = Signal(dict)
 
-    def __init__(self, gui_interface : GuiInterface, parent=None):
+    def __init__(self, action_handler : ProjectActions, parent=None):
         super().__init__(parent)
 
-        self.gui = gui_interface
+        if not isinstance(action_handler, ProjectActions):
+            raise Exception("Invalid action handler supplied to ModelView")
+
+        self.action_handler = action_handler
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -30,10 +33,10 @@ class ModelView(QWidget):
         self.scenes_view = ScenesView(parent=self)
 
         # Main Content Area
-        self.content_view = ContentView(gui_interface, parent=self)
+        self.content_view = ContentView(action_handler=action_handler, parent=self)
 
         # Project Settings
-        self.project_settings = ProjectSettings()
+        self.project_settings = ProjectSettings(action_handler=action_handler, parent=self)
         self.project_settings.hide()
         self.project_settings.settingsChanged.connect(self.settingsChanged)
 
@@ -116,11 +119,11 @@ class ModelView(QWidget):
         update = {
             'summary' : scene_model.get('summary')
         }
-        self.gui.PerformModelAction('Update Scene', (scene_number, update,))
+        self.action_handler.UpdateScene(scene_number, update)
 
     def _on_batch_edited(self, scene, batch_number, batch_model):
         update = {
             'summary' : batch_model.get('summary')
         }
-        self.gui.PerformModelAction('Update Batch', (scene, batch_number, update,))
+        self.action_handler.UpdateBatch(scene, batch_number, update)
 

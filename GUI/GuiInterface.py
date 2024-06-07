@@ -16,7 +16,7 @@ from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.Commands.LoadSubtitleFile import LoadSubtitleFile
 from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.FirstRunOptions import FirstRunOptions
-from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
+from GUI.GUICommands import ExitProgramCommand
 from GUI.GuiHelpers import LoadStylesheet
 from GUI.NewProjectSettings import NewProjectSettings
 from GUI.ProjectActions import ProjectActions
@@ -146,20 +146,6 @@ class GuiInterface(QObject):
         self.action_handler.SetDataModel(datamodel)
         self.dataModelChanged.emit(datamodel)
 
-    def PerformModelAction(self, action_name : str, params : dict):
-        """
-        Perform an action on the data model
-        """
-        if not self.datamodel:
-            raise Exception(f"Cannot perform {action_name} without a data model")
-
-        try:
-            self.actionRequested.emit(action_name)
-            self.datamodel.PerformModelAction(action_name, params)
-
-        except Exception as e:
-            logging.error(f"Error in {action_name}: {str(e)}")
-
     def GetActionHandler(self):
         """
         Get the action handler
@@ -239,19 +225,23 @@ class GuiInterface(QObject):
         if options.provider is None or options.get('firstrun'):
             # Configure critical settings
             self._first_run(options)
-        elif filepath:
-            # Load file if we were opened with one
-            filepath = os.path.abspath(filepath)
-            self.LoadProject(filepath)
         else:
             # Check if the translation provider is configured correctly
-            self.QueueCommand(CheckProviderSettings(options))
+            self._check_provider_settings(options)
+
+            if filepath:
+                # Load file if we were opened with one
+                filepath = os.path.abspath(filepath)
+                self.LoadProject(filepath)
 
         logging.info(f"GUI-Subtrans {__version__}")
 
         # Check if there is a more recent version on Github (TODO: make this optional)
         if CheckIfUpdateCheckIsRequired():
             CheckIfUpdateAvailable()
+
+    def _check_provider_settings(self, options : Options):
+        self.action_handler.CheckProviderSettings(options)
 
     def PrepareToExit(self):
         """
@@ -286,7 +276,7 @@ class GuiInterface(QObject):
 
             if dialog.exec() == QDialog.Accepted:
                 datamodel.UpdateProjectSettings(dialog.settings)
-                self.QueueCommand(CheckProviderSettings(datamodel.project_options))
+                self._check_provider_settings(datamodel.project_options)
                 self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
                 logging.info("Project settings set")
 
@@ -398,7 +388,7 @@ class GuiInterface(QObject):
             initial_settings = first_run_options.GetSettings()
             self.UpdateSettings(initial_settings)
 
-            self.QueueCommand(CheckProviderSettings(options))
+            self._check_provider_settings(self.global_options)
 
     def _on_error(self, error : object):
         """

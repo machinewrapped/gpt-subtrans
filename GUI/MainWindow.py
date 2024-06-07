@@ -29,16 +29,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1600, 900)
         self._load_icon("gui-subtrans")
 
-        self.gui_interface = GuiInterface(self, options)
-        self.gui_interface.actionRequested.connect(self._on_action_requested, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.settingsChanged.connect(self._settings_changed, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings, Qt.ConnectionType.QueuedConnection)
+        self._create_gui_interface(options)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -56,7 +47,8 @@ class MainWindow(QMainWindow):
         splitter = QSplitter(Qt.Orientation.Vertical)
         main_layout.addWidget(splitter)
 
-        self.model_viewer = ModelView(self.gui_interface, parent=splitter)
+        action_handler = self.gui_interface.GetActionHandler()
+        self.model_viewer = ModelView(action_handler, parent=splitter)
         self.model_viewer.settingsChanged.connect(self.gui_interface.UpdateProjectSettings)
         splitter.addWidget(self.model_viewer)
 
@@ -75,6 +67,21 @@ class MainWindow(QMainWindow):
         self.gui_interface.PrepareToExit()
 
         super().closeEvent(e)
+
+    def _create_gui_interface(self, options):
+        """
+        Create the interface for communicating with the GUI
+        """
+        self.gui_interface = GuiInterface(self, options)
+        self.gui_interface.actionRequested.connect(self._on_action_requested, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.settingsChanged.connect(self._settings_changed, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings, Qt.ConnectionType.QueuedConnection)
 
     def _prepare_for_save(self):
         """
