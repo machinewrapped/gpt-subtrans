@@ -2,13 +2,11 @@ import logging
 import os
 
 from PySide6.QtCore import Qt, QObject, Signal
-from PySide6.QtGui import QAction, QIcon
-from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
+from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow
 
 from GUI.Command import Command
 from GUI.CommandQueue import ClearCommandQueue
 
-from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.GUICommands import CheckProviderSettings
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
@@ -20,7 +18,6 @@ from GUI.Commands.StartTranslationCommand import StartTranslationCommand
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.Commands.SwapTextAndTranslations import SwapTextAndTranslations
-from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
@@ -53,26 +50,12 @@ class ProjectActions(QObject):
     saveProject = Signal(str)
     exitProgram = Signal()
 
-    _actions = {}
-
     def __init__(self, mainwindow : QMainWindow = None, datamodel : ProjectDataModel = None):
         super().__init__()
 
         self._mainwindow = mainwindow
         self.datamodel = datamodel
         self.last_used_path = os.path.dirname(datamodel.project.projectfile) if datamodel and datamodel.project else None
-
-        self.AddAction('Quit', self.exitProgram, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
-        self.AddAction('Load Subtitles', self._load_project, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', 'Load Subtitles')
-        self.AddAction('Save Project', self._save_project, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold Shift to save as...)')
-        self.AddAction('Project Settings', self.toggleProjectSettings, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Settings')
-        self.AddAction('Settings', self.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
-        self.AddAction('Start Translating', self._start_translating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
-        self.AddAction('Start Translating Fast', self._start_translating_fast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
-        self.AddAction('Stop Translating', self._stop_translating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
-        self.AddAction("Undo", self.undoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', 'Undo last action')
-        self.AddAction("Redo", self.redoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Shift+Z', 'Redo last undone action')
-        self.AddAction('About', self.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
         #TODO: Mixing different concepts of "action" here - should just be able to pass a ProjectActions instance around
 
@@ -98,36 +81,10 @@ class ProjectActions(QObject):
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
 
-    def AddAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
-        action = QAction(name)
-        action.triggered.connect(function)
-
-        if icon:
-            if isinstance(icon, QStyle.StandardPixmap):
-                icon = QApplication.style().standardIcon(icon)
-            else:
-                icon = QIcon(icon)
-            action.setIcon(icon)
-
-        if shortcut:
-            action.setShortcut(shortcut)
-
-        if tooltip:
-            action.setToolTip(f"{tooltip} ({shortcut})" if shortcut else tooltip)
-
-        self._actions[name] = action
-
-
-    def GetAction(self, name : str) -> QAction:
-        return self._actions[name]
-
-    def GetActionList(self, names : list) -> list[QAction]:
-        return [ self.GetAction(name) for name in names ]
-
     def _issue_command(self, command : Command):
         self.issueCommand.emit(command)
 
-    def _load_project(self):
+    def LoadProject(self):
         """
         Load a subtitle file
         """
@@ -138,7 +95,7 @@ class ProjectActions(QObject):
         if filepath:
             self.loadProject.emit(filepath)
 
-    def _save_project(self):
+    def SaveProject(self):
         """
         Save the current project
         """
@@ -186,7 +143,7 @@ class ProjectActions(QObject):
         if not datamodel.project.subtitles.scenes:
             raise ActionError("Subtitles have not been batched")
 
-    def _start_translating(self):
+    def StartTranslating(self):
         """
         Start or resume translation of the project
         """
@@ -199,7 +156,7 @@ class ProjectActions(QObject):
 
         self._issue_command(StartTranslationCommand(resume=resume, multithreaded=False))
 
-    def _start_translating_fast(self):
+    def StartTranslatingFast(self):
         """
         Start or resume translation of the project using multiple threads
         """
@@ -212,7 +169,7 @@ class ProjectActions(QObject):
 
         self._issue_command(StartTranslationCommand(resume=resume, multithreaded=True))
 
-    def _stop_translating(self):
+    def StopTranslating(self):
         """
         Stop the translation process
         """
