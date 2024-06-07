@@ -39,7 +39,7 @@ class StartTranslationCommand(Command):
 
         # Save the project first if it needs updating
         if project.needsupdate:
-            command = SaveProjectFile(datamodel=self.datamodel)
+            command = SaveProjectFile(project=project)
             self.commands_to_queue.append(command)
             previous_command = command
 
