@@ -61,6 +61,10 @@ class ProjectDataModel:
 
         return self.translation_provider.allow_multithreaded_translation
 
+    @property
+    def autosave_enabled(self):
+        return self.project and self.project_options.get('autosave', False)
+
     def UpdateSettings(self, settings : dict):
         """ Update any options that have changed """
         self.project_options.update(settings)

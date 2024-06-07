@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow, QStyle
 from GUI.Command import Command
 from GUI.CommandQueue import ClearCommandQueue
 
+from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.GUICommands import CheckProviderSettings
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
@@ -15,12 +16,11 @@ from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
 from GUI.Commands.ReparseTranslationsCommand import ReparseTranslationsCommand
-from GUI.Commands.ResumeTranslationCommand import ResumeTranslationCommand
-from GUI.Commands.SaveProjectFile import SaveProjectFile
+from GUI.Commands.StartTranslationCommand import StartTranslationCommand
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.Commands.SwapTextAndTranslations import SwapTextAndTranslations
-from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand, TranslateSceneMultithreadedCommand
+from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
@@ -195,10 +195,9 @@ class ProjectActions(QObject):
 
         self.saveSettings.emit()
 
-        if datamodel.project.needsupdate:
-            datamodel.project.WriteProjectFile()
+        resume = not self._is_shift_pressed()
 
-        self._issue_command(ResumeTranslationCommand(multithreaded=False))
+        self._issue_command(StartTranslationCommand(resume=resume, multithreaded=False))
 
     def _start_translating_fast(self):
         """
@@ -209,10 +208,9 @@ class ProjectActions(QObject):
 
         self.saveSettings.emit()
 
-        if datamodel.project.needsupdate:
-            datamodel.project.WriteProjectFile()
+        resume = not self._is_shift_pressed()
 
-        self._issue_command(ResumeTranslationCommand(multithreaded=True))
+        self._issue_command(StartTranslationCommand(resume=resume, multithreaded=True))
 
     def _stop_translating(self):
         """
@@ -229,12 +227,11 @@ class ProjectActions(QObject):
 
         self._validate_datamodel(datamodel)
 
-        if datamodel.project.needsupdate:
-            datamodel.project.WriteProjectFile()
-
         logging.debug(f"Translate selection of {str(selection)}")
 
         multithreaded = len(selection.scenes) > 1 and datamodel.allow_multithreaded_translation
+
+        scenes = {}
 
         for scene in selection.scenes.values():
             line_numbers = [ line.number for line in selection.selected_lines if line.scene == scene.number ]
@@ -245,12 +242,18 @@ class ProjectActions(QObject):
             else:
                 batch_numbers = [ batch.number for batch in selection.batches.values() if batch.selected and batch.scene == scene.number ]
 
-            if multithreaded:
-                command = TranslateSceneMultithreadedCommand(scene.number, batch_numbers, line_numbers, datamodel)
-            else:
-                command = TranslateSceneCommand(scene.number, batch_numbers, line_numbers, datamodel)
+            if batch_numbers:
+                scenes[scene.number] = {
+                    'batches' : batch_numbers,
+                    'lines' : line_numbers,
+                }
 
-            self._issue_command(command)
+        if not scenes:
+            raise ActionError("No scenes selected for translation")
+
+        command = StartTranslationCommand(datamodel, multithreaded=multithreaded, resume=False, scenes = scenes)
+
+        self._issue_command(command)
 
     def _reparse_selection(self, datamodel : ProjectDataModel, selection : ProjectSelection):
         """

@@ -4,8 +4,8 @@ from GUI.CommandQueue import CommandQueue
 from GUI.GuiInterface import GuiInterface
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.Commands.ResumeTranslationCommand import ResumeTranslationCommand
-from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand, TranslateSceneMultithreadedCommand
+from GUI.Commands.StartTranslationCommand import StartTranslationCommand
+from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
 
 class MainToolbar(QToolBar):
     """
@@ -82,7 +82,7 @@ class MainToolbar(QToolBar):
 
         # Enable or disable toolbar commands  depending on whether any translations are ongoing
         command_queue : CommandQueue = self.gui.GetCommandQueue()
-        if command_queue.Contains(type_list = [TranslateSceneCommand, TranslateSceneMultithreadedCommand, ResumeTranslationCommand]):
+        if command_queue.Contains(type_list = [TranslateSceneCommand, StartTranslationCommand]):
             self.DisableActions([ "Load Subtitles", "Save Project", "Start Translating", "Start Translating Fast", "Undo", "Redo"])
             self.EnableActions([ "Stop Translating" ])
             return
