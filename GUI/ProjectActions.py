@@ -9,6 +9,7 @@ from GUI.CommandQueue import CommandQueue
 
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
+from GUI.Commands.EditBatchCommand import EditBatchCommand
 from GUI.Commands.EditSceneCommand import EditSceneCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
@@ -257,9 +258,7 @@ class ProjectActions(QObject):
 
         self._validate_datamodel()
 
-        subtitles : SubtitleFile = self.datamodel.project.subtitles
-        if subtitles.UpdateBatch(scene_number, batch_number, update):
-            self.datamodel.project.needs_writing = True
+        self.ExecuteCommandNow(EditBatchCommand(scene_number, batch_number, update))
 
     def UpdateLine(self, line_number : int, original_text : str, translated_text : str):
         """
