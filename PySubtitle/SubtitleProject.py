@@ -21,37 +21,12 @@ class SubtitleProject:
         self.events = TranslationEvents()
         self.projectfile = None
         self.needsupdate = False
-        self.lock = threading.Lock()
-        self.stop_event = None
-
-        self.include_original = options.get('include_original', False)
-
-        project_mode = options.get('project', '')
-        if project_mode:
-            project_mode = project_mode.lower()
-
-        self.read_project = project_mode in ["true", "read", "resume", "retranslate", "reparse"]
-        self.write_project = project_mode in ["true", "write", "preview", "resume", "retranslate", "reparse"]
-        self.update_project = self.write_project and not project_mode in ['reparse']
-        self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
-        self.save_subtitles = project_mode not in ['preview', 'test']
-
-        # Yes, this is a stupid way to set these settings
-        options.add("preview", project_mode in ["preview"])
-        options.add("resume", project_mode in ["resume"])
-        options.add("reparse", project_mode in ["reparse"])
-        options.add("retranslate", project_mode in ["retranslate"])
+        self.lock = threading.RLock()
 
         if subtitles:
             self.UpdateProjectSettings(options)
 
-        if self.update_project and options.get('autosave'):
-            self._start_autosave_thread
-
-    def __del__(self):
-        if self.stop_event:
-            self.stop_event.set()
-            self.periodic_update_thread.join()
+        self._update_project_mode(options)
 
     @property
     def target_language(self):
@@ -61,7 +36,12 @@ class SubtitleProject:
     def movie_name(self):
         return self.subtitles.movie_name if self.subtitles else None
 
-    def InitialiseProject(self, filepath, outputpath = None, write_backup = False):
+    @property
+    def any_translated(self):
+        with self.lock:
+            return True if self.subtitles and self.subtitles.translated else False
+
+    def InitialiseProject(self, filepath : str, outputpath : str = None):
         """
         Initialize the project by either loading an existing project file or creating a new one.
         Load the subtitles to be translated, either from the project file or the source file.
@@ -125,12 +105,6 @@ class SubtitleProject:
 
         except Exception as e:
             logging.error(f"Unable to save translation: {e}")
-
-    def AnyTranslated(self):
-        """
-        Have any subtitles been translated yet?
-        """
-        return True if self.subtitles and self.subtitles.translated else False
 
     def GetProjectFilepath(self, filepath):
         path, ext = os.path.splitext(filepath)
@@ -330,19 +304,24 @@ class SubtitleProject:
 
         return batch
 
-    def _start_autosave_thread(self):
-        self.stop_event = threading.Event()
-        self.periodic_update_thread = threading.Thread(target=self._background_autosave)
-        self.periodic_update_thread.daemon = True
-        self.periodic_update_interval = 20  # Autosave interval in seconds
-        self.periodic_update_thread.start()
+    def _update_project_mode(self, options : Options):
+        """
+        Update the project mode based on the settings... yes, this is a dumb system
+        """
+        project_mode = options.get('project', '')
+        if project_mode:
+            project_mode = project_mode.lower()
 
-    def _background_autosave(self):
-        while not self.stop_event.is_set():
-            if self.needsupdate:
-                self.needsupdate = False
-                self.WriteProjectFile()
-            self.stop_event.wait(self.periodic_update_interval)
+        self.read_project = project_mode in ["true", "read", "resume", "retranslate", "reparse"]
+        self.write_project = project_mode in ["true", "write", "preview", "resume", "retranslate", "reparse"]
+        self.update_project = self.write_project and not project_mode in ['reparse']
+        self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
+        self.save_subtitles = project_mode not in ['preview', 'test']
+
+        options.add("preview", project_mode in ["preview"])
+        options.add("resume", project_mode in ["resume"])
+        options.add("reparse", project_mode in ["reparse"])
+        options.add("retranslate", project_mode in ["retranslate"])
 
     def _on_preprocessed(self, scenes):
         logging.debug("Pre-processing finished")
