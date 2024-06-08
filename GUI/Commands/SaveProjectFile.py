@@ -6,7 +6,7 @@ class SaveProjectFile(Command):
     def __init__(self, project : SubtitleProject, filepath = None):
         super().__init__()
         self.project = project
-        self.filepath = filepath or project.subtitles.outputpath
+        self.filepath = filepath or project.projectfile
         self.can_undo = False
         self.is_blocking = True
 
