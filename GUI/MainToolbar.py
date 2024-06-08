@@ -53,7 +53,6 @@ class MainToolbar(QToolBar):
         self.DefineAction('Quit', action_handler.exitProgram, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
         self.DefineAction('Load Subtitles', action_handler.LoadProject, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', 'Load Subtitles')
         self.DefineAction('Save Project', action_handler.SaveProject, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold Shift to save as...)')
-        self.DefineAction('Project Settings', action_handler.toggleProjectSettings, QStyle.StandardPixmap.SP_FileDialogDetailedView, 'Ctrl+/', 'Project Settings')
         self.DefineAction('Settings', action_handler.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
         self.DefineAction('Start Translating', action_handler.StartTranslating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start/Resume Translating')
         self.DefineAction('Start Translating Fast', action_handler.StartTranslatingFast, QStyle.StandardPixmap.SP_MediaSeekForward, 'Ctrl+Shift+T', 'Start translating on multiple threads (fast but unsafe)')
