@@ -197,7 +197,7 @@ class SubtitleBatch:
             first_translated_index = self.translated.index(translated_lines[0])
             last_translated_index = self.translated.index(translated_lines[-1])
             merged_translated = MergeSubtitles(translated_lines)
-            self.translated = self.translated[:first_translated_index] + [ merged_translated ] + self.translated[last_translated_index:]
+            self.translated = self.translated[:first_translated_index] + [ merged_translated ] + self.translated[last_translated_index + 1:]
 
             return merged, merged_translated
 
