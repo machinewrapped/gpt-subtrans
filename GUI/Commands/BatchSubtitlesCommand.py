@@ -1,5 +1,6 @@
 from copy import deepcopy
 from GUI.Command import Command
+from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.Options import Options
@@ -44,7 +45,7 @@ class BatchSubtitlesCommand(Command):
         project.subtitles.AutoBatch(batcher)
 
         if project.write_project:
-            project.WriteProjectFile()
+            self.commands_to_queue.append(SaveProjectFile(project=project))
 
         self.datamodel : ProjectDataModel = ProjectDataModel(project, self.options)
         self.datamodel.CreateViewModel()
