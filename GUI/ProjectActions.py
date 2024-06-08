@@ -10,6 +10,7 @@ from GUI.CommandQueue import CommandQueue
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
 from GUI.Commands.EditBatchCommand import EditBatchCommand
+from GUI.Commands.EditLineCommand import EditLineCommand
 from GUI.Commands.EditSceneCommand import EditSceneCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
@@ -268,23 +269,12 @@ class ProjectActions(QObject):
 
         self._validate_datamodel()
 
-        subtitles : SubtitleFile = self.datamodel.project.subtitles
+        edit = {
+            'text' : original_text,
+            'translation' : translated_text,
+        }
 
-        subtitles.UpdateLineText(line_number, original_text, translated_text)
-        self.datamodel.project.needs_writing = True
-
-        batch = subtitles.GetBatchContainingLine(line_number)
-        if batch:
-            if batch.errors:
-                validator = SubtitleValidator(self.datamodel.project_options)
-                self.errors = validator.ValidateBatch(batch)
-
-            update = {
-                'lines' : { line_number : { 'text' : original_text, 'translation' : translated_text}},
-                'errors' : batch.errors,
-            }
-
-            self.datamodel.viewmodel.UpdateBatch(batch.scene, batch.number, update)
+        self.ExecuteCommandNow(EditLineCommand(line_number, edit))
 
     def MergeSelection(self, selection : ProjectSelection):
         """
