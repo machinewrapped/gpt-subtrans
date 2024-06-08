@@ -46,6 +46,7 @@ class Command(QRunnable, QObject):
     def Abort(self):
         if not self.aborted:
             self.aborted = True
+            self.queued = False
             self.on_abort()
 
     def AddModelUpdate(self) -> ModelUpdate:

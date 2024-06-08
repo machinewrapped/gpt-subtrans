@@ -1,6 +1,6 @@
 import logging
 
-from PySide6.QtCore import Qt, QObject, Signal, QThreadPool, QRecursiveMutex, QMutexLocker
+from PySide6.QtCore import Qt, QObject, Signal, Slot, QThreadPool, QRecursiveMutex, QMutexLocker
 
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
@@ -206,13 +206,16 @@ class CommandQueue(QObject):
             self.undo_stack = []
             self.redo_stack = []
 
+    @Slot(Command)
     def _on_command_started(self, command: Command):
         """
         Handle command start events
         """
         command.commandStarted.disconnect(self._on_command_started)
-        self.commandStarted.emit(command)
+        if command.succeeded is None:
+            self.commandStarted.emit(command)
 
+    @Slot(Command)
     def _on_command_executed(self, command: Command):
         """
         Handle command callbacks, and queuing further actions
@@ -251,8 +254,6 @@ class CommandQueue(QObject):
         """
         Add a command to the worker thread queue
         """
-        self.queue.append(command)
-
         if datamodel:
             command.SetDataModel(datamodel)
         if callback:
@@ -260,11 +261,13 @@ class CommandQueue(QObject):
         if undo_callback:
             command.SetUndoCallback(undo_callback)
 
-        command.queued = True
-        command.started = False
         command.setAutoDelete(False)
         command.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
         command.commandCompleted.connect(self._on_command_executed, Qt.ConnectionType.QueuedConnection)
+        command.started = False
+        command.queued = True
+
+        self.queue.append(command)
 
     def _start_command_queue(self):
         """
@@ -277,7 +280,8 @@ class CommandQueue(QObject):
 
         with QMutexLocker(self.mutex):
             for command in self.queue:
-                if not command.started and (not command.is_blocking or not self.has_running_commands):
+                if command.queued and (not command.is_blocking or not self.has_running_commands):
+                    command.queued = False
                     self.command_pool.start(command)
 
                 if command.is_blocking:
