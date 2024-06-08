@@ -24,10 +24,14 @@ class LoadSubtitleFile(Command):
             self.options.InitialiseInstructions()
 
             project = SubtitleProject(self.options)
-            project.InitialiseProject(self.filepath, write_backup=self.write_backup)
+            project.InitialiseProject(self.filepath)
 
             if not project.subtitles:
                 raise CommandError(f"Unable to load subtitles from {self.filepath}", command=self)
+
+            if self.write_backup:
+                logging.info("Saving backup copy of the project")
+                project.WriteBackupFile()
 
             self.project = project
             self.datamodel = ProjectDataModel(project, self.options)

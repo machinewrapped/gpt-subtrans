@@ -88,12 +88,8 @@ class SubtitleProject:
             if subtitles and subtitles.scenes:
                 self.load_subtitles = False
                 outputpath = outputpath or GetOutputPath(self.projectfile, subtitles.target_language)
+                logging.info("Project file loaded")
 
-                if write_backup:
-                    logging.info("Project file loaded, saving backup copy")
-                    self.WriteBackupFile()
-                else:
-                    logging.info("Project file loaded")
             else:
                 logging.error(f"Unable to read project file, starting afresh")
                 self.load_subtitles = True
@@ -179,14 +175,8 @@ class SubtitleProject:
             if not projectfile:
                 raise Exception("No file path provided")
 
-            projectfile = os.path.normpath(projectfile)
             self.subtitles.outputpath = GetOutputPath(projectfile, self.subtitles.target_language)
-
-            logging.info(f"Writing project data to {str(projectfile)}")
-
-            with open(projectfile, 'w', encoding=default_encoding) as f:
-                project_json = json.dumps(self.subtitles, cls=SubtitleEncoder, ensure_ascii=False, indent=4)
-                f.write(project_json)
+            self.subtitles.SaveProjectFile(projectfile, encoder_class=SubtitleEncoder)
 
             self.needsupdate = False
 
@@ -194,9 +184,10 @@ class SubtitleProject:
         """
         Save a backup copy of the project
         """
-        if self.subtitles and self.projectfile:
-            backupfile = self.GetBackupFilepath(self.projectfile)
-            self.WriteProjectFile(backupfile)
+        with self.lock:
+            if self.subtitles and self.projectfile:
+                backupfile = self.GetBackupFilepath(self.projectfile)
+                self.subtitles.SaveProjectFile(backupfile, encoder_class=SubtitleEncoder)
 
     def ReadProjectFile(self, filepath = None):
         """
