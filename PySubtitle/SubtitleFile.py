@@ -515,7 +515,13 @@ class SubtitleFile:
                 for batch in scene.batches:
                     batch.originals = [line for line in batch.originals if line.number and line.start is not None]
                     if batch.translated:
-                        batch.translated = [line for line in batch.translated if line.number and line.start is not None]
+                        batch.translated = [line for line in batch.translated if line.number and line.start is not None ]
+
+                    original_line_numbers = [line.number for line in batch.originals]
+                    unmatched_translated = [line for line in batch.translated if line.number not in original_line_numbers]
+                    if unmatched_translated:
+                        logging.warning(f"Removing {len(unmatched_translated)} translations lines in batch ({batch.scene},{batch.number}) that don't match an original line")
+                        batch.translated = [line for line in batch.translated if line not in unmatched_translated]
 
         self.scenes = [scene for scene in self.scenes if scene.batches]
         self._renumber_scenes()
