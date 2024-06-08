@@ -31,7 +31,7 @@ class StartTranslationCommand(Command):
             logging.info("All scenes are fully translated")
             return True
 
-        starting = "Resuming" if self.resume and project.any_translated() else "Starting"
+        starting = "Resuming" if self.resume and project.any_translated else "Starting"
         threaded = "multithreaded" if self.multithreaded else "single threaded"
         logging.info(f"{starting} {threaded} translation")
 
