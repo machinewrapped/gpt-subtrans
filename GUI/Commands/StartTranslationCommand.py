@@ -38,7 +38,7 @@ class StartTranslationCommand(Command):
         previous_command : TranslateSceneCommand = self
 
         # Save the project first if it needs updating
-        if project.needsupdate:
+        if project.needs_writing:
             command = SaveProjectFile(project=project)
             self.commands_to_queue.append(command)
             previous_command = command

@@ -87,7 +87,7 @@ class ProjectDataModel:
 
     def NeedsSave(self):
         """Does the project have changes that should be saved"""
-        return self.IsProjectInitialised() and self.project.needsupdate
+        return self.IsProjectInitialised() and self.project.write_project
 
     def NeedsAutosave(self):
         """Does the project have changes that should be auto-saved"""
@@ -95,7 +95,7 @@ class ProjectDataModel:
 
     def SaveProject(self):
         if self.NeedsSave():
-            self.project.WriteProjectFile()
+            self.project.UpdateProjectFile()
 
     def GetLock(self):
         return QMutexLocker(self.mutex)

@@ -20,7 +20,7 @@ class SubtitleProject:
         self.subtitles : SubtitleFile = subtitles
         self.events = TranslationEvents()
         self.projectfile = None
-        self.needsupdate = False
+        self.needs_writing = False
         self.lock = threading.RLock()
 
         if subtitles:
@@ -83,6 +83,8 @@ class SubtitleProject:
 
         if not subtitles.has_subtitles:
             raise ValueError(f"No subtitles to translate in {filepath}")
+
+        self.needs_writing = self.write_project
 
     def SaveOriginal(self, outputpath : str = None):
         """
@@ -154,7 +156,7 @@ class SubtitleProject:
             self.subtitles.outputpath = GetOutputPath(projectfile, self.subtitles.target_language)
             self.subtitles.SaveProjectFile(projectfile, encoder_class=SubtitleEncoder)
 
-            self.needsupdate = False
+            self.needs_writing = False
 
     def WriteBackupFile(self):
         """
@@ -194,7 +196,7 @@ class SubtitleProject:
         Save the project file if it needs updating
         """
         with self.lock:
-            if self.needsupdate:
+            if self.needs_writing:
                 self.WriteProjectFile()
 
     def GetProjectSettings(self):
@@ -222,7 +224,7 @@ class SubtitleProject:
 
         if self.subtitles.scenes:
             self.subtitles.UpdateOutputPath()
-            self.needsupdate = True
+            self.needs_writing = True
 
     def TranslateSubtitles(self, translator : SubtitleTranslator):
         """
@@ -232,8 +234,7 @@ class SubtitleProject:
             raise Exception("No subtitles to translate")
 
         # Prime new project files
-        if self.write_project:
-            self.WriteProjectFile()
+        self.UpdateProjectFile()
 
         try:
             translator.events.preprocessed += self._on_preprocessed
@@ -315,7 +316,6 @@ class SubtitleProject:
 
         self.read_project = project_mode in ["true", "read", "resume", "retranslate", "reparse"]
         self.write_project = project_mode in ["true", "write", "preview", "resume", "retranslate", "reparse"]
-        self.update_project = self.write_project and not project_mode in ['reparse']
         self.load_subtitles = project_mode is None or project_mode in ["true", "write", "reload", "preview"]
         self.save_subtitles = project_mode not in ['preview', 'test']
 
@@ -326,15 +326,15 @@ class SubtitleProject:
 
     def _on_preprocessed(self, scenes):
         logging.debug("Pre-processing finished")
-        self.needsupdate = self.update_project
+        self.needs_writing = self.write_project
         self.events.preprocessed(scenes)
 
     def _on_batch_translated(self, batch):
         logging.debug("Batch translated")
-        self.needsupdate = self.update_project
+        self.needs_writing = self.write_project
         self.events.batch_translated(batch)
 
     def _on_scene_translated(self, scene):
         logging.debug("Scene translated")
-        self.needsupdate = self.update_project
+        self.needs_writing = self.write_project
         self.events.scene_translated(scene)

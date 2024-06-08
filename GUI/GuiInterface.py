@@ -218,9 +218,7 @@ class GuiInterface(QObject):
             self.QueueCommand(ClearCommandQueue())
             self.command_queue.Stop()
 
-        project = self.datamodel.project
-        if project and project.subtitles:
-            project.UpdateProjectFile()
+        self.datamodel.SaveProject()
 
     def LoadProject(self, filepath : str):
         """

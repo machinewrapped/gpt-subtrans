@@ -238,7 +238,7 @@ class ProjectActions(QObject):
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
         if subtitles.UpdateScene(scene_number, update):
-            self.datamodel.project.needsupdate = True
+            self.datamodel.project.needs_writing = True
 
     def UpdateBatch(self, scene_number : int, batch_number : int, update : dict):
         """
@@ -250,7 +250,7 @@ class ProjectActions(QObject):
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
         if subtitles.UpdateBatch(scene_number, batch_number, update):
-            self.datamodel.project.needsupdate = True
+            self.datamodel.project.needs_writing = True
 
     def UpdateLine(self, line_number : int, original_text : str, translated_text : str):
         """
@@ -263,7 +263,7 @@ class ProjectActions(QObject):
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         subtitles.UpdateLineText(line_number, original_text, translated_text)
-        self.datamodel.project.needsupdate = True
+        self.datamodel.project.needs_writing = True
 
         batch = subtitles.GetBatchContainingLine(line_number)
         if batch:
