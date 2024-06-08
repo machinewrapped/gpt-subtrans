@@ -5,9 +5,8 @@ from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow
 
 from GUI.Command import Command
-from GUI.CommandQueue import ClearCommandQueue
+from GUI.CommandQueue import ClearCommandQueue, CommandQueue
 
-from GUI.GUICommands import CheckProviderSettings
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
@@ -18,6 +17,7 @@ from GUI.Commands.StartTranslationCommand import StartTranslationCommand
 from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.Commands.SwapTextAndTranslations import SwapTextAndTranslations
+from GUI.GUICommands import CheckProviderSettings
 
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
@@ -38,10 +38,7 @@ class ActionError(Exception):
         return super().__str__()
 
 class ProjectActions(QObject):
-    issueCommand = Signal(object)
     actionError = Signal(object)
-    undoLastCommand = Signal()
-    redoLastCommand = Signal()
     saveSettings = Signal()
     showSettings = Signal()
     showProviderSettings = Signal()
@@ -51,15 +48,52 @@ class ProjectActions(QObject):
     saveProject = Signal(str)
     exitProgram = Signal()
 
-    def __init__(self, mainwindow : QMainWindow = None, datamodel : ProjectDataModel = None):
+    def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel = None, mainwindow : QMainWindow = None):
         super().__init__()
 
         self._mainwindow = mainwindow
+        self._command_queue = command_queue
         self.datamodel = datamodel
         self.last_used_path = os.path.dirname(datamodel.project.projectfile) if datamodel and datamodel.project else None
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
+
+    def QueueCommand(self, command : Command, callback = None, undo_callback = None):
+        """
+        Add a command to the command queue and kick the queue to start processing
+        """
+        self._command_queue.AddCommand(command, self.datamodel, callback=callback, undo_callback=undo_callback)
+
+    def UndoLastCommand(self):
+        """
+        Undo the last command
+        """
+        if not self._command_queue.can_undo:
+            logging.error("Cannot undo the last command")
+            return
+
+        try:
+            self._command_queue.UndoLastCommand()
+
+        except Exception as e:
+            logging.error(f"Error undoing the last command: {str(e)}")
+            self._command_queue.ClearUndoStack()
+
+    def RedoLastCommand(self):
+        """
+        Redo the last command
+        """
+        if not self._command_queue.can_redo:
+            logging.error("Cannot redo the last command")
+            return
+
+        try:
+            self._command_queue.RedoLastCommand()
+
+        except Exception as e:
+            logging.error(f"Error redoing the last command: {str(e)}")
+            self._command_queue.ClearRedoStack()
 
     def LoadProject(self):
         """
@@ -104,7 +138,7 @@ class ProjectActions(QObject):
 
         command = CheckProviderSettings(options)
         command.callback = callback
-        self._issue_command(command)
+        self.QueueCommand(command)
 
     def ShowProjectSettings(self, show : bool = True):
         self._validate_datamodel()
@@ -123,7 +157,7 @@ class ProjectActions(QObject):
 
         resume = not self._is_shift_pressed()
 
-        self._issue_command(StartTranslationCommand(resume=resume, multithreaded=False))
+        self.QueueCommand(StartTranslationCommand(resume=resume, multithreaded=False))
 
     def StartTranslatingFast(self):
         """
@@ -135,13 +169,13 @@ class ProjectActions(QObject):
 
         resume = not self._is_shift_pressed()
 
-        self._issue_command(StartTranslationCommand(resume=resume, multithreaded=True))
+        self.QueueCommand(StartTranslationCommand(resume=resume, multithreaded=True))
 
     def StopTranslating(self):
         """
         Stop the translation process
         """
-        self._issue_command(ClearCommandQueue())
+        self.QueueCommand(ClearCommandQueue())
 
     def TranslateSelection(self, selection : ProjectSelection):
         """
@@ -178,7 +212,7 @@ class ProjectActions(QObject):
 
         command = StartTranslationCommand(self.datamodel, multithreaded=multithreaded, resume=False, scenes = scenes)
 
-        self._issue_command(command)
+        self.QueueCommand(command)
 
     def ReparseSelection(self, selection : ProjectSelection):
         """
@@ -192,7 +226,7 @@ class ProjectActions(QObject):
         batch_numbers = [ (batch.scene, batch.number) for batch in selection.selected_batches ]
         line_numbers = [ line.number for line in selection.selected_lines ]
         command = ReparseTranslationsCommand(batch_numbers, line_numbers)
-        self._issue_command(command)
+        self.QueueCommand(command)
 
     def UpdateScene(self, scene_number : int, update : dict):
         """
@@ -255,16 +289,16 @@ class ProjectActions(QObject):
             raise ActionError("Cannot merge non-sequential elements")
 
         if selection.OnlyScenes():
-            self._issue_command(MergeScenesCommand(selection.scene_numbers))
+            self.QueueCommand(MergeScenesCommand(selection.scene_numbers))
 
         elif selection.OnlyBatches():
             scene_number = selection.selected_batches[0].scene
             batch_numbers = [ batch.number for batch in selection.selected_batches ]
-            self._issue_command(MergeBatchesCommand(scene_number, batch_numbers))
+            self.QueueCommand(MergeBatchesCommand(scene_number, batch_numbers))
 
         elif selection.AnyLines():
             line_numbers = [ line.number for line in selection.selected_lines ]
-            self._issue_command(MergeLinesCommand(line_numbers))
+            self.QueueCommand(MergeLinesCommand(line_numbers))
 
         else:
             raise ActionError(f"Unable to merge selection ({str(selection)})")
@@ -282,7 +316,7 @@ class ProjectActions(QObject):
             raise ActionError("Cannot delete scenes or batches yet")
 
         line_numbers = [ line.number for line in selection.selected_lines ]
-        self._issue_command(DeleteLinesCommand(line_numbers))
+        self.QueueCommand(DeleteLinesCommand(line_numbers))
 
     def SplitBatch(self, selection : ProjectSelection):
         """
@@ -298,7 +332,7 @@ class ProjectActions(QObject):
 
         self._validate_datamodel()
 
-        self._issue_command(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
+        self.QueueCommand(SplitBatchCommand(selected_line.scene, selected_line.batch, selected_line.number))
 
     def SplitScene(self, selection : ProjectSelection):
         """
@@ -314,7 +348,7 @@ class ProjectActions(QObject):
 
         self._validate_datamodel()
 
-        self._issue_command(SplitSceneCommand(selected_batch.scene, selected_batch.number))
+        self.QueueCommand(SplitSceneCommand(selected_batch.scene, selected_batch.number))
 
     def AutoSplitBatch(self, selection : ProjectSelection):
         """
@@ -325,7 +359,7 @@ class ProjectActions(QObject):
 
         scene_number, batch_number = selection.selected_batches[0].key
 
-        self._issue_command(AutoSplitBatchCommand(scene_number, batch_number))
+        self.QueueCommand(AutoSplitBatchCommand(scene_number, batch_number))
 
     def _swap_text_and_translation(self, selection : ProjectSelection):
         """
@@ -336,7 +370,7 @@ class ProjectActions(QObject):
 
         scene_number, batch_number = selection.batch_numbers[0]
 
-        self._issue_command(SwapTextAndTranslations(scene_number, batch_number))
+        self.QueueCommand(SwapTextAndTranslations(scene_number, batch_number))
 
     def _validate_datamodel(self):
         """
@@ -350,9 +384,6 @@ class ProjectActions(QObject):
 
         if not self.datamodel.project.subtitles.scenes:
             raise ActionError("Subtitles have not been batched")
-
-    def _issue_command(self, command : Command):
-        self.issueCommand.emit(command)
 
     def _is_shift_pressed(self):
         return QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier

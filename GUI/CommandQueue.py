@@ -137,7 +137,7 @@ class CommandQueue(QObject):
             else:
                 self.commandAdded.emit(command)
                 self._queue_command(command, datamodel, callback, undo_callback)
-                self._clear_redo_stack()
+                self.ClearRedoStack()
 
         self._start_command_queue()
 
@@ -204,6 +204,16 @@ class CommandQueue(QObject):
                 command.deleteLater()
 
             self.undo_stack = []
+            self.redo_stack = []
+
+    def ClearRedoStack(self):
+        """
+        Clear the redo stack
+        """
+        with QMutexLocker(self.mutex):
+            for command in self.redo_stack:
+                command.deleteLater()
+
             self.redo_stack = []
 
     @Slot(Command)
@@ -302,12 +312,3 @@ class CommandQueue(QObject):
         for command in commands_to_abort:
             command.Abort()
 
-    def _clear_redo_stack(self):
-        """
-        Remove commands from the redo stack and delete them
-        """
-        with QMutexLocker(self.mutex):
-            for command in self.redo_stack:
-                command.deleteLater()
-
-            self.redo_stack = []

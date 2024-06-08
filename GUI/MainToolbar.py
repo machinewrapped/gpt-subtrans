@@ -57,8 +57,8 @@ class MainToolbar(QToolBar):
         self.DefineAction('Start Translating', action_handler.StartTranslating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start Translating (hold shift to retranslate)')
         self.DefineAction('Start Translating Fast', action_handler.StartTranslatingFast, QStyle.StandardPixmap.SP_MediaSeekForward, None, 'Start translating on multiple threads (fast but unsafe)')
         self.DefineAction('Stop Translating', action_handler.StopTranslating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
-        self.DefineAction("Undo", action_handler.undoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', 'Undo last action')
-        self.DefineAction("Redo", action_handler.redoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Shift+Z', 'Redo last undone action')
+        self.DefineAction("Undo", action_handler.UndoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', 'Undo last action')
+        self.DefineAction("Redo", action_handler.RedoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Shift+Z', 'Redo last undone action')
         self.DefineAction('About', action_handler.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
     def DefineAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):

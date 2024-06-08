@@ -67,11 +67,8 @@ class GuiInterface(QObject):
         self.command_queue.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
 
         # Create centralised action handler
-        self.action_handler = ProjectActions()
-        self.action_handler.issueCommand.connect(self.QueueCommand)
+        self.action_handler = ProjectActions(command_queue=self.command_queue, datamodel=self.datamodel, mainwindow=self.mainwindow)
         self.action_handler.actionError.connect(self._on_error)
-        self.action_handler.undoLastCommand.connect(self.UndoLastCommand)
-        self.action_handler.redoLastCommand.connect(self.RedoLastCommand)
         self.action_handler.showSettings.connect(self.ShowSettingsDialog)
         self.action_handler.showProviderSettings.connect(self.ShowProviderSettingsDialog)
         self.action_handler.showProjectSettings.connect(self.showProjectSettings)
@@ -95,35 +92,6 @@ class GuiInterface(QObject):
         Add a command to the command queue and set the datamodel
         """
         self.command_queue.AddCommand(command, self.datamodel, callback=callback, undo_callback=undo_callback)
-
-    def UndoLastCommand(self):
-        """
-        Undo the last command
-        """
-        if not self.command_queue.can_undo:
-            logging.error("Cannot undo the last command")
-            return
-
-        try:
-            self.command_queue.UndoLastCommand()
-
-        except Exception as e:
-            logging.error(f"Error undoing the last command: {str(e)}")
-            self.command_queue.ClearUndoStack()
-
-    def RedoLastCommand(self):
-        """
-        Redo the last command
-        """
-        if not self.command_queue.can_redo:
-            logging.error("Cannot redo the last command")
-            return
-
-        try:
-            self.command_queue.RedoLastCommand()
-
-        except Exception as e:
-            logging.error(f"Error redoing the last command: {str(e)}")
 
     def GetCommandQueue(self):
         """
