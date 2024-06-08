@@ -1,9 +1,7 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
-from PySubtitle.SubtitleScene import SubtitleScene
 
 import logging
 
