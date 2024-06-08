@@ -93,7 +93,7 @@ class SubtitleFile:
             raise SubtitleError("Subtitles have not been batched")
 
         with self.lock:
-            matches = [scene for scene in self.scenes if scene.number == scene_number ]
+            matches = [ scene for scene in self.scenes if scene.number == scene_number ]
 
         if not matches:
             raise SubtitleError(f"Scene {scene_number} does not exist")
@@ -107,10 +107,11 @@ class SubtitleFile:
         """
         Get a batch by scene and batch number
         """
-        scene = self.GetScene(scene_number)
-        for batch in scene.batches:
-            if batch.number == batch_number:
-                return batch
+        with self.lock:
+            scene = self.GetScene(scene_number)
+            for batch in scene.batches:
+                if batch.number == batch_number:
+                    return batch
 
         raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
 
@@ -195,34 +196,35 @@ class SubtitleFile:
         """
         Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
         """
-        scene = self.GetScene(scene_number)
-        if not scene:
-            raise SubtitleError(f"Failed to find scene {scene_number}")
+        with self.lock:
+            scene = self.GetScene(scene_number)
+            if not scene:
+                raise SubtitleError(f"Failed to find scene {scene_number}")
 
-        batch = self.GetBatch(scene_number, batch_number)
-        if not batch:
-            raise SubtitleError(f"Failed to find batch {batch_number} in scene {scene_number}")
+            batch = self.GetBatch(scene_number, batch_number)
+            if not batch:
+                raise SubtitleError(f"Failed to find batch {batch_number} in scene {scene_number}")
 
-        context = {
-            'scene_number': scene.number,
-            'batch_number': batch.number,
-            'scene': f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}",
-            'batch': f"Batch {batch.number}: {batch.summary}" if batch.summary else f"Batch {batch.number}"
-        }
+            context = {
+                'scene_number': scene.number,
+                'batch_number': batch.number,
+                'scene': f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}",
+                'batch': f"Batch {batch.number}: {batch.summary}" if batch.summary else f"Batch {batch.number}"
+            }
 
-        if self.settings.get('movie_name'):
-            context['movie_name'] = self.settings.get('movie_name')
+            if self.settings.get('movie_name'):
+                context['movie_name'] = self.settings.get('movie_name')
 
-        if self.settings.get('description'):
-            context['description'] = self.settings.get('description')
+            if self.settings.get('description'):
+                context['description'] = self.settings.get('description')
 
-        if self.settings.get('names'):
-            context['names'] = ParseNames(self.settings.get('names'))
+            if self.settings.get('names'):
+                context['names'] = ParseNames(self.settings.get('names'))
 
-        history_lines = self._get_history(scene_number, batch_number, max_lines)
+            history_lines = self._get_history(scene_number, batch_number, max_lines)
 
-        if history_lines:
-            context['history'] = history_lines
+            if history_lines:
+                context['history'] = history_lines
 
         return context
 

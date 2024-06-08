@@ -109,7 +109,8 @@ class SubtitleProject:
         Write the original subtitles to a file
         """
         try:
-            self.subtitles.SaveOriginal(outputpath)
+            with self.lock:
+                self.subtitles.SaveOriginal(outputpath)
 
         except Exception as e:
             logging.error(f"Unable to save original subtitles: {e}")
@@ -119,7 +120,8 @@ class SubtitleProject:
         Write output file
         """
         try:
-            self.subtitles.SaveTranslation(outputpath)
+            with self.lock:
+                self.subtitles.SaveTranslation(outputpath)
 
         except Exception as e:
             logging.error(f"Unable to save translation: {e}")
@@ -215,13 +217,11 @@ class SubtitleProject:
 
     def UpdateProjectFile(self):
         """
-        Write current state of scenes to the project file
+        Save the project file if it needs updating
         """
-        if self.update_project:
-            if not self.subtitles:
-                raise Exception("Unable to update project file, no subtitles")
-
-            self.needsupdate = True
+        with self.lock:
+            if self.needsupdate:
+                self.WriteProjectFile()
 
     def GetProjectSettings(self):
         """
