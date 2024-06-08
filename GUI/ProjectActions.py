@@ -5,10 +5,11 @@ from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow
 
 from GUI.Command import Command
-from GUI.CommandQueue import ClearCommandQueue, CommandQueue
+from GUI.CommandQueue import CommandQueue
 
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
 from GUI.Commands.DeleteLinesCommand import DeleteLinesCommand
+from GUI.Commands.EditSceneCommand import EditSceneCommand
 from GUI.Commands.MergeBatchesCommand import MergeBatchesCommand
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
 from GUI.Commands.MergeScenesCommand import MergeScenesCommand
@@ -63,7 +64,17 @@ class ProjectActions(QObject):
         """
         Add a command to the command queue and kick the queue to start processing
         """
-        self._command_queue.AddCommand(command, self.datamodel, callback=callback, undo_callback=undo_callback)
+        command.SetDataModel(self.datamodel)
+        command.callback = callback
+        command.undo_callback = undo_callback
+        self._command_queue.AddCommand(command)
+
+    def ExecuteCommandNow(self, command : Command):
+        """
+        Execute a command immediately
+        """
+        command.SetDataModel(self.datamodel)
+        self._command_queue.ExecuteCommand(command)
 
     def UndoLastCommand(self):
         """
@@ -175,7 +186,7 @@ class ProjectActions(QObject):
         """
         Stop the translation process
         """
-        self.QueueCommand(ClearCommandQueue())
+        self._command_queue.Stop()
 
     def TranslateSelection(self, selection : ProjectSelection):
         """
@@ -236,9 +247,7 @@ class ProjectActions(QObject):
 
         self._validate_datamodel()
 
-        subtitles : SubtitleFile = self.datamodel.project.subtitles
-        if subtitles.UpdateScene(scene_number, update):
-            self.datamodel.project.needs_writing = True
+        self.ExecuteCommandNow(EditSceneCommand(scene_number, update))
 
     def UpdateBatch(self, scene_number : int, batch_number : int, update : dict):
         """

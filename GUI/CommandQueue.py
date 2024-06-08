@@ -115,7 +115,7 @@ class CommandQueue(QObject):
         """
         Shut the background thread down
         """
-        if self.queue_size > 0:
+        if self.has_commands:
             self._clear_command_queue()
 
         self.command_pool.waitForDone()
@@ -140,6 +140,37 @@ class CommandQueue(QObject):
                 self.ClearRedoStack()
 
         self._start_command_queue()
+
+    def ExecuteCommand(self, command: Command):
+        """
+        Execute a command immediately, bypassing the queue
+        """
+        if not isinstance(command, Command):
+            raise ValueError(f"Issued a command that is not a Command ({type(command).__name__})")
+
+        self.logger.debug(f"Executing a {type(command).__name__} command")
+        command.setParent(self)
+
+        try:
+            with QMutexLocker(self.mutex):
+                command.succeeded = command.execute()
+
+                if command.succeeded and not command.skip_undo:
+                    self.undo_stack.append(command)
+                    self.ClearRedoStack()
+
+                if command.succeeded and not command.can_undo:
+                    self.ClearUndoStack()
+
+            command.execute_callback()
+
+            self.commandExecuted.emit(command)
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Error executing {type(command).__name__}: {str(e)}")
+            command.succeeded = False
+            return False
 
     def UndoLastCommand(self):
         """
