@@ -156,7 +156,7 @@ class ProjectActions(QObject):
 
         multithreaded = len(selection.scenes) > 1 and self.datamodel.allow_multithreaded_translation
 
-        scenes = {}
+        scenes = { scene.number : {} for scene in selection.selected_scenes }
 
         for scene in selection.scenes.values():
             line_numbers = [ line.number for line in selection.selected_lines if line.scene == scene.number ]
