@@ -43,8 +43,6 @@ class TranslateSceneCommand(Command):
         try:
             scene = project.TranslateScene(self.translator, self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers)
 
-            project.UpdateProjectFile()
-
         except TranslationAbortedError as e:
             logging.info(f"Aborted translation of scene {self.scene_number}")
             self.aborted = True
