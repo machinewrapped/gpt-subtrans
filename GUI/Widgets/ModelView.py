@@ -24,8 +24,7 @@ class ModelView(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self._toolbar = ProjectToolbar(parent=self)
-        self._toolbar.showProjectOptions.connect(self.ShowProjectSettings)
+        self._toolbar = ProjectToolbar(parent=self, action_handler=action_handler)
         self._toolbar.setVisible(False)
         layout.addWidget(self._toolbar)
 
@@ -63,9 +62,9 @@ class ModelView(QWidget):
         if datamodel.project:
             self.project_settings.SetDataModel(datamodel)
             self._toolbar.show()
-            self._toolbar.show_options = not datamodel.project_options.get('movie_name', None)
+            self._toolbar.show_settings = not datamodel.project_options.get('movie_name', None)
 
-            if self._toolbar.show_options:
+            if self._toolbar.show_settings:
                 self.project_settings.OpenSettings()
         else:
             self.project_settings.ClearForm()
@@ -82,13 +81,16 @@ class ModelView(QWidget):
             self.content_view.Populate(viewmodel)
 
     def ShowProjectSettings(self, show : bool):
-        if show and not self.project_settings.isVisible():
-            self.project_settings.OpenSettings()
-            self._toolbar.show_options = True
+        if show == self.project_settings.isVisible():
+            return
 
-        elif not show and self.project_settings.isVisible():
+        if show:
+            self.project_settings.OpenSettings()
+            self._toolbar.show_settings = True
+
+        else:
             settings = self.project_settings.GetSettings()
-            self._toolbar.show_options = False
+            self._toolbar.show_settings = False
             self.project_settings.hide()
             self.settingsChanged.emit(settings)
 

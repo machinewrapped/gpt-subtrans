@@ -38,9 +38,8 @@ class GuiInterface(QObject):
     commandStarted = Signal(object)
     commandComplete = Signal(object)
     commandUndone = Signal(object)
-    actionRequested = Signal(str)
     prepareForSave = Signal()
-    toggleProjectSettings = Signal()
+    showProjectSettings = Signal(bool)
 
     def __init__(self, mainwindow : QMainWindow, options : Options):
         super().__init__()
@@ -75,7 +74,7 @@ class GuiInterface(QObject):
         self.action_handler.redoLastCommand.connect(self.RedoLastCommand)
         self.action_handler.showSettings.connect(self.ShowSettingsDialog)
         self.action_handler.showProviderSettings.connect(self.ShowProviderSettingsDialog)
-        self.action_handler.toggleProjectSettings.connect(self.toggleProjectSettings)
+        self.action_handler.showProjectSettings.connect(self.showProjectSettings)
         self.action_handler.saveSettings.connect(self.SaveSettings)
         self.action_handler.loadProject.connect(self.LoadProject)
         self.action_handler.saveProject.connect(self.SaveProject)

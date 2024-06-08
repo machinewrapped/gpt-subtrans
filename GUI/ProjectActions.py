@@ -45,7 +45,7 @@ class ProjectActions(QObject):
     saveSettings = Signal()
     showSettings = Signal()
     showProviderSettings = Signal()
-    toggleProjectSettings = Signal()
+    showProjectSettings = Signal(bool)
     showAboutDialog = Signal()
     loadProject = Signal(str)
     saveProject = Signal(str)
@@ -106,11 +106,17 @@ class ProjectActions(QObject):
         command.callback = callback
         self._issue_command(command)
 
+    def ShowProjectSettings(self, show : bool = True):
+        self._validate_datamodel()
+        if not show:
+            self.datamodel.SaveProject()
+
+        self.showProjectSettings.emit(show)
+
     def StartTranslating(self):
         """
         Start or resume translation of the project
         """
-        datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel()
 
         self.saveSettings.emit()
@@ -123,7 +129,6 @@ class ProjectActions(QObject):
         """
         Start or resume translation of the project using multiple threads
         """
-        datamodel : ProjectDataModel = self.datamodel
         self._validate_datamodel()
 
         self.saveSettings.emit()

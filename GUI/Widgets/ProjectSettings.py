@@ -213,8 +213,10 @@ class ProjectSettings(QGroupBox):
     def _option_changed(self, key, value):
         if key == 'provider':
             self._update_provider_settings(value)
+            self.datamodel.SaveProject()
         elif key == 'model':
-            self.datamodel.UpdateProjectSettings({ "model": value })
+            if value and value != self.settings.get('model'):
+                self.datamodel.UpdateProjectSettings({ "model": value })
 
     def _update_provider_settings(self, provider : str):
         try:

@@ -73,7 +73,6 @@ class MainWindow(QMainWindow):
         Create the interface for communicating with the GUI
         """
         self.gui_interface = GuiInterface(self, options)
-        self.gui_interface.actionRequested.connect(self._on_action_requested, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
@@ -81,7 +80,7 @@ class MainWindow(QMainWindow):
         self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.settingsChanged.connect(self._settings_changed, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.showProjectSettings.connect(self._show_project_settings, Qt.ConnectionType.QueuedConnection)
 
     def _prepare_for_save(self):
         """
@@ -162,6 +161,6 @@ class MainWindow(QMainWindow):
     def _settings_changed(self, settings : dict):
         self.toolbar.UpdateToolbar()
 
-    def _toggle_project_settings(self, show = None):
+    def _show_project_settings(self, show):
         self.model_viewer.ShowProjectSettings(show)
 
