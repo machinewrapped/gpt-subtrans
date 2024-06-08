@@ -26,9 +26,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ProjectSelection import ProjectSelection
 
 from PySubtitle.Options import Options
-from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
-from PySubtitle.SubtitleValidator import SubtitleValidator
 
 class ActionError(Exception):
     def __init__(self, message, error = None):
