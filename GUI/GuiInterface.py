@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 
 from GUI.AboutDialog import AboutDialog
 from GUI.Command import Command
-from GUI.CommandQueue import ClearCommandQueue, CommandQueue
+from GUI.CommandQueue import CommandQueue
 from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.Commands.LoadSubtitleFile import LoadSubtitleFile
 from GUI.Commands.SaveProjectFile import SaveProjectFile
@@ -214,8 +214,7 @@ class GuiInterface(QObject):
         """
         Clear the command queue and exit the program
         """
-        if self.command_queue and self.command_queue.has_commands:
-            self.QueueCommand(ClearCommandQueue())
+        if self.command_queue:
             self.command_queue.Stop()
 
         self.datamodel.SaveProject()
@@ -305,8 +304,8 @@ class GuiInterface(QObject):
                 self.dataModelChanged.emit(None)
 
         # Auto-save if the commmand queue is empty and the project has changed
-        if self.datamodel and self.datamodel.NeedsAutosave():
-            if not self.command_queue.has_commands:
+        if not self.command_queue.has_commands:
+            if self.datamodel and self.datamodel.NeedsAutosave():
                 self.datamodel.SaveProject()
 
         self.commandComplete.emit(command)
