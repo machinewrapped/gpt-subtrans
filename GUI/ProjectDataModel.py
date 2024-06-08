@@ -142,10 +142,8 @@ class ProjectDataModel:
         if not isinstance(update, ModelUpdate):
             raise ValueError("Invalid model update")
 
-        if not self.viewmodel:
-            raise ViewModelError("No viewmodel to update")
-
-        self.viewmodel.AddUpdate(lambda viewmodel=self.viewmodel, model_update=update : model_update.ApplyToViewModel(viewmodel))
+        if self.viewmodel:
+            self.viewmodel.AddUpdate(lambda viewmodel=self.viewmodel, model_update=update : model_update.ApplyToViewModel(viewmodel))
 
     def _update_translation_provider(self):
         """
