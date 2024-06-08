@@ -153,6 +153,7 @@ class CommandQueue(QObject):
 
         try:
             with QMutexLocker(self.mutex):
+                command.started = True
                 command.succeeded = command.execute()
 
                 if command.succeeded and not command.skip_undo:
