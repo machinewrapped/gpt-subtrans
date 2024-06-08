@@ -214,7 +214,8 @@ class SubtitleProject:
             if not self.subtitles:
                 return
 
-            if all(settings.get(key) == self.subtitles.settings.get(key) for key in settings):
+            common_keys = settings.keys() & self.subtitles.settings.keys()
+            if all(settings.get(key) == self.subtitles.settings.get(key) for key in common_keys):
                 return
 
             self.subtitles.UpdateProjectSettings(settings)
