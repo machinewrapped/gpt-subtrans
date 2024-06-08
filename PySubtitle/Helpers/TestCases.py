@@ -95,9 +95,10 @@ def CreateTestDataModel(test_data : dict, options : Options = None) -> ProjectDa
     file : SubtitleFile = PrepareSubtitles(test_data, 'original')
     datamodel = ProjectDataModel(options = options)
     datamodel.project = SubtitleProject(options, file)
+    datamodel.UpdateProviderSettings({"data" : test_data})
     return datamodel
 
-def CreateTestDataModelBatched(test_data : dict, options : Options = None) -> ProjectDataModel:
+def CreateTestDataModelBatched(test_data : dict, options : Options = None, translated : bool = True) -> ProjectDataModel:
     """
     Creates a SubtitleBatcher from test data.
     """
@@ -106,7 +107,7 @@ def CreateTestDataModelBatched(test_data : dict, options : Options = None) -> Pr
     batcher = SubtitleBatcher(options.GetSettings())
     subtitles.AutoBatch(batcher)
 
-    if 'translated' in test_data:
+    if translated and 'translated' in test_data:
         AddTranslations(subtitles, test_data, 'translated')
 
     return datamodel
