@@ -52,6 +52,9 @@ class ProjectActions(QObject):
     def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel = None, mainwindow : QMainWindow = None):
         super().__init__()
 
+        if not isinstance(command_queue, CommandQueue):
+            raise ValueError("Must provide a valid command queue")
+
         self._mainwindow = mainwindow
         self._command_queue = command_queue
         self.datamodel = datamodel
