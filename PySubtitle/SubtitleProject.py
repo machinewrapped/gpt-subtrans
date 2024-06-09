@@ -41,7 +41,7 @@ class SubtitleProject:
         with self.lock:
             return True if self.subtitles and self.subtitles.translated else False
 
-    def InitialiseProject(self, filepath : str, outputpath : str = None):
+    def InitialiseProject(self, filepath : str, outputpath : str = None, reload_subtitles : bool = False):
         """
         Initialize the project by either loading an existing project file or creating a new one.
         Load the subtitles to be translated, either from the project file or the source file.
@@ -51,12 +51,14 @@ class SubtitleProject:
         """
         filepath = os.path.normpath(filepath)
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
+
+        project_file_exists = os.path.exists(self.projectfile)
+
         if self.projectfile == filepath and not self.read_project:
             self.read_project = True
             self.write_project = True
 
-        # Check if the project file exists
-        if self.read_project and not os.path.exists(self.projectfile):
+        if self.read_project and not project_file_exists:
             logging.info(f"Project file {self.projectfile} does not exist")
             self.read_project = False
             self.load_subtitles = True
@@ -64,11 +66,16 @@ class SubtitleProject:
         if self.read_project:
             # Try to load the project file
             subtitles = self.ReadProjectFile(self.projectfile)
+            project_settings = self.GetProjectSettings()
 
-            if subtitles and subtitles.scenes:
-                self.load_subtitles = False
+            if subtitles:
                 outputpath = outputpath or GetOutputPath(self.projectfile, subtitles.target_language)
                 logging.info("Project file loaded")
+
+            if subtitles.scenes:
+                self.load_subtitles = reload_subtitles
+                if self.load_subtitles:
+                    logging.info("Reloading subtitles from the source file")
 
             else:
                 logging.error(f"Unable to read project file, starting afresh")
@@ -77,6 +84,10 @@ class SubtitleProject:
         if self.load_subtitles:
             # (re)load the source subtitle file if required
             subtitles = self.LoadSubtitleFile(filepath)
+
+            # Reapply project settings
+            if self.read_project and project_settings:
+                subtitles.UpdateProjectSettings(project_settings)
 
         if outputpath:
             subtitles.outputpath = outputpath

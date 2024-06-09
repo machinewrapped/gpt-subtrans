@@ -219,17 +219,19 @@ class GuiInterface(QObject):
 
         self.datamodel.SaveProject()
 
-    def LoadProject(self, filepath : str):
+    def LoadProject(self, filepath : str, reload_subtitles : bool = False):
         """
         Load a project file
         """
-        self.QueueCommand(LoadSubtitleFile(filepath, self.global_options), callback=self._on_project_loaded)
+        command = LoadSubtitleFile(filepath, self.global_options, reload_subtitles=reload_subtitles)
+        self.QueueCommand(command, callback=self._on_project_loaded)
 
     def SaveProject(self, filepath : str = None):
         """
         Save the project file
         """
-        self.QueueCommand(SaveProjectFile(self.datamodel.project, filepath), callback=self._on_project_saved)
+        command = SaveProjectFile(self.datamodel.project, filepath)
+        self.QueueCommand(command, callback=self._on_project_saved)
 
     def ShowNewProjectSettings(self, datamodel : ProjectDataModel):
         """

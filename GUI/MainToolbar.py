@@ -51,8 +51,8 @@ class MainToolbar(QToolBar):
         action_handler : ProjectActions = self.gui.GetActionHandler()
 
         self.DefineAction('Quit', action_handler.exitProgram, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
-        self.DefineAction('Load Subtitles', action_handler.LoadProject, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', 'Load Subtitles')
-        self.DefineAction('Save Project', action_handler.SaveProject, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold Shift to save as...)')
+        self.DefineAction('Load Subtitles', action_handler.LoadProject, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', 'Load Project/Subtitles (Hold shift to reload subtitles)')
+        self.DefineAction('Save Project', action_handler.SaveProject, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold shift to save as...)')
         self.DefineAction('Settings', action_handler.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
         self.DefineAction('Start Translating', action_handler.StartTranslating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start Translating (hold shift to retranslate)')
         self.DefineAction('Start Translating Fast', action_handler.StartTranslatingFast, QStyle.StandardPixmap.SP_MediaSeekForward, None, 'Start translating on multiple threads (fast but unsafe)')

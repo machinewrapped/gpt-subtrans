@@ -45,7 +45,7 @@ class ProjectActions(QObject):
     showProviderSettings = Signal()
     showProjectSettings = Signal(bool)
     showAboutDialog = Signal()
-    loadProject = Signal(str)
+    loadProject = Signal(str, bool)
     saveProject = Signal(str)
     exitProgram = Signal()
 
@@ -114,11 +114,13 @@ class ProjectActions(QObject):
         Load a subtitle file
         """
         initial_path = self.last_used_path
+        shift_pressed = self._is_shift_pressed()
+
         filters = "Subtitle files (*.srt *.subtrans);;All Files (*)"
         filepath, _ = QFileDialog.getOpenFileName(parent=self._mainwindow, caption="Open File", dir=initial_path, filter=filters)
 
         if filepath:
-            self.loadProject.emit(filepath)
+            self.loadProject.emit(filepath, shift_pressed)
 
     def SaveProject(self):
         """
@@ -385,5 +387,5 @@ class ProjectActions(QObject):
             raise ActionError("Subtitles have not been batched")
 
     def _is_shift_pressed(self):
-        return QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
+        return bool(QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
 

@@ -6,11 +6,12 @@ from PySubtitle.SubtitleProject import SubtitleProject
 import logging
 
 class LoadSubtitleFile(Command):
-    def __init__(self, filepath, options : Options):
+    def __init__(self, filepath, options : Options, reload_subtitles : bool = False):
         super().__init__()
         self.filepath = filepath
         self.project : SubtitleProject = None
         self.options : Options = Options(options)
+        self.reload_subtitles = reload_subtitles
         self.write_backup = self.options.get('write_backup', False)
         self.can_undo = False
 
@@ -24,7 +25,7 @@ class LoadSubtitleFile(Command):
             self.options.InitialiseInstructions()
 
             project = SubtitleProject(self.options)
-            project.InitialiseProject(self.filepath)
+            project.InitialiseProject(self.filepath, reload_subtitles=self.reload_subtitles)
 
             if not project.subtitles:
                 raise CommandError(f"Unable to load subtitles from {self.filepath}", command=self)
