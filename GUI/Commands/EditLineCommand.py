@@ -1,3 +1,4 @@
+import logging
 from copy import deepcopy
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
@@ -6,8 +7,6 @@ from PySubtitle.Helpers.Time import GetTimeDelta
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleFile import SubtitleFile
-
-import logging
 
 from PySubtitle.SubtitleValidator import SubtitleValidator
 
