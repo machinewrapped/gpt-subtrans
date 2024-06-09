@@ -111,7 +111,8 @@ class ProjectDataModel:
             self.provider_cache[self.translation_provider.name] = self.translation_provider
 
         except Exception as e:
-            logging.warning(f"Unable to create {self.provider} provider: {e}")
+            if self.provider is not None:
+                logging.warning(f"Unable to create {self.provider} provider: {e}")
             return None
 
     def UpdateProviderSettings(self, settings : dict):

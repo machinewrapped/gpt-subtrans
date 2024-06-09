@@ -68,8 +68,8 @@ class ProjectActions(QObject):
         Add a command to the command queue and kick the queue to start processing
         """
         command.SetDataModel(self.datamodel)
-        command.callback = callback
-        command.undo_callback = undo_callback
+        command.callback = callback or command.callback
+        command.undo_callback = undo_callback or command.undo_callback
         self._command_queue.AddCommand(command)
 
     def ExecuteCommandNow(self, command : Command):
