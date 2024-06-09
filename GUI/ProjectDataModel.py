@@ -1,9 +1,10 @@
 import logging
-import os
+
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
+
 from GUI.ViewModel.ViewModel import ProjectViewModel
-from GUI.ViewModel.ViewModelError import ViewModelError
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
+
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
