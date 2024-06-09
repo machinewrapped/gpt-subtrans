@@ -142,7 +142,7 @@ class ProjectActions(QObject):
         if filepath:
             self.saveProject.emit(filepath)
 
-    def CheckProviderSettings(self, options : Options):
+    def CheckProviderSettings(self, options : Options = None):
         """
         Check if the translation provider is configured correctly.
         """
@@ -152,7 +152,7 @@ class ProjectActions(QObject):
             else:
                 logging.info("Provider settings validated")
 
-        command = CheckProviderSettings(options)
+        command = CheckProviderSettings(options or self.datamodel.project_options)
         command.callback = callback
         self.QueueCommand(command)
 
