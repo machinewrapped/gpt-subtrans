@@ -109,8 +109,8 @@ class EditLineCommand(Command):
     def _update_model(self, batch : SubtitleBatch, line : SubtitleLine):
         viewmodel_update : ModelUpdate = self.AddModelUpdate()
         viewmodel_update.lines.update((batch.scene, batch.number, self.line_number), {
-                                            'start': line.start,
-                                            'end': line.end,
+                                            'start': line.txt_start,
+                                            'end': line.txt_end,
                                             'text': line.text,
                                             'translation': line.translation
                                             })
