@@ -273,7 +273,6 @@ class ProjectViewModel(QStandardItemModel):
 
         self.beginInsertRows(scene_index, insert_row, insert_row)
         scene_item.AddBatchItem(batch_item)
-        scene_item.Remap()
         self.endInsertRows()
 
         scene_item.emitDataChanged()
@@ -345,6 +344,7 @@ class ProjectViewModel(QStandardItemModel):
                 logging.debug(f"Removed row {i} from scene {scene_item.number}, rowCount={scene_item.rowCount()}")
                 break
 
+        scene_item.Remap()
         scene_item.UpdateStartAndEnd()
 
     #############################################################################
