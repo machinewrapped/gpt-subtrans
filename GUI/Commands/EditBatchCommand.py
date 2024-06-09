@@ -35,8 +35,7 @@ class EditBatchCommand(Command):
 
             batch.summary = self.edit.get('summary', batch.summary)
 
-            viewmodel_update = self.AddModelUpdate()
-            viewmodel_update.batches.update((self.scene_number, self.batch_number), { 'summary': batch.summary })
+            self._update_viewmodel(batch)
 
         return True
 
@@ -52,8 +51,11 @@ class EditBatchCommand(Command):
 
             batch.summary = self.undo_data.get('summary', batch.summary)
 
-            viewmodel_update = self.AddModelUpdate()
-            viewmodel_update.batches.update((self.scene_number, self.batch_number), { 'summary': batch.summary })
+            self._update_viewmodel(batch)
 
         return True
+
+    def _update_viewmodel(self, batch : SubtitleBatch):
+        viewmodel_update = self.AddModelUpdate()
+        viewmodel_update.batches.update((self.scene_number, self.batch_number), { 'summary': batch.summary })
 

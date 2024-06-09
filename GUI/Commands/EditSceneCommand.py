@@ -33,8 +33,7 @@ class EditSceneCommand(Command):
 
             scene.summary = self.edit.get('summary', scene.summary)
 
-            viewmodel_update = self.AddModelUpdate()
-            viewmodel_update.scenes.update(self.scene_number, { 'summary': scene.summary })
+            self._update_viewmodel(scene)
 
         return True
 
@@ -50,8 +49,10 @@ class EditSceneCommand(Command):
 
             scene.summary = self.undo_data.get('summary', scene.summary)
 
-            viewmodel_update = self.AddModelUpdate()
-            viewmodel_update.scenes.update(self.scene_number, { 'summary': scene.summary })
+            self._update_viewmodel(scene)
 
         return True
 
+    def _update_viewmodel(self, scene):
+        viewmodel_update = self.AddModelUpdate()
+        viewmodel_update.scenes.update(self.scene_number, { 'summary': scene.summary })
