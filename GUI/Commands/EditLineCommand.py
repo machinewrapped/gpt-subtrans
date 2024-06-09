@@ -53,7 +53,7 @@ class EditLineCommand(Command):
                 line.text = self.edit['text']
 
             if 'translation' in self.edit:
-                translated_line = batch.GetTranslatedLine(self.line_number)
+                translated_line : SubtitleLine = batch.GetTranslatedLine(self.line_number)
 
                 if translated_line:
                     self.undo_data['translation'] = translated_line.text
@@ -63,7 +63,9 @@ class EditLineCommand(Command):
                 else:
                     self.undo_data['translation'] = line.translation
                     line.translation = self.edit['translation']
-                    translated_line = batch.AddTranslatedLine(line.translated)
+                    translated_line = line.translated
+                    translated_line.original = line.text
+                    batch.AddTranslatedLine(translated_line)
 
             self._update_model(batch, line)
 
@@ -96,6 +98,8 @@ class EditLineCommand(Command):
                 line.translation = self.undo_data['translation']
                 translated_line = batch.GetTranslatedLine(self.line_number)
                 if translated_line:
+                    translated_line.start = line.start
+                    translated_line.end = line.end
                     translated_line.text = self.undo_data['translation']
                     translated_line.original = line.text
 
