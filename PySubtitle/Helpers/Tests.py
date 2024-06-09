@@ -35,9 +35,9 @@ def log_input_expected_result(input, expected, result):
     """
     log_info(str(input), prefix="".ljust(10))
     log_info(str(expected), prefix="===".ljust(10))
+    log_info(str(result), prefix="-->".ljust(10))
     if expected != result:
         log_error("*** UNEXPECTED RESULT! ***", prefix="!!!".ljust(10))
-    log_info(str(result), prefix="-->".ljust(10))
     logging.info(separator)
 
 def log_input_expected_error(input, expected_error, result):

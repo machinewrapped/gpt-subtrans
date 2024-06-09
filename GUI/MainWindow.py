@@ -29,14 +29,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1600, 900)
         self._load_icon("gui-subtrans")
 
-        self.gui_interface = GuiInterface(self, options)
-        self.gui_interface.actionRequested.connect(self._on_action_requested, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
-        self.gui_interface.toggleProjectSettings.connect(self._toggle_project_settings, Qt.ConnectionType.QueuedConnection)
+        self._create_gui_interface(options)
 
         # Create the main widget
         main_widget = QWidget(self)
@@ -54,7 +47,8 @@ class MainWindow(QMainWindow):
         splitter = QSplitter(Qt.Orientation.Vertical)
         main_layout.addWidget(splitter)
 
-        self.model_viewer = ModelView(self.gui_interface, parent=splitter)
+        action_handler = self.gui_interface.GetActionHandler()
+        self.model_viewer = ModelView(action_handler, parent=splitter)
         self.model_viewer.settingsChanged.connect(self.gui_interface.UpdateProjectSettings)
         splitter.addWidget(self.model_viewer)
 
@@ -73,6 +67,20 @@ class MainWindow(QMainWindow):
         self.gui_interface.PrepareToExit()
 
         super().closeEvent(e)
+
+    def _create_gui_interface(self, options):
+        """
+        Create the interface for communicating with the GUI
+        """
+        self.gui_interface = GuiInterface(self, options)
+        self.gui_interface.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandComplete.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.dataModelChanged.connect(self._on_data_model_changed, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.settingsChanged.connect(self._settings_changed, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.showProjectSettings.connect(self._show_project_settings, Qt.ConnectionType.QueuedConnection)
 
     def _prepare_for_save(self):
         """
@@ -104,35 +112,55 @@ class MainWindow(QMainWindow):
         self.toolbar.UpdateToolbar()
         self._update_status_bar(command)
 
-    def _on_command_complete(self, command : Command, success):
+    def _on_command_started(self, command : Command):
         self.toolbar.UpdateToolbar()
-        self._update_status_bar(command, succeeded=success)
+        self._update_status_bar(command)
+
+    def _on_command_complete(self, command : Command):
+        self.toolbar.UpdateToolbar()
+        self._update_status_bar(command)
 
     def _on_command_undone(self, command : Command):
         self.toolbar.UpdateToolbar()
         self._update_status_bar(command, undone=True)
 
-    def _update_status_bar(self, command : Command, succeeded : bool = None, undone : bool = False):
+    def _update_status_bar(self, command : Command, undone : bool = False):
         command_queue = self.gui_interface.GetCommandQueue()
 
-        if not command:
-            self.statusBar().showMessage("")
-        elif undone:
-            self.statusBar().showMessage(f"{type(command).__name__} undone.")
-        elif succeeded is None:
-            self.statusBar().showMessage(f"{type(command).__name__} executed. {command_queue.queue_size} commands in queue.")
-        elif command.aborted:
-            self.statusBar().showMessage(f"{type(command).__name__} aborted.")
-        elif not succeeded:
-            self.statusBar().showMessage(f"{type(command).__name__} failed.")
-        else:
-            if command_queue.queue_size > 1:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful. {command_queue.queue_size} commands in queue.")
-            elif command_queue.queue_size == 1:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful. One command left in queue.")
-            else:
-                self.statusBar().showMessage(f"{type(command).__name__} was successful.")
+        messages = []
 
-    def _toggle_project_settings(self, show = None):
+        if command:
+            if undone:
+                messages.append(f"{type(command).__name__} undone.")
+            elif command.aborted:
+                messages.append(f"{type(command).__name__} aborted.")
+            elif not command.started:
+                messages.append(f"{type(command).__name__} added to queue.")
+            elif command.succeeded is None:
+                messages.append(f"{type(command).__name__} started.")
+            elif command.succeeded:
+                messages.append(f"{type(command).__name__} was successful.")
+            else:
+                messages.append(f"{type(command).__name__} failed.")
+
+        if command_queue.queue_size > 1:
+            messages.append(f"{command_queue.queue_size} commands in queue.")
+
+        undoable_text = command_queue.undoable_command_text
+        if undoable_text:
+            messages.append(undoable_text)
+
+        redoable_text = command_queue.redoable_command_text
+        if redoable_text:
+            messages.append(redoable_text)
+
+        message = " ".join(messages)
+
+        self.statusBar().showMessage(message)
+
+    def _settings_changed(self, settings : dict):
+        self.toolbar.UpdateToolbar()
+
+    def _show_project_settings(self, show):
         self.model_viewer.ShowProjectSettings(show)
 

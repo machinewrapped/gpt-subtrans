@@ -11,12 +11,12 @@ from PySide6.QtWidgets import (
 
 from GUI.AboutDialog import AboutDialog
 from GUI.Command import Command
-from GUI.CommandQueue import ClearCommandQueue, CommandQueue
+from GUI.CommandQueue import CommandQueue
 from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.Commands.LoadSubtitleFile import LoadSubtitleFile
 from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.FirstRunOptions import FirstRunOptions
-from GUI.GUICommands import CheckProviderSettings, ExitProgramCommand
+from GUI.GUICommands import ExitProgramCommand
 from GUI.GuiHelpers import LoadStylesheet
 from GUI.NewProjectSettings import NewProjectSettings
 from GUI.ProjectActions import ProjectActions
@@ -33,12 +33,13 @@ class GuiInterface(QObject):
     Interface to interact with the GUI
     """
     dataModelChanged = Signal(object)
+    settingsChanged = Signal(dict)
     commandAdded = Signal(object)
-    commandComplete = Signal(object, bool)
+    commandStarted = Signal(object)
+    commandComplete = Signal(object)
     commandUndone = Signal(object)
-    actionRequested = Signal(str)
     prepareForSave = Signal()
-    toggleProjectSettings = Signal()
+    showProjectSettings = Signal(bool)
 
     def __init__(self, mainwindow : QMainWindow, options : Options):
         super().__init__()
@@ -60,19 +61,17 @@ class GuiInterface(QObject):
         # Create the command queue
         self.command_queue = CommandQueue(mainwindow)
         self.command_queue.SetMaxThreadCount(options.get('max_threads', 1))
+        self.command_queue.commandStarted.connect(self._on_command_started, Qt.ConnectionType.QueuedConnection)
         self.command_queue.commandExecuted.connect(self._on_command_complete, Qt.ConnectionType.QueuedConnection)
         self.command_queue.commandAdded.connect(self._on_command_added, Qt.ConnectionType.QueuedConnection)
         self.command_queue.commandUndone.connect(self._on_command_undone, Qt.ConnectionType.QueuedConnection)
 
         # Create centralised action handler
-        self.action_handler = ProjectActions()
-        self.action_handler.issueCommand.connect(self.QueueCommand)
+        self.action_handler = ProjectActions(command_queue=self.command_queue, datamodel=self.datamodel, mainwindow=self.mainwindow)
         self.action_handler.actionError.connect(self._on_error)
-        self.action_handler.undoLastCommand.connect(self.UndoLastCommand)
-        self.action_handler.redoLastCommand.connect(self.RedoLastCommand)
         self.action_handler.showSettings.connect(self.ShowSettingsDialog)
         self.action_handler.showProviderSettings.connect(self.ShowProviderSettingsDialog)
-        self.action_handler.toggleProjectSettings.connect(self.toggleProjectSettings)
+        self.action_handler.showProjectSettings.connect(self.showProjectSettings)
         self.action_handler.saveSettings.connect(self.SaveSettings)
         self.action_handler.loadProject.connect(self.LoadProject)
         self.action_handler.saveProject.connect(self.SaveProject)
@@ -94,35 +93,6 @@ class GuiInterface(QObject):
         """
         self.command_queue.AddCommand(command, self.datamodel, callback=callback, undo_callback=undo_callback)
 
-    def UndoLastCommand(self):
-        """
-        Undo the last command
-        """
-        if not self.command_queue.can_undo:
-            logging.error("Cannot undo the last command")
-            return
-
-        try:
-            self.command_queue.UndoLastCommand()
-
-        except Exception as e:
-            logging.error(f"Error undoing the last command: {str(e)}")
-            self.command_queue.ClearUndoStack()
-
-    def RedoLastCommand(self):
-        """
-        Redo the last command
-        """
-        if not self.command_queue.can_redo:
-            logging.error("Cannot redo the last command")
-            return
-
-        try:
-            self.command_queue.RedoLastCommand()
-
-        except Exception as e:
-            logging.error(f"Error redoing the last command: {str(e)}")
-
     def GetCommandQueue(self):
         """
         Get the command queue
@@ -142,20 +112,6 @@ class GuiInterface(QObject):
         self.datamodel = datamodel
         self.action_handler.SetDataModel(datamodel)
         self.dataModelChanged.emit(datamodel)
-
-    def PerformModelAction(self, action_name : str, params : dict):
-        """
-        Perform an action on the data model
-        """
-        if not self.datamodel:
-            raise Exception(f"Cannot perform {action_name} without a data model")
-
-        try:
-            self.actionRequested.emit(action_name)
-            self.datamodel.PerformModelAction(action_name, params)
-
-        except Exception as e:
-            logging.error(f"Error in {action_name}: {str(e)}")
 
     def GetActionHandler(self):
         """
@@ -212,6 +168,8 @@ class GuiInterface(QObject):
         if not self.datamodel.ValidateProviderSettings():
             logging.warning("Translation provider settings are not valid. Please check the settings.")
 
+        self.settingsChanged.emit(updated_settings)
+
         if 'theme' in updated_settings:
             LoadStylesheet(self.global_options.theme)
 
@@ -221,6 +179,7 @@ class GuiInterface(QObject):
         """
         if settings:
             self.datamodel.UpdateProjectSettings(settings)
+            self.settingsChanged.emit(settings)
 
     def Startup(self, filepath : str = None):
         """
@@ -233,13 +192,14 @@ class GuiInterface(QObject):
         if options.provider is None or options.get('firstrun'):
             # Configure critical settings
             self._first_run(options)
-        elif filepath:
-            # Load file if we were opened with one
-            filepath = os.path.abspath(filepath)
-            self.LoadProject(filepath)
         else:
             # Check if the translation provider is configured correctly
-            self.QueueCommand(CheckProviderSettings(options))
+            self._check_provider_settings(options)
+
+            if filepath:
+                # Load file if we were opened with one
+                filepath = os.path.abspath(filepath)
+                self.LoadProject(filepath)
 
         logging.info(f"GUI-Subtrans {__version__}")
 
@@ -247,17 +207,17 @@ class GuiInterface(QObject):
         if CheckIfUpdateCheckIsRequired():
             CheckIfUpdateAvailable()
 
+    def _check_provider_settings(self, options : Options):
+        self.action_handler.CheckProviderSettings(options)
+
     def PrepareToExit(self):
         """
         Clear the command queue and exit the program
         """
-        if self.command_queue and self.command_queue.has_commands:
-            self.QueueCommand(ClearCommandQueue())
+        if self.command_queue:
             self.command_queue.Stop()
 
-        project = self.datamodel.project
-        if project and project.subtitles:
-            project.UpdateProjectFile()
+        self.datamodel.SaveProject()
 
     def LoadProject(self, filepath : str):
         """
@@ -280,7 +240,7 @@ class GuiInterface(QObject):
 
             if dialog.exec() == QDialog.Accepted:
                 datamodel.UpdateProjectSettings(dialog.settings)
-                self.QueueCommand(CheckProviderSettings(datamodel.project_options))
+                self._check_provider_settings(datamodel.project_options)
                 self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
                 logging.info("Project settings set")
 
@@ -300,6 +260,13 @@ class GuiInterface(QObject):
         logging.debug(f"Added a {type(command).__name__} command to the queue")
         self.commandAdded.emit(command)
 
+    def _on_command_started(self, command : Command):
+        """
+        Handle the start of a command
+        """
+        logging.debug(f"{type(command).__name__} command started")
+        self.commandStarted.emit(command)
+
     def _on_command_undone(self, command : Command):
         """
         Handle the undoing of a command
@@ -312,7 +279,7 @@ class GuiInterface(QObject):
 
         self.commandUndone.emit(command)
 
-    def _on_command_complete(self, command : Command, success):
+    def _on_command_complete(self, command : Command):
         """
         Handle the completion of a command
         """
@@ -320,9 +287,9 @@ class GuiInterface(QObject):
             QApplication.instance().quit()
             return
 
-        logging.debug(f"A {type(command).__name__} command {'succeeded' if success else 'failed'}")
+        logging.debug(f"A {type(command).__name__} command {'succeeded' if command.succeeded else 'failed'}")
 
-        if success:
+        if command.succeeded:
             if command.model_updates:
                 for model_update in command.model_updates:
                     self.datamodel.UpdateViewModel(model_update)
@@ -337,11 +304,11 @@ class GuiInterface(QObject):
                 self.dataModelChanged.emit(None)
 
         # Auto-save if the commmand queue is empty and the project has changed
-        if self.datamodel and self.datamodel.NeedsAutosave():
-            if not self.command_queue.has_commands:
+        if not self.command_queue.has_commands:
+            if self.datamodel and self.datamodel.NeedsAutosave():
                 self.datamodel.SaveProject()
 
-        self.commandComplete.emit(command, success)
+        self.commandComplete.emit(command)
 
     def _on_project_loaded(self, command : LoadSubtitleFile):
         """
@@ -385,7 +352,7 @@ class GuiInterface(QObject):
             initial_settings = first_run_options.GetSettings()
             self.UpdateSettings(initial_settings)
 
-            self.QueueCommand(CheckProviderSettings(options))
+            self._check_provider_settings(self.global_options)
 
     def _on_error(self, error : object):
         """

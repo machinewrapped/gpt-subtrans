@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal, QSignalBlocker
 from GUI.EditInstructionsDialog import EditInstructionsDialog
+from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
@@ -30,11 +31,12 @@ class ProjectSettings(QGroupBox):
     """
     settingsChanged = Signal(dict)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, action_handler : ProjectActions = None, parent=None):
+        super().__init__(parent=parent)
         self.setTitle("Project Settings")
         self.setMinimumWidth(450)
 
+        self.action_handler = action_handler
         self.provider_list = sorted(TranslationProvider.get_providers())
         self.model_list = []
         self.widgets = {}
@@ -211,17 +213,20 @@ class ProjectSettings(QGroupBox):
     def _option_changed(self, key, value):
         if key == 'provider':
             self._update_provider_settings(value)
-            self.datamodel.PerformModelAction('Validate Provider Settings')
+            self.datamodel.SaveProject()
         elif key == 'model':
-            self.datamodel.UpdateProjectSettings({ "model": value })
+            if value and value != self.settings.get('model'):
+                self.datamodel.UpdateProjectSettings({ "model": value })
 
     def _update_provider_settings(self, provider : str):
         try:
             self.datamodel.UpdateProjectSettings({ "provider": provider})
+            self.action_handler.CheckProviderSettings()
             self.model_list = self.datamodel.available_models
             self.settings['provider'] = provider
             self.settings['model'] = self.datamodel.selected_model
             self._update_available_models()
+
         except Exception as e:
             logging.error(f"Provider error: {e}")
 

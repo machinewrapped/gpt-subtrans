@@ -1,4 +1,5 @@
 from copy import deepcopy
+import json
 import os
 import logging
 import threading
@@ -92,7 +93,7 @@ class SubtitleFile:
             raise SubtitleError("Subtitles have not been batched")
 
         with self.lock:
-            matches = [scene for scene in self.scenes if scene.number == scene_number ]
+            matches = [ scene for scene in self.scenes if scene.number == scene_number ]
 
         if not matches:
             raise SubtitleError(f"Scene {scene_number} does not exist")
@@ -106,10 +107,11 @@ class SubtitleFile:
         """
         Get a batch by scene and batch number
         """
-        scene = self.GetScene(scene_number)
-        for batch in scene.batches:
-            if batch.number == batch_number:
-                return batch
+        with self.lock:
+            scene = self.GetScene(scene_number)
+            for batch in scene.batches:
+                if batch.number == batch_number:
+                    return batch
 
         raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
 
@@ -194,34 +196,35 @@ class SubtitleFile:
         """
         Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
         """
-        scene = self.GetScene(scene_number)
-        if not scene:
-            raise SubtitleError(f"Failed to find scene {scene_number}")
+        with self.lock:
+            scene = self.GetScene(scene_number)
+            if not scene:
+                raise SubtitleError(f"Failed to find scene {scene_number}")
 
-        batch = self.GetBatch(scene_number, batch_number)
-        if not batch:
-            raise SubtitleError(f"Failed to find batch {batch_number} in scene {scene_number}")
+            batch = self.GetBatch(scene_number, batch_number)
+            if not batch:
+                raise SubtitleError(f"Failed to find batch {batch_number} in scene {scene_number}")
 
-        context = {
-            'scene_number': scene.number,
-            'batch_number': batch.number,
-            'scene': f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}",
-            'batch': f"Batch {batch.number}: {batch.summary}" if batch.summary else f"Batch {batch.number}"
-        }
+            context = {
+                'scene_number': scene.number,
+                'batch_number': batch.number,
+                'scene': f"Scene {scene.number}: {scene.summary}" if scene.summary else f"Scene {scene.number}",
+                'batch': f"Batch {batch.number}: {batch.summary}" if batch.summary else f"Batch {batch.number}"
+            }
 
-        if self.settings.get('movie_name'):
-            context['movie_name'] = self.settings.get('movie_name')
+            if self.settings.get('movie_name'):
+                context['movie_name'] = self.settings.get('movie_name')
 
-        if self.settings.get('description'):
-            context['description'] = self.settings.get('description')
+            if self.settings.get('description'):
+                context['description'] = self.settings.get('description')
 
-        if self.settings.get('names'):
-            context['names'] = ParseNames(self.settings.get('names'))
+            if self.settings.get('names'):
+                context['names'] = ParseNames(self.settings.get('names'))
 
-        history_lines = self._get_history(scene_number, batch_number, max_lines)
+            history_lines = self._get_history(scene_number, batch_number, max_lines)
 
-        if history_lines:
-            context['history'] = history_lines
+            if history_lines:
+                context['history'] = history_lines
 
         return context
 
@@ -257,6 +260,20 @@ class SubtitleFile:
         except srt.SRTParseError as e:
             logging.error(f"Failed to parse SRT string: {str(e)}")
 
+    def SaveProjectFile(self, projectfile : str, encoder_class):
+        """
+        Save the project settings to a JSON file
+        """
+        if encoder_class is None:
+            raise ValueError("No encoder provided")
+
+        projectfile = os.path.normpath(projectfile)
+        logging.info(f"Writing project data to {str(projectfile)}")
+
+        with self.lock:
+            with open(projectfile, 'w', encoding=default_encoding) as f:
+                project_json = json.dumps(self, cls=encoder_class, ensure_ascii=False, indent=4)
+                f.write(project_json)
 
     def SaveOriginal(self, path : str = None):
         """
@@ -515,7 +532,13 @@ class SubtitleFile:
                 for batch in scene.batches:
                     batch.originals = [line for line in batch.originals if line.number and line.start is not None]
                     if batch.translated:
-                        batch.translated = [line for line in batch.translated if line.number and line.start is not None]
+                        batch.translated = [line for line in batch.translated if line.number and line.start is not None ]
+
+                    original_line_numbers = [line.number for line in batch.originals]
+                    unmatched_translated = [line for line in batch.translated if line.number not in original_line_numbers]
+                    if unmatched_translated:
+                        logging.warning(f"Removing {len(unmatched_translated)} translations lines in batch ({batch.scene},{batch.number}) that don't match an original line")
+                        batch.translated = [line for line in batch.translated if line not in unmatched_translated]
 
         self.scenes = [scene for scene in self.scenes if scene.batches]
         self._renumber_scenes()

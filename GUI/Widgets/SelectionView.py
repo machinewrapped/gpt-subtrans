@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QLabel, QFrame, QHBoxLayout, QPushButton, QSizePolicy
 
 from GUI.GuiInterface import GuiInterface
+from GUI.ProjectActions import ProjectActions
 from GUI.ProjectSelection import ProjectSelection
 
 def _show(widget, condition):
@@ -14,10 +15,10 @@ def _show(widget, condition):
 class SelectionView(QFrame):
     resetSelection = Signal()
 
-    def __init__(self, gui_interface : GuiInterface, parent=None):
+    def __init__(self, action_handler : ProjectActions, parent=None):
         super().__init__(parent=parent)
 
-        self.gui = gui_interface
+        self.action_handler = action_handler
         self.debug_view = os.environ.get("DEBUG_MODE") == "1"
 
         self._label = QLabel(self)
@@ -67,7 +68,7 @@ class SelectionView(QFrame):
         _show(self._split_scene_button, selection.AnyBatches() and not selection.MultipleSelected() and not selection.IsFirstInSceneSelected())
         _show(self._merge_scenes_button, selection.OnlyScenes() and selection.MultipleSelected() and selection.IsContiguous())
         _show(self._merge_batches_button, selection.OnlyBatches() and selection.MultipleSelected() and selection.IsContiguous())
-        _show(self._merge_lines_button, selection.AnyLines() and selection.MultipleSelected(max=2) and selection.IsContiguous() and selection.AllLinesInSameBatch())
+        _show(self._merge_lines_button, selection.AnyLines() and selection.MultipleSelected(max=3) and selection.IsContiguous() and selection.AllLinesInSameBatch())
         _show(self._delete_lines_button, selection.AnyLines())
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
@@ -91,40 +92,40 @@ class SelectionView(QFrame):
 
     def _on_translate_selection(self):
         if self.selection:
-            self.gui.PerformModelAction('Translate Selection', (self.selection,))
+            self.action_handler.TranslateSelection(self.selection)
 
     def _on_merge_selection(self):
         if self.selection:
-            self.gui.PerformModelAction('Merge Selection', (self.selection,))
+            self.action_handler.MergeSelection(self.selection)
 
             # HACK: the selection should be updated automatically when lines are merged, but it doesn't work correctly
             self.resetSelection.emit()
 
     def _on_delete_lines(self):
         if self.selection and self.selection.AnyLines():
-            self.gui.PerformModelAction('Delete Selection', (self.selection,))
+            self.action_handler.DeleteSelection(self.selection)
 
             # HACK: the selection should be updated automatically when lines are deleted, but it doesn't work correctly
             self.resetSelection.emit()
 
     def _on_split_batch(self):
         if self.selection and self.selection.AnyLines() and not self.selection.MultipleSelected():
-            self.gui.PerformModelAction('Split Batch', (self.selection,))
+            self.action_handler.SplitBatch(self.selection)
 
     def _on_split_scene(self):
         if self.selection and self.selection.AnyBatches() and not self.selection.MultipleSelected():
-            self.gui.PerformModelAction('Split Scene', (self.selection,))
+            self.action_handler.SplitScene(self.selection)
 
     def _on_auto_split_batch(self):
         if self.selection and self.selection.AnyBatches() and self.selection.OnlyBatches() and not self.selection.MultipleSelected():
-            self.gui.PerformModelAction('Auto-Split Batch', (self.selection,))
+            self.action_handler.AutoSplitBatch(self.selection)
 
     def _on_reparse(self):
         if self.selection and self.selection.AnyBatches() and self.selection.AllTranslated():
-            self.gui.PerformModelAction('Reparse Translation', (self.selection,))
+            self.action_handler.ReparseSelection(self.selection)
 
     def _on_swap_text(self):
         if self.selection:
-            self.gui.PerformModelAction('Swap Text', (self.selection,))
+            self.action_handler._swap_text_and_translation(self.selection)
 
 

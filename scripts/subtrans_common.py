@@ -139,7 +139,12 @@ def CreateProject(options : Options, args: Namespace) -> SubtitleProject:
     """
     project = SubtitleProject(options)
 
-    project.InitialiseProject(args.input, args.output, args.writebackup)
+    project.InitialiseProject(args.input, args.output)
+
+    if args.writebackup:
+        logging.info("Saving backup copy of the project")
+        project.WriteBackupFile()
+
     project.UpdateProjectSettings(options)
 
     logging.info(f"Translating {project.subtitles.linecount} subtitles from {args.input}")

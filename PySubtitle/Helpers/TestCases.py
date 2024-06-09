@@ -10,6 +10,7 @@ from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -43,16 +44,29 @@ class SubtitleTestCase(unittest.TestCase):
         Assert that the current state of the subtitles is identical to the reference datamodel
         """
         for scene_number in range(1, len(subtitles.scenes) + 1):
-            for batch_number in range(1, len(subtitles.GetScene(scene_number).batches) + 1):
-                batch = subtitles.GetBatch(scene_number, batch_number)
-                reference_batch = reference_subtitles.GetBatch(scene_number, batch_number)
+            scene = subtitles.GetScene(scene_number)
+            reference_scene = reference_subtitles.GetScene(scene_number)
 
-                self._assert_same_as_reference_batch(batch, reference_batch)
+            self._assert_same_as_reference_scene(scene, reference_scene)
+
+    def _assert_same_as_reference_scene(self, scene : SubtitleScene, reference_scene : SubtitleScene):
+        self.assertEqual(scene.size, reference_scene.size)
+        self.assertEqual(scene.linecount, reference_scene.linecount)
+        self.assertEqual(scene.summary, reference_scene.summary)
+
+        for batch_number in range(1, scene.size + 1):
+            batch = scene.GetBatch(batch_number)
+            reference_batch = reference_scene.GetBatch(batch_number)
+
+            self._assert_same_as_reference_batch(batch, reference_batch)
 
     def _assert_same_as_reference_batch(self, batch : SubtitleBatch, reference_batch : SubtitleBatch):
         """
         Assert that the current state of the batch is identical to the reference batch
         """
+        self.assertEqual(batch.size, reference_batch.size)
+        self.assertEqual(batch.summary, reference_batch.summary)
+
         self.assertEqual(len(batch.originals), len(reference_batch.originals))
         self.assertEqual(len(batch.translated), len(reference_batch.translated))
 
@@ -95,9 +109,10 @@ def CreateTestDataModel(test_data : dict, options : Options = None) -> ProjectDa
     file : SubtitleFile = PrepareSubtitles(test_data, 'original')
     datamodel = ProjectDataModel(options = options)
     datamodel.project = SubtitleProject(options, file)
+    datamodel.UpdateProviderSettings({"data" : test_data})
     return datamodel
 
-def CreateTestDataModelBatched(test_data : dict, options : Options = None) -> ProjectDataModel:
+def CreateTestDataModelBatched(test_data : dict, options : Options = None, translated : bool = True) -> ProjectDataModel:
     """
     Creates a SubtitleBatcher from test data.
     """
@@ -106,7 +121,7 @@ def CreateTestDataModelBatched(test_data : dict, options : Options = None) -> Pr
     batcher = SubtitleBatcher(options.GetSettings())
     subtitles.AutoBatch(batcher)
 
-    if 'translated' in test_data:
+    if translated and 'translated' in test_data:
         AddTranslations(subtitles, test_data, 'translated')
 
     return datamodel

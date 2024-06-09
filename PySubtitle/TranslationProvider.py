@@ -22,22 +22,29 @@ class TranslationProvider:
         """
         if not self._available_models:
             self._available_models = self.GetAvailableModels()
-        
+
         return self._available_models
-    
+
     @property
     def selected_model(self) -> str:
         """
         The currently selected model for the provider
         """
         return self.settings.get('model')
-    
+
+    @property
+    def allow_multithreaded_translation(self) -> bool:
+        """
+        Returns True if the provider supports multithreaded translation
+        """
+        return self._allow_multithreaded_translation()
+
     def GetAvailableModels(self) -> list[str]:
         """
         Returns a list of possible model for the provider
         """
         raise NotImplementedError
-    
+
     def GetInformation(self) -> str:
         """
         Returns information about the provider settings
@@ -49,13 +56,13 @@ class TranslationProvider:
         Returns a new instance of the translation client for this provider
         """
         raise NotImplementedError
-    
+
     def ValidateSettings(self) -> bool:
         """
         Validate the settings for the provider
         """
         return True
-    
+
     def UpdateSettings(self, settings : dict | Options):
         """
         Update the settings for the provider
@@ -68,7 +75,13 @@ class TranslationProvider:
         for k, v in settings.items():
             if k in self.settings:
                 self.settings[k] = v
-    
+
+    def _allow_multithreaded_translation(self) -> bool:
+        """
+        Returns True if the provider supports multithreaded translation
+        """
+        return False
+
     @classmethod
     def get_providers(cls) -> dict:
         """
@@ -111,7 +124,7 @@ class TranslationProvider:
         for provider_name, provider in cls.get_providers().items():
             if provider_name == name:
                 return provider(provider_settings)
-        
+
         raise ValueError(f"Unknown translation provider: {name}")
 
     @classmethod
@@ -123,7 +136,7 @@ class TranslationProvider:
         for loader, module_name, is_pkg in pkgutil.iter_modules(package.__path__, package.__name__ + '.'):
             logging.debug(f"Importing provider: {module_name}")
             importlib.import_module(module_name)
-    
+
     @classmethod
     def get_available_models(cls, options : Options):
         """ Get the available models for the selected provider """

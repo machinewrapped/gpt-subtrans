@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QSplitter, QHBoxLayout
 from PySide6.QtCore import Qt, Signal
-from GUI.GuiInterface import GuiInterface
+from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.ProjectSelection import ProjectSelection
@@ -13,16 +13,18 @@ from GUI.Widgets.ProjectSettings import ProjectSettings
 class ModelView(QWidget):
     settingsChanged = Signal(dict)
 
-    def __init__(self, gui_interface : GuiInterface, parent=None):
+    def __init__(self, action_handler : ProjectActions, parent=None):
         super().__init__(parent)
 
-        self.gui = gui_interface
+        if not isinstance(action_handler, ProjectActions):
+            raise Exception("Invalid action handler supplied to ModelView")
+
+        self.action_handler = action_handler
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self._toolbar = ProjectToolbar(parent=self)
-        self._toolbar.showProjectOptions.connect(self.ShowProjectSettings)
+        self._toolbar = ProjectToolbar(parent=self, action_handler=action_handler)
         self._toolbar.setVisible(False)
         layout.addWidget(self._toolbar)
 
@@ -30,10 +32,10 @@ class ModelView(QWidget):
         self.scenes_view = ScenesView(parent=self)
 
         # Main Content Area
-        self.content_view = ContentView(gui_interface, parent=self)
+        self.content_view = ContentView(action_handler=action_handler, parent=self)
 
         # Project Settings
-        self.project_settings = ProjectSettings()
+        self.project_settings = ProjectSettings(action_handler=action_handler, parent=self)
         self.project_settings.hide()
         self.project_settings.settingsChanged.connect(self.settingsChanged)
 
@@ -60,9 +62,9 @@ class ModelView(QWidget):
         if datamodel.project:
             self.project_settings.SetDataModel(datamodel)
             self._toolbar.show()
-            self._toolbar.show_options = not datamodel.project_options.get('movie_name', None)
+            self._toolbar.show_settings = not datamodel.project_options.get('movie_name', None)
 
-            if self._toolbar.show_options:
+            if self._toolbar.show_settings:
                 self.project_settings.OpenSettings()
         else:
             self.project_settings.ClearForm()
@@ -79,13 +81,16 @@ class ModelView(QWidget):
             self.content_view.Populate(viewmodel)
 
     def ShowProjectSettings(self, show : bool):
-        if show and not self.project_settings.isVisible():
-            self.project_settings.OpenSettings()
-            self._toolbar.show_options = True
+        if show == self.project_settings.isVisible():
+            return
 
-        elif not show and self.project_settings.isVisible():
+        if show:
+            self.project_settings.OpenSettings()
+            self._toolbar.show_settings = True
+
+        else:
             settings = self.project_settings.GetSettings()
-            self._toolbar.show_options = False
+            self._toolbar.show_settings = False
             self.project_settings.hide()
             self.settingsChanged.emit(settings)
 
@@ -116,11 +121,11 @@ class ModelView(QWidget):
         update = {
             'summary' : scene_model.get('summary')
         }
-        self.gui.PerformModelAction('Update Scene', (scene_number, update,))
+        self.action_handler.UpdateScene(scene_number, update)
 
     def _on_batch_edited(self, scene, batch_number, batch_model):
         update = {
             'summary' : batch_model.get('summary')
         }
-        self.gui.PerformModelAction('Update Batch', (scene, batch_number, update,))
+        self.action_handler.UpdateBatch(scene, batch_number, update)
 
