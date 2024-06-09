@@ -1,12 +1,9 @@
-#############################################################
+import logging
 
 from GUI.Command import Command, CommandError
 from GUI.Commands.SaveProjectFile import SaveProjectFile
-from GUI.Commands.SaveTranslationFile import SaveTranslationFile
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
-
-import logging
 
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
