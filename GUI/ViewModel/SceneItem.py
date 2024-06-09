@@ -16,7 +16,7 @@ class SceneItem(ViewModelItem):
         self.scene_model = {
             'scene': scene.number,
             'start': scene.batches[0].txt_start,
-            'end': scene.batches[-1].srt_end,
+            'end': scene.batches[-1].txt_end,
             'duration': None,
             'gap': None,
             'summary': scene.summary
@@ -93,6 +93,7 @@ class SceneItem(ViewModelItem):
             self.insertRow(batch_item.number - 1, batch_item)
 
         self.Remap()
+        self.UpdateStartAndEnd()
 
     def Update(self, update):
         """ Update the scene model with new data """
@@ -100,6 +101,21 @@ class SceneItem(ViewModelItem):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
         UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration', 'gap'])
+
+    def UpdateStartAndEnd(self):
+        """ Update the start and end times of the scene """
+        start = None
+        end = None
+        for i in range(0, self.rowCount()):
+            batch_item = self.child(i, 0)
+            if i == 0:
+                start = batch_item.start
+            end = batch_item.end
+
+        if start:
+            self.scene_model['start'] = start
+        if end:
+            self.scene_model['end'] = end
 
     def Remap(self):
         """ Rebuild the batch number map """

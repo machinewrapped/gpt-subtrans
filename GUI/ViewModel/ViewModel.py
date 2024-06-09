@@ -328,6 +328,9 @@ class ProjectViewModel(QStandardItemModel):
     def RemoveBatch(self, scene_number, batch_number):
         logging.debug(f"Removing batch ({scene_number}, {batch_number})")
         scene_item : SceneItem = self.model.get(scene_number)
+        if not scene_item:
+            raise ViewModelError(f"Scene {scene_number} not found")
+
         if batch_number not in scene_item.batches.keys():
             raise ViewModelError(f"Scene {scene_number} batch {batch_number} does not exist")
 
@@ -341,6 +344,8 @@ class ProjectViewModel(QStandardItemModel):
                 self.endRemoveRows()
                 logging.debug(f"Removed row {i} from scene {scene_item.number}, rowCount={scene_item.rowCount()}")
                 break
+
+        scene_item.UpdateStartAndEnd()
 
     #############################################################################
 
