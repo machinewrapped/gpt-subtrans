@@ -146,13 +146,14 @@ class MainWindow(QMainWindow):
         if command_queue.queue_size > 1:
             messages.append(f"{command_queue.queue_size} commands in queue.")
 
-        undoable_text = command_queue.undoable_command_text
-        if undoable_text:
-            messages.append(undoable_text)
+        if not command_queue.has_running_commands:
+            undoable_text = command_queue.undoable_command_text
+            if undoable_text:
+                messages.append(undoable_text)
 
-        redoable_text = command_queue.redoable_command_text
-        if redoable_text:
-            messages.append(redoable_text)
+            redoable_text = command_queue.redoable_command_text
+            if redoable_text:
+                messages.append(redoable_text)
 
         message = " ".join(messages)
 

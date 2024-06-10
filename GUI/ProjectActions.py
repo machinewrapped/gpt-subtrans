@@ -83,6 +83,10 @@ class ProjectActions(QObject):
         """
         Undo the last command
         """
+        if self._command_queue.has_running_commands:
+            logging.debug("No undo while commands are running")
+            return
+
         if not self._command_queue.can_undo:
             logging.error("Cannot undo the last command")
             return
@@ -98,6 +102,10 @@ class ProjectActions(QObject):
         """
         Redo the last command
         """
+        if self._command_queue.has_running_commands:
+            logging.debug("No redo while commands are running")
+            return
+
         if not self._command_queue.can_redo:
             logging.error("Cannot redo the last command")
             return
