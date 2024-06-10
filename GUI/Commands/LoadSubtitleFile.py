@@ -30,7 +30,8 @@ class LoadSubtitleFile(Command):
             if not project.subtitles:
                 raise CommandError(f"Unable to load subtitles from {self.filepath}", command=self)
 
-            if self.write_backup:
+            # Write a backup if an existing project was loaded
+            if self.write_backup and project.read_project:
                 logging.info("Saving backup copy of the project")
                 project.WriteBackupFile()
 

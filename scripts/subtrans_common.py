@@ -141,7 +141,7 @@ def CreateProject(options : Options, args: Namespace) -> SubtitleProject:
 
     project.InitialiseProject(args.input, args.output)
 
-    if args.writebackup:
+    if args.writebackup and project.read_project:
         logging.info("Saving backup copy of the project")
         project.WriteBackupFile()
 

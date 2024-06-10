@@ -20,6 +20,8 @@ class SubtitleProject:
         self.subtitles : SubtitleFile = subtitles
         self.events = TranslationEvents()
         self.projectfile = None
+        self.read_project = False
+        self.write_project = False
         self.needs_writing = False
         self.lock = threading.RLock()
 
