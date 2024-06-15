@@ -10,6 +10,7 @@ emdash = "—"
 standard_filler_words = "um,umm,uh,uhh,er,err,ah,ahh,oh,eh,hm,hmm,hmmm,huh,ha,mmm,ow,oww"
 
 whitespace_and_punctuation_pattern = regex.compile(r'[\p{P}\p{Z}\p{C}]')
+re_newline = regex.compile(r'\n|\r\n|\\n|\\N|<br/>')
 
 priority_break_sequences = [
     regex.escape(dialog_marker),  # Dialog marker
@@ -354,3 +355,8 @@ def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length :
 
     return summary or None
 
+def NormaliseNewlines(text : str):
+    """
+    Convert newlines to \n
+    """
+    return re_newline.sub('\n', text)

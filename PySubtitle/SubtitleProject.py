@@ -48,7 +48,7 @@ class SubtitleProject:
         Initialize the project by either loading an existing project file or creating a new one.
         Load the subtitles to be translated, either from the project file or the source file.
 
-        :param filepath: the path to the project or a source subtitle file (in .srt format) to be translated
+        :param filepath: the path to the project or a source subtitle file to be translated
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
         """
         filepath = os.path.normpath(filepath)
@@ -71,7 +71,7 @@ class SubtitleProject:
             project_settings = self.GetProjectSettings()
 
             if subtitles:
-                outputpath = outputpath or GetOutputPath(self.projectfile, subtitles.target_language)
+                outputpath = outputpath or GetOutputPath(self.projectfile, subtitles.target_language, self.subtitles.extension)
                 logging.info("Project file loaded")
 
             if subtitles.scenes:
@@ -140,7 +140,7 @@ class SubtitleProject:
 
         return self.subtitles
 
-    def WriteProjectFile(self, projectfile = None):
+    def WriteProjectFile(self, projectfile : str = None):
         """
         Write a set of subtitles to a project file
         """
@@ -166,7 +166,7 @@ class SubtitleProject:
             if not projectfile:
                 raise Exception("No file path provided")
 
-            self.subtitles.outputpath = GetOutputPath(projectfile, self.subtitles.target_language)
+            self.subtitles.outputpath = GetOutputPath(projectfile, self.subtitles.target_language, self.subtitles.extension)
             self.subtitles.SaveProjectFile(projectfile, encoder_class=SubtitleEncoder)
 
             self.needs_writing = False

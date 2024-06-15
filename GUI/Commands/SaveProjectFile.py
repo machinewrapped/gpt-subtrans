@@ -12,7 +12,7 @@ class SaveProjectFile(Command):
 
     def execute(self):
         self.project.projectfile = self.project.GetProjectFilepath(self.filepath)
-        self.project.subtitles.outputpath = GetOutputPath(self.project.projectfile, self.project.target_language)
+        self.project.subtitles.outputpath = GetOutputPath(self.project.projectfile, self.project.target_language, self.project.subtitles.extension)
         self.project.WriteProjectFile()
 
         if self.project.subtitles.translated:

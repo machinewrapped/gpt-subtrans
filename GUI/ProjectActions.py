@@ -124,7 +124,7 @@ class ProjectActions(QObject):
         initial_path = self.last_used_path
         shift_pressed = self._is_shift_pressed()
 
-        filters = "Subtitle files (*.srt *.subtrans);;All Files (*)"
+        filters = "Subtitle files (*.srt *.ass *.subtrans);;All Files (*)"
         filepath, _ = QFileDialog.getOpenFileName(parent=self._mainwindow, caption="Open File", dir=initial_path, filter=filters)
 
         if filepath:

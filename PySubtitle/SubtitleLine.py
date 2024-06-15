@@ -1,23 +1,49 @@
-from datetime import timedelta
 import logging
-from os import linesep
+import pysubs2
+import regex
 import srt
 
-from PySubtitle.Helpers.Time import GetTimeDelta, TimeDeltaToText
+from datetime import timedelta
+from os import linesep
+
+from PySubtitle.Helpers.Text import NormaliseNewlines
+from PySubtitle.Helpers.Time import GetTimeDelta, TimeDeltaToSrtTimestamp, TimeDeltaToText
+
+srt_template = "{0}\n{1} --> {2}\n{3}\n\n"
 
 class SubtitleLine:
     """
     Represents a single line, with a number and start and end times plus original text
     and (optionally) an associated translation.
     """
-    def __init__(self, line : srt.Subtitle | str, translation : str = None, original : str = None):
+    class Item:
+        """
+        Represents a single line, with a number and start and end times plus text
+        """
+
+        def __init__(self, index : int, start : timedelta, end : timedelta, text : str):
+            self.index : int = index
+            self.start : timedelta = start
+            self.end : timedelta = end
+            self.text : str = NormaliseNewlines(text)
+
+        def to_srt(self) -> str:
+            return srt_template.format(self.index, TimeDeltaToSrtTimestamp(self.start), TimeDeltaToSrtTimestamp(self.end), self.text or "\n")
+
+        def __eq__(self, other):
+            if not isinstance(other, SubtitleLine.Item):
+                return False
+            return self.index == other.index and self.start == other.start and self.end == other.end and self.text == other.text
+
+    def __init__(self, line : Item | str, index : int = None, translation : str = None, original : str = None):
         if isinstance(line, SubtitleLine):
             self._item = line._item
             self._duration = line._duration
             self.translation = translation or line.translation
             self.original = original or line.original
         else:
-            self.item = line
+            self._item = CreateSubtitleItem(line, index)
+            self._duration = None
             self.translation = translation
             self.original = original
 
@@ -40,7 +66,7 @@ class SubtitleLine:
 
     @property
     def text(self) -> str:
-        return self._item.content if self._item else None
+        return self._item.text if self._item else None
 
     @property
     def text_normalized(self) -> str:
@@ -52,7 +78,7 @@ class SubtitleLine:
 
     @property
     def srt_start(self) -> str:
-        return srt.timedelta_to_srt_timestamp(self.start) if self.start is not None else None
+        return TimeDeltaToSrtTimestamp(self.start) if self.start is not None else None
 
     @property
     def txt_start(self) -> str:
@@ -64,7 +90,7 @@ class SubtitleLine:
 
     @property
     def srt_end(self) -> str:
-        return srt.timedelta_to_srt_timestamp(self.end) if self.end else None
+        return TimeDeltaToSrtTimestamp(self.end) if self.end else None
 
     @property
     def txt_end(self) -> str:
@@ -83,7 +109,7 @@ class SubtitleLine:
             self._item.end = self._item.start + self._duration
 
     @property
-    def srt_duration(self) -> str:
+    def txt_duration(self) -> str:
         return TimeDeltaToText(self.duration)
 
     @property
@@ -91,21 +117,21 @@ class SubtitleLine:
         if not self._item or not self._item.start or not self._item.end:
             return None
 
-        return self._item.to_srt(strict=False)
+        return self._item.to_srt()
 
     @property
-    def translated(self) -> srt.Subtitle | None:
+    def translated(self) -> Item | None:
         if self._item is None or self.translation is None:
             return None
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
 
     @property
-    def item(self) -> srt.Subtitle:
+    def item(self) -> Item:
         return self._item
 
     @item.setter
-    def item(self, item : srt.Subtitle | str):
-        self._item : srt.Subtitle = CreateSrtSubtitle(item)
+    def item(self, item : Item | str):
+        self._item : SubtitleLine.Item = CreateSubtitleItem(item)
         self._duration = None
 
     @number.setter
@@ -116,7 +142,7 @@ class SubtitleLine:
     @text.setter
     def text(self, text : str):
         if self._item:
-            self._item.content = text
+            self._item.text = text
 
     @start.setter
     def start(self, time : timedelta | str):
@@ -135,14 +161,14 @@ class SubtitleLine:
         self.translation = SubtitleLine(translated).text
 
     @classmethod
-    def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str = None):
+    def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str = None, translation : str = None):
         number = int(number) if number else None
         start : timedelta = GetTimeDelta(start)
         end : timedelta = GetTimeDelta(end)
         text : str = srt.make_legal_content(text.strip()) if text else ""
         original = srt.make_legal_content(original.strip()) if original else ""
-        item = srt.Subtitle(number, start, end, text)
-        return SubtitleLine(item, original=original)
+        item = SubtitleLine.Item(number, start, end, text)
+        return SubtitleLine(item, index=number, original=original, translation=translation)
 
     @classmethod
     def FromDictionary(cls, values):
@@ -154,10 +180,11 @@ class SubtitleLine:
             values.get('start'),
             values.get('end'),
             values.get('body') or values.get('original'),
-            values.get('original'))
+            values.get('original'),
+            values.get('translation'))
 
     @classmethod
-    def FromMatch(cls, match):
+    def FromMatch(cls, match : regex.Match):
         """
         Construct a SubtitleLine from a regex match.
 
@@ -171,23 +198,37 @@ class SubtitleLine:
 
         return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
 
-def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
+def CreateSubtitleItem(item : SubtitleLine.Item | SubtitleLine | srt.Subtitle | pysubs2.SSAEvent | dict | str, index : int | None) -> SubtitleLine.Item | None:
     """
-    Try to construct an srt.Subtitle from the argument
+    Try to construct a SubtitleLine.Item from the argument
     """
-    if hasattr(item, 'item'):
-        item = item.item
+    if item is None:
+        return None
 
-    if not isinstance(item, srt.Subtitle):
-        line = str(item).strip()
-        match = srt.SRT_REGEX.match(line)
-        if match:
-            raw_index, raw_start, raw_end, proprietary, content = match.groups()
-            index = int(raw_index) if raw_index else None
-            start = srt.srt_timestamp_to_timedelta(raw_start)
-            end = srt.srt_timestamp_to_timedelta(raw_end)
-            item = srt.Subtitle(index, start, end, content, proprietary)
-        elif item is not None:
-            logging.warning(f"Failed to parse line: {line}")
+    if isinstance(item, SubtitleLine.Item):
+        return item
+
+    if isinstance(item, SubtitleLine) or hasattr(item, 'item'):
+        return item.item
+
+    if isinstance(item, srt.Subtitle):
+        return SubtitleLine.Item(item.index, item.start, item.end, item.content)
+
+    if isinstance(item, pysubs2.SSAEvent):
+        return SubtitleLine.Item(index=index, start=timedelta(milliseconds=item.start), end=timedelta(milliseconds=item.end), text=item.text)
+
+    if isinstance(item, dict):
+        return SubtitleLine.FromDictionary(item)
+
+    line = str(item).strip()
+    match = srt.SRT_REGEX.match(line)
+    if match:
+        raw_index, raw_start, raw_end, proprietary, content = match.groups()
+        index = int(raw_index) if raw_index else None
+        start = GetTimeDelta(raw_start)
+        end = GetTimeDelta(raw_end)
+        item = SubtitleLine.Item(index, start, end, content)
+    else:
+        logging.warning(f"Failed to parse line: {line}")
 
     return item

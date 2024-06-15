@@ -105,7 +105,7 @@ class ProjectViewModel(QStandardItemModel):
                 'batch': batch.number,
                 'start': line.txt_start,
                 'end': line.srt_end,
-                'duration': line.srt_duration,
+                'duration': line.txt_duration,
                 'gap': TimeDeltaToText(line.start - gap_start) if gap_start else "",
                 'text': line.text
             })
@@ -366,7 +366,7 @@ class ProjectViewModel(QStandardItemModel):
                 'batch': batch_number,
                 'start': line.txt_start,
                 'end': line.srt_end,
-                'duration': line.srt_duration,
+                'duration': line.txt_duration,
                 'gap': None,
                 'text': line.text
             })

@@ -67,23 +67,26 @@ def UpdateFields(item : dict, update: dict, fields : list[str]):
 
     item.update({field: update[field] for field in update.keys() if field in fields})
 
-def GetInputPath(filepath):
+def GetInputPath(filepath : str, extension : str = None):
     if not filepath:
         return None
 
-    basename, _ = os.path.splitext(os.path.basename(filepath))
+    basename, ext = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
     if basename.endswith("-GPT"):
         basename = basename[0:basename.index("-GPT")]
-    path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
+
+    extension = extension or ext
+
+    path = os.path.join(os.path.dirname(filepath), f"{basename}{ext}")
     return os.path.normpath(path)
 
-def GetOutputPath(filepath, language="translated"):
+def GetOutputPath(filepath : str, language : str ="translated", extension : str = None):
     if not filepath:
         return None
 
-    basename, _ = os.path.splitext(os.path.basename(filepath))
+    basename, ext = os.path.splitext(os.path.basename(filepath))
 
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
@@ -93,7 +96,9 @@ def GetOutputPath(filepath, language="translated"):
     if not basename.endswith(language_suffix):
         basename = basename + language_suffix
 
-    return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
+    ext = extension or ext or ".srt"
+
+    return os.path.join(os.path.dirname(filepath), f"{basename}{ext}")
 
 def FormatMessages(messages):
     lines = []

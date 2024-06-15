@@ -3,6 +3,8 @@ import regex
 
 delim = r"[,.:，．。：]"
 
+srt_timestamp_format = "{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+
 timestamp_patterns = [
     # Handle standard SRT timestamps
     r"^(?P<hours>\d{1,3}):(?P<minutes>\d{1,2}):(?P<seconds>\d{2})(?:,(?P<milliseconds>\d{3}))?$",
@@ -74,3 +76,26 @@ def TimeDeltaToText(time: datetime.timedelta, include_milliseconds = True) -> st
 
     return time_str.format(hours, minutes, seconds, milliseconds)
 
+def TimeDeltaToSrtTimestamp(time: datetime.timedelta) -> str:
+    """
+    Convert a timedelta to an SRT timestamp string
+    """
+    if time is None:
+        return ""
+
+    total_seconds = int(time.total_seconds())
+    milliseconds = time.microseconds // 1000
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    return srt_timestamp_format.format(hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds)
+
+def ToMilliseconds(time : datetime.timedelta) -> int:
+    """
+    Convert a timedelta to total milliseconds
+    """
+    if time is None:
+        return 0
+
+    return int(time.total_seconds() * 1000)

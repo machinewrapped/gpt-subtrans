@@ -3,8 +3,9 @@ import json
 import os
 import logging
 import threading
-import srt
 import bisect
+import pysubs2
+from PySubtitle.Helpers.Time import ToMilliseconds
 from PySubtitle.Options import Options
 
 from PySubtitle.Substitutions import Substitutions
@@ -40,15 +41,20 @@ class SubtitleFile:
         'instruction_file': None
     }
 
-    def __init__(self, filepath = None, outputpath = None):
+    def __init__(self, filepath : str = None, outputpath : str = None, format = None, fps = None):
         self.originals : list[SubtitleLine] = None
         self.translated : list[SubtitleLine] = None
-        self.start_line_number = 1
+
+        self.extension : str = self._get_extension(filepath, format)
+        self.sourcepath : str = GetInputPath(filepath, self.extension)
+        self.outputpath : str = outputpath or None
+        self.format : str = format
+        self.fps : int = fps
+        self.start_line_number : int = 1
         self._scenes : list[SubtitleScene] = []
         self.lock = threading.RLock()
 
-        self.sourcepath = GetInputPath(filepath)
-        self.outputpath = outputpath or None
+        self.styles : list[pysubs2.SSAStyle] = None
 
         self.settings = deepcopy(self.DEFAULT_PROJECT_SETTINGS)
 
@@ -233,32 +239,42 @@ class SubtitleFile:
         Load subtitles from an SRT file
         """
         if filepath:
-            self.sourcepath = GetInputPath(filepath)
-            self.outputpath = GetOutputPath(filepath)
+            self.extension = self._get_extension(filepath, None)
+            self.sourcepath = GetInputPath(filepath, self.extension)
+            self.outputpath = GetOutputPath(filepath, extension=self.extension)
 
         try:
-            with open(self.sourcepath, 'r', encoding=default_encoding, newline='') as f:
-                source = list(srt.parse(f))
+            subs : pysubs2.SSAFile = pysubs2.load(self.sourcepath, encoding=default_encoding)
 
-        except srt.SRTParseError as e:
-            with open(self.sourcepath, 'r', encoding=fallback_encoding) as f:
-                source = list(srt.parse(f))
+        except UnicodeDecodeError as e:
+            logging.warning(f"Unicode error: {str(e)}. Trying as {fallback_encoding}.")
+            subs  : pysubs2.SSAFile = pysubs2.load(self.sourcepath, encoding=fallback_encoding)
+
+        if subs is None:
+            logging.error(f"Failed to load subtitles from {self.sourcepath}")
+            return
 
         with self.lock:
-            self.originals = [ SubtitleLine(item) for item in source ]
+            self.format = subs.format
+            self.fps = subs.fps
+            self.styles = list(subs.styles)
+            self.originals = [ SubtitleLine(item, index) for index, item in enumerate(subs.get_text_events(), start=1) ]
 
     def LoadSubtitlesFromString(self, srt_string : str):
         """
         Load subtitles from an SRT string
         """
         try:
-            source = list(srt.parse(srt_string))
+            subs = pysubs2.SSAFile.from_string(srt_string)
 
             with self.lock:
-                self.originals = [ SubtitleLine(item) for item in source ]
+                self.content = subs
+                self.format = subs.format
+                self.fps = subs.fps
+                self.originals = [ SubtitleLine(item) for item in subs.get_text_events() ]
 
-        except srt.SRTParseError as e:
-            logging.error(f"Failed to parse SRT string: {str(e)}")
+        except UnicodeDecodeError as e:
+            logging.error(f"Failed to parse subtitle string: {str(e)}")
 
     def SaveProjectFile(self, projectfile : str, encoder_class):
         """
@@ -284,9 +300,9 @@ class SubtitleFile:
             raise ValueError("No file path set")
 
         with self.lock:
-            srtfile = srt.compose([ line.item for line in self.originals ], reindex=False)
-            with open(path, 'w', encoding=default_encoding) as f:
-                f.write(srtfile)
+            # TODO: rewrite the SSAFile to include the original text
+
+            pysubs2.SSAFile.save(self.content, self.outputpath, encoding=default_encoding, format=self.format, fps=self.fps)
 
     def SaveTranslation(self, outputpath : str = None):
         """
@@ -295,7 +311,7 @@ class SubtitleFile:
         outputpath = outputpath or self.outputpath
         if not outputpath:
             if os.path.exists(self.sourcepath):
-                outputpath = GetOutputPath(self.sourcepath, self.target_language)
+                outputpath = GetOutputPath(self.sourcepath, self.target_language, self.extension)
             if not outputpath:
                 raise Exception("I don't know where to save the translated subtitles")
 
@@ -316,15 +332,24 @@ class SubtitleFile:
                 translated = self._merge_original_and_translated(originals, translated)
 
             # Renumber the lines to ensure compliance with SRT format
-            output_lines = []
+            output_lines : list[SubtitleLine] = []
             for line_number, line in enumerate(translated, start=self.start_line_number or 1):
                 output_lines.append(SubtitleLine.Construct(line_number, line.start, line.end, line.text))
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
-            srtfile = srt.compose([ line.item for line in output_lines if line.text and line.start], reindex=False)
-            with open(outputpath, 'w', encoding=default_encoding) as f:
-                f.write(srtfile)
+            # TODO - construct an SSA File with the same non-text events and translated text events
+            output_file : pysubs2.SSAFile = pysubs2.SSAFile()
+            output_file.format = self.format
+            output_file.fps = self.fps
+            for line in output_lines:
+                event : pysubs2.SSAEvent = pysubs2.SSAEvent()
+                event.start = ToMilliseconds(line.start)
+                event.end = ToMilliseconds(line.end)
+                event.text = line.text
+                output_file.append(event)
+
+            output_file.save(path=outputpath, encoding=default_encoding, format=self.format, fps=self.fps)
 
             # Log a warning if any lines had no text or start time
             num_invalid = len([line for line in translated if not line.start])
@@ -358,7 +383,7 @@ class SubtitleFile:
         Set or generate the output path for the translated subtitles
         """
         if not outputpath:
-            outputpath = GetOutputPath(self.sourcepath, self.target_language)
+            outputpath = GetOutputPath(self.sourcepath, self.target_language, self.extension)
         self.outputpath = outputpath
 
     def PreProcess(self, preprocessor : SubtitleProcessor):
@@ -586,6 +611,18 @@ class SubtitleFile:
                 line.text = f"{line.text}\n{item.text}"
 
         return sorted(lines.values(), key=lambda item: item.key)
+
+    def _get_extension(self, filepath : str, format : str):
+        if filepath:
+            _, ext = os.path.splitext(filepath)
+
+        if format is not None:
+            if format in ['srt']:
+                return ".srt"
+            elif format in ['ass', 'ssa']:
+                return ".ass"
+
+        return ext
 
     def _update_compatibility(self, settings):
         """ Update settings for compatibility with older versions """
