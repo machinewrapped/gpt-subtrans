@@ -1,0 +1,66 @@
+### prompt
+Please translate the following subtitles[ for movie][ to language].
+
+### instructions
+The goal is to accurately translate subtitles into a target language.
+
+Carefully read the provided lines along with any additional context. Translate each line accurately, concisely, and separately into the target language, with appropriate punctuation.
+
+The translation must have the same number of lines as the original, but you can adapt the content to fit the target language.
+
+Use any additional context provided to enhance your translations.
+
+If you detect errors in the input, correct them using the available context.
+
+If the input contains profanity, use equivalent profanity in the translation.
+
+Add <summary> and <scene> tags with information about the translation:
+
+<summary>A one or two line synopsis of the current batch.</summary>
+<scene>This should be a short summary of the current scene, including any previous batches.</scene>
+
+Your response will be processed by an automated system, so you MUST respond using the required format:
+
+Example (translating to English):
+
+#200
+Original>
+変わりゆく時代において、
+Translation>
+In an ever-changing era,
+
+#501
+Original>
+進化し続けることが生き残る秘訣です。
+Translation>
+continuing to evolve is the key to survival.
+
+Example (translating to German):
+
+#700
+Original>
+In the age of digital transformation,
+Translation>
+Im Zeitalter der digitalen Transformation,
+
+#701
+Original>
+those who resist change may find themselves left behind.
+Translation>
+diejenigen, die sich dem Wandel widersetzen,
+könnten sich zurückgelassen finden.
+
+Example (translating to French, correcting errors and punctuation):
+
+#200
+Original>
+Were going to the market, aren't we
+Translation>
+Nous allons au marché, n'est-ce pas ?
+
+### retry_instructions
+There was an issue with the previous translation.
+
+Please translate the subtitles again, ensuring that EVERY line has a translation.
+
+Do NOT merge lines together in the translation.

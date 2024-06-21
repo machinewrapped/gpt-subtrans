@@ -1,48 +1,47 @@
 import logging
 import os
-
 from PySubtitle.Helpers.Resources import GetResourcePath
 
 linesep = '\n'
 
 default_instructions = linesep.join([
-	"Your task is to accurately translate subtitles into a target language."
-	"The user will provide a batch of lines for translation, you should respond with an ACCURATE, CONCISE, and NATURAL-SOUNDING translation for EACH LINE in the batch."
-	"The user may provide additional information, such as a list of names or a synopsis of earlier batches. Use this to improve your translation."
-	"Your response will be processed by an automated system, so it is ESSENTIAL that you respond using this format:"
-	""
-	"Example input (English to German):"
-	"#700"
-	"Original>"
-	"In the age of digital transformation,"
-	"Translation>"
-	""
-	"#701"
-	"Original>"
-	"those who resist change may find themselves left behind."
-	"Translation>"
-	""
-	"You should respond with:"
-	""
-	"#700"
-	"Original>"
-	"In the age of digital transformation,"
-	"Translation>"
-	"Im Zeitalter der digitalen Transformation,"
-	""
-	"#701"
-	"Original>"
-	"those who resist change may find themselves left behind."
-	"Translation>"
-	"diejenigen, die sich dem Wandel widersetzen,"
-	"könnten sich zurückgelassen finden."
-    ])
+    "Your task is to accurately translate subtitles into a target language.",
+    "The user will provide a batch of lines for translation, you should respond with an ACCURATE, CONCISE, and NATURAL-SOUNDING translation for EACH LINE in the batch.",
+    "The user may provide additional information, such as a list of names or a synopsis of earlier batches. Use this to improve your translation.",
+    "Your response will be processed by an automated system, so it is ESSENTIAL that you respond using this format:",
+    "",
+    "Example input (English to German):",
+    "#700",
+    "Original>",
+    "In the age of digital transformation,",
+    "Translation>",
+    "",
+    "#701",
+    "Original>",
+    "those who resist change may find themselves left behind.",
+    "Translation>",
+    "",
+    "You should respond with:",
+    "",
+    "#700",
+    "Original>",
+    "In the age of digital transformation,",
+    "Translation>",
+    "Im Zeitalter der digitalen Transformation,",
+    "",
+    "#701",
+    "Original>",
+    "those who resist change may find themselves left behind.",
+    "Translation>",
+    "diejenigen, die sich dem Wandel widersetzen,",
+    "könnten sich zurückgelassen finden."
+])
 
 default_retry_instructions = linesep.join([
-	"There was an issue with the previous translation."
-	"Translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation."
-	"Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader."
-    ])
+    "There was an issue with the previous translation.",
+    "Translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation.",
+    "Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader."
+])
 
 class Instructions:
     def __init__(self, settings):
@@ -62,7 +61,7 @@ class Instructions:
 
         return settings
 
-    def InitialiseInstructions(self, settings : dict):
+    def InitialiseInstructions(self, settings: dict):
         self.prompt = settings.get('prompt') or settings.get('gpt_prompt')
         self.instructions = settings.get('instructions') or default_instructions
         self.retry_instructions = settings.get('retry_instructions') or default_retry_instructions
@@ -80,7 +79,7 @@ class Instructions:
             "[ to language]": f" to {settings.get('to_language')}" if settings.get('to_language') else "",
         }
 
-        tags.update({ f"[{k}]": v for k, v in settings.items() if v })
+        tags.update({f"[{k}]": v for k, v in settings.items() if v})
 
         self.prompt = ReplaceTags(self.prompt, tags)
         self.instructions = ReplaceTags(self.instructions, tags)
@@ -146,7 +145,28 @@ class Instructions:
 
             self.instruction_file = os.path.basename(filepath)
 
-def GetInstructionsResourcePath(instructions_file : str = None):
+def get_appdata_path():
+    if os.name == 'nt':  # Windows
+        return os.path.join(os.getenv('APPDATA'), 'gpt-subtrans')
+    else:  # macOS/Linux
+        return os.path.join(os.path.expanduser('~'), '.local', 'share', 'gpt-subtrans')
+
+def LoadInstructionsFromAppData():
+    """
+    Load instructions from the appdata folder.
+    """
+    appdata_path = get_appdata_path()
+    instructions = {}
+
+    if os.path.exists(appdata_path):
+        for file_name in os.listdir(appdata_path):
+            file_path = os.path.join(appdata_path, file_name)
+            with open(file_path, "r", encoding="utf-8") as file:
+                instructions[file_name] = file.read()
+    
+    return instructions
+
+def GetInstructionsResourcePath(instructions_file: str = None):
     """
     Get the path for an instructions file (or the directory that contains them).
     """
@@ -157,18 +177,28 @@ def GetInstructionsResourcePath(instructions_file : str = None):
 
 def GetInstructionFiles():
     """
-    Get a list of instruction files in the instructions directory.
+    Get a list of instruction files in the instructions and appdata directories.
     """
     instruction_path = GetInstructionsResourcePath()
-    logging.debug(f"Looking for instruction files in {instruction_path}")
-    files = os.listdir(instruction_path)
-    return [ file for file in files if file.lower().startswith("instructions") ]
+    appdata_path = get_appdata_path()
+    logging.debug(f"Looking for instruction files in {instruction_path} and {appdata_path}")
+
+    files = []
+    if os.path.exists(instruction_path):
+        files.extend(os.listdir(instruction_path))
+    if os.path.exists(appdata_path):
+        files.extend(os.listdir(appdata_path))
+    
+    return [file for file in files if file.lower().startswith("instructions")]
 
 def LoadInstructionsResource(resource_name):
     """
-    Load instructions from a file in the project/package.
+    Load instructions from a file in the project/package or appdata.
     """
     filepath = GetInstructionsResourcePath(resource_name)
+    if not os.path.exists(filepath):
+        filepath = os.path.join(get_appdata_path(), resource_name)
+    
     logging.debug(f"Loading instructions from {filepath}")
     instructions = Instructions({})
     instructions.LoadInstructionsFile(filepath)

@@ -10,9 +10,9 @@ base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(base_path)
 
 from scripts.subtrans_common import InitLogger
-
 from PySide6.QtWidgets import QApplication
 from PySubtitle.Options import Options, settings_path, config_dir
+from PySubtitle.Instructions import LoadInstructionsResource, Instructions, GetInstructionFiles, LoadInstructionsFromAppData
 from GUI.MainWindow import MainWindow
 
 def parse_arguments():
@@ -93,8 +93,32 @@ if __name__ == "__main__":
     options.update(arguments)
     options.InitialiseInstructions()
 
+    # Load instructions from appdata
+    new_instructions = LoadInstructionsFromAppData()
+    existing_instruction_files = GetInstructionFiles()
+
+    # Load existing instructions and merge with new instructions
+    all_instructions = {}
+    for instruction_file in existing_instruction_files:
+        if instruction_file not in all_instructions:
+            instruction_resource = LoadInstructionsResource(instruction_file)
+            all_instructions[instruction_file] = instruction_resource
+            
+    for instruction_name, instruction_content in new_instructions.items():
+        if instruction_name not in all_instructions:
+            all_instructions[instruction_name] = Instructions({
+                'instructions': instruction_content,
+                'instruction_file': instruction_name
+            })
+
+    # Update options with the merged instructions
+    if hasattr(options, 'SetInstructions'):
+        options.SetInstructions(all_instructions)
+    else:
+        options.instructions = all_instructions
+
     # Launch the GUI
-    app.main_window = MainWindow( options=options, filepath=filepath)
+    app.main_window = MainWindow(options=options, filepath=filepath)
     app.main_window.show()
 
     logging.info(f"Logging to {logger_options.log_path}")
