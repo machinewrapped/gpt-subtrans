@@ -9,7 +9,6 @@ try:
     from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger
     from PySubtitle.Providers.Anthropic.AnthropicClient import AnthropicClient
     from PySubtitle.TranslationClient import TranslationClient
-    from PySubtitle.TranslationParser import TranslationParser
     from PySubtitle.TranslationProvider import TranslationProvider
 
     class Provider_Claude(TranslationProvider):
@@ -31,7 +30,8 @@ try:
                 "model": settings.get('model') or os.getenv('CLAUDE_MODEL'),
                 "max_tokens": settings.get('max_tokens') or GetEnvInteger('CLAUDE_MAX_TOKENS', 4096),
                 'temperature': settings.get('temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
-                'rate_limit': settings.get('rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0))
+                'rate_limit': settings.get('rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
+                'model_names': settings.get('model_names', 'claude-3-haiku-20240307, claude-3-sonnet-20240229, claude-3-5-sonnet-20240620, claude-3-opus-20240229')
             })
 
             self.refresh_when_changed = ['api_key', 'model']
@@ -57,7 +57,7 @@ try:
             # TODO: surely the SDK has a method for this?
             # client = anthropic.Anthropic(api_key=self.api_key)
             # models = client.list_models()
-            models = [ 'claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229' ]
+            models = [ name.strip() for name in self.settings.get('model_names').split(',') ]
 
             return models
 
@@ -76,6 +76,7 @@ try:
                     'temperature': (float, "The temperature to use for translations (default 0.0)"),
                     'rate_limit': (float, "The rate limit to use for translations (default 60.0)"),
                     'max_tokens': (int, "The maximum number of tokens to use for translations"),
+                    'model_names': (str, "Comma separated list of supported Claude models (until Anthropic provide a method to retrieve them!)"),
                 })
 
             return options

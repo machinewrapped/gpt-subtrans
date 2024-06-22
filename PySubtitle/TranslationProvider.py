@@ -30,7 +30,8 @@ class TranslationProvider:
         """
         The currently selected model for the provider
         """
-        return self.settings.get('model')
+        name : str = self.settings.get('model')
+        return name.strip() if name else None
 
     @property
     def allow_multithreaded_translation(self) -> bool:

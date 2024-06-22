@@ -9,7 +9,6 @@ try:
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
-    from PySubtitle.TranslationParser import TranslationParser
     from PySubtitle.TranslationPrompt import TranslationPrompt
 
     linesep = '\n'
