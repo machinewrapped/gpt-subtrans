@@ -322,12 +322,12 @@ class SubtitleFile:
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
-            srtfile = srt.compose([ line.item for line in output_lines if line.text and line.start], reindex=False)
+            srtfile = srt.compose([ line.item for line in output_lines if line.text and line.start is not None], reindex=False)
             with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
             # Log a warning if any lines had no text or start time
-            num_invalid = len([line for line in translated if not line.start])
+            num_invalid = len([line for line in translated if line.start is None])
             if num_invalid:
                 logging.warning(f"{num_invalid} lines were invalid and were not written to the output file")
 

@@ -76,7 +76,7 @@ class SubtitleBatch:
 
     @property
     def duration(self) -> timedelta:
-        return self.end - self.start if self.start and self.end else timedelta(seconds=0)
+        return self.end - self.start if self.start is not None and self.end else timedelta(seconds=0)
 
     @property
     def first_line_number(self) -> int:

@@ -78,7 +78,7 @@ class SubtitleLine:
 
     @duration.setter
     def duration(self, duration):
-        if self._item and self._item.start:
+        if self._item and self._item.start is not None:
             self._duration = GetTimeDelta(duration)
             self._item.end = self._item.start + self._duration
 
@@ -88,7 +88,7 @@ class SubtitleLine:
 
     @property
     def line(self) -> str | None:
-        if not self._item or not self._item.start or not self._item.end:
+        if not self._item or self._item.start is None or self._item.end is None:
             return None
 
         return self._item.to_srt(strict=False)

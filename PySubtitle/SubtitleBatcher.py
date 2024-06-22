@@ -24,7 +24,7 @@ class SubtitleBatcher:
             if last_endtime and line.start < last_endtime:
                 line.start = last_endtime + timedelta(milliseconds=10)
 
-            gap = line.start - last_endtime if last_endtime else None
+            gap = line.start - last_endtime if last_endtime is not None else None
 
             if gap is not None and gap > self.scene_threshold:
                 if current_lines:
