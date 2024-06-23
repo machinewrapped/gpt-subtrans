@@ -3,6 +3,8 @@ from copy import deepcopy
 import logging
 import os
 
+from PySubtitle.Helpers.Parse import ParseNames
+
 try:
     import anthropic
 
@@ -24,6 +26,8 @@ try:
         <p>To use Claude you need to provide an <a href="https://console.anthropic.com/settings/keys">Anthropic API Key </a>.</p>
         """
 
+        default_models = ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-5-sonnet-20240620', 'claude-3-opus-20240229']
+
         def __init__(self, settings : dict):
             super().__init__(self.name, {
                 "api_key": settings.get('api_key') or os.getenv('CLAUDE_API_KEY'),
@@ -31,10 +35,10 @@ try:
                 "max_tokens": settings.get('max_tokens') or GetEnvInteger('CLAUDE_MAX_TOKENS', 4096),
                 'temperature': settings.get('temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
                 'rate_limit': settings.get('rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
-                'model_names': settings.get('model_names', 'claude-3-haiku-20240307, claude-3-sonnet-20240229, claude-3-5-sonnet-20240620, claude-3-opus-20240229')
+                'custom_models': settings.get('custom_models') or os.getenv('CLAUDE_CUSTOM_MODELS')
             })
 
-            self.refresh_when_changed = ['api_key', 'model']
+            self.refresh_when_changed = ['api_key', 'model', 'custom_models']
 
         @property
         def api_key(self):
@@ -57,9 +61,13 @@ try:
             # TODO: surely the SDK has a method for this?
             # client = anthropic.Anthropic(api_key=self.api_key)
             # models = client.list_models()
-            models = [ name.strip() for name in self.settings.get('model_names').split(',') ]
+            custom_models = ParseNames(self.settings.get('custom_models'))
+            models = sorted(set(custom_models + self.default_models))
 
             return models
+
+        def RefreshAvailableModels(self):
+            self._available_models = self.GetAvailableModels()
 
         def GetInformation(self):
             return self.information if self.api_key else self.information_noapikey
@@ -70,13 +78,16 @@ try:
             if not self.api_key:
                 return options
 
+            self.RefreshAvailableModels()
+
+            options['custom_models'] = (str, "Comma separated list of additional Claude models (until Anthropic provide a method to retrieve them)")
+
             if self.available_models:
                 options.update({
                     'model': (self.available_models, "The model to use for translations"),
                     'temperature': (float, "The temperature to use for translations (default 0.0)"),
                     'rate_limit': (float, "The rate limit to use for translations (default 60.0)"),
                     'max_tokens': (int, "The maximum number of tokens to use for translations"),
-                    'model_names': (str, "Comma separated list of supported Claude models (until Anthropic provide a method to retrieve them!)"),
                 })
 
             return options
