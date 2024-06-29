@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBo
 from GUI.GuiHelpers import ClearForm, GetThemeNames
 
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
-from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
+from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -115,7 +115,7 @@ class SettingsDialog(QDialog):
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
 
         # Query available instruction files
-        instruction_files = GetInstructionFiles()
+        instruction_files = GetInstructionsFiles()
         if instruction_files:
             self.SECTIONS['General']['instruction_file'] = instruction_files
 
@@ -371,7 +371,7 @@ class SettingsDialog(QDialog):
         instruction_file = self.widgets['instruction_file'].GetValue()
         if instruction_file:
             try:
-                instructions = LoadInstructionsResource(instruction_file)
+                instructions = LoadInstructions(instruction_file)
                 self.widgets['prompt'].SetValue(instructions.prompt)
                 if instructions.target_language:
                     self.widgets['target_language'].SetValue(instructions.target_language)

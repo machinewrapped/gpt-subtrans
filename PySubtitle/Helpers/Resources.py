@@ -1,6 +1,9 @@
 
 import os
 import sys
+import appdirs
+
+config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
 
 def GetResourcePath(relative_path, *parts):
     """

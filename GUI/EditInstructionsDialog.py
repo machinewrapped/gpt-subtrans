@@ -7,13 +7,14 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QPushButton,
+    QComboBox,
     QFileDialog,
     QSizePolicy
     )
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
 from PySubtitle.Options import MULTILINE_OPTION, Options
-from PySubtitle.Instructions import GetInstructionsResourcePath, Instructions
+from PySubtitle.Instructions import Instructions, GetInstructionsFiles, GetInstructionsUserPath, LoadInstructions
 
 class EditInstructionsDialog(QDialog):
     def __init__(self, settings : dict, parent=None):
@@ -25,7 +26,6 @@ class EditInstructionsDialog(QDialog):
         self.target_language = None
         self.filters = "Text Files (*.txt);;All Files (*)"
 
-
         self.form_layout = QFormLayout()
         self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, "Prompt for each translation request")
         self.instructions_edit = self._add_form_option("instructions", self.instructions.instructions, MULTILINE_OPTION, "System instructions for the translator")
@@ -34,6 +34,7 @@ class EditInstructionsDialog(QDialog):
 
         self.button_layout = QHBoxLayout()
 
+        self.select_file = self._create_instruction_dropdown(self._select_instructions)
         self.load_button = self._create_button("Load Instructions", self._load_instructions)
         self.save_button = self._create_button("Save Instructions", self._save_instructions)
         self.default_button = self._create_button("Defaults", self.set_defaults)
@@ -54,6 +55,14 @@ class EditInstructionsDialog(QDialog):
         input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.form_layout.addRow(key, input)
         return input
+
+    def _create_instruction_dropdown(self, on_change):
+        instructions_files = GetInstructionsFiles()
+        initial_value = self.instructions.instruction_file
+        dropdown = CreateOptionWidget('instruction_file', initial_value, instructions_files)
+        dropdown.contentChanged.connect(on_change)
+        self.button_layout.addWidget(dropdown)
+        return dropdown
 
     def _create_button(self, text, on_click):
         button = QPushButton(text)
@@ -92,10 +101,24 @@ class EditInstructionsDialog(QDialog):
     def save_icon(self):
         return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DialogSaveButton)
 
+    def _select_instructions(self):
+        '''Select an instruction file from the dropdown'''
+        instructions_name = self.select_file.GetValue()
+
+        try:
+            self.instructions = LoadInstructions(instructions_name)
+
+            self.prompt_edit.SetValue(self.instructions.prompt)
+            self.instructions_edit.SetValue(self.instructions.instructions)
+            self.retry_instructions_edit.SetValue(self.instructions.retry_instructions)
+
+        except Exception as e:
+            logging.error(f"Unable to load instructions: {str(e)}")
+
     def _load_instructions(self):
         '''Load instructions from a file'''
         options = QFileDialog.Options()
-        path = GetInstructionsResourcePath(self.instructions.instruction_file)
+        path = GetInstructionsUserPath(self.instructions.instruction_file)
         file_name, _ = QFileDialog.getOpenFileName(self, "Load Instructions", dir=path, filter=self.filters, options=options)
         if file_name:
             try:
@@ -111,7 +134,7 @@ class EditInstructionsDialog(QDialog):
     def _save_instructions(self):
         '''Save instructions to a file'''
         options = QFileDialog.Options()
-        filepath = GetInstructionsResourcePath(self.instructions.instruction_file)
+        filepath = GetInstructionsUserPath(self.instructions.instruction_file)
         file_name, _ = QFileDialog.getSaveFileName(self, "Save Instructions", dir=filepath, filter=self.filters, options=options)
         if file_name:
             try:

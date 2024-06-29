@@ -1,7 +1,7 @@
 import logging
 import os
 
-from PySubtitle.Helpers.Resources import GetResourcePath
+from PySubtitle.Helpers.Resources import GetResourcePath, config_dir
 
 linesep = '\n'
 
@@ -86,7 +86,7 @@ class Instructions:
         self.instructions = ReplaceTags(self.instructions, tags)
         self.retry_instructions = ReplaceTags(self.retry_instructions, tags)
 
-    def LoadInstructionsFile(self, filepath):
+    def LoadInstructionsFile(self, filepath : str):
         """
         Try to load instructions from a text file.
         """
@@ -125,7 +125,7 @@ class Instructions:
         if not self.prompt or not self.instructions:
             raise ValueError("Invalid instruction file")
 
-    def SaveInstructions(self, filepath):
+    def SaveInstructions(self, filepath : str):
         """
         Save instructions to a text file.
         """
@@ -155,7 +155,7 @@ def GetInstructionsResourcePath(instructions_file : str = None):
 
     return GetResourcePath("instructions", instructions_file)
 
-def GetInstructionFiles():
+def GetInstructionsResourceFiles():
     """
     Get a list of instruction files in the instructions directory.
     """
@@ -173,6 +173,50 @@ def LoadInstructionsResource(resource_name):
     instructions = Instructions({})
     instructions.LoadInstructionsFile(filepath)
     return instructions
+
+def GetInstructionsUserPath(instructions_file : str = None):
+    """
+    Get the path for an instructions file (or the directory that contains them).
+    """
+    instructions_dir = os.path.join(config_dir, "instructions")
+    return os.path.join(instructions_dir, instructions_file) if instructions_file else instructions_dir
+
+def GetInstructionsUserFiles():
+    """
+    Get a list of instruction files in the user directory.
+    """
+    instructions_dir = GetInstructionsUserPath()
+    logging.debug(f"Looking for instruction files in {instructions_dir}")
+    if not os.path.exists(instructions_dir):
+        os.makedirs(instructions_dir)
+
+    files = os.listdir(instructions_dir)
+    return [ file for file in files if file.lower().endswith(".txt") ]
+
+def GetInstructionsFiles():
+    """
+    Get a list of instruction files in the user and resource directories.
+    """
+    default_instructions = GetInstructionsResourceFiles()
+    user_instructions = GetInstructionsUserFiles()
+
+    instructions_map = { os.path.basename(file).lower(): file for file in default_instructions }
+    instructions_map.update({ os.path.basename(file).lower(): file for file in user_instructions })
+
+    # Sort 'instructions.txt' to the top of the list followed by other names case-insensitive
+    return sorted(list(instructions_map.values()), key=lambda x: (x.lower() != 'instructions.txt', x.lower()))
+
+def LoadInstructions(name : str):
+    """
+    Load instructions from user directory if they exist, otherwise load from resources.
+    """
+    user_path = GetInstructionsUserPath(name)
+    if os.path.exists(user_path):
+        instructions = Instructions({})
+        instructions.LoadInstructionsFile(user_path)
+        return instructions
+
+    return LoadInstructionsResource(name)
 
 def LoadLegacyInstructions(lines):
     """

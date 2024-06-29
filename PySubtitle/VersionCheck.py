@@ -2,14 +2,13 @@ import os
 import datetime
 import logging
 import requests
-import appdirs
 
 from PySubtitle.version import __version__
+from PySubtitle.Helpers.Resources import config_dir
 
 repo_name = "gpt-subtrans"
 repo_owner = "machinewrapped"
 
-config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
 last_check_file = os.path.join(config_dir, 'last_check.txt')
 
 def CheckIfUpdateAvailable():

@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayo
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
 
-from PySubtitle.Instructions import GetInstructionFiles, LoadInstructionsResource
+from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
@@ -53,7 +53,7 @@ class NewProjectSettings(QDialog):
         self.OPTIONS['model'] = (available_models, self.OPTIONS['model'][1])
         self.settings['model'] = datamodel.selected_model
 
-        instruction_files = GetInstructionFiles()
+        instruction_files = GetInstructionsFiles()
         if instruction_files:
             self.OPTIONS['instruction_file'] = (instruction_files, self.OPTIONS['instruction_file'][1])
 
@@ -99,7 +99,7 @@ class NewProjectSettings(QDialog):
             if instructions_file:
                 logging.info(f"Project instructions set from {instructions_file}")
                 try:
-                    instructions = LoadInstructionsResource(instructions_file)
+                    instructions = LoadInstructions(instructions_file)
 
                     self.settings['prompt'] = instructions.prompt
                     self.settings['instructions'] = instructions.instructions
@@ -151,7 +151,7 @@ class NewProjectSettings(QDialog):
         instruction_file = self.fields['instruction_file'].GetValue()
         if instruction_file:
             try:
-                instructions = LoadInstructionsResource(instruction_file)
+                instructions = LoadInstructions(instruction_file)
                 self.fields['prompt'].SetValue(instructions.prompt)
                 if instructions.target_language:
                     self.fields['target_language'].SetValue(instructions.target_language)
