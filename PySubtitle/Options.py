@@ -3,15 +3,14 @@ import json
 import logging
 import os
 import dotenv
-import appdirs
 
-from PySubtitle.Instructions import Instructions, LoadInstructionsResource
+from PySubtitle.Instructions import Instructions, LoadInstructions
+from PySubtitle.Helpers.Resources import config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
 from PySubtitle.version import __version__
 
 MULTILINE_OPTION = 'multiline'
 
-config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
 settings_path = os.path.join(config_dir, 'settings.json')
 default_user_prompt = "Translate these subtitles [ for movie][ to language]"
 
@@ -233,7 +232,7 @@ class Options:
         instruction_file = self.get('instruction_file')
         if instruction_file:
             try:
-                instructions = LoadInstructionsResource(instruction_file)
+                instructions = LoadInstructions(instruction_file)
                 self.options['prompt'] = instructions.prompt
                 self.options['instructions'] = instructions.instructions
                 self.options['retry_instructions'] = instructions.retry_instructions
