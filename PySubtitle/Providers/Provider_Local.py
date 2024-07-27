@@ -75,7 +75,7 @@ class Provider_LocalServer(TranslationProvider):
 
     def GetAvailableModels(self) -> list[str]:
         # Choose the model on the server
-        return []
+        return [self.selected_model] if self.selected_model else []
 
     def GetInformation(self):
         if self.ValidateSettings():
