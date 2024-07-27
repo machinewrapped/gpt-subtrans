@@ -87,7 +87,7 @@ class LocalClient(TranslationClient):
 
                 if result.is_error:
                     if result.is_client_error:
-                        raise TranslationImpossibleError(f"Client error: {result.status_code} {result.text}", response=result)
+                        raise TranslationResponseError(f"Client error: {result.status_code} {result.text}", response=result)
                     else:
                         raise TranslationResponseError(f"Server error: {result.status_code} {result.text}", response=result)
 
