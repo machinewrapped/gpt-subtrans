@@ -118,7 +118,7 @@ try:
                 self.gemini_models = self._get_gemini_models()
 
             for m in self.gemini_models:
-                if m.name == name or m.display_name == name:
+                if m.name == f"models/{name}" or m.display_name == name:
                     return m.name
 
             raise ValueError(f"Model {name} not found")
