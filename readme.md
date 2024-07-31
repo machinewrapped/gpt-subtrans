@@ -50,9 +50,10 @@ For other platforms, or if you want to modify the program, you will need to have
 #### step1
 
 1. Clone the GPT-Subtrans repository onto your local machine using the following command:
-```
+
+    ```sh
     git clone https://github.com/machinewrapped/gpt-subtrans.git
-```
+    ```
 
 The easiest setup method is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat`. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system).
 
@@ -63,52 +64,57 @@ During the installing process, input the apikey for the selected provider if req
 #### step2
 
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
-```
+    ```sh
     OPENAI_API_KEY=<your_openai_api_key>
     GEMINI_API_KEY=<your_gemini_api_key>
     AZURE_API_KEY=<your_azure_api_key>
     CLAUDE_API_KEY=<your_claude_api_key>
-```
+    ```
 
-If you are using Azure:
+    If you are using Azure:
+    
+    ```sh
+    AZURE_API_BASE=<your api_base, such as https://something.openai.azure.com>
+    AZURE_DEPLOYMENT_NAME=<deployment_name>
+    ```
 
-```
-AZURE_API_BASE=<your api_base, such as https://something.openai.azure.com>
-AZURE_DEPLOYMENT_NAME=<deployment_name>
-```
 #### step3
 
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
-```
+
+    ```sh
     python -m venv envsubtrans
-```
+    ```
 
 notice： For linux user, the environment has already prepared during the installing process.
 
 #### step4
 
 4. Activate the virtual environment by running the appropriate command for your operating system:
-```
+
+    ```sh
     .\envsubtrans\Scripts\activate
     .\envsubtrans\bin\activate
     soure path/to/gpt-subtrans/envsubtrans/bin/activate    # for linux user
-```
+    ```
 
 #### step5
 
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
-```
+
+    ```sh
     pip install -r requirements.txt
-```
+    ```
 
 #### step6
 
 6. Install the SDKs for the provider(s) you intend to use
-```
+
+    ```sh
     pip install openai
     pip install google.generativeai
     pip install anthropic
-```
+    ```
 
 Note that steps 3 and 4 are optional, but they can help prevent conflicts with other Python applications.
 
@@ -129,7 +135,7 @@ See the project wiki for further details on how to use the program.
 GPT-Subtrans can be used as a console command or shell script. The install scripts create a cmd or sh file in the project root for each provider, which will take care of activating the virtual environment and calling the corresponding translation script.
 
 The most basic usage is:
-```
+```sh
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
 claude-subtrans <path_to_srt_file> --target_language <target_language>
@@ -146,7 +152,7 @@ Default values for many settings can be set in the .env file, using a NAME_IN_CA
 
 To use any of these arguments, add them to the command-line after the path to the SRT file. For example:
 
-```
+```sh
 gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit 10 --substitution cat::dog
 ```
 
@@ -273,7 +279,7 @@ Some additional arguments are available for specific providers.
 
 If you need to use proxy in your location, you can use socks proxy by using command line
 
-```
+```sh
 python3 gpt-subtrans.py <path_to_srt_file> --target_language <target_language> --proxy socks://127.0.0.1:1089
 ```
 Remember to change the local port to yours and turn on your proxy tools such as v2ray, naiveproxy and clash.
@@ -292,7 +298,7 @@ you can process files with the following struct：
       #   ---2.srt
       #   ...
 
-```
+```sh
 python3 batch_process.py  # process files in different folders
 ```
 You need to modify the command line in batch_process.py accordingly.
@@ -339,13 +345,13 @@ Fork the repository onto your own GitHub account.
 
 Clone the repository onto your local machine using the following command:
 
-```
+```sh
 git clone https://github.com/your_username/GPT-Subtrans.git
 ```
 
 Create a new branch for your changes using the following command:
 
-```
+```sh
 git checkout -b feature/your-new-feature
 ```
 
