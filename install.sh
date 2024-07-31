@@ -11,8 +11,9 @@ function install_provider() {
     read -p "Enter your $provider API Key: " api_key
     if [ -f ".env" ]; then
         # Remove any existing API key and provider settings
-        sed -i '' "/^${api_key_var_name}_API_KEY=/d" .env
-        sed -i '' "/^PROVIDER=/d" .env
+        sed -i.bak "/^${api_key_var_name}_API_KEY=/d" .env
+        sed -i.bak "/^PROVIDER=/d" .env
+        rm -f .env.bak
     fi
     echo "PROVIDER=$provider" >> .env
     echo "${api_key_var_name}_API_KEY=$api_key" >> .env
