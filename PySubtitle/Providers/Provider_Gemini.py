@@ -113,15 +113,15 @@ try:
                 logging.error(f"Unable to retrieve Gemini model list: {str(e)}")
                 return []
 
-        def _get_true_name(self, display_name : str) -> str:
+        def _get_true_name(self, name : str) -> str:
             if not self.gemini_models:
                 self.gemini_models = self._get_gemini_models()
 
             for m in self.gemini_models:
-                if m.display_name == display_name:
+                if m.name == f"models/{name}" or m.display_name == name:
                     return m.name
 
-            raise ValueError(f"Model {display_name} not found")
+            raise ValueError(f"Model {name} not found")
 
         def _allow_multithreaded_translation(self) -> bool:
             """
