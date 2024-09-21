@@ -183,8 +183,9 @@ class NewProjectSettings(QDialog):
     def _remove_preview_thread(self):
         with QMutexLocker(self.preview_mutex):
             thread = self.sender()
-            self.preview_threads = [x for x in self.preview_threads if x != thread]
-            thread.deleteLater()
+            if thread:
+                self.preview_threads = [x for x in self.preview_threads if x != thread]
+                thread.deleteLater()
 
     def _wait_for_threads(self):
         if self.preview_threads:
