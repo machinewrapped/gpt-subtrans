@@ -32,6 +32,7 @@ try:
         provider,
         use_httpx=args.httpx,
         api_base=args.apibase,
+        proxy=args.proxy,
         model=args.model or default_model
     )
 

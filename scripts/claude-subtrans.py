@@ -24,7 +24,7 @@ args = parser.parse_args()
 logger_options = InitLogger("claude-subtrans", args.debug)
 
 try:
-    options : Options = CreateOptions(args, provider, model=args.model or default_model)
+    options : Options = CreateOptions(args, provider, model=args.model or default_model, proxy=args.proxy)
 
     # Create a translator with the provided options
     translator : SubtitleTranslator = CreateTranslator(options)
