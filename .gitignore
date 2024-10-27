@@ -29,3 +29,4 @@ gui-subtrans.sh
 llm-subtrans.sh
 .idea/
 *.ass
+.cursorignore
