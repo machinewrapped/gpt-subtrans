@@ -43,27 +43,27 @@ class TranslateSceneCommand(Command):
         try:
             scene = project.TranslateScene(self.translator, self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers)
 
+            if scene:
+                model_update = self.AddModelUpdate()
+                model_update.scenes.update(scene.number, {
+                    'summary' : scene.summary
+                })
+
         except TranslationAbortedError as e:
             logging.info(f"Aborted translation of scene {self.scene_number}")
             self.aborted = True
             self.terminal = True
-            scene = None
 
         except TranslationImpossibleError as e:
             logging.error(f"Error translating scene {self.scene_number}: {e}")
             self.terminal = True
-            scene = None
 
         except Exception as e:
             logging.error(f"Error translating scene {self.scene_number}: {e}")
+            if self.translator.stop_on_error:
+                self.terminal = True
 
         self.translator.events.batch_translated -= self._on_batch_translated
-
-        if scene:
-            model_update = self.AddModelUpdate()
-            model_update.scenes.update(scene.number, {
-                'summary' : scene.summary
-            })
 
         return True
 
