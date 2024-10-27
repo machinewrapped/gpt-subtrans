@@ -120,7 +120,7 @@ try:
             raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
         def _get_error_message(self, e : anthropic.APIError):
-            return e.body.get('error', {}).get('message', e.message)
+            return e.message or (e.body.get('error', {}).get('message', e.message) if hasattr(e, 'body') else str(e))
 
 except ImportError as e:
     logging.debug(f"Failed to import anthropic: {e}")
