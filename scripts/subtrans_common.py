@@ -88,7 +88,7 @@ def CreateOptions(args: Namespace, provider: str, **kwargs) -> Options:
         'api_key': args.apikey,
         'description': args.description,
         'include_original': args.includeoriginal,
-        'add_right_to_left_markers': args.addRtlMarkers,
+        'add_right_to_left_markers': args.addrtlmarkers,  # Corrected attribute name
         'instruction_args': args.instruction,
         'instruction_file': args.instructionfile,
         'substitution_mode': "Partial Words" if args.matchpartialwords else "Auto",
