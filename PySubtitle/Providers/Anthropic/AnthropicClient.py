@@ -44,10 +44,8 @@ try:
                 # Try to add proxy settings if specified
                 if self.settings.get('proxy'):
                     http_client = anthropic.DefaultHttpxClient(
-                        proxies = {
-                        'http://': self.settings.get('proxy'),
-                        'https://': self.settings.get('proxy')
-                    })
+                        proxies = self.settings.get('proxy')
+                    )
                     self.client = self.client.with_options(http_client=http_client)
 
             except Exception as e:

@@ -89,7 +89,7 @@ try:
                     'temperature': (float, "The temperature to use for translations (default 0.0)"),
                     'rate_limit': (float, "The rate limit to use for translations (default 60.0)"),
                     'max_tokens': (int, "The maximum number of tokens to use for translations"),
-                    'proxy': (str, "Optional proxy server to use for requests (e.g. https://api.anthropic.com/"),
+                    'proxy': (str, "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/"),
                 })
 
             return options
