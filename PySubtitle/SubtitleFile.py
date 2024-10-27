@@ -5,6 +5,7 @@ import logging
 import threading
 import srt
 import bisect
+from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Options import Options
 
 from PySubtitle.Substitutions import Substitutions
@@ -37,6 +38,7 @@ class SubtitleFile:
         'substitutions': None,
         'substitution_mode': None,
         'include_original': None,
+        'add_right_to_left_markers': None,
         'instruction_file': None
     }
 
@@ -322,7 +324,15 @@ class SubtitleFile:
 
             logging.info(f"Saving translation to {str(outputpath)}")
 
-            srtfile = srt.compose([ line.item for line in output_lines if line.text and line.start is not None], reindex=False)
+            items = [ line.item for line in output_lines if line.text and line.start is not None]
+
+            # Add Right-To-Left markers to lines that contain primarily RTL script, if requested
+            if self.settings.get('add_right_to_left_markers'):
+                for item in items:
+                    if IsRightToLeftText(item.content) and not item.content.startswith("\u202b"):
+                        item.content = f"\u202b{item.content}\u202c"
+
+            srtfile = srt.compose(items, reindex=False)
             with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 

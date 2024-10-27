@@ -29,6 +29,7 @@ default_options = {
     'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'include_original': env_bool('INCLUDE_ORIGINAL', False),
+    'add_right_to_left_markers': env_bool('add_right_to_left_markers', False),
     'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 30.0)),
     'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 10)),
     'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 30)),

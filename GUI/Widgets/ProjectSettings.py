@@ -56,6 +56,7 @@ class ProjectSettings(QGroupBox):
         settings = {
             'movie_name': self.widgets['movie_name'].text(),
             'target_language': self.widgets['target_language'].text(),
+            'add_right_to_left_markers': self.widgets['add_right_to_left_markers'].isChecked(),
             'include_original': self.widgets['include_original'].isChecked(),
             'description': self.widgets['description'].toPlainText(),
             'names': ParseNames(self.widgets['names'].toPlainText()),
@@ -99,6 +100,7 @@ class ProjectSettings(QGroupBox):
         with QSignalBlocker(self):
             self.AddSingleLineOption("Movie Name", settings, 'movie_name')
             self.AddSingleLineOption("Target Language", settings, 'target_language')
+            self.AddCheckboxOption("Add RTL Markers", settings, 'add_right_to_left_markers')
             self.AddCheckboxOption("Include Original Text", settings, 'include_original')
             self.AddMultiLineOption("Description", settings, 'description')
             self.AddMultiLineOption("Names", settings, 'names')

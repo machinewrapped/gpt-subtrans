@@ -1,5 +1,7 @@
 import unicodedata
 import regex
+import unicodedata
+from collections import Counter
 
 common_punctuation = r"[.,!?;:…¡¿]"
 sentence_end_punctuation = r"[.!?…？！。﹑]"
@@ -354,3 +356,13 @@ def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length :
 
     return summary or None
 
+def IsRightToLeftText(text: str) -> bool:
+    """
+    Check if text is predominantly RTL using Unicode bidirectional properties
+    """
+    if not text:
+        return False
+    count = Counter(unicodedata.bidirectional(c) for c in text if not c.isspace())
+    rtl_count = sum(count[d] for d in ['R', 'AL', 'RLE', 'RLI'])
+    ltr_count = sum(count[d] for d in ['L', 'LRE', 'LRI'])
+    return rtl_count > ltr_count

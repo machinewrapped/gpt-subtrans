@@ -60,6 +60,7 @@ def CreateArgParser(description : str) -> ArgumentParser:
     parser.add_argument('--batchthreshold', type=float, default=None, help="Number of seconds between lines to consider for batching")
     parser.add_argument('--debug', action='store_true', help="Run with DEBUG log level")
     parser.add_argument('--description', type=str, default=None, help="A brief description of the film to give context")
+    parser.add_argument('--addrtlmarkers', action='store_true', help="Add RTL markers to translated lines if they contains primarily right-to-left script")
     parser.add_argument('--includeoriginal', action='store_true', help="Include the original text in the translated subtitles")
     parser.add_argument('--instruction', action='append', type=str, default=None, help="An instruction for the AI translator")
     parser.add_argument('--instructionfile', type=str, default=None, help="Name/path of a file to load instructions from")
@@ -87,6 +88,7 @@ def CreateOptions(args: Namespace, provider: str, **kwargs) -> Options:
         'api_key': args.apikey,
         'description': args.description,
         'include_original': args.includeoriginal,
+        'add_right_to_left_markers': args.addRtlMarkers,
         'instruction_args': args.instruction,
         'instruction_file': args.instructionfile,
         'substitution_mode': "Partial Words" if args.matchpartialwords else "Auto",
