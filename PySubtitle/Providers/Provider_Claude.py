@@ -35,7 +35,8 @@ try:
                 "max_tokens": settings.get('max_tokens') or GetEnvInteger('CLAUDE_MAX_TOKENS', 4096),
                 'temperature': settings.get('temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
                 'rate_limit': settings.get('rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
-                'custom_models': settings.get('custom_models') or os.getenv('CLAUDE_CUSTOM_MODELS')
+                'custom_models': settings.get('custom_models') or os.getenv('CLAUDE_CUSTOM_MODELS'),
+                'proxy': settings.get('proxy') or os.getenv('CLAUDE_PROXY'),
             })
 
             self.refresh_when_changed = ['api_key', 'model', 'custom_models']
@@ -88,6 +89,7 @@ try:
                     'temperature': (float, "The temperature to use for translations (default 0.0)"),
                     'rate_limit': (float, "The rate limit to use for translations (default 60.0)"),
                     'max_tokens': (int, "The maximum number of tokens to use for translations"),
+                    'proxy': (str, "Optional proxy server to use for requests (e.g. https://api.anthropic.com/"),
                 })
 
             return options
