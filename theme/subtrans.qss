@@ -3,6 +3,26 @@ QWidget {
     font-size: 10pt;
 }
 
+QDialog, QTabWidget, QFrame {
+    background-color: aliceblue;
+}
+
+QTabBar::tab {
+    background: #e0e0e0;
+    color: black;
+    border: 1px solid #c0c0c0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 4px;
+    margin: 2px;
+    margin-bottom: 0px;
+}
+
+QTabBar::tab:selected {
+    background: lavenderblush;
+    padding-bottom: 6px;
+}
+
 QLabel {
     color: black;
     padding-top: 2px;
@@ -10,9 +30,75 @@ QLabel {
 }
 
 QComboBox {
+    color: black;
+    background: white;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
     padding: 1px 18px 1px 3px;
     min-width: 6em;
     min-height: 1em;
+}
+
+QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
+    background-color: white;
+    color: black;
+}
+
+QComboBox::down-button {
+    border: 1px solid #c0c0c0;
+}
+
+QCheckBox::indicator {
+    color: black;
+    background: white;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+}
+
+QCheckBox::indicator:checked {
+    background: #404040;
+    color: red;
+}
+
+QLineEdit, QTextEdit {
+    color: black;
+    background: white;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    selection-background-color: #d0d0d0;
+}
+
+QPushButton, QToolTip {
+    color: black;
+    background: white;
+    padding: 2px 8px 3px 8px;
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+}
+
+QSpinBox, QDoubleSpinBox {
+    selection-background-color: #d0d0d0;
+}
+
+QSpinBox::text, QDoubleSpinBox::text {
+    color: black;
+    background-color: white;
+}
+
+/*
+QSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+    border: 1px solid #c0c0c0;
+    color: black;
+}
+
+QSpinBox::up-arrow, QSpinBox::down-arrow, QDoubleSpinBox::up-arrow, QDoubleSpinBox::down-arrow {
+    background: lavenderblush;
+    color: black;
+}
+*/
+
+QScrollBar, QSplitter::handle {
+    background: lavenderblush;
 }
 
 QStatusBar {
@@ -151,6 +237,6 @@ QListView:item {
     padding: 2px 1em;
     background-color: white;
     color: black;
-    border-left: 2px dotted lightgray;    
+    border-left: 2px dotted lightgray;
 }
 
