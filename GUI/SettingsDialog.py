@@ -28,7 +28,7 @@ class SettingsDialog(QDialog):
         'General': {
             'target_language': (str, "The default language to translate the subtitles to"),
             'include_original': (bool, "Include original text in translated subtitles"),
-            'add_right_to_left_markers': (bool, "Add RTL markers to translated lines if they contains primarily right-to-left script"),
+            'add_right_to_left_markers': (bool, "Add RTL markers around translated lines that contain primarily right-to-left script on save"),
             'instruction_file': (str, "Instructions for the translation provider to follow"),
             'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
             'theme': [],
