@@ -323,6 +323,9 @@ Other valid options include `preview`, `resume`, `reparse` and `retranslate`. Th
 you should be able to see what they do.
 
 ## Version History
+
+Version 1.0 is a minor update, updating the major version to 1.0 because the project has been stable for some time.
+
 Version 0.7 introduced optional post-processing of translated subtitles to try to fix some of the common issues with LLM-translated subtitles (e.g. adding line breaks), along with new default instructions that tend to produce fewer errors.
 
 Version 0.6 changes the architecture to a provider-based system, allowing multiple AI services to be used as translators.
