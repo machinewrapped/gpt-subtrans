@@ -286,6 +286,8 @@ class SubtitleProject:
         try:
             scene : SubtitleScene = self.subtitles.GetScene(scene_number)
 
+            scene.errors = []
+
             translator.TranslateScene(self.subtitles, scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
 
             if self.save_subtitles and not translator.aborted:

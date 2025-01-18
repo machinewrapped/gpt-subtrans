@@ -33,6 +33,7 @@ class SubtitleTranslator:
         self.events = TranslationEvents()
         self.lock = threading.Lock()
         self.aborted = False
+        self.errors = []
 
         self.lines_processed = 0
         self.max_lines = options.get('max_lines')
@@ -118,7 +119,7 @@ class SubtitleTranslator:
 
             self.TranslateScene(subtitles, scene, batch_numbers=batch_numbers)
 
-            if scene.errors and self.stop_on_error:
+            if self.errors and self.stop_on_error:
                 logging.error(f"Failed to translate scene {scene.number}... stopping translation")
                 return
 
@@ -169,6 +170,7 @@ class SubtitleTranslator:
                 if batch.errors:
                     logging.warning(f"Errors encountered translating scene {batch.scene} batch {batch.number}")
                     scene.errors.extend(batch.errors)
+                    self.errors.extend(batch.errors)
                     if self.stop_on_error:
                         return
 

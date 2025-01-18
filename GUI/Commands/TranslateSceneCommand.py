@@ -50,8 +50,8 @@ class TranslateSceneCommand(Command):
                     'summary' : scene.summary
                 })
 
-            if scene.errors and self.translator.stop_on_error:
-                logging.info(f"Errors: {FormatErrorMessages(scene.errors)}")
+            if self.translator.errors and self.translator.stop_on_error:
+                logging.info(f"Errors: {FormatErrorMessages(self.translator.errors)}")
                 logging.error(f"Errors translating scene {scene.number} - aborting translation")
                 self.terminal = True
 
