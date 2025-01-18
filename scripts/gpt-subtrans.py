@@ -14,7 +14,7 @@ from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 # We'll write separate scripts for other providers
 provider = "OpenAI"
-default_model = os.getenv('OPENAI_MODEL') or "gpt-3.5-turbo"
+default_model = os.getenv('OPENAI_MODEL') or "gpt-4o"
 
 parser = CreateArgParser(f"Translates an SRT file using an OpenAI model")
 parser.add_argument('-k', '--apikey', type=str, default=None, help=f"Your OpenAI API Key (https://platform.openai.com/account/api-keys)")
