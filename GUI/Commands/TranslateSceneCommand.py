@@ -1,6 +1,7 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
+from PySubtitle.Helpers import FormatErrorMessages
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossibleError
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -48,6 +49,11 @@ class TranslateSceneCommand(Command):
                 model_update.scenes.update(scene.number, {
                     'summary' : scene.summary
                 })
+
+            if scene.errors and self.translator.stop_on_error:
+                logging.info(f"Errors: {FormatErrorMessages(scene.errors)}")
+                logging.error(f"Errors translating scene {scene.number} - aborting translation")
+                self.terminal = True
 
             if self.translator.aborted:
                 self.aborted = True
