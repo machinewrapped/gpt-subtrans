@@ -288,6 +288,10 @@ class SubtitleProject:
 
             translator.TranslateScene(self.subtitles, scene, batch_numbers=batch_numbers, line_numbers=line_numbers)
 
+            if translator.stop_on_error and scene.errors:
+                logging.error(f"Errors translating scene {scene_number} - aborting translation")
+                translator.aborted = True
+
             if self.save_subtitles and not translator.aborted:
                 self.SaveTranslation()
 

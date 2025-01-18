@@ -49,6 +49,10 @@ class TranslateSceneCommand(Command):
                     'summary' : scene.summary
                 })
 
+            if self.translator.aborted:
+                self.aborted = True
+                self.terminal = True
+
         except TranslationAbortedError as e:
             logging.info(f"Aborted translation of scene {self.scene_number}")
             self.aborted = True
