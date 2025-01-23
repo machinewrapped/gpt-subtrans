@@ -115,6 +115,10 @@ try:
 
                 model_list = [ model.id for model in response.data if model.id.startswith('gpt') and model.id.find('vision') < 0 ]
 
+                # Maybe this isn't really an OpenAI endpoint, let's see what other models we can find
+                if not model_list:
+                    model_list = [ model.id for model in response.data if model.id.find('vision') < 0 ]
+
                 return sorted(model_list)
 
             except Exception as e:
