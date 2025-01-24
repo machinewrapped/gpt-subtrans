@@ -89,11 +89,15 @@ case $provider_choice in
     4)
         install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
         ;;
+    5)
+        install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
+        ;;
     a)
         install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
         install_provider "Google Gemini" "GEMINI" "google-generativeai" "gemini-subtrans"
         install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
         install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
+        install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
         ;;
     *)
         echo "Invalid choice. Exiting installation."
