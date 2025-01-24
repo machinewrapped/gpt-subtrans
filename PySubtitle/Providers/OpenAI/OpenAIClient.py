@@ -8,7 +8,6 @@ try:
     from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
-    from PySubtitle.TranslationParser import TranslationParser
     from PySubtitle.TranslationPrompt import TranslationPrompt
 
     class OpenAIClient(TranslationClient):
