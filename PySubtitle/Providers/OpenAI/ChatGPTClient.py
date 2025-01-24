@@ -23,7 +23,7 @@ class ChatGPTClient(OpenAIClient):
 
     def _send_messages(self, messages : list[str], temperature):
         """
-        Make a request to the OpenAI API to provide a translation
+        Make a request to an OpenAI-compatible API to provide a translation
         """
         response = {}
 
@@ -74,12 +74,12 @@ class ChatGPTClient(OpenAIClient):
                     time.sleep(retry_seconds)
                     continue
                 else:
-                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan")
+                    raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
 
             except openai.APITimeoutError as e:
                 if retry < self.max_retries and not self.aborted:
                     sleep_time = self.backoff_time * 2.0**retry
-                    logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
+                    logging.warning(f"API error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                     continue
 
@@ -88,7 +88,7 @@ class ChatGPTClient(OpenAIClient):
                     raise TranslationError(str(e), error=e)
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
 
         raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
