@@ -26,7 +26,7 @@ try:
         <p>To use Claude you need to provide an <a href="https://console.anthropic.com/settings/keys">Anthropic API Key </a>.</p>
         """
 
-        default_models = ['claude-3-5-sonnet-latest', 'claude-3-opus-latest', 'claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-5-sonnet-20240620', 'claude-3-opus-20240229']
+        default_models = ['claude-3-5-haiku-latest', 'claude-3-5-sonnet-latest', 'claude-3-opus-latest', 'claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-5-sonnet-20240620']
 
         def __init__(self, settings : dict):
             super().__init__(self.name, {
