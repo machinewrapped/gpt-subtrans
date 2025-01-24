@@ -47,6 +47,7 @@ try:
             client_settings.update({
                 'supports_conversation': True,
                 'supports_system_messages': True,
+                'supports_system_messages_for_retry': False,
                 'supports_system_prompt': False
                 })
             return MistralClient(client_settings)
