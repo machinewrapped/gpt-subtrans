@@ -46,6 +46,12 @@ class TranslationProvider:
         """
         raise NotImplementedError
 
+    def ResetAvailableModels(self):
+        """
+        Reset the available models for the provider
+        """
+        self._available_models = []
+
     def GetInformation(self) -> str:
         """
         Returns information about the provider settings
