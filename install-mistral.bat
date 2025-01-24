@@ -38,7 +38,7 @@ if not "%api_key%"=="" (
 
 :skip_api_key
 
-call scripts\generate-cmd.bat gpt-subtrans
+call scripts\generate-cmd.bat mistral-subtrans
 
 echo default provider set to Mistral
 

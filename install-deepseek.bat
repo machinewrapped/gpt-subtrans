@@ -46,7 +46,7 @@ if not "%api_base%"=="" (
 
 :skip_api_key
 
-call scripts\generate-cmd.bat gpt-subtrans
+call scripts\generate-cmd.bat deepseek-subtrans
 
 echo default provider set to DeepSeek
 
