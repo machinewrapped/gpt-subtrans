@@ -46,6 +46,8 @@ try:
 
             self.refresh_when_changed = ['api_key', 'api_base', 'model']
 
+            self.excluded_model_types = [ "vision", "realtime", "audio" ]
+
         @property
         def api_key(self):
             return self.settings.get('api_key')
@@ -113,11 +115,13 @@ try:
                 if not response or not response.data:
                     return []
 
-                model_list = [ model.id for model in response.data if model.id.startswith('gpt') and model.id.find('vision') < 0 ]
+                model_list = [ model.id for model in response.data if model.id.startswith('gpt')]
 
-                # Maybe this isn't really an OpenAI endpoint, let's see what other models we can find
+                model_list = [ model for model in model_list if not any([ model.find(exclude) >= 0 for exclude in self.excluded_model_types ]) ]
+
+                # Maybe this isn't really an OpenAI endpoint, just return all the available models
                 if not model_list:
-                    model_list = [ model.id for model in response.data if model.id.find('vision') < 0 ]
+                    model_list = [ model.id for model in response.data ]
 
                 return sorted(model_list)
 
