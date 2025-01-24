@@ -69,6 +69,7 @@ echo "0 = None"
 echo "1 = OpenAI"
 echo "2 = Google Gemini"
 echo "3 = Anthropic Claude"
+echi "4 = DeepSeek"
 echo "a = All"
 read -p "Enter your choice (0/1/2/3/a): " provider_choice
 
@@ -85,10 +86,18 @@ case $provider_choice in
     3)
         install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
         ;;
+    4)
+        install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
+        ;;
+    5)
+        install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
+        ;;
     a)
         install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
         install_provider "Google Gemini" "GEMINI" "google-generativeai" "gemini-subtrans"
         install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
+        install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
+        install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
         ;;
     *)
         echo "Invalid choice. Exiting installation."

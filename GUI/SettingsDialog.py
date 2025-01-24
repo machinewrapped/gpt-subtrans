@@ -332,6 +332,8 @@ class SettingsDialog(QDialog):
             logging.warning("Translation provider is not configured")
             return
 
+        self.translation_provider.ResetAvailableModels()
+
         provider_settings = self.provider_settings.get(self.translation_provider.name, {})
         self.translation_provider.settings.update(provider_settings)
 

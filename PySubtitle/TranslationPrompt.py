@@ -28,6 +28,9 @@ class TranslationPrompt:
         # Flag controlling whether to include messages in the "system" role
         self.supports_system_messages = False
 
+        # Flag controlling whether to use the "system" role for retry instructions
+        self.supports_system_messages_for_retry = False
+
         # Templates for formatting the prompt - override these to customize the prompt
         self.prompt_template = default_prompt_template
         self.line_template = default_line_template
@@ -100,7 +103,7 @@ class TranslationPrompt:
 
         user_role = "user"
         assistant_role = "assistant"
-        system_role = "system" if self.supports_system_messages else user_role
+        system_role = "system" if self.supports_system_messages_for_retry else user_role
 
         for message in self.messages:
             messages.append(message)

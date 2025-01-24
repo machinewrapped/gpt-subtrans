@@ -8,7 +8,6 @@ try:
     from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
-    from PySubtitle.TranslationParser import TranslationParser
     from PySubtitle.TranslationPrompt import TranslationPrompt
 
     class OpenAIClient(TranslationClient):
@@ -29,7 +28,7 @@ try:
             if self.api_base:
                 openai.base_url = self.api_base
 
-            logging.info(f"Translating with OpenAI model {self.model or 'default'}, Using API Base: {openai.base_url}")
+            logging.info(f"Translating with model {self.model or 'default'}, Using API Base: {openai.base_url}")
 
             http_client = None
             if self.settings.get('proxy'):
@@ -68,7 +67,7 @@ try:
 
             if translation:
                 if translation.quota_reached:
-                    raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan or wait until it renews")
+                    raise TranslationImpossibleError("Account quota reached, please upgrade your plan or wait until it renews")
 
                 if translation.reached_token_limit:
                     raise TranslationError(f"Too many tokens in translation", translation=translation)
