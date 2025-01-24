@@ -73,7 +73,7 @@ try:
                         model=self.model,
                         messages=messages,
                         temperature=temperature,
-                        server_url=self.server_url
+                        server_url=self.server_url if self.server_url else None
                     )
 
                     if self.aborted:
