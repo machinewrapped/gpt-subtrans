@@ -73,6 +73,7 @@ try:
                         model=self.model,
                         messages=messages,
                         temperature=temperature,
+                        server_url=self.server_url
                     )
 
                     if self.aborted:
