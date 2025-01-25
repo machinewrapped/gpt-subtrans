@@ -13,7 +13,7 @@ try:
 
         information = """
         <p>Bedrock API provider.</p>
-        <p>NOTE: Bedrock is NOT recommended for most users. The setup is much more difficult than other providers and the capabilities of the supported models are unpredictable. They may not translate at all.</p>
+        <p>NOTE: Amazon Bedrock is not recommended for most users. The setup is complex, and model capabilities can be unpredictable - some models do not fulfil translation requests.</p>
         <p>To use Bedrock as a provider you need to provide an access key and secret access key. This involves setting up an IAM user in the AWS console and <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html">enabling model access</a> for them.</p>
         <p>You must also specify an AWS region to use for requests - this will affect the available models.</p>
         """
@@ -63,7 +63,7 @@ try:
             if self.access_key and self.secret_access_key and self.aws_region:
                 models = self.available_models or ["Unable to retrieve model list"]
                 options.update({
-                    'model': (models, "AI model to use as the translator"),
+                    'model': (models, "AI model to use as the translator. Model access must be enabled in the AWS Console. Some models may not translate the subtitles."),
                     'rate_limit': (float, "The maximum number of requests to make per minute")
                 })
             return options
