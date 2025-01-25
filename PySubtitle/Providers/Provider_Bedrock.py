@@ -7,15 +7,15 @@ try:
     from PySubtitle.Providers.Bedrock.BedrockClient import BedrockClient
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationProvider import TranslationProvider
-    from PySubtitle.Helpers import GetEnvFloat
 
     class BedrockProvider(TranslationProvider):
         name = "Bedrock"
 
         information = """
         <p>Bedrock API provider.</p>
-        <p>To use Bedrock as a provider you need to provide an access key and secret access key. These can be set up in the AWS IAM console.</p>
-        <p>You must also specify an AWS region to use for requests - this will affect model availability.</p>
+        <p>NOTE: Bedrock is NOT recommended for most users. The setup is much more difficult than other providers and the capabilities of the supported models are unpredictable. They may not translate at all.</p>
+        <p>To use Bedrock as a provider you need to provide an access key and secret access key. This involves setting up an IAM user in the AWS console and <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html">enabling model access</a> for them.</p>
+        <p>You must also specify an AWS region to use for requests - this will affect the available models.</p>
         """
 
         def __init__(self, settings : dict):
@@ -24,6 +24,7 @@ try:
                 "secret_access_key": settings.get('secret_access_key', os.getenv('AWS_SECRET_ACCESS_KEY')),
                 "aws_region": settings.get('aws_region', os.getenv('AWS_REGION', 'eu-west-1')),
                 "model": settings.get('model', 'Amazon-Titan-Text-G1'),
+                #TODO: add options for supports system messages and prompt?
                 'temperature': settings.get('temperature', 0.0),
                 "rate_limit": settings.get('rate_limit', None)
             })
