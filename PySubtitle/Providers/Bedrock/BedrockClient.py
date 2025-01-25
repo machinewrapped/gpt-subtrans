@@ -112,8 +112,8 @@ try:
 
                 response = {}
 
-                if 'stopReason' in output:
-                    response['finish_reason'] = output['stopReason']
+                if 'stopReason' in result:
+                    response['finish_reason'] = result['stopReason']
 
                 if 'usage' in result:
                     response['prompt_tokens'] = result['usage'].get('inputTokens')
