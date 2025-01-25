@@ -95,7 +95,7 @@ notice： For linux user, the environment has already prepared during the instal
     ```sh
     .\envsubtrans\Scripts\activate
     .\envsubtrans\bin\activate
-    soure path/to/gpt-subtrans/envsubtrans/bin/activate    # for linux user
+    source path/to/gpt-subtrans/envsubtrans/bin/activate    # for linux user
     ```
 
 #### step5
