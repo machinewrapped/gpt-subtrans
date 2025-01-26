@@ -327,7 +327,7 @@ Some additional arguments are available for specific providers.
 - `-m`, `--model`:
   The ID of the [Bedrock model](https://docs.aws.amazon.com/bedrock/latest/userguide/foundation-models.html) to use for translation. Examples include `amazon.titan-text-lite-v1` or `amazon.titan-text-express-v1`.
 
-#### Local Server specific arguments
+#### Custom Server specific arguments
 - `-s`, `--server`:
   The address the server is running on, including port (e.g. http://localhost:1234). Should be provided by the server
 
