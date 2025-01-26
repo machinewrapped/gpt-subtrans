@@ -13,16 +13,18 @@ You will need an OpenAI API key from https://platform.openai.com/account/api-key
 
 If the API key is associated with a free trial account the translation speed will be severely restricted.
 
-You can use the custom api_base parameter to access a custom OpenAI instance or other models with a compatible API.
+You can use the custom api_base parameter to access a custom OpenAI instance or other providers with an OpenAI compatible API (which is most of them).
 
 You can use an **OpenAI Azure** installation as a translation provider, but this is only advisable if you know what you're doing - in which case hopefully it will be clear how to configure the Azure provider settings.
 
 ### Google Gemini
 https://ai.google.dev/terms
 
-**Please note that the Google Gemini API can only be accessed from IP addresses in certain geographic regions: https://ai.google.dev/available_regions**
+**Please note that regions restrictions may apply: https://ai.google.dev/available_regions**
 
 You will need a Google Gemini API key from https://ai.google.dev/ or from a project created on https://console.cloud.google.com/. You must ensure that Generative AI is enabled for the api key and project.
+
+The Gemini 2.0 Flash Experimental model is perhaps the leading model for translation speed and fluency at time of writing, and is currently free to use.
 
 ### Anthropic Claude
 https://support.anthropic.com/en/collections/4078534-privacy-legal
@@ -31,12 +33,41 @@ You will need an Anthropic API key from https://console.anthropic.com/settings/k
 
 The API has very strict [rate limits](https://docs.anthropic.com/claude/reference/rate-limits) based on your credit tier, both on requests per minutes and tokens per day. The free credit tier should be sufficient to translate approximately one full movie per day.
 
-### Local Server
-GPT-Subtrans can interface with any server that supports an OpenAI compatible API, e.g. [LM Studio](https://lmstudio.ai/).
+### DeepSeek
+https://platform.deepseek.com/downloads/DeepSeek%20Open%20Platform%20Terms%20of%20Service.html
+
+You will need a DeepSeek API key from https://platform.deepseek.com/api_keys to use this provider.
+
+- **API Base**: You can optionally specify a custom URL, e.g. if you are hosting your own DeepSeek instance. If this is not set, the official DeepSeek API endpoint will be used.
+
+- **Model**: The default model is `deepseek-chat`, which is recommended for translation tasks. The reasoning model will likely be wasted.
+
+DeepSeek is quite simple to set up and offers reasonable performance at a very low price, though translation does not seem to be its strongest point.
+
+### Mistral AI
+https://mistral.ai/terms/
+
+You will need a Mistral API key from https://console.mistral.ai/api-keys/ to use this provider.
+
+- **Server URL**: If you are using a custom deployment of the Mistral API, you can specify the server URL using the `--server_url` argument.
+
+- **Model**: `mistral-large-latest` is recommended for translation. Smaller models tend to perform poorly and may not follow the system instructions well.
+
+Mistral AI is straightforward to set up, but its performance as a translator is not particularly good.
+
+### Custom Server
+GPT-Subtrans can interface directly with any server that supports an OpenAI compatible API, including locally hosted models e.g. [LM Studio](https://lmstudio.ai/).
 
 This is mainly for research and you should not expect particularly good results. LLMs derive much of their power from their size, so the small, quantized models you can run on a GPU are likely to produce poor translations, fail to generate valid responses or get stuck in endless loops. If you find a model that reliably producess good results, please post about it in the Discussions area!
 
-Chat and completion endpoints are supported, you should configure the settings and endpoint based on the model the server is running (e.g. instruction tuned models will probably produce better results using the completions endpoint rather than chat/conversation). The prompt template can be edited in the GUI - make sure to include at least the {prompt} tag in the template, as this is where the subtitles that need translating in each batch will be provided.
+Chat and completion endpoints are supported, you should configure the settings and endpoint based on the model the server is running (e.g. instruction tuned models will probably produce better results using the completions endpoint rather than chat/conversation). The prompt template can be edited in the GUI if you are using a model that requires a particular format - make sure to include at least the {prompt} tag in the template, as this is where the subtitles that need translating in each batch will be provided.
+
+### Amazon Bedrock
+- **Bedrock is not recommended for most users**: The setup process is complex, requiring AWS credentials, proper IAM permissions, and region configuration. Additionally, not all models on Bedrock support translation tasks or offer reliable results.
+
+- To use Bedrock, you must:
+  1. Create an **IAM user** or **role** with appropriate permissions (e.g., `bedrock:InvokeModel`, `bedrock:ListFoundationModels`).
+  2. Ensure the model you wish to use is accessible in your selected AWS region and [enabled for the IAM user](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html).
 
 ### MacOS
 Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source. If anybody would like to volunteer to maintain Intel releases, please get in touch.
@@ -72,10 +103,17 @@ During the installing process, input the apikey for the selected provider if req
     ```
 
     If you are using Azure:
-    
+
     ```sh
     AZURE_API_BASE=<your api_base, such as https://something.openai.azure.com>
     AZURE_DEPLOYMENT_NAME=<deployment_name>
+    ```
+
+    If you are using Bedrock:
+    ```sh
+    AWS_ACCESS_KEY_ID=your-access-key-id
+    AWS_SECRET_ACCESS_KEY=your-secret-access-key
+    AWS_REGION=your-region
     ```
 
 #### step3
@@ -256,6 +294,39 @@ Some additional arguments are available for specific providers.
 - `-a`, `--apiversion`:
   Azure API version.
 
+  #### DeepSeek
+  - `-k`, `--apikey`:
+  Your [DeepSeek API Key](https://platform.deepseek.com/api_keys).
+
+- `-b`, `--apibase`:
+  Base URL if you are using a custom deployment of DeepSeek. if it is not set, the official URL will be used.
+
+- `-m`, `--model`:
+  Specify the [model](https://api-docs.deepseek.com/quick_start/pricing) to use for translation. **deepseek-chat** is probably the only sensible choice (and default).
+
+  #### Mistral AI
+  - `-k`, `--apikey`:
+  Your [DeepSeek API Key](https://console.mistral.ai/api-keys/).
+
+- `--server_url`:
+  URL if you are using a custom deployment of Mistral. if unset, the official URL will be used.
+
+- `-m`, `--model`:
+  Specify the [model](https://docs.mistral.ai/getting-started/models/models_overview/) to use for translation. **mistral-large-latest** is recommended, the small models are not very reliable.
+
+### Amazon Bedrock
+- `-k`, `--accesskey`:
+  Your [AWS Access Key ID](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html). Not required if it is set in the `.env` file.
+
+- `-s`, `--secretkey`:
+  Your [AWS Secret Access Key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html). Not required if it is set in the `.env` file.
+
+- `-r`, `--region`:
+  AWS Region where Bedrock is available. You can check the list of regions [here](https://aws.amazon.com/about-aws/global-infrastructure/regions_az/). For example: `us-east-1` or `eu-west-1`.
+
+- `-m`, `--model`:
+  The ID of the [Bedrock model](https://docs.aws.amazon.com/bedrock/latest/userguide/foundation-models.html) to use for translation. Examples include `amazon.titan-text-lite-v1` or `amazon.titan-text-express-v1`.
+
 #### Local Server specific arguments
 - `-s`, `--server`:
   The address the server is running on, including port (e.g. http://localhost:1234). Should be provided by the server
@@ -324,7 +395,7 @@ you should be able to see what they do.
 
 ## Version History
 
-Version 1.0 is a minor update, updating the major version to 1.0 because the project has been stable for some time.
+Version 1.0 is (ironically) a minor update, updating the major version to 1.0 because the project has been stable for some time.
 
 Version 0.7 introduced optional post-processing of translated subtitles to try to fix some of the common issues with LLM-translated subtitles (e.g. adding line breaks), along with new default instructions that tend to produce fewer errors.
 
