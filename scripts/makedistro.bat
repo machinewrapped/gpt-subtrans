@@ -6,6 +6,7 @@ pip install --upgrade -r requirements.txt
 pip install --upgrade openai
 pip install --upgrade google.generativeai
 pip install --upgrade anthropic
+pip install --upgrade mistralai
 
 python.exe tests/unit_tests.py
 if %errorlevel% neq 0 (
