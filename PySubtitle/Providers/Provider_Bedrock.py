@@ -31,6 +31,7 @@ try:
             })
 
             self.refresh_when_changed = ['access_key', 'secret_access_key', 'aws_region']
+            self._regions = None
 
         @property
         def access_key(self):
@@ -43,6 +44,12 @@ try:
         @property
         def aws_region(self):
             return self.settings.get('aws_region')
+
+        @property
+        def regions(self):
+            if not self._regions:
+                self._regions = self.get_aws_regions()
+            return self._regions
 
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             client_settings = self.settings.copy()
@@ -57,9 +64,14 @@ try:
         def GetOptions(self) -> dict:
             options = {
                 'access_key': (str, "An AWS access key is required"),
-                'secret_access_key': (str, "The AWS region to use for requests must be specified."),
-                'aws_region': (str, "An AWS secret access key is required"),
+                'secret_access_key': (str, "An AWS secret access key is required"),
             }
+
+            regions = self.regions
+            if not regions:
+                options['aws_region'] = (str, "The AWS region to use for requests must be specified.")
+            else:
+                options['aws_region'] = (regions, "The AWS region to use for requests.")
 
             if self.access_key and self.secret_access_key and self.aws_region:
                 models = self.available_models or ["Unable to retrieve model list"]
@@ -142,6 +154,18 @@ try:
             Assume the Bedrock provider can handle multiple requests
             """
             return True
+
+        def get_aws_regions(self) -> list[str]:
+            """
+            Fetches a list of AWS regions that support Bedrock from the boto3 SDK (may become out of date)
+            """
+            try:
+                session = boto3.session.Session()
+                bedrock_regions = session.get_available_regions("bedrock")
+                return sorted(bedrock_regions)
+            except Exception as e:
+                print(f"Error fetching AWS regions: {e}")
+                return []
 
 except ImportError:
     logging.info("Amazon Boto3 SDK is not installed. Bedrock provider will not be available")
