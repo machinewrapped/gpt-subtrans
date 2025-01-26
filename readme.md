@@ -63,9 +63,9 @@ This is mainly for research and you should not expect particularly good results.
 Chat and completion endpoints are supported, you should configure the settings and endpoint based on the model the server is running (e.g. instruction tuned models will probably produce better results using the completions endpoint rather than chat/conversation). The prompt template can be edited in the GUI if you are using a model that requires a particular format - make sure to include at least the {prompt} tag in the template, as this is where the subtitles that need translating in each batch will be provided.
 
 ### Amazon Bedrock
-- **Bedrock is not recommended for most users**: The setup process is complex, requiring AWS credentials, proper IAM permissions, and region configuration. Additionally, not all models on Bedrock support translation tasks or offer reliable results.
+**Bedrock is not recommended for most users**: The setup process is complex, requiring AWS credentials, proper IAM permissions, and region configuration. Additionally, not all models on Bedrock support translation tasks or offer reliable results.
 
-- To use Bedrock, you must:
+To use Bedrock, you must:
   1. Create an **IAM user** or **role** with appropriate permissions (e.g., `bedrock:InvokeModel`, `bedrock:ListFoundationModels`).
   2. Ensure the model you wish to use is accessible in your selected AWS region and [enabled for the IAM user](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html).
 
