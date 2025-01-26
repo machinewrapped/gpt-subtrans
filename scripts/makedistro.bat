@@ -7,6 +7,7 @@ pip install --upgrade openai
 pip install --upgrade google.generativeai
 pip install --upgrade anthropic
 pip install --upgrade mistralai
+pip install --upgrade boto3
 
 python.exe tests/unit_tests.py
 if %errorlevel% neq 0 (
