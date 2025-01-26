@@ -22,6 +22,36 @@ function install_provider() {
     scripts/generate-cmd.sh $script_name
 }
 
+function install_bedrock() {
+    echo "WARNING: Amazon Bedrock setup is not recommended for most users."
+    echo "The setup requires AWS credentials, region configuration, and enabling specific model access in the AWS Console."
+    echo "Proceed only if you are familiar with AWS configuration."
+    echo
+
+    read -p "Enter your AWS Access Key ID: " access_key
+    read -p "Enter your AWS Secret Access Key: " secret_key
+    read -p "Enter your AWS Region (e.g., us-east-1): " region
+
+    if [ -f ".env" ]; then
+        # Remove existing provider settings
+        sed -i.bak "/^AWS_ACCESS_KEY_ID=/d" .env
+        sed -i.bak "/^AWS_SECRET_ACCESS_KEY=/d" .env
+        sed -i.bak "/^AWS_REGION=/d" .env
+        sed -i.bak "/^PROVIDER=/d" .env
+        rm -f .env.bak
+    fi
+
+    echo "PROVIDER=Bedrock" >> .env
+    echo "AWS_ACCESS_KEY_ID=$access_key" >> .env
+    echo "AWS_SECRET_ACCESS_KEY=$secret_key" >> .env
+    echo "AWS_REGION=$region" >> .env
+
+    echo "Installing AWS SDK for Python (boto3)..."
+    pip install -U boto3
+    scripts/generate-cmd.sh bedrock-subtrans
+
+    echo "Bedrock setup complete. Default provider set to Bedrock."
+}
 
 if [ ! -d "scripts" ]; then
     echo "Please run the script from the root directory of the project."
@@ -69,9 +99,11 @@ echo "0 = None"
 echo "1 = OpenAI"
 echo "2 = Google Gemini"
 echo "3 = Anthropic Claude"
-echi "4 = DeepSeek"
-echo "a = All"
-read -p "Enter your choice (0/1/2/3/a): " provider_choice
+echo "4 = DeepSeek"
+echo "5 = Mistral"
+echo "6 = Bedrock (AWS)"
+echo "a = All except Bedrock"
+read -p "Enter your choice (0/1/2/3/4/5/6/a): " provider_choice
 
 case $provider_choice in
     0)
@@ -92,12 +124,15 @@ case $provider_choice in
     5)
         install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
         ;;
+    6)
+        install_bedrock
+        ;;
     a)
         install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
         install_provider "Google Gemini" "GEMINI" "google-generativeai" "gemini-subtrans"
-        install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
         install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
         install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
+        install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
         ;;
     *)
         echo "Invalid choice. Exiting installation."
