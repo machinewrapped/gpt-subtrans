@@ -122,7 +122,7 @@ case $provider_choice in
         install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
         ;;
     5)
-        install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
+        install_provider "Mistral" "MISTRAL" "mistralai" "mistral-subtrans"
         ;;
     6)
         install_bedrock

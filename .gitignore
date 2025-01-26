@@ -30,3 +30,6 @@ llm-subtrans.sh
 .idea/
 *.ass
 .cursorignore
+deepseek-subtrans.sh
+bedrock-subtrans.sh
+mistral-subtrans.sh
