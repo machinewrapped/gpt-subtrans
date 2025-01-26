@@ -52,6 +52,10 @@ try:
         def model_id(self):
             return self.settings.get('model')
 
+        @property
+        def max_tokens(self):
+            return self.settings.get('max_tokens', 4096)
+
         def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
             """
             Request a translation based on the provided prompt
@@ -86,21 +90,24 @@ try:
                 return None
 
             try:
+                inference_config = {
+                        'temperature' : temperature or 0.0,
+                        'maxTokens' : self.max_tokens
+                    }
+
                 if self.supports_system_prompt and system_prompt:
                     result = self.client.converse(
                         modelId=self.model_id,
                         messages=messages,
                         system = [{ 'text' : system_prompt }],
-                        inferenceConfig = {
-                            'temperature' : temperature or 0.0
-                        })
+                        inferenceConfig = inference_config
+                        )
                 else:
                     result = self.client.converse(
                         modelId=self.model_id,
                         messages=messages,
-                        inferenceConfig = {
-                            'temperature' : temperature or 0.0
-                        })
+                        inferenceConfig = inference_config
+                        )
 
                 if self.aborted:
                     return None

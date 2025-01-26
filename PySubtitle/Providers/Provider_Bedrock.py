@@ -24,6 +24,7 @@ try:
                 "secret_access_key": settings.get('secret_access_key', os.getenv('AWS_SECRET_ACCESS_KEY')),
                 "aws_region": settings.get('aws_region', os.getenv('AWS_REGION', 'eu-west-1')),
                 "model": settings.get('model', 'Amazon-Titan-Text-G1'),
+                "max_tokens": settings.get('max_tokens', 8192),
                 #TODO: add options for supports system messages and prompt?
                 'temperature': settings.get('temperature', 0.0),
                 "rate_limit": settings.get('rate_limit', None)
@@ -64,6 +65,7 @@ try:
                 models = self.available_models or ["Unable to retrieve model list"]
                 options.update({
                     'model': (models, "AI model to use as the translator. Model access must be enabled in the AWS Console. Some models may not translate the subtitles."),
+                    'max_tokens': (int, "The maximum number of tokens to generate in a single request"),
                     'rate_limit': (float, "The maximum number of requests to make per minute")
                 })
             return options
