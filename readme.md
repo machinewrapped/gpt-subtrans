@@ -294,7 +294,7 @@ Some additional arguments are available for specific providers.
 - `-a`, `--apiversion`:
   Azure API version.
 
-  #### DeepSeek
+#### DeepSeek
   - `-k`, `--apikey`:
   Your [DeepSeek API Key](https://platform.deepseek.com/api_keys).
 
@@ -304,7 +304,7 @@ Some additional arguments are available for specific providers.
 - `-m`, `--model`:
   Specify the [model](https://api-docs.deepseek.com/quick_start/pricing) to use for translation. **deepseek-chat** is probably the only sensible choice (and default).
 
-  #### Mistral AI
+#### Mistral AI
   - `-k`, `--apikey`:
   Your [DeepSeek API Key](https://console.mistral.ai/api-keys/).
 
@@ -314,7 +314,7 @@ Some additional arguments are available for specific providers.
 - `-m`, `--model`:
   Specify the [model](https://docs.mistral.ai/getting-started/models/models_overview/) to use for translation. **mistral-large-latest** is recommended, the small models are not very reliable.
 
-### Amazon Bedrock
+#### Amazon Bedrock
 - `-k`, `--accesskey`:
   Your [AWS Access Key ID](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html). Not required if it is set in the `.env` file.
 
