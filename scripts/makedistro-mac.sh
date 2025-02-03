@@ -9,6 +9,8 @@ pip install --upgrade --target ./envsubtrans/lib -r requirements.txt
 pip install --upgrade --target ./envsubtrans/lib openai
 pip install --upgrade --target ./envsubtrans/lib google.generativeai
 pip install --upgrade --target ./envsubtrans/lib anthropic
+pip install --upgrade --target ./envsubtrans/lib mistralai
+pip install --upgrade --target ./envsubtrans/lib boto3
 pip install --upgrade --target ./envsubtrans/lib PySide6==6.6.0
 pip install --upgrade --target ./envsubtrans/lib PySide6.QtGui
 
