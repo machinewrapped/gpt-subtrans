@@ -43,6 +43,7 @@ class ProjectSettings(QGroupBox):
         self.settings = {}
         self.current_provider = None
         self.datamodel = None
+        self.updating_model_list = False
 
         self.layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
@@ -161,7 +162,9 @@ class ProjectSettings(QGroupBox):
             initial_value = settings[key]
             if hasattr(initial_value, 'name'):
                 initial_value = initial_value.name
-            combo_box.setCurrentIndex(combo_box.findText(initial_value))
+            initial_index = combo_box.findText(initial_value)
+            if initial_index >= 0:
+                combo_box.setCurrentIndex(initial_index)
 
         combo_box.currentTextChanged.connect(lambda x: self._option_changed(key, x))
         self._add_row(key, label_widget, combo_box)
@@ -216,9 +219,10 @@ class ProjectSettings(QGroupBox):
         if key == 'provider':
             self._update_provider_settings(value)
             self.datamodel.SaveProject()
-        elif key == 'model':
+        elif key == 'model' and not self.updating_model_list:
             if value and value != self.settings.get('model'):
                 self.datamodel.UpdateProjectSettings({ "model": value })
+                self.settings['model'] = self.datamodel.selected_model
 
     def _update_provider_settings(self, provider : str):
         try:
@@ -235,9 +239,16 @@ class ProjectSettings(QGroupBox):
     def _update_available_models(self):
         model_input = self.widgets.get('model')
         if model_input:
-            model_input.clear()
-            model_input.addItems(self.model_list)
-            self._update_combo_box(model_input, self.settings.get('model'))
+            try:
+                self.updating_model_list = True
+                model_input.clear()
+                model_input.addItems(self.model_list)
+                self._update_combo_box(model_input, self.settings.get('model'))
+
+            except Exception as e:
+                logging.error(f"Error updating model list: {e}")
+            finally:
+                self.updating_model_list = False
 
     def _edit_instructions(self):
         dialog = EditInstructionsDialog(self.settings, parent=self)

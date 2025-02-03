@@ -212,6 +212,8 @@ class ProjectActions(QObject):
 
         logging.debug(f"Translate selection of {str(selection)}")
 
+        self.saveSettings.emit()
+
         multithreaded = len(selection.scenes) > 1 and self.datamodel.allow_multithreaded_translation
 
         scenes = { scene.number : {} for scene in selection.selected_scenes }
