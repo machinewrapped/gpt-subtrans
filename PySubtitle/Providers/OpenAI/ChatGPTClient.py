@@ -20,6 +20,10 @@ class ChatGPTClient(OpenAIClient):
 
     def SupportedModels(self, available_models : list[str]):
         return [ model for model in available_models if model.find("instruct") < 0]
+    
+    @property
+    def supports_temperature(self):
+        return self.model and self.model.startswith("gpt")
 
     def _send_messages(self, messages : list[str], temperature):
         """
@@ -36,6 +40,9 @@ class ChatGPTClient(OpenAIClient):
                     model=self.model,
                     messages=messages,
                     temperature=temperature,
+                ) if self.supports_temperature else self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
                 )
 
                 if self.aborted:

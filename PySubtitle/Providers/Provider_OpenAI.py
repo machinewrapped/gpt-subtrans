@@ -46,6 +46,7 @@ try:
 
             self.refresh_when_changed = ['api_key', 'api_base', 'model']
 
+            self.valid_model_types = [ "gpt", "o1", "o3" ]
             self.excluded_model_types = [ "vision", "realtime", "audio" ]
 
         @property
@@ -114,8 +115,8 @@ try:
 
                 if not response or not response.data:
                     return []
-
-                model_list = [ model.id for model in response.data if model.id.startswith('gpt')]
+                
+                model_list = [ model.id for model in response.data if any(model.id.startswith(prefix) for prefix in self.valid_model_types) ]
 
                 model_list = [ model for model in model_list if not any([ model.find(exclude) >= 0 for exclude in self.excluded_model_types ]) ]
 
