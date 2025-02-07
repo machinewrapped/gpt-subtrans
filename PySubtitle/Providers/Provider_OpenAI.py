@@ -43,7 +43,7 @@ try:
                 "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
                 'max_instruct_tokens': settings.get('max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', 2048))),
                 'use_httpx': settings.get('use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True"),
-                'reasoning_effort': settings.get('reasoning_effort', "low"),
+                'reasoning_effort': settings.get('reasoning_effort', os.getenv('OPENAI_REASONING_EFFORT', "low")),
             })
 
             self.refresh_when_changed = ['api_key', 'api_base', 'model']
