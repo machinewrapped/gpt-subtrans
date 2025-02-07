@@ -9,6 +9,7 @@ try:
 
     from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
     from PySubtitle.Providers.OpenAI.InstructGPTClient import InstructGPTClient
+    from PySubtitle.Providers.OpenAI.OpenAIReasoningClient import OpenAIReasoningClient
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationProvider import TranslationProvider
 
@@ -41,13 +42,15 @@ try:
                 'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
                 "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
                 'max_instruct_tokens': settings.get('max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', 2048))),
-                'use_httpx': settings.get('use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True")
+                'use_httpx': settings.get('use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True"),
+                'reasoning_effort': settings.get('reasoning_effort', "low"),
             })
 
             self.refresh_when_changed = ['api_key', 'api_base', 'model']
 
             self.valid_model_types = [ "gpt", "o1", "o3" ]
             self.excluded_model_types = [ "vision", "realtime", "audio" ]
+            self.reasoning_models = [ "o1","o3","o4","o5" ]
 
         @property
         def api_key(self):
@@ -61,11 +64,17 @@ try:
         def is_instruct_model(self):
             return self.selected_model and self.selected_model.find("instruct") >= 0
 
+        @property
+        def is_reasoning_model(self):
+            return self.selected_model and any(self.selected_model.startswith(reasoning_model) for reasoning_model in self.reasoning_models)
+
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             client_settings = self.settings.copy()
             client_settings.update(settings)
             if self.is_instruct_model:
                 return InstructGPTClient(client_settings)
+            elif self.is_reasoning_model:
+                return OpenAIReasoningClient(client_settings)
             else:
                 return ChatGPTClient(client_settings)
 
@@ -87,8 +96,11 @@ try:
                         'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan")
                     })
 
-                    if self.selected_model and self.selected_model.find("instruct") >= 0:
+                    if self.is_instruct_model:
                         options['max_instruct_tokens'] = (int, "Maximum tokens a completion can contain (only applicable for -instruct models)")
+
+                    if self.is_reasoning_model:
+                        options['reasoning_effort'] = (["low", "medium", "high"], "The level of reasoning effort to use for the model")
 
                 else:
                     options['model'] = (["Unable to retrieve models"], "Check API key and base URL and try again")
@@ -115,7 +127,7 @@ try:
 
                 if not response or not response.data:
                     return []
-                
+
                 model_list = [ model.id for model in response.data if any(model.id.startswith(prefix) for prefix in self.valid_model_types) ]
 
                 model_list = [ model for model in model_list if not any([ model.find(exclude) >= 0 for exclude in self.excluded_model_types ]) ]

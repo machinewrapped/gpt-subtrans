@@ -1,30 +1,31 @@
 import logging
 import time
 import openai
-from openai.types.completion import Completion
+from openai.types.chat import ChatCompletion
 
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
+from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError, TranslationResponseError
 
 linesep = '\n'
 
-class InstructGPTClient(OpenAIClient):
+class OpenAIReasoningClient(OpenAIClient):
     """
-    Handles communication with GPT instruct models to request translations
+    Handles chat communication with OpenAI to request translations
     """
     def __init__(self, settings : dict):
-        settings['supports_conversation'] = False
-        settings['supports_system_messages'] = False
+        settings['supports_system_messages'] = True
+        settings['supports_conversation'] = True
+        settings['supports_reasoning'] = True
         super().__init__(settings)
 
     @property
-    def max_instruct_tokens(self):
-        return self.settings.get('max_instruct_tokens', 2048)
+    def reasoning_effort(self):
+        return self.settings.get('reasoning_effort', "low")
 
-    def _send_messages(self, prompt : str, temperature):
+    def _send_messages(self, messages : list[str], temperature):
         """
-        Make a request to the OpenAI API to provide a translation
+        Make a request to an OpenAI-compatible API to provide a translation
         """
         response = {}
 
@@ -33,19 +34,20 @@ class InstructGPTClient(OpenAIClient):
                 return None
 
             try:
-                result : Completion = self.client.completions.create(
+                result : ChatCompletion = self.client.chat.completions.create(
                     model=self.model,
-                    prompt=prompt,
-                    temperature=temperature,
-                    n=1,
-                    max_tokens=self.max_instruct_tokens
+                    messages=messages,
+                    reasoning_effort=self.reasoning_effort
                 )
 
                 if self.aborted:
                     return None
 
-                if not isinstance(result, Completion):
+                if not isinstance(result, ChatCompletion):
                     raise TranslationResponseError(f"Unexpected response type: {type(result).__name__}", response=result)
+
+                if not getattr(result, 'choices'):
+                    raise TranslationResponseError("No choices returned in the response", response=result)
 
                 response['response_time'] = getattr(result, 'response_ms', 0)
 
@@ -53,18 +55,22 @@ class InstructGPTClient(OpenAIClient):
                     response['prompt_tokens'] = getattr(result.usage, 'prompt_tokens')
                     response['output_tokens'] = getattr(result.usage, 'completion_tokens')
                     response['total_tokens'] = getattr(result.usage, 'total_tokens')
+                    completion_tokens_details = getattr(result.usage, 'completion_tokens_details')
+                    if completion_tokens_details:
+                        response["reasoning_tokens"] = getattr(completion_tokens_details, 'reasoning_tokens')
+                        response["accepted_prediction_tokens"] = getattr(completion_tokens_details, 'accepted_prediction_tokens')
+                        response["rejected_prediction_tokens"] = getattr(completion_tokens_details, 'rejected_prediction_tokens')
 
                 if result.choices:
                     choice = result.choices[0]
-                    if not isinstance(choice.text, str):
-                        raise TranslationResponseError("Instruct model completion text is not a string", response=result)
+                    reply = result.choices[0].message
 
                     response['finish_reason'] = getattr(choice, 'finish_reason', None)
-                    response['text'] = choice.text
+                    response['text'] = getattr(reply, 'content', None)
                 else:
                     raise TranslationResponseError("No choices returned in the response", response=result)
 
-                # Return the response content if the API call succeeds
+                # Return the response if the API call succeeds
                 return response
 
             except openai.RateLimitError as e:
@@ -75,22 +81,21 @@ class InstructGPTClient(OpenAIClient):
                     time.sleep(retry_seconds)
                     continue
                 else:
-                    logging.warning("Rate limit hit, quota exceeded. Please wait until the quota resets.")
-                    raise
+                    raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
 
             except openai.APITimeoutError as e:
                 if retry < self.max_retries and not self.aborted:
                     sleep_time = self.backoff_time * 2.0**retry
-                    logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
+                    logging.warning(f"API error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
                     continue
 
             except openai.APIConnectionError as e:
                 if not self.aborted:
-                    raise TranslationImpossibleError(str(e), error=e)
+                    raise TranslationError(str(e), error=e)
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
+                raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
 
         raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
