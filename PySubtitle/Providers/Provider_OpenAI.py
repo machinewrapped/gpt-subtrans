@@ -92,7 +92,6 @@ try:
                 if models:
                     options.update({
                         'model': (models, "AI model to use as the translator" if models else "Unable to retrieve models"),
-                        'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
                         'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan")
                     })
 
@@ -101,6 +100,8 @@ try:
 
                     if self.is_reasoning_model:
                         options['reasoning_effort'] = (["low", "medium", "high"], "The level of reasoning effort to use for the model")
+                    else:
+                        options['temperature'] = (float, "Amount of random variance to add to translations. Generally speaking, none is best")
 
                 else:
                     options['model'] = (["Unable to retrieve models"], "Check API key and base URL and try again")
