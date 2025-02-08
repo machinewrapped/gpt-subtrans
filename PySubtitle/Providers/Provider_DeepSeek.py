@@ -8,9 +8,10 @@ try:
     # We use the OpenAI client to access DeepSeek, as the API is compatible
     import openai
 
-    from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
+    from PySubtitle.Providers.OpenAI.DeepSeekClient import DeepSeekClient
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationProvider import TranslationProvider
+
 
     class DeepSeekProvider(TranslationProvider):
         name = "DeepSeek"
@@ -30,7 +31,8 @@ try:
                 "api_key": settings.get('api_key', os.getenv('DEEPSEEK_API_KEY')),
                 "api_base": settings.get('api_base', os.getenv('DEEPSEEK_API_BASE', "https://api.deepseek.com")),
                 "model": settings.get('model', os.getenv('DEEPSEEK_MODEL', "deepseek-chat")),
-                'temperature': settings.get('temperature', GetEnvFloat('DEEPSEEK_TEMPERATURE', 0.0)),
+                'max_tokens': settings.get('max_tokens', os.getenv('DEEPSEEK_MAX_TOKENS', 8192)),
+                'temperature': settings.get('temperature', GetEnvFloat('DEEPSEEK_TEMPERATURE', 1.3)),
                 'rate_limit': settings.get('rate_limit', GetEnvFloat('DEEPSEEK_RATE_LIMIT')),
             })
 
@@ -47,7 +49,7 @@ try:
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
             client_settings = self.settings.copy()
             client_settings.update(settings)
-            return ChatGPTClient(client_settings)
+            return DeepSeekClient(client_settings)
 
         def GetOptions(self) -> dict:
             options = {
@@ -60,6 +62,7 @@ try:
                 if models:
                     options.update({
                         'model': (models, "AI model to use as the translator"),
+                        'max_tokens': (int, "Maximum number of output tokens to return in the response."),
                         'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
                         'rate_limit': (float, "Maximum API requests per minute.")
                     })

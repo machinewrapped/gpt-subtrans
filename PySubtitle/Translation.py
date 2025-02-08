@@ -31,6 +31,10 @@ class Translation:
     @property
     def names(self):
         return self.content.get('names')
+    
+    @property
+    def reasoning(self):
+        return self.content.get('reasoning')
 
     @property
     def finish_reason(self):
@@ -72,7 +76,7 @@ class Translation:
         if not self.content:
             return "No translation"
 
-        content_keys = [k for k in self.content.keys() if k not in ['text', 'summary', 'scene', 'names']]
+        content_keys = [k for k in self.content.keys() if k not in ['text', 'summary', 'scene', 'names', 'reasoning']]
         metadata = [ f"{k}: {self.content[k]}" for k in content_keys if self.content.get(k) ]
 
         if self.scene:
@@ -84,6 +88,9 @@ class Translation:
         if self.names:
             names = "\n".join(self.names)
             metadata.append(f"\n\nNames:\n{names}")
+
+        if self.reasoning:
+            self._text = f"{self.text}\n\n<reasoning>\n{self.reasoning}\n</reasoning>"
 
         if metadata:
             metadata_text = '\n'.join(metadata)
