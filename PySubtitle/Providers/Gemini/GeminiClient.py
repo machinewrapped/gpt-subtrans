@@ -108,11 +108,6 @@ class GeminiClient(TranslationClient):
             if not gcr.candidates:
                 raise TranslationResponseError("No candidates returned in the response", response=gcr)
             
-            for candidate in gcr.candidates:
-                logging.debug(f"Candidate: Tokens: {candidate.token_count}, Finish reason: {candidate.finish_reason}")
-                for part in candidate.content.parts:
-                    logging.debug(f"Content Part: {part.text}")
-
             # Try to find a validate candidate
             candidates = [candidate for candidate in gcr.candidates if candidate.finish_reason == FinishReason.STOP] or gcr.candidates
 

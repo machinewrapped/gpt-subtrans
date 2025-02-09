@@ -110,9 +110,6 @@ try:
                 config = ListModelsConfig(query_base=True)
                 all_models = gemini_client.models.list(config=config)
 
-                # for m in all_models:
-                #     logging.debug(f"Model: {m.name} supports {m.supported_actions}")
-
                 return [ m for m in all_models if 'generateContent' in m.supported_actions ]
 
             except Exception as e:
