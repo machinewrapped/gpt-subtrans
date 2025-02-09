@@ -125,11 +125,17 @@ class EditBatchDialog(EditDialog):
 
             self.SetTabLayout(tab_widget, response_layout, "Response")
 
+            if self.item.reasoning:
+                reasoning_layout = self.GetFormLayout()
+                self.AddMultilineEdit(reasoning_layout, 'reasoning', read_only=True)
+                self.SetTabLayout(tab_widget, reasoning_layout, "Reasoning")
+
         if self.item.debug_view:
             # Create debug tabs
             messages_layout = self.GetFormLayout()
             self.AddMultilineEdit(messages_layout, 'messages', read_only=True)
             self.SetTabLayout(tab_widget, messages_layout, "Messages")
+
 
             context_layout = self.GetFormLayout()
             self.AddMultilineEdit(context_layout, 'context', read_only=True)

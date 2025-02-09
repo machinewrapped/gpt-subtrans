@@ -35,6 +35,7 @@ class BatchItem(ViewModelItem):
         if batch.translation and isinstance(batch.translation, Translation):
             self.batch_model.update({
                 'response': batch.translation.FormatResponse(),
+                'reasoning': batch.translation.reasoning,
                 'context': batch.context
             })
 
@@ -89,6 +90,10 @@ class BatchItem(ViewModelItem):
     @property
     def prompt(self) -> str:
         return self.batch_model.get('prompt')
+    
+    @property
+    def reasoning(self) -> str:
+        return self.batch_model.get('reasoning')
 
     @property
     def first_line_number(self) -> int:
@@ -122,7 +127,8 @@ class BatchItem(ViewModelItem):
             translation = update['translation']
             if isinstance(translation, Translation):
                 self.batch_model.update({
-                    'response': translation.FormatResponse()
+                    'response': translation.FormatResponse(),
+                    'reasoning': translation.reasoning
                 })
 
         if 'prompt' in update.keys():

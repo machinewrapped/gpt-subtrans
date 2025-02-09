@@ -89,9 +89,6 @@ class Translation:
             names = "\n".join(self.names)
             metadata.append(f"\n\nNames:\n{names}")
 
-        if self.reasoning:
-            self._text = f"{self.text}\n\n<reasoning>\n{self.reasoning}\n</reasoning>"
-
         if metadata:
             metadata_text = '\n'.join(metadata)
             return f"{metadata_text}\n\n{self.text}" if include_text else metadata_text
