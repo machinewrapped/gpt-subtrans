@@ -1,12 +1,14 @@
 import logging
 import time
 from google import genai
+from google.genai.types import AutomaticFunctionCallingConfig
 from google.genai.types import FinishReason
 from google.genai.types import GenerateContentConfig
 from google.genai.types import GenerateContentResponse
 from google.genai.types import GenerateContentResponseUsageMetadata
 from google.genai.types import HarmBlockMethod
 from google.genai.types import HarmBlockThreshold
+
 from google.genai.types import HarmCategory
 from google.genai.types import Part
 from google.genai.types import SafetySetting
@@ -27,12 +29,17 @@ class GeminiClient(TranslationClient):
         logging.info(f"Translating with Gemini {self.model or 'default'} model")
 
         self.safety_settings = [
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE, method=HarmBlockMethod.SEVERITY),
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE, method=HarmBlockMethod.SEVERITY),
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE, method=HarmBlockMethod.SEVERITY),
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE, method=HarmBlockMethod.SEVERITY),
-            SafetySetting(category=HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, threshold=HarmBlockThreshold.BLOCK_NONE, method=HarmBlockMethod.SEVERITY)
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=HarmBlockThreshold.BLOCK_NONE),
+            SafetySetting(category=HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, threshold=HarmBlockThreshold.BLOCK_NONE)
         ]
+
+        self.automatic_function_calling = AutomaticFunctionCallingConfig(
+            disable=True,
+            maximum_remote_calls=0
+        )
 
     @property
     def api_key(self):
@@ -67,13 +74,14 @@ class GeminiClient(TranslationClient):
         """
         response = {}
 
-        for retry in range(self.max_retries + 1):
+        for retry in range(1 + self.max_retries):
             try:
                 gemini_client = genai.Client(api_key=self.api_key, http_options={'api_version': 'v1alpha'})
                 config = GenerateContentConfig(
                     candidate_count=1,
                     temperature=temperature,
-                    system_instruction=system_instruction
+                    system_instruction=system_instruction,
+                    automatic_function_calling=self.automatic_function_calling
                 )
                 gcr : GenerateContentResponse = gemini_client.models.generate_content(
                     model=self.model, 
@@ -86,8 +94,8 @@ class GeminiClient(TranslationClient):
                     raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
                 if not self.aborted:
-                    logging.warning(f"Gemini request failure {str(e)}, trying to reconnect...")
                     sleep_time = self.backoff_time * 2.0**retry
+                    logging.warning(f"Gemini request failure {str(e)}, retrying in {sleep_time} seconds...")
                     time.sleep(sleep_time)
                     continue
 
