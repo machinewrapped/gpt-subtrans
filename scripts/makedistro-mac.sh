@@ -7,7 +7,7 @@ pip install --upgrade --target ./envsubtrans/lib PyInstaller pyinstaller-hooks-c
 pip install --upgrade --target ./envsubtrans/lib charset_normalizer
 pip install --upgrade --target ./envsubtrans/lib -r requirements.txt
 pip install --upgrade --target ./envsubtrans/lib openai
-pip install --upgrade --target ./envsubtrans/lib google.generativeai
+pip install --upgrade --target ./envsubtrans/lib google-genai
 pip install --upgrade --target ./envsubtrans/lib anthropic
 pip install --upgrade --target ./envsubtrans/lib mistralai
 pip install --upgrade --target ./envsubtrans/lib boto3

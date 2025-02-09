@@ -3,7 +3,8 @@ import logging
 import os
 
 try:
-    import google.generativeai as genai
+    from google import genai
+    from google.genai.types import ListModelsConfig
     from google.api_core.exceptions import FailedPrecondition
 
     from PySubtitle.Helpers import GetEnvFloat
@@ -42,13 +43,13 @@ try:
             return self.settings.get('api_key')
 
         def GetTranslationClient(self, settings : dict) -> TranslationClient:
-            genai.configure(api_key=self.api_key)
             client_settings = self.settings.copy()
             client_settings.update(settings)
             client_settings.update({
                 'model': self._get_true_name(self.selected_model),
                 'supports_conversation': False,         # Actually it does support conversation
-                'supports_system_messages': False       # This is what it doesn't support
+                'supports_system_messages': False,       # This is what it doesn't support
+                'supports_system_prompt': True
                 })
             return GeminiClient(client_settings)
 
@@ -105,9 +106,14 @@ try:
                 return []
 
             try:
-                genai.configure(api_key=self.api_key)
-                all_models = genai.list_models()
-                return [ m for m in all_models if 'generateContent' in m.supported_generation_methods ]
+                gemini_client = genai.Client(api_key=self.api_key, http_options={'api_version': 'v1alpha'})
+                config = ListModelsConfig(query_base=True)
+                all_models = gemini_client.models.list(config=config)
+
+                # for m in all_models:
+                #     logging.debug(f"Model: {m.name} supports {m.supported_actions}")
+
+                return [ m for m in all_models if 'generateContent' in m.supported_actions ]
 
             except Exception as e:
                 logging.error(f"Unable to retrieve Gemini model list: {str(e)}")
