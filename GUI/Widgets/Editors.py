@@ -136,7 +136,6 @@ class EditBatchDialog(EditDialog):
             self.AddMultilineEdit(messages_layout, 'messages', read_only=True)
             self.SetTabLayout(tab_widget, messages_layout, "Messages")
 
-
             context_layout = self.GetFormLayout()
             self.AddMultilineEdit(context_layout, 'context', read_only=True)
             self.SetTabLayout(tab_widget, context_layout, "Context")
