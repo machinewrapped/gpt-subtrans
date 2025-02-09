@@ -125,6 +125,11 @@ class EditBatchDialog(EditDialog):
 
             self.SetTabLayout(tab_widget, response_layout, "Response")
 
+            if self.item.reasoning:
+                reasoning_layout = self.GetFormLayout()
+                self.AddMultilineEdit(reasoning_layout, 'reasoning', read_only=True)
+                self.SetTabLayout(tab_widget, reasoning_layout, "Reasoning")
+
         if self.item.debug_view:
             # Create debug tabs
             messages_layout = self.GetFormLayout()
