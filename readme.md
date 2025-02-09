@@ -156,7 +156,7 @@ notice： For linux user, the environment has already prepared during the instal
 
     ```sh
     pip install openai
-    pip install google.generativeai
+    pip install google-genai
     pip install anthropic
     ```
 
