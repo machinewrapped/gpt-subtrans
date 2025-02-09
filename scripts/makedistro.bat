@@ -4,7 +4,7 @@ pip install pywin32-ctypes
 pip install --upgrade pyinstaller
 pip install --upgrade -r requirements.txt
 pip install --upgrade openai
-pip install --upgrade google.generativeai
+pip install --upgrade google-genai
 pip install --upgrade anthropic
 pip install --upgrade mistralai
 pip install --upgrade boto3
