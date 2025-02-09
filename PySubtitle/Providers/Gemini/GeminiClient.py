@@ -36,10 +36,7 @@ class GeminiClient(TranslationClient):
             SafetySetting(category=HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, threshold=HarmBlockThreshold.BLOCK_NONE)
         ]
 
-        self.automatic_function_calling = AutomaticFunctionCallingConfig(
-            disable=True,
-            maximum_remote_calls=0
-        )
+        self.automatic_function_calling = AutomaticFunctionCallingConfig(disable=True, maximum_remote_calls=None)
 
     @property
     def api_key(self):
