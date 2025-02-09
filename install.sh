@@ -131,7 +131,7 @@ case $provider_choice in
         install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
         install_provider "Google Gemini" "GEMINI" "google-genai" "gemini-subtrans"
         install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
-        install_provider "Mistral", "MISTRAL", "mistralai", "mistral-subtrans"
+        install_provider "Mistral", "MISTRAL" "mistralai" "mistral-subtrans"
         install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
         ;;
     *)
