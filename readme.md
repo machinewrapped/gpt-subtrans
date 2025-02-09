@@ -40,7 +40,7 @@ You will need a DeepSeek API key from https://platform.deepseek.com/api_keys to 
 
 - **API Base**: You can optionally specify a custom URL, e.g. if you are hosting your own DeepSeek instance. If this is not set, the official DeepSeek API endpoint will be used.
 
-- **Model**: The default model is `deepseek-chat`, which is recommended for translation tasks. The reasoning model will likely be wasted.
+- **Model**: The default model is `deepseek-chat`, which is recommended for translation tasks. `deepseek-reasoner` may produce better results for source subtitles with OCR or transcription errors as it will spend longer trying to guess what the error is.
 
 DeepSeek is quite simple to set up and offers reasonable performance at a very low price, though translation does not seem to be its strongest point.
 
@@ -115,6 +115,11 @@ During the installing process, input the apikey for the selected provider if req
     AWS_ACCESS_KEY_ID=your-access-key-id
     AWS_SECRET_ACCESS_KEY=your-secret-access-key
     AWS_REGION=your-region
+    ```
+
+    For OpenAI reasoning models you can set the reasoning effort (default is low):
+    ```sh
+    OPENAI_REASONING_EFFORT=low/medium/high
     ```
 
 #### step3
