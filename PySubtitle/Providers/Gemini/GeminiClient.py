@@ -138,18 +138,22 @@ class GeminiClient(TranslationClient):
                 # Probably a failure
                 response['finish_reason'] = finish_reason
 
-            response_text = "\n".join(part.text for part in candidate.content.parts)
-
             usage_metadata : GenerateContentResponseUsageMetadata = gcr.usage_metadata
             if usage_metadata:
                 response['prompt_tokens'] = usage_metadata.prompt_token_count
                 response['output_tokens'] = usage_metadata.candidates_token_count
                 response['total_tokens'] = usage_metadata.total_token_count
 
+            response_text = "\n".join(part.text for part in candidate.content.parts)
+
             if not response_text:
                 raise TranslationResponseError("Gemini response is empty", response=candidate)
-
+            
             response['text'] = response_text
+
+            thoughts = "\n".join(part.thought for part in candidate.content.parts if part.thought)
+            if thoughts:
+                response['reasoning'] = thoughts
 
             return response
 
