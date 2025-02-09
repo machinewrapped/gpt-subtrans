@@ -318,7 +318,7 @@ class GuiInterface(QObject):
         """
         self.SetDataModel(command.datamodel)
         self._update_last_used_path(command.filepath)
-        if not self.datamodel.IsProjectInitialised():
+        if self.datamodel.IsProjectValid() and not self.datamodel.IsProjectInitialised():
             self.ShowNewProjectSettings(self.datamodel)
 
     def _on_project_saved(self, command : SaveProjectFile):

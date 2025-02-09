@@ -110,9 +110,14 @@ class Command(QRunnable, QObject):
             self.undo_callback(self)
 
 class CommandError(Exception):
-    def __init__(self, command : Command, *args: object) -> None:
+    def __init__(self, message : str, command : Command, *args: object) -> None:
         super().__init__(*args)
+        self.message = message
         self.command = command
+
+    def __str__(self) -> str:
+        return f"Error in {type(self.command).__name__}: {self.message}"
+
 
 class UndoError(CommandError):
     pass

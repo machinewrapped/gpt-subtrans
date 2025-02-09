@@ -82,6 +82,10 @@ class ProjectDataModel:
             self._update_translation_provider()
             self.project.UpdateProjectSettings(settings)
 
+    def IsProjectValid(self):
+        """Check whether the project is valid (has any subtitles)"""
+        return self.project and self.project.subtitles
+
     def IsProjectInitialised(self):
         """Check whether the project has been initialised (subtitles loaded and batched)"""
         return self.project and self.project.subtitles and self.project.subtitles.scenes

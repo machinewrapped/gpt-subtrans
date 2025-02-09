@@ -84,12 +84,16 @@ class SubtitleProject:
                 self.load_subtitles = True
 
         if self.load_subtitles:
-            # (re)load the source subtitle file if required
-            subtitles = self.LoadSubtitleFile(filepath)
+            try:
+                # (re)load the source subtitle file if required
+                subtitles = self.LoadSubtitleFile(filepath)
 
-            # Reapply project settings
-            if self.read_project and project_settings:
-                subtitles.UpdateProjectSettings(project_settings)
+                # Reapply project settings
+                if self.read_project and project_settings:
+                    subtitles.UpdateProjectSettings(project_settings)
+            except Exception as e:
+                logging.error(f"Failed to load subtitle file {filepath}: {str(e)}")
+                raise
 
         if outputpath:
             subtitles.outputpath = outputpath
