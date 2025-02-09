@@ -1,17 +1,20 @@
 import logging
 import time
-from google import genai
-from google.genai.types import AutomaticFunctionCallingConfig
-from google.genai.types import FinishReason
-from google.genai.types import GenerateContentConfig
-from google.genai.types import GenerateContentResponse
-from google.genai.types import GenerateContentResponseUsageMetadata
-from google.genai.types import HarmBlockMethod
-from google.genai.types import HarmBlockThreshold
 
-from google.genai.types import HarmCategory
-from google.genai.types import Part
-from google.genai.types import SafetySetting
+from google import genai
+from google.genai.types import (
+    AutomaticFunctionCallingConfig,
+    FinishReason,
+    GenerateContentConfig,
+    GenerateContentResponse,
+    GenerateContentResponseUsageMetadata,
+    HarmBlockMethod,
+    HarmBlockThreshold,
+    HarmCategory,
+    Part,
+    SafetySetting
+)
+
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
