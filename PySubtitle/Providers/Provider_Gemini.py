@@ -136,5 +136,5 @@ try:
             return True
 
 except ImportError:
-    logging.info("Google Generative AI SDK not installed. Gemini provider will not be available")
+    logging.info("Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix.")
 
