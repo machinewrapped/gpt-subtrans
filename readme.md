@@ -451,8 +451,10 @@ This project uses several useful libraries:
 
 Translation providers:
 - openai (https://platform.openai.com/docs/libraries/python-bindings)
-- google.generativeai (https://github.com/google/generative-ai-python)
+- google-genai (https://github.com/googleapis/python-genai)
 - anthropic (https://github.com/anthropics/anthropic-sdk-python)
+- mistralai (https://github.com/mistralai/client-python)
+- boto3 (Amazon Bedrock) (https://github.com/boto/boto3)
 
 For the GUI:
 - pyside6 (https://wiki.qt.io/Qt_for_Python)
