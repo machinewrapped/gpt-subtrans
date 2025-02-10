@@ -1,5 +1,27 @@
+import logging
 from PySubtitle.Helpers.Text import ExtractTag, ExtractTagList
 from PySubtitle.Substitutions import Substitutions
+
+def ExtractTagSafely(tag : str, text : str):
+    """
+    Extract a tag from text content, warn if there is an error
+    """
+    try:
+        return ExtractTag(tag, text)
+    except ValueError as e:
+        logging.warning(f"Error extracting {tag} from translation: {e}")
+        return text, None
+
+def ExtractTagListSafely(tag : str, text : str):
+    """
+    Extract a tag list from text content, warn if there is an error
+    """
+    try:
+        return ExtractTagList(tag, text)
+
+    except ValueError as e:
+        logging.warning(f"Error extracting {tag} from translation: {e}")
+        return text, []
 
 class Translation:
     def __init__(self, content : dict):
@@ -31,7 +53,7 @@ class Translation:
     @property
     def names(self):
         return self.content.get('names')
-    
+
     @property
     def reasoning(self):
         return self.content.get('reasoning')
@@ -99,10 +121,10 @@ class Translation:
         """
         Extract tags from text body
         """
-        text, summary = ExtractTag("summary", text)
-        text, synopsis = ExtractTag("synopsis", text)
-        text, scene = ExtractTag("scene", text)
-        text, names = ExtractTagList("names", text)
+        text, summary = ExtractTagSafely("summary", text)
+        text, synopsis = ExtractTagSafely("synopsis", text)
+        text, scene = ExtractTagSafely("scene", text)
+        text, names = ExtractTagListSafely("names", text)
 
         context = {
             'summary': summary,
