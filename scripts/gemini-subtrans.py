@@ -13,7 +13,7 @@ from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
 provider = "Gemini"
-default_model = os.getenv('GEMINI_MODEL') or "Gemini 1.0 Pro"
+default_model = os.getenv('GEMINI_MODEL') or "Gemini 2.0 Flash"
 
 parser = CreateArgParser(f"Translates an SRT file using a Google Gemini model")
 parser.add_argument('-k', '--apikey', type=str, default=None, help=f"Your Gemini API Key (https://makersuite.google.com/app/apikey)")
