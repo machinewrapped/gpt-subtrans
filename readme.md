@@ -64,6 +64,7 @@ Chat and completion endpoints are supported, you should configure the settings a
 
 ### Amazon Bedrock
 https://aws.amazon.com/service-terms/
+
 **Bedrock is not recommended for most users**: The setup process is complex, requiring AWS credentials, proper IAM permissions, and region configuration. Additionally, not all models on Bedrock support translation tasks or offer reliable results.
 
 To use Bedrock, you must:
