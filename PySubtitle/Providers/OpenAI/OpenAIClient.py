@@ -101,22 +101,34 @@ try:
                     return response
 
                 except openai.RateLimitError as e:
+                    if self.aborted:
+                        return None
+
                     retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
                     if retry_after:
                         backoff_time = ParseDelayFromHeader(retry_after)
-                        self.wait_retry(backoff_time)
+                        logging.warning(f"Rate limit hit, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
                         continue
                     else:
                         raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
 
                 except openai.APITimeoutError as e:
+                    if self.aborted:
+                        return None
+
                     if retry < self.max_retries and not self.aborted:
-                        self.wait_retry(backoff_time)
+                        logging.warning(f"API Timeout, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
                         continue
 
                 except JSONDecodeError as e:
+                    if self.aborted:
+                        return None
+
                     if retry < self.max_retries and not self.aborted:
-                        self.wait_retry(backoff_time)
+                        logging.warning(f"Invalid response received, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
                         continue
 
                 except openai.APIConnectionError as e:
@@ -126,8 +138,7 @@ try:
                 except Exception as e:
                     raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
 
-                raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
-
+            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
         def _create_client(self):
             http_client = None
@@ -142,10 +153,6 @@ try:
                  http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True)
 
             self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
-
-        def wait_retry(self, retry_seconds):
-            logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
-            time.sleep(retry_seconds)
 
 except ImportError as e:
     logging.debug(f"Failed to import openai: {e}")
