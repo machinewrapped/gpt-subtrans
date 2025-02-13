@@ -4,7 +4,9 @@ GPT-Subtrans is an open source subtitle translator that uses LLMs as a translati
 Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to the provider's servers for translation, so their privacy policy applies.
 
 ## Installation
-For most users the packaged release is the easiest way to use the program. Simply unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first run.
+For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/gpt-subtrans/releases), unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first run.
+
+Every release is packaged for Windows (gui-subtrans-x.x.x.zip). MacOS packages are provided when possible (gui-subtrans-x.x.x.macos-arm64.zip), but are sometimes blocked by PyInstaller issues. If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](## Installing from source).
 
 ### OpenAI
 https://openai.com/policies/privacy-policy
