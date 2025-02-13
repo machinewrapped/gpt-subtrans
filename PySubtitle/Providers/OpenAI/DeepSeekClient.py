@@ -85,6 +85,10 @@ class DeepSeekClient(OpenAIClient):
                     retry_seconds = ParseDelayFromHeader(retry_after)
                     logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
                     time.sleep(retry_seconds)
+
+                    if not self.reuse_client:
+                        self._create_client()
+
                     continue
                 else:
                     raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
@@ -94,6 +98,10 @@ class DeepSeekClient(OpenAIClient):
                     sleep_time = self.backoff_time * 2.0**retry
                     logging.warning(f"API error {str(e)}, retrying in {sleep_time}...")
                     time.sleep(sleep_time)
+
+                    if not self.reuse_client:
+                        self._create_client()
+
                     continue
 
             except openai.APIConnectionError as e:

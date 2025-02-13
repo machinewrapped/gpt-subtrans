@@ -30,18 +30,9 @@ try:
 
             logging.info(f"Translating with model {self.model or 'default'}, Using API Base: {openai.base_url}")
 
-            http_client = None
-            if self.settings.get('proxy'):
-                # Use httpx with SOCKS proxy support
-                proxies = {
-                    'http://': self.settings.get('proxy'),
-                    'https://': self.settings.get('proxy')
-                }
-                http_client = httpx.Client(proxies=proxies)
-            elif self.settings.get('use_httpx'):
-                 http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True)
+            if self.reuse_client:
+                self._create_client()
 
-            self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
         @property
         def api_key(self):
             return self.settings.get('api_key')
@@ -53,12 +44,20 @@ try:
         @property
         def model(self):
             return self.settings.get('model')
+        
+        @property
+        def reuse_client(self):
+            return self.settings.get('reuse_client', True)
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
             """
             Request a translation based on the provided prompt
             """
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
+
+            # If we're using a new client for each request, create it here
+            if not self.reuse_client:
+                self._create_client()
 
             temperature = temperature or self.temperature
             response = self._send_messages(prompt.content, temperature)
@@ -83,6 +82,20 @@ try:
         def _abort(self):
             self.client.close()
             return super()._abort()
+
+        def _create_client(self):
+            http_client = None
+            if self.settings.get('proxy'):
+                # Use httpx with SOCKS proxy support
+                proxies = {
+                    'http://': self.settings.get('proxy'),
+                    'https://': self.settings.get('proxy')
+                }
+                http_client = httpx.Client(proxies=proxies)
+            elif self.settings.get('use_httpx'):
+                 http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True)
+
+            self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
 
 
 except ImportError as e:

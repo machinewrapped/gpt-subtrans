@@ -34,6 +34,7 @@ try:
                 'max_tokens': settings.get('max_tokens', os.getenv('DEEPSEEK_MAX_TOKENS', 8192)),
                 'temperature': settings.get('temperature', GetEnvFloat('DEEPSEEK_TEMPERATURE', 1.3)),
                 'rate_limit': settings.get('rate_limit', GetEnvFloat('DEEPSEEK_RATE_LIMIT')),
+                'reuse_client': settings.get('reuse_client', False)
             })
 
             self.refresh_when_changed = ['api_key', 'api_base', 'model']
@@ -62,6 +63,7 @@ try:
                 if models:
                     options.update({
                         'model': (models, "AI model to use as the translator"),
+                        'reuse_client': (bool, "Reuse connection for multiple requests (otherwise a new connection is established for each)"),
                         'max_tokens': (int, "Maximum number of output tokens to return in the response."),
                         'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
                         'rate_limit': (float, "Maximum API requests per minute.")
