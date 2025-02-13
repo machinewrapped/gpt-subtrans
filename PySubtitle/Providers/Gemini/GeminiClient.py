@@ -81,11 +81,13 @@ class GeminiClient(TranslationClient):
                     candidate_count=1,
                     temperature=temperature,
                     system_instruction=system_instruction,
-                    automatic_function_calling=self.automatic_function_calling
+                    automatic_function_calling=self.automatic_function_calling,
+                    max_output_tokens=None,
+                    response_modalities=[]
                 )
                 gcr : GenerateContentResponse = gemini_client.models.generate_content(
-                    model=self.model, 
-                    contents=Part.from_text(text=completion), 
+                    model=self.model,
+                    contents=Part.from_text(text=completion),
                     config=config
                     )
 
@@ -110,7 +112,7 @@ class GeminiClient(TranslationClient):
 
             if not gcr.candidates:
                 raise TranslationResponseError("No candidates returned in the response", response=gcr)
-            
+
             # Try to find a validate candidate
             candidates = [candidate for candidate in gcr.candidates if candidate.finish_reason == FinishReason.STOP] or gcr.candidates
 
@@ -146,7 +148,7 @@ class GeminiClient(TranslationClient):
 
             if not response_text:
                 raise TranslationResponseError("Gemini response is empty", response=candidate)
-            
+
             response['text'] = response_text
 
             thoughts = "\n".join(part.thought for part in candidate.content.parts if part.thought)
