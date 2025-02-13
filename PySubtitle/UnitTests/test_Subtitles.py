@@ -144,6 +144,7 @@ class SubtitleProcessorTests(unittest.TestCase):
     example_line_8 = "8\n00:00:55,000 --> 00:01:00,000\nBreak this! But not at the exclamation mark because it would be too unbalanced."
     example_line_9 = "9\n00:01:00,000 --> 00:01:05,000\nUmm, this subtitle has some, err, filler words that should be removed."
     example_line_10 = "227\n00:22:53,260 --> 00:23:01,472\n不过，满清对浙江很注意，派过去的都是他们的能源，你处处有性命之忧,"
+    example_line_11 = "345\n00:49:03,294 --> 00:49:06,005\nNo escape\u2014I have one condition"
 
     preprocess_cases = [
         ([example_line_1, example_line_2], {}, [example_line_1, example_line_2]),  # No changes
@@ -180,7 +181,8 @@ class SubtitleProcessorTests(unittest.TestCase):
             "227\n00:22:53,260 --> 00:22:56,196\n不过，满清对浙江很注意，",
             "228\n00:22:56,246 --> 00:22:59,182\n派过去的都是他们的能源，",
             "229\n00:22:59,232 --> 00:23:01,472\n你处处有性命之忧,"
-            ])
+            ]),
+        ([example_line_11], { "convert_wide_dashes": True }, [ "345\n00:49:03,294 --> 00:49:06,005\nNo escape - I have one condition" ])
     ]
 
     def test_Preprocess(self):
@@ -225,7 +227,8 @@ class SubtitleProcessorTests(unittest.TestCase):
             [
                 "9\n00:01:00,000 --> 00:01:05,000\nThis subtitle has some filler\nwords that should be removed."
             ]),
-        (["227\n00:22:53,260 --> 00:22:56,196\n"], { }, [ "227\n00:22:53,260 --> 00:22:56,196\n"])
+        (["227\n00:22:53,260 --> 00:22:56,196\n"], { }, [ "227\n00:22:53,260 --> 00:22:56,196\n"]),
+        ([example_line_11], { "convert_wide_dashes": True }, [ "345\n00:49:03,294 --> 00:49:06,005\nNo escape - I have one condition"])
     ]
 
     def test_Postprocess(self):

@@ -89,13 +89,19 @@ def Linearise(lines : str | list[str]) -> str:
     lines = [ str(line).strip() for line in lines ]
     return " | ".join(lines)
 
-def ConvertWhitespaceBlocksToNewlines(text) -> str:
+def ConvertWhitespaceBlocksToNewlines(text : str) -> str:
     """
     Convert blocks of 3 or more spaces or chinese commas to newlines, unless the text contains newlines already
     """
     if text and '\n' not in text:
         text = regex.sub(r' {3,}|\，\s*', '\n', text)
 
+    return text
+
+def ConvertWideDashesToStandardDashes(text : str) -> str:
+    """
+    """
+    text = regex.sub(r'\s*—+\s*', ' - ', text)
     return text
 
 def EnsureFullWidthPunctuation(text: str) -> str:

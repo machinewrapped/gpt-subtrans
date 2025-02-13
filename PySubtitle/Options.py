@@ -53,6 +53,7 @@ default_options = {
     'substitution_mode': os.getenv('SUBSTITUTION_MODE', "Auto"),
     'whitespaces_to_newline' : env_bool('WHITESPACES_TO_NEWLINE', False),
     'full_width_punctuation': env_bool('FULL_WIDTH_PUNCTUATION', False),
+    'convert_wide_dashes': env_bool('CONVERT_WIDE_DASHES', True),
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
     # 'autosplit_incomplete': env_bool('AUTOSPLIT_INCOMPLETE', True),
     'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None,
