@@ -91,6 +91,62 @@ class GeminiClient(TranslationClient):
                     config=config
                     )
 
+                if self.aborted:
+                    return None
+
+                if not gcr:
+                    raise TranslationImpossibleError("No response from Gemini")
+
+                if gcr.prompt_feedback and gcr.prompt_feedback.block_reason:
+                    raise TranslationResponseError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", response=gcr)
+
+                if not gcr.candidates:
+                    raise TranslationResponseError("No candidates returned in the response", response=gcr)
+
+                # Try to find a validate candidate
+                candidates = [candidate for candidate in gcr.candidates if candidate.finish_reason == FinishReason.STOP] or gcr.candidates
+
+                candidate = candidates[0]
+                response['token_count'] = candidate.token_count
+
+                finish_reason = candidate.finish_reason
+                if finish_reason == "STOP" or finish_reason == FinishReason.STOP:
+                    response['finish_reason'] = "complete"
+                elif finish_reason == "MAX_TOKENS" or finish_reason == FinishReason.MAX_TOKENS:
+                    response['finish_reason'] = "length"
+                    raise TranslationResponseError("Gemini response exceeded token limit", response=candidate)
+                elif finish_reason == "SAFETY" or finish_reason == FinishReason.SAFETY:
+                    response['finish_reason'] = "blocked"
+                    raise TranslationResponseError("Gemini response was blocked for safety reasons", response=candidate)
+                elif finish_reason == "RECITATION" or finish_reason == FinishReason.RECITATION:
+                    response['finish_reason'] = "recitation"
+                    raise TranslationResponseError("Gemini response was blocked for recitation", response=candidate)
+                elif finish_reason == "FINISH_REASON_UNSPECIFIED" or finish_reason == FinishReason.FINISH_REASON_UNSPECIFIED:
+                    response['finish_reason'] = "unspecified"
+                    raise TranslationResponseError("Gemini response was incomplete", response=candidate)
+                else:
+                    # Probably a failure
+                    response['finish_reason'] = finish_reason
+
+                usage_metadata : GenerateContentResponseUsageMetadata = gcr.usage_metadata
+                if usage_metadata:
+                    response['prompt_tokens'] = usage_metadata.prompt_token_count
+                    response['output_tokens'] = usage_metadata.candidates_token_count
+                    response['total_tokens'] = usage_metadata.total_token_count
+
+                response_text = "\n".join(part.text for part in candidate.content.parts)
+
+                if not response_text:
+                    raise TranslationResponseError("Gemini response is empty", response=candidate)
+
+                response['text'] = response_text
+
+                thoughts = "\n".join(part.thought for part in candidate.content.parts if part.thought)
+                if thoughts:
+                    response['reasoning'] = thoughts
+
+                return response
+
             except Exception as e:
                 if retry == self.max_retries:
                     raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
@@ -99,61 +155,4 @@ class GeminiClient(TranslationClient):
                     sleep_time = self.backoff_time * 2.0**retry
                     logging.warning(f"Gemini request failure {str(e)}, retrying in {sleep_time} seconds...")
                     time.sleep(sleep_time)
-                    continue
-
-            if self.aborted:
-                return None
-
-            if not gcr:
-                raise TranslationImpossibleError("No response from Gemini")
-
-            if gcr.prompt_feedback and gcr.prompt_feedback.block_reason:
-                raise TranslationResponseError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", response=gcr)
-
-            if not gcr.candidates:
-                raise TranslationResponseError("No candidates returned in the response", response=gcr)
-
-            # Try to find a validate candidate
-            candidates = [candidate for candidate in gcr.candidates if candidate.finish_reason == FinishReason.STOP] or gcr.candidates
-
-            candidate = candidates[0]
-            response['token_count'] = candidate.token_count
-
-            finish_reason = candidate.finish_reason
-            if finish_reason == "STOP" or finish_reason == FinishReason.STOP:
-                response['finish_reason'] = "complete"
-            elif finish_reason == "MAX_TOKENS" or finish_reason == FinishReason.MAX_TOKENS:
-                response['finish_reason'] = "length"
-                raise TranslationResponseError("Gemini response exceeded token limit", response=candidate)
-            elif finish_reason == "SAFETY" or finish_reason == FinishReason.SAFETY:
-                response['finish_reason'] = "blocked"
-                raise TranslationResponseError("Gemini response was blocked for safety reasons", response=candidate)
-            elif finish_reason == "RECITATION" or finish_reason == FinishReason.RECITATION:
-                response['finish_reason'] = "recitation"
-                raise TranslationResponseError("Gemini response was blocked for recitation", response=candidate)
-            elif finish_reason == "FINISH_REASON_UNSPECIFIED" or finish_reason == FinishReason.FINISH_REASON_UNSPECIFIED:
-                response['finish_reason'] = "unspecified"
-                raise TranslationResponseError("Gemini response was incomplete", response=candidate)
-            else:
-                # Probably a failure
-                response['finish_reason'] = finish_reason
-
-            usage_metadata : GenerateContentResponseUsageMetadata = gcr.usage_metadata
-            if usage_metadata:
-                response['prompt_tokens'] = usage_metadata.prompt_token_count
-                response['output_tokens'] = usage_metadata.candidates_token_count
-                response['total_tokens'] = usage_metadata.total_token_count
-
-            response_text = "\n".join(part.text for part in candidate.content.parts)
-
-            if not response_text:
-                raise TranslationResponseError("Gemini response is empty", response=candidate)
-
-            response['text'] = response_text
-
-            thoughts = "\n".join(part.thought for part in candidate.content.parts if part.thought)
-            if thoughts:
-                response['reasoning'] = thoughts
-
-            return response
 
