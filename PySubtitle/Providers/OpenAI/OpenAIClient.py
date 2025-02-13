@@ -3,6 +3,7 @@ import logging
 import time
 
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader
+from PySubtitle.SubtitleError import TranslationResponseError
 
 try:
     import openai
@@ -29,13 +30,9 @@ try:
             if not openai.api_key:
                 raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
 
-            if self.api_base:
-                openai.base_url = self.api_base
+            logging.info(f"Translating with model {self.model or 'default'}, Using API Base: {self.api_base or openai.base_url}")
 
-            logging.info(f"Translating with model {self.model or 'default'}, Using API Base: {openai.base_url}")
-
-            if self.reuse_client:
-                self._create_client()
+            self.client = None
 
         @property
         def api_key(self):
@@ -93,12 +90,21 @@ try:
                 backoff_time = self.backoff_time * 2.0**retry
 
                 try:
-                    if not self.reuse_client:
+                    if not self.client or not self.reuse_client:
                         self._create_client()
 
                     response = self._send_messages(prompt.content, temperature)
 
                     return response
+                
+                except TranslationResponseError as e:
+                    if self.aborted:
+                        return None
+
+                    if retry < self.max_retries and not self.aborted:
+                        logging.warning(f"{str(e)}, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
+                        continue
 
                 except openai.RateLimitError as e:
                     if self.aborted:
@@ -150,9 +156,9 @@ try:
                 }
                 http_client = httpx.Client(proxies=proxies)
             elif self.settings.get('use_httpx'):
-                 http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True)
+                 http_client = httpx.Client(base_url=self.api_base, follow_redirects=True)
 
-            self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
+            self.client = openai.OpenAI(api_key=openai.api_key, base_url=self.api_base or None, http_client=http_client)
 
 except ImportError as e:
     logging.debug(f"Failed to import openai: {e}")
