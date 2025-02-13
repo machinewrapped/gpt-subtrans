@@ -1,4 +1,9 @@
+from json import JSONDecodeError
 import logging
+import time
+
+from PySubtitle.Helpers.Parse import ParseDelayFromHeader
+from PySubtitle.SubtitleError import TranslationResponseError
 
 try:
     import openai
@@ -25,13 +30,9 @@ try:
             if not openai.api_key:
                 raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
 
-            if self.api_base:
-                openai.base_url = self.api_base
+            logging.info(f"Translating with model {self.model or 'default'}, Using API Base: {self.api_base or openai.base_url}")
 
-            logging.info(f"Translating with model {self.model or 'default'}, Using API Base: {openai.base_url}")
-
-            if self.reuse_client:
-                self._create_client()
+            self.client = None
 
         @property
         def api_key(self):
@@ -56,11 +57,9 @@ try:
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
             # If we're using a new client for each request, create it here
-            if not self.reuse_client:
-                self._create_client()
-
             temperature = temperature or self.temperature
-            response = self._send_messages(prompt.content, temperature)
+
+            response = self._try_send_messages(prompt, temperature)
 
             translation = Translation(response) if response else None
 
@@ -73,7 +72,7 @@ try:
 
             return translation
 
-        def _send_messages(self, content, temperature : float):
+        def _send_messages(self, messages : list[str], temperature : float):
             """
             Communicate with the API
             """
@@ -82,6 +81,70 @@ try:
         def _abort(self):
             self.client.close()
             return super()._abort()
+        
+        def _try_send_messages(self, prompt : TranslationPrompt, temperature: float):
+            for retry in range(self.max_retries + 1):
+                if self.aborted:
+                    return None
+
+                backoff_time = self.backoff_time * 2.0**retry
+
+                try:
+                    if not self.client or not self.reuse_client:
+                        self._create_client()
+
+                    response = self._send_messages(prompt.content, temperature)
+
+                    return response
+                
+                except TranslationResponseError as e:
+                    if self.aborted:
+                        return None
+
+                    if retry < self.max_retries and not self.aborted:
+                        logging.warning(f"{str(e)}, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
+                        continue
+
+                except openai.RateLimitError as e:
+                    if self.aborted:
+                        return None
+
+                    retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
+                    if retry_after:
+                        backoff_time = ParseDelayFromHeader(retry_after)
+                        logging.warning(f"Rate limit hit, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
+                        continue
+                    else:
+                        raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
+
+                except openai.APITimeoutError as e:
+                    if self.aborted:
+                        return None
+
+                    if retry < self.max_retries and not self.aborted:
+                        logging.warning(f"API Timeout, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
+                        continue
+
+                except JSONDecodeError as e:
+                    if self.aborted:
+                        return None
+
+                    if retry < self.max_retries and not self.aborted:
+                        logging.warning(f"Invalid response received, retrying in {backoff_time} seconds...")
+                        time.sleep(backoff_time)
+                        continue
+
+                except openai.APIConnectionError as e:
+                    if not self.aborted:
+                        raise TranslationError(str(e), error=e)
+
+                except Exception as e:
+                    raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
+
+            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
         def _create_client(self):
             http_client = None
@@ -93,10 +156,9 @@ try:
                 }
                 http_client = httpx.Client(proxies=proxies)
             elif self.settings.get('use_httpx'):
-                 http_client = httpx.Client(base_url=openai.base_url, follow_redirects=True)
+                 http_client = httpx.Client(base_url=self.api_base, follow_redirects=True)
 
-            self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
-
+            self.client = openai.OpenAI(api_key=openai.api_key, base_url=self.api_base or None, http_client=http_client)
 
 except ImportError as e:
     logging.debug(f"Failed to import openai: {e}")
