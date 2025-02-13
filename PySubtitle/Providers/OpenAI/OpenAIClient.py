@@ -90,6 +90,8 @@ try:
                 if self.aborted:
                     return None
 
+                backoff_time = self.backoff_time * 2.0**retry
+
                 try:
                     if not self.reuse_client:
                         self._create_client()
@@ -101,19 +103,20 @@ try:
                 except openai.RateLimitError as e:
                     retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
                     if retry_after:
-                        self.wait_retry(retry_after)
+                        backoff_time = ParseDelayFromHeader(retry_after)
+                        self.wait_retry(backoff_time)
                         continue
                     else:
                         raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
 
                 except openai.APITimeoutError as e:
                     if retry < self.max_retries and not self.aborted:
-                        self.wait_retry(retry_after)
+                        self.wait_retry(backoff_time)
                         continue
 
                 except JSONDecodeError as e:
                     if retry < self.max_retries and not self.aborted:
-                        self.wait_retry(retry_after)
+                        self.wait_retry(backoff_time)
                         continue
 
                 except openai.APIConnectionError as e:
@@ -140,8 +143,7 @@ try:
 
             self.client = openai.OpenAI(api_key=openai.api_key, base_url=openai.base_url, http_client=http_client)
 
-        def wait_retry(self, retry_after):
-            retry_seconds = ParseDelayFromHeader(retry_after)
+        def wait_retry(self, retry_seconds):
             logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
             time.sleep(retry_seconds)
 
