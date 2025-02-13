@@ -52,6 +52,7 @@ class SubtitleProject:
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
         """
         filepath = os.path.normpath(filepath)
+        sourcepath = filepath
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
 
         project_file_exists = os.path.exists(self.projectfile)
@@ -72,6 +73,7 @@ class SubtitleProject:
 
             if subtitles:
                 outputpath = outputpath or GetOutputPath(self.projectfile, subtitles.target_language)
+                sourcepath = subtitles.sourcepath                
                 logging.info("Project file loaded")
 
             if subtitles.scenes:
@@ -86,7 +88,7 @@ class SubtitleProject:
         if self.load_subtitles:
             try:
                 # (re)load the source subtitle file if required
-                subtitles = self.LoadSubtitleFile(filepath)
+                subtitles = self.LoadSubtitleFile(sourcepath)
 
                 # Reapply project settings
                 if self.read_project and project_settings:
