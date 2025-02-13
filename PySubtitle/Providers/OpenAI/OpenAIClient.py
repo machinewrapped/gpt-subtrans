@@ -75,7 +75,7 @@ try:
 
             return translation
 
-        def _send_messages(self, content, temperature : float):
+        def _send_messages(self, messages : list[str], temperature : float):
             """
             Communicate with the API
             """
