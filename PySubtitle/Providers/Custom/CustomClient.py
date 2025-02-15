@@ -3,13 +3,12 @@ import time
 import httpx
 
 from PySubtitle.Helpers import FormatMessages
-from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError, TranslationResponseError
+from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
-from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.TranslationPrompt import TranslationPrompt
 
-class LocalClient(TranslationClient):
+class CustomClient(TranslationClient):
     """
     Handles communication with local LLM server to request translations
     """
@@ -45,6 +44,10 @@ class LocalClient(TranslationClient):
     @property
     def max_tokens(self):
         return self.settings.get('max_tokens', None)
+    
+    @property
+    def max_completion_tokens(self):
+        return self.settings.get('max_completion_tokens', None)
 
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
@@ -125,25 +128,29 @@ class LocalClient(TranslationClient):
                 return response
 
             except httpx.ConnectError as e:
-                if self.aborted:
-                    return None
-
-                logging.error(f"Failed to connect to server at {self.server_address}{self.endpoint}")
-                continue
+                if not self.aborted:
+                    logging.error(f"Failed to connect to server at {self.server_address}{self.endpoint}")
 
             except httpx.NetworkError as e:
-                if self.aborted:
-                    return None
-
-                raise TranslationError(str(e), error=e)
+                if not self.aborted:
+                    logging.error(f"Network error communicating with server: {str(e)}")
 
             except httpx.ReadTimeout as e:
-                raise TranslationError("Request to server timed out", error=e)
+                if not self.aborted:
+                    logging.error(f"Request to server timed out: {str(e)}")
 
             except Exception as e:
                 raise TranslationImpossibleError(f"Unexpected error communicating with server", error=e)
 
-        raise TranslationImpossibleError(f"Failed to communicate with server after {self.max_retries} retries")
+            if self.aborted:
+                return None
+            
+            if retry == self.max_retries:
+                raise TranslationImpossibleError(f"Failed to communicate with server after {self.max_retries} retries")
+
+            sleep_time = self.backoff_time * 2.0**retry
+            logging.warning(f"Retrying in {sleep_time} seconds...")
+            time.sleep(sleep_time)
 
     def _generate_request_body(self, prompt, temperature):
         request_body = {
@@ -153,6 +160,9 @@ class LocalClient(TranslationClient):
 
         if self.max_tokens:
             request_body['max_tokens'] = self.max_tokens
+
+        if self.max_completion_tokens:
+            request_body['max_completion_tokens'] = self.max_completion_tokens
 
         if self.model:
             request_body['model'] = self.model

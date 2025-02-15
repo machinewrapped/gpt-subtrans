@@ -111,7 +111,7 @@ class ProjectSettings(QGroupBox):
             self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
             if len(self.provider_list) > 1:
                 self.AddDropdownOption("Provider", settings, 'provider', self.provider_list)
-            if len(self.model_list) > 1:
+            if len(self.model_list) > 0:
                 self.AddDropdownOption("Model", settings, 'model', self.model_list)
 
     def ClearForm(self):

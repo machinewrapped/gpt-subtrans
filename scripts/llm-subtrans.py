@@ -12,7 +12,7 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
 
-provider = "Local Server"
+provider = "Custom Server"
 
 # Parse command line arguments
 parser = CreateArgParser("Translates an SRT file using an AI model running on a local server")
