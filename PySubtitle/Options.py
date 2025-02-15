@@ -4,6 +4,7 @@ import logging
 import os
 import dotenv
 
+from PySubtitle.Helpers.Version import VersionNumberLessThan
 from PySubtitle.Instructions import Instructions, LoadInstructions
 from PySubtitle.Helpers.Resources import config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
@@ -176,7 +177,7 @@ class Options:
 
             self.options.update(settings)
 
-            if settings.get('version') != default_options['version']:
+            if VersionNumberLessThan(settings.get('version'), default_options['version']):
                 self._update_version()
 
             return True
@@ -274,6 +275,13 @@ class Options:
             self.options['provider_settings'] = {'OpenAI': {}} if self.options.get('api_key') else {}
             self.MoveSettingsToProvider('OpenAI', ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens', 'temperature', 'rate_limit'])
 
-        current_version = default_options['version']
-        self.options['version'] = current_version
+        previous_version = self.options.get('version', 'v0.0.0')
+        latest_version = default_options['version']
+
+        # Move settings from Local Server to Custom Server
+        if 'Local Server' in self.provider_settings and VersionNumberLessThan(previous_version, "v1.0.7"):
+            self.provider_settings['Custom Server'] = self.provider_settings['Local Server']
+            del self.provider_settings['Local Server']
+
+        self.options['version'] = latest_version
 

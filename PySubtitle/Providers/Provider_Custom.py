@@ -4,13 +4,13 @@ from copy import deepcopy
 
 from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger, GetEnvBool
 from PySubtitle.Options import MULTILINE_OPTION
+from PySubtitle.Providers.Custom.CustomClient import CustomClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationPrompt import default_prompt_template
 from PySubtitle.TranslationProvider import TranslationProvider
-from PySubtitle.Providers.Local.LocalClient import LocalClient
 
-class Provider_LocalServer(TranslationProvider):
-    name = "Local Server"
+class Provider_CustomServer(TranslationProvider):
+    name = "Custom Server"
 
     information = """
     <p>This provider allows you to connect to a server running locally (or otherwise accessible) with an OpenAI compatible API,
@@ -28,16 +28,17 @@ class Provider_LocalServer(TranslationProvider):
 
     def __init__(self, settings : dict):
         super().__init__(self.name, {
-            'server_address': settings.get('server_address', os.getenv('LOCAL_SERVER_ADDRESS', "http://localhost:1234")),
-            'endpoint': settings.get('endpoint', os.getenv('LOCAL_ENDPOINT', "/v1/chat/completions")),
-            'supports_conversation': settings.get('supports_conversation', GetEnvBool('LOCAL_SUPPORTS_CONVERSATION', True)),
-            'supports_system_messages': settings.get('supports_system_messages', GetEnvBool('LOCAL_SUPPORTS_SYSTEM_MESSAGES', True)),
-            'prompt_template': settings.get('prompt_template', os.getenv('LOCAL_PROMPT_TEMPLATE', default_prompt_template)),
-            'temperature': settings.get('temperature', GetEnvFloat('LOCAL_TEMPERATURE', 0.0)),
-            'max_tokens': settings.get('max_tokens', GetEnvInteger('LOCAL_MAX_TOKENS', 0)),
-            "api_key": settings.get('api_key', os.getenv('LOCAL_API_KEY')),
-            "model": settings.get('model', os.getenv('LOCAL_MODEL')),
-            'supports_parallel_threads': settings.get('supports_parallel_threads', GetEnvBool('LOCAL_SUPPORTS_PARALLEL_THREADS', False))
+            'server_address': settings.get('server_address', os.getenv('CUSTOM_SERVER_ADDRESS', "http://localhost:1234")),
+            'endpoint': settings.get('endpoint', os.getenv('CUSTOM_ENDPOINT', "/v1/chat/completions")),
+            'supports_conversation': settings.get('supports_conversation', GetEnvBool('CUSTOM_SUPPORTS_CONVERSATION', True)),
+            'supports_system_messages': settings.get('supports_system_messages', GetEnvBool('CUSTOM_SUPPORTS_SYSTEM_MESSAGES', True)),
+            'prompt_template': settings.get('prompt_template', os.getenv('CUSTOM_PROMPT_TEMPLATE', default_prompt_template)),
+            'temperature': settings.get('temperature', GetEnvFloat('CUSTOM_TEMPERATURE', 0.0)),
+            'max_tokens': settings.get('max_tokens', GetEnvInteger('CUSTOM_MAX_TOKENS', 0)),
+            'max_completion_tokens': settings.get('max_completion_tokens', GetEnvInteger('CUSTOM_MAX_COMPLETION_TOKENS', 0)),
+            "api_key": settings.get('api_key', os.getenv('CUSTOM_API_KEY')),
+            "model": settings.get('model', os.getenv('CUSTOM_MODEL')),
+            'supports_parallel_threads': settings.get('supports_parallel_threads', GetEnvBool('CUSTOM_SUPPORTS_PARALLEL_THREADS', False))
             })
 
         #TODO: Add additional parameters option
@@ -71,7 +72,7 @@ class Provider_LocalServer(TranslationProvider):
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         client_settings : dict = deepcopy(self.settings)
         client_settings.update(settings)
-        return LocalClient(client_settings)
+        return CustomClient(client_settings)
 
     def GetAvailableModels(self) -> list[str]:
         # Choose the model on the server
@@ -99,6 +100,7 @@ class Provider_LocalServer(TranslationProvider):
                 'prompt_template': (MULTILINE_OPTION, "Template for the prompt to send to the server (use {prompt} and {context} tags)"),
                 'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
                 'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)"),
+                'max_completion_tokens': (int, "Alternative to max_tokens for some servers"),
                 'api_key': (str, "An API key is normally not needed for a local server"),
                 'model': (str, "The model is normally set by the server, and should not need to be specified here"),
                 'supports_parallel_threads': (bool, "Use parallel threads for translation requests (may be faster but may not work with the server)")
