@@ -3,38 +3,13 @@ QWidget {
     font-size: large;
 }
 
-QSplitter::handle {
-    background-color: teal;
-}
-
-QStatusBar {
-    color: white;
-}
-
 QLabel {
-    color: black;
     padding-top: 2px;
     padding-bottom: 6px;
 }
 
-QTextEdit {
-    background-color: #242424;
-    color: white;
-}
-
-QComboBox, QComboBox::drop-down{
-    background-color: white;
-    color: #363636;
-}
-
-QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
-    background-color: white;
-    color: #363636;
-}
-
 .MainWindow, QLabel, QDialog {
     background-color: #363636;
-    color: white;
 }
 
 .MainToolbar, .ProjectToolbar {
@@ -48,25 +23,25 @@ QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
 }
 
 .ScenesView {
-    background-color: darkslategrey;
+    background-color: #242424;
 }
 
 .TreeViewItemWidget {
-    padding: 1px;
-    margin: 0px;
-    border: 1px solid black;
-    border-radius: 6px;
-    background-color: #121212;
+    padding: 4px;
+    margin: 2px;
+    border: 2px solid darkslateblue;
+    border-radius: 12px;
+    background-color: #363636;
 }
 
 QTreeView:item {
     border: 1px solid black;
-    border-radius: 6px;
+    border-radius: 12px;
 }
 
 QTreeView:item:selected {
-    border-radius: 12px;
     border: 2px solid #800000;
+    border-radius: 12px;
     font-weight: bold;
 }
 
@@ -110,14 +85,14 @@ QListView:item {
     padding: 2px;
     padding-right: 10px;
     padding-bottom: 8px;
-    background-color: navy;
     font-size: small;
+    background-color: #242424;
 }
 
 .WidgetFooter QLabel {
     margin: 0px;
     padding: 0px;
-    background-color: navy;
+    background-color: #242424;
 }
 
 .WidgetFooter[all_translated=true] QLabel {
@@ -132,12 +107,7 @@ QListView:item {
     font-size: small;
     padding: 2px;
     padding-left: 10px;
-    color: white;
     background-color: #242424;
-}
-
-.ContentView {
-    background-color: black;
 }
 
 .SubtitleView {
@@ -186,11 +156,6 @@ QListView:item {
     background-color: #363636;
 }
 
-.ProjectSettings {
-    color: white;
-    background-color: #121212;
-}
-
 QTabWidget::pane, QTabWidget::pane QWidget {
     padding: 3px;
 }
@@ -200,9 +165,12 @@ QTabWidget::pane QFrame {
     border: 2px solid #121212;
 }
 
+QTabWidget::pane QLabel {
+    background-color: #484848;
+}
+
+
 QTabBar::tab {
-	background-color: #262626;
-	color: #ffffff;
 	border-style: solid;
 	border-width: 1px;
 	border-top-left-radius: 3px;

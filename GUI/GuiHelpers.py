@@ -2,6 +2,7 @@ import logging
 import os
 import darkdetect
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QFormLayout)
 
 from PySubtitle.Helpers.Resources import GetResourcePath
@@ -25,7 +26,13 @@ def LoadStylesheet(name):
     logging.info(f"Loading stylesheet from {filepath}")
     with open(filepath, 'r') as file:
         stylesheet = file.read()
-    QApplication.instance().setStyleSheet(stylesheet)
+
+    app = QApplication.instance()
+    app.setStyleSheet(stylesheet)
+
+    scheme = Qt.ColorScheme.Dark if 'dark' in name else Qt.ColorScheme.Light
+    app.styleHints().setColorScheme(scheme)
+
     return stylesheet
 
 def GetLineHeight(text: str, wrap_length: int = 60) -> int:

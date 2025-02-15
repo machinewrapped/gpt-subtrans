@@ -3,38 +3,13 @@ QWidget {
     font-size: 10pt;
 }
 
-QSplitter::handle {
-    background-color: teal;
-}
-
-QStatusBar {
-    color: white;
-}
-
 QLabel {
-    color: black;
     padding-top: 2px;
     padding-bottom: 6px;
 }
 
-QTextEdit {
-    background-color: #242424;
-    color: white;
-}
-
-QComboBox, QComboBox::drop-down{
-    background-color: white;
-    color: #363636;
-}
-
-QComboBox::drop-down QAbstractItemView, QComboBox QAbstractItemView::item {
-    background-color: white;
-    color: #363636;
-}
-
 .MainWindow, QLabel, QDialog {
     background-color: #363636;
-    color: white;
 }
 
 .MainToolbar, .ProjectToolbar {
@@ -128,12 +103,7 @@ QListView:item {
     font-size: 10pt;
     padding: 2px;
     padding-left: 10px;
-    color: white;
     background-color: #242424;
-}
-
-.ContentView {
-    background-color: black;
 }
 
 .SubtitleView {
@@ -178,28 +148,20 @@ QListView:item {
     background-color: #363636;
 }
 
-.ProjectSettings {
-    color: white;
-    background-color: #121212;
-}
-
 QTabWidget::pane, QTabWidget::pane QWidget {
     padding: 3px;
 }
 
 QTabWidget::pane QFrame {
-    background-color: #363636;
-    border: 2px solid #121212;
+    background-color: #484848;
 }
 
 QTabBar::tab {
-	background-color: #262626;
-	color: #ffffff;
 	border-style: solid;
 	border-width: 1px;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
-	border-color: lavenderblush;
+	border-color: #363636;
 	padding: 5px;
 }
 
