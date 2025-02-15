@@ -7,7 +7,7 @@ pip install --upgrade openai
 pip install --upgrade google-genai
 pip install --upgrade anthropic
 pip install --upgrade mistralai
-pip install --upgrade boto3
+rem pip install --upgrade boto3
 
 python.exe tests/unit_tests.py
 if %errorlevel% neq 0 (
@@ -15,4 +15,4 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
-pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --add-data "theme/*;theme/" --add-data "assets/*;assets/" --add-data "instructions*;instructions/" --add-data "LICENSE;." "scripts/gui-subtrans.py"
+.\envsubtrans\scripts\pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --add-data "theme/*;theme/" --add-data "assets/*;assets/" --add-data "instructions*;instructions/" --add-data "LICENSE;." "scripts/gui-subtrans.py"
