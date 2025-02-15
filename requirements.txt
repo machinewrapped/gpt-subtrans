@@ -6,7 +6,7 @@ events
 requests
 darkdetect
 setuptools
-pyside6==6.6.3
+pyside6
 httpx
 httpx[socks]
 

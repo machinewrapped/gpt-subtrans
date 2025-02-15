@@ -11,6 +11,7 @@ sys.path.append(base_path)
 
 from scripts.subtrans_common import InitLogger
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from PySubtitle.Options import Options, settings_path, config_dir
 from GUI.MainWindow import MainWindow
@@ -83,6 +84,10 @@ def run_with_profiler(app):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle('Fusion')
+
+    # Force light mode because our themes were not built to be flexible
+    app.styleHints().setColorScheme(Qt.ColorScheme.Light)
 
     arguments, filepath, logger_options = parse_arguments()
 
