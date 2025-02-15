@@ -2,17 +2,19 @@
 
 source ./envsubtrans/bin/activate
 pip3 install --upgrade pip
-pip install --upgrade --target ./envsubtrans/lib pyinstaller
-pip install --upgrade --target ./envsubtrans/lib PyInstaller pyinstaller-hooks-contrib
-pip install --upgrade --target ./envsubtrans/lib charset_normalizer
-pip install --upgrade --target ./envsubtrans/lib -r requirements.txt
-pip install --upgrade --target ./envsubtrans/lib openai
-pip install --upgrade --target ./envsubtrans/lib google-genai
-pip install --upgrade --target ./envsubtrans/lib anthropic
-pip install --upgrade --target ./envsubtrans/lib mistralai
-pip install --upgrade --target ./envsubtrans/lib boto3
-pip install --upgrade --target ./envsubtrans/lib PySide6==6.6.0
-pip install --upgrade --target ./envsubtrans/lib PySide6.QtGui
+pip install --upgrade pyinstaller
+pip install --upgrade PyInstaller pyinstaller-hooks-contrib
+pip install --upgrade setuptools
+pip install --upgrade jaraco.text
+pip install --upgrade charset_normalizer
+pip install --upgrade -r requirements.txt
+pip install --upgrade openai
+pip install --upgrade google-genai
+pip install --upgrade anthropic
+pip install --upgrade mistralai
+
+# Remove boto3 from packaged version
+pip uninstall boto3
 
 python tests/unit_tests.py
 if [ $? -ne 0 ]; then
@@ -20,4 +22,4 @@ if [ $? -ne 0 ]; then
     exit $?
 fi
 
-pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --hidden-import="PySide6.QtGui" --hidden-import="pkg_resources.extern" --paths="./envsubtrans/lib" --paths="./envsubtrans/lib/python3.12/site-packages" --add-data "theme/*:theme/" --add-data "assets/*:assets/"  --add-data "instructions*:instructions/" --add-data "LICENSE:." --noconfirm scripts/gui-subtrans.py
+./envsubtrans/bin/pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --paths="./envsubtrans/lib" --add-data "theme/*:theme/" --add-data "assets/*:assets/"  --add-data "instructions*:instructions/" --add-data "LICENSE:." --noconfirm scripts/gui-subtrans.py
