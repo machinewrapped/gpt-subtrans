@@ -1,0 +1,157 @@
+QWidget {
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: large;
+}
+
+QLabel {
+    color: black;
+    padding-top: 2px;
+    padding-bottom: 6px;
+}
+
+QComboBox {
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+    min-height: 1em;
+}
+
+QStatusBar {
+    color: black;
+}
+
+.MainToolbar, .ProjectToolbar {
+    background-color: #a0a0a0;
+    border: none;
+}
+
+QTreeView:item {
+    border-radius: 12;
+}
+
+QTreeView:item:selected {
+    border: 2px solid black;
+    border-radius: 12;
+}
+
+QListView:item {
+    padding: 0px;
+}
+
+.MainWindow {
+    background-color: aliceblue;
+    color: black;
+}
+
+.LogWindow {
+    background-color: #121212;
+    border: 1px solid #242424;
+}
+
+.ScenesView {
+    background-color: lightyellow;
+}
+
+.TreeViewItemWidget {
+    padding: 1px;
+    margin: 0px;
+    border-width: 2;
+    border-style: solid;
+    border-color: lightgray;
+    border-radius: 12;
+    background-color: white;
+}
+
+.WidgetHeader {
+    font-size:x-large;
+    font-weight: bold;
+    padding: 10px 4px 4px 4px;
+    color: black;
+}
+
+.WidgetHeader[all_translated=true] {
+    background-color: blanchedalmond;
+}
+
+.WidgetHeader[all_translated=false] {
+    background-color: burlywood;
+}
+
+.WidgetHeader[errors=true], .WidgetBody[errors=true] {
+    color: red;
+}
+
+.WidgetSubheading {
+    font-size: medium;
+    margin: 0px;
+    padding: 10px 3px 3px 3px;
+    background-color: lavenderblush;
+    color: black;
+}
+
+.WidgetFooter {
+    margin: 0px;
+    padding: 2px;
+    padding-right: 10px;
+    font-size: smaller;
+}
+
+.WidgetFooter QLabel {
+    margin: 0px;
+    padding: 0px;
+}
+
+.WidgetFooter[all_translated=true] QLabel {
+    color: peru;
+}
+
+.WidgetFooter[all_translated=false] QLabel {
+    color: saddlebrown;
+}
+
+.WidgetBody {
+    font-size: small;
+    padding: 2px;
+    padding-left: 10px;
+    background-color: white;
+    color: black;
+}
+
+.SubtitleView {
+    padding: 1px;
+}
+
+.LineItemView {
+    padding: 0px;
+    margin: 1px;
+    background-color: white;
+}
+
+.LineItemHeader {
+    margin: 0px;
+    padding: 2px;
+    background-color: aliceblue;
+    color: black;
+}
+
+.LineItemHeader QLabel {
+    margin: 0px;
+    padding-bottom: 6px;
+}
+
+#line-header-left {
+    font-weight: bold;
+}
+
+#line-header-right {
+    color: peru;
+    font-size: x-small;
+}
+
+.LineItemBody {
+    margin: 2px;
+    padding: 2px 1em;
+    background-color: white;
+    color: black;
+    border-left: 2px dotted lightgray;    
+}
+
