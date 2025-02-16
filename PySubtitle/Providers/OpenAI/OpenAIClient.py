@@ -98,40 +98,29 @@ try:
                     return response
                 
                 except TranslationResponseError as e:
-                    if self.aborted:
-                        return None
-
                     if retry < self.max_retries and not self.aborted:
                         logging.warning(f"{str(e)}, retrying in {backoff_time} seconds...")
                         time.sleep(backoff_time)
                         continue
 
                 except openai.RateLimitError as e:
-                    if self.aborted:
-                        return None
-
-                    retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
-                    if retry_after:
-                        backoff_time = ParseDelayFromHeader(retry_after)
-                        logging.warning(f"Rate limit hit, retrying in {backoff_time} seconds...")
-                        time.sleep(backoff_time)
-                        continue
-                    else:
-                        raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
+                    if not self.aborted:
+                        retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
+                        if retry_after:
+                            backoff_time = ParseDelayFromHeader(retry_after)
+                            logging.warning(f"Rate limit hit, retrying in {backoff_time} seconds...")
+                            time.sleep(backoff_time)
+                            continue
+                        else:
+                            raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
 
                 except openai.APITimeoutError as e:
-                    if self.aborted:
-                        return None
-
                     if retry < self.max_retries and not self.aborted:
                         logging.warning(f"API Timeout, retrying in {backoff_time} seconds...")
                         time.sleep(backoff_time)
                         continue
 
                 except JSONDecodeError as e:
-                    if self.aborted:
-                        return None
-
                     if retry < self.max_retries and not self.aborted:
                         logging.warning(f"Invalid response received, retrying in {backoff_time} seconds...")
                         time.sleep(backoff_time)
@@ -144,7 +133,8 @@ try:
                 except Exception as e:
                     raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
 
-            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+            if not self.aborted:
+                raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
 
         def _create_client(self):
             http_client = None
