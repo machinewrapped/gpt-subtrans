@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtCore import QModelIndex, Qt, QPoint
 from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QWidget
 
@@ -19,12 +20,15 @@ class SubtitleItemDelegate(QStyledItemDelegate):
         if not isinstance(widget, LineItemView):
             return super().paint(painter, option, index)
 
-        self.initStyleOption(option, index)
+        try:
+            self.initStyleOption(option, index)
 
-        painter.save()
-        painter.translate(option.rect.topLeft())
-        widget.setGeometry(option.rect)
-        widget.render(painter, QPoint(0,0), renderFlags=self.render_flags)
-        painter.restore()
+            painter.save()
+            painter.translate(option.rect.topLeft())
+            widget.setGeometry(option.rect)
+            widget.render(painter, QPoint(0,0), renderFlags=self.render_flags)
+            painter.restore()
+        except Exception as e:
+            logging.error(f"Error while painting LineItemView: {e}")
 
         super().paint(painter, option, index)
