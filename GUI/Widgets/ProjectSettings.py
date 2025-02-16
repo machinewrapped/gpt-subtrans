@@ -208,12 +208,12 @@ class ProjectSettings(QGroupBox):
             widget.setCurrentIndex(index)
 
     def _text_changed(self, text = None):
-        settings = self.GetSettings()
-        self.settingsChanged.emit(settings)
+        self.settings = self.GetSettings()
+        self.settingsChanged.emit(self.settings)
 
     def _check_changed(self, int = None):
-        settings = self.GetSettings()
-        self.settingsChanged.emit(settings)
+        self.settings = self.GetSettings()
+        self.settingsChanged.emit(self.settings)
 
     def _option_changed(self, key, value):
         if key == 'provider':
@@ -251,6 +251,9 @@ class ProjectSettings(QGroupBox):
                 self.updating_model_list = False
 
     def _edit_instructions(self):
+        # Commit the settings
+        self.settings = self.GetSettings()
+
         dialog = EditInstructionsDialog(self.settings, parent=self)
         result = dialog.exec()
 
