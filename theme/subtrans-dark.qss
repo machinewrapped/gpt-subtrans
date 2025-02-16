@@ -112,7 +112,7 @@ QListView:item {
 }
 
 .SubtitleView::item:selected {
-    border: 1px solid aliceblue;
+    border: 1px solid peru;
 }
 
 .LineItemView {
@@ -146,6 +146,7 @@ QListView:item {
 
 .SelectionView {
     background-color: #363636;
+    color: white;
 }
 
 QTabWidget::pane, QTabWidget::pane QWidget {

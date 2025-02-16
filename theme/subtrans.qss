@@ -119,6 +119,10 @@ QListView:item {
     padding: 1px;
 }
 
+.SubtitleView::item:selected {
+    border: 1px solid peru;
+}
+
 .LineItemView {
     padding: 0px;
     margin: 1px;
@@ -149,7 +153,6 @@ QListView:item {
 .LineItemBody {
     margin: 2px;
     padding: 2px 1em;
-    background-color: white;
     color: black;
     border-left: 2px dotted lightgray;    
 }
