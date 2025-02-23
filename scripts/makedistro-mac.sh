@@ -22,4 +22,12 @@ if [ $? -ne 0 ]; then
     exit $?
 fi
 
-./envsubtrans/bin/pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --paths="./envsubtrans/lib" --add-data "theme/*:theme/" --add-data "assets/*:assets/"  --add-data "instructions*:instructions/" --add-data "LICENSE:." --noconfirm scripts/gui-subtrans.py
+./envsubtrans/bin/pyinstaller --noconfirm \
+    --additional-hooks-dir="PySubtitleHooks" \
+    --paths="./envsubtrans/lib" \
+    --add-data "theme/*:theme/" \
+    --add-data "assets/*:assets/" \
+    --add-data "instructions*:instructions/" \
+    --add-data "LICENSE:." \
+    --noconfirm \
+    scripts/gui-subtrans.py
