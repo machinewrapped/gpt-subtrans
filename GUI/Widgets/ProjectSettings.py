@@ -68,6 +68,13 @@ class ProjectSettings(QGroupBox):
         }
 
         return settings
+    
+    def UpdateSettings(self):
+        """
+        Update the project settings with the current values
+        """
+        settings = self.GetSettings()
+        self.settings.update(settings)
 
     def OpenSettings(self):
         self._update_available_models()
@@ -208,11 +215,11 @@ class ProjectSettings(QGroupBox):
             widget.setCurrentIndex(index)
 
     def _text_changed(self, text = None):
-        self.settings = self.GetSettings()
+        self.UpdateSettings()
         self.settingsChanged.emit(self.settings)
 
     def _check_changed(self, int = None):
-        self.settings = self.GetSettings()
+        self.UpdateSettings()
         self.settingsChanged.emit(self.settings)
 
     def _option_changed(self, key, value):
@@ -252,7 +259,7 @@ class ProjectSettings(QGroupBox):
 
     def _edit_instructions(self):
         # Commit the settings
-        self.settings = self.GetSettings()
+        self.UpdateSettings()
 
         dialog = EditInstructionsDialog(self.settings, parent=self)
         result = dialog.exec()

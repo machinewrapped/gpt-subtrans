@@ -28,8 +28,8 @@ class SubtitleFile:
     DEFAULT_PROJECT_SETTINGS = {
         'provider': None,
         'model': None,
-        'prompt': None,
         'target_language': None,
+        'prompt': None,
         'instructions': None,
         'retry_instructions': None,
         'movie_name': None,
