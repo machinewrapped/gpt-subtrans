@@ -29,29 +29,45 @@ else:
             <p>To use Claude you need to provide an <a href="https://console.anthropic.com/settings/keys">Anthropic API Key </a>.</p>
             """
 
-            default_models = ['claude-3-5-haiku-latest', 'claude-3-5-sonnet-latest', 'claude-3-opus-latest', 'claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-5-sonnet-20240620']
+            default_model = "claude-3-5-haiku-latest"
 
             def __init__(self, settings : dict):
                 super().__init__(self.name, {
                     "api_key": settings.get('api_key') or os.getenv('CLAUDE_API_KEY'),
-                    "model": settings.get('model') or os.getenv('CLAUDE_MODEL'),
+                    "model": settings.get('model') or os.getenv('CLAUDE_MODEL', self.default_model),
+                    "thinking": settings.get('thinking', False),
                     "max_tokens": settings.get('max_tokens') or GetEnvInteger('CLAUDE_MAX_TOKENS', 4096),
+                    "max_thinking_tokens": settings.get('max_thinking_tokens') or GetEnvInteger('CLAUDE_MAX_THINKING_TOKENS', 1024),
                     'temperature': settings.get('temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
                     'rate_limit': settings.get('rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
-                    'custom_models': settings.get('custom_models') or os.getenv('CLAUDE_CUSTOM_MODELS'),
                     'proxy': settings.get('proxy') or os.getenv('CLAUDE_PROXY'),
                 })
 
-                self.refresh_when_changed = ['api_key', 'model', 'custom_models']
+                self.refresh_when_changed = ['api_key', 'model', 'thinking']
+
+                self.claude_models = []
 
             @property
             def api_key(self):
                 return self.settings.get('api_key')
+            
+            @property
+            def allow_thinking(self):
+                return self.settings.get('thinking', False)
+            
+            @property
+            def max_tokens(self):
+                return self.settings.get('max_tokens', 4096)
+            
+            @property
+            def max_thinking_tokens(self):
+                return self.settings.get('max_thinking_tokens', 1024)
 
             def GetTranslationClient(self, settings : dict) -> TranslationClient:
                 client_settings : dict = deepcopy(self.settings)
                 client_settings.update(settings)
                 client_settings.update({
+                    'model': self._get_model_id(self.selected_model) if self.selected_model else None,
                     'supports_conversation': True,
                     'supports_system_messages': False,
                     'supports_system_prompt': True
@@ -61,12 +77,11 @@ else:
             def GetAvailableModels(self) -> list[str]:
                 if not self.api_key:
                     return []
+                
+                if not self.claude_models:
+                    self.claude_models = self._get_claude_models()
 
-                # TODO: surely the SDK has a method for this?
-                # client = anthropic.Anthropic(api_key=self.api_key)
-                # models = client.list_models()
-                custom_models = ParseNames(self.settings.get('custom_models'))
-                models = sorted(set(custom_models + self.default_models))
+                models = [model.display_name for model in self.claude_models]
 
                 return models
 
@@ -84,17 +99,19 @@ else:
 
                 self.RefreshAvailableModels()
 
-                options['custom_models'] = (str, "Comma separated list of additional Claude models (until Anthropic provide a method to retrieve them)")
-
                 if self.available_models:
                     options.update({
                         'model': (self.available_models, "The model to use for translations"),
                         'temperature': (float, "The temperature to use for translations (default 0.0)"),
                         'rate_limit': (float, "The rate limit to use for translations (default 60.0)"),
                         'max_tokens': (int, "The maximum number of tokens to use for translations"),
-                        'proxy': (str, "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/"),
+                        'thinking': (bool, "Enable thinking mode for translations"),
                     })
 
+                if self.allow_thinking:
+                    options['max_thinking_tokens'] = (int, "The maximum number of tokens to use for thinking")
+
+                options['proxy'] = (str, "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/")
                 return options
 
             def _allow_multithreaded_translation(self) -> bool:
@@ -105,6 +122,30 @@ else:
                     return False
 
                 return True
+
+            def _get_claude_models(self):
+                if not self.api_key:
+                    return []
+
+                try:
+                    client = anthropic.Anthropic(api_key=self.api_key)
+                    model_list = client.models.list()
+
+                    return [ m for m in model_list if m.type == 'model' ]
+
+                except Exception as e:
+                    logging.error(f"Unable to retrieve Claude model list: {str(e)}")
+                    return []
+
+            def _get_model_id(self, name : str) -> str:
+                if not self.claude_models:
+                    self.claude_models = self._get_claude_models()
+
+                for m in self.claude_models:
+                    if m.id == name or m.display_name == name:
+                        return m.id
+
+                raise ValueError(f"Model {name} not found")
 
     except ImportError:
         logging.info("Unable to initialise Anthropic SDK. Claude provider will not be available")
