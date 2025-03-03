@@ -107,4 +107,4 @@ else:
                 return True
 
     except ImportError:
-        logging.info("Anthropic SDK not installed. Claude provider will not be available")
+        logging.info("Unable to initialise Anthropic SDK. Claude provider will not be available")
