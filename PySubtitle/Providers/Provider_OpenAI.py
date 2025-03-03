@@ -176,4 +176,4 @@ else:
                 return True
 
     except ImportError:
-        logging.info("OpenAI SDK not installed. OpenAI provider will not be available")
+        logging.info("Failed to initialise OpenAI SDK. OpenAI provider will not be available")

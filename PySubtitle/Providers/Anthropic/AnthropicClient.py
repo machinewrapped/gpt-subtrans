@@ -33,6 +33,20 @@ try:
         @property
         def max_tokens(self):
             return self.settings.get('max_tokens', 0)
+        
+        @property
+        def allow_thinking(self):
+            return self.settings.get('thinking', False)
+        
+        @property
+        def thinking(self):
+            if self.allow_thinking:
+                return {
+                    'type' : 'enabled',
+                    'budget_tokens' : self.settings.get('max_thinking_tokens', 1024)
+                }
+            
+            return anthropic.NOT_GIVEN
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
             """
@@ -71,45 +85,50 @@ try:
             """
             Make a request to the LLM to provide a translation
             """
-            response = {}
+            result = {}
 
             for retry in range(self.max_retries + 1):
                 if self.aborted:
                     return None
 
                 try:
-                    result = self.client.messages.create(
+                    api_response = self.client.messages.create(
                         model=self.model,
+                        thinking=self.thinking,
                         messages=messages,
                         system=system_prompt,
-                        temperature=temperature,
+                        temperature=temperature if not self.allow_thinking else 1,
                         max_tokens=self.max_tokens
                     )
 
                     if self.aborted:
                         return None
 
-                    if not result.content:
-                        raise TranslationResponseError("No choices returned in the response", response=result)
+                    if not api_response.content:
+                        raise TranslationResponseError("No choices returned in the response", response=api_response)
 
                     # response['response_time'] = getattr(response, 'response_ms', 0)
 
-                    if result.stop_reason == 'max_tokens':
-                        response['finish_reason'] = "length"
+                    if api_response.stop_reason == 'max_tokens':
+                        result['finish_reason'] = "length"
                     else:
-                        response['finish_reason'] = result.stop_reason
+                        result['finish_reason'] = api_response.stop_reason
 
-                    if result.usage:
-                        response['prompt_tokens'] = getattr(result.usage, 'input_tokens')
-                        response['output_tokens'] = getattr(result.usage, 'output_tokens')
+                    if api_response.usage:
+                        result['prompt_tokens'] = getattr(api_response.usage, 'input_tokens')
+                        result['output_tokens'] = getattr(api_response.usage, 'output_tokens')
 
-                    for piece in result.content:
-                        if piece.type == 'text':
-                            response['text'] = piece.text
+                    for piece in api_response.content:
+                        if piece.type == 'thinking':
+                            result['reasoning'] = piece.thinking
+                        elif piece.type == 'redacted_thinking':
+                            result['reasoning'] = "Reasoning redacted by API"
+                        elif piece.type == 'text':
+                            result['text'] = piece.text
                             break
 
                     # Return the response if the API call succeeds
-                    return response
+                    return result
 
                 except (anthropic.APITimeoutError, anthropic.RateLimitError) as e:
                     if retry < self.max_retries and not self.aborted:
