@@ -6,7 +6,7 @@ call install.bat
 call envsubtrans\Scripts\activate.bat
 
 echo Installing Google Gemini SDK...
-pip install -U google-genai
+pip install -U google-genai google-api-core
 
 if not exist .env (
     REM Create .env file
