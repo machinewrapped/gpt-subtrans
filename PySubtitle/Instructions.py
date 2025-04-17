@@ -55,6 +55,7 @@ class Instructions:
             'instructions': self.instructions,
             'retry_instructions': self.retry_instructions,
             'instruction_file': self.instruction_file,
+            'task_type' : self.task_type
         }
 
         if self.target_language:
@@ -68,6 +69,7 @@ class Instructions:
         self.retry_instructions = settings.get('retry_instructions') or default_retry_instructions
         self.instruction_file = settings.get('instruction_file') or None
         self.target_language = None
+        self.task_type = settings.get('task_type') or "Translation"
 
         # Add any additional instructions from the command line
         if settings.get('instruction_args'):
@@ -121,6 +123,7 @@ class Instructions:
         self.retry_instructions = linesep.join(sections.get('retry_instructions', [])) or default_retry_instructions
         self.instruction_file = os.path.basename(filepath)
         self.target_language = ''.join(sections.get('target_language', None)) if 'target_language' in sections else None
+        self.task_type = ''.join(sections.get('task_type', None)) if 'task_type' in sections else "Translation"
 
         if not self.prompt or not self.instructions:
             raise ValueError("Invalid instruction file")

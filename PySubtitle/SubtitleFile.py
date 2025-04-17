@@ -30,6 +30,7 @@ class SubtitleFile:
         'model': None,
         'target_language': None,
         'prompt': None,
+        'task_type': None,
         'instructions': None,
         'retry_instructions': None,
         'movie_name': None,

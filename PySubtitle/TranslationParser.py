@@ -9,43 +9,47 @@ from PySubtitle.SubtitleError import NoTranslationError, TranslationError, Untra
 from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.Translation import Translation
 
-default_pattern = regex.compile(
+default_pattern = (
     r"#(?P<number>\d+)"
     r"(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?"
     r"[\s\r\n]+Translation>"
     r"(?:[\s\r\n]?(?P<body>[\s\S]*?))?"
-    r"(?=\n#\d|\Z)",
-    regex.MULTILINE)
+    r"(?=\n#\d|\Z)"
+)
 
 fallback_patterns = [
-    regex.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", regex.MULTILINE),
-    regex.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation[>:](?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))", regex.MULTILINE),
-    regex.compile(r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]+(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)", regex.MULTILINE),
-    regex.compile(r"#(?P<number>\d+)(?:[\s\r\n]*Original[>:][\s\r\n]*(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]*(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)", regex.MULTILINE),
-    regex.compile(r"#(?P<number>\d+)[\s\r\n]+Translation[>:][\s\r\n]+(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)", regex.MULTILINE),
-    regex.compile(r"#(?P<number>\d+)(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z)", regex.MULTILINE)  # Just the number and translation
+    r"#(?P<number>\d+)(?:[\s\r\n]+Original>[\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation>(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))",
+    r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*(?:Translation[>:](?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z))",
+    r"#(?P<number>\d+)(?:[\s\r\n]+Original[>:][\s\r\n]+(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]+(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)",
+    r"#(?P<number>\d+)(?:[\s\r\n]*Original[>:][\s\r\n]*(?P<original>[\s\S]*?))?[\s\r\n]*Translation[>:][\s\r\n]*(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)",
+    r"#(?P<number>\d+)[\s\r\n]+Translation[>:][\s\r\n]+(?P<body>[\s\S]*?)(?=(?:\n{2,}#)|\Z)",
+    r"#(?P<number>\d+)(?:[\s\r\n]+(?P<body>[\s\S]*?))?(?:(?=\n{2,})|\Z)"  # Just the number and translation
     ]
-
 
 class TranslationParser:
     """
     Extract translated subtitles from the AI translation response
     """
-    def __init__(self, options : Options):
+    def __init__(self, task_type : str, options : Options):
         self.options = options
         self.text = None
         self.translations = {}
         self.translated = []
         self.errors = []
         self.metatags = ["<summary>", "scene"]
-        self.regex_patterns = self.GetRegularExpressionPatterns()
+        self.task_type = task_type
+        self.regex_patterns = self.GetRegularExpressionPatterns(task_type)
 
-    def GetRegularExpressionPatterns(self):
+    def GetRegularExpressionPatterns(self, task_type : str = "Translation"):
         """
         Returns a list of regular expressions to try for extracting translations
         """
         # Use the current default pattern, and fall back on alternative/older patterns if no matches are found
-        return [default_pattern] + fallback_patterns
+        patterns = [
+            regex.compile(
+                pattern.replace("Translation", task_type), regex.MULTILINE) for pattern in [default_pattern] + fallback_patterns
+            ]
+        return patterns
 
     def ProcessTranslation(self, translation : Translation):
         """

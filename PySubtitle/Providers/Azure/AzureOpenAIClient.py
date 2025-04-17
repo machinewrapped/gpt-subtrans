@@ -9,7 +9,6 @@ try:
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
-    from PySubtitle.TranslationParser import TranslationParser
     from PySubtitle.TranslationPrompt import TranslationPrompt
     from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 

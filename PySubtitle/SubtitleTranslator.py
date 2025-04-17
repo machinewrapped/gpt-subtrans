@@ -48,6 +48,7 @@ class SubtitleTranslator:
         self.preview = options.get('preview')
 
         self.instructions : Instructions = options.GetInstructions()
+        self.task_type = self.instructions.task_type or "Translation"
         self.user_prompt : str = options.BuildUserPrompt()
         self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode', 'Auto'))
 
@@ -292,7 +293,7 @@ class SubtitleTranslator:
         logging.debug(f"Scene {batch.scene} batch {batch.number} translation:\n{translation.text}\n")
 
         # Apply the translation to the subtitles
-        parser : TranslationParser = self.client.GetParser()
+        parser : TranslationParser = self.client.GetParser(self.task_type)
 
         parser.ProcessTranslation(translation)
 

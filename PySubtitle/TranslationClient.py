@@ -97,11 +97,11 @@ class TranslationClient:
 
         return translation
 
-    def GetParser(self):
+    def GetParser(self, task_type = "Translation"):
         """
         Return a parser that can process the provider's response
         """
-        return TranslationParser(self.settings)
+        return TranslationParser(task_type, self.settings)
 
     def AbortTranslation(self):
         self.aborted = True
