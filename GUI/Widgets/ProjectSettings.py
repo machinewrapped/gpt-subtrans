@@ -295,6 +295,7 @@ class ProjectSettings(QGroupBox):
                 subtitles.settings.pop('instructions', None)
                 subtitles.settings.pop('retry_instructions', None)
                 subtitles.settings.pop('prompt', None)
+                subtitles.settings.pop('task_type', None)
                 subtitles.settings.pop('instruction_file', None)
 
                 self.settings.update(subtitles.settings)

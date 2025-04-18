@@ -33,6 +33,10 @@ class SubtitleProject:
     @property
     def target_language(self):
         return self.subtitles.target_language if self.subtitles else None
+    
+    @property
+    def task_type(self):
+        return self.subtitles.task_type if self.subtitles else None
 
     @property
     def movie_name(self):

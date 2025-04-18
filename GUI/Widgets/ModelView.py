@@ -72,13 +72,16 @@ class ModelView(QWidget):
             self._toolbar.hide()
 
     def SetViewModel(self, viewmodel):
+        self.content_view.hide()
+        self.scenes_view.hide()
         self.content_view.Clear()
+        self.scenes_view.Clear()
 
-        if viewmodel is None:
-            self.scenes_view.Clear()
-        else:
+        if viewmodel is not None:
             self.scenes_view.Populate(viewmodel)
             self.content_view.Populate(viewmodel)
+            self.scenes_view.show()
+            self.content_view.show()
 
     def ShowProjectSettings(self, show : bool):
         if show == self.project_settings.isVisible():

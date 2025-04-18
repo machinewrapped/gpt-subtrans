@@ -1,10 +1,13 @@
 ### prompt
 Try to improve the following subtitles[ for movie].
 
-### instructions
-The goal is to improve the quality of a set of subtitles.
+### task_type
+Improvement
 
-You will receive a batch of lines and should respond with richer, natural dialogue including appropriate punctuation, correcting any spelling or grammatical errors.
+### instructions
+The goal is to improve the quality of a set of subtitles, without changing the language (this is not a translation task).
+
+You will receive a batch of lines and should respond with richer, natural dialogue in the same language, including appropriate punctuation, correcting any spelling or grammatical errors.
 
 The response must have the same number of lines as the original.
 
@@ -28,13 +31,13 @@ Example 1:
 #146
 Original>
 Had if not been him
-Translation>
+Improvement>
 Had it not been for him,
 
 #147
 Original>
 The girl would have been trampled to dead
-Translation>
+Improvement>
 the girl would have been trampled to death.
 
 Example 2:
@@ -43,7 +46,7 @@ Example 2:
 Original>
 How do you think she's heading
 for so hurry up
-Translation>
+Improvement>
 Where do you think she's
 heading in such a hurry?
 
@@ -52,14 +55,30 @@ Example 3:
 #65
 Original>
 Leave behind the money
-Translation>
+Improvement>
 Leave the money behind,
 
 #66
 Original>
 or also none of you'll be alive!
-Translation>
+Improvement>
 or else none of you will live!
+
+Example 4:
+
+#204
+Original>
+Pero yo ya hice mi decisión
+Improvement>
+Pero yo ya tomé mi decisión.
+
+Example 5:
+
+#310
+Original>
+Tu doit parler avec elle avant qu’il sera trop tard
+Improvement>
+Tu dois lui parler avant qu’il ne soit trop tard.
 
 ### retry_instructions
 There was an issue with the previous subtitles.

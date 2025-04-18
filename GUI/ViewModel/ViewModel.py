@@ -9,6 +9,7 @@ from GUI.ViewModel.SceneItem import SceneItem
 from GUI.ViewModel.ViewModelError import ViewModelError
 
 from PySubtitle.Helpers.Time import TimeDeltaToText
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -23,6 +24,7 @@ class ProjectViewModel(QStandardItemModel):
         self.updates = []
         self.update_lock = QRecursiveMutex()
         self.debug_view = os.environ.get("DEBUG_MODE") == "1"
+        self.task_type = DEFAULT_TASK_TYPE
 
     def getRootItem(self):
         return self.invisibleRootItem()
@@ -80,6 +82,7 @@ class ProjectViewModel(QStandardItemModel):
             raise ValueError("Can only model subtitle files")
 
         self.model = {}
+        self.task_type = data.task_type
 
         for scene in data.scenes:
             scene_item = self.CreateSceneItem(scene)
