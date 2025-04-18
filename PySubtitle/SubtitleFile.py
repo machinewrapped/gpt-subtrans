@@ -6,6 +6,7 @@ import threading
 import srt
 import bisect
 from PySubtitle.Helpers.Text import IsRightToLeftText
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 from PySubtitle.Options import Options
 
 from PySubtitle.Substitutions import Substitutions
@@ -65,7 +66,7 @@ class SubtitleFile:
     
     @property
     def task_type(self):
-        return self.settings.get('task_type') or "Translation"
+        return self.settings.get('task_type') or DEFAULT_TASK_TYPE
 
     @property
     def has_subtitles(self):

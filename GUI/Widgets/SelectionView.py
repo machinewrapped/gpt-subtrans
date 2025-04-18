@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QLabel, QFrame, QHBoxLayout, QPushButton, QSizePol
 from GUI.GuiInterface import GuiInterface
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectSelection import ProjectSelection
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 
 def _show(widget, condition):
     if condition:
@@ -73,7 +74,7 @@ class SelectionView(QFrame):
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
     def SetTaskType(self, task_type : str):
-        if task_type == "Translation":
+        if task_type == DEFAULT_TASK_TYPE:
             self._translate_button.setText("Translate Selection")
         elif task_type == "Improvement":
             self._translate_button.setText("Improve Selection")

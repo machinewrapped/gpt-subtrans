@@ -1,6 +1,7 @@
 import logging
 import time
 
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.TranslationParser import TranslationParser
 from PySubtitle.TranslationPrompt import TranslationPrompt, default_prompt_template
@@ -97,7 +98,7 @@ class TranslationClient:
 
         return translation
 
-    def GetParser(self, task_type = "Translation"):
+    def GetParser(self, task_type = DEFAULT_TASK_TYPE) -> TranslationParser:
         """
         Return a parser that can process the provider's response
         """

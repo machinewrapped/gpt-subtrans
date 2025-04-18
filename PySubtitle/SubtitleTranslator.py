@@ -1,10 +1,10 @@
-from copy import deepcopy
-import logging
 from os import linesep
+import logging
 import threading
+
 from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
-from PySubtitle.Instructions import Instructions
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE, Instructions
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
@@ -48,7 +48,7 @@ class SubtitleTranslator:
         self.preview = options.get('preview')
 
         self.instructions : Instructions = options.GetInstructions()
-        self.task_type = self.instructions.task_type or "Translation"
+        self.task_type = self.instructions.task_type or DEFAULT_TASK_TYPE
         self.user_prompt : str = options.BuildUserPrompt()
         self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode', 'Auto'))
 

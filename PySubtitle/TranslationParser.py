@@ -1,6 +1,7 @@
 import logging
 import regex
 
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 from PySubtitle.Options import Options
 from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Text import IsTextContentEqual
@@ -40,14 +41,14 @@ class TranslationParser:
         self.task_type = task_type
         self.regex_patterns = self.GetRegularExpressionPatterns(task_type)
 
-    def GetRegularExpressionPatterns(self, task_type : str = "Translation"):
+    def GetRegularExpressionPatterns(self, task_type : str = DEFAULT_TASK_TYPE):
         """
         Returns a list of regular expressions to try for extracting translations
         """
         # Use the current default pattern, and fall back on alternative/older patterns if no matches are found
         patterns = [
             regex.compile(
-                pattern.replace("Translation", task_type), regex.MULTILINE) for pattern in [default_pattern] + fallback_patterns
+                pattern.replace(DEFAULT_TASK_TYPE, task_type), regex.MULTILINE) for pattern in [default_pattern] + fallback_patterns
             ]
         return patterns
 

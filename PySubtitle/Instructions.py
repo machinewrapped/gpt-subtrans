@@ -5,6 +5,8 @@ from PySubtitle.Helpers.Resources import GetResourcePath, config_dir
 
 linesep = '\n'
 
+DEFAULT_TASK_TYPE = "Translation"
+
 default_instructions = linesep.join([
 	"Your task is to accurately translate subtitles into a target language."
 	"The user will provide a batch of lines for translation, you should respond with an ACCURATE, CONCISE, and NATURAL-SOUNDING translation for EACH LINE in the batch."
@@ -69,7 +71,7 @@ class Instructions:
         self.retry_instructions = settings.get('retry_instructions') or default_retry_instructions
         self.instruction_file = settings.get('instruction_file') or None
         self.target_language = None
-        self.task_type = settings.get('task_type') or "Translation"
+        self.task_type = settings.get('task_type') or DEFAULT_TASK_TYPE
 
         # Add any additional instructions from the command line
         if settings.get('instruction_args'):
@@ -123,7 +125,7 @@ class Instructions:
         self.retry_instructions = linesep.join(sections.get('retry_instructions', [])) or default_retry_instructions
         self.instruction_file = os.path.basename(filepath)
         self.target_language = ''.join(sections.get('target_language', None)) if 'target_language' in sections else None
-        self.task_type = ''.join(sections.get('task_type', None)) if 'task_type' in sections else "Translation"
+        self.task_type = ''.join(sections.get('task_type', None)) if 'task_type' in sections else DEFAULT_TASK_TYPE
 
         if not self.prompt or not self.instructions:
             raise ValueError("Invalid instruction file")
