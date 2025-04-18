@@ -49,6 +49,10 @@ class ProjectDataModel:
     @property
     def target_language(self):
         return self.project_options.target_language
+    
+    @property
+    def task_type(self):
+        return self.project.task_type if self.project else None
 
     @property
     def allow_multithreaded_translation(self):

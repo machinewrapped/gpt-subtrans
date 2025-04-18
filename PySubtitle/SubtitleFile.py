@@ -62,6 +62,10 @@ class SubtitleFile:
     @property
     def target_language(self):
         return self.settings.get('target_language')
+    
+    @property
+    def task_type(self):
+        return self.settings.get('task_type') or "Translation"
 
     @property
     def has_subtitles(self):

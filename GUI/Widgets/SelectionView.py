@@ -72,6 +72,14 @@ class SelectionView(QFrame):
         _show(self._delete_lines_button, selection.AnyLines())
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
+    def SetTaskType(self, task_type : str):
+        if task_type == "Translate":
+            self._translate_button.setText("Translate Selection")
+        elif task_type == "Improvement":
+            self._translate_button.setText("Improve Selection")
+        else:
+            self._translate_button.setText(f"Selection {task_type}")
+
     def _create_button(self, text, on_click):
         button = QPushButton(text, self)
         button.clicked.connect(on_click, Qt.ConnectionType.QueuedConnection)

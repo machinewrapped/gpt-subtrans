@@ -23,6 +23,7 @@ class ProjectViewModel(QStandardItemModel):
         self.updates = []
         self.update_lock = QRecursiveMutex()
         self.debug_view = os.environ.get("DEBUG_MODE") == "1"
+        self.task_type = "Translation"
 
     def getRootItem(self):
         return self.invisibleRootItem()
@@ -80,6 +81,7 @@ class ProjectViewModel(QStandardItemModel):
             raise ValueError("Can only model subtitle files")
 
         self.model = {}
+        self.task_type = data.task_type
 
         for scene in data.scenes:
             scene_item = self.CreateSceneItem(scene)

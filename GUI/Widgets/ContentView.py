@@ -50,6 +50,7 @@ class ContentView(QWidget):
         self.viewmodel = viewmodel
         self.viewmodel.updatesPending.connect(self._update_view_model, type=Qt.ConnectionType.QueuedConnection)
         self.subtitle_view.SetViewModel(viewmodel)
+        self.selection_view.SetTaskType(viewmodel.task_type)
         self.selection_view.ShowSelection(ProjectSelection())
 
     def Clear(self):
