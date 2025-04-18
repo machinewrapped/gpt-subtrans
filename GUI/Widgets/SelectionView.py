@@ -73,7 +73,7 @@ class SelectionView(QFrame):
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
     def SetTaskType(self, task_type : str):
-        if task_type == "Translate":
+        if task_type == "Translation":
             self._translate_button.setText("Translate Selection")
         elif task_type == "Improvement":
             self._translate_button.setText("Improve Selection")
