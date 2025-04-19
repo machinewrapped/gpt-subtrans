@@ -37,7 +37,7 @@ class ModelView(QWidget):
         # Project Settings
         self.project_settings = ProjectSettings(action_handler=action_handler, parent=self)
         self.project_settings.hide()
-        self.project_settings.settingsChanged.connect(self.settingsChanged)
+        self.project_settings.settingsChanged.connect(self._on_project_settings_changed, Qt.ConnectionType.QueuedConnection)
 
         # Splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -132,3 +132,6 @@ class ModelView(QWidget):
         }
         self.action_handler.UpdateBatch(scene, batch_number, update)
 
+    def _on_project_settings_changed(self, settings : dict):
+        self.settingsChanged.emit(settings)
+        self.content_view.UpdateSettings(settings)

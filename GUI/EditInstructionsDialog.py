@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
 from PySubtitle.Options import MULTILINE_OPTION, Options
-from PySubtitle.Instructions import Instructions, GetInstructionsFiles, GetInstructionsUserPath, LoadInstructions
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE, Instructions, GetInstructionsFiles, GetInstructionsUserPath, LoadInstructions
 
 class EditInstructionsDialog(QDialog):
     def __init__(self, settings : dict, parent=None):
@@ -28,6 +28,7 @@ class EditInstructionsDialog(QDialog):
 
         self.form_layout = QFormLayout()
         self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, "Prompt for each translation request")
+        self.task_type_edit = self._add_form_option("task_type", self.instructions.task_type, str, "Type of response expected for each line (must match the example format)")
         self.instructions_edit = self._add_form_option("instructions", self.instructions.instructions, MULTILINE_OPTION, "System instructions for the translator")
         self.retry_instructions_edit = self._add_form_option("retry_instructions", self.instructions.retry_instructions, MULTILINE_OPTION, "Supplementary instructions when retrying")
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -73,9 +74,17 @@ class EditInstructionsDialog(QDialog):
     def accept(self):
         if self._check_for_edited_instructions():
             self.instructions.prompt = self.prompt_edit.GetValue()
+            self.instructions.task_type = self.task_type_edit.GetValue()
             self.instructions.instructions = self.instructions_edit.GetValue()
             self.instructions.retry_instructions = self.retry_instructions_edit.GetValue()
             self.instructions.instruction_file = None
+
+        # Check that {task_type} is found in instructions
+        # Check that {task_type} is found in instructions
+        if not self.instructions.task_type:
+            logging.error(f"Task type cannot be empty. Please check the task type.")
+        elif self.instructions.task_type not in self.instructions.instructions:
+            logging.error(f"Task type '{self.instructions.task_type}' not found in instructions. Please check the instructions.")
 
         super().accept()
 
@@ -85,6 +94,8 @@ class EditInstructionsDialog(QDialog):
     def _check_for_edited_instructions(self):
         '''Check if the instructions have been edited'''
         if self.prompt_edit.GetValue() != self.instructions.prompt:
+            return True
+        if self.task_type_edit.GetValue() != self.instructions.task_type:
             return True
         if self.instructions_edit.GetValue() != self.instructions.instructions:
             return True
@@ -109,6 +120,7 @@ class EditInstructionsDialog(QDialog):
             self.instructions = LoadInstructions(instructions_name)
 
             self.prompt_edit.SetValue(self.instructions.prompt)
+            self.task_type_edit.SetValue(self.instructions.task_type)
             self.instructions_edit.SetValue(self.instructions.instructions)
             self.retry_instructions_edit.SetValue(self.instructions.retry_instructions)
 
@@ -125,6 +137,7 @@ class EditInstructionsDialog(QDialog):
                 self.instructions.LoadInstructionsFile(file_name)
 
                 self.prompt_edit.SetValue(self.instructions.prompt)
+                self.task_type_edit.SetValue(self.instructions.task_type)
                 self.instructions_edit.SetValue(self.instructions.instructions)
                 self.retry_instructions_edit.SetValue(self.instructions.retry_instructions)
 
@@ -139,6 +152,7 @@ class EditInstructionsDialog(QDialog):
         if file_name:
             try:
                 self.instructions.prompt = self.prompt_edit.GetValue()
+                self.instructions.task_type = self.task_type_edit.GetValue()
                 self.instructions.instructions = self.instructions_edit.GetValue()
                 self.instructions.retry_instructions = self.retry_instructions_edit.GetValue()
 
@@ -150,5 +164,6 @@ class EditInstructionsDialog(QDialog):
     def set_defaults(self):
         options = Options()
         self.prompt_edit.SetValue(options.get('prompt'))
+        self.task_type_edit.SetValue(options.get('task_type', DEFAULT_TASK_TYPE))
         self.instructions_edit.SetValue(options.get('instructions'))
         self.retry_instructions_edit.SetValue(options.get('retry_instructions'))
