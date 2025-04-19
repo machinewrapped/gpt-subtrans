@@ -9,6 +9,7 @@ from GUI.Widgets.Editors import EditSubtitleDialog
 from GUI.Widgets.SelectionView import SelectionView
 
 from GUI.Widgets.SubtitleView import SubtitleView
+from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 
 class ContentView(QWidget):
     """
@@ -57,6 +58,11 @@ class ContentView(QWidget):
         self.viewmodel = ProjectViewModel()
         self.subtitle_view.SetViewModel(self.viewmodel)
         self.selection_view.ShowSelection(ProjectSelection())
+
+    def UpdateSettings(self, settings : dict):
+        if 'task_type' in settings:
+            task_type = settings.get('task_type', DEFAULT_TASK_TYPE)
+            self.selection_view.SetTaskType(task_type)
 
     def GetSelectedLines(self):
         return self.subtitle_view.GetSelectedLines()
