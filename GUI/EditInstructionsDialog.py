@@ -80,7 +80,10 @@ class EditInstructionsDialog(QDialog):
             self.instructions.instruction_file = None
 
         # Check that {task_type} is found in instructions
-        if self.instructions.task_type not in self.instructions.instructions:
+        # Check that {task_type} is found in instructions
+        if not self.instructions.task_type:
+            logging.error(f"Task type cannot be empty. Please check the task type.")
+        elif self.instructions.task_type not in self.instructions.instructions:
             logging.error(f"Task type '{self.instructions.task_type}' not found in instructions. Please check the instructions.")
 
         super().accept()
