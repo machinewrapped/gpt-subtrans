@@ -63,8 +63,9 @@ class EditLineCommand(Command):
                     self.undo_data['translation'] = line.translation
                     line.translation = self.edit['translation']
                     translated_line = line.translated
-                    translated_line.original = line.text
-                    batch.AddTranslatedLine(translated_line)
+                    if translated_line:
+                        translated_line.original = line.text
+                        batch.AddTranslatedLine(translated_line)
 
             self._update_model(batch, line)
 
