@@ -7,7 +7,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QPushButton,
-    QComboBox,
     QFileDialog,
     QSizePolicy
     )
@@ -163,7 +162,8 @@ class EditInstructionsDialog(QDialog):
 
     def set_defaults(self):
         options = Options()
-        self.prompt_edit.SetValue(options.get('prompt'))
-        self.task_type_edit.SetValue(options.get('task_type', DEFAULT_TASK_TYPE))
-        self.instructions_edit.SetValue(options.get('instructions'))
-        self.retry_instructions_edit.SetValue(options.get('retry_instructions'))
+        instructions = options.GetInstructions()
+        self.prompt_edit.SetValue(instructions.prompt)
+        self.task_type_edit.SetValue(instructions.task_type)
+        self.instructions_edit.SetValue(instructions.instructions)
+        self.retry_instructions_edit.SetValue(instructions.retry_instructions)

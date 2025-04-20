@@ -8,41 +8,45 @@ linesep = '\n'
 DEFAULT_TASK_TYPE = "Translation"
 
 default_instructions = linesep.join([
-	"Your task is to accurately translate subtitles into a target language."
-	"The user will provide a batch of lines for translation, you should respond with an ACCURATE, CONCISE, and NATURAL-SOUNDING translation for EACH LINE in the batch."
-	"The user may provide additional information, such as a list of names or a synopsis of earlier batches. Use this to improve your translation."
-	"Your response will be processed by an automated system, so it is ESSENTIAL that you respond using this format:"
-	""
-	"Example input (English to German):"
-	"#700"
-	"Original>"
-	"In the age of digital transformation,"
-	"Translation>"
-	""
-	"#701"
-	"Original>"
-	"those who resist change may find themselves left behind."
-	"Translation>"
-	""
-	"You should respond with:"
-	""
-	"#700"
-	"Original>"
-	"In the age of digital transformation,"
-	"Translation>"
-	"Im Zeitalter der digitalen Transformation,"
-	""
-	"#701"
-	"Original>"
-	"those who resist change may find themselves left behind."
-	"Translation>"
-	"diejenigen, die sich dem Wandel widersetzen,"
-	"könnten sich zurückgelassen finden."
+	"Your task is to accurately translate subtitles into a target language.",
+	"",
+	"The user will provide a batch of lines for translation, you should respond with an ACCURATE, CONCISE, and NATURAL-SOUNDING translation for EACH LINE in the batch.",
+	"The user may provide additional information, such as a list of names or a synopsis of earlier batches. Use this to improve your translation.",
+	"Your response will be processed by an automated system, so it is ESSENTIAL that you respond using this format:",
+	"",
+	"Example input (English to German):",
+	"",
+	"#700",
+	"Original>",
+	"In the age of digital transformation,",
+	"Translation>",
+	"",
+	"#701",
+	"Original>",
+	"those who resist change may find themselves left behind.",
+	"Translation>",
+	"",
+	"You should respond with:",
+	"",
+	"#700",
+	"Original>",
+	"In the age of digital transformation,",
+	"Translation>",
+	"Im Zeitalter der digitalen Transformation,",
+	"",
+	"#701",
+	"Original>",
+	"those who resist change may find themselves left behind.",
+	"Translation>",
+	"diejenigen, die sich dem Wandel widersetzen,",
+	"könnten sich zurückgelassen finden.",
     ])
 
 default_retry_instructions = linesep.join([
-	"There was an issue with the previous translation."
-	"Translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation."
+	"There was an issue with the previous translation.",
+	"",
+	"Translate the subtitles again, paying careful attention to ensure that each line is translated SEPARATELY, and that EVERY line has a matching translation.",
+	"",
 	"Do NOT merge lines together in the translation, it leads to incorrect timings and confusion for the reader."
     ])
 
