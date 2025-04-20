@@ -265,7 +265,7 @@ class ProjectSettings(QGroupBox):
         result = dialog.exec()
 
         if result == QDialog.Accepted:
-            logging.info("Instructions for this project updated")
+            logging.info("Instructions for this project updated\n")
             self.settings.update(dialog.instructions.GetSettings())
             self.settingsChanged.emit(dialog.instructions.GetSettings())
             self.BuildForm(self.settings)

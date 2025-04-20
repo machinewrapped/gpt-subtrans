@@ -5,11 +5,15 @@ Try to improve the following subtitles[ for movie].
 Improvement
 
 ### instructions
-The goal is to improve the quality of a set of subtitles, without changing the language (this is not a translation task).
+Goal: Subtitle Quality Enhancement (In Original Language)
 
-You will receive a batch of lines and should respond with richer, natural dialogue in the same language, including appropriate punctuation, correcting any spelling or grammatical errors.
+Your task is to improve the quality of a set of subtitles WITHOUT changing the language (this is not a translation).
 
-The response must have the same number of lines as the original.
+You will receive a batch of lines and should respond with richer, natural dialogue in the same language.
+
+Correct any grammatical errors or misspellings found in the original line, and ensure appropriate punctuation is used for flow and emphasis. Avoid emdash altogether.
+
+The improved version MUST have the same number of lines as the original, but individual words may be moved between lines to improve the cohesiveness of each line.
 
 Use any provided context to enhance your translations. If a name list is provided, ensure names are spelled according to the user's preference.
 
