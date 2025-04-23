@@ -147,6 +147,8 @@ class Instructions:
             with open(filepath, "w", encoding="utf-8", newline='') as f:
                 f.write("### prompt\n")
                 f.write(self.prompt)
+                if self.task_type != DEFAULT_TASK_TYPE:
+                    f.write("\n\n### task_type\n{}".format(self.task_type))
                 f.write("\n\n### instructions\n")
                 f.write(self.instructions)
                 f.write("\n\n### retry_instructions\n")
