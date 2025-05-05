@@ -219,7 +219,7 @@ class SubtitleProject:
         Save the project file if it needs updating
         """
         with self.lock:
-            if self.needs_writing:
+            if self.needs_writing and self.subtitles and self.subtitles.scenes:
                 self.WriteProjectFile()
 
     def GetProjectSettings(self):
