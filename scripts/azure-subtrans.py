@@ -37,11 +37,11 @@ try:
         api_version=args.apiversion or api_version,
     )
 
-    # Create a translator with the provided options
-    translator : SubtitleTranslator = CreateTranslator(options)
-
     # Create a project for the translation
     project : SubtitleProject = CreateProject(options, args)
+
+    # Create a translator with the provided options
+    translator : SubtitleTranslator = CreateTranslator(options)
 
     # Translate the subtitles
     project.TranslateSubtitles(translator)

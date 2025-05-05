@@ -26,11 +26,11 @@ logger_options = InitLogger("claude-subtrans", args.debug)
 try:
     options : Options = CreateOptions(args, provider, model=args.model or default_model, proxy=args.proxy)
 
-    # Create a translator with the provided options
-    translator : SubtitleTranslator = CreateTranslator(options)
-
     # Create a project for the translation
     project : SubtitleProject = CreateProject(options, args)
+
+    # Create a translator with the provided options
+    translator : SubtitleTranslator = CreateTranslator(options)
 
     # Translate the subtitles
     project.TranslateSubtitles(translator)

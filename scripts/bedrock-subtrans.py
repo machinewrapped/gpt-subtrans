@@ -41,11 +41,11 @@ try:
     if not options.get('access_key') or not options.get('secret_access_key') or not options.get('aws_region') or not options.get('model'):
         raise ValueError("AWS Access Key, Secret Key, Region, and Model ID must be specified.")
 
-    # Create a translator with the provided options
-    translator: SubtitleTranslator = CreateTranslator(options)
-
     # Create a project for the translation
     project: SubtitleProject = CreateProject(options, args)
+
+    # Create a translator with the provided options
+    translator: SubtitleTranslator = CreateTranslator(options)
 
     # Translate the subtitles
     project.TranslateSubtitles(translator)
