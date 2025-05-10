@@ -21,7 +21,7 @@ def InitLogger(logfilename: str, debug: bool = False) -> LoggerOptions:
     log_path = os.path.join(config_dir, f"{logfilename}.log")
 
     if debug:
-        logging.debug("Debug logging enabled")
+        logging_level = logging.DEBUG
     else:
         level_name = os.getenv('LOG_LEVEL', 'INFO').upper()
         logging_level = getattr(logging, level_name, logging.INFO)
@@ -34,6 +34,9 @@ def InitLogger(logfilename: str, debug: bool = False) -> LoggerOptions:
     except Exception as e:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging_level)
         logging.info("Unable to write to utf-8 log, falling back to default encoding")
+
+    if debug:
+        logging.debug("Debug logging enabled")
 
     # Create file handler with the same logging level
     try:
