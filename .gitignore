@@ -33,3 +33,4 @@ llm-subtrans.sh
 deepseek-subtrans.sh
 bedrock-subtrans.sh
 mistral-subtrans.sh
+*.zip
