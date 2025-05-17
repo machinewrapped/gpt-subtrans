@@ -218,7 +218,7 @@ class ProjectSettings(QGroupBox):
         self.UpdateSettings()
         self.settingsChanged.emit(self.settings)
 
-    def _check_changed(self, int = None):
+    def _check_changed(self, dummy : int|None = None):
         self.UpdateSettings()
         self.settingsChanged.emit(self.settings)
 

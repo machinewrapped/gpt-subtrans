@@ -71,7 +71,7 @@ class TranslationPrompt:
 
         self._generate_content()
 
-    def GenerateBatchPrompt(self, lines : list, context : dict = None):
+    def GenerateBatchPrompt(self, lines : list, context : dict|None = None) -> str:
         """
         Create the user prompt for translating a set of lines
 
@@ -88,7 +88,7 @@ class TranslationPrompt:
         if self.user_prompt:
             prompt = f"{self.user_prompt}\n\n{prompt}\n"
 
-        tag_lines = _generate_tag_lines(context, self.context_tags, self.tag_template) if context else ""
+        tag_lines = _generate_tag_lines(context or {}, self.context_tags, self.tag_template) if context else ""
 
         if tag_lines:
             prompt = self.prompt_template.format(prompt=prompt, context=tag_lines)
@@ -145,7 +145,7 @@ class TranslationPrompt:
         else:
             return "\n\n".join([ m.get('content') for m in self.messages ])
 
-def _get_line_prompt(line : SubtitleLine, line_template : str|None = None):
+def _get_line_prompt(line : SubtitleLine, line_template : str) -> Optional[str]:
     """
     Generate a prompt for a single subtitle line
     """

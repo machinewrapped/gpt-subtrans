@@ -10,7 +10,7 @@ class SubtitleLine:
     Represents a single line, with a number and start and end times plus original text
     and (optionally) an associated translation.
     """
-    def __init__(self, line : srt.Subtitle | str, translation : str|None = None, original : str|None = None):
+    def __init__(self, line : srt.Subtitle|str|None, translation : str|None = None, original : str|None = None):
         if isinstance(line, SubtitleLine):
             self._item = line._item
             self._duration = line._duration
@@ -41,6 +41,10 @@ class SubtitleLine:
     @property
     def text(self) -> str|None:
         return self._item.content if self._item else None
+    
+    @property
+    def text_stripped(self) -> str|None:
+        return self.text.strip() if self.text else None
 
     @property
     def text_normalized(self) -> str|None:
@@ -135,10 +139,10 @@ class SubtitleLine:
         self.translation = SubtitleLine(translated).text
 
     @classmethod
-    def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str|None = None):
+    def Construct(cls, number : int|str|None, start : timedelta|str|None, end : timedelta|str|None, text : str|None, original : str|None = None):
         number: int|None = int(number) if number else None
-        start : timedelta|None = GetTimeDeltaSafe(start)
-        end : timedelta|None = GetTimeDeltaSafe(end)
+        start : timedelta = GetTimeDeltaSafe(start)
+        end : timedelta = GetTimeDeltaSafe(end)
         text : str = srt.make_legal_content(text.strip()) if text else ""
         original = srt.make_legal_content(original.strip()) if original else ""
         item = srt.Subtitle(number, start, end, text)
@@ -169,14 +173,17 @@ class SubtitleLine:
             start, end, body = match
             number = None
 
+        if not isinstance(number, str):
+            raise ValueError(f"Invalid number: {number}")
+
         return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
 
-def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
+def CreateSrtSubtitle(item : srt.Subtitle|SubtitleLine|str) -> srt.Subtitle|None:
     """
     Try to construct an srt.Subtitle from the argument
     """
-    if hasattr(item, 'item'):
-        item = item.item
+    if isinstance(item, SubtitleLine):
+        item : srt.Subtitle = item.item
 
     if not isinstance(item, srt.Subtitle):
         line = str(item).strip()
@@ -186,7 +193,7 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
             index = int(raw_index) if raw_index else None
             start = srt.srt_timestamp_to_timedelta(raw_start)
             end = srt.srt_timestamp_to_timedelta(raw_end)
-            item = srt.Subtitle(index, start, end, content, proprietary)
+            item : srt.Subtitle = srt.Subtitle(index, start, end, content, proprietary)
         elif item is not None:
             logging.warning(f"Failed to parse line: {line}")
 

@@ -60,7 +60,7 @@ class SubtitleProcessor:
         self.min_single_line_length = settings.get('min_single_line_length', 4)
 
         self.split_dialog_pattern = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
-        self.filler_words_pattern = CompileFillerWordsPattern(settings.get('filler_words')) if self.remove_filler_words else None
+        self.filler_words_pattern = CompileFillerWordsPattern(settings.get('filler_words', [])) if self.remove_filler_words else None
 
         self.split_by_duration = self.max_line_duration.total_seconds() > 0.0
 
@@ -128,7 +128,7 @@ class SubtitleProcessor:
         Split dialogs onto separate lines.
         Adjust line breaks to split at punctuation weighted by centrality
         """
-        text = line.text.strip()
+        text : str = line.text_stripped()
         if not text:
             return
 
@@ -166,7 +166,7 @@ class SubtitleProcessor:
         Normalise dialog markers.
         Add line breaks to long lines.
         """
-        text = line.text.strip()
+        text : str = line.text_stripped()
 
         if not text:
             return line
@@ -261,7 +261,7 @@ class SubtitleProcessor:
         current_line = lines[0]
 
         for line in lines[1:]:
-            if not current_line.text.strip():
+            if not current_line.text_stripped():
                 current_line = line
                 continue
 

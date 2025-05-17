@@ -16,7 +16,7 @@ from PySubtitle.TranslationEvents import TranslationEvents
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
-    def __init__(self, options : Options, subtitles : SubtitleFile = None):
+    def __init__(self, options : Options, subtitles : SubtitleFile|None = None):
         self.subtitles : SubtitleFile = subtitles
         self.events = TranslationEvents()
         self.projectfile = None
@@ -56,8 +56,8 @@ class SubtitleProject:
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
         """
         filepath = os.path.normpath(filepath)
-        sourcepath = filepath
-        self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
+        sourcepath : str = filepath
+        self.projectfile : str = self.GetProjectFilepath(filepath or "subtitles")
 
         project_file_exists = os.path.exists(self.projectfile)
 
@@ -283,7 +283,7 @@ class SubtitleProject:
             logging.error(f"Failed to translate subtitles: {str(e)}")
             raise
 
-    def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
+    def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int]|None = None, line_numbers : list[int]|None = None):
         """
         Pass batches of subtitles to the translation engine.
         """
@@ -312,7 +312,7 @@ class SubtitleProject:
             translator.events.preprocessed -= self._on_preprocessed
             translator.events.batch_translated -= self._on_batch_translated
 
-    def ReparseBatchTranslation(self, translator : SubtitleTranslator, scene_number : int, batch_number : int, line_numbers : list[int] = None):
+    def ReparseBatchTranslation(self, translator : SubtitleTranslator, scene_number : int, batch_number : int, line_numbers : list[int]|None = None):
         """
         Reparse the translation of a batch of subtitles
         """

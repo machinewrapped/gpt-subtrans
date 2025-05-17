@@ -142,7 +142,7 @@ class TranslationParser:
         """
         Try to match translations to their source lines using heuristics
         """
-        possible_matches : list[(SubtitleLine,SubtitleLine)] = []
+        possible_matches : list[tuple[SubtitleLine,SubtitleLine]] = []
         for item in (item for item in unmatched if item.number is not None):
             for translation in self.translations.values():
                 if translation.original:

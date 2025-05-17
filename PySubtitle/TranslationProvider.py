@@ -26,7 +26,7 @@ class TranslationProvider:
         return self._available_models
 
     @property
-    def selected_model(self) -> str:
+    def selected_model(self) -> str|None:
         """
         The currently selected model for the provider
         """
@@ -56,7 +56,7 @@ class TranslationProvider:
         """
         Returns information about the provider settings
         """
-        return None
+        return ""
 
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         """

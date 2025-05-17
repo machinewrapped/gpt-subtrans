@@ -61,7 +61,7 @@ class SubtitleTranslator:
         self.translation_provider : TranslationProvider = translation_provider
 
         if not self.translation_provider:
-            raise NoProviderError("Translation provider is unavailable")
+            raise NoProviderError()
 
         try:
             self.client : TranslationClient = self.translation_provider.GetTranslationClient(self.settings)
@@ -146,11 +146,17 @@ class SubtitleTranslator:
         """
         Send a scene for translation
         """
+        if not scene.number:
+            raise TranslationImpossibleError("No scene number")
+        
         try:
             batches = [ batch for batch in scene.batches if batch.number in batch_numbers ] if batch_numbers else scene.batches
 
             for batch in batches:
-                context = subtitles.GetBatchContext(scene.number, batch.number, self.max_history)
+                if not batch.number:
+                    raise TranslationImpossibleError("No batch number")
+                
+                context : dict = subtitles.GetBatchContext(scene.number or -1, batch.number or -1, self.max_history)
 
                 try:
                     self.TranslateBatch(batch, line_numbers, context)
@@ -268,7 +274,7 @@ class SubtitleTranslator:
             batch.AddContext('replacements', replaced)
 
         # Filter out empty lines
-        originals = [ line for line in batch.originals if line.text and line.text.strip() ]
+        originals = [ line for line in batch.originals if line.text and line.text_stripped() ]
 
         # Apply the max_lines limit
         with self.lock:
@@ -280,7 +286,7 @@ class SubtitleTranslator:
 
         return originals, context
 
-    def ProcessBatchTranslation(self, batch : SubtitleBatch, translation : Translation, line_numbers : list[int]):
+    def ProcessBatchTranslation(self, batch : SubtitleBatch, translation : Translation, line_numbers : list[int]|None):
         """
         Attempt to extract translation from the API response
         """
@@ -332,7 +338,7 @@ class SubtitleTranslator:
         if translation.summary and translation.summary.strip():
             logging.info(f"Summary: {translation.summary}")
 
-    def RequestRetranslation(self, batch : SubtitleBatch, line_numbers : list[int] = None, context : dict = {}):
+    def RequestRetranslation(self, batch : SubtitleBatch, line_numbers : list[int]|None = None, context : dict = {}):
         """
         Ask the client to retranslate the input and correct errors
         """

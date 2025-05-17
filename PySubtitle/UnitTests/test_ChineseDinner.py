@@ -22,6 +22,10 @@ class ChineseDinnerTests(SubtitleTestCase):
         with self.subTest("Load subtitles from string"):
             log_test_name("Load subtitles from string")
             original_srt = chinese_dinner_data.get('original')
+            if not original_srt:
+                self.fail("No original SRT data found")
+                return
+
             subtitles.LoadSubtitlesFromString(original_srt)
 
             self.assertTrue(subtitles.has_subtitles)

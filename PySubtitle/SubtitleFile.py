@@ -93,10 +93,13 @@ class SubtitleFile:
             self.originals, self.translated, _ = UnbatchScenes(scenes)
             self.start_line_number = (self.originals[0].number if self.originals else 1) or 1
 
-    def GetScene(self, scene_number : int) -> SubtitleScene:
+    def GetScene(self, scene_number : int|None) -> SubtitleScene:
         """
         Get a scene by number
         """
+        if not scene_number:
+            raise SubtitleError("Scene number not supplied")
+        
         if not self.scenes:
             raise SubtitleError("Subtitles have not been batched")
 
@@ -111,10 +114,13 @@ class SubtitleFile:
 
         return matches[0]
 
-    def GetBatch(self, scene_number : int, batch_number : int) -> SubtitleBatch:
+    def GetBatch(self, scene_number : int|None, batch_number : int|None) -> SubtitleBatch:
         """
         Get a batch by scene and batch number
         """
+        if not scene_number or not batch_number:
+            raise SubtitleError("Scene or batch number not supplied")
+
         with self.lock:
             scene = self.GetScene(scene_number)
             for batch in scene.batches:
@@ -123,21 +129,21 @@ class SubtitleFile:
 
         raise SubtitleError(f"Scene {scene_number} batch {batch_number} doesn't exist")
 
-    def GetOriginalLine(self, line_number : int) -> SubtitleLine:
+    def GetOriginalLine(self, line_number : int) -> SubtitleLine|None:
         """
         Get a line by number
         """
         with self.lock:
             return next((line for line in self.originals if line.number == line_number), None)
 
-    def GetTranslatedLine(self, line_number : int) -> SubtitleLine:
+    def GetTranslatedLine(self, line_number : int) -> SubtitleLine|None:
         """
         Get a translated line by number
         """
         with self.lock:
             return next((line for line in self.translated if line.number == line_number), None)
 
-    def GetBatchContainingLine(self, line_number : int):
+    def GetBatchContainingLine(self, line_number : int) -> SubtitleBatch|None:
         """
         Get the batch containing a line number
         """
@@ -156,7 +162,7 @@ class SubtitleFile:
                     if batch.last_line_number >= line_number:
                         return batch
 
-    def GetBatchesContainingLines(self, line_numbers : list[int]):
+    def GetBatchesContainingLines(self, line_numbers : list[int]) -> list[SubtitleBatch]:
         """
         Find the set of unique batches containing the line numbers
         """
@@ -200,7 +206,7 @@ class SubtitleFile:
 
         return out_batches
 
-    def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int = None) -> list[str]:
+    def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int|None = None) -> dict:
         """
         Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
         """
@@ -260,7 +266,7 @@ class SubtitleFile:
         Load subtitles from an SRT string
         """
         try:
-            source = list(srt.parse(srt_string))
+            source : list[str] = list(srt.parse(srt_string))
 
             with self.lock:
                 self.originals = [ SubtitleLine(item) for item in source ]
@@ -494,7 +500,7 @@ class SubtitleFile:
             raise ValueError("No batch numbers supplied to MergeBatches")
 
         with self.lock:
-            scene : SubtitleScene = next((scene for scene in self.scenes if scene.number == scene_number), None)
+            scene : SubtitleScene|None = next((scene for scene in self.scenes if scene.number == scene_number), None)
             if not scene:
                 raise ValueError(f"Scene {str(scene_number)} not found")
 
@@ -514,7 +520,7 @@ class SubtitleFile:
         """
         with self.lock:
             scene : SubtitleScene = self.GetScene(scene_number)
-            batch : SubtitleBatch = scene.GetBatch(batch_number) if scene else None
+            batch : SubtitleBatch|None = scene.GetBatch(batch_number) if scene else None
 
             if not batch:
                 raise ValueError(f"Scene {scene_number} batch {batch_number} does not exist")

@@ -40,15 +40,20 @@ def GetTimeDelta(time : datetime.timedelta|str|None) -> datetime.timedelta|Value
 
             return datetime.timedelta(hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds)
 
-    raise ValueError(f"Invalid time format: {time}")
+    return ValueError(f"Invalid time format: {time}")
     
-def GetTimeDeltaSafe(time : datetime.timedelta|str|None) -> datetime.timedelta|None:
+def GetTimeDeltaSafe(time : datetime.timedelta|str|None) -> datetime.timedelta:
     """
     Ensure the input value is a timedelta, as best we can
     """
     result : datetime.timedelta|ValueError|None = GetTimeDelta(time)
-    if isinstance(result, ValueError):
+
+    if isinstance(result, datetime.timedelta):
+        return result
+    elif isinstance(result, ValueError):
         raise result
+    else:
+        raise ValueError(f"Invalid time format: {time}")
 
 def TimeDeltaToText(time: datetime.timedelta, include_milliseconds = True) -> str:
     """

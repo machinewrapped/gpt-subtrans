@@ -44,7 +44,7 @@ class Substitutions:
         self._patterns = None
 
     @property
-    def patterns(self) -> list[regex.Pattern, str]:
+    def patterns(self) -> list[tuple[regex.Pattern, str]]:
         if self._patterns is None:
             self._patterns = self._compile_patterns()
         return self._patterns
@@ -73,7 +73,7 @@ class Substitutions:
         replacements = { line: new_line for line, new_line in zip(input, result) if new_line != str(line) }
         return result, replacements
 
-    def _compile_patterns(self) -> list[regex.Pattern, str]:
+    def _compile_patterns(self) -> list[tuple[regex.Pattern, str]]:
         patterns = []
         template = self._get_template()
 

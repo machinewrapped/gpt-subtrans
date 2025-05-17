@@ -33,11 +33,11 @@ class SubtitleScene:
 
     @property
     def originals(self) -> list[SubtitleLine]:
-        return [ line for batch in self.batches for line in batch.originals ] if self.batches else None
+        return [ line for batch in self.batches for line in batch.originals ] if self.batches else []
 
     @property
     def translated(self) -> list[SubtitleLine]:
-        return [ line for batch in self.batches for line in batch.translated ] if self.batches else None
+        return [ line for batch in self.batches for line in batch.translated ] if self.batches else []
 
     @property
     def first_line_number(self):
@@ -70,7 +70,7 @@ class SubtitleScene:
 
         self._batches = value
 
-    def GetBatch(self, batch_number) -> SubtitleBatch:
+    def GetBatch(self, batch_number) -> SubtitleBatch|None:
         for batch in self.batches:
             if batch.number == batch_number:
                 return batch
@@ -151,7 +151,7 @@ class SubtitleScene:
 
         self._renumber_batches()
 
-    def SplitBatch(self, batch_number: int, line_number: int, translated_number: int = None):
+    def SplitBatch(self, batch_number: int, line_number: int, translated_number: int|None = None):
         batch = self.GetBatch(batch_number)
         if not batch:
             raise ValueError("Invalid batch number")
@@ -230,7 +230,7 @@ class SubtitleScene:
             batch.number = number
 
 
-def UnbatchScenes(scenes : list[SubtitleScene]):
+def UnbatchScenes(scenes : list[SubtitleScene]) -> tuple[list[SubtitleLine], list[SubtitleLine], list[SubtitleLine]]:
     """
     Reconstruct a sequential subtitle from multiple scenes
     """
