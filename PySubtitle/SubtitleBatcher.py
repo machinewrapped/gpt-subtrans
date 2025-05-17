@@ -71,10 +71,9 @@ class SubtitleBatcher:
 
         if last_split_index > split_index:
             for i in range(split_index, last_split_index):
-                if lines[i].start is None or lines[i - 1].end is None:
-                    continue
-                
-                gap = lines[i].start - lines[i - 1].end
+                current_start : timedelta = lines[i].start or timedelta(seconds=0)
+                previous_end : timedelta = lines[i - 1].end or timedelta(seconds=0)
+                gap: timedelta = current_start - previous_end
                 if gap > longest_gap:
                     longest_gap = gap
                     split_index = i

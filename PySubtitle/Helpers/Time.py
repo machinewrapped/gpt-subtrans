@@ -42,7 +42,7 @@ def GetTimeDelta(time : datetime.timedelta|str|None) -> datetime.timedelta|Value
 
     return ValueError(f"Invalid time format: {time}")
     
-def GetTimeDeltaSafe(time : datetime.timedelta|str|None) -> datetime.timedelta:
+def GetTimeDeltaSafe(time : datetime.timedelta|str|None) -> datetime.timedelta|None:
     """
     Ensure the input value is a timedelta, as best we can
     """
@@ -50,6 +50,8 @@ def GetTimeDeltaSafe(time : datetime.timedelta|str|None) -> datetime.timedelta:
 
     if isinstance(result, datetime.timedelta):
         return result
+    elif result is None:
+        return None
     elif isinstance(result, ValueError):
         raise result
     else:

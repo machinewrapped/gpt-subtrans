@@ -274,7 +274,7 @@ class SubtitleTranslator:
             batch.AddContext('replacements', replaced)
 
         # Filter out empty lines
-        originals = [ line for line in batch.originals if line.text and line.text_stripped() ]
+        originals = [ line for line in batch.originals if line.text and line.text_stripped ]
 
         # Apply the max_lines limit
         with self.lock:

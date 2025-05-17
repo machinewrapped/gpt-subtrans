@@ -121,8 +121,16 @@ class EditCommandsTests(SubtitleTestCase):
         scene : SubtitleScene = subtitles.GetScene(scene_number)
         self.assertIsNotNone(scene)
 
+        if scene is None:
+            self.fail(f"Scene {scene_number} not found in subtitles")
+            return
+
         batch = scene.GetBatch(batch_number)
         self.assertIsNotNone(batch)
+
+        if batch is None:
+            self.fail(f"Batch {batch_number} not found in scene {scene_number}")
+            return
 
         original_scene_number = scene.number
         original_batch_number = batch.number
@@ -154,8 +162,17 @@ class EditCommandsTests(SubtitleTestCase):
         batch = subtitles.GetBatchContainingLine(line_number)
         self.assertIsNotNone(batch)
 
+        if batch is None:
+            self.fail(f"Batch containing line {line_number} not found in subtitles")
+            return
+
         line = batch.GetOriginalLine(line_number)
         self.assertIsNotNone(line)
+
+        if line is None:
+            self.fail(f"Line {line_number} not found in batch {batch.number}")
+            return
+
         self.assertEqual(line.number, line_number)
 
         original_line_number = line.number
@@ -176,9 +193,10 @@ class EditCommandsTests(SubtitleTestCase):
         edited_line = batch.GetOriginalLine(line_number)
         self.assertIsNotNone(edited_line)
 
-        self.assertEqual(edited_line.number, expected_line_number)
-        self.assertEqual(edited_line.text, expected_original)
-        self.assertEqual(edited_line.translation, expected_translation)
+        if edited_line:
+            self.assertEqual(edited_line.number, expected_line_number)
+            self.assertEqual(edited_line.text, expected_original)
+            self.assertEqual(edited_line.translation, expected_translation)
 
         translated_line = batch.GetTranslatedLine(line_number)
         expect_translated_line = test_data.get('expect_translated_line', False)

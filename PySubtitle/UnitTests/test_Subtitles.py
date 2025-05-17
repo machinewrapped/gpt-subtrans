@@ -111,10 +111,17 @@ class TestSubtitles(unittest.TestCase):
         for source, first_part in self.split_point_cases:
             with self.subTest(source=source):
                 line = SubtitleLine(source)
-                break_point = FindSplitPoint(line, split_patterns, min_duration, min_split_chars)
-                result = line.text[:break_point].strip()
-                log_input_expected_result(line, first_part, result)
-                self.assertEqual(result, first_part)
+                self.assertIsNotNone(line)
+                self.assertIsNotNone(line.text)
+
+                if line and line.text:
+                    break_point = FindSplitPoint(line, split_patterns, min_duration, min_split_chars)
+                    self.assertIsNotNone(break_point)
+
+                    if break_point is not None:
+                        result : str = line.text[:break_point].strip()
+                        log_input_expected_result(line, first_part, result)
+                        self.assertEqual(result, first_part)
 
     proportional_duration_cases = [
         (example_line_1, 6, timedelta(seconds=0.5), timedelta(seconds=0.5)),

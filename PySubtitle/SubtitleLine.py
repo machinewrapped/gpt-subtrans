@@ -141,8 +141,8 @@ class SubtitleLine:
     @classmethod
     def Construct(cls, number : int|str|None, start : timedelta|str|None, end : timedelta|str|None, text : str|None, original : str|None = None):
         number: int|None = int(number) if number else None
-        start : timedelta = GetTimeDeltaSafe(start)
-        end : timedelta = GetTimeDeltaSafe(end)
+        start : timedelta = GetTimeDeltaSafe(start) or timedelta(seconds=0)
+        end : timedelta = GetTimeDeltaSafe(end) or timedelta(seconds=0)
         text : str = srt.make_legal_content(text.strip()) if text else ""
         original = srt.make_legal_content(original.strip()) if original else ""
         item = srt.Subtitle(number, start, end, text)

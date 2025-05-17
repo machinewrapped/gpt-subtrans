@@ -128,7 +128,7 @@ class SubtitleProcessor:
         Split dialogs onto separate lines.
         Adjust line breaks to split at punctuation weighted by centrality
         """
-        text : str = line.text_stripped()
+        text : str = line.text_stripped or ""
         if not text:
             return
 
@@ -166,7 +166,7 @@ class SubtitleProcessor:
         Normalise dialog markers.
         Add line breaks to long lines.
         """
-        text : str = line.text_stripped()
+        text : str = line.text_stripped or ""
 
         if not text:
             return line
@@ -261,7 +261,7 @@ class SubtitleProcessor:
         current_line = lines[0]
 
         for line in lines[1:]:
-            if not current_line.text_stripped():
+            if not current_line.text_stripped:
                 current_line = line
                 continue
 
