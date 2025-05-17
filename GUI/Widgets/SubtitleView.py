@@ -67,7 +67,7 @@ class SubtitleView(QListView):
 
             for index in self.selectedIndexes():
                 if index not in selected_indexes:
-                    selection_model.select(index, QItemSelectionModel.Deselect)
+                    selection_model.select(index, QItemSelectionModel.SelectionFlag.Deselect)
 
         # Update the viewport to refresh the list view
         self.viewport().update()
@@ -118,7 +118,7 @@ class SubtitleView(QListView):
         """
         Handle keyboard events for the list view
         """
-        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
             # Ctrl+A pressed, select all items if the list view has focus
             if self.hasFocus():
                 self.SelectAll()

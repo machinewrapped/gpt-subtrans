@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Callable
 
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow
@@ -29,7 +30,7 @@ from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 
 class ActionError(Exception):
-    def __init__(self, message, error = None):
+    def __init__(self, message : str|None, error : Exception|None = None):
         super().__init__(message)
         self.error = error
 
@@ -49,7 +50,7 @@ class ProjectActions(QObject):
     saveProject = Signal(str)
     exitProgram = Signal()
 
-    def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel = None, mainwindow : QMainWindow = None):
+    def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel|None = None, mainwindow : QMainWindow|None = None):
         super().__init__()
 
         if not isinstance(command_queue, CommandQueue):
@@ -63,7 +64,7 @@ class ProjectActions(QObject):
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
 
-    def QueueCommand(self, command : Command, callback = None, undo_callback = None):
+    def QueueCommand(self, command : Command, callback : Callable|None = None, undo_callback : Callable|None = None):
         """
         Add a command to the command queue and kick the queue to start processing
         """
@@ -150,7 +151,7 @@ class ProjectActions(QObject):
         if filepath:
             self.saveProject.emit(filepath)
 
-    def CheckProviderSettings(self, options : Options = None):
+    def CheckProviderSettings(self, options : Options|None = None):
         """
         Check if the translation provider is configured correctly.
         """

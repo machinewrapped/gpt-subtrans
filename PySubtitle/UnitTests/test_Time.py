@@ -1,7 +1,7 @@
 import unittest
 from datetime import timedelta
 from PySubtitle.Helpers.Tests import log_input_expected_error, log_input_expected_result, log_test_name
-from PySubtitle.Helpers.Time import GetTimeDelta, TimeDeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, GetTimeDeltaSafe, TimeDeltaToText
 
 class TestTimeHelpers(unittest.TestCase):
     get_timedelta_cases = [
@@ -26,7 +26,7 @@ class TestTimeHelpers(unittest.TestCase):
         for value, expected in self.get_timedelta_cases:
             with self.subTest(value=value):
                 error_expected = (expected == ValueError)
-                result = GetTimeDelta(value, raise_exception = not error_expected)
+                result = GetTimeDelta(value) if error_expected else GetTimeDeltaSafe(value)
                 if error_expected:
                     log_input_expected_error(value, expected, result)
                     self.assertIsInstance(result, ValueError)

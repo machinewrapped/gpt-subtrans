@@ -3,7 +3,7 @@ from copy import deepcopy
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
-from PySubtitle.Helpers.Time import GetTimeDelta
+from PySubtitle.Helpers.Time import GetTimeDelta, GetTimeDeltaSafe
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -11,7 +11,7 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleValidator import SubtitleValidator
 
 class EditLineCommand(Command):
-    def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel = None):
+    def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_number = line_number
         self.edit = deepcopy(edit)
@@ -41,11 +41,11 @@ class EditLineCommand(Command):
 
             if 'start' in self.edit:
                 self.undo_data['start'] = line.start
-                line.start = GetTimeDelta(self.edit['start'])
+                line.start = GetTimeDeltaSafe(self.edit['start'])
 
             if 'end' in self.edit:
                 self.undo_data['end'] = line.end
-                line.end = GetTimeDelta(self.edit['end'])
+                line.end = GetTimeDeltaSafe(self.edit['end'])
 
             if 'text' in self.edit:
                 self.undo_data['text'] = line.text

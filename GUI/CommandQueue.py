@@ -11,7 +11,7 @@ class ClearCommandQueue(Command):
     """
     Pseudo-command to clear the command queue
     """
-    def __init__(self, datamodel: ProjectDataModel = None):
+    def __init__(self, datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
 
     def execute(self):
@@ -98,14 +98,14 @@ class CommandQueue(QObject):
             return len(self.redo_stack) > 0
 
     @property
-    def undoable_command_text(self) -> str | None:
+    def undoable_command_text(self) -> str|None:
         with QMutexLocker(self.mutex):
             if self.undo_stack:
                 return f"Can undo {type(self.undo_stack[-1]).__name__}"
             return None
 
     @property
-    def redoable_command_text(self) -> str | None:
+    def redoable_command_text(self) -> str|None:
         with QMutexLocker(self.mutex):
             if self.redo_stack:
                 return f"Can redo {type(self.redo_stack[-1]).__name__}"
@@ -120,7 +120,7 @@ class CommandQueue(QObject):
 
         self.command_pool.waitForDone()
 
-    def AddCommand(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
+    def AddCommand(self, command: Command, datamodel: ProjectDataModel|None = None, callback=None, undo_callback=None):
         """
         Add a command to the command queue, with optional callbacks for completion/undo events
         """
@@ -211,7 +211,7 @@ class CommandQueue(QObject):
         self.commandAdded.emit(command)
         self._start_command_queue()
 
-    def Contains(self, command_type: type = None, type_list : list[type] = None):
+    def Contains(self, command_type: type|None = None, type_list : list[type]|None = None):
         """
         Check if the queue contains a command type(s)
         """
@@ -292,7 +292,7 @@ class CommandQueue(QObject):
 
         self._start_command_queue()
 
-    def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
+    def _queue_command(self, command: Command, datamodel: ProjectDataModel|None = None, callback=None, undo_callback=None):
         """
         Add a command to the worker thread queue
         """

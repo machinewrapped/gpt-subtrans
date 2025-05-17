@@ -48,4 +48,4 @@ def run_tests(directory_path, results_path):
 if __name__ == "__main__":
     directory_path = os.path.join(os.getcwd(), "test_subtitles")
     results_path = os.path.join(directory_path, "test_results")
-    run_tests(directory_path)
+    run_tests(directory_path, results_path)

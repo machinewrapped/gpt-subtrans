@@ -58,8 +58,8 @@ class LineItem(QStandardItem):
         return self.line_model['text']
 
     @property
-    def translation(self) -> str:
-        translation = self.line_model.get('translation', None)
+    def translation(self) -> str|None:
+        translation : str|None = self.line_model.get('translation', None)
         return translation if translation else (blank_line if translation is not None else None)
 
     @property

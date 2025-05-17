@@ -49,7 +49,7 @@ class CustomClient(TranslationClient):
     def max_completion_tokens(self):
         return self.settings.get('max_completion_tokens', None)
 
-    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """
         Request a translation based on the provided prompt
         """

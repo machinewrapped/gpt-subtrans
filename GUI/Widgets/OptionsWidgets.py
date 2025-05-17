@@ -12,7 +12,7 @@ from PySubtitle.Options import MULTILINE_OPTION
 class OptionWidget(QWidget):
     contentChanged = Signal()
 
-    def __init__(self, key, initial_value, parent=None, tooltip = None):
+    def __init__(self, key, initial_value, parent : QWidget|None =None, tooltip : str|None = None):
         super(OptionWidget, self).__init__(parent)
         self.key = key
         self.name = self.GenerateName(key)
@@ -32,7 +32,7 @@ class OptionWidget(QWidget):
         raise NotImplementedError
 
 class TextOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value, tooltip = None):
+    def __init__(self, key, initial_value, tooltip : str|None = None):
         super(TextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(0,0,0,0)
@@ -56,7 +56,7 @@ class TextOptionWidget(OptionWidget):
         self.text_field.setVisible(is_visible)
 
 class MultilineTextOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value, tooltip = None):
+    def __init__(self, key, initial_value, tooltip : str|None = None):
         super(MultilineTextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         content = self._get_content(initial_value).strip()
 
@@ -65,7 +65,7 @@ class MultilineTextOptionWidget(OptionWidget):
         self.text_field = QTextEdit(self)
         self.text_field.setAcceptRichText(False)
         self.text_field.setPlainText(content)
-        self.text_field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
+        self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
         self.text_field.textChanged.connect(self.contentChanged)
         self.text_field.setWordWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
         self.layout.addWidget(self.text_field)
@@ -109,7 +109,7 @@ class MultilineTextOptionWidget(OptionWidget):
         return str(obj)
 
 class IntegerOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value, tooltip = None):
+    def __init__(self, key, initial_value, tooltip : str|None = None):
         super(IntegerOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.spin_box = QSpinBox(self)
         self.spin_box.setMaximum(9999)
@@ -135,7 +135,7 @@ class IntegerOptionWidget(OptionWidget):
         self.spin_box.setVisible(is_visible)
 
 class FloatOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value, tooltip = None):
+    def __init__(self, key, initial_value, tooltip : str|None = None):
         super(FloatOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.double_spin_box = QDoubleSpinBox(self)
         self.double_spin_box.setMaximum(9999.99)
@@ -161,7 +161,7 @@ class FloatOptionWidget(OptionWidget):
         self.double_spin_box.setVisible(is_visible)
 
 class CheckboxOptionWidget(OptionWidget):
-    def __init__(self, key, initial_value, tooltip = None):
+    def __init__(self, key, initial_value, tooltip : str|None = None):
         super(CheckboxOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.check_box = QCheckBox(self)
         self.check_box.stateChanged.connect(self.contentChanged)
@@ -181,7 +181,7 @@ class CheckboxOptionWidget(OptionWidget):
         self.check_box.setVisible(is_visible)
 
 class DropdownOptionWidget(OptionWidget):
-    def __init__(self, key, values, initial_value, tooltip = None):
+    def __init__(self, key, values, initial_value, tooltip : str|None = None):
         super(DropdownOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.combo_box = QComboBox(self)
         self.combo_box.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
@@ -216,7 +216,7 @@ class DropdownOptionWidget(OptionWidget):
     def SetVisible(self, is_visible : bool):
         self.combo_box.setVisible(is_visible)
 
-def CreateOptionWidget(key, initial_value, key_type, tooltip = None) -> OptionWidget:
+def CreateOptionWidget(key, initial_value, key_type, tooltip : str|None = None) -> OptionWidget:
     # Helper function to create an OptionWidget based on the specified type
     if isinstance(key_type, list):
         return DropdownOptionWidget(key, key_type, initial_value, tooltip=tooltip)

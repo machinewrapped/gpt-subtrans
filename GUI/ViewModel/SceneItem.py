@@ -87,6 +87,12 @@ class SceneItem(ViewModelItem):
 
     def AddBatchItem(self, batch_item : BatchItem):
         """ Insert or append a batch item to the scene """
+        if not isinstance(batch_item, BatchItem):
+            raise ViewModelError(f"Expected a BatchItem, got a {type(batch_item).__name__}")
+        
+        if batch_item.number is None:
+            raise ViewModelError("Batch item number must be set before adding to scene")
+        
         if batch_item.number > len(self.batches):
             self.appendRow(batch_item)
         else:
@@ -119,7 +125,7 @@ class SceneItem(ViewModelItem):
 
     def Remap(self):
         """ Rebuild the batch number map """
-        batch_items = {}
+        batch_items : dict[int, BatchItem] = {}
         for i in range(0, self.rowCount()):
             batch_item = self.child(i, 0)
             batch_item.number = i + 1
@@ -129,8 +135,8 @@ class SceneItem(ViewModelItem):
 
     def GetContent(self):
         """ Return a dictionary of interesting scene data for UI display """
-        str_translated = "All batches translated" if self.translated_batch_count == self.batch_count else f"{self.translated_batch_count} of {self.batch_count} batches translated"
-        metadata = [
+        str_translated : str = "All batches translated" if self.translated_batch_count == self.batch_count else f"{self.translated_batch_count} of {self.batch_count} batches translated"
+        metadata : list[str|None] = [
             "1 line" if self.line_count == 1 else f"{self.line_count} lines in {self.batch_count} batches",
             str_translated if self.translated_batch_count > 0 else None,
         ]

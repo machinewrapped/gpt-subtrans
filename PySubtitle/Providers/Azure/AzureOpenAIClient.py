@@ -58,7 +58,7 @@ try:
         def rate_limit(self):
             return self.settings.get('rate_limit')
 
-        def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+        def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
             Request a translation based on the provided prompt
             """

@@ -10,11 +10,11 @@ from PySubtitle.Translation import Translation
 class SubtitleBatch:
     def __init__(self, dct = None):
         dct = dct or {}
-        self.scene = dct.get('scene', None)
-        self.number = dct.get('batch') or dct.get('number')
-        self.summary = dct.get('summary')
-        self.context = dct.get('context', {})
-        self.errors = dct.get('errors', [])
+        self.scene : int|None = dct.get('scene', None)
+        self.number : int|None = dct.get('batch') or dct.get('number')
+        self.summary : str|None = dct.get('summary')
+        self.context : dict|None = dct.get('context', {})
+        self.errors : list|None = dct.get('errors', [])
         self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', [])
         self._translated : list[SubtitleLine] = dct.get('translated', [])
         self.translation : Translation = dct.get('translation')
@@ -51,7 +51,7 @@ class SubtitleBatch:
         return len(self.translated or []) > 0
 
     @property
-    def start(self) -> timedelta:
+    def start(self) -> timedelta|None:
         return self.originals[0].start if self.originals else None
 
     @property
@@ -63,7 +63,7 @@ class SubtitleBatch:
         return self.originals[0].txt_start if self.originals else ""
 
     @property
-    def end(self) -> timedelta:
+    def end(self) -> timedelta|None:
         return self.originals[-1].end if self.originals else None
 
     @property
@@ -79,11 +79,11 @@ class SubtitleBatch:
         return self.end - self.start if self.start is not None and self.end else timedelta(seconds=0)
 
     @property
-    def first_line_number(self) -> int:
+    def first_line_number(self) -> int|None:
         return self.originals[0].number if self.originals else None
 
     @property
-    def last_line_number(self) -> int:
+    def last_line_number(self) -> int|None:
         return self.originals[-1].number if self.originals else None
 
     @originals.setter
@@ -203,18 +203,21 @@ class SubtitleBatch:
 
         return merged, None
 
-    def DeleteLines(self, line_numbers : list[int]) -> bool:
+    def DeleteLines(self, line_numbers : list[int]) -> tuple[list[SubtitleLine], list[SubtitleLine]]:
         """
         Delete lines from the batch
         """
-        originals = [line for line in self.originals if line.number not in line_numbers]
-        translated = [line for line in self.translated if line.number not in line_numbers]
+        if not line_numbers:
+            raise SubtitleError("No line numbers provided to delete")
+        
+        originals: list[SubtitleLine] = [line for line in self.originals if line.number not in line_numbers]
+        translated: list[SubtitleLine] = [line for line in self.translated if line.number not in line_numbers]
 
         if len(originals) == len(self.originals) and len(translated) == len(self.translated):
             return [],[]
 
-        deleted_originals = [line for line in self.originals if line.number in line_numbers]
-        deleted_translated = [line for line in self.translated if line.number in line_numbers]
+        deleted_originals: list[SubtitleLine] = [line for line in self.originals if line.number in line_numbers]
+        deleted_translated: list[SubtitleLine] = [line for line in self.translated if line.number in line_numbers]
 
         self.originals = originals
         self.translated = translated
@@ -265,7 +268,7 @@ class SubtitleBatch:
                     self.translated.insert(index, line)
                     break
 
-    def InsertLines(self, originals: list[SubtitleLine], translated: list[SubtitleLine] = None) -> None:
+    def InsertLines(self, originals: list[SubtitleLine], translated: list[SubtitleLine]|None = None) -> None:
         """
         Insert multiple lines into the batch, with optional translations
         """
@@ -277,6 +280,7 @@ class SubtitleBatch:
         for line in originals:
             self.InsertOriginalLine(line)
 
-        for line in translated or []:
-            translated = sorted(translated, key=lambda item: item.number)
-            self.InsertTranslatedLine(line)
+        if translated is not None:
+            translated: list[SubtitleLine] = sorted(translated, key=lambda item: item.number)
+            for line in translated:
+                self.InsertTranslatedLine(line)

@@ -47,7 +47,7 @@ class SubtitleProject:
         with self.lock:
             return True if self.subtitles and self.subtitles.translated else False
 
-    def InitialiseProject(self, filepath : str, outputpath : str = None, reload_subtitles : bool = False):
+    def InitialiseProject(self, filepath : str, outputpath : str|None = None, reload_subtitles : bool = False):
         """
         Initialize the project by either loading an existing project file or creating a new one.
         Load the subtitles to be translated, either from the project file or the source file.
@@ -109,7 +109,7 @@ class SubtitleProject:
 
         self.needs_writing = self.write_project
 
-    def SaveOriginal(self, outputpath : str = None):
+    def SaveOriginal(self, outputpath : str|None = None):
         """
         Write the original subtitles to a file
         """
@@ -120,7 +120,7 @@ class SubtitleProject:
         except Exception as e:
             logging.error(f"Unable to save original subtitles: {e}")
 
-    def SaveTranslation(self, outputpath : str = None):
+    def SaveTranslation(self, outputpath : str|None = None):
         """
         Write output file
         """

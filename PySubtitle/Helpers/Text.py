@@ -118,7 +118,7 @@ def EnsureFullWidthPunctuation(text: str) -> str:
     return regex.sub(fullwidth_pattern, replace, text)
 
 
-def CompileDialogSplitPattern(dialog_marker):
+def CompileDialogSplitPattern(dialog_marker) -> regex.Pattern:
     """
     Compile a regex pattern to split lines at dialog markers
     """
@@ -163,7 +163,7 @@ def NormaliseDialogTags(text : str, dialog_marker : str) -> str:
 
     return text
 
-def FindBreakPoint(text : str, break_sequences: list[regex.Pattern], max_line_length : int, min_line_length : int) -> int | None:
+def FindBreakPoint(text : str, break_sequences: list[regex.Pattern], max_line_length : int, min_line_length : int) -> int|None:
     """
     Find the optimal break point for a long line
     """
@@ -304,7 +304,7 @@ def ContainsTags(text : str) -> bool:
     """
     return regex.search(r"<[^>]+>", text) is not None
 
-def ExtractTag(tagname : str, text : str):
+def ExtractTag(tagname : str, text : str) -> tuple[str, str|None]:
     """
     Look for an xml-like tag in the input text, and extract the contents.
     """
@@ -330,7 +330,7 @@ def ExtractTag(tagname : str, text : str):
 
     return text, tag
 
-def ExtractTagList(tagname, text):
+def ExtractTagList(tagname, text) -> tuple[str, list[str]]:
     """
     Look for an xml-like tag in the input text, and extract the contents as a comma or newline separated list.
     """
@@ -338,11 +338,11 @@ def ExtractTagList(tagname, text):
     tag_list = [ item.strip() for item in regex.split("[\n,]", tag) ] if tag else []
     return text, tag_list
 
-def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length : int = None):
+def SanitiseSummary(summary : str, movie_name : str|None = None, max_summary_length : int|None = None) -> str|None:
     """
     Remove trivial parts of summary text and limit the length if required
     """
-    if not summary:
+    if not summary or max_summary_length == 0:
         return None
 
     summary = summary.replace("Summary of the batch", "")

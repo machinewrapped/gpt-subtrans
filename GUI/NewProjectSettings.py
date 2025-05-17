@@ -79,7 +79,7 @@ class NewProjectSettings(QDialog):
         self.preview_widget = QLabel(self)
         self.layout.addWidget(self.preview_widget)
 
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok, self)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok, self)
         self.buttonBox.accepted.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.layout.addWidget(self.buttonBox)
 
@@ -144,7 +144,7 @@ class NewProjectSettings(QDialog):
         layout = self.form_layout.layout()
 
         for row in range(layout.rowCount()):
-            field = layout.itemAt(row, QFormLayout.FieldRole).widget()
+            field = layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
             self.settings[field.key] = field.GetValue()
 
     def _update_instruction_file(self):

@@ -9,7 +9,7 @@ class SubtitleItemDelegate(QStyledItemDelegate):
         super().__init__(parent)
         self.render_flags = QWidget.RenderFlag.DrawWindowBackground | QWidget.RenderFlag.DrawChildren
 
-    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget:
+    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget|None:
         return None
 
     def paint(self, painter, option, index):

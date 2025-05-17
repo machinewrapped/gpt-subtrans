@@ -102,7 +102,7 @@ class ScenesView(QTreeView):
         """
         Handle keyboard events for the tree view
         """
-        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
             # Ctrl+A pressed, select all items if the list view has focus
             if self.hasFocus():
                 self.SelectAll()
@@ -129,7 +129,7 @@ class ScenesView(QTreeView):
     def _edit_scene(self, item : SceneItem):
         dialog = EditSceneDialog(item, parent = self)
 
-        if dialog.exec() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             if dialog.model:
                 item.Update(dialog.model)
                 self.onSceneEdited.emit(item.number, item.scene_model)
@@ -140,7 +140,7 @@ class ScenesView(QTreeView):
     def _edit_batch(self, item : BatchItem):
         dialog = EditBatchDialog(item)
 
-        if dialog.exec() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             if dialog.model:
                 item.Update(dialog.model)
                 self.onBatchEdited.emit(item.scene, item.number, item.batch_model)

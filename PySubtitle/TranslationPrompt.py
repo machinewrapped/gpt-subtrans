@@ -145,7 +145,7 @@ class TranslationPrompt:
         else:
             return "\n\n".join([ m.get('content') for m in self.messages ])
 
-def _get_line_prompt(line : SubtitleLine, line_template : str = None):
+def _get_line_prompt(line : SubtitleLine, line_template : str|None = None):
     """
     Generate a prompt for a single subtitle line
     """

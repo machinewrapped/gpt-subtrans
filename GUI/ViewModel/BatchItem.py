@@ -16,9 +16,9 @@ class BatchItem(ViewModelItem):
     """ Represents a subtitle batch in the view model"""
     def __init__(self, scene_number : int, batch : SubtitleBatch, debug_view : bool = False):
         super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
-        self.scene = scene_number
-        self.number = batch.number
-        self.debug_view = debug_view
+        self.scene : int = scene_number
+        self.number : int = batch.number
+        self.debug_view : bool = debug_view
         self.lines = {}
         self.batch_model = {
             'start': batch.txt_start,
@@ -148,8 +148,8 @@ class BatchItem(ViewModelItem):
         """
         Add an original line item to the batch
         """
-        line_item : LineItem = LineItem(line_number, model)
-        last_line_item = self.child(self.rowCount() - 1, 0) if self.rowCount() > 0 else None
+        line_item : LineItem|None = LineItem(line_number, model)
+        last_line_item : LineItem|None= self.child(self.rowCount() - 1, 0) if self.rowCount() > 0 else None
 
         if not last_line_item or line_number > last_line_item.number:
             self.appendRow(line_item)

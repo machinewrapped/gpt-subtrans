@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Callable
 from PySide6.QtCore import Qt, QModelIndex, QRecursiveMutex, QMutexLocker, Signal
 from PySide6.QtGui import QStandardItemModel
 
@@ -29,8 +30,11 @@ class ProjectViewModel(QStandardItemModel):
     def getRootItem(self):
         return self.invisibleRootItem()
 
-    def AddUpdate(self, update : callable):
+    def AddUpdate(self, update : Callable):
         """ Add an update to the queue and signal the main thread to process it """
+        if update is None or not callable(update):
+            raise ValueError("Update must be a callable")
+        
         with QMutexLocker(self.update_lock):
             self.updates.append(update)
         self.updatesPending.emit()
@@ -103,7 +107,10 @@ class ProjectViewModel(QStandardItemModel):
 
         gap_start = None
         for line in batch.originals:
-            batch_item.AddLineItem(line.number, {
+            if line.number is None:
+                raise ViewModelError(f"Line number is not set for line {line}")
+
+            batch_item.AddLineItem(line.number or -1, {
                 'scene': scene_number,
                 'batch': batch.number,
                 'start': line.txt_start,
@@ -117,7 +124,10 @@ class ProjectViewModel(QStandardItemModel):
 
         if batch.translated:
             for line in batch.translated:
-                batch_item.AddTranslation(line.number, line.text)
+                if line.number is None:
+                    raise ViewModelError(f"Line number is not set for translation {line}")
+                
+                batch_item.AddTranslation(line.number or -1, line.text or "")
 
         return batch_item
 
@@ -302,13 +312,16 @@ class ProjectViewModel(QStandardItemModel):
         scene_item.batches[batch.number] = batch_item
         scene_item.emitDataChanged()
 
-    def UpdateBatch(self, scene_number, batch_number, batch_update : dict):
+    def UpdateBatch(self, scene_number : int, batch_number : int, batch_update : dict):
         logging.debug(f"Updating batch ({scene_number}, {batch_number})")
         if not isinstance(batch_update, dict):
             raise ViewModelError("Expected a patch dictionary")
+        
+        if not scene_number or not batch_number:
+            raise ViewModelError("Scene and batch numbers must be provided")
 
         scene_item : SceneItem = self.model.get(scene_number)
-        batch_item : BatchItem = scene_item.batches[batch_number] if scene_number else None
+        batch_item : BatchItem|None = scene_item.batches[batch_number] if scene_number else None
         if not batch_item:
             logging.error(f"Model update for unknown batch, scene {scene_number} batch {batch_number}")
             return False
@@ -355,6 +368,9 @@ class ProjectViewModel(QStandardItemModel):
     def AddLine(self, scene_number, batch_number, line : SubtitleLine):
         if not isinstance(line, SubtitleLine):
             raise ViewModelError(f"Wrong type for AddLine ({type(line).__name__})")
+        
+        if line.number is None:
+            raise ViewModelError("Line number must be set")
 
         logging.debug(f"Adding line ({scene_number}, {batch_number}, {line.number})")
 
@@ -363,8 +379,9 @@ class ProjectViewModel(QStandardItemModel):
         if line.number in batch_item.lines.keys():
             raise ViewModelError(f"Line {line.number} already exists in {scene_number} batch {batch_number}")
 
-        self.beginInsertRows(self.indexFromItem(batch_item), line.number - 1, line.number - 1)
-        batch_item.AddLineItem(line.number, {
+        insert_row: int = (line.number or 1) - 1 # for the linter
+        self.beginInsertRows(self.indexFromItem(batch_item), insert_row, insert_row)
+        batch_item.AddLineItem(line.number or -1, {
                 'scene': scene_number,
                 'batch': batch_number,
                 'start': line.txt_start,
@@ -374,8 +391,8 @@ class ProjectViewModel(QStandardItemModel):
                 'text': line.text
             })
 
-        if line.translation:
-            batch_item.AddTranslation(line.number, line.translation)
+        if line.translation is not None:
+            batch_item.AddTranslation(line.number or -1, line.translation)
 
         self.endInsertRows()
 

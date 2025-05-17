@@ -31,7 +31,7 @@ class ProjectSettings(QGroupBox):
     """
     settingsChanged = Signal(dict)
 
-    def __init__(self, action_handler : ProjectActions = None, parent=None):
+    def __init__(self, action_handler : ProjectActions, parent=None):
         super().__init__(parent=parent)
         self.setTitle("Project Settings")
         self.setMinimumWidth(450)
@@ -264,7 +264,7 @@ class ProjectSettings(QGroupBox):
         dialog = EditInstructionsDialog(self.settings, parent=self)
         result = dialog.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             logging.info("Instructions for this project updated\n")
             self.settings.update(dialog.instructions.GetSettings())
             self.settingsChanged.emit(dialog.instructions.GetSettings())

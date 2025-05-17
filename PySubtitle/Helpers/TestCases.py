@@ -17,7 +17,7 @@ from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SubtitleTestCase(unittest.TestCase):
-    def __init__(self, methodName: str = "runTest", custom_options : dict = None) -> None:
+    def __init__(self, methodName: str = "runTest", custom_options : dict|None = None) -> None:
         super().__init__(methodName)
 
         options = {
@@ -102,7 +102,7 @@ def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 
                 line.translated = next((l for l in batch_translated if l.number == line.number), None)
                 line.translation = line.translated.text if line.translated else None
 
-def CreateTestDataModel(test_data : dict, options : Options = None) -> ProjectDataModel:
+def CreateTestDataModel(test_data : dict, options : Options) -> ProjectDataModel:
     """
     Creates a ProjectDataModel from test data.
     """
@@ -112,7 +112,7 @@ def CreateTestDataModel(test_data : dict, options : Options = None) -> ProjectDa
     datamodel.UpdateProviderSettings({"data" : test_data})
     return datamodel
 
-def CreateTestDataModelBatched(test_data : dict, options : Options = None, translated : bool = True) -> ProjectDataModel:
+def CreateTestDataModelBatched(test_data : dict, options : Options, translated : bool = True) -> ProjectDataModel:
     """
     Creates a SubtitleBatcher from test data.
     """
@@ -196,7 +196,7 @@ class DummyTranslationClient(TranslationClient):
 
         return prompt
 
-    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         for user_prompt, text in self.response_map.items():
             if user_prompt == prompt.user_prompt:
                 text = text.replace("\\n", "\n")

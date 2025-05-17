@@ -9,7 +9,7 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 
 class StartTranslationCommand(Command):
-    def __init__(self, datamodel: ProjectDataModel = None, resume : bool = False, multithreaded : bool = False, scenes : dict = None):
+    def __init__(self, datamodel: ProjectDataModel|None = None, resume : bool = False, multithreaded : bool = False, scenes : dict|None = None):
         super().__init__(datamodel)
         self.multithreaded = multithreaded
         self.skip_undo = True
@@ -28,11 +28,11 @@ class StartTranslationCommand(Command):
             logging.info("All scenes are fully translated")
             return True
 
-        starting = "Resuming" if self.resume and project.any_translated else "Starting"
-        threaded = "multithreaded" if self.multithreaded else "single threaded"
+        starting : str = "Resuming" if self.resume and project.any_translated else "Starting"
+        threaded : str = "multithreaded" if self.multithreaded else "single threaded"
         logging.info(f"{starting} {threaded} translation")
 
-        previous_command : TranslateSceneCommand = self
+        previous_command : Command = self
 
         # Save the project first if it needs updating
         if project.needs_writing:

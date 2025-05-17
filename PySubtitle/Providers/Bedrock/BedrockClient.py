@@ -1,6 +1,6 @@
 import logging
 
-def _structure_messages(messages : list[str]) -> list[dict]:
+def _structure_messages(messages : list[dict]) -> list[dict]:
     """
     Structure the messages to be sent to the API
     """
@@ -56,7 +56,7 @@ try:
         def max_tokens(self):
             return self.settings.get('max_tokens', 4096)
 
-        def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+        def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
             Request a translation based on the provided prompt
             """
@@ -82,7 +82,7 @@ try:
 
             return translation
 
-        def _send_messages(self, system_prompt : str, messages : list[str], temperature : float = None) -> dict:
+        def _send_messages(self, system_prompt : str, messages : list[str], temperature : float|None = None) -> dict | None:
             """
             Make a request to the Amazon Bedrock API to provide a translation
             """

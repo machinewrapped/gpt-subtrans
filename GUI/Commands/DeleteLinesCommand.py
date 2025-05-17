@@ -11,7 +11,7 @@ class DeleteLinesCommand(Command):
     """
     Delete one or several lines
     """
-    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_numbers = line_numbers
         self.deletions = []
@@ -62,7 +62,7 @@ class DeleteLinesCommand(Command):
             batch.InsertLines(deleted_originals, deleted_translated)
 
             for line in deleted_originals:
-                translated : SubtitleLine = next((translated for translated in deleted_translated if translated.number == line.number), None)
+                translated : SubtitleLine|None = next((translated for translated in deleted_translated if translated.number == line.number), None)
                 if translated:
                     line.translated = translated
 

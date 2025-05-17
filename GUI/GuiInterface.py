@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Callable
 
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import (
@@ -87,7 +88,7 @@ class GuiInterface(QObject):
         """
         return self.mainwindow
 
-    def QueueCommand(self, command : Command, callback = None, undo_callback = None):
+    def QueueCommand(self, command : Command, callback : Callable|None = None, undo_callback : Callable|None = None):
         """
         Add a command to the command queue and set the datamodel
         """
@@ -127,7 +128,7 @@ class GuiInterface(QObject):
         dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self.GetMainWindow())
         result = dialog.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             self.UpdateSettings(dialog.settings)
 
             logging.info("Settings updated")
@@ -139,7 +140,7 @@ class GuiInterface(QObject):
         provider_cache = self.datamodel.provider_cache if self.datamodel else None
         dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self.GetMainWindow(), focus_provider_settings=True)
         result = dialog.exec()
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             self.UpdateSettings(dialog.settings)
 
     def SaveSettings(self):
@@ -181,7 +182,7 @@ class GuiInterface(QObject):
             self.datamodel.UpdateProjectSettings(settings)
             self.settingsChanged.emit(settings)
 
-    def Startup(self, filepath : str = None):
+    def Startup(self, filepath : str|None = None):
         """
         Perform startup tasks
         """
@@ -226,7 +227,7 @@ class GuiInterface(QObject):
         command = LoadSubtitleFile(filepath, self.global_options, reload_subtitles=reload_subtitles)
         self.QueueCommand(command, callback=self._on_project_loaded)
 
-    def SaveProject(self, filepath : str = None):
+    def SaveProject(self, filepath : str|None = None):
         """
         Save the project file
         """
@@ -240,7 +241,7 @@ class GuiInterface(QObject):
         try:
             dialog = NewProjectSettings(datamodel, parent=self.GetMainWindow())
 
-            if dialog.exec() == QDialog.Accepted:
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 datamodel.UpdateProjectSettings(dialog.settings)
                 self._check_provider_settings(datamodel.project_options)
                 self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
@@ -349,7 +350,7 @@ class GuiInterface(QObject):
         first_run_options = FirstRunOptions(options, parent = self.GetMainWindow())
         result = first_run_options.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             logging.info("First run options set")
             initial_settings = first_run_options.GetSettings()
             self.UpdateSettings(initial_settings)

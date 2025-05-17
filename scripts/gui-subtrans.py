@@ -83,7 +83,7 @@ def run_with_profiler(app):
     logging.info(f"Profiling stats written to {profile_path}")
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app: QApplication = QApplication(sys.argv)
     app.setStyle('Fusion')
 
     # Force light mode because our themes were not built to be flexible
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     arguments, filepath, logger_options = parse_arguments()
 
     # Load default options and update with any explicit arguments
-    options = Options()
+    options: Options = Options()
     if not arguments.get('firstrun') and options.LoadSettings():
         logging.info(f"Loaded settings from {settings_path}")
     options.update(arguments)

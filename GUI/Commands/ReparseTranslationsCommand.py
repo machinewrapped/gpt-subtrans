@@ -15,7 +15,7 @@ class ReparseTranslationsCommand(Command):
     """
     Ask the translator to reparse the translation for selected batches
     """
-    def __init__(self, batch_numbers : list[(int,int)], line_numbers : list[int], datamodel : ProjectDataModel = None):
+    def __init__(self, batch_numbers : list[tuple[int,int]], line_numbers : list[int], datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.batch_numbers = batch_numbers
         self.line_numbers = line_numbers
@@ -66,9 +66,10 @@ class ReparseTranslationsCommand(Command):
             undo_data['summary'] = original_summary
 
         for line in batch.translated:
-            original_translation = original_translations.get(line.number, None)
-            if original_translation and line.text != original_translation:
-                undo_data['lines'][line.number] = original_translation
+            if line.number is not None:
+                original_translation = original_translations.get(line.number or -1, None)
+                if original_translation and line.text != original_translation:
+                    undo_data['lines'][line.number] = original_translation
 
         self.undo_data.append((batch.scene, batch.number, undo_data))
 

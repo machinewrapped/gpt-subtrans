@@ -236,7 +236,7 @@ class SubtitleFile:
 
         return context
 
-    def LoadSubtitles(self, filepath : str = None):
+    def LoadSubtitles(self, filepath : str|None = None):
         """
         Load subtitles from an SRT file
         """
@@ -283,7 +283,7 @@ class SubtitleFile:
                 project_json = json.dumps(self, cls=encoder_class, ensure_ascii=False, indent=4)
                 f.write(project_json)
 
-    def SaveOriginal(self, path : str = None):
+    def SaveOriginal(self, path : str|None = None):
         """
         Write original subtitles to an SRT file
         """
@@ -296,7 +296,7 @@ class SubtitleFile:
             with open(path, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 
-    def SaveTranslation(self, outputpath : str = None):
+    def SaveTranslation(self, outputpath : str|None = None):
         """
         Write translated subtitles to an SRT file
         """
@@ -369,7 +369,7 @@ class SubtitleFile:
 
             self._update_compatibility(self.settings)
 
-    def UpdateOutputPath(self, outputpath : str = None):
+    def UpdateOutputPath(self, outputpath : str|None = None):
         """
         Set or generate the output path for the translated subtitles
         """

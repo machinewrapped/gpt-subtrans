@@ -104,20 +104,20 @@ class Options:
         self.options.update(options)
 
     @property
-    def theme(self) -> str:
+    def theme(self) -> str|None:
         return self.get('theme')
 
     @property
-    def version(self) -> str:
+    def version(self) -> str|None:
         return self.get('version')
 
     @property
-    def provider(self) -> str:
+    def provider(self) -> str|None:
         """ the name of the translation provider """
         return self.get('provider')
 
     @provider.setter
-    def provider(self, value: str):
+    def provider(self, value: str|None):
         self.options['provider'] = value
 
     @property
@@ -126,7 +126,7 @@ class Options:
         return self.get('provider_settings', {})
 
     @property
-    def current_provider_settings(self) -> dict:
+    def current_provider_settings(self) -> dict|None:
         if not self.provider:
             return None
 
@@ -137,7 +137,7 @@ class Options:
         return self.get('available_providers', [])
 
     @property
-    def model(self) -> str:
+    def model(self) -> str|None:
         if not self.provider:
             return None
 

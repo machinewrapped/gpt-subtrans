@@ -50,7 +50,7 @@ try:
         def reuse_client(self):
             return self.settings.get('reuse_client', True)
 
-        def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+        def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
             Request a translation based on the provided prompt
             """

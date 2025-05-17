@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import datetime
+from typing import Callable
 
 from PySubtitle.SubtitleFile import SubtitleFile
 
@@ -98,7 +99,7 @@ def _add_test_file_logger(logger, results_path, input_filename, test_name):
     logger.addHandler(file_handler)
     return file_handler
 
-def RunTestOnAllSrtFiles(run_test: callable, test_options: list[dict], directory_path: str, results_path: str = None):
+def RunTestOnAllSrtFiles(run_test: Callable, test_options: list[dict], directory_path: str, results_path: str|None = None):
     """
     Run a series of tests on all .srt files in the test_subtitles directory.
     """

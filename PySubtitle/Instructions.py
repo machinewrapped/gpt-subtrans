@@ -116,20 +116,25 @@ class Instructions:
                 self.instruction_file = os.path.basename(filepath)
             return
 
-        sections = {}
+        sections: dict[str, list[str]] = {}
+        section_name : str = "instructions"
         for line in lines:
             if line.startswith('###'):
                 section_name = line[3:].strip()
+                if not section_name:
+                    raise ValueError("Invalid section in instruction file (no name specified after ###)")
+
                 sections[section_name] = []
-            elif line.strip() or sections[section_name]:
+
+            elif line.strip():
                 sections[section_name].append(line)
 
         self.prompt = linesep.join(sections.get('prompt', []))
         self.instructions = linesep.join(sections.get('instructions', []))
         self.retry_instructions = linesep.join(sections.get('retry_instructions', [])) or default_retry_instructions
         self.instruction_file = os.path.basename(filepath)
-        self.target_language = ''.join(sections.get('target_language', None)) if 'target_language' in sections else None
-        self.task_type = ''.join(sections.get('task_type', None)) if 'task_type' in sections else DEFAULT_TASK_TYPE
+        self.target_language = ''.join(sections['target_language']) if 'target_language' in sections else None
+        self.task_type = ''.join(sections['task_type']) if 'task_type' in sections else DEFAULT_TASK_TYPE
 
         if not self.prompt or not self.instructions:
             raise ValueError("Invalid instruction file")
@@ -157,7 +162,7 @@ class Instructions:
 
             self.instruction_file = os.path.basename(filepath)
 
-def GetInstructionsResourcePath(instructions_file : str = None):
+def GetInstructionsResourcePath(instructions_file : str|None = None):
     """
     Get the path for an instructions file (or the directory that contains them).
     """
@@ -185,7 +190,7 @@ def LoadInstructionsResource(resource_name):
     instructions.LoadInstructionsFile(filepath)
     return instructions
 
-def GetInstructionsUserPath(instructions_file : str = None):
+def GetInstructionsUserPath(instructions_file : str|None = None):
     """
     Get the path for an instructions file (or the directory that contains them).
     """
@@ -204,7 +209,7 @@ def GetInstructionsUserFiles():
     files = os.listdir(instructions_dir)
     return [ file for file in files if file.lower().endswith(".txt") ]
 
-def GetInstructionsFiles():
+def GetInstructionsFiles() -> list[str]:
     """
     Get a list of instruction files in the user and resource directories.
     """
@@ -217,13 +222,13 @@ def GetInstructionsFiles():
     # Sort 'instructions.txt' to the top of the list followed by other names case-insensitive
     return sorted(list(instructions_map.values()), key=lambda x: (x.lower() != 'instructions.txt', x.lower()))
 
-def LoadInstructions(name : str):
+def LoadInstructions(name : str) -> Instructions:
     """
     Load instructions from user directory if they exist, otherwise load from resources.
     """
     user_path = GetInstructionsUserPath(name)
     if os.path.exists(user_path):
-        instructions = Instructions({})
+        instructions: Instructions = Instructions({})
         instructions.LoadInstructionsFile(user_path)
         return instructions
 

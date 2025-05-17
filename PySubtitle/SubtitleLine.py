@@ -3,14 +3,14 @@ import logging
 from os import linesep
 import srt
 
-from PySubtitle.Helpers.Time import GetTimeDelta, TimeDeltaToText
+from PySubtitle.Helpers.Time import GetTimeDeltaSafe, TimeDeltaToText
 
 class SubtitleLine:
     """
     Represents a single line, with a number and start and end times plus original text
     and (optionally) an associated translation.
     """
-    def __init__(self, line : srt.Subtitle | str, translation : str = None, original : str = None):
+    def __init__(self, line : srt.Subtitle | str, translation : str|None = None, original : str|None = None):
         if isinstance(line, SubtitleLine):
             self._item = line._item
             self._duration = line._duration
@@ -35,39 +35,39 @@ class SubtitleLine:
         return self.number if self.number else str(self.start)
 
     @property
-    def number(self) -> int:
+    def number(self) -> int|None:
         return self._item.index if self._item else None
 
     @property
-    def text(self) -> str:
+    def text(self) -> str|None:
         return self._item.content if self._item else None
 
     @property
-    def text_normalized(self) -> str:
+    def text_normalized(self) -> str|None:
         return self.text.replace(linesep, '\n') if self.text else None
 
     @property
-    def start(self) -> timedelta:
+    def start(self) -> timedelta|None:
         return self._item.start if self._item else None
 
     @property
-    def srt_start(self) -> str:
+    def srt_start(self) -> str|None:
         return srt.timedelta_to_srt_timestamp(self.start) if self.start is not None else None
 
     @property
-    def txt_start(self) -> str:
+    def txt_start(self) -> str|None:
         return TimeDeltaToText(self.start) if self.start is not None else None
 
     @property
-    def end(self) -> timedelta:
+    def end(self) -> timedelta|None:
         return self._item.end if self._item else None
 
     @property
-    def srt_end(self) -> str:
+    def srt_end(self) -> str|None:
         return srt.timedelta_to_srt_timestamp(self.end) if self.end else None
 
     @property
-    def txt_end(self) -> str:
+    def txt_end(self) -> str|None:
         return TimeDeltaToText(self.end) if self.end is not None else None
 
     @property
@@ -79,7 +79,7 @@ class SubtitleLine:
     @duration.setter
     def duration(self, duration):
         if self._item and self._item.start is not None:
-            self._duration = GetTimeDelta(duration)
+            self._duration = GetTimeDeltaSafe(duration)
             self._item.end = self._item.start + self._duration
 
     @property
@@ -87,14 +87,14 @@ class SubtitleLine:
         return TimeDeltaToText(self.duration)
 
     @property
-    def line(self) -> str | None:
+    def line(self) -> str|None:
         if not self._item or self._item.start is None or self._item.end is None:
             return None
 
         return self._item.to_srt(strict=False)
 
     @property
-    def translated(self) -> srt.Subtitle | None:
+    def translated(self) -> srt.Subtitle|None:
         if self._item is None or self.translation is None:
             return None
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
@@ -104,30 +104,30 @@ class SubtitleLine:
         return self._item
 
     @item.setter
-    def item(self, item : srt.Subtitle | str):
+    def item(self, item : srt.Subtitle|str):
         self._item : srt.Subtitle = CreateSrtSubtitle(item)
         self._duration = None
 
     @number.setter
-    def number(self, value : int):
+    def number(self, value : int|None):
         if self._item:
             self._item.index = value
 
     @text.setter
-    def text(self, text : str):
+    def text(self, text : str|None):
         if self._item:
             self._item.content = text
 
     @start.setter
-    def start(self, time : timedelta | str):
+    def start(self, time : timedelta|str|None):
         if self._item:
-            self._item.start = GetTimeDelta(time)
+            self._item.start = GetTimeDeltaSafe(time)
             self._duration = None
 
     @end.setter
-    def end(self, time : timedelta | str):
+    def end(self, time : timedelta|str|None):
         if self._item:
-            self._item.end = GetTimeDelta(time)
+            self._item.end = GetTimeDeltaSafe(time)
             self._duration = None
 
     @translated.setter
@@ -135,10 +135,10 @@ class SubtitleLine:
         self.translation = SubtitleLine(translated).text
 
     @classmethod
-    def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str = None):
-        number = int(number) if number else None
-        start : timedelta = GetTimeDelta(start)
-        end : timedelta = GetTimeDelta(end)
+    def Construct(cls, number : int, start : timedelta | str, end : timedelta | str, text : str, original : str|None = None):
+        number: int|None = int(number) if number else None
+        start : timedelta|None = GetTimeDeltaSafe(start)
+        end : timedelta|None = GetTimeDeltaSafe(end)
         text : str = srt.make_legal_content(text.strip()) if text else ""
         original = srt.make_legal_content(original.strip()) if original else ""
         item = srt.Subtitle(number, start, end, text)

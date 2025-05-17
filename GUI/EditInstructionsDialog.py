@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QSizePolicy
     )
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget
 
 from PySubtitle.Options import MULTILINE_OPTION, Options
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE, Instructions, GetInstructionsFiles, GetInstructionsUserPath, LoadInstructions
@@ -51,21 +51,21 @@ class EditInstructionsDialog(QDialog):
         if initial_value:
             initial_value = initial_value.replace('\r\n', '\n')
 
-        input = CreateOptionWidget(key, initial_value, key_type, tooltip)
+        input: OptionWidget = CreateOptionWidget(key, initial_value, key_type, tooltip)
         input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.form_layout.addRow(key, input)
         return input
 
     def _create_instruction_dropdown(self, on_change):
-        instructions_files = GetInstructionsFiles()
-        initial_value = self.instructions.instruction_file
-        dropdown = CreateOptionWidget('instruction_file', initial_value, instructions_files)
+        instructions_files : list[str] = GetInstructionsFiles()
+        initial_value : str = self.instructions.instruction_file
+        dropdown : OptionWidget = CreateOptionWidget('instruction_file', initial_value, instructions_files)
         dropdown.contentChanged.connect(on_change)
         self.button_layout.addWidget(dropdown)
         return dropdown
 
     def _create_button(self, text, on_click):
-        button = QPushButton(text)
+        button : QPushButton = QPushButton(text)
         button.clicked.connect(on_click)
         self.button_layout.addWidget(button)
         return button
@@ -78,7 +78,6 @@ class EditInstructionsDialog(QDialog):
             self.instructions.retry_instructions = self.retry_instructions_edit.GetValue()
             self.instructions.instruction_file = None
 
-        # Check that {task_type} is found in instructions
         # Check that {task_type} is found in instructions
         if not self.instructions.task_type:
             logging.error(f"Task type cannot be empty. Please check the task type.")
@@ -113,7 +112,7 @@ class EditInstructionsDialog(QDialog):
 
     def _select_instructions(self):
         '''Select an instruction file from the dropdown'''
-        instructions_name = self.select_file.GetValue()
+        instructions_name : str|None = self.select_file.GetValue()
 
         try:
             self.instructions = LoadInstructions(instructions_name)

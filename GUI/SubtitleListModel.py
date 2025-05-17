@@ -11,7 +11,7 @@ from GUI.ViewModel.ViewModelItem import ViewModelItem
 from GUI.Widgets.Widgets import LineItemView
 
 class SubtitleListModel(QAbstractProxyModel):
-    def __init__(self, viewmodel : ProjectViewModel = None, parent : QWidget = None):
+    def __init__(self, viewmodel : ProjectViewModel|None = None, parent : QWidget|None = None):
         super().__init__(parent)
         self.viewmodel : ProjectViewModel = viewmodel
         self.selected_batch_numbers = []
@@ -20,7 +20,7 @@ class SubtitleListModel(QAbstractProxyModel):
         self.size_map : dict = {}
 
         # Connect signals to update mapping when source model changes
-        if self.viewmodel:
+        if self.viewmodel is not None:
             self.setSourceModel(viewmodel)
             viewmodel.layoutChanged.connect(self._update_visible_batches)
 

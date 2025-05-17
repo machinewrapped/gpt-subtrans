@@ -10,9 +10,9 @@ from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class ProjectDataModel:
-    def __init__(self, project : SubtitleProject = None, options : Options = None):
+    def __init__(self, project : SubtitleProject|None = None, options : Options|None = None):
         self.project : SubtitleProject = project
-        self.viewmodel : ProjectViewModel = None
+        self.viewmodel : ProjectViewModel|None = None
         self.project_options = Options(options)
         self.mutex = QRecursiveMutex()
 

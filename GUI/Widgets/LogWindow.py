@@ -19,7 +19,7 @@ class LogWindow(QTextEdit):
         super().__init__(parent)
         self.setReadOnly(True)
 
-        self.enqueue.connect(self._append, Qt.QueuedConnection)
+        self.enqueue.connect(self._append, Qt.ConnectionType.QueuedConnection)
 
         handler = QtLogHandler(self)
         handler.setFormatter(logging.Formatter(
@@ -33,7 +33,7 @@ class LogWindow(QTextEdit):
             autoscroll = scrollbar.value() == scrollbar.maximum() or self.textCursor().atEnd()
 
             cursor = self.textCursor()
-            cursor.movePosition(QTextCursor.End)
+            cursor.movePosition(QTextCursor.MoveOperation.End)
 
             text_format = QTextCharFormat()
             text_format.setForeground(self.LEVEL_COLORS.get(level, QColor(0, 0, 0)))

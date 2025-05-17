@@ -153,7 +153,7 @@ class SettingsDialog(QDialog):
         self._update_setting_visibility()
 
         # Add Ok and Cancel buttons
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
         self.layout.addWidget(self.buttonBox)
@@ -169,7 +169,7 @@ class SettingsDialog(QDialog):
                 layout = section_widget.layout()
 
                 for row in range(layout.rowCount()):
-                    field = layout.itemAt(row, QFormLayout.FieldRole).widget()
+                    field = layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
                     if section_name == self.PROVIDER_SECTION:
                         if not hasattr(field, 'key'):
                             continue
@@ -267,7 +267,7 @@ class SettingsDialog(QDialog):
 
         # Find the index of the row in the layout
         for row in range(layout.rowCount()):
-            if layout.itemAt(row, QFormLayout.FieldRole).widget() == field:
+            if layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget() == field:
                 layout.setRowVisible(row, visible)
 
 

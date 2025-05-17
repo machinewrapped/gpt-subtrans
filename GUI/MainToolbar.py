@@ -1,3 +1,4 @@
+from typing import Callable
 from PySide6.QtWidgets import QToolBar, QStyle, QApplication
 from PySide6.QtGui import QAction, QIcon
 
@@ -43,7 +44,7 @@ class MainToolbar(QToolBar):
     def GetActionList(self, names : list) -> list[QAction]:
         return [ self.GetAction(name) for name in names ]
 
-    def DefineActions(self, action_handler : ProjectActions = None):
+    def DefineActions(self):
         """
         Define the supported actions
         """
@@ -61,7 +62,7 @@ class MainToolbar(QToolBar):
         self.DefineAction("Redo", action_handler.RedoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Shift+Z', 'Redo last undone action')
         self.DefineAction('About', action_handler.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
-    def DefineAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
+    def DefineAction(self, name, function : Callable, icon=None, shortcut=None, tooltip=None):
         action = QAction(name)
         action.triggered.connect(function)
 

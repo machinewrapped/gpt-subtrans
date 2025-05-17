@@ -5,7 +5,7 @@ import srt
 
 from PySubtitle.SubtitleLine import SubtitleLine
 
-def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int:
+def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int|None:
     """
     Insert a line into a list of lines at the correct position, or replace any existing line.
     """
@@ -60,9 +60,9 @@ def ResyncTranslatedLines(original_lines : list[SubtitleLine], translated_lines 
     """
     Copy number, start and end from original lines to matching translated lines.
     """
-    num_original = len(original_lines)
-    num_translated = len(translated_lines)
-    min_lines = min(num_original, num_translated)
+    num_original: int = len(original_lines)
+    num_translated: int = len(translated_lines)
+    min_lines: int = min(num_original, num_translated)
 
     for i in range(min_lines):
         translated_lines[i].start = original_lines[i].start
@@ -77,7 +77,7 @@ def ResyncTranslatedLines(original_lines : list[SubtitleLine], translated_lines 
     elif num_original > num_translated:
         logging.warning(f"Number of lines in original and translated subtitles don't match. Synced {min_lines} lines.")
 
-def FindSplitPoint(line: SubtitleLine, split_sequences: list[regex.Pattern], min_duration: timedelta, min_split_chars: int) -> int | None:
+def FindSplitPoint(line: SubtitleLine, split_sequences: list[regex.Pattern], min_duration: timedelta, min_split_chars: int) -> int|None:
     """
     Find the optimal split point for a subtitle.
 
@@ -86,7 +86,7 @@ def FindSplitPoint(line: SubtitleLine, split_sequences: list[regex.Pattern], min
     Break at the occurence that is as close to the middle as possible.
     Neither side of the split should be shorter than the minimum line duration
     """
-    line_length = len(line.text)
+    line_length = len(line.text or "")
     start_index = min_split_chars
     end_index = line_length - min_split_chars
     if end_index <= start_index:
@@ -116,12 +116,12 @@ def FindSplitPoint(line: SubtitleLine, split_sequences: list[regex.Pattern], min
 
     return None
 
-def GetProportionalDuration(line : SubtitleLine, num_characters : int, min_duration : timedelta = None) -> timedelta:
+def GetProportionalDuration(line : SubtitleLine, num_characters : int, min_duration : timedelta|None = None) -> timedelta:
     """
     Calculate the proportional duration of a character string as a percentage of a subtitle
     """
     line_duration = line.duration.total_seconds()
-    line_length = len(line.text)
+    line_length = len(line.text or "")
 
     if num_characters > line_length:
         raise ValueError("Proportion is longer than original line")

@@ -70,7 +70,7 @@ class TranslationClient:
         prompt.GenerateMessages(instructions, lines, context)
         return prompt
 
-    def RequestTranslation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+    def RequestTranslation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """
         Generate the messages to request a translation
         """
@@ -109,7 +109,7 @@ class TranslationClient:
         self._abort()
         pass
 
-    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """
         Make a request to the API to provide a translation
         """

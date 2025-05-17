@@ -16,7 +16,7 @@ class Command(QRunnable, QObject):
     commandStarted = Signal(object)
     commandCompleted = Signal(object)
 
-    def __init__(self, datamodel : ProjectDataModel = None):
+    def __init__(self, datamodel : ProjectDataModel|None = None):
         QRunnable.__init__(self)
         QObject.__init__(self)
         self.datamodel = datamodel
