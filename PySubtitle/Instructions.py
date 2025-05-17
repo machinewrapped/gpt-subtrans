@@ -126,7 +126,7 @@ class Instructions:
 
                 sections[section_name] = []
 
-            elif line.strip():
+            elif line.strip() or sections[section_name]:
                 sections[section_name].append(line)
 
         self.prompt = linesep.join(sections.get('prompt', []))
