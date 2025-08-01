@@ -190,3 +190,4 @@ class TranslationParser:
                 logging.warning(f"Found unclosed tag {tag} in translation: {tag}")
                 last_line.text = last_line.text[:match.start()]
                 break
+            
