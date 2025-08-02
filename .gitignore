@@ -34,3 +34,4 @@ deepseek-subtrans.sh
 bedrock-subtrans.sh
 mistral-subtrans.sh
 *.zip
+*.pdf
