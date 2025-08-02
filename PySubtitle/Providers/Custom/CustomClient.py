@@ -48,6 +48,10 @@ class CustomClient(TranslationClient):
     @property
     def max_completion_tokens(self):
         return self.settings.get('max_completion_tokens', None)
+    
+    @property
+    def timeout(self):
+        return self.settings.get('timeout', 300)
 
     def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
         """
@@ -81,7 +85,7 @@ class CustomClient(TranslationClient):
                 request_body = self._generate_request_body(prompt, temperature)
                 logging.debug(f"Request Body:\n{request_body}")
 
-                self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=300.0, headers=self.headers)
+                self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=self.timeout, headers=self.headers)
 
                 result : httpx.Response = self.client.post(self.endpoint, json=request_body)
 

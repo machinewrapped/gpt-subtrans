@@ -36,6 +36,7 @@ class Provider_CustomServer(TranslationProvider):
             'temperature': settings.get('temperature', GetEnvFloat('CUSTOM_TEMPERATURE', 0.0)),
             'max_tokens': settings.get('max_tokens', GetEnvInteger('CUSTOM_MAX_TOKENS', 0)),
             'max_completion_tokens': settings.get('max_completion_tokens', GetEnvInteger('CUSTOM_MAX_COMPLETION_TOKENS', 0)),
+            'timeout': settings.get('timeout', GetEnvInteger('CUSTOM_TIMEOUT', 300)),
             "api_key": settings.get('api_key', os.getenv('CUSTOM_API_KEY')),
             "model": settings.get('model', os.getenv('CUSTOM_MODEL')),
             'supports_parallel_threads': settings.get('supports_parallel_threads', GetEnvBool('CUSTOM_SUPPORTS_PARALLEL_THREADS', False))
@@ -101,6 +102,7 @@ class Provider_CustomServer(TranslationProvider):
                 'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
                 'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)"),
                 'max_completion_tokens': (int, "Alternative to max_tokens for some servers"),
+                'timeout': (int, "Timeout for the request in seconds (default 300)"),
                 'api_key': (str, "An API key is normally not needed for a local server"),
                 'model': (str, "The model is normally set by the server, and should not need to be specified here"),
                 'supports_parallel_threads': (bool, "Use parallel threads for translation requests (may be faster but may not work with the server)")
