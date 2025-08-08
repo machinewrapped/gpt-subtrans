@@ -1,0 +1,45 @@
+# French translation for GUI-SubTrans
+# 
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: fr\n"
+
+msgid "GUI-Subtrans"
+msgstr "GUI-Subtrans"
+
+msgid "GUI-Subtrans Settings"
+msgstr "Paramètres de GUI-Subtrans"
+
+msgid "Main Toolbar"
+msgstr "Barre d'outils principale"
+
+msgid "Performing {}"
+msgstr "Exécution de {}"
+
+msgid "Ready."
+msgstr "Prêt."
+
+msgid "Translation aborted"
+msgstr "Traduction annulée"
+
+msgid "{} aborted."
+msgstr "{} annulé."
+
+msgid "{} added to queue."
+msgstr "{} ajouté à la file d'attente."
+
+msgid "{} commands in queue."
+msgstr "{} commandes en file d'attente."
+
+msgid "{} failed."
+msgstr "{} a échoué."
+
+msgid "{} started."
+msgstr "{} démarré."
+
+msgid "{} undone."
+msgstr "{} annulé."
+
+msgid "{} was successful."
+msgstr "{} a réussi."

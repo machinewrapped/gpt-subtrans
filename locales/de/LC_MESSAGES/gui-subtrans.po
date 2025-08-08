@@ -1,0 +1,45 @@
+# German translation for GUI-SubTrans
+# 
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: de\n"
+
+msgid "GUI-Subtrans"
+msgstr "GUI-Subtrans"
+
+msgid "GUI-Subtrans Settings"
+msgstr "GUI-Subtrans Einstellungen"
+
+msgid "Main Toolbar"
+msgstr "Hauptwerkzeugleiste"
+
+msgid "Performing {}"
+msgstr "{} wird ausgeführt"
+
+msgid "Ready."
+msgstr "Bereit."
+
+msgid "Translation aborted"
+msgstr "Übersetzung abgebrochen"
+
+msgid "{} aborted."
+msgstr "{} abgebrochen."
+
+msgid "{} added to queue."
+msgstr "{} zur Warteschlange hinzugefügt."
+
+msgid "{} commands in queue."
+msgstr "{} Befehle in der Warteschlange."
+
+msgid "{} failed."
+msgstr "{} fehlgeschlagen."
+
+msgid "{} started."
+msgstr "{} gestartet."
+
+msgid "{} undone."
+msgstr "{} rückgängig gemacht."
+
+msgid "{} was successful."
+msgstr "{} war erfolgreich."

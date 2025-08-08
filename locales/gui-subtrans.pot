@@ -1,0 +1,46 @@
+# GUI-SubTrans Translation Template
+# 
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: \n"
+
+msgid "GUI-Subtrans"
+msgstr ""
+
+msgid "GUI-Subtrans Settings"
+msgstr ""
+
+msgid "Main Toolbar"
+msgstr ""
+
+msgid "Performing {}"
+msgstr ""
+
+msgid "Ready."
+msgstr ""
+
+msgid "Translation aborted"
+msgstr ""
+
+msgid "{} aborted."
+msgstr ""
+
+msgid "{} added to queue."
+msgstr ""
+
+msgid "{} commands in queue."
+msgstr ""
+
+msgid "{} failed."
+msgstr ""
+
+msgid "{} started."
+msgstr ""
+
+msgid "{} undone."
+msgstr ""
+
+msgid "{} was successful."
+msgstr ""
+

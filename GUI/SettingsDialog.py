@@ -8,6 +8,7 @@ from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
+from PySubtitle.Helpers.Localization import get_available_languages, get_language_display_name, set_language, _
 
 class SettingsDialog(QDialog):
     """
@@ -27,6 +28,7 @@ class SettingsDialog(QDialog):
     SECTIONS = {
         'General': {
             'target_language': (str, "The default language to translate the subtitles to"),
+            'ui_language': ([], "Interface language"),
             'include_original': (bool, "Include original text in translated subtitles"),
             'add_right_to_left_markers': (bool, "Add RTL markers around translated lines that contain primarily right-to-left script on save"),
             'instruction_file': (str, "Instructions for the translation provider to follow"),
@@ -106,7 +108,7 @@ class SettingsDialog(QDialog):
 
     def __init__(self, options : Options, provider_cache = None, parent=None, focus_provider_settings : bool = False):
         super(SettingsDialog, self).__init__(parent)
-        self.setWindowTitle("GUI-Subtrans Settings")
+        self.setWindowTitle(_("GUI-Subtrans Settings"))
         self.setMinimumWidth(800)
 
         self.translation_provider : TranslationProvider = None
@@ -114,8 +116,14 @@ class SettingsDialog(QDialog):
         self.settings = options.GetSettings()
         self.widgets = {}
 
-        # Qyery available themes
+        # Query available themes
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
+
+        # Query available languages
+        available_languages = get_available_languages()
+        language_options = [get_language_display_name(code) for code in available_languages]
+        self.language_locale_map = {get_language_display_name(code): code for code in available_languages}
+        self.SECTIONS['General']['ui_language'] = (language_options, "Interface language")
 
         # Query available instruction files
         instruction_files = GetInstructionsFiles()
@@ -357,6 +365,11 @@ class SettingsDialog(QDialog):
         elif key == 'instruction_file':
             self.settings[key] = value
             self._update_instruction_file()
+
+        elif key == 'ui_language':
+            locale = self.language_locale_map.get(value, value)
+            self.settings[key] = locale
+            set_language(locale)
 
         elif section_name == self.PROVIDER_SECTION:
             provider = self.settings.get('provider')

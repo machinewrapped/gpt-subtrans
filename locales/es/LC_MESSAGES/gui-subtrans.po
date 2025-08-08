@@ -1,0 +1,45 @@
+# Spanish translation for GUI-SubTrans
+# 
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: es\n"
+
+msgid "GUI-Subtrans"
+msgstr "GUI-Subtrans"
+
+msgid "GUI-Subtrans Settings"
+msgstr "Configuración de GUI-Subtrans"
+
+msgid "Main Toolbar"
+msgstr "Barra de herramientas principal"
+
+msgid "Performing {}"
+msgstr "Realizando {}"
+
+msgid "Ready."
+msgstr "Listo."
+
+msgid "Translation aborted"
+msgstr "Traducción cancelada"
+
+msgid "{} aborted."
+msgstr "{} cancelado."
+
+msgid "{} added to queue."
+msgstr "{} añadido a la cola."
+
+msgid "{} commands in queue."
+msgstr "{} comandos en cola."
+
+msgid "{} failed."
+msgstr "{} falló."
+
+msgid "{} started."
+msgstr "{} iniciado."
+
+msgid "{} undone."
+msgstr "{} deshecho."
+
+msgid "{} was successful."
+msgstr "{} fue exitoso."

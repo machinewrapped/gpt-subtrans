@@ -14,6 +14,7 @@ from scripts.subtrans_common import InitLogger
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from PySubtitle.Options import Options, settings_path, config_dir
+from PySubtitle.Helpers.Localization import initialize_localization
 from GUI.MainWindow import MainWindow
 
 def parse_arguments():
@@ -97,6 +98,9 @@ if __name__ == "__main__":
         logging.info(f"Loaded settings from {settings_path}")
     options.update(arguments)
     options.InitialiseInstructions()
+
+    # Initialize localization
+    initialize_localization(options.get('ui_language'))
 
     # Launch the GUI
     app.main_window = MainWindow( options=options, filepath=filepath)
