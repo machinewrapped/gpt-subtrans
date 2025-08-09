@@ -77,3 +77,43 @@ msgstr "Poskytovatel překladu k použití"
 #: GUI/FirstRunOptions.py:21
 msgid "Customise the appearance of gui-subtrans"
 msgstr "Přizpůsobení vzhledu gui-subtrans"
+
+#: GUI/SettingsDialog.py:30
+msgid "The default language to translate the subtitles to"
+msgstr "Výchozí jazyk pro překlad titulků"
+
+#: GUI/SettingsDialog.py:32
+msgid "Include original text in translated subtitles"
+msgstr "Zahrnout původní text do přeložených titulků"
+
+#: GUI/SettingsDialog.py:34
+msgid "Instructions for the translation provider to follow"
+msgstr "Pokyny pro poskytovatele překladu"
+
+#: GUI/SettingsDialog.py:37
+msgid "Automatically save the project after each translation batch"
+msgstr "Automaticky uložit projekt po každé dávce překladu"
+
+#: GUI/SettingsDialog.py:38
+msgid "Save a backup copy of the project when opening it"
+msgstr "Uložit záložní kopii projektu při otevření"
+
+#: GUI/SettingsDialog.py:40
+msgid "If true, translations that fail validation will be retried with a note about the error"
+msgstr "Pokud je povoleno, neúspěšné překlady budou zopakovány s poznámkou o chybě"
+
+#: GUI/SettingsDialog.py:41
+msgid "Stop translating if an error is encountered"
+msgstr "Zastavit překlad při výskytu chyby"
+
+#: GUI/SettingsDialog.py:45
+msgid "The AI translation service to use"
+msgstr "AI překladová služba k použití"
+
+#: GUI/SettingsDialog.py:48
+msgid "Preprocess subtitles when they are loaded"
+msgstr "Předzpracovat titulky při načítání"
+
+#: GUI/SettingsDialog.py:49
+msgid "Postprocess subtitles after translation"
+msgstr "Dodatečně zpracovat titulky po překladu"
