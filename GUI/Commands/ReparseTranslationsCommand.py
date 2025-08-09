@@ -4,6 +4,7 @@ from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -22,10 +23,10 @@ class ReparseTranslationsCommand(Command):
         self.undo_data = []
 
     def execute(self):
-        logging.info(f"Reparse batches {','.join(str(x) for x in self.batch_numbers)}")
+        logging.info(_("Reparse batches {batches}").format(batches=','.join(str(x) for x in self.batch_numbers)))
 
         if not self.datamodel.project:
-            raise CommandError("Unable to reparse batches because project is not set", command=self)
+            raise CommandError(_("Unable to reparse batches because project is not set"), command=self)
 
         project : SubtitleProject = self.datamodel.project
         subtitles : SubtitleFile = project.subtitles
@@ -56,7 +57,7 @@ class ReparseTranslationsCommand(Command):
                 })
 
             except Exception as e:
-                raise CommandError(f"Error reparsing scene {scene_number} batch {batch_number}: {e}", command=self)
+                raise CommandError(_("Error reparsing scene {scene} batch {batch}: {error}").format(scene=scene_number, batch=batch_number, error=e), command=self)
 
         return True
 

@@ -3,6 +3,7 @@ import logging
 from GUI.Command import Command, CommandError, UndoError
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.Helpers.Localization import _
 
 class MergeScenesCommand(Command):
     """
@@ -15,12 +16,12 @@ class MergeScenesCommand(Command):
         self.original_summaries = {}
 
     def execute(self):
-        logging.info(f"Merging scenes {','.join(str(x) for x in self.scene_numbers)}")
+        logging.info(_("Merging scenes {scenes}").format(scenes=','.join(str(x) for x in self.scene_numbers)))
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         if len(self.scene_numbers) < 2:
-            raise CommandError("Cannot merge less than two scenes", command=self)
+            raise CommandError(_("Cannot merge less than two scenes"), command=self)
 
         scenes_to_merge = [ subtitles.GetScene(scene_number) for scene_number in self.scene_numbers ]
         self.scene_sizes = [ scene.size for scene in scenes_to_merge ]
@@ -44,7 +45,7 @@ class MergeScenesCommand(Command):
         Split the scene recursively using the saved scene sizes
         """
         if not self.scene_sizes:
-            raise UndoError("Cannot undo merge, scene sizes were not saved", command=self)
+            raise UndoError(_("Cannot undo merge, scene sizes were not saved"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 

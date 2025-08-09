@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-09 14:14+0000\n"
+"POT-Creation-Date: 2025-08-09 14:59+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -17,6 +17,10 @@ msgstr "1 línea"
 #: GUI/NewProjectSettings.py:29
 msgid "AI model to use as the translator"
 msgstr "Modelo de IA a usar como traductor"
+
+#: GUI/Commands/TranslateSceneCommand.py:64
+msgid "Aborted translation of scene {scene}"
+msgstr "Traducción de la escena {scene} abortada"
 
 #: GUI/AboutDialog.py:16
 msgid "About GUI-Subtrans"
@@ -48,9 +52,17 @@ msgstr "Todos los archivos"
 msgid "All batches translated"
 msgstr "Todos los lotes traducidos"
 
+#: GUI/Commands/StartTranslationCommand.py:29
+msgid "All scenes are fully translated"
+msgstr ""
+
 #: GUI/Widgets/SelectionView.py:31
 msgid "Auto-Split Batch"
 msgstr "Dividir lote automáticamente"
+
+#: GUI/Commands/AutoSplitBatchCommand.py:18
+msgid "Auto-splitting batch {scene} batch {batch}"
+msgstr ""
 
 #: GUI/SettingsDialog.py:37
 msgid "Automatically save the project after each translation batch"
@@ -60,17 +72,33 @@ msgstr "Guardar automáticamente el proyecto después de cada lote de traducció
 msgid "Avoid creating a new batch smaller than this"
 msgstr "Evitar crear un lote nuevo más pequeño que esto"
 
+#: GUI/Commands/EditBatchCommand.py:31 GUI/Commands/EditBatchCommand.py:51
+msgid "Batch ({scene},{batch}) not found"
+msgstr "Lote ({scene},{batch}) no encontrado"
+
 #: GUI/ViewModel/BatchItem.py:203
 msgid "Batch {num}"
 msgstr "Lote {num}"
 
 #: GUI/ProjectActions.py:371
 msgid "Can only autosplit a single batch"
-msgstr ""
+msgstr "Solo se puede dividir automáticamente un lote"
+
+#: GUI/ViewModel/ViewModel.py:83
+msgid "Can only model subtitle files"
+msgstr "Solo se pueden procesar archivos de subtítulos"
 
 #: GUI/ProjectActions.py:382
 msgid "Can only swap text of a single batch"
-msgstr ""
+msgstr "Solo se puede intercambiar el texto de un único lote"
+
+#: GUI/CommandQueue.py:112
+msgid "Can redo {command}"
+msgstr "Se puede rehacer {command}"
+
+#: GUI/CommandQueue.py:105
+msgid "Can undo {command}"
+msgstr "Se puede deshacer {command}"
 
 #: GUI/EditInstructionsDialog.py:43
 msgid "Cancel"
@@ -78,6 +106,19 @@ msgstr "Cancelar"
 
 #: GUI/ProjectActions.py:329
 msgid "Cannot delete scenes or batches yet"
+msgstr ""
+
+#: GUI/Commands/AutoSplitBatchCommand.py:28
+#: GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
+msgid "Cannot find scene {scene} batch {batch}"
+msgstr ""
+
+#: GUI/Commands/MergeScenesCommand.py:24
+msgid "Cannot merge less than two scenes"
+msgstr ""
+
+#: GUI/Commands/MergeLinesCommand.py:39
+msgid "Cannot merge lines, some lines are missing"
 msgstr ""
 
 #: GUI/ProjectActions.py:302
@@ -88,9 +129,25 @@ msgstr ""
 msgid "Cannot redo the last command"
 msgstr "No se puede rehacer la última acción"
 
+#: GUI/Commands/SplitSceneCommand.py:24
+msgid "Cannot split scene {scene} because it doesn't exist"
+msgstr ""
+
+#: GUI/Commands/MergeScenesCommand.py:48
+msgid "Cannot undo merge, scene sizes were not saved"
+msgstr ""
+
+#: GUI/Commands/MergeLinesCommand.py:68
+msgid "Cannot undo merge, undo data was not saved"
+msgstr ""
+
 #: GUI/ProjectActions.py:92
 msgid "Cannot undo the last command"
 msgstr "No se puede deshacer la última acción"
+
+#: GUI/GUICommands.py:43
+msgid "CheckProviderSettings: {error}"
+msgstr ""
 
 #: GUI/SettingsDialog.py:64
 msgid "Comma-separated list of filler_words to remove"
@@ -104,7 +161,7 @@ msgstr ""
 
 #: GUI/Widgets/Editors.py:142
 msgid "Context"
-msgstr ""
+msgstr "Contexto"
 
 #: GUI/SettingsDialog.py:57
 msgid "Convert blocks of whitespace and Chinese Commas to newlines"
@@ -134,6 +191,10 @@ msgstr "Predeterminados"
 msgid "Delete Lines"
 msgstr "Eliminar líneas"
 
+#: GUI/Commands/DeleteLinesCommand.py:24
+msgid "Deleting lines {lines}"
+msgstr "Eliminando líneas {lines}"
+
 #: GUI/Widgets/ProjectSettings.py:114
 msgid "Description"
 msgstr "Descripción"
@@ -161,10 +222,25 @@ msgstr "Editar"
 msgid "Edit Instructions"
 msgstr "Editar instrucciones"
 
+#: GUI/Commands/EditBatchCommand.py:26 GUI/Commands/EditLineCommand.py:29
+msgid "Edit data must be a dictionary"
+msgstr ""
+
+#: GUI/Commands/EditBatchCommand.py:19
+msgid "Editing batch ({scene},{batch})"
+msgstr ""
+
+#: GUI/Commands/EditLineCommand.py:22
+msgid "Editing line {line}"
+msgstr ""
+
 #: GUI/SettingsDialog.py:56
 msgid "Ensure dialog markers match in multi-line subtitles"
 msgstr ""
-"Asegurar que las marcas de diálogo coincidan en subtítulos de varias líneas"
+"Asegurar que las marcas de diálogo coincidan en subtítulos de varias "
+"líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias "
+"líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias "
+"líneas"
 
 #: GUI/SettingsDialog.py:58
 msgid "Ensure full-width punctuation is used in Asian languages"
@@ -178,6 +254,15 @@ msgstr "Error"
 msgid "Error redoing the last command: {error}"
 msgstr "Error al rehacer la última acción: {error}"
 
+#: GUI/Commands/ReparseTranslationsCommand.py:60
+msgid "Error reparsing scene {scene} batch {batch}: {error}"
+msgstr ""
+
+#: GUI/Commands/TranslateSceneCommand.py:69
+#: GUI/Commands/TranslateSceneCommand.py:73
+msgid "Error translating scene {scene}: {error}"
+msgstr "Error al traducir la escena {scene}: {error}"
+
 #: GUI/ProjectActions.py:99
 msgid "Error undoing the last command: {error}"
 msgstr "Error al deshacer la última acción: {error}"
@@ -186,8 +271,32 @@ msgstr "Error al deshacer la última acción: {error}"
 msgid "Error: {error}"
 msgstr "Error: {error}"
 
+#: GUI/Commands/TranslateSceneCommand.py:56
+msgid "Errors translating scene {scene} - aborting translation"
+msgstr "Errores al traducir la escena {scene} - abortando la traducción"
+
+#: GUI/Commands/TranslateSceneCommand.py:55
+msgid "Errors: {errors}"
+msgstr "Errores: {errors}"
+
+#: GUI/Commands/LoadSubtitleFile.py:20
+msgid "Executing LoadSubtitleFile {file}"
+msgstr "Ejecutando carga de archivo {file}"
+
+#: GUI/GUICommands.py:18
+msgid "Exiting Program"
+msgstr ""
+
 #: GUI/ViewModel/BatchItem.py:120
 msgid "Expected a dictionary, got a {type}"
+msgstr ""
+
+#: GUI/ViewModel/ViewModel.py:309 GUI/ViewModel/ViewModel.py:386
+msgid "Expected a patch dictionary"
+msgstr ""
+
+#: GUI/Commands/MergeLinesCommand.py:48
+msgid "Failed to merge lines"
 msgstr ""
 
 #: GUI/NewProjectSettings.py:31
@@ -269,6 +378,10 @@ msgstr "Instrucciones que debe seguir el proveedor de traducción"
 msgid "Instructions: {text}"
 msgstr "Instrucciones: {text}"
 
+#: GUI/GUICommands.py:35
+msgid "Invalid translation provider"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:27
 msgid "Language to translate the subtitles to"
 msgstr "Idioma al que traducir los subtítulos"
@@ -287,6 +400,14 @@ msgstr ""
 msgid "Line item {row} has no line number"
 msgstr ""
 
+#: GUI/Commands/EditLineCommand.py:34 GUI/Commands/EditLineCommand.py:83
+msgid "Line {line} not found in any batch"
+msgstr ""
+
+#: GUI/Commands/EditLineCommand.py:38 GUI/Commands/EditLineCommand.py:87
+msgid "Line {line} not found in batch ({scene},{batch})"
+msgstr ""
+
 #: GUI/Widgets/Editors.py:158
 msgid "Line {line}: {start} --> {end}"
 msgstr ""
@@ -294,6 +415,10 @@ msgstr ""
 #: GUI/ViewModel/BatchItem.py:204 GUI/ViewModel/SceneItem.py:141
 msgid "Lines {first}-{last} ({start} -> {end})"
 msgstr "Líneas {first}-{last} ({start} -> {end})"
+
+#: GUI/ViewModel/ViewModel.py:448
+msgid "Lines {lines} not found in batch {batch}"
+msgstr "Líneas {lines} no encontradas en el lote {batch}"
 
 #: GUI/EditInstructionsDialog.py:39 GUI/EditInstructionsDialog.py:134
 msgid "Load Instructions"
@@ -346,9 +471,17 @@ msgstr "Combinar escenas"
 msgid "Merge lines with a duration less than this with the previous line"
 msgstr "Unir líneas con una duración menor que esta con la línea anterior"
 
+#: GUI/Commands/MergeLinesCommand.py:36
+msgid "Merging lines {lines} in batch {batch}"
+msgstr "Combinando líneas {lines} en el lote {batch}"
+
+#: GUI/Commands/MergeScenesCommand.py:19
+msgid "Merging scenes {scenes}"
+msgstr "Combinando escenas {scenes}"
+
 #: GUI/Widgets/Editors.py:138
 msgid "Messages"
-msgstr ""
+msgstr "Mensajes"
 
 #: GUI/SettingsDialog.py:52
 msgid "Minimum duration of a single line of subtitles"
@@ -378,18 +511,46 @@ msgstr "Nombre de la película"
 msgid "Names"
 msgstr "Nombres"
 
+#: GUI/Commands/MergeLinesCommand.py:28
+msgid "No batches found for lines to merge"
+msgstr ""
+
+#: GUI/Commands/DeleteLinesCommand.py:53
+msgid "No deletions to undo"
+msgstr "No hay eliminaciones que deshacer"
+
+#: GUI/Commands/LoadSubtitleFile.py:23
+msgid "No file path specified"
+msgstr "No se especificó una ruta de archivo"
+
+#: GUI/Commands/DeleteLinesCommand.py:22
+msgid "No lines selected to delete"
+msgstr ""
+
+#: GUI/Commands/DeleteLinesCommand.py:34
+msgid "No lines were deleted"
+msgstr "No se eliminaron líneas"
+
 #: GUI/ProjectActions.py:239
 msgid "No scenes selected for translation"
 msgstr "No hay escenas seleccionadas para traducir"
 
+#: GUI/Commands/AutoSplitBatchCommand.py:23
+#: GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23
+#: GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62
+#: GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45
 #: GUI/ProjectActions.py:396
 msgid "No subtitles"
-msgstr ""
+msgstr "No hay subtítulos"
 
 #: GUI/GuiInterface.py:345 GUI/GuiInterface.py:346
 msgid ""
 "No translation providers available. Please install one or more providers."
 msgstr ""
+
+#: GUI/Widgets/ScenesView.py:126
+msgid "Not sure what you just double-clicked on"
+msgstr "No estoy seguro de qué acabas de hacer doble clic"
 
 #: GUI/ProjectActions.py:326
 msgid "Nothing selected to delete"
@@ -415,6 +576,10 @@ msgstr "Nada que rehacer"
 msgid "Nothing to save!"
 msgstr "¡Nada que guardar!"
 
+#: GUI/Commands/StartTranslationCommand.py:23
+msgid "Nothing to translate"
+msgstr ""
+
 #: GUI/MainToolbar.py:165
 msgid "Nothing to undo"
 msgstr "Nada que deshacer"
@@ -437,23 +602,27 @@ msgstr "Abrir archivo"
 
 #: GUI/ViewModel/BatchItem.py:189
 msgid "Original line {line} not found in batch {batch}"
-msgstr ""
+msgstr "Línea original {line} no encontrada en el lote {batch}"
 
 #: GUI/MainWindow.py:110
 msgid "Performing {action}"
 msgstr "Realizando {action}"
 
+#: GUI/GuiInterface.py:368
+msgid "Please configure the translation provider settings"
+msgstr "Configura la configuración del proveedor de traducción"
+
 #: GUI/ProjectActions.py:355
 msgid "Please select a batch to split the scene at"
-msgstr ""
+msgstr "Selecciona un lote donde dividir la escena"
 
 #: GUI/ProjectActions.py:339
 msgid "Please select a line to split the batch at"
-msgstr ""
+msgstr "Selecciona una línea donde dividir el lote"
 
 #: GUI/ProjectActions.py:342 GUI/ProjectActions.py:358
 msgid "Please select a single split point"
-msgstr ""
+msgstr "Selecciona un único punto de división"
 
 #: GUI/SettingsDialog.py:49
 msgid "Postprocess subtitles after translation"
@@ -481,11 +650,11 @@ msgstr "Instrucciones del proyecto establecidas desde {file}"
 
 #: GUI/ProjectActions.py:393
 msgid "Project is not valid"
-msgstr ""
+msgstr "El proyecto no es válido"
 
 #: GUI/Widgets/Editors.py:118
 msgid "Prompt"
-msgstr ""
+msgstr "Solicitud"
 
 #: GUI/EditInstructionsDialog.py:30
 msgid "Prompt for each translation request"
@@ -503,13 +672,17 @@ msgstr "Proveedor"
 msgid "Provider error: {error}"
 msgstr "Error del proveedor: {error}"
 
+#: GUI/GUICommands.py:39
+msgid "Provider {provider} needs configuring: {message}"
+msgstr ""
+
 #: GUI/MainWindow.py:64
 msgid "Ready."
 msgstr "Listo."
 
 #: GUI/Widgets/Editors.py:132
 msgid "Reasoning"
-msgstr ""
+msgstr "Razonamiento"
 
 #: GUI/MainToolbar.py:169
 msgid "Redo {command}"
@@ -523,9 +696,21 @@ msgstr "Eliminar filler_words y muletillas de los subtítulos"
 msgid "Reparse Translation"
 msgstr "Reanalizar traducción"
 
+#: GUI/Commands/ReparseTranslationsCommand.py:26
+msgid "Reparse batches {batches}"
+msgstr "Reanalizar lotes {batches}"
+
 #: GUI/Widgets/Editors.py:127
 msgid "Response"
-msgstr ""
+msgstr "Respuesta"
+
+#: GUI/Commands/DeleteLinesCommand.py:55
+msgid "Restoring deleted lines"
+msgstr "Restaurando líneas eliminadas"
+
+#: GUI/Commands/StartTranslationCommand.py:32
+msgid "Resuming"
+msgstr "Reanudando"
 
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
 msgid "Save Instructions"
@@ -543,6 +728,10 @@ msgstr "Guardar una copia de seguridad del proyecto al abrirlo"
 msgid "Save preprocessed subtitles to a separate file"
 msgstr "Guardar los subtítulos preprocesados en un archivo separado"
 
+#: GUI/Commands/LoadSubtitleFile.py:36
+msgid "Saving backup copy of the project"
+msgstr "Guardando copia de seguridad del proyecto"
+
 #: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
 #: GUI/Widgets/Editors.py:86
 msgid "Scene {num}"
@@ -550,11 +739,11 @@ msgstr "Escena {num}"
 
 #: GUI/Widgets/Editors.py:103
 msgid "Scene {scene} Batch {batch}"
-msgstr ""
+msgstr "Escena {scene} Lote {batch}"
 
 #: GUI/ViewModel/BatchItem.py:19
 msgid "Scene {scene}, batch {batch}"
-msgstr ""
+msgstr "Escena {scene}, lote {batch}"
 
 #: GUI/SettingsDialog.py:77
 msgid "Seconds to wait before retrying a failed translation"
@@ -566,7 +755,7 @@ msgstr "Selecciona el proyecto del que copiar la configuración"
 
 #: GUI/Widgets/SelectionView.py:83
 msgid "Selection {task_type}"
-msgstr ""
+msgstr "Selección {task_type}"
 
 #: GUI/Widgets/SelectionView.py:33
 msgid "Split Batch"
@@ -575,6 +764,18 @@ msgstr "Dividir lote"
 #: GUI/Widgets/SelectionView.py:34
 msgid "Split Scene"
 msgstr "Dividir escena"
+
+#: GUI/Commands/SplitSceneCommand.py:15
+msgid "Splitting batch {scene} at batch {batch}"
+msgstr "Dividiendo la escena {scene} en el lote {batch}"
+
+#: GUI/Commands/SplitBatchCommand.py:19
+msgid "Splitting scene {scene} batch: {batch} at line {line}"
+msgstr "Dividiendo la escena {scene} lote: {batch} en la línea {line}"
+
+#: GUI/Commands/StartTranslationCommand.py:32
+msgid "Starting"
+msgstr "Iniciando"
 
 #: GUI/SettingsDialog.py:41
 msgid "Stop translating if an error is encountered"
@@ -594,7 +795,7 @@ msgstr "Archivos de subtítulos"
 
 #: GUI/ProjectActions.py:399
 msgid "Subtitles have not been batched"
-msgstr ""
+msgstr "Los subtítulos no han sido agrupados en lotes"
 
 #: GUI/Widgets/ProjectSettings.py:280
 msgid "Subtrans Files (*.subtrans);;All Files (*)"
@@ -606,7 +807,7 @@ msgstr "Proyectos Subtrans"
 
 #: GUI/Widgets/Editors.py:112
 msgid "Summary"
-msgstr ""
+msgstr "Resumen"
 
 #: GUI/EditInstructionsDialog.py:33
 msgid "Supplementary instructions when retrying"
@@ -626,7 +827,7 @@ msgstr "Idioma objetivo"
 
 #: GUI/EditInstructionsDialog.py:27
 msgid "Text Files (*.txt);;All Files (*))"
-msgstr ""
+msgstr "Archivos de texto (*.txt);;Todos los archivos (*))"
 
 #: GUI/SettingsDialog.py:35
 msgid ""
@@ -662,6 +863,18 @@ msgstr "Herramientas"
 msgid "Translate Selection"
 msgstr "Traducir selección"
 
+#: GUI/Commands/TranslateSceneCommand.py:31
+msgid "Translating scene number {scene}"
+msgstr "Traduciendo la escena número {scene}"
+
+#: GUI/Commands/TranslateSceneCommand.py:29
+msgid "Translating scene number {scene} batch {batches}"
+msgstr "Traduciendo la escena número {scene} lote {batches}"
+
+#: GUI/GuiInterface.py:170
+msgid "Translation provider settings are not valid. Please check the settings."
+msgstr ""
+
 #: GUI/EditInstructionsDialog.py:31
 msgid "Type of response expected for each line (must match the example format)"
 msgstr ""
@@ -671,19 +884,53 @@ msgstr ""
 
 #: GUI/NewProjectSettings.py:75
 msgid "Unable to create option widget for {key}: {error}"
+msgstr "No se puede crear el widget de opción para {key}: {error}"
+
+#: GUI/ProjectDataModel.py:124
+msgid "Unable to create {provider} provider: {error}"
+msgstr "No se puede crear el proveedor {provider}: {error}"
+
+#: GUI/Commands/EditBatchCommand.py:23 GUI/Commands/EditLineCommand.py:26
+msgid "Unable to edit batch because datamodel is invalid"
 msgstr ""
 
 #: GUI/NewProjectSettings.py:116 GUI/NewProjectSettings.py:161
 msgid "Unable to load instructions from {file}: {error}"
 msgstr "No se pueden cargar instrucciones desde {file}: {error}"
 
+#: GUI/Commands/LoadSubtitleFile.py:32
+msgid "Unable to load subtitles from {file}"
+msgstr "No se pueden cargar subtítulos de {file}"
+
+#: GUI/Commands/LoadSubtitleFile.py:48
+msgid "Unable to load {file} ({error})"
+msgstr "No se puede cargar {file} ({error})"
+
 #: GUI/ProjectActions.py:317
 msgid "Unable to merge selection ({selection})"
-msgstr ""
+msgstr "No se puede combinar la selección ({selection})"
 
 #: GUI/NewProjectSettings.py:176
 msgid "Unable to preview batches: {error}"
 msgstr "No se pueden previsualizar los lotes: {error}"
+
+#: GUI/Commands/ReparseTranslationsCommand.py:29
+msgid "Unable to reparse batches because project is not set"
+msgstr "No se pueden reanalizar lotes porque no se ha establecido el proyecto"
+
+#: GUI/Commands/TranslateSceneCommand.py:34
+msgid "Unable to translate scene because project is not set on datamodel"
+msgstr ""
+"No se puede traducir la escena porque el proyecto no está establecido en el "
+"modelo de datos"
+
+#: GUI/Commands/SplitBatchCommand.py:82
+msgid "Unable to undo SplitBatchCommand command: {error}"
+msgstr "No se puede deshacer el comando SplitBatchCommand: {error}"
+
+#: GUI/Commands/SplitSceneCommand.py:66
+msgid "Unable to undo SplitScene command: {error}"
+msgstr "No se puede deshacer el comando SplitScene: {error}"
 
 #: GUI/NewProjectSettings.py:119
 msgid "Unable to update settings: {error}"
@@ -692,6 +939,14 @@ msgstr "No se puede actualizar la configuración: {error}"
 #: GUI/MainToolbar.py:163
 msgid "Undo {command}"
 msgstr "Deshacer {command}"
+
+#: GUI/Commands/EditBatchCommand.py:44
+msgid "Undoing edit batch ({scene},{batch})"
+msgstr ""
+
+#: GUI/Commands/EditLineCommand.py:76
+msgid "Undoing edit line {line}"
+msgstr ""
 
 #: GUI/ProjectActions.py:283
 msgid "Updating line {line} with {original} > {translated}"
@@ -727,6 +982,14 @@ msgid ""
 "automatically based on input language"
 msgstr ""
 
+#: GUI/Commands/StartTranslationCommand.py:33
+msgid "multithreaded"
+msgstr "multihilo"
+
+#: GUI/Commands/StartTranslationCommand.py:33
+msgid "single threaded"
+msgstr "de un solo hilo"
+
 #: GUI/MainWindow.py:138
 msgid "{command} aborted."
 msgstr "{command} cancelado."
@@ -757,7 +1020,7 @@ msgstr "{count} líneas"
 
 #: GUI/GuiHelpers.py:57
 msgid "{count} lines translated"
-msgstr ""
+msgstr "{count} líneas traducidas"
 
 #: GUI/ViewModel/BatchItem.py:199
 msgid "{count} translated"
@@ -769,7 +1032,7 @@ msgstr "{done} de {total} lotes traducidos"
 
 #: GUI/GuiHelpers.py:59
 msgid "{done} of {total} lines translated"
-msgstr ""
+msgstr "{done} de {total} líneas traducidas"
 
 #: GUI/ViewModel/SceneItem.py:135
 msgid "{lines} lines in {batches} batches"
@@ -777,8 +1040,24 @@ msgstr "{lines} líneas en {batches} lotes"
 
 #: GUI/NewProjectSettings.py:232
 msgid "{lines} lines in {scenes} scenes and {batches} batches"
-msgstr ""
+msgstr "{lines} líneas en {scenes} escenas y {batches} lotes"
 
 #: GUI/MainWindow.py:149
 msgid "{num} commands in queue."
 msgstr "{num} órdenes en cola."
+
+#: GUI/Commands/StartTranslationCommand.py:34
+msgid "{starting} {threaded} translation"
+msgstr ""
+
+#~ msgid "Advanced"
+#~ msgstr "Avanzado"
+
+#~ msgid "General"
+#~ msgstr "General"
+
+#~ msgid "Processing"
+#~ msgstr "Procesamiento"
+
+#~ msgid "Provider Settings"
+#~ msgstr "Configuración del proveedor"

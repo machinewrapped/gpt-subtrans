@@ -4,6 +4,7 @@ from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -18,19 +19,19 @@ class DeleteLinesCommand(Command):
 
     def execute(self):
         if not self.line_numbers:
-            raise CommandError("No lines selected to delete", command=self)
+            raise CommandError(_("No lines selected to delete"), command=self)
 
-        logging.info(f"Deleting lines {str(self.line_numbers)}")
+        logging.info(_("Deleting lines {lines}").format(lines=str(self.line_numbers)))
 
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise CommandError("No subtitles", command=self)
+            raise CommandError(_("No subtitles"), command=self)
 
         self.deletions = project.subtitles.DeleteLines(self.line_numbers)
 
         if not self.deletions:
-            raise CommandError("No lines were deleted", command=self)
+            raise CommandError(_("No lines were deleted"), command=self)
 
         # Update the viewmodel. Priginal and translated lines are currently linked, deleting one means deleting both
         model_update = self.AddModelUpdate()
@@ -49,9 +50,9 @@ class DeleteLinesCommand(Command):
 
     def undo(self):
         if not self.deletions:
-            raise CommandError("No deletions to undo", command=self)
+            raise CommandError(_("No deletions to undo"), command=self)
 
-        logging.info(f"Restoring deleted lines")
+        logging.info(_("Restoring deleted lines"))
         project : SubtitleProject = self.datamodel.project
         subtitles = project.subtitles
 

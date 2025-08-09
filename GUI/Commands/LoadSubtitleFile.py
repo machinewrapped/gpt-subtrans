@@ -2,6 +2,7 @@ from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -16,10 +17,10 @@ class LoadSubtitleFile(Command):
         self.can_undo = False
 
     def execute(self):
-        logging.debug(f"Executing LoadSubtitleFile {self.filepath}")
+        logging.debug(_("Executing LoadSubtitleFile {file}").format(file=self.filepath))
 
         if not self.filepath:
-            raise CommandError("No file path specified", command=self)
+            raise CommandError(_("No file path specified"), command=self)
 
         try:
             self.options.InitialiseInstructions()
@@ -28,11 +29,11 @@ class LoadSubtitleFile(Command):
             project.InitialiseProject(self.filepath, reload_subtitles=self.reload_subtitles)
 
             if not project.subtitles:
-                raise CommandError(f"Unable to load subtitles from {self.filepath}", command=self)
+                raise CommandError(_("Unable to load subtitles from {file}").format(file=self.filepath), command=self)
 
             # Write a backup if an existing project was loaded
             if self.write_backup and project.read_project:
-                logging.info("Saving backup copy of the project")
+                logging.info(_("Saving backup copy of the project"))
                 project.WriteBackupFile()
 
             self.project = project
@@ -44,4 +45,4 @@ class LoadSubtitleFile(Command):
             return True
 
         except Exception as e:
-            raise CommandError(f"Unable to load {self.filepath} ({str(e)})", command=self)
+            raise CommandError(_("Unable to load {file} ({error})").format(file=self.filepath, error=str(e)), command=self)

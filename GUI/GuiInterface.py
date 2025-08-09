@@ -167,7 +167,7 @@ class GuiInterface(QObject):
         self.datamodel.UpdateSettings(updated_settings)
 
         if not self.datamodel.ValidateProviderSettings():
-            logging.warning("Translation provider settings are not valid. Please check the settings.")
+            logging.warning(_("Translation provider settings are not valid. Please check the settings."))
 
         self.settingsChanged.emit(updated_settings)
 
@@ -365,7 +365,7 @@ class GuiInterface(QObject):
 
         if isinstance(error, ProviderConfigurationError):
             if self.datamodel and self.datamodel.project_options:
-                logging.warning("Please configure the translation provider settings")
+                logging.warning(_("Please configure the translation provider settings"))
                 self.ShowProviderSettingsDialog()
 
     def _exit_program(self):

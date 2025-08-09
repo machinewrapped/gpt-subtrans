@@ -3,6 +3,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleValidator import SubtitleValidator
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -15,19 +16,19 @@ class SplitBatchCommand(Command):
         self.translation_number = translation_number
 
     def execute(self):
-        logging.info(f"Splitting scene {str(self.scene_number)} batch: {str(self.batch_number)} at line {self.line_number}")
+        logging.info(_("Splitting scene {scene} batch: {batch} at line {line}").format(scene=str(self.scene_number), batch=str(self.batch_number), line=self.line_number))
 
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise CommandError("No subtitles", command=self)
+            raise CommandError(_("No subtitles"), command=self)
 
         scene = project.subtitles.GetScene(self.scene_number)
 
         split_batch = scene.GetBatch(self.batch_number) if scene else None
 
         if not split_batch:
-            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
+            raise CommandError(_("Cannot find scene {scene} batch {batch}").format(scene=self.scene_number, batch=self.batch_number), command=self)
 
         scene.SplitBatch(self.batch_number, self.line_number, self.translation_number)
 
@@ -58,12 +59,12 @@ class SplitBatchCommand(Command):
         project: SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise CommandError("No subtitles", command=self)
+            raise CommandError(_("No subtitles"), command=self)
 
         scene = project.subtitles.GetScene(self.scene_number)
 
         if not scene or not scene.GetBatch(self.batch_number):
-            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
+            raise CommandError(_("Cannot find scene {scene} batch {batch}").format(scene=self.scene_number, batch=self.batch_number), command=self)
 
         try:
             scene.MergeBatches([self.batch_number, self.batch_number + 1])
@@ -78,4 +79,4 @@ class SplitBatchCommand(Command):
 
         except Exception as e:
             self.ClearModelUpdates()
-            raise CommandError(f"Unable to undo SplitBatchCommand command: {str(e)}", command=self)
+            raise CommandError(_("Unable to undo SplitBatchCommand command: {error}").format(error=str(e)), command=self)

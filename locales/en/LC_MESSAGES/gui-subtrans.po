@@ -6,6 +6,10 @@ msgstr ""
 msgid "AI model to use as the translator"
 msgstr ""
 
+#: GUI/Commands/TranslateSceneCommand.py:64
+msgid "Aborted translation of scene {scene}"
+msgstr ""
+
 #: GUI/AboutDialog.py:16
 msgid "About GUI-Subtrans"
 msgstr ""
@@ -36,8 +40,16 @@ msgstr ""
 msgid "All batches translated"
 msgstr ""
 
+#: GUI/Commands/StartTranslationCommand.py:29
+msgid "All scenes are fully translated"
+msgstr ""
+
 #: GUI/Widgets/SelectionView.py:31
 msgid "Auto-Split Batch"
+msgstr ""
+
+#: GUI/Commands/AutoSplitBatchCommand.py:18
+msgid "Auto-splitting batch {scene} batch {batch}"
 msgstr ""
 
 #: GUI/SettingsDialog.py:37
@@ -48,6 +60,10 @@ msgstr ""
 msgid "Avoid creating a new batch smaller than this"
 msgstr ""
 
+#: GUI/Commands/EditBatchCommand.py:31 GUI/Commands/EditBatchCommand.py:51
+msgid "Batch ({scene},{batch}) not found"
+msgstr ""
+
 #: GUI/ViewModel/BatchItem.py:203
 msgid "Batch {num}"
 msgstr ""
@@ -56,8 +72,20 @@ msgstr ""
 msgid "Can only autosplit a single batch"
 msgstr ""
 
+#: GUI/ViewModel/ViewModel.py:83
+msgid "Can only model subtitle files"
+msgstr ""
+
 #: GUI/ProjectActions.py:382
 msgid "Can only swap text of a single batch"
+msgstr ""
+
+#: GUI/CommandQueue.py:112
+msgid "Can redo {command}"
+msgstr ""
+
+#: GUI/CommandQueue.py:105
+msgid "Can undo {command}"
 msgstr ""
 
 #: GUI/EditInstructionsDialog.py:43
@@ -68,6 +96,19 @@ msgstr ""
 msgid "Cannot delete scenes or batches yet"
 msgstr ""
 
+#: GUI/Commands/AutoSplitBatchCommand.py:28
+#: GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
+msgid "Cannot find scene {scene} batch {batch}"
+msgstr ""
+
+#: GUI/Commands/MergeScenesCommand.py:24
+msgid "Cannot merge less than two scenes"
+msgstr ""
+
+#: GUI/Commands/MergeLinesCommand.py:39
+msgid "Cannot merge lines, some lines are missing"
+msgstr ""
+
 #: GUI/ProjectActions.py:302
 msgid "Cannot merge non-sequential elements"
 msgstr ""
@@ -76,8 +117,24 @@ msgstr ""
 msgid "Cannot redo the last command"
 msgstr ""
 
+#: GUI/Commands/SplitSceneCommand.py:24
+msgid "Cannot split scene {scene} because it doesn't exist"
+msgstr ""
+
+#: GUI/Commands/MergeScenesCommand.py:48
+msgid "Cannot undo merge, scene sizes were not saved"
+msgstr ""
+
+#: GUI/Commands/MergeLinesCommand.py:68
+msgid "Cannot undo merge, undo data was not saved"
+msgstr ""
+
 #: GUI/ProjectActions.py:92
 msgid "Cannot undo the last command"
+msgstr ""
+
+#: GUI/GUICommands.py:43
+msgid "CheckProviderSettings: {error}"
 msgstr ""
 
 #: GUI/SettingsDialog.py:64
@@ -122,6 +179,10 @@ msgstr ""
 msgid "Delete Lines"
 msgstr ""
 
+#: GUI/Commands/DeleteLinesCommand.py:24
+msgid "Deleting lines {lines}"
+msgstr ""
+
 #: GUI/Widgets/ProjectSettings.py:114
 msgid "Description"
 msgstr ""
@@ -149,6 +210,18 @@ msgstr ""
 msgid "Edit Instructions"
 msgstr ""
 
+#: GUI/Commands/EditBatchCommand.py:26 GUI/Commands/EditLineCommand.py:29
+msgid "Edit data must be a dictionary"
+msgstr ""
+
+#: GUI/Commands/EditBatchCommand.py:19
+msgid "Editing batch ({scene},{batch})"
+msgstr ""
+
+#: GUI/Commands/EditLineCommand.py:22
+msgid "Editing line {line}"
+msgstr ""
+
 #: GUI/SettingsDialog.py:56
 msgid "Ensure dialog markers match in multi-line subtitles"
 msgstr ""
@@ -165,6 +238,15 @@ msgstr ""
 msgid "Error redoing the last command: {error}"
 msgstr ""
 
+#: GUI/Commands/ReparseTranslationsCommand.py:60
+msgid "Error reparsing scene {scene} batch {batch}: {error}"
+msgstr ""
+
+#: GUI/Commands/TranslateSceneCommand.py:69
+#: GUI/Commands/TranslateSceneCommand.py:73
+msgid "Error translating scene {scene}: {error}"
+msgstr ""
+
 #: GUI/ProjectActions.py:99
 msgid "Error undoing the last command: {error}"
 msgstr ""
@@ -173,8 +255,32 @@ msgstr ""
 msgid "Error: {error}"
 msgstr ""
 
+#: GUI/Commands/TranslateSceneCommand.py:56
+msgid "Errors translating scene {scene} - aborting translation"
+msgstr ""
+
+#: GUI/Commands/TranslateSceneCommand.py:55
+msgid "Errors: {errors}"
+msgstr ""
+
+#: GUI/Commands/LoadSubtitleFile.py:20
+msgid "Executing LoadSubtitleFile {file}"
+msgstr ""
+
+#: GUI/GUICommands.py:18
+msgid "Exiting Program"
+msgstr ""
+
 #: GUI/ViewModel/BatchItem.py:120
 msgid "Expected a dictionary, got a {type}"
+msgstr ""
+
+#: GUI/ViewModel/ViewModel.py:309 GUI/ViewModel/ViewModel.py:386
+msgid "Expected a patch dictionary"
+msgstr ""
+
+#: GUI/Commands/MergeLinesCommand.py:48
+msgid "Failed to merge lines"
 msgstr ""
 
 #: GUI/NewProjectSettings.py:31
@@ -256,6 +362,10 @@ msgstr ""
 msgid "Instructions: {text}"
 msgstr ""
 
+#: GUI/GUICommands.py:35
+msgid "Invalid translation provider"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:27
 msgid "Language to translate the subtitles to"
 msgstr ""
@@ -274,12 +384,24 @@ msgstr ""
 msgid "Line item {row} has no line number"
 msgstr ""
 
+#: GUI/Commands/EditLineCommand.py:34 GUI/Commands/EditLineCommand.py:83
+msgid "Line {line} not found in any batch"
+msgstr ""
+
+#: GUI/Commands/EditLineCommand.py:38 GUI/Commands/EditLineCommand.py:87
+msgid "Line {line} not found in batch ({scene},{batch})"
+msgstr ""
+
 #: GUI/Widgets/Editors.py:158
 msgid "Line {line}: {start} --> {end}"
 msgstr ""
 
 #: GUI/ViewModel/BatchItem.py:204 GUI/ViewModel/SceneItem.py:141
 msgid "Lines {first}-{last} ({start} -> {end})"
+msgstr ""
+
+#: GUI/ViewModel/ViewModel.py:448
+msgid "Lines {lines} not found in batch {batch}"
 msgstr ""
 
 #: GUI/EditInstructionsDialog.py:39 GUI/EditInstructionsDialog.py:134
@@ -333,6 +455,14 @@ msgstr ""
 msgid "Merge lines with a duration less than this with the previous line"
 msgstr ""
 
+#: GUI/Commands/MergeLinesCommand.py:36
+msgid "Merging lines {lines} in batch {batch}"
+msgstr ""
+
+#: GUI/Commands/MergeScenesCommand.py:19
+msgid "Merging scenes {scenes}"
+msgstr ""
+
 #: GUI/Widgets/Editors.py:138
 msgid "Messages"
 msgstr ""
@@ -365,10 +495,34 @@ msgstr ""
 msgid "Names"
 msgstr ""
 
+#: GUI/Commands/MergeLinesCommand.py:28
+msgid "No batches found for lines to merge"
+msgstr ""
+
+#: GUI/Commands/DeleteLinesCommand.py:53
+msgid "No deletions to undo"
+msgstr ""
+
+#: GUI/Commands/LoadSubtitleFile.py:23
+msgid "No file path specified"
+msgstr ""
+
+#: GUI/Commands/DeleteLinesCommand.py:22
+msgid "No lines selected to delete"
+msgstr ""
+
+#: GUI/Commands/DeleteLinesCommand.py:34
+msgid "No lines were deleted"
+msgstr ""
+
 #: GUI/ProjectActions.py:239
 msgid "No scenes selected for translation"
 msgstr ""
 
+#: GUI/Commands/AutoSplitBatchCommand.py:23
+#: GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23
+#: GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62
+#: GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45
 #: GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr ""
@@ -376,6 +530,10 @@ msgstr ""
 #: GUI/GuiInterface.py:345 GUI/GuiInterface.py:346
 msgid ""
 "No translation providers available. Please install one or more providers."
+msgstr ""
+
+#: GUI/Widgets/ScenesView.py:126
+msgid "Not sure what you just double-clicked on"
 msgstr ""
 
 #: GUI/ProjectActions.py:326
@@ -400,6 +558,10 @@ msgstr ""
 
 #: GUI/ProjectActions.py:140
 msgid "Nothing to save!"
+msgstr ""
+
+#: GUI/Commands/StartTranslationCommand.py:23
+msgid "Nothing to translate"
 msgstr ""
 
 #: GUI/MainToolbar.py:165
@@ -428,6 +590,10 @@ msgstr ""
 
 #: GUI/MainWindow.py:110
 msgid "Performing {action}"
+msgstr ""
+
+#: GUI/GuiInterface.py:368
+msgid "Please configure the translation provider settings"
 msgstr ""
 
 #: GUI/ProjectActions.py:355
@@ -490,6 +656,10 @@ msgstr ""
 msgid "Provider error: {error}"
 msgstr ""
 
+#: GUI/GUICommands.py:39
+msgid "Provider {provider} needs configuring: {message}"
+msgstr ""
+
 #: GUI/MainWindow.py:64
 msgid "Ready."
 msgstr ""
@@ -510,8 +680,20 @@ msgstr ""
 msgid "Reparse Translation"
 msgstr ""
 
+#: GUI/Commands/ReparseTranslationsCommand.py:26
+msgid "Reparse batches {batches}"
+msgstr ""
+
 #: GUI/Widgets/Editors.py:127
 msgid "Response"
+msgstr ""
+
+#: GUI/Commands/DeleteLinesCommand.py:55
+msgid "Restoring deleted lines"
+msgstr ""
+
+#: GUI/Commands/StartTranslationCommand.py:32
+msgid "Resuming"
 msgstr ""
 
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
@@ -528,6 +710,10 @@ msgstr ""
 
 #: GUI/SettingsDialog.py:50
 msgid "Save preprocessed subtitles to a separate file"
+msgstr ""
+
+#: GUI/Commands/LoadSubtitleFile.py:36
+msgid "Saving backup copy of the project"
 msgstr ""
 
 #: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
@@ -561,6 +747,18 @@ msgstr ""
 
 #: GUI/Widgets/SelectionView.py:34
 msgid "Split Scene"
+msgstr ""
+
+#: GUI/Commands/SplitSceneCommand.py:15
+msgid "Splitting batch {scene} at batch {batch}"
+msgstr ""
+
+#: GUI/Commands/SplitBatchCommand.py:19
+msgid "Splitting scene {scene} batch: {batch} at line {line}"
+msgstr ""
+
+#: GUI/Commands/StartTranslationCommand.py:32
+msgid "Starting"
 msgstr ""
 
 #: GUI/SettingsDialog.py:41
@@ -649,6 +847,18 @@ msgstr ""
 msgid "Translate Selection"
 msgstr ""
 
+#: GUI/Commands/TranslateSceneCommand.py:31
+msgid "Translating scene number {scene}"
+msgstr ""
+
+#: GUI/Commands/TranslateSceneCommand.py:29
+msgid "Translating scene number {scene} batch {batches}"
+msgstr ""
+
+#: GUI/GuiInterface.py:170
+msgid "Translation provider settings are not valid. Please check the settings."
+msgstr ""
+
 #: GUI/EditInstructionsDialog.py:31
 msgid "Type of response expected for each line (must match the example format)"
 msgstr ""
@@ -657,8 +867,24 @@ msgstr ""
 msgid "Unable to create option widget for {key}: {error}"
 msgstr ""
 
+#: GUI/ProjectDataModel.py:124
+msgid "Unable to create {provider} provider: {error}"
+msgstr ""
+
+#: GUI/Commands/EditBatchCommand.py:23 GUI/Commands/EditLineCommand.py:26
+msgid "Unable to edit batch because datamodel is invalid"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:116 GUI/NewProjectSettings.py:161
 msgid "Unable to load instructions from {file}: {error}"
+msgstr ""
+
+#: GUI/Commands/LoadSubtitleFile.py:32
+msgid "Unable to load subtitles from {file}"
+msgstr ""
+
+#: GUI/Commands/LoadSubtitleFile.py:48
+msgid "Unable to load {file} ({error})"
 msgstr ""
 
 #: GUI/ProjectActions.py:317
@@ -669,12 +895,36 @@ msgstr ""
 msgid "Unable to preview batches: {error}"
 msgstr ""
 
+#: GUI/Commands/ReparseTranslationsCommand.py:29
+msgid "Unable to reparse batches because project is not set"
+msgstr ""
+
+#: GUI/Commands/TranslateSceneCommand.py:34
+msgid "Unable to translate scene because project is not set on datamodel"
+msgstr ""
+
+#: GUI/Commands/SplitBatchCommand.py:82
+msgid "Unable to undo SplitBatchCommand command: {error}"
+msgstr ""
+
+#: GUI/Commands/SplitSceneCommand.py:66
+msgid "Unable to undo SplitScene command: {error}"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:119
 msgid "Unable to update settings: {error}"
 msgstr ""
 
 #: GUI/MainToolbar.py:163
 msgid "Undo {command}"
+msgstr ""
+
+#: GUI/Commands/EditBatchCommand.py:44
+msgid "Undoing edit batch ({scene},{batch})"
+msgstr ""
+
+#: GUI/Commands/EditLineCommand.py:76
+msgid "Undoing edit line {line}"
 msgstr ""
 
 #: GUI/ProjectActions.py:283
@@ -709,6 +959,14 @@ msgstr ""
 msgid ""
 "Whether to substitute whole words or partial matches, or choose "
 "automatically based on input language"
+msgstr ""
+
+#: GUI/Commands/StartTranslationCommand.py:33
+msgid "multithreaded"
+msgstr ""
+
+#: GUI/Commands/StartTranslationCommand.py:33
+msgid "single threaded"
 msgstr ""
 
 #: GUI/MainWindow.py:138
@@ -765,4 +1023,8 @@ msgstr ""
 
 #: GUI/MainWindow.py:149
 msgid "{num} commands in queue."
+msgstr ""
+
+#: GUI/Commands/StartTranslationCommand.py:34
+msgid "{starting} {threaded} translation"
 msgstr ""

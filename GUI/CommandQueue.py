@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt, QObject, Signal, Slot, QThreadPool, QRecursiveMut
 
 from GUI.Command import Command
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitle.Helpers.Localization import _
 
 #############################################################
 
@@ -101,14 +102,14 @@ class CommandQueue(QObject):
     def undoable_command_text(self) -> str | None:
         with QMutexLocker(self.mutex):
             if self.undo_stack:
-                return f"Can undo {type(self.undo_stack[-1]).__name__}"
+                return _("Can undo {command}").format(command=type(self.undo_stack[-1]).__name__)
             return None
 
     @property
     def redoable_command_text(self) -> str | None:
         with QMutexLocker(self.mutex):
             if self.redo_stack:
-                return f"Can redo {type(self.redo_stack[-1]).__name__}"
+                return _("Can redo {command}").format(command=type(self.redo_stack[-1]).__name__)
             return None
 
     def Stop(self):

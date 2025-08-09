@@ -14,6 +14,7 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.Helpers.Localization import _
 
 class ProjectViewModel(QStandardItemModel):
     updatesPending = Signal()
@@ -79,7 +80,7 @@ class ProjectViewModel(QStandardItemModel):
 
     def CreateModel(self, data : SubtitleFile):
         if not isinstance(data, SubtitleFile):
-            raise ValueError("Can only model subtitle files")
+            raise ValueError(_("Can only model subtitle files"))
 
         self.model = {}
         self.task_type = data.task_type
@@ -305,7 +306,7 @@ class ProjectViewModel(QStandardItemModel):
     def UpdateBatch(self, scene_number, batch_number, batch_update : dict):
         logging.debug(f"Updating batch ({scene_number}, {batch_number})")
         if not isinstance(batch_update, dict):
-            raise ViewModelError("Expected a patch dictionary")
+            raise ViewModelError(_("Expected a patch dictionary"))
 
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number] if scene_number else None
@@ -382,7 +383,7 @@ class ProjectViewModel(QStandardItemModel):
     def UpdateLine(self, scene_number : int, batch_number : int, line_number : int, line_update : dict):
         logging.debug(f"Updating line ({scene_number}, {batch_number}, {line_number})")
         if not isinstance(line_update, dict):
-            raise ViewModelError("Expected a patch dictionary")
+            raise ViewModelError(_("Expected a patch dictionary"))
 
         scene_item : SceneItem = self.model.get(scene_number)
         batch_item : BatchItem = scene_item.batches[batch_number]
@@ -444,7 +445,7 @@ class ProjectViewModel(QStandardItemModel):
                 unfound_lines.append(line_number)
 
         if unfound_lines:
-            logging.warning(f"Lines {unfound_lines} not found in batch {batch_number}")
+            logging.warning(_("Lines {lines} not found in batch {batch}").format(lines=unfound_lines, batch=batch_number))
 
         batch_item.emitDataChanged()
 

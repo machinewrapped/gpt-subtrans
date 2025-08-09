@@ -41,6 +41,8 @@ MAPPING = {
     '{command} started.': '{command} iniciada.',
     '{command} was successful.': '{command} realizada correctamente.',
     '{command} failed.': '{command} falló.',
+    'Can undo {command}': 'Se puede deshacer {command}',
+    'Can redo {command}': 'Se puede rehacer {command}',
 
     # Toolbar actions and tooltips
     'Exit Program': 'Salir del programa',
@@ -76,6 +78,7 @@ MAPPING = {
     'Subtitle files': 'Archivos de subtítulos',
     'All Files': 'Todos los archivos',
     'Subtrans projects': 'Proyectos Subtrans',
+    'Text Files (*.txt);;All Files (*))': 'Archivos de texto (*.txt);;Todos los archivos (*))',
 
     # Selection view buttons
     'Translate Selection': 'Traducir selección',
@@ -118,7 +121,7 @@ MAPPING = {
     'The translation provider to use': 'El proveedor de traducción a utilizar',
     'Customise the appearance of gui-subtrans': 'Personaliza la apariencia de gui-subtrans',
 
-    # Settings dialog help texts (selection)
+    # Settings dialog help texts
     'The default language to translate the subtitles to': 'El idioma predeterminado al que traducir los subtítulos',
     'The language of the application interface (requires restart)': 'El idioma de la interfaz de la aplicación (requiere reinicio)',
     'Include original text in translated subtitles': 'Incluir el texto original en los subtítulos traducidos',
@@ -156,8 +159,6 @@ MAPPING = {
     'Maximum length of the context summary to include with each translation batch': 'Longitud máxima del resumen de contexto a incluir con cada lote de traducción',
     'Validator: Maximum number of characters to allow in a single translated line': 'Validador: Número máximo de caracteres permitidos en una sola línea traducida',
     'Validator: Maximum number of newlines to allow in a single translated line': 'Validador: Número máximo de saltos de línea permitidos en una sola línea traducida',
-    'Number of times to retry a failed translation before giving up': 'Número de reintentos antes de abandonar una traducción fallida',
-    'Seconds to wait before retrying a failed translation': 'Segundos de espera antes de reintentar una traducción fallida',
 
     # New Project Settings
     'Language to translate the subtitles to': 'Idioma al que traducir los subtítulos',
@@ -172,7 +173,6 @@ MAPPING = {
     # About dialog
     'Logo generated with <a href="https://stability.ai/stablediffusion">Stable Diffusion XL</a>': 'Logotipo generado con <a href="https://stability.ai/stablediffusion">Stable Diffusion XL</a>',
     'GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or to improve the quality of an existing translation.': 'GUI-Subtrans usa LLMs para traducir subtítulos SRT a otros idiomas, o para mejorar la calidad de una traducción existente.',
-    'GUI-Subtrans is released under the MIT License.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software.': 'GUI-Subtrans se publica bajo la licencia MIT.\n\nPor la presente se concede permiso, libre de cargos, a cualquier persona que obtenga una copia de este software y archivos de documentación asociados, para tratar el software sin restricción, incluyendo sin limitación los derechos de usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software.',
     'GUI-Subtrans would not work without these libraries:\n': 'GUI-Subtrans no funcionaría sin estas bibliotecas:\n',
 
     # Messages and status
@@ -188,6 +188,9 @@ MAPPING = {
     'Length: {duration}': 'Duración: {duration}',
     '{count} lines': '{count} líneas',
     '{count} translated': '{count} traducidas',
+    '{count} lines translated': '{count} líneas traducidas',
+    '{done} of {total} lines translated': '{done} de {total} líneas traducidas',
+    '{lines} lines in {scenes} scenes and {batches} batches': '{lines} líneas en {scenes} escenas y {batches} lotes',
 
     # Errors, prompts, misc
     'Error': 'Error',
@@ -209,13 +212,71 @@ MAPPING = {
     'Project instructions set from {file}': 'Instrucciones del proyecto establecidas desde {file}',
     'Prompt: {text}': 'Solicitud: {text}',
     'Instructions: {text}': 'Instrucciones: {text}',
+    'Translating scene number {scene}': 'Traduciendo la escena número {scene}',
+    'Translating scene number {scene} batch {batches}': 'Traduciendo la escena número {scene} lote {batches}',
+    'Aborted translation of scene {scene}': 'Traducción de la escena {scene} abortada',
+    'Errors: {errors}': 'Errores: {errors}',
+    'Errors translating scene {scene} - aborting translation': 'Errores al traducir la escena {scene} - abortando la traducción',
+    'Error translating scene {scene}: {error}': 'Error al traducir la escena {scene}: {error}',
+    'Unable to translate scene because project is not set on datamodel': 'No se puede traducir la escena porque el proyecto no está establecido en el modelo de datos',
+    'Executing LoadSubtitleFile {file}': 'Ejecutando carga de archivo {file}',
+    'Unable to load subtitles from {file}': 'No se pueden cargar subtítulos de {file}',
+    'Unable to load {file} ({error})': 'No se puede cargar {file} ({error})',
+    'Saving backup copy of the project': 'Guardando copia de seguridad del proyecto',
+    'Scene {scene} Batch {batch}': 'Escena {scene} Lote {batch}',
+    'Scene {scene}, batch {batch}': 'Escena {scene}, lote {batch}',
+    'Messages': 'Mensajes',
+    'Summary': 'Resumen',
+    'Prompt': 'Solicitud',
+    'Response': 'Respuesta',
+    'Context': 'Contexto',
+    'Reasoning': 'Razonamiento',
+    'Selection {task_type}': 'Selección {task_type}',
+    'Resuming': 'Reanudando',
+    'Starting': 'Iniciando',
+    'multithreaded': 'multihilo',
+    'single threaded': 'de un solo hilo',
+    'No subtitles': 'No hay subtítulos',
+    'No file path specified': 'No se especificó una ruta de archivo',
+    'No lines were deleted': 'No se eliminaron líneas',
+    'No deletions to undo': 'No hay eliminaciones que deshacer',
+    'Original line {line} not found in batch {batch}': 'Línea original {line} no encontrada en el lote {batch}',
+    'Not sure what you just double-clicked on': 'No estoy seguro de qué acabas de hacer doble clic',
+    'Please configure the translation provider settings': 'Configura la configuración del proveedor de traducción',
+    'Please select a batch to split the scene at': 'Selecciona un lote donde dividir la escena',
+    'Please select a line to split the batch at': 'Selecciona una línea donde dividir el lote',
+    'Please select a single split point': 'Selecciona un único punto de división',
+    'Reparse batches {batches}': 'Reanalizar lotes {batches}',
+    'Restoring deleted lines': 'Restaurando líneas eliminadas',
+    'Splitting batch {scene} at batch {batch}': 'Dividiendo la escena {scene} en el lote {batch}',
+    'Splitting scene {scene} batch: {batch} at line {line}': 'Dividiendo la escena {scene} lote: {batch} en la línea {line}',
+    'Unable to reparse batches because project is not set': 'No se pueden reanalizar lotes porque no se ha establecido el proyecto',
+    'Unable to merge selection ({selection})': 'No se puede combinar la selección ({selection})',
+    'Unable to undo SplitBatchCommand command: {error}': 'No se puede deshacer el comando SplitBatchCommand: {error}',
+    'Unable to undo SplitScene command: {error}': 'No se puede deshacer el comando SplitScene: {error}',
+    'Unable to create option widget for {key}: {error}': 'No se puede crear el widget de opción para {key}: {error}',
+    'Unable to create {provider} provider: {error}': 'No se puede crear el proveedor {provider}: {error}',
+    'Project is not valid': 'El proyecto no es válido',
+    'Subtitles have not been batched': 'Los subtítulos no han sido agrupados en lotes',
+    'Deleting lines {lines}': 'Eliminando líneas {lines}',
+    'Batch ({scene},{batch}) not found': 'Lote ({scene},{batch}) no encontrado',
+    'Can only autosplit a single batch': 'Solo se puede dividir automáticamente un lote',
+    'Can only model subtitle files': 'Solo se pueden procesar archivos de subtítulos',
+    'Can only swap text of a single batch': 'Solo se puede intercambiar el texto de un único lote',
 }
 
 # Regex-based simple rules for some templated keys
 REGEX_RULES = [
-    (re.compile(r'^Scene (\{[^}]+\})$'), r'Escena \1'),
+    (re.compile(r'^Scene (\{[^}]+\}) Batch (\{[^}]+\})$'), r'Escena \1 Lote \2'),
+    (re.compile(r'^Scene (\{[^}]+\}), batch (\{[^}]+\})$'), r'Escena \1, lote \2'),
     (re.compile(r'^Batch (\{[^}]+\})$'), r'Lote \1'),
     (re.compile(r'^Line (\{[^}]+\})$'), r'Línea \1'),
+    (re.compile(r'^Deleting lines (.+)$'), r'Eliminando líneas \1'),
+    (re.compile(r'^Merging scenes (.+)$'), r'Combinando escenas \1'),
+    (re.compile(r'^Merging lines (.+) in batch (.+)$'), r'Combinando líneas \1 en el lote \2'),
+    (re.compile(r'^Reparse batches (.+)$'), r'Reanalizar lotes \1'),
+    (re.compile(r'^Executing LoadSubtitleFile (.+)$'), r'Ejecutando carga de archivo \1'),
+    (re.compile(r'^Lines (\{[^}]+\}) not found in batch (\{[^}]+\})$'), r'Líneas \1 no encontradas en el lote \2'),
 ]
 
 

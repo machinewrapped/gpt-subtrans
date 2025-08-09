@@ -3,6 +3,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleValidator import SubtitleValidator
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -14,17 +15,17 @@ class AutoSplitBatchCommand(Command):
         self.split_line = None
 
     def execute(self):
-        logging.info(f"Auto-splitting batch {str(self.scene_number)} batch {str(self.batch_number)}")
+        logging.info(_("Auto-splitting batch {scene} batch {batch}").format(scene=str(self.scene_number), batch=str(self.batch_number)))
 
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise CommandError("No subtitles", command=self)
+            raise CommandError(_("No subtitles"), command=self)
 
         scene = project.subtitles.GetScene(self.scene_number)
 
         if not scene or not scene.GetBatch(self.batch_number):
-            raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
+            raise CommandError(_("Cannot find scene {scene} batch {batch}").format(scene=self.scene_number, batch=self.batch_number), command=self)
 
         min_batch_size = self.datamodel.project_options.get('min_batch_size', 1)
         scene.AutoSplitBatch(self.batch_number, min_batch_size)
