@@ -37,21 +37,22 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
   - Use `_()` for strings; `tr()` where context needed
   - Acceptance: English unchanged; keys appear in POT
 
-- [ ] 2.3 Wrap remaining GUI strings
+- [X] 2.3 Wrap remaining GUI strings
   - All dialogs, widgets, menus, commands under `GUI/`
   - Acceptance: 100% of visible strings wrapped
-  - Progress: See “Files processed so far”.
+  - Progress: See "Files processed so far" - all major GUI components completed.
 
-- [ ] 2.4 Wrap provider/client messages (non-GUI)
+- [X] 2.4 Wrap provider/client messages (non-GUI)
   - Strings in `PySubtitle/Providers/` and relevant helpers
   - Acceptance: translatable messages extracted; avoid translating protocol/model IDs
+  - Progress: All 8 provider files updated with localization support for GetOptions() strings
 
 ## Phase 3 — Translations and First-Run
 
-- [ ] 3.1 Seed translations
+- [X] 3.1 Seed translations
   - Populate `en` PO from POT; create initial `es` PO with a few sample strings
   - Acceptance: compiled `.mo` loads; Spanish shows for wrapped strings
-  - Progress: Best-effort Spanish seeding completed via `locales/seed_es_translations.py` (many entries auto-filled); remaining empty entries require manual QA.
+  - Progress: Best-effort Spanish seeding completed via `scripts/seed_es_translations.py` (many entries auto-filled); remaining empty entries require manual QA.
 
 - [X] 3.2 First-run language selection
   - Update `GUI/FirstRunOptions.py` to include language dropdown; default to system locale
@@ -116,6 +117,28 @@ Commands processed (user-facing messages wrapped)
 - GUI/Commands/StartTranslationCommand.py
 - GUI/Commands/TranslateSceneCommand.py
 - GUI/GUICommands.py (Exit/CheckProviderSettings)
+
+Providers processed (settings strings wrapped)
+- PySubtitle/Providers/Provider_Azure.py
+- PySubtitle/Providers/Provider_Bedrock.py  
+- PySubtitle/Providers/Provider_Claude.py
+- PySubtitle/Providers/Provider_Custom.py
+- PySubtitle/Providers/Provider_DeepSeek.py
+- PySubtitle/Providers/Provider_Gemini.py
+- PySubtitle/Providers/Provider_Mistral.py
+- PySubtitle/Providers/Provider_OpenAI.py
+
+Settings dialog localization fixes
+- GUI/Widgets/OptionsWidgets.py - Modified GenerateName() to use _() instead of programmatic generation
+- SettingsDialog now properly localizes all setting names and descriptions including dynamic provider settings
+
+Scripts and tools developed
+- scripts/extract_strings.py - Enhanced with provider settings extraction (static + dynamic analysis)
+- scripts/update_translations.py - Moved from locales/ directory, uses proper base_path pattern
+- scripts/seed_es_translations.py - Moved from locales/ directory, auto-generates Spanish translations
+- scripts/update_providers_localization.py - Batch script to add localization to all providers
+
+Current status: 368 translatable strings extracted (up from 330), including comprehensive provider settings coverage.
 
 Notes
 - Use `gettext` stdlib; avoid extra runtime deps

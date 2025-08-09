@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-09 16:58+0000\n"
+"POT-Creation-Date: 2025-08-09 17:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -13,7 +13,19 @@ msgstr ""
 msgid "1 line"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:29
+#: PySubtitle/Providers/Provider_DeepSeek.py:61
+msgid "A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Gemini.py:62
+msgid "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Mistral.py:61
+msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_OpenAI.py:98
 msgid "AI model to use as the translator"
 msgstr ""
 
@@ -53,8 +65,48 @@ msgstr ""
 msgid "All scenes are fully translated"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:105
+msgid "Alternative to max_tokens for some servers"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:72 PySubtitle/Providers/Provider_Gemini.py:71 PySubtitle/Providers/Provider_Mistral.py:70 PySubtitle/Providers/Provider_OpenAI.py:108
+msgid "Amount of random variance to add to translations. Generally speaking, none is best"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:107
+msgid "An API key is normally not needed for a local server"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:73
+msgid "An AWS access key is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:74
+msgid "An AWS secret access key is required"
+msgstr ""
+
 #: PySubtitle/Providers/Provider_Claude.py:96
 msgid "An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:65
+msgid "An Azure API deployment name is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:63
+msgid "An Azure API key is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:64
+msgid "An Azure API version is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:87
+msgid "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:96
+msgid "Attempt to communicate with the endpoint using chat format"
 msgstr ""
 
 #: GUI/Widgets/SelectionView.py:31
@@ -143,6 +195,14 @@ msgstr ""
 
 #: GUI/ProjectActions.py:92
 msgid "Cannot undo the last command"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:77 PySubtitle/Providers/Provider_Mistral.py:75 PySubtitle/Providers/Provider_OpenAI.py:111
+msgid "Check API key and base URL and try again"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Gemini.py:76
+msgid "Check API key is authorized and try again"
 msgstr ""
 
 #: GUI/GUICommands.py:43
@@ -337,6 +397,10 @@ msgstr ""
 msgid "High-level instructions for the translator"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:103
+msgid "Higher temperature introduces more randomness to the translation (default 0.0)"
+msgstr ""
+
 #: GUI/SettingsDialog.py:40
 msgid "If true, translations that fail validation will be retried with a note about the error"
 msgstr ""
@@ -355,6 +419,10 @@ msgstr ""
 
 #: GUI/SettingsDialog.py:34
 msgid "Instructions for the translation provider to follow"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:99
+msgid "Instructions will be sent as system messages rather than the user prompt"
 msgstr ""
 
 #: GUI/NewProjectSettings.py:113
@@ -417,6 +485,14 @@ msgstr ""
 msgid "Max batch size is less than min batch size"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:73 PySubtitle/Providers/Provider_Gemini.py:72 PySubtitle/Providers/Provider_Mistral.py:71
+msgid "Maximum API requests per minute."
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:99
+msgid "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"
+msgstr ""
+
 #: GUI/SettingsDialog.py:51
 msgid "Maximum duration of a single line of subtitles"
 msgstr ""
@@ -429,8 +505,16 @@ msgstr ""
 msgid "Maximum length of the context summary to include with each translation batch"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:71
+msgid "Maximum number of output tokens to return in the response."
+msgstr ""
+
 #: GUI/SettingsDialog.py:67
 msgid "Maximum number of simultaneous translation threads for fast translation"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:103
+msgid "Maximum tokens a completion can contain (only applicable for -instruct models)"
 msgstr ""
 
 #: GUI/Widgets/SelectionView.py:37
@@ -689,6 +773,10 @@ msgstr ""
 msgid "Resuming"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:70
+msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
+msgstr ""
+
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
 msgid "Save Instructions"
 msgstr ""
@@ -813,6 +901,34 @@ msgstr ""
 msgid "The AI translation service to use"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:92
+msgid "The API function to call on the server"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:79
+msgid "The AWS region to use for requests must be specified."
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:66
+msgid "The Azure API base URL to use for requests."
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:91
+msgid "The address of the local server"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:62
+msgid "The base URL to use for requests (default is https://api.deepseek.com)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Mistral.py:62
+msgid "The base URL to use for requests (default is https://api.mistral.ai)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:88
+msgid "The base URL to use for requests - leave as default unless you know you need something else"
+msgstr ""
+
 #: GUI/SettingsDialog.py:30
 msgid "The default language to translate the subtitles to"
 msgstr ""
@@ -825,12 +941,32 @@ msgstr ""
 msgid "The language of the application interface (requires restart)"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_OpenAI.py:106
+msgid "The level of reasoning effort to use for the model"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:88
+msgid "The maximum number of requests to make per minute"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:104
+msgid "The maximum number of tokens the AI should generate in the response (0 for unlimited)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:87
+msgid "The maximum number of tokens to generate in a single request"
+msgstr ""
+
 #: PySubtitle/Providers/Provider_Claude.py:113
 msgid "The maximum number of tokens to use for thinking"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:108
 msgid "The maximum number of tokens to use for translations"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:108
+msgid "The model is normally set by the server, and should not need to be specified here"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:105
@@ -847,6 +983,10 @@ msgstr ""
 
 #: GUI/FirstRunOptions.py:20
 msgid "The translation provider to use"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:106
+msgid "Timeout for the request in seconds (default 300)"
 msgstr ""
 
 #: GUI/Widgets/MenuBar.py:14
@@ -909,6 +1049,10 @@ msgstr ""
 msgid "Unable to reparse batches because project is not set"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_OpenAI.py:98 PySubtitle/Providers/Provider_OpenAI.py:111
+msgid "Unable to retrieve models"
+msgstr ""
+
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
 msgstr ""
@@ -947,6 +1091,14 @@ msgstr ""
 
 #: GUI/ProjectActions.py:263
 msgid "Updating scene {scene} with {update}"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:109
+msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:92
+msgid "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base"
 msgstr ""
 
 #: GUI/ViewModel/BatchItem.py:247

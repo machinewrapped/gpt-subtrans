@@ -1,21 +1,33 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-09 16:58+0000\n"
-"PO-Revision-Date: 2025-08-09 16:58+0000\n"
+"POT-Creation-Date: 2025-08-09 17:30+0000\n"
+"PO-Revision-Date: 2025-08-09 17:30+0000\n"
 "Last-Translator: Auto-generated\n"
-"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
 
 #: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
 msgid "1 line"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:29
+#: PySubtitle/Providers/Provider_DeepSeek.py:61
+msgid "A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)"
+msgstr "A Deepseek Api Key Is Required To Use This Provider (Https://Platform.Deepseek.Com/Api Keys)"
+
+#: PySubtitle/Providers/Provider_Gemini.py:62
+msgid "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"
+msgstr "A Google Gemini Api Key Is Required To Use This Provider (Https://Makersuite.Google.Com/App/Apikey)"
+
+#: PySubtitle/Providers/Provider_Mistral.py:61
+msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
+msgstr "A Mistral Api Key Is Required To Use This Provider (Https://Console.Mistral.Ai/Api-Keys/)"
+
+#: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_OpenAI.py:98
 msgid "AI model to use as the translator"
-msgstr ""
+msgstr "Ai Model To Use As The Translator"
 
 #: GUI/Commands/TranslateSceneCommand.py:64
 msgid "Aborted translation of scene {scene}"
@@ -30,9 +42,7 @@ msgid "Add RTL Markers"
 msgstr ""
 
 #: GUI/SettingsDialog.py:33
-msgid ""
-"Add RTL markers around translated lines that contain primarily right-to-left "
-"script on save"
+msgid "Add RTL markers around translated lines that contain primarily right-to-left script on save"
 msgstr ""
 
 #: GUI/SettingsDialog.py:60
@@ -55,13 +65,49 @@ msgstr ""
 msgid "All scenes are fully translated"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:105
+msgid "Alternative to max_tokens for some servers"
+msgstr "Alternative To Max Tokens For Some Servers"
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:72 PySubtitle/Providers/Provider_Gemini.py:71 PySubtitle/Providers/Provider_Mistral.py:70 PySubtitle/Providers/Provider_OpenAI.py:108
+msgid "Amount of random variance to add to translations. Generally speaking, none is best"
+msgstr "Amount Of Random Variance To Add To Translations. Generally Speaking, None Is Best"
+
+#: PySubtitle/Providers/Provider_Custom.py:107
+msgid "An API key is normally not needed for a local server"
+msgstr "An Api Key Is Normally Not Needed For A Local Server"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:73
+msgid "An AWS access key is required"
+msgstr "An Aws Access Key Is Required"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:74
+msgid "An AWS secret access key is required"
+msgstr "An Aws Secret Access Key Is Required"
+
 #: PySubtitle/Providers/Provider_Claude.py:96
-msgid ""
-"An Anthropic Claude API key is required to use this provider (https://"
-"console.anthropic.com/settings/keys)"
-msgstr ""
-"An Anthropic Claude Api Key Is Required To Use This Provider (Https://"
-"Console.Anthropic.Com/Settings/Keys)"
+msgid "An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"
+msgstr "An Anthropic Claude Api Key Is Required To Use This Provider (Https://Console.Anthropic.Com/Settings/Keys)"
+
+#: PySubtitle/Providers/Provider_Azure.py:65
+msgid "An Azure API deployment name is required"
+msgstr "An Azure Api Deployment Name Is Required"
+
+#: PySubtitle/Providers/Provider_Azure.py:63
+msgid "An Azure API key is required"
+msgstr "An Azure Api Key Is Required"
+
+#: PySubtitle/Providers/Provider_Azure.py:64
+msgid "An Azure API version is required"
+msgstr "An Azure Api Version Is Required"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:87
+msgid "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"
+msgstr "An Openai Api Key Is Required To Use This Provider (Https://Platform.Openai.Com/Account/Api-Keys)"
+
+#: PySubtitle/Providers/Provider_Custom.py:96
+msgid "Attempt to communicate with the endpoint using chat format"
+msgstr "Attempt To Communicate With The Endpoint Using Chat Format"
 
 #: GUI/Widgets/SelectionView.py:31
 msgid "Auto-Split Batch"
@@ -115,8 +161,7 @@ msgstr ""
 msgid "Cannot delete scenes or batches yet"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:28
-#: GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
+#: GUI/Commands/AutoSplitBatchCommand.py:28 GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
 msgid "Cannot find scene {scene} batch {batch}"
 msgstr ""
 
@@ -152,6 +197,14 @@ msgstr ""
 msgid "Cannot undo the last command"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:77 PySubtitle/Providers/Provider_Mistral.py:75 PySubtitle/Providers/Provider_OpenAI.py:111
+msgid "Check API key and base URL and try again"
+msgstr "Check Api Key And Base Url And Try Again"
+
+#: PySubtitle/Providers/Provider_Gemini.py:76
+msgid "Check API key is authorized and try again"
+msgstr "Check Api Key Is Authorized And Try Again"
+
 #: GUI/GUICommands.py:43
 msgid "CheckProviderSettings: {error}"
 msgstr ""
@@ -161,9 +214,7 @@ msgid "Comma-separated list of filler_words to remove"
 msgstr ""
 
 #: GUI/SettingsDialog.py:70
-msgid ""
-"Consider a new scene to have started after this many seconds without "
-"subtitles"
+msgid "Consider a new scene to have started after this many seconds without subtitles"
 msgstr ""
 
 #: GUI/Widgets/Editors.py:142
@@ -211,10 +262,7 @@ msgid "Detailed instructions for the translator"
 msgstr ""
 
 #: GUI/AboutDialog.py:54
-msgid ""
-"Developed by: MachineWrapped<br>Contact: machinewrapped@gmail.com<br><a "
-"href=\"https://github.com/machinewrapped/gpt-subtrans\">GitHub Repository</"
-"a><br>Thanks to all contributors and those who have reported issues."
+msgid "Developed by: MachineWrapped<br>Contact: machinewrapped@gmail.com<br><a href=\"https://github.com/machinewrapped/gpt-subtrans\">GitHub Repository</a><br>Thanks to all contributors and those who have reported issues."
 msgstr ""
 
 #: GUI/SettingsDialog.py:69
@@ -265,8 +313,7 @@ msgstr ""
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr ""
 
-#: GUI/Commands/TranslateSceneCommand.py:69
-#: GUI/Commands/TranslateSceneCommand.py:73
+#: GUI/Commands/TranslateSceneCommand.py:69 GUI/Commands/TranslateSceneCommand.py:73
 msgid "Error translating scene {scene}: {error}"
 msgstr ""
 
@@ -327,20 +374,11 @@ msgid "GUI-Subtrans Settings"
 msgstr ""
 
 #: GUI/AboutDialog.py:62
-msgid ""
-"GUI-Subtrans is released under the MIT License.\n"
-"\n"
-"Permission is hereby granted, free of charge, to any person obtaining a copy "
-"of this software and associated documentation files, to deal in the software "
-"without restriction, including without limitation the rights to use, copy, "
-"modify, merge, publish, distribute, sublicense, and/or sell copies of the "
-"software."
+msgid "GUI-Subtrans is released under the MIT License.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software."
 msgstr ""
 
 #: GUI/AboutDialog.py:50
-msgid ""
-"GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or "
-"to improve the quality of an existing translation."
+msgid "GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or to improve the quality of an existing translation."
 msgstr ""
 
 #: GUI/AboutDialog.py:80
@@ -359,10 +397,12 @@ msgstr ""
 msgid "High-level instructions for the translator"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:103
+msgid "Higher temperature introduces more randomness to the translation (default 0.0)"
+msgstr "Higher Temperature Introduces More Randomness To The Translation (Default 0.0)"
+
 #: GUI/SettingsDialog.py:40
-msgid ""
-"If true, translations that fail validation will be retried with a note about "
-"the error"
+msgid "If true, translations that fail validation will be retried with a note about the error"
 msgstr ""
 
 #: GUI/Widgets/SelectionView.py:81
@@ -381,6 +421,10 @@ msgstr ""
 msgid "Instructions for the translation provider to follow"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:99
+msgid "Instructions will be sent as system messages rather than the user prompt"
+msgstr "Instructions Will Be Sent As System Messages Rather Than The User Prompt"
+
 #: GUI/NewProjectSettings.py:113
 msgid "Instructions: {text}"
 msgstr ""
@@ -398,9 +442,7 @@ msgid "Length: {duration}"
 msgstr ""
 
 #: GUI/SettingsDialog.py:72
-msgid ""
-"Limits the number of scene/batch summaries to include as context with each "
-"translation batch"
+msgid "Limits the number of scene/batch summaries to include as context with each translation batch"
 msgstr ""
 
 #: GUI/ViewModel/BatchItem.py:162
@@ -432,9 +474,7 @@ msgid "Load Instructions"
 msgstr ""
 
 #: GUI/AboutDialog.py:31
-msgid ""
-"Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable "
-"Diffusion XL</a>"
+msgid "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
 msgstr ""
 
 #: GUI/MainToolbar.py:25
@@ -445,6 +485,14 @@ msgstr ""
 msgid "Max batch size is less than min batch size"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:73 PySubtitle/Providers/Provider_Gemini.py:72 PySubtitle/Providers/Provider_Mistral.py:71
+msgid "Maximum API requests per minute."
+msgstr "Maximum Api Requests Per Minute."
+
+#: PySubtitle/Providers/Provider_OpenAI.py:99
+msgid "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"
+msgstr "Maximum Openai Api Requests Per Minute. Mainly Useful If You Are On The Restricted Free Plan"
+
 #: GUI/SettingsDialog.py:51
 msgid "Maximum duration of a single line of subtitles"
 msgstr ""
@@ -454,13 +502,20 @@ msgid "Maximum length of a single line of subtitles"
 msgstr ""
 
 #: GUI/SettingsDialog.py:73
-msgid ""
-"Maximum length of the context summary to include with each translation batch"
+msgid "Maximum length of the context summary to include with each translation batch"
 msgstr ""
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:71
+msgid "Maximum number of output tokens to return in the response."
+msgstr "Maximum Number Of Output Tokens To Return In The Response."
 
 #: GUI/SettingsDialog.py:67
 msgid "Maximum number of simultaneous translation threads for fast translation"
 msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:103
+msgid "Maximum tokens a completion can contain (only applicable for -instruct models)"
+msgstr "Maximum Tokens A Completion Can Contain (Only Applicable For -Instruct Models)"
 
 #: GUI/Widgets/SelectionView.py:37
 msgid "Merge Batches"
@@ -542,17 +597,12 @@ msgstr ""
 msgid "No scenes selected for translation"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:23
-#: GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23
-#: GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62
-#: GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45
-#: GUI/ProjectActions.py:396
+#: GUI/Commands/AutoSplitBatchCommand.py:23 GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23 GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62 GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45 GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr ""
 
 #: GUI/GuiInterface.py:345 GUI/GuiInterface.py:346
-msgid ""
-"No translation providers available. Please install one or more providers."
+msgid "No translation providers available. Please install one or more providers."
 msgstr ""
 
 #: GUI/Widgets/ScenesView.py:126
@@ -608,12 +658,8 @@ msgid "Open File"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:115
-msgid ""
-"Optional proxy server to use for requests (e.g. https://api.not-anthropic."
-"com/"
-msgstr ""
-"Optional Proxy Server To Use For Requests (E.G. Https://Api.Not-Anthropic."
-"Com/"
+msgid "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/"
+msgstr "Optional Proxy Server To Use For Requests (E.G. Https://Api.Not-Anthropic.Com/"
 
 #: GUI/ViewModel/BatchItem.py:189
 msgid "Original line {line} not found in batch {batch}"
@@ -727,6 +773,10 @@ msgstr ""
 msgid "Resuming"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:70
+msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
+msgstr "Reuse Connection For Multiple Requests (Otherwise A New Connection Is Established For Each)"
+
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
 msgid "Save Instructions"
 msgstr ""
@@ -747,8 +797,7 @@ msgstr ""
 msgid "Saving backup copy of the project"
 msgstr ""
 
-#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
-#: GUI/Widgets/Editors.py:86
+#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140 GUI/Widgets/Editors.py:86
 msgid "Scene {num}"
 msgstr ""
 
@@ -845,14 +894,40 @@ msgid "Text Files (*.txt);;All Files (*))"
 msgstr ""
 
 #: GUI/SettingsDialog.py:35
-msgid ""
-"The (brief) instruction for each batch of subtitles. Some [tags] are "
-"automatically filled in"
+msgid "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"
 msgstr ""
 
 #: GUI/NewProjectSettings.py:28 GUI/SettingsDialog.py:44
 msgid "The AI translation service to use"
 msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:92
+msgid "The API function to call on the server"
+msgstr "The Api Function To Call On The Server"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:79
+msgid "The AWS region to use for requests must be specified."
+msgstr "The Aws Region To Use For Requests Must Be Specified."
+
+#: PySubtitle/Providers/Provider_Azure.py:66
+msgid "The Azure API base URL to use for requests."
+msgstr "The Azure Api Base Url To Use For Requests."
+
+#: PySubtitle/Providers/Provider_Custom.py:91
+msgid "The address of the local server"
+msgstr "The Address Of The Local Server"
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:62
+msgid "The base URL to use for requests (default is https://api.deepseek.com)"
+msgstr "The Base Url To Use For Requests (Default Is Https://Api.Deepseek.Com)"
+
+#: PySubtitle/Providers/Provider_Mistral.py:62
+msgid "The base URL to use for requests (default is https://api.mistral.ai)"
+msgstr "The Base Url To Use For Requests (Default Is Https://Api.Mistral.Ai)"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:88
+msgid "The base URL to use for requests - leave as default unless you know you need something else"
+msgstr "The Base Url To Use For Requests - Leave As Default Unless You Know You Need Something Else"
 
 #: GUI/SettingsDialog.py:30
 msgid "The default language to translate the subtitles to"
@@ -866,6 +941,22 @@ msgstr ""
 msgid "The language of the application interface (requires restart)"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_OpenAI.py:106
+msgid "The level of reasoning effort to use for the model"
+msgstr "The Level Of Reasoning Effort To Use For The Model"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:88
+msgid "The maximum number of requests to make per minute"
+msgstr "The Maximum Number Of Requests To Make Per Minute"
+
+#: PySubtitle/Providers/Provider_Custom.py:104
+msgid "The maximum number of tokens the AI should generate in the response (0 for unlimited)"
+msgstr "The Maximum Number Of Tokens The Ai Should Generate In The Response (0 For Unlimited)"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:87
+msgid "The maximum number of tokens to generate in a single request"
+msgstr "The Maximum Number Of Tokens To Generate In A Single Request"
+
 #: PySubtitle/Providers/Provider_Claude.py:113
 msgid "The maximum number of tokens to use for thinking"
 msgstr "The Maximum Number Of Tokens To Use For Thinking"
@@ -873,6 +964,10 @@ msgstr "The Maximum Number Of Tokens To Use For Thinking"
 #: PySubtitle/Providers/Provider_Claude.py:108
 msgid "The maximum number of tokens to use for translations"
 msgstr "The Maximum Number Of Tokens To Use For Translations"
+
+#: PySubtitle/Providers/Provider_Custom.py:108
+msgid "The model is normally set by the server, and should not need to be specified here"
+msgstr "The Model Is Normally Set By The Server, And Should Not Need To Be Specified Here"
 
 #: PySubtitle/Providers/Provider_Claude.py:105
 msgid "The model to use for translations"
@@ -889,6 +984,10 @@ msgstr "The Temperature To Use For Translations (Default 0.0)"
 #: GUI/FirstRunOptions.py:20
 msgid "The translation provider to use"
 msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:106
+msgid "Timeout for the request in seconds (default 300)"
+msgstr "Timeout For The Request In Seconds (Default 300)"
 
 #: GUI/Widgets/MenuBar.py:14
 msgid "Tools"
@@ -950,6 +1049,10 @@ msgstr ""
 msgid "Unable to reparse batches because project is not set"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_OpenAI.py:98 PySubtitle/Providers/Provider_OpenAI.py:111
+msgid "Unable to retrieve models"
+msgstr "Unable To Retrieve Models"
+
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
 msgstr ""
@@ -990,26 +1093,28 @@ msgstr ""
 msgid "Updating scene {scene} with {update}"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:109
+msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
+msgstr "Use Parallel Threads For Translation Requests (May Be Faster But May Not Work With The Server)"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:92
+msgid "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base"
+msgstr "Use The Httpx Library For Requests. May Help If You Receive A 307 Redirect Error With A Custom Api Base"
+
 #: GUI/ViewModel/BatchItem.py:247
-msgid ""
-"User Prompt:\n"
-" {text}"
+msgid "User Prompt:\n {text}"
 msgstr ""
 
 #: GUI/SettingsDialog.py:74
-msgid ""
-"Validator: Maximum number of characters to allow in a single translated line"
+msgid "Validator: Maximum number of characters to allow in a single translated line"
 msgstr ""
 
 #: GUI/SettingsDialog.py:75
-msgid ""
-"Validator: Maximum number of newlines to allow in a single translated line"
+msgid "Validator: Maximum number of newlines to allow in a single translated line"
 msgstr ""
 
 #: GUI/SettingsDialog.py:71
-msgid ""
-"Whether to substitute whole words or partial matches, or choose "
-"automatically based on input language"
+msgid "Whether to substitute whole words or partial matches, or choose automatically based on input language"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
@@ -1020,19 +1125,11 @@ msgstr "Access Key"
 msgid "add_right_to_left_markers"
 msgstr "Add Right To Left Markers"
 
-#: PySubtitle/Providers/Provider_Azure.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
-#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_base"
 msgstr "Api Base"
 
-#: PySubtitle/Providers/Provider_Azure.py:0
-#: PySubtitle/Providers/Provider_Claude.py:0
-#: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
-#: PySubtitle/Providers/Provider_Gemini.py:0
-#: PySubtitle/Providers/Provider_Mistral.py:0
-#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_key"
 msgstr "Api Key"
 
@@ -1152,10 +1249,7 @@ msgstr "Max Thinking Tokens"
 msgid "max_threads"
 msgstr "Max Threads"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0
-#: PySubtitle/Providers/Provider_Claude.py:0
-#: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0
 msgid "max_tokens"
 msgstr "Max Tokens"
 
@@ -1179,13 +1273,7 @@ msgstr "Min Single Line Length"
 msgid "min_split_chars"
 msgstr "Min Split Chars"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0
-#: PySubtitle/Providers/Provider_Claude.py:0
-#: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
-#: PySubtitle/Providers/Provider_Gemini.py:0
-#: PySubtitle/Providers/Provider_Mistral.py:0
-#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "model"
 msgstr "Model"
 
@@ -1229,12 +1317,7 @@ msgstr "Provider Settings"
 msgid "proxy"
 msgstr "Proxy"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0
-#: PySubtitle/Providers/Provider_Claude.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
-#: PySubtitle/Providers/Provider_Gemini.py:0
-#: PySubtitle/Providers/Provider_Mistral.py:0
-#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "rate_limit"
 msgstr "Rate Limit"
 
@@ -1302,13 +1385,7 @@ msgstr "Supports System Messages"
 msgid "target_language"
 msgstr "Target Language"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0
-#: PySubtitle/Providers/Provider_Claude.py:0
-#: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
-#: PySubtitle/Providers/Provider_Gemini.py:0
-#: PySubtitle/Providers/Provider_Mistral.py:0
-#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "temperature"
 msgstr "Temperature"
 

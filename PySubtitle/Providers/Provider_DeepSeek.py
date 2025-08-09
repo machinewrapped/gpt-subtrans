@@ -10,6 +10,7 @@ else:
         import openai
 
         from PySubtitle.Helpers import GetEnvFloat
+        from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.OpenAI.DeepSeekClient import DeepSeekClient
         from PySubtitle.SubtitleError import ProviderError
         from PySubtitle.TranslationClient import TranslationClient
@@ -57,8 +58,8 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'api_key': (str, "A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)"),
-                    'api_base': (str, "The base URL to use for requests (default is https://api.deepseek.com)"),
+                    'api_key': (str, _("A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)")),
+                    'api_base': (str, _("The base URL to use for requests (default is https://api.deepseek.com)")),
                 }
 
                 if self.api_key:
@@ -66,14 +67,14 @@ else:
                     if models:
                         options.update({
                             'model': (models, "AI model to use as the translator"),
-                            'reuse_client': (bool, "Reuse connection for multiple requests (otherwise a new connection is established for each)"),
-                            'max_tokens': (int, "Maximum number of output tokens to return in the response."),
-                            'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
-                            'rate_limit': (float, "Maximum API requests per minute.")
+                            'reuse_client': (bool, _("Reuse connection for multiple requests (otherwise a new connection is established for each)")),
+                            'max_tokens': (int, _("Maximum number of output tokens to return in the response.")),
+                            'temperature': (float, _("Amount of random variance to add to translations. Generally speaking, none is best")),
+                            'rate_limit': (float, _("Maximum API requests per minute."))
                         })
 
                     else:
-                        options['model'] = (["Unable to retrieve models"], "Check API key and base URL and try again")
+                        options['model'] = (["Unable to retrieve models"], _("Check API key and base URL and try again"))
 
                 return options
 

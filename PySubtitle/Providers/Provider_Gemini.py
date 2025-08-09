@@ -11,6 +11,7 @@ else:
         from google.api_core.exceptions import FailedPrecondition
 
         from PySubtitle.Helpers import GetEnvFloat
+        from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -58,7 +59,7 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'api_key': (str, "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)")
+                    'api_key': (str, _("A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"))
                 }
 
                 if self.api_key:
@@ -67,12 +68,12 @@ else:
                         if models:
                             options.update({
                                 'model': (models, "AI model to use as the translator" if models else "Unable to retrieve models"),
-                                'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
-                                'rate_limit': (float, "Maximum API requests per minute.")
+                                'temperature': (float, _("Amount of random variance to add to translations. Generally speaking, none is best")),
+                                'rate_limit': (float, _("Maximum API requests per minute."))
                             })
 
                         else:
-                            options['model'] = (["Unable to retrieve models"], "Check API key is authorized and try again")
+                            options['model'] = (["Unable to retrieve models"], _("Check API key is authorized and try again"))
 
                     except FailedPrecondition as e:
                         options['model'] = (["Unable to access the Gemini API"], str(e))

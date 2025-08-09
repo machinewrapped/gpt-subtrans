@@ -3,6 +3,7 @@ import os
 from copy import deepcopy
 
 from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger, GetEnvBool
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Options import MULTILINE_OPTION
 from PySubtitle.Providers.Custom.CustomClient import CustomClient
 from PySubtitle.TranslationClient import TranslationClient
@@ -87,25 +88,25 @@ class Provider_CustomServer(TranslationProvider):
 
     def GetOptions(self) -> dict:
         options = {
-            'server_address': (str, "The address of the local server"),
-            'endpoint': (str, "The API function to call on the server"),
+            'server_address': (str, _("The address of the local server")),
+            'endpoint': (str, _("The API function to call on the server")),
         }
 
         if self.ValidateSettings():
-            options['supports_conversation'] = (bool, "Attempt to communicate with the endpoint using chat format")
+            options['supports_conversation'] = (bool, _("Attempt to communicate with the endpoint using chat format"))
 
             if self.settings.get('supports_conversation'):
-                options['supports_system_messages'] = (bool, "Instructions will be sent as system messages rather than the user prompt")
+                options['supports_system_messages'] = (bool, _("Instructions will be sent as system messages rather than the user prompt"))
 
             options.update({
                 'prompt_template': (MULTILINE_OPTION, "Template for the prompt to send to the server (use {prompt} and {context} tags)"),
-                'temperature': (float, "Higher temperature introduces more randomness to the translation (default 0.0)"),
-                'max_tokens': (int, "The maximum number of tokens the AI should generate in the response (0 for unlimited)"),
-                'max_completion_tokens': (int, "Alternative to max_tokens for some servers"),
-                'timeout': (int, "Timeout for the request in seconds (default 300)"),
-                'api_key': (str, "An API key is normally not needed for a local server"),
-                'model': (str, "The model is normally set by the server, and should not need to be specified here"),
-                'supports_parallel_threads': (bool, "Use parallel threads for translation requests (may be faster but may not work with the server)")
+                'temperature': (float, _("Higher temperature introduces more randomness to the translation (default 0.0)")),
+                'max_tokens': (int, _("The maximum number of tokens the AI should generate in the response (0 for unlimited)")),
+                'max_completion_tokens': (int, _("Alternative to max_tokens for some servers")),
+                'timeout': (int, _("Timeout for the request in seconds (default 300)")),
+                'api_key': (str, _("An API key is normally not needed for a local server")),
+                'model': (str, _("The model is normally set by the server, and should not need to be specified here")),
+                'supports_parallel_threads': (bool, _("Use parallel threads for translation requests (may be faster but may not work with the server)"))
             })
 
         return options

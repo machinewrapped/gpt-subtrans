@@ -8,6 +8,9 @@ else:
     try:
         import openai
 
+        from PySubtitle.Helpers.Localization import _
+
+
         from PySubtitle.Providers.Azure.AzureOpenAIClient import AzureOpenAIClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -57,10 +60,10 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'api_key': (str, "An Azure API key is required"),
-                    'api_version': (str, "An Azure API version is required"),
-                    'deployment_name': (str, "An Azure API deployment name is required"),
-                    'api_base': (str, "The Azure API base URL to use for requests."),
+                    'api_key': (str, _("An Azure API key is required")),
+                    'api_version': (str, _("An Azure API version is required")),
+                    'deployment_name': (str, _("An Azure API deployment name is required")),
+                    'api_base': (str, _("The Azure API base URL to use for requests.")),
                 }
 
                 return options

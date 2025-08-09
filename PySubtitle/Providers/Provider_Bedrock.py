@@ -8,6 +8,9 @@ else:
     try:
         import boto3
 
+        from PySubtitle.Helpers.Localization import _
+
+
         from PySubtitle.Providers.Bedrock.BedrockClient import BedrockClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -67,13 +70,13 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'access_key': (str, "An AWS access key is required"),
-                    'secret_access_key': (str, "An AWS secret access key is required"),
+                    'access_key': (str, _("An AWS access key is required")),
+                    'secret_access_key': (str, _("An AWS secret access key is required")),
                 }
 
                 regions = self.regions
                 if not regions:
-                    options['aws_region'] = (str, "The AWS region to use for requests must be specified.")
+                    options['aws_region'] = (str, _("The AWS region to use for requests must be specified."))
                 else:
                     options['aws_region'] = (regions, "The AWS region to use for requests.")
 
@@ -81,8 +84,8 @@ else:
                     models = self.available_models or ["Unable to retrieve model list"]
                     options.update({
                         'model': (models, "AI model to use as the translator. Model access must be enabled in the AWS Console. Some models may not translate the subtitles."),
-                        'max_tokens': (int, "The maximum number of tokens to generate in a single request"),
-                        'rate_limit': (float, "The maximum number of requests to make per minute")
+                        'max_tokens': (int, _("The maximum number of tokens to generate in a single request")),
+                        'rate_limit': (float, _("The maximum number of requests to make per minute"))
                     })
                 return options
 
