@@ -40,7 +40,7 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
 - [ ] 2.3 Wrap remaining GUI strings
   - All dialogs, widgets, menus, commands under `GUI/`
   - Acceptance: 100% of visible strings wrapped
-  - Progress: Wrapped additional files `GUI/MainToolbar.py` (title), `GUI/Widgets/Editors.py`, `GUI/ViewModel/BatchItem.py`, `GUI/ProjectToolbar.py`, `GUI/GuiHelpers.py`, `GUI/Widgets/Widgets.py`, `GUI/ProjectActions.py`, `GUI/NewProjectSettings.py`, `GUI/FirstRunOptions.py`, `GUI/Widgets/MenuBar.py`, `GUI/AboutDialog.py`.
+  - Progress: See “Files processed so far”.
 
 - [ ] 2.4 Wrap provider/client messages (non-GUI)
   - Strings in `PySubtitle/Providers/` and relevant helpers
@@ -51,7 +51,7 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
 - [ ] 3.1 Seed translations
   - Populate `en` PO from POT; create initial `es` PO with a few sample strings
   - Acceptance: compiled `.mo` loads; Spanish shows for wrapped strings
-  - Progress: Seeded initial Spanish entries via `locales/seed_es_translations.py`; more coverage needed.
+  - Progress: Best-effort Spanish seeding completed via `locales/seed_es_translations.py` (many entries auto-filled); remaining empty entries require manual QA.
 
 - [X] 3.2 First-run language selection
   - Update `GUI/FirstRunOptions.py` to include language dropdown; default to system locale
@@ -80,6 +80,41 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
   - Acceptance: linked from `readme.md`
 
 ---
+
+Files processed so far (wrapped for i18n and included in POT)
+- GUI/MainWindow.py
+- GUI/SettingsDialog.py
+- GUI/MainToolbar.py
+- GUI/ProjectToolbar.py
+- GUI/Widgets/MenuBar.py
+- GUI/Widgets/Editors.py
+- GUI/Widgets/Widgets.py
+- GUI/Widgets/ProjectSettings.py
+- GUI/Widgets/ScenesView.py
+- GUI/FirstRunOptions.py
+- GUI/NewProjectSettings.py
+- GUI/AboutDialog.py
+- GUI/GuiHelpers.py
+- GUI/GuiInterface.py
+- GUI/ProjectActions.py
+- GUI/ProjectDataModel.py
+- GUI/CommandQueue.py
+- GUI/ViewModel/BatchItem.py
+
+Commands processed (user-facing messages wrapped)
+- GUI/Commands/AutoSplitBatchCommand.py
+- GUI/Commands/DeleteLinesCommand.py
+- GUI/Commands/EditBatchCommand.py
+- GUI/Commands/EditLineCommand.py
+- GUI/Commands/LoadSubtitleFile.py
+- GUI/Commands/MergeLinesCommand.py
+- GUI/Commands/MergeScenesCommand.py
+- GUI/Commands/ReparseTranslationsCommand.py
+- GUI/Commands/SplitBatchCommand.py
+- GUI/Commands/SplitSceneCommand.py
+- GUI/Commands/StartTranslationCommand.py
+- GUI/Commands/TranslateSceneCommand.py
+- GUI/GUICommands.py (Exit/CheckProviderSettings)
 
 Notes
 - Use `gettext` stdlib; avoid extra runtime deps
