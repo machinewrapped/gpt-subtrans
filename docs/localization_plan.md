@@ -25,15 +25,7 @@ This document outlines a comprehensive plan for adding internationalization (i18
 
 ### 1. Localization Library Selection
 
-**Recommended**: Use Qt's built-in internationalization system with Python's `gettext` module as a fallback for non-Qt strings.
-
-**Primary Solution - Qt Linguist Workflow**:
-- **Library**: Qt's built-in i18n system (QTranslator, QApplication.translate())
-- **License**: LGPL/Commercial (compatible with MIT)
-- **Tools**: Qt Linguist for translation management
-- **File Format**: `.ts` (translation source) and `.qm` (compiled translation)
-
-**Secondary Solution - Python gettext**:
+**Recommended**: Use Python's `gettext` module as a fallback for non-Qt strings.
 - **Library**: Python's built-in `gettext` module
 - **License**: Python Software Foundation License (MIT-compatible)
 - **File Format**: `.po`/.pot files
@@ -77,8 +69,9 @@ This document outlines a comprehensive plan for adding internationalization (i18
    - Update existing `.po` files
 
 2. **Wrap UI strings systematically**:
-   - Start with main dialogs and menus
-   - Progress through all GUI components
+   - Start with `GUI\MainWindow.py`, `GUI\SettingsDialog.py`, and `GUI\Widgets\ProjectSettings.py`
+   - Progress through all components, widgets and commands in `GUI`
+   - Move on to the different providers and clients in `PySubtitle\Providers`
    - Use consistent translation function calls
 
 3. **Handle dynamic strings**:
@@ -88,8 +81,8 @@ This document outlines a comprehensive plan for adding internationalization (i18
 
 #### Phase 3: Translation Management
 1. **Set up translation workflow**:
-   - Create initial translations for key languages (Spanish, French, German, Chinese)
-   - Establish process for translator contributions
+   - Create initial translations for Spanish
+   - Establish process for user feedback and contributions
    - Set up validation and testing procedures
 
 2. **Add first-run language selection**:
@@ -126,7 +119,7 @@ def initialize_localization(language_code=None):
         options = Options()
         language_code = options.get('ui_language', 'en')
     
-    locale_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'locales')
+    locale_dir = GetResourcePath('locales')
     try:
         _translator = gettext.translation('gui-subtrans', locale_dir, [language_code])
         _translator.install()
@@ -173,15 +166,15 @@ def main():
 
 ### 4. Supported Languages (Initial Release)
 
-**Priority 1** (Large user bases):
+**Priority 1** (Proof of concept):
 - English (en) - default
 - Spanish (es)
+
+**Priority 2** (Additional languages):
 - French (fr)
 - German (de)
 - Chinese Simplified (zh-CN)
 - Japanese (ja)
-
-**Priority 2** (Additional languages):
 - Portuguese (pt)
 - Russian (ru)
 - Italian (it)
@@ -237,16 +230,9 @@ Add to `requirements.txt`:
    python locales/update_translations.py
    ```
 
-2. **Testing Different Languages**:
-   ```bash
-   # Set environment variable for testing
-   export LANG=es_ES.UTF-8
-   python scripts/gui-subtrans.py
-   ```
-
 #### For Translators
 1. **Translation Process**:
-   - Use standard `.po` file editors (Poedit, Lokalize, web tools)
+   - Use standard `.po` editors (Poedit, Lokalize, web tools) or manual updates
    - Test translations in application
    - Submit via pull requests or translation platform
 
@@ -281,56 +267,34 @@ Add to `requirements.txt`:
 - Validate translation accuracy
 
 #### User Acceptance Testing
-- Beta testing with native speakers
 - Feedback collection system
 - Iterative improvements based on user input
 
 ### 10. Maintenance and Updates
 
-#### Translation Updates
-- Regular extraction of new strings
-- Notification system for translators
-- Version control for translation files
-- Quality assurance process
-
 #### Community Involvement
 - Guidelines for community translators
 - Recognition system for contributors
 - Documentation for translation process
-- Integration with translation platforms (Crowdin, Weblate)
 
 ## Implementation Timeline
 
-### Week 1-2: Infrastructure
 - Set up localization framework
 - Create extraction and build scripts
 - Add language preference to settings
-
-### Week 3-4: Core Translation
-- Wrap main window and dialog strings
+- Wrap main window and settings dialogs
 - Implement translation loading
 - Create initial English template
-
-### Week 5-6: Complete Coverage
+- Create translations for Priority 1 languages
 - Wrap all remaining UI strings
 - Handle dynamic/generated strings
 - Add first-run language selection
-
-### Week 7-8: Initial Translations
-- Create translations for Priority 1 languages
 - Testing and refinement
 - Documentation updates
-
-### Week 9-10: Testing and Polish
-- Comprehensive testing across languages
-- UI adjustments for different text lengths
-- Performance optimization
-- Final quality assurance
 
 ## Success Metrics
 
 1. **Coverage**: 100% of user-visible strings translatable
-2. **Performance**: No noticeable performance impact
 3. **Usability**: Language switching works seamlessly
 4. **Quality**: Translations are accurate and contextually appropriate
 5. **Maintainability**: Easy to add new languages and update translations
@@ -340,15 +304,9 @@ Add to `requirements.txt`:
 ### Technical Risks
 - **Text overflow**: Mitigate with responsive UI design and text truncation
 - **Character encoding**: Use UTF-8 throughout, test with various scripts
-- **Performance impact**: Profile translation lookups, implement caching if needed
-
-### Process Risks
-- **Translation quality**: Establish review process, use native speakers
-- **Maintenance burden**: Automate string extraction and update processes
-- **Community engagement**: Create clear contribution guidelines and recognition
 
 ## Conclusion
 
-This localization plan provides a comprehensive approach to internationalizing GPT-SubTrans while maintaining the application's current functionality and performance. The phased implementation allows for iterative development and testing, ensuring a high-quality multilingual user experience.
+This localization plan provides a straightforward approach to internationalizing GPT-SubTrans while maintaining the application's current functionality and performance.
 
 The use of standard Python `gettext` infrastructure ensures long-term maintainability and compatibility with existing translation tools and workflows. The proposed directory structure and development processes are designed to scale with the addition of new languages and translators.
