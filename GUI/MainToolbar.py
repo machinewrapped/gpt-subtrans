@@ -63,7 +63,8 @@ class MainToolbar(QToolBar):
         self.DefineAction('About', action_handler.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
 
     def DefineAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
-        action = QAction(name)
+        # Keep English name as key; show localized text
+        action = QAction(_(name))
         action.triggered.connect(function)
 
         if icon:
