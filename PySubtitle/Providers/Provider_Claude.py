@@ -11,6 +11,7 @@ else:
         from copy import deepcopy
 
         from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger
+        from PySubtitle.Helpers.Localization import _
         from PySubtitle.Helpers.Parse import ParseNames
         from PySubtitle.Providers.Anthropic.AnthropicClient import AnthropicClient
         from PySubtitle.TranslationClient import TranslationClient
@@ -92,7 +93,7 @@ else:
                 return self.information if self.api_key else self.information_noapikey
 
             def GetOptions(self) -> dict:
-                options = {'api_key': (str, "An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)")}
+                options = {'api_key': (str, _("An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"))}
 
                 if not self.api_key:
                     return options
@@ -101,17 +102,17 @@ else:
 
                 if self.available_models:
                     options.update({
-                        'model': (self.available_models, "The model to use for translations"),
-                        'temperature': (float, "The temperature to use for translations (default 0.0)"),
-                        'rate_limit': (float, "The rate limit to use for translations (default 60.0)"),
-                        'max_tokens': (int, "The maximum number of tokens to use for translations"),
-                        'thinking': (bool, "Enable thinking mode for translations"),
+                        'model': (self.available_models, _("The model to use for translations")),
+                        'temperature': (float, _("The temperature to use for translations (default 0.0)")),
+                        'rate_limit': (float, _("The rate limit to use for translations (default 60.0)")),
+                        'max_tokens': (int, _("The maximum number of tokens to use for translations")),
+                        'thinking': (bool, _("Enable thinking mode for translations")),
                     })
 
                 if self.allow_thinking:
-                    options['max_thinking_tokens'] = (int, "The maximum number of tokens to use for thinking")
+                    options['max_thinking_tokens'] = (int, _("The maximum number of tokens to use for thinking"))
 
-                options['proxy'] = (str, "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/")
+                options['proxy'] = (str, _("Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/"))
                 return options
 
             def _allow_multithreaded_translation(self) -> bool:

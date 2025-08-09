@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QCo
 from PySide6.QtGui import QTextOption
 
 from PySubtitle.Helpers import GetValueFromName, GetValueName
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Options import MULTILINE_OPTION
 
 class OptionWidget(QWidget):
@@ -23,7 +24,7 @@ class OptionWidget(QWidget):
 
     @staticmethod
     def GenerateName(key):
-        return key.replace('_', ' ').title()
+        return _(key)
 
     def GetValue(self):
         raise NotImplementedError

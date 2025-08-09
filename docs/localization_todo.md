@@ -9,7 +9,7 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
   - Create `locales/gui-subtrans.pot` (template)
   - Create `locales/en/LC_MESSAGES/gui-subtrans.po`
   - Create `locales/es/LC_MESSAGES/gui-subtrans.po`
-  - Add `locales/extract_strings.py` and `locales/update_translations.py` (initial stubs)
+  - Add `scripts/extract_strings.py` and `scripts/update_translations.py` (initial stubs)
   - Acceptance: folders and files exist; repository builds unchanged
 
 - [X] 1.2 Add localization module
@@ -28,8 +28,8 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
 ## Phase 2 — String Extraction and Wrapping
 
 - [X] 2.1 Implement extraction/update scripts
-  - `locales/extract_strings.py`: scan repo for `_()` and `tr()` and generate/update `gui-subtrans.pot`
-  - `locales/update_translations.py`: merge POT into each PO; compile `.mo`
+  - `scripts/extract_strings.py`: scan repo for `_()` and `tr()` and generate/update `gui-subtrans.pot`
+  - `scripts/update_translations.py`: merge POT into each PO; compile `.mo`
   - Acceptance: running scripts updates POT/PO without errors
 
 - [X] 2.2 Wrap strings in priority UI files
@@ -82,24 +82,25 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
 ---
 
 Files processed so far (wrapped for i18n and included in POT)
-- GUI/MainWindow.py
-- GUI/SettingsDialog.py
-- GUI/MainToolbar.py
-- GUI/ProjectToolbar.py
-- GUI/Widgets/MenuBar.py
-- GUI/Widgets/Editors.py
-- GUI/Widgets/Widgets.py
-- GUI/Widgets/ProjectSettings.py
-- GUI/Widgets/ScenesView.py
-- GUI/FirstRunOptions.py
-- GUI/NewProjectSettings.py
 - GUI/AboutDialog.py
+- GUI/CommandQueue.py
+- GUI/EditInstructionsDialog.py
+- GUI/FirstRunOptions.py
 - GUI/GuiHelpers.py
 - GUI/GuiInterface.py
+- GUI/MainToolbar.py
+- GUI/MainWindow.py
+- GUI/NewProjectSettings.py
 - GUI/ProjectActions.py
 - GUI/ProjectDataModel.py
-- GUI/CommandQueue.py
+- GUI/ProjectToolbar.py
+- GUI/SettingsDialog.py
 - GUI/ViewModel/BatchItem.py
+- GUI/Widgets/Editors.py
+- GUI/Widgets/MenuBar.py
+- GUI/Widgets/ProjectSettings.py
+- GUI/Widgets/ScenesView.py
+- GUI/Widgets/Widgets.py
 
 Commands processed (user-facing messages wrapped)
 - GUI/Commands/AutoSplitBatchCommand.py

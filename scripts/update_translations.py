@@ -7,13 +7,16 @@ import subprocess
 from datetime import datetime
 from typing import List
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-POT_PATH = os.path.join(BASE_DIR, 'gui-subtrans.pot')
+# Add the parent directory to sys.path so we can import PySubtitle modules
+base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+LOCALES_DIR = os.path.join(base_path, 'locales')
+POT_PATH = os.path.join(LOCALES_DIR, 'gui-subtrans.pot')
 LANGUAGES = ('en', 'es')
 
 
 def ensure_dirs(language_code: str) -> str:
-    lang_dir = os.path.join(BASE_DIR, language_code, 'LC_MESSAGES')
+    lang_dir = os.path.join(LOCALES_DIR, language_code, 'LC_MESSAGES')
     os.makedirs(lang_dir, exist_ok=True)
     return lang_dir
 

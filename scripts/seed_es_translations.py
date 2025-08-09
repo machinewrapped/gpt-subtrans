@@ -8,8 +8,11 @@ Note: Only single-line msgid entries are handled.
 import os
 import re
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ES_PO = os.path.join(BASE_DIR, 'es', 'LC_MESSAGES', 'gui-subtrans.po')
+# Add the parent directory to sys.path so we can import PySubtitle modules
+base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+LOCALES_DIR = os.path.join(base_path, 'locales')
+ES_PO = os.path.join(LOCALES_DIR, 'es', 'LC_MESSAGES', 'gui-subtrans.po')
 
 
 MAPPING = {

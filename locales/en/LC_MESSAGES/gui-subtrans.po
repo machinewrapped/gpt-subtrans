@@ -1,3 +1,14 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: GPT-SubTrans\n"
+"POT-Creation-Date: 2025-08-09 16:58+0000\n"
+"PO-Revision-Date: 2025-08-09 16:58+0000\n"
+"Last-Translator: Auto-generated\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
 #: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
 msgid "1 line"
 msgstr ""
@@ -43,6 +54,14 @@ msgstr ""
 #: GUI/Commands/StartTranslationCommand.py:29
 msgid "All scenes are fully translated"
 msgstr ""
+
+#: PySubtitle/Providers/Provider_Claude.py:96
+msgid ""
+"An Anthropic Claude API key is required to use this provider (https://"
+"console.anthropic.com/settings/keys)"
+msgstr ""
+"An Anthropic Claude Api Key Is Required To Use This Provider (Https://"
+"Console.Anthropic.Com/Settings/Keys)"
 
 #: GUI/Widgets/SelectionView.py:31
 msgid "Auto-Split Batch"
@@ -221,6 +240,10 @@ msgstr ""
 #: GUI/Commands/EditLineCommand.py:22
 msgid "Editing line {line}"
 msgstr ""
+
+#: PySubtitle/Providers/Provider_Claude.py:109
+msgid "Enable thinking mode for translations"
+msgstr "Enable Thinking Mode For Translations"
 
 #: GUI/SettingsDialog.py:56
 msgid "Ensure dialog markers match in multi-line subtitles"
@@ -584,6 +607,14 @@ msgstr ""
 msgid "Open File"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Claude.py:115
+msgid ""
+"Optional proxy server to use for requests (e.g. https://api.not-anthropic."
+"com/"
+msgstr ""
+"Optional Proxy Server To Use For Requests (E.G. Https://Api.Not-Anthropic."
+"Com/"
+
 #: GUI/ViewModel/BatchItem.py:189
 msgid "Original line {line} not found in batch {batch}"
 msgstr ""
@@ -835,6 +866,26 @@ msgstr ""
 msgid "The language of the application interface (requires restart)"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Claude.py:113
+msgid "The maximum number of tokens to use for thinking"
+msgstr "The Maximum Number Of Tokens To Use For Thinking"
+
+#: PySubtitle/Providers/Provider_Claude.py:108
+msgid "The maximum number of tokens to use for translations"
+msgstr "The Maximum Number Of Tokens To Use For Translations"
+
+#: PySubtitle/Providers/Provider_Claude.py:105
+msgid "The model to use for translations"
+msgstr "The Model To Use For Translations"
+
+#: PySubtitle/Providers/Provider_Claude.py:107
+msgid "The rate limit to use for translations (default 60.0)"
+msgstr "The Rate Limit To Use For Translations (Default 60.0)"
+
+#: PySubtitle/Providers/Provider_Claude.py:106
+msgid "The temperature to use for translations (default 0.0)"
+msgstr "The Temperature To Use For Translations (Default 0.0)"
+
 #: GUI/FirstRunOptions.py:20
 msgid "The translation provider to use"
 msgstr ""
@@ -961,13 +1012,337 @@ msgid ""
 "automatically based on input language"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "access_key"
+msgstr "Access Key"
+
+#: PySubtitle/Options.py:33
+msgid "add_right_to_left_markers"
+msgstr "Add Right To Left Markers"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "api_base"
+msgstr "Api Base"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "api_key"
+msgstr "Api Key"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "api_version"
+msgstr "Api Version"
+
+#: PySubtitle/Options.py:66
+msgid "autosave"
+msgstr "Autosave"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "aws_region"
+msgstr "Aws Region"
+
+#: PySubtitle/Options.py:64
+msgid "backoff_time"
+msgstr "Backoff Time"
+
+#: PySubtitle/Options.py:46
+msgid "break_dialog_on_one_line"
+msgstr "Break Dialog On One Line"
+
+#: PySubtitle/Options.py:45
+msgid "break_long_lines"
+msgstr "Break Long Lines"
+
+#: PySubtitle/Options.py:57
+msgid "convert_wide_dashes"
+msgstr "Convert Wide Dashes"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "deployment_name"
+msgstr "Deployment Name"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "endpoint"
+msgstr "Endpoint"
+
+#: PySubtitle/Options.py:53
+msgid "filler_words"
+msgstr "Filler Words"
+
+#: PySubtitle/Options.py:72
+msgid "firstrun"
+msgstr "Firstrun"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "free_plan"
+msgstr "Free Plan"
+
+#: PySubtitle/Options.py:56
+msgid "full_width_punctuation"
+msgstr "Full Width Punctuation"
+
+#: PySubtitle/Options.py:32
+msgid "include_original"
+msgstr "Include Original"
+
+#: PySubtitle/Options.py:30
+msgid "instruction_file"
+msgstr "Instruction File"
+
+#: PySubtitle/Options.py:67
+msgid "last_used_path"
+msgstr "Last Used Path"
+
+#: PySubtitle/Options.py:36
+msgid "max_batch_size"
+msgstr "Max Batch Size"
+
+#: PySubtitle/Options.py:38
+msgid "max_characters"
+msgstr "Max Characters"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "max_completion_tokens"
+msgstr "Max Completion Tokens"
+
+#: PySubtitle/Options.py:37
+msgid "max_context_summaries"
+msgstr "Max Context Summaries"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "max_instruct_tokens"
+msgstr "Max Instruct Tokens"
+
+#: PySubtitle/Options.py:47
+msgid "max_line_duration"
+msgstr "Max Line Duration"
+
+#: PySubtitle/Options.py:60
+msgid "max_lines"
+msgstr "Max Lines"
+
+#: PySubtitle/Options.py:39
+msgid "max_newlines"
+msgstr "Max Newlines"
+
+#: PySubtitle/Options.py:62
+msgid "max_retries"
+msgstr "Max Retries"
+
+#: PySubtitle/Options.py:40
+msgid "max_single_line_length"
+msgstr "Max Single Line Length"
+
+#: PySubtitle/Options.py:63
+msgid "max_summary_length"
+msgstr "Max Summary Length"
+
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "max_thinking_tokens"
+msgstr "Max Thinking Tokens"
+
+#: PySubtitle/Options.py:61
+msgid "max_threads"
+msgstr "Max Threads"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+msgid "max_tokens"
+msgstr "Max Tokens"
+
+#: PySubtitle/Options.py:49
+msgid "merge_line_duration"
+msgstr "Merge Line Duration"
+
+#: PySubtitle/Options.py:35
+msgid "min_batch_size"
+msgstr "Min Batch Size"
+
+#: PySubtitle/Options.py:48
+msgid "min_line_duration"
+msgstr "Min Line Duration"
+
+#: PySubtitle/Options.py:41
+msgid "min_single_line_length"
+msgstr "Min Single Line Length"
+
+#: PySubtitle/Options.py:50
+msgid "min_split_chars"
+msgstr "Min Split Chars"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "model"
+msgstr "Model"
+
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "multithreaded"
 msgstr ""
 
+#: PySubtitle/Options.py:51
+msgid "normalise_dialog_tags"
+msgstr "Normalise Dialog Tags"
+
+#: PySubtitle/Options.py:42
+msgid "postprocess_translation"
+msgstr "Postprocess Translation"
+
+#: PySubtitle/Options.py:43
+msgid "preprocess_subtitles"
+msgstr "Preprocess Subtitles"
+
+#: PySubtitle/Options.py:65
+msgid "project"
+msgstr "Project"
+
+#: PySubtitle/Options.py:29
+msgid "prompt"
+msgstr "Prompt"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "prompt_template"
+msgstr "Prompt Template"
+
+#: PySubtitle/Options.py:27
+msgid "provider"
+msgstr "Provider"
+
+#: PySubtitle/Options.py:28
+msgid "provider_settings"
+msgstr "Provider Settings"
+
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "proxy"
+msgstr "Proxy"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "rate_limit"
+msgstr "Rate Limit"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "reasoning_effort"
+msgstr "Reasoning Effort"
+
+#: PySubtitle/Options.py:52
+msgid "remove_filler_words"
+msgstr "Remove Filler Words"
+
+#: PySubtitle/Options.py:58
+msgid "retry_on_error"
+msgstr "Retry On Error"
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+msgid "reuse_client"
+msgstr "Reuse Client"
+
+#: PySubtitle/Options.py:44
+msgid "save_preprocessed_subtitles"
+msgstr "Save Preprocessed Subtitles"
+
+#: PySubtitle/Options.py:34
+msgid "scene_threshold"
+msgstr "Scene Threshold"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "secret_access_key"
+msgstr "Secret Access Key"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "server_address"
+msgstr "Server Address"
+
+#: PySubtitle/Providers/Provider_Mistral.py:0
+msgid "server_url"
+msgstr "Server Url"
+
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "single threaded"
 msgstr ""
+
+#: PySubtitle/Options.py:68
+msgid "stop_on_error"
+msgstr "Stop On Error"
+
+#: PySubtitle/Options.py:54
+msgid "substitution_mode"
+msgstr "Substitution Mode"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_conversation"
+msgstr "Supports Conversation"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_parallel_threads"
+msgstr "Supports Parallel Threads"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_system_messages"
+msgstr "Supports System Messages"
+
+#: PySubtitle/Options.py:31
+msgid "target_language"
+msgstr "Target Language"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "temperature"
+msgstr "Temperature"
+
+#: PySubtitle/Options.py:70
+msgid "theme"
+msgstr "Theme"
+
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "thinking"
+msgstr "Thinking"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "timeout"
+msgstr "Timeout"
+
+#: PySubtitle/Options.py:71
+msgid "ui_language"
+msgstr "Ui Language"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "use_httpx"
+msgstr "Use Httpx"
+
+#: PySubtitle/Options.py:26
+msgid "version"
+msgstr "Version"
+
+#: PySubtitle/Options.py:55
+msgid "whitespaces_to_newline"
+msgstr "Whitespaces To Newline"
+
+#: PySubtitle/Options.py:69
+msgid "write_backup"
+msgstr "Write Backup"
 
 #: GUI/MainWindow.py:138
 msgid "{command} aborted."
