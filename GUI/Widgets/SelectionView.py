@@ -20,40 +20,13 @@ class SelectionView(QFrame):
     def __init__(self, action_handler : ProjectActions, parent=None):
         super().__init__(parent=parent)
 
+        self.selection = None
         self.action_handler = action_handler
         self.debug_view = os.environ.get("DEBUG_MODE") == "1"
 
-        self._label = QLabel(self)
-        self._label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
-
-        #TODO: Translate / Retranslate label
-        self._translate_button = self._create_button(_("Translate Selection"), self._on_translate_selection)
-        self._autosplit_batch_button = self._create_button(_("Auto-Split Batch"), self._on_auto_split_batch)
-        self._reparse_button = self._create_button(_("Reparse Translation"), self._on_reparse)
-        self._split_batch_button = self._create_button(_("Split Batch"), self._on_split_batch)
-        self._split_scene_button = self._create_button(_("Split Scene"), self._on_split_scene)
-        self._merge_lines_button = self._create_button(_("Merge Lines"), self._on_merge_selection)
-        self._merge_scenes_button = self._create_button(_("Merge Scenes"), self._on_merge_selection)
-        self._merge_batches_button = self._create_button(_("Merge Batches"), self._on_merge_selection)
-        self._delete_lines_button = self._create_button(_("Delete Lines"), self._on_delete_lines)
-        self._swap_text_button = self._create_button(_("Swap Text"), self._on_swap_text)
-
+        # Build initial UI and seed selection
+        self._rebuild_ui()
         self.ShowSelection(ProjectSelection())
-
-        layout = QHBoxLayout(self)
-        layout.addWidget(self._label)
-        layout.addWidget(self._swap_text_button)
-        layout.addWidget(self._split_scene_button)
-        layout.addWidget(self._autosplit_batch_button)
-        layout.addWidget(self._split_batch_button)
-        layout.addWidget(self._merge_lines_button)
-        layout.addWidget(self._merge_scenes_button)
-        layout.addWidget(self._merge_batches_button)
-        layout.addWidget(self._delete_lines_button)
-        layout.addWidget(self._reparse_button)
-        layout.addWidget(self._translate_button)
-
-        self.setLayout(layout)
 
     def ShowSelection(self, selection : ProjectSelection):
         self.selection = selection
@@ -75,18 +48,8 @@ class SelectionView(QFrame):
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
     def UpdateUiLanguage(self):
-        """Refresh button and label texts after language change."""
-        # Label reflects selection; leave as-is until next selection update
-        self._translate_button.setText(_("Translate Selection"))
-        self._autosplit_batch_button.setText(_("Auto-Split Batch"))
-        self._reparse_button.setText(_("Reparse Translation"))
-        self._split_batch_button.setText(_("Split Batch"))
-        self._split_scene_button.setText(_("Split Scene"))
-        self._merge_lines_button.setText(_("Merge Lines"))
-        self._merge_scenes_button.setText(_("Merge Scenes"))
-        self._merge_batches_button.setText(_("Merge Batches"))
-        self._delete_lines_button.setText(_("Delete Lines"))
-        self._swap_text_button.setText(_("Swap Text"))
+        """Recreate buttons/labels so texts are retranslated"""
+        self._rebuild_ui()
 
     def SetTaskType(self, task_type : str):
         if task_type == DEFAULT_TASK_TYPE:
@@ -101,6 +64,48 @@ class SelectionView(QFrame):
         button.clicked.connect(on_click, Qt.ConnectionType.QueuedConnection)
         return button
 
+    def _rebuild_ui(self):
+        """Create/refresh all widgets and layout using current language."""
+        # Clear existing layout widgets
+        layout = self.layout()
+        if layout is None:
+            layout = QHBoxLayout(self)
+            self.setLayout(layout)
+        else:
+            while layout.count():
+                item = layout.takeAt(0)
+                w = item.widget()
+                if w is not None:
+                    w.setParent(None)
+                    w.deleteLater()
+
+        # Recreate label and buttons with translated text
+        self._label = QLabel(self)
+        self._label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
+
+        self._translate_button = self._create_button(_("Translate Selection"), self._on_translate_selection)
+        self._autosplit_batch_button = self._create_button(_("Auto-Split Batch"), self._on_auto_split_batch)
+        self._reparse_button = self._create_button(_("Reparse Translation"), self._on_reparse)
+        self._split_batch_button = self._create_button(_("Split Batch"), self._on_split_batch)
+        self._split_scene_button = self._create_button(_("Split Scene"), self._on_split_scene)
+        self._merge_lines_button = self._create_button(_("Merge Lines"), self._on_merge_selection)
+        self._merge_scenes_button = self._create_button(_("Merge Scenes"), self._on_merge_selection)
+        self._merge_batches_button = self._create_button(_("Merge Batches"), self._on_merge_selection)
+        self._delete_lines_button = self._create_button(_("Delete Lines"), self._on_delete_lines)
+        self._swap_text_button = self._create_button(_("Swap Text"), self._on_swap_text)
+
+        # Rebuild layout in the desired order
+        layout.addWidget(self._label)
+        layout.addWidget(self._swap_text_button)
+        layout.addWidget(self._split_scene_button)
+        layout.addWidget(self._autosplit_batch_button)
+        layout.addWidget(self._split_batch_button)
+        layout.addWidget(self._merge_lines_button)
+        layout.addWidget(self._merge_scenes_button)
+        layout.addWidget(self._merge_batches_button)
+        layout.addWidget(self._delete_lines_button)
+        layout.addWidget(self._reparse_button)
+        layout.addWidget(self._translate_button)
 
     def _debug_text(self, selection : ProjectSelection):
         dbg = []
