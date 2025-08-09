@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import gettext
 import os
-from typing import Optional
+from typing import Optional, List, Tuple, Dict
 
 from PySubtitle.Helpers.Resources import GetResourcePath
 from PySubtitle.Options import Options
@@ -16,6 +16,13 @@ from PySubtitle.Options import Options
 
 _translator: Optional[gettext.NullTranslations] = None
 _domain = 'gui-subtrans'
+
+# Human-readable locale names mapping
+LOCALE_NAMES: Dict[str, str] = {
+    'en': 'English',
+    'es': 'Español',
+    'cs': 'Čeština',
+}
 
 
 def _get_locale_dir() -> str:
@@ -67,5 +74,72 @@ def tr(context: str, text: str) -> str:
         return _translator.pgettext(context, text)
     # Fallback: ignore context if pgettext not available
     return _(text)
+
+
+def get_available_locales() -> List[str]:
+    """
+    Scan the locales directory and return a list of available locale codes.
+    """
+    locales_dir = _get_locale_dir()
+    languages = []
+    try:
+        for name in os.listdir(locales_dir):
+            path = os.path.join(locales_dir, name, 'LC_MESSAGES')
+            if os.path.isdir(path):
+                # Check if there's actually a .po or .mo file in this locale
+                po_file = os.path.join(path, f'{_domain}.po')
+                mo_file = os.path.join(path, f'{_domain}.mo')
+                if os.path.exists(po_file) or os.path.exists(mo_file):
+                    languages.append(name)
+    except Exception:
+        # Fallback to known locales if scanning fails
+        languages = ['en', 'es']
+    
+    return sorted(set(languages)) or ['en']
+
+
+def get_locale_display_name(locale_code: str) -> str:
+    """
+    Get the human-readable display name for a locale code.
+    Falls back to the locale code if no display name is defined.
+    """
+    return LOCALE_NAMES.get(locale_code, locale_code)
+
+
+def get_locales_with_names() -> List[Tuple[str, str]]:
+    """
+    Get a list of (locale_code, display_name) tuples for all available locales.
+    """
+    locale_codes = get_available_locales()
+    return [(code, get_locale_display_name(code)) for code in locale_codes]
+
+
+class LocaleDisplayItem:
+    """
+    A simple class to represent a locale with both code and display name.
+    This enables the existing dropdown system to show display names while returning codes.
+    """
+    def __init__(self, code: str, display_name: str):
+        self.code = code
+        self.display_name = display_name
+        self.name = display_name  # For GetValueName() compatibility
+    
+    def __str__(self):
+        return self.code
+    
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.code == other
+        elif isinstance(other, LocaleDisplayItem):
+            return self.code == other.code
+        return False
+
+
+def get_locale_display_items() -> List[LocaleDisplayItem]:
+    """
+    Get a list of LocaleDisplayItem objects for use in dropdowns.
+    """
+    locales_with_names = get_locales_with_names()
+    return [LocaleDisplayItem(code, name) for code, name in locales_with_names]
 
 

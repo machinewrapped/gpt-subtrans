@@ -1,0 +1,79 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: GPT-SubTrans\n"
+"POT-Creation-Date: 2025-08-09 17:30+0000\n"
+"PO-Revision-Date: 2025-08-09 21:00+0000\n"
+"Last-Translator: AI Assistant\n"
+"Language-Team: Czech\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
+msgid "1 line"
+msgstr "1 řádek"
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:61
+msgid ""
+"A DeepSeek API key is required to use this provider (https://platform."
+"deepseek.com/api_keys)"
+msgstr ""
+"Pro použití tohoto poskytovatele je vyžadován DeepSeek API klíč (https://platform."
+"deepseek.com/api_keys)"
+
+#: PySubtitle/Providers/Provider_Gemini.py:62
+msgid ""
+"A Google Gemini API key is required to use this provider (https://makersuite."
+"google.com/app/apikey)"
+msgstr ""
+"Pro použití tohoto poskytovatele je vyžadován Google Gemini API klíč (https://makersuite."
+"google.com/app/apikey)"
+
+#: PySubtitle/Providers/Provider_Mistral.py:61
+msgid ""
+"A Mistral API key is required to use this provider (https://console.mistral."
+"ai/api-keys/)"
+msgstr ""
+"Pro použití tohoto poskytovatele je vyžadován Mistral API klíč (https://console.mistral."
+"ai/api-keys/)"
+
+#: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_OpenAI.py:98
+msgid "AI model to use as the translator"
+msgstr "AI model pro použití jako překladač"
+
+#: GUI/Commands/TranslateSceneCommand.py:64
+msgid "Aborted translation of scene {scene}"
+msgstr "Překlad scény {scene} byl přerušen"
+
+#: GUI/AboutDialog.py:16
+msgid "About GUI-Subtrans"
+msgstr "O GUI-Subtrans"
+
+#: GUI/Widgets/ProjectSettings.py:112
+msgid "Add RTL Markers"
+msgstr "Přidat RTL značky"
+
+#: GUI/SettingsDialog.py:111
+msgid "GUI-Subtrans Settings"
+msgstr "Nastavení GUI-Subtrans"
+
+#: GUI/FirstRunOptions.py:26
+msgid "First Run Options"
+msgstr "Možnosti prvního spuštění"
+
+#: GUI/FirstRunOptions.py:18
+msgid "The language of the application interface"
+msgstr "Jazyk uživatelského rozhraní aplikace"
+
+#: GUI/FirstRunOptions.py:19
+msgid "Default language to translate the subtitles to"
+msgstr "Výchozí jazyk pro překlad titulků"
+
+#: GUI/FirstRunOptions.py:20
+msgid "The translation provider to use"
+msgstr "Poskytovatel překladu k použití"
+
+#: GUI/FirstRunOptions.py:21
+msgid "Customise the appearance of gui-subtrans"
+msgstr "Přizpůsobení vzhledu gui-subtrans"
