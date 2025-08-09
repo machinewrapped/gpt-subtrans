@@ -147,5 +147,8 @@ class ModelView(QWidget):
             if self.content_view:
                 self.content_view.UpdateUiLanguage()
 
+            if self.project_settings:
+                self.project_settings.UpdateUiLanguage()
+
         except Exception:
             pass

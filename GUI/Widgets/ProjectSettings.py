@@ -82,6 +82,14 @@ class ProjectSettings(QGroupBox):
 
         self.show()
 
+    def UpdateUiLanguage(self):
+        self.setTitle(_("Project Settings"))
+        if self.datamodel is not None:
+            try:
+                self.BuildForm(self.settings)
+            except Exception as e:
+                logging.error(f"Error updating UI language in ProjectSettings: {e}")
+
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
         self.current_provider = datamodel.provider
