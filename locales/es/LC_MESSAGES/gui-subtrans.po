@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-09 16:49+0000\n"
+"POT-Creation-Date: 2025-08-09 17:30+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -14,7 +14,25 @@ msgstr ""
 msgid "1 line"
 msgstr "1 línea"
 
-#: GUI/NewProjectSettings.py:29
+#: PySubtitle/Providers/Provider_DeepSeek.py:61
+msgid ""
+"A DeepSeek API key is required to use this provider (https://platform."
+"deepseek.com/api_keys)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Gemini.py:62
+msgid ""
+"A Google Gemini API key is required to use this provider (https://makersuite."
+"google.com/app/apikey)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Mistral.py:61
+msgid ""
+"A Mistral API key is required to use this provider (https://console.mistral."
+"ai/api-keys/)"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_OpenAI.py:98
 msgid "AI model to use as the translator"
 msgstr "Modelo de IA a usar como traductor"
 
@@ -54,6 +72,31 @@ msgstr "Todos los lotes traducidos"
 
 #: GUI/Commands/StartTranslationCommand.py:29
 msgid "All scenes are fully translated"
+msgstr "Todas las escenas están completamente traducidas"
+
+#: PySubtitle/Providers/Provider_Custom.py:105
+msgid "Alternative to max_tokens for some servers"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:72
+#: PySubtitle/Providers/Provider_Gemini.py:71
+#: PySubtitle/Providers/Provider_Mistral.py:70
+#: PySubtitle/Providers/Provider_OpenAI.py:108
+msgid ""
+"Amount of random variance to add to translations. Generally speaking, none "
+"is best"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:107
+msgid "An API key is normally not needed for a local server"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:73
+msgid "An AWS access key is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:74
+msgid "An AWS secret access key is required"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:96
@@ -62,13 +105,35 @@ msgid ""
 "console.anthropic.com/settings/keys)"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Azure.py:65
+msgid "An Azure API deployment name is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:63
+msgid "An Azure API key is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:64
+msgid "An Azure API version is required"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:87
+msgid ""
+"An OpenAI API key is required to use this provider (https://platform.openai."
+"com/account/api-keys)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:96
+msgid "Attempt to communicate with the endpoint using chat format"
+msgstr ""
+
 #: GUI/Widgets/SelectionView.py:31
 msgid "Auto-Split Batch"
 msgstr "Dividir lote automáticamente"
 
 #: GUI/Commands/AutoSplitBatchCommand.py:18
 msgid "Auto-splitting batch {scene} batch {batch}"
-msgstr ""
+msgstr "Dividiendo automáticamente el lote {scene} lote {batch}"
 
 #: GUI/SettingsDialog.py:37
 msgid "Automatically save the project after each translation batch"
@@ -112,24 +177,24 @@ msgstr "Cancelar"
 
 #: GUI/ProjectActions.py:329
 msgid "Cannot delete scenes or batches yet"
-msgstr ""
+msgstr "Aún no se pueden eliminar escenas o lotes"
 
 #: GUI/Commands/AutoSplitBatchCommand.py:28
 #: GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
 msgid "Cannot find scene {scene} batch {batch}"
-msgstr ""
+msgstr "No se puede encontrar la escena {scene} lote {batch}"
 
 #: GUI/Commands/MergeScenesCommand.py:24
 msgid "Cannot merge less than two scenes"
-msgstr ""
+msgstr "No se pueden fusionar menos de dos escenas"
 
 #: GUI/Commands/MergeLinesCommand.py:39
 msgid "Cannot merge lines, some lines are missing"
-msgstr ""
+msgstr "No se pueden fusionar líneas, faltan algunas líneas"
 
 #: GUI/ProjectActions.py:302
 msgid "Cannot merge non-sequential elements"
-msgstr ""
+msgstr "No se pueden fusionar elementos no secuenciales"
 
 #: GUI/ProjectActions.py:111
 msgid "Cannot redo the last command"
@@ -137,23 +202,33 @@ msgstr "No se puede rehacer la última acción"
 
 #: GUI/Commands/SplitSceneCommand.py:24
 msgid "Cannot split scene {scene} because it doesn't exist"
-msgstr ""
+msgstr "No se puede dividir la escena {scene} porque no existe"
 
 #: GUI/Commands/MergeScenesCommand.py:48
 msgid "Cannot undo merge, scene sizes were not saved"
-msgstr ""
+msgstr "No se puede deshacer la fusión, los tamaños de escena no se guardaron"
 
 #: GUI/Commands/MergeLinesCommand.py:68
 msgid "Cannot undo merge, undo data was not saved"
-msgstr ""
+msgstr "No se puede deshacer la fusión, los datos de deshacer no se guardaron"
 
 #: GUI/ProjectActions.py:92
 msgid "Cannot undo the last command"
 msgstr "No se puede deshacer la última acción"
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:77
+#: PySubtitle/Providers/Provider_Mistral.py:75
+#: PySubtitle/Providers/Provider_OpenAI.py:111
+msgid "Check API key and base URL and try again"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Gemini.py:76
+msgid "Check API key is authorized and try again"
+msgstr ""
+
 #: GUI/GUICommands.py:43
 msgid "CheckProviderSettings: {error}"
-msgstr ""
+msgstr "VerificarConfiguraciónProveedor: {error}"
 
 #: GUI/SettingsDialog.py:64
 msgid "Comma-separated list of filler_words to remove"
@@ -230,24 +305,26 @@ msgstr "Editar instrucciones"
 
 #: GUI/Commands/EditBatchCommand.py:26 GUI/Commands/EditLineCommand.py:29
 msgid "Edit data must be a dictionary"
-msgstr ""
+msgstr "Los datos de edición deben ser un diccionario"
 
 #: GUI/Commands/EditBatchCommand.py:19
 msgid "Editing batch ({scene},{batch})"
-msgstr ""
+msgstr "Editando lote ({scene},{batch})"
 
 #: GUI/Commands/EditLineCommand.py:22
 msgid "Editing line {line}"
-msgstr ""
+msgstr "Editando línea {line}"
 
 #: PySubtitle/Providers/Provider_Claude.py:109
 msgid "Enable thinking mode for translations"
-msgstr ""
+msgstr "Habilitar modo de pensamiento para traducciones"
 
 #: GUI/SettingsDialog.py:56
 msgid "Ensure dialog markers match in multi-line subtitles"
-msgstr "Asegurar que las marcas de diálogo coincidan en subtítulos de varias líneas"
+msgstr ""
 "Asegurar que las marcas de diálogo coincidan en subtítulos de varias "
+"líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias "
+"líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias "
 "líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias "
 "líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias "
 "líneas"
@@ -266,7 +343,7 @@ msgstr "Error al rehacer la última acción: {error}"
 
 #: GUI/Commands/ReparseTranslationsCommand.py:60
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
-msgstr ""
+msgstr "Error al reanalizar la escena {scene} lote {batch}: {error}"
 
 #: GUI/Commands/TranslateSceneCommand.py:69
 #: GUI/Commands/TranslateSceneCommand.py:73
@@ -295,19 +372,19 @@ msgstr "Ejecutando carga de archivo {file}"
 
 #: GUI/GUICommands.py:18
 msgid "Exiting Program"
-msgstr ""
+msgstr "Saliendo del programa"
 
 #: GUI/ViewModel/BatchItem.py:120
 msgid "Expected a dictionary, got a {type}"
-msgstr ""
+msgstr "Se esperaba un diccionario, se obtuvo un {type}"
 
 #: GUI/ViewModel/ViewModel.py:309 GUI/ViewModel/ViewModel.py:386
 msgid "Expected a patch dictionary"
-msgstr ""
+msgstr "Se esperaba un diccionario de parches"
 
 #: GUI/Commands/MergeLinesCommand.py:48
 msgid "Failed to merge lines"
-msgstr ""
+msgstr "Fallo al fusionar líneas"
 
 #: GUI/NewProjectSettings.py:31
 msgid "Fewest lines to send in separate batch"
@@ -362,6 +439,12 @@ msgstr "Mostrar/Ocultar opciones del proyecto"
 msgid "High-level instructions for the translator"
 msgstr "Instrucciones de alto nivel para el traductor"
 
+#: PySubtitle/Providers/Provider_Custom.py:103
+msgid ""
+"Higher temperature introduces more randomness to the translation (default "
+"0.0)"
+msgstr ""
+
 #: GUI/SettingsDialog.py:40
 msgid ""
 "If true, translations that fail validation will be retried with a note about "
@@ -384,13 +467,18 @@ msgstr "Incluir el texto original en los subtítulos traducidos"
 msgid "Instructions for the translation provider to follow"
 msgstr "Instrucciones que debe seguir el proveedor de traducción"
 
+#: PySubtitle/Providers/Provider_Custom.py:99
+msgid ""
+"Instructions will be sent as system messages rather than the user prompt"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:113
 msgid "Instructions: {text}"
 msgstr "Instrucciones: {text}"
 
 #: GUI/GUICommands.py:35
 msgid "Invalid translation provider"
-msgstr ""
+msgstr "Proveedor de traducción no válido"
 
 #: GUI/NewProjectSettings.py:27
 msgid "Language to translate the subtitles to"
@@ -408,19 +496,19 @@ msgstr ""
 
 #: GUI/ViewModel/BatchItem.py:162
 msgid "Line item {row} has no line number"
-msgstr ""
+msgstr "El elemento de línea {row} no tiene número de línea"
 
 #: GUI/Commands/EditLineCommand.py:34 GUI/Commands/EditLineCommand.py:83
 msgid "Line {line} not found in any batch"
-msgstr ""
+msgstr "Línea {line} no encontrada en ningún lote"
 
 #: GUI/Commands/EditLineCommand.py:38 GUI/Commands/EditLineCommand.py:87
 msgid "Line {line} not found in batch ({scene},{batch})"
-msgstr ""
+msgstr "Línea {line} no encontrada en el lote ({scene},{batch})"
 
 #: GUI/Widgets/Editors.py:158
 msgid "Line {line}: {start} --> {end}"
-msgstr ""
+msgstr "Línea {line}: {start} --> {end}"
 
 #: GUI/ViewModel/BatchItem.py:204 GUI/ViewModel/SceneItem.py:141
 msgid "Lines {first}-{last} ({start} -> {end})"
@@ -448,6 +536,18 @@ msgstr "Barra de herramientas principal"
 msgid "Max batch size is less than min batch size"
 msgstr "El tamaño máximo de lote es menor que el mínimo"
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:73
+#: PySubtitle/Providers/Provider_Gemini.py:72
+#: PySubtitle/Providers/Provider_Mistral.py:71
+msgid "Maximum API requests per minute."
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:99
+msgid ""
+"Maximum OpenAI API requests per minute. Mainly useful if you are on the "
+"restricted free plan"
+msgstr ""
+
 #: GUI/SettingsDialog.py:51
 msgid "Maximum duration of a single line of subtitles"
 msgstr "Duración máxima de una línea de subtítulos"
@@ -461,9 +561,19 @@ msgid ""
 "Maximum length of the context summary to include with each translation batch"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:71
+msgid "Maximum number of output tokens to return in the response."
+msgstr ""
+
 #: GUI/SettingsDialog.py:67
 msgid "Maximum number of simultaneous translation threads for fast translation"
 msgstr "Número máximo de hilos simultáneos para traducción rápida"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:103
+msgid ""
+"Maximum tokens a completion can contain (only applicable for -instruct "
+"models)"
+msgstr ""
 
 #: GUI/Widgets/SelectionView.py:37
 msgid "Merge Batches"
@@ -523,7 +633,7 @@ msgstr "Nombres"
 
 #: GUI/Commands/MergeLinesCommand.py:28
 msgid "No batches found for lines to merge"
-msgstr ""
+msgstr "No se encontraron lotes para fusionar líneas"
 
 #: GUI/Commands/DeleteLinesCommand.py:53
 msgid "No deletions to undo"
@@ -535,7 +645,7 @@ msgstr "No se especificó una ruta de archivo"
 
 #: GUI/Commands/DeleteLinesCommand.py:22
 msgid "No lines selected to delete"
-msgstr ""
+msgstr "No se seleccionaron líneas para eliminar"
 
 #: GUI/Commands/DeleteLinesCommand.py:34
 msgid "No lines were deleted"
@@ -564,11 +674,11 @@ msgstr "No estoy seguro de qué acabas de hacer doble clic"
 
 #: GUI/ProjectActions.py:326
 msgid "Nothing selected to delete"
-msgstr ""
+msgstr "Nada seleccionado para eliminar"
 
 #: GUI/ProjectActions.py:299
 msgid "Nothing selected to merge"
-msgstr ""
+msgstr "Nada seleccionado para fusionar"
 
 #: GUI/ProjectActions.py:250
 msgid "Nothing selected to reparse"
@@ -588,7 +698,7 @@ msgstr "¡Nada que guardar!"
 
 #: GUI/Commands/StartTranslationCommand.py:23
 msgid "Nothing to translate"
-msgstr ""
+msgstr "Nada que traducir"
 
 #: GUI/MainToolbar.py:165
 msgid "Nothing to undo"
@@ -690,7 +800,7 @@ msgstr "Error del proveedor: {error}"
 
 #: GUI/GUICommands.py:39
 msgid "Provider {provider} needs configuring: {message}"
-msgstr ""
+msgstr "El proveedor {provider} necesita configuración: {message}"
 
 #: GUI/MainWindow.py:64
 msgid "Ready."
@@ -727,6 +837,12 @@ msgstr "Restaurando líneas eliminadas"
 #: GUI/Commands/StartTranslationCommand.py:32
 msgid "Resuming"
 msgstr "Reanudando"
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:70
+msgid ""
+"Reuse connection for multiple requests (otherwise a new connection is "
+"established for each)"
+msgstr ""
 
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
 msgid "Save Instructions"
@@ -855,6 +971,36 @@ msgstr ""
 msgid "The AI translation service to use"
 msgstr "El servicio de traducción de IA a utilizar"
 
+#: PySubtitle/Providers/Provider_Custom.py:92
+msgid "The API function to call on the server"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:79
+msgid "The AWS region to use for requests must be specified."
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:66
+msgid "The Azure API base URL to use for requests."
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:91
+msgid "The address of the local server"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:62
+msgid "The base URL to use for requests (default is https://api.deepseek.com)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Mistral.py:62
+msgid "The base URL to use for requests (default is https://api.mistral.ai)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:88
+msgid ""
+"The base URL to use for requests - leave as default unless you know you need "
+"something else"
+msgstr ""
+
 #: GUI/SettingsDialog.py:30
 msgid "The default language to translate the subtitles to"
 msgstr "El idioma predeterminado al que traducir los subtítulos"
@@ -867,29 +1013,57 @@ msgstr "El idioma de la interfaz de la aplicación"
 msgid "The language of the application interface (requires restart)"
 msgstr "El idioma de la interfaz de la aplicación (requiere reinicio)"
 
+#: PySubtitle/Providers/Provider_OpenAI.py:106
+msgid "The level of reasoning effort to use for the model"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:88
+msgid "The maximum number of requests to make per minute"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:104
+msgid ""
+"The maximum number of tokens the AI should generate in the response (0 for "
+"unlimited)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:87
+msgid "The maximum number of tokens to generate in a single request"
+msgstr ""
+
 #: PySubtitle/Providers/Provider_Claude.py:113
 msgid "The maximum number of tokens to use for thinking"
-msgstr ""
+msgstr "El número máximo de tokens a usar para pensar"
 
 #: PySubtitle/Providers/Provider_Claude.py:108
 msgid "The maximum number of tokens to use for translations"
+msgstr "El número máximo de tokens a usar para traducciones"
+
+#: PySubtitle/Providers/Provider_Custom.py:108
+msgid ""
+"The model is normally set by the server, and should not need to be specified "
+"here"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:105
 msgid "The model to use for translations"
-msgstr ""
+msgstr "El modelo a usar para traducciones"
 
 #: PySubtitle/Providers/Provider_Claude.py:107
 msgid "The rate limit to use for translations (default 60.0)"
-msgstr ""
+msgstr "El límite de velocidad a usar para traducciones (por defecto 60.0)"
 
 #: PySubtitle/Providers/Provider_Claude.py:106
 msgid "The temperature to use for translations (default 0.0)"
-msgstr ""
+msgstr "La temperatura a usar para traducciones (por defecto 0.0)"
 
 #: GUI/FirstRunOptions.py:20
 msgid "The translation provider to use"
 msgstr "El proveedor de traducción a utilizar"
+
+#: PySubtitle/Providers/Provider_Custom.py:106
+msgid "Timeout for the request in seconds (default 300)"
+msgstr ""
 
 #: GUI/Widgets/MenuBar.py:14
 msgid "Tools"
@@ -910,6 +1084,8 @@ msgstr "Traduciendo la escena número {scene} lote {batches}"
 #: GUI/GuiInterface.py:170
 msgid "Translation provider settings are not valid. Please check the settings."
 msgstr ""
+"La configuración del proveedor de traducción no es válida. Por favor, revise "
+"la configuración."
 
 #: GUI/EditInstructionsDialog.py:31
 msgid "Type of response expected for each line (must match the example format)"
@@ -928,7 +1104,7 @@ msgstr "No se puede crear el proveedor {provider}: {error}"
 
 #: GUI/Commands/EditBatchCommand.py:23 GUI/Commands/EditLineCommand.py:26
 msgid "Unable to edit batch because datamodel is invalid"
-msgstr ""
+msgstr "No se puede editar el lote porque el modelo de datos no es válido"
 
 #: GUI/NewProjectSettings.py:116 GUI/NewProjectSettings.py:161
 msgid "Unable to load instructions from {file}: {error}"
@@ -954,11 +1130,18 @@ msgstr "No se pueden previsualizar los lotes: {error}"
 msgid "Unable to reparse batches because project is not set"
 msgstr "No se pueden reanalizar lotes porque no se ha establecido el proyecto"
 
+#: PySubtitle/Providers/Provider_OpenAI.py:98
+#: PySubtitle/Providers/Provider_OpenAI.py:111
+msgid "Unable to retrieve models"
+msgstr ""
+
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
-msgstr "No se puede traducir la escena porque el proyecto no está establecido en el modelo de datos"
+msgstr ""
 "No se puede traducir la escena porque el proyecto no está establecido en el "
-"modelo de datos"
+"modelo de datosNo se puede traducir la escena porque el proyecto no está "
+"establecido en el modelo de datosNo se puede traducir la escena porque el "
+"proyecto no está establecido en el modelo de datos"
 
 #: GUI/Commands/SplitBatchCommand.py:82
 msgid "Unable to undo SplitBatchCommand command: {error}"
@@ -978,22 +1161,34 @@ msgstr "Deshacer {command}"
 
 #: GUI/Commands/EditBatchCommand.py:44
 msgid "Undoing edit batch ({scene},{batch})"
-msgstr ""
+msgstr "Deshaciendo edición de lote ({scene},{batch})"
 
 #: GUI/Commands/EditLineCommand.py:76
 msgid "Undoing edit line {line}"
-msgstr ""
+msgstr "Deshaciendo edición de línea {line}"
 
 #: GUI/ProjectActions.py:283
 msgid "Updating line {line} with {original} > {translated}"
-msgstr ""
+msgstr "Actualizando línea {line} con {original} > {translated}"
 
 #: GUI/ProjectActions.py:273
 msgid "Updating scene {scene} batch {batch} with {update}"
-msgstr ""
+msgstr "Actualizando escena {scene} lote {batch} con {update}"
 
 #: GUI/ProjectActions.py:263
 msgid "Updating scene {scene} with {update}"
+msgstr "Actualizando escena {scene} con {update}"
+
+#: PySubtitle/Providers/Provider_Custom.py:109
+msgid ""
+"Use parallel threads for translation requests (may be faster but may not "
+"work with the server)"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:92
+msgid ""
+"Use the httpx library for requests. May help if you receive a 307 redirect "
+"error with a custom api_base"
 msgstr ""
 
 #: GUI/ViewModel/BatchItem.py:247
@@ -1020,17 +1215,17 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 msgid "access_key"
-msgstr ""
+msgstr "Clave De Acceso"
 
 #: PySubtitle/Options.py:33
 msgid "add_right_to_left_markers"
-msgstr ""
+msgstr "Añadir Marcadores De Derecha A Izquierda"
 
 #: PySubtitle/Providers/Provider_Azure.py:0
 #: PySubtitle/Providers/Provider_DeepSeek.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_base"
-msgstr ""
+msgstr "Base Api"
 
 #: PySubtitle/Providers/Provider_Azure.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
@@ -1040,150 +1235,150 @@ msgstr ""
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_key"
-msgstr ""
+msgstr "Clave Api"
 
 #: PySubtitle/Providers/Provider_Azure.py:0
 msgid "api_version"
-msgstr ""
+msgstr "Versión Api"
 
 #: PySubtitle/Options.py:66
 msgid "autosave"
-msgstr ""
+msgstr "Guardado Automático"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 msgid "aws_region"
-msgstr ""
+msgstr "Región Aws"
 
 #: PySubtitle/Options.py:64
 msgid "backoff_time"
-msgstr ""
+msgstr "Tiempo De Espera"
 
 #: PySubtitle/Options.py:46
 msgid "break_dialog_on_one_line"
-msgstr ""
+msgstr "Romper Diálogo En Una Línea"
 
 #: PySubtitle/Options.py:45
 msgid "break_long_lines"
-msgstr ""
+msgstr "Romper Líneas Largas"
 
 #: PySubtitle/Options.py:57
 msgid "convert_wide_dashes"
-msgstr ""
+msgstr "Convertir Guiones Largos"
 
 #: PySubtitle/Providers/Provider_Azure.py:0
 msgid "deployment_name"
-msgstr ""
+msgstr "Nombre Despliegue"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "endpoint"
-msgstr ""
+msgstr "Punto Final"
 
 #: PySubtitle/Options.py:53
 msgid "filler_words"
-msgstr ""
+msgstr "Palabras De Relleno"
 
 #: PySubtitle/Options.py:72
 msgid "firstrun"
-msgstr ""
+msgstr "Primera Ejecución"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "free_plan"
-msgstr ""
+msgstr "Plan Gratuito"
 
 #: PySubtitle/Options.py:56
 msgid "full_width_punctuation"
-msgstr ""
+msgstr "Puntuación Ancho Completo"
 
 #: PySubtitle/Options.py:32
 msgid "include_original"
-msgstr ""
+msgstr "Incluir Original"
 
 #: PySubtitle/Options.py:30
 msgid "instruction_file"
-msgstr ""
+msgstr "Archivo Instrucciones"
 
 #: PySubtitle/Options.py:67
 msgid "last_used_path"
-msgstr ""
+msgstr "Última Ruta Usada"
 
 #: PySubtitle/Options.py:36
 msgid "max_batch_size"
-msgstr ""
+msgstr "Tamaño Máximo Lote"
 
 #: PySubtitle/Options.py:38
 msgid "max_characters"
-msgstr ""
+msgstr "Máximo Caracteres"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "max_completion_tokens"
-msgstr ""
+msgstr "Máximo Tokens Completados"
 
 #: PySubtitle/Options.py:37
 msgid "max_context_summaries"
-msgstr ""
+msgstr "Máximo Resúmenes Contexto"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "max_instruct_tokens"
-msgstr ""
+msgstr "Máximo Tokens Instrucción"
 
 #: PySubtitle/Options.py:47
 msgid "max_line_duration"
-msgstr ""
+msgstr "Duración Máxima Línea"
 
 #: PySubtitle/Options.py:60
 msgid "max_lines"
-msgstr ""
+msgstr "Máximo Líneas"
 
 #: PySubtitle/Options.py:39
 msgid "max_newlines"
-msgstr ""
+msgstr "Máximo Saltos Línea"
 
 #: PySubtitle/Options.py:62
 msgid "max_retries"
-msgstr ""
+msgstr "Máximo Reintentos"
 
 #: PySubtitle/Options.py:40
 msgid "max_single_line_length"
-msgstr ""
+msgstr "Longitud Máxima Línea Única"
 
 #: PySubtitle/Options.py:63
 msgid "max_summary_length"
-msgstr ""
+msgstr "Longitud Máxima Resumen"
 
 #: PySubtitle/Providers/Provider_Claude.py:0
 msgid "max_thinking_tokens"
-msgstr ""
+msgstr "Máximo Tokens Pensamiento"
 
 #: PySubtitle/Options.py:61
 msgid "max_threads"
-msgstr ""
+msgstr "Máximo Hilos"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
 #: PySubtitle/Providers/Provider_Custom.py:0
 #: PySubtitle/Providers/Provider_DeepSeek.py:0
 msgid "max_tokens"
-msgstr ""
+msgstr "Máximo Tokens"
 
 #: PySubtitle/Options.py:49
 msgid "merge_line_duration"
-msgstr ""
+msgstr "Duración Fusión Línea"
 
 #: PySubtitle/Options.py:35
 msgid "min_batch_size"
-msgstr ""
+msgstr "Tamaño Mínimo Lote"
 
 #: PySubtitle/Options.py:48
 msgid "min_line_duration"
-msgstr ""
+msgstr "Duración Mínima Línea"
 
 #: PySubtitle/Options.py:41
 msgid "min_single_line_length"
-msgstr ""
+msgstr "Longitud Mínima Línea Única"
 
 #: PySubtitle/Options.py:50
 msgid "min_split_chars"
-msgstr ""
+msgstr "Mínimo Caracteres División"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
@@ -1193,7 +1388,7 @@ msgstr ""
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "model"
-msgstr ""
+msgstr "Modelo"
 
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "multithreaded"
@@ -1201,39 +1396,39 @@ msgstr "multihilo"
 
 #: PySubtitle/Options.py:51
 msgid "normalise_dialog_tags"
-msgstr ""
+msgstr "Normalizar Etiquetas Diálogo"
 
 #: PySubtitle/Options.py:42
 msgid "postprocess_translation"
-msgstr ""
+msgstr "Postprocesar Traducción"
 
 #: PySubtitle/Options.py:43
 msgid "preprocess_subtitles"
-msgstr ""
+msgstr "Preprocesar Subtítulos"
 
 #: PySubtitle/Options.py:65
 msgid "project"
-msgstr ""
+msgstr "Proyecto"
 
 #: PySubtitle/Options.py:29
 msgid "prompt"
-msgstr ""
+msgstr "Solicitud"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "prompt_template"
-msgstr ""
+msgstr "Plantilla Solicitud"
 
 #: PySubtitle/Options.py:27
 msgid "provider"
-msgstr ""
+msgstr "Proveedor"
 
 #: PySubtitle/Options.py:28
 msgid "provider_settings"
-msgstr ""
+msgstr "Configuración Proveedor"
 
 #: PySubtitle/Providers/Provider_Claude.py:0
 msgid "proxy"
-msgstr ""
+msgstr "Proxy"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
@@ -1242,43 +1437,43 @@ msgstr ""
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "rate_limit"
-msgstr ""
+msgstr "Límite Tasa"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "reasoning_effort"
-msgstr ""
+msgstr "Esfuerzo Razonamiento"
 
 #: PySubtitle/Options.py:52
 msgid "remove_filler_words"
-msgstr ""
+msgstr "Eliminar Palabras De Relleno"
 
 #: PySubtitle/Options.py:58
 msgid "retry_on_error"
-msgstr ""
+msgstr "Reintentar En Error"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:0
 msgid "reuse_client"
-msgstr ""
+msgstr "Reutilizar Cliente"
 
 #: PySubtitle/Options.py:44
 msgid "save_preprocessed_subtitles"
-msgstr ""
+msgstr "Guardar Subtítulos Preprocesados"
 
 #: PySubtitle/Options.py:34
 msgid "scene_threshold"
-msgstr ""
+msgstr "Umbral Escena"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 msgid "secret_access_key"
-msgstr ""
+msgstr "Clave Secreta Acceso"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "server_address"
-msgstr ""
+msgstr "Dirección Servidor"
 
 #: PySubtitle/Providers/Provider_Mistral.py:0
 msgid "server_url"
-msgstr ""
+msgstr "Url Servidor"
 
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "single threaded"
@@ -1286,27 +1481,27 @@ msgstr "de un solo hilo"
 
 #: PySubtitle/Options.py:68
 msgid "stop_on_error"
-msgstr ""
+msgstr "Detener En Error"
 
 #: PySubtitle/Options.py:54
 msgid "substitution_mode"
-msgstr ""
+msgstr "Modo Sustitución"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "supports_conversation"
-msgstr ""
+msgstr "Soporta Conversación"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "supports_parallel_threads"
-msgstr ""
+msgstr "Soporta Hilos Paralelos"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "supports_system_messages"
-msgstr ""
+msgstr "Soporta Mensajes Sistema"
 
 #: PySubtitle/Options.py:31
 msgid "target_language"
-msgstr ""
+msgstr "Idioma Destino"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
@@ -1316,39 +1511,39 @@ msgstr ""
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "temperature"
-msgstr ""
+msgstr "Temperatura"
 
 #: PySubtitle/Options.py:70
 msgid "theme"
-msgstr ""
+msgstr "Tema"
 
 #: PySubtitle/Providers/Provider_Claude.py:0
 msgid "thinking"
-msgstr ""
+msgstr "Pensando"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
 msgid "timeout"
-msgstr ""
+msgstr "Tiempo De Espera"
 
 #: PySubtitle/Options.py:71
 msgid "ui_language"
-msgstr ""
+msgstr "Idioma Interfaz"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "use_httpx"
-msgstr ""
+msgstr "Usar Httpx"
 
 #: PySubtitle/Options.py:26
 msgid "version"
-msgstr ""
+msgstr "Versión"
 
 #: PySubtitle/Options.py:55
 msgid "whitespaces_to_newline"
-msgstr ""
+msgstr "Espacios A Salto De Línea"
 
 #: PySubtitle/Options.py:69
 msgid "write_backup"
-msgstr ""
+msgstr "Escribir Copia Seguridad"
 
 #: GUI/MainWindow.py:138
 msgid "{command} aborted."
@@ -1408,7 +1603,7 @@ msgstr "{num} órdenes en cola."
 
 #: GUI/Commands/StartTranslationCommand.py:34
 msgid "{starting} {threaded} translation"
-msgstr ""
+msgstr "{starting} traducción {threaded}"
 
 #~ msgid "Advanced"
 #~ msgstr "Avanzado"
