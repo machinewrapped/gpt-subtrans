@@ -27,7 +27,7 @@ from PySubtitle.SubtitleError import ProviderConfigurationError
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__
-from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Localization import _, set_language
 
 class GuiInterface(QObject):
     """
@@ -35,6 +35,7 @@ class GuiInterface(QObject):
     """
     dataModelChanged = Signal(object)
     settingsChanged = Signal(dict)
+    uiLanguageChanged = Signal(str)
     commandAdded = Signal(object)
     commandStarted = Signal(object)
     commandComplete = Signal(object)
@@ -169,10 +170,24 @@ class GuiInterface(QObject):
         if not self.datamodel.ValidateProviderSettings():
             logging.warning(_("Translation provider settings are not valid. Please check the settings."))
 
+        # If UI language changed, reinitialize i18n and refresh visible UI
+        if 'ui_language' in updated_settings:
+            self.UpdateUiLanguage(updated_settings['ui_language'])
+
         self.settingsChanged.emit(updated_settings)
 
         if 'theme' in updated_settings:
             LoadStylesheet(self.global_options.theme)
+
+    def UpdateUiLanguage(self, language_code: str):
+        """Apply a new UI language at runtime and refresh visible UI elements."""
+        try:
+            set_language(language_code)
+
+            self.uiLanguageChanged.emit(language_code)
+
+        except Exception as e:
+            logging.warning(f"Failed to switch language - restart the application: {e}")
 
     def UpdateProjectSettings(self, settings : dict):
         """

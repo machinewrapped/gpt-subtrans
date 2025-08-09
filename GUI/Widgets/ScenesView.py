@@ -149,3 +149,5 @@ class ScenesView(QTreeView):
 
         return False
 
+    def UpdateUiLanguage(self):
+        self.Populate(self.viewmodel)

@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QToolBar, QStyle, QApplication
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QIcon
 
 from GUI.CommandQueue import CommandQueue
@@ -26,6 +27,9 @@ class MainToolbar(QToolBar):
 
         self.gui = gui_interface
 
+        # Subscribe to UI language changes
+        self.gui.uiLanguageChanged.connect(self.UpdateUiLanguage, Qt.ConnectionType.QueuedConnection)
+
         self.DefineActions()
         self.AddActionGroups()
 
@@ -37,6 +41,16 @@ class MainToolbar(QToolBar):
         """
         self.UpdateBusyStatus()
         self.UpdateTooltips()
+
+    def UpdateUiLanguage(self):
+        """Recreate actions/labels after language change."""
+        # Remove existing actions and rebuild with translated labels
+        for action in list(self.actions()):
+            self.removeAction(action)
+        self.clear()
+        self.DefineActions()
+        self.AddActionGroups()
+        self.UpdateToolbar()
 
     def GetAction(self, name : str) -> QAction:
         return self._actions[name]

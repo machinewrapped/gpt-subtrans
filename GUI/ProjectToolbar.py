@@ -20,6 +20,13 @@ class ProjectToolbar(QToolBar):
         self._toggle_options_btn.triggered.connect(self._toggle_settings)
         self.addAction(self._toggle_options_btn)
 
+    def UpdateUiLanguage(self):
+        """Refresh translatable text after language switch."""
+        self.setWindowTitle(_("Project Toolbar"))
+        self._toggle_options_btn.setText(_("Hide/Show Project Options"))
+        # Also refresh icon which depends on state
+        self._toggle_options_btn.setIcon(self.show_setting_icon)
+
     def _toggle_settings(self):
         self.show_settings = not self.show_settings
         self.action_handler.ShowProjectSettings(self.show_settings)

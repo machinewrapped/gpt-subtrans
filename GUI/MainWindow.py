@@ -1,3 +1,4 @@
+import logging
 import dotenv
 
 from PySide6.QtCore import Qt
@@ -82,6 +83,8 @@ class MainWindow(QMainWindow):
         self.gui_interface.settingsChanged.connect(self._settings_changed, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.prepareForSave.connect(self._prepare_for_save, Qt.ConnectionType.QueuedConnection)
         self.gui_interface.showProjectSettings.connect(self._show_project_settings, Qt.ConnectionType.QueuedConnection)
+        self.gui_interface.uiLanguageChanged.connect(self._on_ui_language_changed, Qt.ConnectionType.QueuedConnection)
+
 
     def _prepare_for_save(self):
         """
@@ -166,4 +169,18 @@ class MainWindow(QMainWindow):
 
     def _show_project_settings(self, show):
         self.model_viewer.ShowProjectSettings(show)
+
+    def _on_ui_language_changed(self, lang: str):
+        try:
+            self.setWindowTitle(_("GUI-Subtrans"))
+            self.statusBar().showMessage(_("Ready."))
+
+            if self.toolbar:
+                self.toolbar.UpdateUiLanguage()
+
+            if self.model_viewer:
+                self.model_viewer.UpdateUiLanguage()
+
+        except Exception as ex:
+            logging.error(f"Error updating UI language: {ex}")
 

@@ -74,6 +74,20 @@ class SelectionView(QFrame):
         _show(self._delete_lines_button, selection.AnyLines())
         _show(self._swap_text_button, False and selection.AnyBatches() and not selection.MultipleSelected())
 
+    def UpdateUiLanguage(self):
+        """Refresh button and label texts after language change."""
+        # Label reflects selection; leave as-is until next selection update
+        self._translate_button.setText(_("Translate Selection"))
+        self._autosplit_batch_button.setText(_("Auto-Split Batch"))
+        self._reparse_button.setText(_("Reparse Translation"))
+        self._split_batch_button.setText(_("Split Batch"))
+        self._split_scene_button.setText(_("Split Scene"))
+        self._merge_lines_button.setText(_("Merge Lines"))
+        self._merge_scenes_button.setText(_("Merge Scenes"))
+        self._merge_batches_button.setText(_("Merge Batches"))
+        self._delete_lines_button.setText(_("Delete Lines"))
+        self._swap_text_button.setText(_("Swap Text"))
+
     def SetTaskType(self, task_type : str):
         if task_type == DEFAULT_TASK_TYPE:
             self._translate_button.setText(_("Translate Selection"))
