@@ -6,6 +6,7 @@ from GUI.GuiInterface import GuiInterface
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectSelection import ProjectSelection
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
+from PySubtitle.Helpers.Localization import _
 
 def _show(widget, condition):
     if condition:
@@ -26,16 +27,16 @@ class SelectionView(QFrame):
         self._label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
         #TODO: Translate / Retranslate label
-        self._translate_button = self._create_button("Translate Selection", self._on_translate_selection)
-        self._autosplit_batch_button = self._create_button("Auto-Split Batch", self._on_auto_split_batch)
-        self._reparse_button = self._create_button("Reparse Translation", self._on_reparse)
-        self._split_batch_button = self._create_button("Split Batch", self._on_split_batch)
-        self._split_scene_button = self._create_button("Split Scene", self._on_split_scene)
-        self._merge_lines_button = self._create_button("Merge Lines", self._on_merge_selection)
-        self._merge_scenes_button = self._create_button("Merge Scenes", self._on_merge_selection)
-        self._merge_batches_button = self._create_button("Merge Batches", self._on_merge_selection)
-        self._delete_lines_button = self._create_button("Delete Lines", self._on_delete_lines)
-        self._swap_text_button = self._create_button("Swap Text", self._on_swap_text)
+        self._translate_button = self._create_button(_("Translate Selection"), self._on_translate_selection)
+        self._autosplit_batch_button = self._create_button(_("Auto-Split Batch"), self._on_auto_split_batch)
+        self._reparse_button = self._create_button(_("Reparse Translation"), self._on_reparse)
+        self._split_batch_button = self._create_button(_("Split Batch"), self._on_split_batch)
+        self._split_scene_button = self._create_button(_("Split Scene"), self._on_split_scene)
+        self._merge_lines_button = self._create_button(_("Merge Lines"), self._on_merge_selection)
+        self._merge_scenes_button = self._create_button(_("Merge Scenes"), self._on_merge_selection)
+        self._merge_batches_button = self._create_button(_("Merge Batches"), self._on_merge_selection)
+        self._delete_lines_button = self._create_button(_("Delete Lines"), self._on_delete_lines)
+        self._swap_text_button = self._create_button(_("Swap Text"), self._on_swap_text)
 
         self.ShowSelection(ProjectSelection())
 
@@ -75,11 +76,11 @@ class SelectionView(QFrame):
 
     def SetTaskType(self, task_type : str):
         if task_type == DEFAULT_TASK_TYPE:
-            self._translate_button.setText("Translate Selection")
+            self._translate_button.setText(_("Translate Selection"))
         elif task_type == "Improvement":
-            self._translate_button.setText("Improve Selection")
+            self._translate_button.setText(_("Improve Selection"))
         else:
-            self._translate_button.setText(f"Selection {task_type}")
+            self._translate_button.setText(_("Selection {task_type}").format(task_type=task_type))
 
     def _create_button(self, text, on_click):
         button = QPushButton(text, self)

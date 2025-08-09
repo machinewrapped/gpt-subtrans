@@ -7,6 +7,7 @@ from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Commands.StartTranslationCommand import StartTranslationCommand
 from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
+from PySubtitle.Helpers.Localization import _
 
 class MainToolbar(QToolBar):
     """
@@ -76,7 +77,8 @@ class MainToolbar(QToolBar):
             action.setShortcut(shortcut)
 
         if tooltip:
-            action.setToolTip(f"{tooltip} ({shortcut})" if shortcut else tooltip)
+            tip = _(tooltip)
+            action.setToolTip(f"{tip} ({shortcut})" if shortcut else tip)
 
         self._actions[name] = action
 
@@ -93,33 +95,36 @@ class MainToolbar(QToolBar):
         """
         Enable a list of commands
         """
-        for action in self.actions():
-            if action.text() in action_list:
+        for name in action_list:
+            action = self._actions.get(name)
+            if action:
                 action.setEnabled(True)
 
     def DisableActions(self, action_list : list[str]):
         """
         Disable a list of commands
         """
-        for action in self.actions():
-            if action.text() in action_list:
+        for name in action_list:
+            action = self._actions.get(name)
+            if action:
                 action.setEnabled(False)
 
     def SetActionsEnabled(self, action_list : list[str], enabled : bool):
         """
         Enable or disable a list of commands
         """
-        for action in self.actions():
-            if action.text() in action_list:
+        for name in action_list:
+            action = self._actions.get(name)
+            if action:
                 action.setEnabled(enabled)
 
     def UpdateTooltip(self, action_name : str, label : str):
         """
         Update the label of a command
         """
-        for action in self.actions():
-            if action.text() == action_name:
-                action.setToolTip(label)
+        action = self._actions.get(action_name)
+        if action:
+            action.setToolTip(label)
 
     def UpdateBusyStatus(self):
         """
@@ -154,12 +159,12 @@ class MainToolbar(QToolBar):
         command_queue : CommandQueue = self.gui.GetCommandQueue()
         if command_queue.can_undo:
             last_command = command_queue.undo_stack[-1]
-            self.UpdateTooltip("Undo", f"Undo {type(last_command).__name__}")
+            self.UpdateTooltip("Undo", _("Undo {command}").format(command=type(last_command).__name__))
         else:
-            self.UpdateTooltip("Undo", "Nothing to undo")
+            self.UpdateTooltip("Undo", _("Nothing to undo"))
 
         if command_queue.can_redo:
             next_command = command_queue.redo_stack[-1]
-            self.UpdateTooltip("Redo", f"Redo {type(next_command).__name__}")
+            self.UpdateTooltip("Redo", _("Redo {command}").format(command=type(next_command).__name__))
         else:
-            self.UpdateTooltip("Redo", "Nothing to redo")
+            self.UpdateTooltip("Redo", _("Nothing to redo"))

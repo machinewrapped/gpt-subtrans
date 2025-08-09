@@ -14,6 +14,7 @@ from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.Helpers.Localization import _
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:
@@ -23,20 +24,20 @@ if os.environ.get("DEBUG_MODE") == "1":
 
 class NewProjectSettings(QDialog):
     OPTIONS = {
-        'target_language': (str, "Language to translate the subtitles to"),
-        'provider': ([], "The AI translation service to use"),
-        'model': (str, "AI model to use as the translator"),
-        'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
-        'min_batch_size': (int, "Fewest lines to send in separate batch"),
-        'max_batch_size': (int, "Most lines to send in each batch"),
-        'preprocess_subtitles': (bool, "Preprocess subtitles before batching"),
-        'instruction_file': (str, "Detailed instructions for the translator"),
-        'prompt': (str, "High-level instructions for the translator")
+        'target_language': (str, _("Language to translate the subtitles to")),
+        'provider': ([], _("The AI translation service to use")),
+        'model': (str, _("AI model to use as the translator")),
+        'scene_threshold': (float, _("Number of seconds gap to consider it a new scene")),
+        'min_batch_size': (int, _("Fewest lines to send in separate batch")),
+        'max_batch_size': (int, _("Most lines to send in each batch")),
+        'preprocess_subtitles': (bool, _("Preprocess subtitles before batching")),
+        'instruction_file': (str, _("Detailed instructions for the translator")),
+        'prompt': (str, _("High-level instructions for the translator"))
     }
 
     def __init__(self, datamodel : ProjectDataModel, parent=None):
         super(NewProjectSettings, self).__init__(parent)
-        self.setWindowTitle("Project Settings")
+        self.setWindowTitle(_("Project Settings"))
         self.setMinimumWidth(800)
 
         self.fields = {}

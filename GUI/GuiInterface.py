@@ -27,6 +27,7 @@ from PySubtitle.SubtitleError import ProviderConfigurationError
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__
+from PySubtitle.Helpers.Localization import _
 
 class GuiInterface(QObject):
     """
@@ -341,8 +342,8 @@ class GuiInterface(QObject):
         First run initialisation
         """
         if not options.available_providers:
-            logging.error("No translation providers available. Please install one or more providers.")
-            QMessageBox.critical(self, "Error", "No translation providers available. Please install one or more providers.")
+            logging.error(_("No translation providers available. Please install one or more providers."))
+            QMessageBox.critical(self, _("Error"), _("No translation providers available. Please install one or more providers."))
             self.QueueCommand(ExitProgramCommand())
             return
 

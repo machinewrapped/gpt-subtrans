@@ -1,0 +1,530 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: GPT-SubTrans\n"
+"POT-Creation-Date: 2025-08-09 12:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+
+#: GUI/ViewModel/SceneItem.py:135
+msgid "1 line"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:29
+msgid "AI model to use as the translator"
+msgstr ""
+
+#: GUI/AboutDialog.py:16
+msgid "About GUI-Subtrans"
+msgstr ""
+
+#: GUI/MainToolbar.py:63
+msgid "About this program"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:112
+msgid "Add RTL Markers"
+msgstr ""
+
+#: GUI/SettingsDialog.py:33
+msgid "Add RTL markers around translated lines that contain primarily right-to-left script on save"
+msgstr ""
+
+#: GUI/SettingsDialog.py:60
+msgid "Add line breaks to long single lines (post-process)"
+msgstr ""
+
+#: GUI/SettingsDialog.py:55
+msgid "Add line breaks to text with dialog markers"
+msgstr ""
+
+#: GUI/ViewModel/SceneItem.py:133
+msgid "All batches translated"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:31
+msgid "Auto-Split Batch"
+msgstr ""
+
+#: GUI/SettingsDialog.py:37
+msgid "Automatically save the project after each translation batch"
+msgstr ""
+
+#: GUI/SettingsDialog.py:68
+msgid "Avoid creating a new batch smaller than this"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:43
+msgid "Cancel"
+msgstr ""
+
+#: GUI/SettingsDialog.py:64
+msgid "Comma-separated list of filler_words to remove"
+msgstr ""
+
+#: GUI/SettingsDialog.py:70
+msgid "Consider a new scene to have started after this many seconds without subtitles"
+msgstr ""
+
+#: GUI/SettingsDialog.py:57
+msgid "Convert blocks of whitespace and Chinese Commas to newlines"
+msgstr ""
+
+#: GUI/SettingsDialog.py:59
+msgid "Convert wide dashes (emdash) to standard dashes"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:119
+msgid "Copy From Another Project"
+msgstr ""
+
+#: GUI/FirstRunOptions.py:18
+msgid "Customise the appearance of gui-subtrans"
+msgstr ""
+
+#: GUI/FirstRunOptions.py:16
+msgid "Default language to translate the subtitles to"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:41
+msgid "Defaults"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:38
+msgid "Delete Lines"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:114
+msgid "Description"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:34
+msgid "Detailed instructions for the translator"
+msgstr ""
+
+#: GUI/AboutDialog.py:54
+msgid "Developed by: MachineWrapped<br>Contact: machinewrapped@gmail.com<br><a href=\"https://github.com/machinewrapped/gpt-subtrans\">GitHub Repository</a><br>Thanks to all contributors and those who have reported issues."
+msgstr ""
+
+#: GUI/SettingsDialog.py:69
+msgid "Divide any batches larger than this into multiple batches"
+msgstr ""
+
+#: GUI/Widgets/MenuBar.py:11
+msgid "Edit"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:22 GUI/Widgets/ProjectSettings.py:118
+msgid "Edit Instructions"
+msgstr ""
+
+#: GUI/SettingsDialog.py:56
+msgid "Ensure dialog markers match in multi-line subtitles"
+msgstr ""
+
+#: GUI/SettingsDialog.py:58
+msgid "Ensure full-width punctuation is used in Asian languages"
+msgstr ""
+
+#: GUI/GuiInterface.py:346
+msgid "Error"
+msgstr ""
+
+#: GUI/MainToolbar.py:54
+msgid "Exit Program"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:31
+msgid "Fewest lines to send in separate batch"
+msgstr ""
+
+#: GUI/Widgets/MenuBar.py:8
+msgid "File"
+msgstr ""
+
+#: GUI/FirstRunOptions.py:23
+msgid "First Run Options"
+msgstr ""
+
+#: GUI/MainWindow.py:29
+msgid "GUI-Subtrans"
+msgstr ""
+
+#: GUI/SettingsDialog.py:111
+msgid "GUI-Subtrans Settings"
+msgstr ""
+
+#: GUI/AboutDialog.py:62
+msgid "GUI-Subtrans is released under the MIT License.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software."
+msgstr ""
+
+#: GUI/AboutDialog.py:50
+msgid "GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or to improve the quality of an existing translation."
+msgstr ""
+
+#: GUI/AboutDialog.py:80
+msgid "GUI-Subtrans would not work without these libraries:\n"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:35
+msgid "High-level instructions for the translator"
+msgstr ""
+
+#: GUI/SettingsDialog.py:40
+msgid "If true, translations that fail validation will be retried with a note about the error"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:81
+msgid "Improve Selection"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:113
+msgid "Include Original Text"
+msgstr ""
+
+#: GUI/SettingsDialog.py:32
+msgid "Include original text in translated subtitles"
+msgstr ""
+
+#: GUI/SettingsDialog.py:34
+msgid "Instructions for the translation provider to follow"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:27
+msgid "Language to translate the subtitles to"
+msgstr ""
+
+#: GUI/SettingsDialog.py:72
+msgid "Limits the number of scene/batch summaries to include as context with each translation batch"
+msgstr ""
+
+#: GUI/ViewModel/SceneItem.py:141
+msgid "Lines {first}-{last} ({start} -> {end})"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:39 GUI/EditInstructionsDialog.py:134
+msgid "Load Instructions"
+msgstr ""
+
+#: GUI/MainToolbar.py:55
+msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
+msgstr ""
+
+#: GUI/AboutDialog.py:31
+msgid "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
+msgstr ""
+
+#: GUI/SettingsDialog.py:51
+msgid "Maximum duration of a single line of subtitles"
+msgstr ""
+
+#: GUI/SettingsDialog.py:61
+msgid "Maximum length of a single line of subtitles"
+msgstr ""
+
+#: GUI/SettingsDialog.py:73
+msgid "Maximum length of the context summary to include with each translation batch"
+msgstr ""
+
+#: GUI/SettingsDialog.py:67
+msgid "Maximum number of simultaneous translation threads for fast translation"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:37
+msgid "Merge Batches"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:35
+msgid "Merge Lines"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:36
+msgid "Merge Scenes"
+msgstr ""
+
+#: GUI/SettingsDialog.py:53
+msgid "Merge lines with a duration less than this with the previous line"
+msgstr ""
+
+#: GUI/SettingsDialog.py:52
+msgid "Minimum duration of a single line of subtitles"
+msgstr ""
+
+#: GUI/SettingsDialog.py:62
+msgid "Minimum length of a single line of subtitles"
+msgstr ""
+
+#: GUI/SettingsDialog.py:54
+msgid "Minimum number of characters to split a line at"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:123
+msgid "Model"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:32
+msgid "Most lines to send in each batch"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:110
+msgid "Movie Name"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:115
+msgid "Names"
+msgstr ""
+
+#: GUI/GuiInterface.py:345 GUI/GuiInterface.py:346
+msgid "No translation providers available. Please install one or more providers."
+msgstr ""
+
+#: GUI/MainToolbar.py:171
+msgid "Nothing to redo"
+msgstr ""
+
+#: GUI/MainToolbar.py:165
+msgid "Nothing to undo"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:30
+msgid "Number of seconds gap to consider it a new scene"
+msgstr ""
+
+#: GUI/SettingsDialog.py:76
+msgid "Number of times to retry a failed translation before giving up"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:42
+msgid "OK"
+msgstr ""
+
+#: GUI/MainWindow.py:110
+msgid "Performing {action}"
+msgstr ""
+
+#: GUI/SettingsDialog.py:49
+msgid "Postprocess subtitles after translation"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:33
+msgid "Preprocess subtitles before batching"
+msgstr ""
+
+#: GUI/SettingsDialog.py:48
+msgid "Preprocess subtitles when they are loaded"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37
+msgid "Project Settings"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:30
+msgid "Prompt for each translation request"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:121
+msgid "Provider"
+msgstr ""
+
+#: GUI/MainWindow.py:64
+msgid "Ready."
+msgstr ""
+
+#: GUI/MainToolbar.py:62
+msgid "Redo last undone action"
+msgstr ""
+
+#: GUI/MainToolbar.py:169
+msgid "Redo {command}"
+msgstr ""
+
+#: GUI/SettingsDialog.py:63
+msgid "Remove filler_words and filler words from subtitles"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:32
+msgid "Reparse Translation"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
+msgid "Save Instructions"
+msgstr ""
+
+#: GUI/SettingsDialog.py:38
+msgid "Save a backup copy of the project when opening it"
+msgstr ""
+
+#: GUI/SettingsDialog.py:50
+msgid "Save preprocessed subtitles to a separate file"
+msgstr ""
+
+#: GUI/MainToolbar.py:56
+msgid "Save project (Hold shift to save as...)"
+msgstr ""
+
+#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
+msgid "Scene {num}"
+msgstr ""
+
+#: GUI/SettingsDialog.py:77
+msgid "Seconds to wait before retrying a failed translation"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:281
+msgid "Select project to copy settings from"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:83
+msgid "Selection {task_type}"
+msgstr ""
+
+#: GUI/MainToolbar.py:57
+msgid "Settings"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:33
+msgid "Split Batch"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:34
+msgid "Split Scene"
+msgstr ""
+
+#: GUI/MainToolbar.py:58
+msgid "Start Translating (hold shift to retranslate)"
+msgstr ""
+
+#: GUI/MainToolbar.py:59
+msgid "Start translating on multiple threads (fast but unsafe)"
+msgstr ""
+
+#: GUI/SettingsDialog.py:41
+msgid "Stop translating if an error is encountered"
+msgstr ""
+
+#: GUI/MainToolbar.py:60
+msgid "Stop translation"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:117
+msgid "Substitution Mode"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:116
+msgid "Substitutions"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:280
+msgid "Subtrans Files (*.subtrans);;All Files (*)"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:33
+msgid "Supplementary instructions when retrying"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:39
+msgid "Swap Text"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:32
+msgid "System instructions for the translator"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:111
+msgid "Target Language"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:27
+msgid "Text Files (*.txt);;All Files (*))"
+msgstr ""
+
+#: GUI/SettingsDialog.py:35
+msgid "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:28 GUI/SettingsDialog.py:44
+msgid "The AI translation service to use"
+msgstr ""
+
+#: GUI/SettingsDialog.py:30
+msgid "The default language to translate the subtitles to"
+msgstr ""
+
+#: GUI/SettingsDialog.py:31
+msgid "The language of the application interface (requires restart)"
+msgstr ""
+
+#: GUI/FirstRunOptions.py:17
+msgid "The translation provider to use"
+msgstr ""
+
+#: GUI/Widgets/MenuBar.py:14
+msgid "Tools"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:30 GUI/Widgets/SelectionView.py:79
+msgid "Translate Selection"
+msgstr ""
+
+#: GUI/EditInstructionsDialog.py:31
+msgid "Type of response expected for each line (must match the example format)"
+msgstr ""
+
+#: GUI/MainToolbar.py:61
+msgid "Undo last action"
+msgstr ""
+
+#: GUI/MainToolbar.py:163
+msgid "Undo {command}"
+msgstr ""
+
+#: GUI/SettingsDialog.py:74
+msgid "Validator: Maximum number of characters to allow in a single translated line"
+msgstr ""
+
+#: GUI/SettingsDialog.py:75
+msgid "Validator: Maximum number of newlines to allow in a single translated line"
+msgstr ""
+
+#: GUI/SettingsDialog.py:71
+msgid "Whether to substitute whole words or partial matches, or choose automatically based on input language"
+msgstr ""
+
+#: GUI/MainWindow.py:138
+msgid "{command} aborted."
+msgstr ""
+
+#: GUI/MainWindow.py:140
+msgid "{command} added to queue."
+msgstr ""
+
+#: GUI/MainWindow.py:146
+msgid "{command} failed."
+msgstr ""
+
+#: GUI/MainWindow.py:142
+msgid "{command} started."
+msgstr ""
+
+#: GUI/MainWindow.py:136
+msgid "{command} undone."
+msgstr ""
+
+#: GUI/MainWindow.py:144
+msgid "{command} was successful."
+msgstr ""
+
+#: GUI/ViewModel/SceneItem.py:133
+msgid "{done} of {total} batches translated"
+msgstr ""
+
+#: GUI/ViewModel/SceneItem.py:135
+msgid "{lines} lines in {batches} batches"
+msgstr ""
+
+#: GUI/MainWindow.py:149
+msgid "{num} commands in queue."
+msgstr ""

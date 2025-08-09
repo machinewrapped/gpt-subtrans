@@ -24,6 +24,7 @@ from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
+from PySubtitle.Helpers.Localization import _
 
 class ProjectSettings(QGroupBox):
     """
@@ -33,7 +34,7 @@ class ProjectSettings(QGroupBox):
 
     def __init__(self, action_handler : ProjectActions = None, parent=None):
         super().__init__(parent=parent)
-        self.setTitle("Project Settings")
+        self.setTitle(_("Project Settings"))
         self.setMinimumWidth(450)
 
         self.action_handler = action_handler
@@ -106,20 +107,20 @@ class ProjectSettings(QGroupBox):
     def BuildForm(self, settings : dict):
         self.ClearForm()
         with QSignalBlocker(self):
-            self.AddSingleLineOption("Movie Name", settings, 'movie_name')
-            self.AddSingleLineOption("Target Language", settings, 'target_language')
-            self.AddCheckboxOption("Add RTL Markers", settings, 'add_right_to_left_markers')
-            self.AddCheckboxOption("Include Original Text", settings, 'include_original')
-            self.AddMultiLineOption("Description", settings, 'description')
-            self.AddMultiLineOption("Names", settings, 'names')
-            self.AddMultiLineOption("Substitutions", settings, 'substitutions')
-            self.AddDropdownOption("Substitution Mode", settings, 'substitution_mode', Substitutions.Mode)
-            self.AddButton("", "Edit Instructions", self._edit_instructions)
-            self.AddButton("", "Copy From Another Project", self._copy_from_another_project)
+            self.AddSingleLineOption(_("Movie Name"), settings, 'movie_name')
+            self.AddSingleLineOption(_("Target Language"), settings, 'target_language')
+            self.AddCheckboxOption(_("Add RTL Markers"), settings, 'add_right_to_left_markers')
+            self.AddCheckboxOption(_("Include Original Text"), settings, 'include_original')
+            self.AddMultiLineOption(_("Description"), settings, 'description')
+            self.AddMultiLineOption(_("Names"), settings, 'names')
+            self.AddMultiLineOption(_("Substitutions"), settings, 'substitutions')
+            self.AddDropdownOption(_("Substitution Mode"), settings, 'substitution_mode', Substitutions.Mode)
+            self.AddButton("", _("Edit Instructions"), self._edit_instructions)
+            self.AddButton("", _("Copy From Another Project"), self._copy_from_another_project)
             if len(self.provider_list) > 1:
-                self.AddDropdownOption("Provider", settings, 'provider', self.provider_list)
+                self.AddDropdownOption(_("Provider"), settings, 'provider', self.provider_list)
             if len(self.model_list) > 0:
-                self.AddDropdownOption("Model", settings, 'model', self.model_list)
+                self.AddDropdownOption(_("Model"), settings, 'model', self.model_list)
 
     def ClearForm(self):
         self.current_row = 0
@@ -276,8 +277,8 @@ class ProjectSettings(QGroupBox):
         '''
         dialog_options = QFileDialog.Options()
         initial_path = self.settings.get('project_path') or self.settings.get('last_used_path')
-        filter = "Subtrans Files (*.subtrans);;All Files (*)"
-        caption = "Select project to copy settings from"
+        filter = _("Subtrans Files (*.subtrans);;All Files (*)")
+        caption = _("Select project to copy settings from")
         file_name, _ = QFileDialog.getOpenFileName(self, caption, dir=initial_path, filter=filter, options=dialog_options)
         if file_name:
             try:

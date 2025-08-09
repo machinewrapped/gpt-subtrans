@@ -68,6 +68,7 @@ default_options = {
     'stop_on_error' : env_bool('STOP_ON_ERROR'),
     'write_backup' : env_bool('WRITE_BACKUP_FILE', True),
     'theme' : os.getenv('THEME', None),
+    'ui_language': os.getenv('UI_LANGUAGE', 'en'),
     'firstrun' : False
 }
 

@@ -17,6 +17,7 @@ from GUI.Widgets.ModelView import ModelView
 from PySubtitle.Helpers.Resources import GetResourcePath
 from PySubtitle.Options import Options
 from PySubtitle.version import __version__
+from PySubtitle.Helpers.Localization import _
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -25,7 +26,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None, options : Options = None, filepath : str = None):
         super().__init__(parent)
 
-        self.setWindowTitle("GUI-Subtrans")
+        self.setWindowTitle(_("GUI-Subtrans"))
         self.setGeometry(100, 100, 1600, 900)
         self._load_icon("gui-subtrans")
 
@@ -60,7 +61,7 @@ class MainWindow(QMainWindow):
         # Run startup tasks
         self.gui_interface.Startup(filepath)
 
-        self.statusBar().showMessage("Ready.")
+        self.statusBar().showMessage(_("Ready."))
 
     def closeEvent(self, e):
         self._prepare_for_save()
@@ -106,7 +107,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(filepath))
 
     def _on_action_requested(self, action_name : str):
-        self.statusBar().showMessage(f"Performing {action_name}")
+        self.statusBar().showMessage(_("Performing {action}").format(action=action_name))
 
     def _on_command_added(self, command : Command):
         self.toolbar.UpdateToolbar()
@@ -130,21 +131,22 @@ class MainWindow(QMainWindow):
         messages = []
 
         if command:
+            command_name = type(command).__name__
             if undone:
-                messages.append(f"{type(command).__name__} undone.")
+                messages.append(_("{command} undone.").format(command=command_name))
             elif command.aborted:
-                messages.append(f"{type(command).__name__} aborted.")
+                messages.append(_("{command} aborted.").format(command=command_name))
             elif not command.started:
-                messages.append(f"{type(command).__name__} added to queue.")
+                messages.append(_("{command} added to queue.").format(command=command_name))
             elif command.succeeded is None:
-                messages.append(f"{type(command).__name__} started.")
+                messages.append(_("{command} started.").format(command=command_name))
             elif command.succeeded:
-                messages.append(f"{type(command).__name__} was successful.")
+                messages.append(_("{command} was successful.").format(command=command_name))
             else:
-                messages.append(f"{type(command).__name__} failed.")
+                messages.append(_("{command} failed.").format(command=command_name))
 
         if command_queue.queue_size > 1:
-            messages.append(f"{command_queue.queue_size} commands in queue.")
+            messages.append(_("{num} commands in queue.").format(num=command_queue.queue_size))
 
         if not command_queue.has_running_commands:
             undoable_text = command_queue.undoable_command_text

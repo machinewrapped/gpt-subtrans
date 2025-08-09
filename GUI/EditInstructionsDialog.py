@@ -14,32 +14,33 @@ from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 
 from PySubtitle.Options import MULTILINE_OPTION, Options
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE, Instructions, GetInstructionsFiles, GetInstructionsUserPath, LoadInstructions
+from PySubtitle.Helpers.Localization import _
 
 class EditInstructionsDialog(QDialog):
     def __init__(self, settings : dict, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Edit Instructions")
+        self.setWindowTitle(_("Edit Instructions"))
         self.setMinimumWidth(800)
 
         self.instructions : Instructions = Instructions(settings)
         self.target_language = None
-        self.filters = "Text Files (*.txt);;All Files (*)"
+        self.filters = _("Text Files (*.txt);;All Files (*))")
 
         self.form_layout = QFormLayout()
-        self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, "Prompt for each translation request")
-        self.task_type_edit = self._add_form_option("task_type", self.instructions.task_type, str, "Type of response expected for each line (must match the example format)")
-        self.instructions_edit = self._add_form_option("instructions", self.instructions.instructions, MULTILINE_OPTION, "System instructions for the translator")
-        self.retry_instructions_edit = self._add_form_option("retry_instructions", self.instructions.retry_instructions, MULTILINE_OPTION, "Supplementary instructions when retrying")
+        self.prompt_edit = self._add_form_option("prompt", self.instructions.prompt, str, _("Prompt for each translation request"))
+        self.task_type_edit = self._add_form_option("task_type", self.instructions.task_type, str, _("Type of response expected for each line (must match the example format)"))
+        self.instructions_edit = self._add_form_option("instructions", self.instructions.instructions, MULTILINE_OPTION, _("System instructions for the translator"))
+        self.retry_instructions_edit = self._add_form_option("retry_instructions", self.instructions.retry_instructions, MULTILINE_OPTION, _("Supplementary instructions when retrying"))
         self.form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
         self.button_layout = QHBoxLayout()
 
         self.select_file = self._create_instruction_dropdown(self._select_instructions)
-        self.load_button = self._create_button("Load Instructions", self._load_instructions)
-        self.save_button = self._create_button("Save Instructions", self._save_instructions)
-        self.default_button = self._create_button("Defaults", self.set_defaults)
-        self.ok_button = self._create_button("OK", self.accept)
-        self.cancel_button = self._create_button("Cancel", self.reject)
+        self.load_button = self._create_button(_("Load Instructions"), self._load_instructions)
+        self.save_button = self._create_button(_("Save Instructions"), self._save_instructions)
+        self.default_button = self._create_button(_("Defaults"), self.set_defaults)
+        self.ok_button = self._create_button(_("OK"), self.accept)
+        self.cancel_button = self._create_button(_("Cancel"), self.reject)
 
         layout = QVBoxLayout()
         layout.addLayout(self.form_layout)
@@ -130,7 +131,7 @@ class EditInstructionsDialog(QDialog):
         '''Load instructions from a file'''
         options = QFileDialog.Options()
         path = GetInstructionsUserPath(self.instructions.instruction_file)
-        file_name, _ = QFileDialog.getOpenFileName(self, "Load Instructions", dir=path, filter=self.filters, options=options)
+        file_name, _ = QFileDialog.getOpenFileName(self, _("Load Instructions"), dir=path, filter=self.filters, options=options)
         if file_name:
             try:
                 self.instructions.LoadInstructionsFile(file_name)
@@ -147,7 +148,7 @@ class EditInstructionsDialog(QDialog):
         '''Save instructions to a file'''
         options = QFileDialog.Options()
         filepath = GetInstructionsUserPath(self.instructions.instruction_file)
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save Instructions", dir=filepath, filter=self.filters, options=options)
+        file_name, _ = QFileDialog.getSaveFileName(self, _("Save Instructions"), dir=filepath, filter=self.filters, options=options)
         if file_name:
             try:
                 self.instructions.prompt = self.prompt_edit.GetValue()

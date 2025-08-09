@@ -4,6 +4,7 @@ from GUI.ViewModel.ViewModelItem import ViewModelItem
 from GUI.GuiHelpers import DescribeLineCount
 from PySubtitle.Helpers import UpdateFields
 from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.Helpers.Localization import _
 
 from PySide6.QtCore import Qt
 
@@ -26,7 +27,7 @@ class SceneItem(ViewModelItem):
         self._first_line_num = None
         self._last_line_num = None
 
-        self.setText(f"Scene {scene.number}")
+        self.setText(_("Scene {num}").format(num=scene.number))
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
 
     @property
@@ -129,15 +130,15 @@ class SceneItem(ViewModelItem):
 
     def GetContent(self):
         """ Return a dictionary of interesting scene data for UI display """
-        str_translated = "All batches translated" if self.translated_batch_count == self.batch_count else f"{self.translated_batch_count} of {self.batch_count} batches translated"
+        str_translated = _("All batches translated") if self.translated_batch_count == self.batch_count else _("{done} of {total} batches translated").format(done=self.translated_batch_count, total=self.batch_count)
         metadata = [
-            "1 line" if self.line_count == 1 else f"{self.line_count} lines in {self.batch_count} batches",
+            _("1 line") if self.line_count == 1 else _("{lines} lines in {batches} batches").format(lines=self.line_count, batches=self.batch_count),
             str_translated if self.translated_batch_count > 0 else None,
         ]
 
         return {
-            'heading': f"Scene {self.number}",
-            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} ({self.start} -> {self.end})",
+            'heading': _("Scene {num}").format(num=self.number),
+            'subheading': _("Lines {first}-{last} ({start} -> {end})").format(first=self.first_line_number, last=self.last_line_number, start=self.start, end=self.end),
             'body': self.summary if self.summary else "\n".join([data for data in metadata if data is not None]),
             'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
