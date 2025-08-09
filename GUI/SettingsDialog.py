@@ -8,7 +8,7 @@ from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
-from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Localization import _, get_locale_display_items
 
 class SettingsDialog(QDialog):
     """
@@ -119,8 +119,8 @@ class SettingsDialog(QDialog):
         # Qyery available themes
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
 
-        # Available UI languages (extendable)
-        self.SECTIONS['General']['ui_language'] = ['en', 'es']
+        # Available UI languages (dynamically detected)
+        self.SECTIONS['General']['ui_language'] = get_locale_display_items()
 
         # Query available instruction files
         instruction_files = GetInstructionsFiles()

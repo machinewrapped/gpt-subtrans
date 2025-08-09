@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 from GUI.GuiHelpers import GetThemeNames
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget
 from PySubtitle.Options import Options
-from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Localization import _, get_locale_display_items
 from PySubtitle.Helpers.Resources import GetResourcePath
 import os
 
@@ -34,18 +34,8 @@ class FirstRunOptions(QDialog):
         # Populate theme list
         self.OPTIONS['theme'] = (['default'] + GetThemeNames(), self.OPTIONS['theme'][1])
 
-        # Populate UI languages from locales folder
-        locales_dir = GetResourcePath('locales')
-        languages = []
-        try:
-            for name in os.listdir(locales_dir):
-                path = os.path.join(locales_dir, name, 'LC_MESSAGES')
-                if os.path.isdir(path):
-                    languages.append(name)
-        except Exception:
-            languages = ['en', 'es']
-        languages = sorted(set(languages)) or ['en']
-        self.OPTIONS['ui_language'] = (languages, self.OPTIONS['ui_language'][1])
+        # Populate UI languages from locales folder using the shared helper
+        self.OPTIONS['ui_language'] = (get_locale_display_items(), self.OPTIONS['ui_language'][1])
 
         self.controls = {}
 
