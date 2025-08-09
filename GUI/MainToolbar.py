@@ -22,7 +22,7 @@ class MainToolbar(QToolBar):
         ]
 
     def __init__(self,  gui_interface : GuiInterface):
-        super().__init__("Main Toolbar")
+        super().__init__(_("Main Toolbar"))
 
         self.gui = gui_interface
 

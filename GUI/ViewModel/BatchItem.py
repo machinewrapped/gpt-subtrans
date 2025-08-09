@@ -11,11 +11,12 @@ from PySubtitle.Helpers import FormatMessages, UpdateFields
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationPrompt import TranslationPrompt
+from PySubtitle.Helpers.Localization import _
 
 class BatchItem(ViewModelItem):
     """ Represents a subtitle batch in the view model"""
     def __init__(self, scene_number : int, batch : SubtitleBatch, debug_view : bool = False):
-        super(BatchItem, self).__init__(f"Scene {scene_number}, batch {batch.number}")
+        super(BatchItem, self).__init__(_("Scene {scene}, batch {batch}").format(scene=scene_number, batch=batch.number))
         self.scene = scene_number
         self.number = batch.number
         self.debug_view = debug_view
@@ -116,7 +117,7 @@ class BatchItem(ViewModelItem):
         Update the batch model properties
         """
         if not isinstance(update, dict):
-            raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
+            raise ViewModelError(_("Expected a dictionary, got a {type}").format(type=type(update).__name__))
 
         UpdateFields(self.batch_model, update, ['number', 'summary', 'context', 'start', 'end'])
 
@@ -158,7 +159,7 @@ class BatchItem(ViewModelItem):
             for row in range(self.rowCount()):
                 row_item : LineItem = self.child(row, 0)
                 if not row_item.number:
-                    raise ViewModelError(f"Line item {row} has no line number")
+                    raise ViewModelError(_("Line item {row} has no line number").format(row=row))
 
                 if row_item.number < line_number:
                     continue
@@ -185,7 +186,7 @@ class BatchItem(ViewModelItem):
             line_item : LineItem = self.lines[line_number]
             line_item.Update({ 'translation' : text })
         else:
-            logging.warning(f"Original line {line_number} not found in batch {self.number}")
+            logging.warning(_("Original line {line} not found in batch {batch}").format(line=line_number, batch=self.number))
 
     def GetContent(self):
         """
@@ -194,13 +195,13 @@ class BatchItem(ViewModelItem):
         body = "\n".join(e for e in self.batch_model.get('errors')) if self.has_errors \
             else self.summary if self.summary \
             else "\n".join([
-                "1 line" if self.line_count == 1 else f"{self.line_count} lines",
-                f"{self.translated_count} translated" if self.translated_count > 0 else ""
+                _("1 line") if self.line_count == 1 else _("{count} lines").format(count=self.line_count),
+                _("{count} translated").format(count=self.translated_count) if self.translated_count > 0 else ""
             ])
 
         return {
-            'heading': f"Batch {self.number}",
-            'subheading': f"Lines {self.first_line_number}-{self.last_line_number} ({self.start} -> {self.end})",
+            'heading': _("Batch {num}").format(num=self.number),
+            'subheading': _("Lines {first}-{last} ({start} -> {end})").format(first=self.first_line_number, last=self.last_line_number, start=self.start, end=self.end),
             'body': body,
             'footer': DescribeLineCount(self.line_count, self.translated_count),
             'properties': {
@@ -243,6 +244,6 @@ def FormatPrompt(prompt : TranslationPrompt):
         lines = []
 
         if prompt.user_prompt:
-            lines.append(f"User Prompt:\n {prompt.user_prompt}")
+            lines.append(_("User Prompt:\n {text}").format(text=prompt.user_prompt))
 
         return "\n".join(lines)

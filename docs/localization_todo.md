@@ -40,6 +40,7 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
 - [ ] 2.3 Wrap remaining GUI strings
   - All dialogs, widgets, menus, commands under `GUI/`
   - Acceptance: 100% of visible strings wrapped
+  - Progress: Wrapped additional files `GUI/MainToolbar.py` (title), `GUI/Widgets/Editors.py`, `GUI/ViewModel/BatchItem.py`, `GUI/ProjectToolbar.py`, `GUI/GuiHelpers.py`, `GUI/Widgets/Widgets.py`, `GUI/ProjectActions.py`, `GUI/NewProjectSettings.py`, `GUI/FirstRunOptions.py`, `GUI/Widgets/MenuBar.py`, `GUI/AboutDialog.py`.
 
 - [ ] 2.4 Wrap provider/client messages (non-GUI)
   - Strings in `PySubtitle/Providers/` and relevant helpers
@@ -50,8 +51,9 @@ Authoritative checklist derived from `docs/localization_plan.md`. We will comple
 - [ ] 3.1 Seed translations
   - Populate `en` PO from POT; create initial `es` PO with a few sample strings
   - Acceptance: compiled `.mo` loads; Spanish shows for wrapped strings
+  - Progress: Seeded initial Spanish entries via `locales/seed_es_translations.py`; more coverage needed.
 
-- [ ] 3.2 First-run language selection
+- [X] 3.2 First-run language selection
   - Update `GUI/FirstRunOptions.py` to include language dropdown; default to system locale
   - Acceptance: selection saved to `ui_language`
 

@@ -225,7 +225,7 @@ class SettingsDialog(QDialog):
             if key_type == TranslationProvider:
                 self._add_provider_options(section_name, layout)
             else:
-                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
+                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=_(tooltip))
                 field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
                 layout.addRow(field.name, field)
                 self.widgets[key] = field

@@ -71,7 +71,7 @@ def GetInputPath(filepath):
     if not filepath:
         return None
 
-    basename, _ = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
     if basename.endswith("-GPT"):
@@ -83,7 +83,7 @@ def GetOutputPath(filepath, language="translated"):
     if not filepath:
         return None
 
-    basename, _ = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath))
 
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]

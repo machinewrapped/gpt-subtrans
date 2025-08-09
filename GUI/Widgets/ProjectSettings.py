@@ -279,7 +279,7 @@ class ProjectSettings(QGroupBox):
         initial_path = self.settings.get('project_path') or self.settings.get('last_used_path')
         filter = _("Subtrans Files (*.subtrans);;All Files (*)")
         caption = _("Select project to copy settings from")
-        file_name, _ = QFileDialog.getOpenFileName(self, caption, dir=initial_path, filter=filter, options=dialog_options)
+        file_name, dummy = QFileDialog.getOpenFileName(self, caption, dir=initial_path, filter=filter, options=dialog_options)
         if file_name:
             try:
                 project_options = Options({"project": 'read'})

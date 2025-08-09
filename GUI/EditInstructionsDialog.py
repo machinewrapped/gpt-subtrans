@@ -131,7 +131,7 @@ class EditInstructionsDialog(QDialog):
         '''Load instructions from a file'''
         options = QFileDialog.Options()
         path = GetInstructionsUserPath(self.instructions.instruction_file)
-        file_name, _ = QFileDialog.getOpenFileName(self, _("Load Instructions"), dir=path, filter=self.filters, options=options)
+        file_name, dummy = QFileDialog.getOpenFileName(self, _("Load Instructions"), dir=path, filter=self.filters, options=options)
         if file_name:
             try:
                 self.instructions.LoadInstructionsFile(file_name)
@@ -148,7 +148,7 @@ class EditInstructionsDialog(QDialog):
         '''Save instructions to a file'''
         options = QFileDialog.Options()
         filepath = GetInstructionsUserPath(self.instructions.instruction_file)
-        file_name, _ = QFileDialog.getSaveFileName(self, _("Save Instructions"), dir=filepath, filter=self.filters, options=options)
+        file_name, dummy = QFileDialog.getSaveFileName(self, _("Save Instructions"), dir=filepath, filter=self.filters, options=options)
         if file_name:
             try:
                 self.instructions.prompt = self.prompt_edit.GetValue()

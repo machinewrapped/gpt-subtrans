@@ -5,6 +5,7 @@ from GUI.ViewModel.LineItem import LineItem
 from GUI.ViewModel.SceneItem import SceneItem
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget
 from PySubtitle.Options import MULTILINE_OPTION
+from PySubtitle.Helpers.Localization import _
 
 class EditDialog(QDialog):
     def __init__(self, model, parent=None, title=None) -> None:
@@ -82,7 +83,7 @@ class EditDialog(QDialog):
 class EditSceneDialog(EditDialog):
     def __init__(self, item : SceneItem, parent=None) -> None:
         self.item = item
-        super().__init__(item.scene_model, parent, title=f"Scene {item.number}")
+        super().__init__(item.scene_model, parent, title=_("Scene {num}").format(num=item.number))
 
     def CreateEditor(self) -> QWidget:
         form_layout = self.GetFormLayout()
@@ -99,7 +100,7 @@ class EditSceneDialog(EditDialog):
 class EditBatchDialog(EditDialog):
     def __init__(self, item : BatchItem, parent=None) -> None:
         self.item = item
-        super().__init__(item.batch_model, parent, title=f"Scene {item.scene} Batch {item.number}")
+        super().__init__(item.batch_model, parent, title=_("Scene {scene} Batch {batch}").format(scene=item.scene, batch=item.number))
 
     def CreateEditor(self):
         # Create tab widget
@@ -108,13 +109,13 @@ class EditBatchDialog(EditDialog):
         # Create "Summary" tab
         summary_layout = self.GetFormLayout()
         self.AddMultilineEdit(summary_layout, 'summary')
-        self.SetTabLayout(tab_widget, summary_layout, "Summary")
+        self.SetTabLayout(tab_widget, summary_layout, _("Summary"))
 
         # Create "Prompt" tab if item has a prompt
         if self.item.prompt:
             prompt_layout = self.GetFormLayout()
             self.AddMultilineEdit(prompt_layout, 'prompt', read_only=True)
-            self.SetTabLayout(tab_widget, prompt_layout, "Prompt")
+            self.SetTabLayout(tab_widget, prompt_layout, _("Prompt"))
 
         # Create "Response" tab if item has a response
         if self.item.response:
@@ -123,22 +124,22 @@ class EditBatchDialog(EditDialog):
             if self.item.has_errors:
                 self.AddMultilineEdit(response_layout, 'errors', read_only=True)
 
-            self.SetTabLayout(tab_widget, response_layout, "Response")
+            self.SetTabLayout(tab_widget, response_layout, _("Response"))
 
             if self.item.reasoning:
                 reasoning_layout = self.GetFormLayout()
                 self.AddMultilineEdit(reasoning_layout, 'reasoning', read_only=True)
-                self.SetTabLayout(tab_widget, reasoning_layout, "Reasoning")
+                self.SetTabLayout(tab_widget, reasoning_layout, _("Reasoning"))
 
         if self.item.debug_view:
             # Create debug tabs
             messages_layout = self.GetFormLayout()
             self.AddMultilineEdit(messages_layout, 'messages', read_only=True)
-            self.SetTabLayout(tab_widget, messages_layout, "Messages")
+            self.SetTabLayout(tab_widget, messages_layout, _("Messages"))
 
             context_layout = self.GetFormLayout()
             self.AddMultilineEdit(context_layout, 'context', read_only=True)
-            self.SetTabLayout(tab_widget, context_layout, "Context")
+            self.SetTabLayout(tab_widget, context_layout, _("Context"))
 
         return tab_widget
 
@@ -154,7 +155,7 @@ class EditSubtitleDialog(EditDialog):
             'translated'  : self.line.translation_text if line else "",
             'was_translated' : bool(self.line.translation_text)
         }
-        super().__init__(self.model, parent, title=f"Line {self.line.number}: {self.line.start} --> {self.line.end}")
+        super().__init__(self.model, parent, title=_("Line {line}: {start} --> {end}").format(line=self.line.number, start=self.line.start, end=self.line.end))
 
     def CreateEditor(self) -> QWidget:
         form_layout = self.GetFormLayout()

@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QFormLayout)
 
 from PySubtitle.Helpers.Resources import GetResourcePath
+from PySubtitle.Helpers.Localization import _
 
 def GetThemeNames():
     themes = []
@@ -51,11 +52,11 @@ def GetLineHeight(text: str, wrap_length: int = 60) -> int:
 
 def DescribeLineCount(line_count, translated_count):
     if translated_count == 0:
-        return f"{line_count} lines"
+        return _("{count} lines").format(count=line_count)
     elif line_count == translated_count:
-        return f"{translated_count} lines translated"
+        return _("{count} lines translated").format(count=translated_count)
     else:
-        return f"{translated_count} of {line_count} lines translated"
+        return _("{done} of {total} lines translated").format(done=translated_count, total=line_count)
 
 def ClearForm(layout : QFormLayout):
     """

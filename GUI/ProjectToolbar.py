@@ -3,19 +3,20 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QToolBar, QStyle, QApplication
 
 from GUI.ProjectActions import ProjectActions
+from PySubtitle.Helpers.Localization import _
 
 class ProjectToolbar(QToolBar):
     _show_options = True
 
     def __init__(self, action_handler : ProjectActions, parent=None):
-        super().__init__("Project Toolbar", parent)
+        super().__init__(_("Project Toolbar"), parent)
 
         self.setOrientation(Qt.Orientation.Vertical)
         self.setMovable(False)
 
         self.action_handler = action_handler
 
-        self._toggle_options_btn = QAction(self.show_setting_icon, "Hide/Show Project Options", self)
+        self._toggle_options_btn = QAction(self.show_setting_icon, _("Hide/Show Project Options"), self)
         self._toggle_options_btn.triggered.connect(self._toggle_settings)
         self.addAction(self._toggle_options_btn)
 

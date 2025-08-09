@@ -1,4 +1,4 @@
-#: GUI/ViewModel/SceneItem.py:135
+#: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
 msgid "1 line"
 msgstr ""
 
@@ -8,10 +8,6 @@ msgstr ""
 
 #: GUI/AboutDialog.py:16
 msgid "About GUI-Subtrans"
-msgstr ""
-
-#: GUI/MainToolbar.py:63
-msgid "About this program"
 msgstr ""
 
 #: GUI/Widgets/ProjectSettings.py:112
@@ -32,6 +28,10 @@ msgstr ""
 msgid "Add line breaks to text with dialog markers"
 msgstr ""
 
+#: GUI/ProjectActions.py:128 GUI/ProjectActions.py:149
+msgid "All Files"
+msgstr ""
+
 #: GUI/ViewModel/SceneItem.py:133
 msgid "All batches translated"
 msgstr ""
@@ -48,8 +48,36 @@ msgstr ""
 msgid "Avoid creating a new batch smaller than this"
 msgstr ""
 
+#: GUI/ViewModel/BatchItem.py:203
+msgid "Batch {num}"
+msgstr ""
+
+#: GUI/ProjectActions.py:371
+msgid "Can only autosplit a single batch"
+msgstr ""
+
+#: GUI/ProjectActions.py:382
+msgid "Can only swap text of a single batch"
+msgstr ""
+
 #: GUI/EditInstructionsDialog.py:43
 msgid "Cancel"
+msgstr ""
+
+#: GUI/ProjectActions.py:329
+msgid "Cannot delete scenes or batches yet"
+msgstr ""
+
+#: GUI/ProjectActions.py:302
+msgid "Cannot merge non-sequential elements"
+msgstr ""
+
+#: GUI/ProjectActions.py:111
+msgid "Cannot redo the last command"
+msgstr ""
+
+#: GUI/ProjectActions.py:92
+msgid "Cannot undo the last command"
 msgstr ""
 
 #: GUI/SettingsDialog.py:64
@@ -60,6 +88,10 @@ msgstr ""
 msgid ""
 "Consider a new scene to have started after this many seconds without "
 "subtitles"
+msgstr ""
+
+#: GUI/Widgets/Editors.py:142
+msgid "Context"
 msgstr ""
 
 #: GUI/SettingsDialog.py:57
@@ -74,11 +106,11 @@ msgstr ""
 msgid "Copy From Another Project"
 msgstr ""
 
-#: GUI/FirstRunOptions.py:18
+#: GUI/FirstRunOptions.py:21
 msgid "Customise the appearance of gui-subtrans"
 msgstr ""
 
-#: GUI/FirstRunOptions.py:16
+#: GUI/FirstRunOptions.py:19
 msgid "Default language to translate the subtitles to"
 msgstr ""
 
@@ -129,8 +161,20 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: GUI/MainToolbar.py:54
-msgid "Exit Program"
+#: GUI/ProjectActions.py:118
+msgid "Error redoing the last command: {error}"
+msgstr ""
+
+#: GUI/ProjectActions.py:99
+msgid "Error undoing the last command: {error}"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:236
+msgid "Error: {error}"
+msgstr ""
+
+#: GUI/ViewModel/BatchItem.py:120
+msgid "Expected a dictionary, got a {type}"
 msgstr ""
 
 #: GUI/NewProjectSettings.py:31
@@ -141,7 +185,7 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#: GUI/FirstRunOptions.py:23
+#: GUI/FirstRunOptions.py:26
 msgid "First Run Options"
 msgstr ""
 
@@ -174,6 +218,14 @@ msgstr ""
 msgid "GUI-Subtrans would not work without these libraries:\n"
 msgstr ""
 
+#: GUI/Widgets/Widgets.py:117
+msgid "Gap: {gap}, Length: {duration}"
+msgstr ""
+
+#: GUI/ProjectToolbar.py:19
+msgid "Hide/Show Project Options"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:35
 msgid "High-level instructions for the translator"
 msgstr ""
@@ -200,8 +252,16 @@ msgstr ""
 msgid "Instructions for the translation provider to follow"
 msgstr ""
 
+#: GUI/NewProjectSettings.py:113
+msgid "Instructions: {text}"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:27
 msgid "Language to translate the subtitles to"
+msgstr ""
+
+#: GUI/Widgets/Widgets.py:117
+msgid "Length: {duration}"
 msgstr ""
 
 #: GUI/SettingsDialog.py:72
@@ -210,7 +270,15 @@ msgid ""
 "translation batch"
 msgstr ""
 
-#: GUI/ViewModel/SceneItem.py:141
+#: GUI/ViewModel/BatchItem.py:162
+msgid "Line item {row} has no line number"
+msgstr ""
+
+#: GUI/Widgets/Editors.py:158
+msgid "Line {line}: {start} --> {end}"
+msgstr ""
+
+#: GUI/ViewModel/BatchItem.py:204 GUI/ViewModel/SceneItem.py:141
 msgid "Lines {first}-{last} ({start} -> {end})"
 msgstr ""
 
@@ -218,14 +286,18 @@ msgstr ""
 msgid "Load Instructions"
 msgstr ""
 
-#: GUI/MainToolbar.py:55
-msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
-msgstr ""
-
 #: GUI/AboutDialog.py:31
 msgid ""
 "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable "
 "Diffusion XL</a>"
+msgstr ""
+
+#: GUI/MainToolbar.py:25
+msgid "Main Toolbar"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:225
+msgid "Max batch size is less than min batch size"
 msgstr ""
 
 #: GUI/SettingsDialog.py:51
@@ -261,6 +333,10 @@ msgstr ""
 msgid "Merge lines with a duration less than this with the previous line"
 msgstr ""
 
+#: GUI/Widgets/Editors.py:138
+msgid "Messages"
+msgstr ""
+
 #: GUI/SettingsDialog.py:52
 msgid "Minimum duration of a single line of subtitles"
 msgstr ""
@@ -289,13 +365,41 @@ msgstr ""
 msgid "Names"
 msgstr ""
 
+#: GUI/ProjectActions.py:239
+msgid "No scenes selected for translation"
+msgstr ""
+
+#: GUI/ProjectActions.py:396
+msgid "No subtitles"
+msgstr ""
+
 #: GUI/GuiInterface.py:345 GUI/GuiInterface.py:346
 msgid ""
 "No translation providers available. Please install one or more providers."
 msgstr ""
 
+#: GUI/ProjectActions.py:326
+msgid "Nothing selected to delete"
+msgstr ""
+
+#: GUI/ProjectActions.py:299
+msgid "Nothing selected to merge"
+msgstr ""
+
+#: GUI/ProjectActions.py:250
+msgid "Nothing selected to reparse"
+msgstr ""
+
+#: GUI/ProjectActions.py:211
+msgid "Nothing selected to translate"
+msgstr ""
+
 #: GUI/MainToolbar.py:171
 msgid "Nothing to redo"
+msgstr ""
+
+#: GUI/ProjectActions.py:140
+msgid "Nothing to save!"
 msgstr ""
 
 #: GUI/MainToolbar.py:165
@@ -314,8 +418,28 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
+#: GUI/ProjectActions.py:129
+msgid "Open File"
+msgstr ""
+
+#: GUI/ViewModel/BatchItem.py:189
+msgid "Original line {line} not found in batch {batch}"
+msgstr ""
+
 #: GUI/MainWindow.py:110
 msgid "Performing {action}"
+msgstr ""
+
+#: GUI/ProjectActions.py:355
+msgid "Please select a batch to split the scene at"
+msgstr ""
+
+#: GUI/ProjectActions.py:339
+msgid "Please select a line to split the batch at"
+msgstr ""
+
+#: GUI/ProjectActions.py:342 GUI/ProjectActions.py:358
+msgid "Please select a single split point"
 msgstr ""
 
 #: GUI/SettingsDialog.py:49
@@ -334,20 +458,44 @@ msgstr ""
 msgid "Project Settings"
 msgstr ""
 
+#: GUI/ProjectToolbar.py:12
+msgid "Project Toolbar"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:101
+msgid "Project instructions set from {file}"
+msgstr ""
+
+#: GUI/ProjectActions.py:393
+msgid "Project is not valid"
+msgstr ""
+
+#: GUI/Widgets/Editors.py:118
+msgid "Prompt"
+msgstr ""
+
 #: GUI/EditInstructionsDialog.py:30
 msgid "Prompt for each translation request"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:112
+msgid "Prompt: {text}"
 msgstr ""
 
 #: GUI/Widgets/ProjectSettings.py:121
 msgid "Provider"
 msgstr ""
 
+#: GUI/NewProjectSettings.py:142
+msgid "Provider error: {error}"
+msgstr ""
+
 #: GUI/MainWindow.py:64
 msgid "Ready."
 msgstr ""
 
-#: GUI/MainToolbar.py:62
-msgid "Redo last undone action"
+#: GUI/Widgets/Editors.py:132
+msgid "Reasoning"
 msgstr ""
 
 #: GUI/MainToolbar.py:169
@@ -362,8 +510,16 @@ msgstr ""
 msgid "Reparse Translation"
 msgstr ""
 
+#: GUI/Widgets/Editors.py:127
+msgid "Response"
+msgstr ""
+
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
 msgid "Save Instructions"
+msgstr ""
+
+#: GUI/ProjectActions.py:150
+msgid "Save Project File"
 msgstr ""
 
 #: GUI/SettingsDialog.py:38
@@ -374,12 +530,17 @@ msgstr ""
 msgid "Save preprocessed subtitles to a separate file"
 msgstr ""
 
-#: GUI/MainToolbar.py:56
-msgid "Save project (Hold shift to save as...)"
+#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
+#: GUI/Widgets/Editors.py:86
+msgid "Scene {num}"
 msgstr ""
 
-#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
-msgid "Scene {num}"
+#: GUI/Widgets/Editors.py:103
+msgid "Scene {scene} Batch {batch}"
+msgstr ""
+
+#: GUI/ViewModel/BatchItem.py:19
+msgid "Scene {scene}, batch {batch}"
 msgstr ""
 
 #: GUI/SettingsDialog.py:77
@@ -394,10 +555,6 @@ msgstr ""
 msgid "Selection {task_type}"
 msgstr ""
 
-#: GUI/MainToolbar.py:57
-msgid "Settings"
-msgstr ""
-
 #: GUI/Widgets/SelectionView.py:33
 msgid "Split Batch"
 msgstr ""
@@ -406,20 +563,8 @@ msgstr ""
 msgid "Split Scene"
 msgstr ""
 
-#: GUI/MainToolbar.py:58
-msgid "Start Translating (hold shift to retranslate)"
-msgstr ""
-
-#: GUI/MainToolbar.py:59
-msgid "Start translating on multiple threads (fast but unsafe)"
-msgstr ""
-
 #: GUI/SettingsDialog.py:41
 msgid "Stop translating if an error is encountered"
-msgstr ""
-
-#: GUI/MainToolbar.py:60
-msgid "Stop translation"
 msgstr ""
 
 #: GUI/Widgets/ProjectSettings.py:117
@@ -430,8 +575,24 @@ msgstr ""
 msgid "Substitutions"
 msgstr ""
 
+#: GUI/ProjectActions.py:128
+msgid "Subtitle files"
+msgstr ""
+
+#: GUI/ProjectActions.py:399
+msgid "Subtitles have not been batched"
+msgstr ""
+
 #: GUI/Widgets/ProjectSettings.py:280
 msgid "Subtrans Files (*.subtrans);;All Files (*)"
+msgstr ""
+
+#: GUI/ProjectActions.py:149
+msgid "Subtrans projects"
+msgstr ""
+
+#: GUI/Widgets/Editors.py:112
+msgid "Summary"
 msgstr ""
 
 #: GUI/EditInstructionsDialog.py:33
@@ -468,11 +629,15 @@ msgstr ""
 msgid "The default language to translate the subtitles to"
 msgstr ""
 
+#: GUI/FirstRunOptions.py:18
+msgid "The language of the application interface"
+msgstr ""
+
 #: GUI/SettingsDialog.py:31
 msgid "The language of the application interface (requires restart)"
 msgstr ""
 
-#: GUI/FirstRunOptions.py:17
+#: GUI/FirstRunOptions.py:20
 msgid "The translation provider to use"
 msgstr ""
 
@@ -488,12 +653,46 @@ msgstr ""
 msgid "Type of response expected for each line (must match the example format)"
 msgstr ""
 
-#: GUI/MainToolbar.py:61
-msgid "Undo last action"
+#: GUI/NewProjectSettings.py:75
+msgid "Unable to create option widget for {key}: {error}"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:116 GUI/NewProjectSettings.py:161
+msgid "Unable to load instructions from {file}: {error}"
+msgstr ""
+
+#: GUI/ProjectActions.py:317
+msgid "Unable to merge selection ({selection})"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:176
+msgid "Unable to preview batches: {error}"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:119
+msgid "Unable to update settings: {error}"
 msgstr ""
 
 #: GUI/MainToolbar.py:163
 msgid "Undo {command}"
+msgstr ""
+
+#: GUI/ProjectActions.py:283
+msgid "Updating line {line} with {original} > {translated}"
+msgstr ""
+
+#: GUI/ProjectActions.py:273
+msgid "Updating scene {scene} batch {batch} with {update}"
+msgstr ""
+
+#: GUI/ProjectActions.py:263
+msgid "Updating scene {scene} with {update}"
+msgstr ""
+
+#: GUI/ViewModel/BatchItem.py:247
+msgid ""
+"User Prompt:\n"
+" {text}"
 msgstr ""
 
 #: GUI/SettingsDialog.py:74
@@ -536,12 +735,32 @@ msgstr ""
 msgid "{command} was successful."
 msgstr ""
 
+#: GUI/GuiHelpers.py:55 GUI/ViewModel/BatchItem.py:198
+msgid "{count} lines"
+msgstr ""
+
+#: GUI/GuiHelpers.py:57
+msgid "{count} lines translated"
+msgstr ""
+
+#: GUI/ViewModel/BatchItem.py:199
+msgid "{count} translated"
+msgstr ""
+
 #: GUI/ViewModel/SceneItem.py:133
 msgid "{done} of {total} batches translated"
 msgstr ""
 
+#: GUI/GuiHelpers.py:59
+msgid "{done} of {total} lines translated"
+msgstr ""
+
 #: GUI/ViewModel/SceneItem.py:135
 msgid "{lines} lines in {batches} batches"
+msgstr ""
+
+#: GUI/NewProjectSettings.py:232
+msgid "{lines} lines in {scenes} scenes and {batches} batches"
 msgstr ""
 
 #: GUI/MainWindow.py:149
