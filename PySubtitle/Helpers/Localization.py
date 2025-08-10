@@ -10,9 +10,13 @@ import gettext
 import os
 from typing import Optional
 
-from PySubtitle.Helpers.Resources import GetResourcePath
-from PySubtitle.Options import Options
+# Babel is optional; fall back gracefully if unavailable
+try:
+    from babel import Locale  # type: ignore
+except Exception:  # pragma: no cover - environment without Babel
+    Locale = None  # type: ignore
 
+from PySubtitle.Helpers.Resources import GetResourcePath
 
 _translator: Optional[gettext.NullTranslations] = None
 _domain = 'gui-subtrans'
@@ -33,11 +37,11 @@ def initialize_localization(language_code: Optional[str] = None) -> None:
     global _translator
 
     if language_code is None:
-        try:
-            options = Options()
-            language_code = options.get('ui_language', 'en')
-        except Exception:
-            language_code = 'en'
+        language_code = 'en'  # Default to English if no language code provided
+
+    # If a Babel Locale object is passed, convert to string code (e.g., 'en' or 'en_US')
+    if Locale is not None and isinstance(language_code, Locale):  # type: ignore[arg-type]
+        language_code = str(language_code)
 
     locale_dir = _get_locale_dir()
 
@@ -92,11 +96,13 @@ def get_locale_display_name(locale_code: str) -> str:
     Get the human-readable display name for a locale code using Babel.
     Falls back to the locale code if Babel is not available or lookup fails.
     """
+    if Locale is None:
+        return locale_code
     try:
-        from babel import Locale
-        locale = Locale(locale_code)
-        return locale.english_name
-    except (ImportError, Exception):
+        # Normalize hyphen to underscore for Babel and parse the locale string
+        loc = Locale.parse(locale_code.replace('-', '_'))  # type: ignore[attr-defined]
+        return loc.display_name  # type: ignore[return-value]
+    except Exception:
         # Fallback to locale code if Babel is not available or lookup fails
         return locale_code
 
@@ -135,5 +141,4 @@ def get_locale_display_items() -> list[LocaleDisplayItem]:
     """
     locales_with_names = get_locales_with_names()
     return [LocaleDisplayItem(code, name) for code, name in locales_with_names]
-
 
