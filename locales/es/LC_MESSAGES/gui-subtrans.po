@@ -1060,7 +1060,7 @@ msgstr "Traduciendo la escena número {scene} lote {batches}"
 
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
-msgstr "La configuración del proveedor de traducción no es válida. Por favor, revise la configuración.La configuración del proveedor de traducción no es válida. Por favor, revise la configuración."
+msgstr "La configuración del proveedor de traducción no es válida. Por favor, revise la configuración."
 
 #: GUI/EditInstructionsDialog.py:31
 msgid "Type of response expected for each line (must match the example format)"
