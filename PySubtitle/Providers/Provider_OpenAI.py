@@ -51,9 +51,9 @@ else:
 
                 self.refresh_when_changed = ['api_key', 'api_base', 'model']
 
-                self.valid_model_types = [ "gpt", "o1", "o3" ]
+                self.valid_model_types = [ "gpt", "o1", "o3", "o4" ]
                 self.excluded_model_types = [ "vision", "realtime", "audio" ]
-                self.reasoning_models = [ "o1","o3","o4","o5" ]
+                self.reasoning_models = [ "o1","o3","o4","gpt5" ]
 
             @property
             def api_key(self):
