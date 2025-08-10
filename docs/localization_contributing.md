@@ -52,6 +52,7 @@ A helper script automates extraction, merging, compilation, and a light-weight m
 ## String rules and tips
 
 - Preserve placeholders: if msgid has `{file}`, your translation must have `{file}` too.
+- Translate settings keys, e.g. `ui_language` to a human-readable string, e.g. "UI Language"
 - Quotes and braces:
   - Do not change `{}` names; do not add extra spaces inside them
   - Keep paired quotes symmetrical; escape in PO only if your editor requires it
