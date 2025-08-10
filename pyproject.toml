@@ -1,0 +1,74 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "gpt-subtrans"
+version = "1.1.2"
+description = "An open source subtitle translator that uses LLMs as a translation service"
+authors = ["machinewrapped <machinewrapped@users.noreply.github.com>"]
+license = "MIT"
+readme = "readme.md"
+homepage = "https://github.com/machinewrapped/gpt-subtrans"
+repository = "https://github.com/machinewrapped/gpt-subtrans"
+documentation = "https://github.com/machinewrapped/gpt-subtrans/wiki"
+keywords = ["subtitle", "translation", "llm", "gpt", "ai"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: End Users/Desktop", 
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11", 
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+packages = [
+    { include = "PySubtitle" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+# Core dependencies  
+python-dotenv = "*"
+srt = "*"
+regex = "*"
+appdirs = "*"
+events = "*"
+requests = "*"
+setuptools = "*"
+httpx = {extras = ["socks"], version = "*"}
+
+# GUI dependencies (optional)
+pyside6 = {version = "*", optional = true}
+darkdetect = {version = "*", optional = true}
+
+# Provider dependencies (optional)
+openai = {version = "*", optional = true}
+google-genai = {version = "*", optional = true}
+anthropic = {version = "*", optional = true}
+mistralai = {version = "*", optional = true}
+boto3 = {version = "*", optional = true}
+
+[tool.poetry.extras]
+gui = ["pyside6", "darkdetect"]
+openai = ["openai"]
+gemini = ["google-genai"]
+claude = ["anthropic"]
+mistral = ["mistralai"]
+bedrock = ["boto3"]
+providers = ["openai", "google-genai", "anthropic", "mistralai", "boto3"]
+all = ["pyside6", "darkdetect", "openai", "google-genai", "anthropic", "mistralai", "boto3"]
+
+[tool.poetry.scripts]
+gpt-subtrans = "scripts.entry_points:gpt_subtrans"
+gui-subtrans = "scripts.entry_points:gui_subtrans"
+gemini-subtrans = "scripts.entry_points:gemini_subtrans"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
