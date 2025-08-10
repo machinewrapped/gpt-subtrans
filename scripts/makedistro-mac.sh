@@ -29,7 +29,7 @@ fi
     --paths="./envsubtrans/lib" \
     --add-data "theme/*:theme/" \
     --add-data "assets/*:assets/" \
-    --add-data "instructions*:instructions/" \
+    --add-data "instructions/*:instructions/" \
     --add-data "LICENSE:." \
     --add-data "locales/*:locales/" \
     --noconfirm \
