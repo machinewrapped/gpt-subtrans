@@ -28,13 +28,17 @@ A helper script automates extraction, merging, compilation, and a light-weight m
      - Compile `.po` → `.mo`
      - Generate `untranslated_msgids_<lang>.txt` listing empty translations
 
-3) Either a: Translate using the generated dict file:
-   - Open `untranslated_msgids_<lang>.txt`
-   - Fill in each `''` with your translation (keep keys unchanged)
+3) Either 
+    - Translate automatically
+        - Upload `untranslated_msgids_<lang>.txt` to your favourite LLM and ask it to fill in translations.
+        - You'll need to mention that for keys like `max_completion_tokens` the translation should be human readable, e.g. "Max Completion Tokens" 
 
-    Or b: Translate manually
-    - You can edit `locales/<lang>/LC_MESSAGES/gui-subtrans.po` with Poedit or any PO editor.
-    - After editing, run `python scripts/update_translations.py` to normalize/compile, or run `msgfmt` yourself to build `.mo`.
+    - Translate using the generated dict file:
+        - Open `untranslated_msgids_<lang>.txt`
+        - Fill in each `''` with your translation (keep keys unchanged)
+
+    - Or use translation tools
+        - You can edit `locales/<lang>/LC_MESSAGES/gui-subtrans.po` with Poedit or any PO editor
 
 4) Integrate and compile:
    - Run `python scripts/update_translations.py` again
