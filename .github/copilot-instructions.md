@@ -11,6 +11,15 @@
   - User actions -> `GUI/ProjectActions.py` -> queue `GUI/Commands/*` via `GUI/GuiInterface.py` -> commands modify domain objects -> produce `GUI/ViewModel/ViewModelUpdate` patches -> `ProjectDataModel.UpdateViewModel` applies patches -> Qt model/view updates.
   - Long-running operations (translate, split/merge) are Commands. Commands must be thread-safe and use model updates; never mutate Qt widgets from worker threads.
 
+## Code Style
+- **Naming**: PascalCase for classes and methods, snake_case for variables
+- **Imports**: Standard lib → third-party → local, alphabetical within groups
+- **Types**: Use type hints for parameters, return values, and class variables
+- **Docstrings**: Triple-quoted concise descriptions for classes and methods
+- **Error handling**: Custom exceptions, specific except blocks, input validation
+- **Class structure**: Docstring → constants → init → properties → public methods → private methods
+- **Threading safety**: Use locks (RLock/QRecursiveMutex) for thread-safe operations
+
 ## Localization (i18n)
 - Use `from PySubtitle.Helpers.Localization import _` and wrap user-visible strings with `_()`.
 - Templates live in `locales/gui-subtrans.pot`; languages under `locales/<lang>/LC_MESSAGES/gui-subtrans.po`.
