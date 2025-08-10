@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 17:49+0000\n"
+"POT-Creation-Date: 2025-08-10 18:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -359,6 +359,10 @@ msgstr ""
 
 #: GUI/Commands/MergeLinesCommand.py:48
 msgid "Failed to merge lines"
+msgstr ""
+
+#: GUI/GuiInterface.py:190
+msgid "Failed to switch language - restart the application: {error}"
 msgstr ""
 
 #: GUI/NewProjectSettings.py:31

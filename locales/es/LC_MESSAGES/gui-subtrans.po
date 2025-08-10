@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 17:49+0000\n"
+"POT-Creation-Date: 2025-08-10 18:28+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -369,6 +369,10 @@ msgstr "Se esperaba un diccionario de parches"
 #: GUI/Commands/MergeLinesCommand.py:48
 msgid "Failed to merge lines"
 msgstr "Fallo al fusionar líneas"
+
+#: GUI/GuiInterface.py:190
+msgid "Failed to switch language - restart the application: {error}"
+msgstr ""
 
 #: GUI/NewProjectSettings.py:31
 msgid "Fewest lines to send in separate batch"
