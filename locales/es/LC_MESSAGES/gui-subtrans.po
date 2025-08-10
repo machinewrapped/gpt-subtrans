@@ -1109,7 +1109,7 @@ msgstr "No se pueden obtener los modelos"
 
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
-msgstr "No se puede traducir la escena porque el proyecto no está establecido en el modelo de datosNo se puede traducir la escena porque el proyecto no está establecido en el modelo de datosNo se puede traducir la escena porque el proyecto no está establecido en el modelo de datosNo se puede traducir la escena porque el proyecto no está establecido en el modelo de datos"
+msgstr "No se puede traducir la escena porque el proyecto no está establecido en el modelo de datos"
 
 #: GUI/Commands/SplitBatchCommand.py:82
 msgid "Unable to undo SplitBatchCommand command: {error}"
