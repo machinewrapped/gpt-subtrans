@@ -3,6 +3,7 @@ import os
 from typing import List
 
 import regex
+from PySubtitle.Helpers.Localization import LocaleDisplayItem
 from PySubtitle.SubtitleError import SubtitleError
 
 def GetEnvBool(key, default=False):
@@ -51,6 +52,8 @@ def GetValueFromName(name, values, default=None):
     """
     for value in values:
         if str(name) == str(value) or name == GetValueName(value):
+            if isinstance(value, LocaleDisplayItem):
+                return value.code
             return value
 
     if default is not None:

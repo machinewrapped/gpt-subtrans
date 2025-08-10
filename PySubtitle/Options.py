@@ -107,6 +107,10 @@ class Options:
     @property
     def theme(self) -> str:
         return self.get('theme')
+    
+    @property
+    def ui_language(self) -> str:
+        return self.get('ui_language', 'en')
 
     @property
     def version(self) -> str:
