@@ -423,6 +423,8 @@ Manual workflow (optional):
 
 When submitting a PR, include your updated `locales/<lang>/LC_MESSAGES/gui-subtrans.po` (and the compiled `.mo` if you prefer; we can regenerate it if needed).
 
+For detailed translator guidance (workflow, style, and pitfalls), see `docs/localization_contributing.md`.
+
 ## Project File
 
 **Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and updated automatically.

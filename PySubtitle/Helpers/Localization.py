@@ -68,7 +68,17 @@ def _(text: str) -> str:
 def tr(context: str, text: str) -> str:
     """Return translated string with context (pgettext)."""
     if _translator and hasattr(_translator, 'pgettext'):
-        return _translator.pgettext(context, text)
+        try:
+            ctx_value = _translator.pgettext(context, text)  # type: ignore[attr-defined]
+            # If no context-specific entry exists, pgettext returns the original text.
+            # In that case, fall back to general translation if available.
+            general_value = _translator.gettext(text)
+            if ctx_value == text and general_value != text:
+                return general_value
+            return ctx_value
+        except Exception:
+            # On any unexpected error, fall back to general translation
+            return _(text)
     # Fallback: ignore context if pgettext not available
     return _(text)
 
