@@ -1064,7 +1064,7 @@ msgstr "La configuración del proveedor de traducción no es válida. Por favor,
 
 #: GUI/EditInstructionsDialog.py:31
 msgid "Type of response expected for each line (must match the example format)"
-msgstr "Tipo de respuesta esperada para cada línea (debe coincidir con el formato del ejemplo)Tipo de respuesta esperada para cada línea (debe coincidir con el formato del ejemplo)"
+msgstr "Tipo de respuesta esperada para cada línea (debe coincidir con el formato del ejemplo)"
 
 #: GUI/NewProjectSettings.py:75
 msgid "Unable to create option widget for {key}: {error}"
