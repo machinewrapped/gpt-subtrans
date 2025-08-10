@@ -40,7 +40,7 @@ else:
                 super().__init__(self.name, {
                     "api_key": settings.get('api_key', os.getenv('OPENAI_API_KEY')),
                     "api_base": settings.get('api_base', os.getenv('OPENAI_API_BASE')),
-                    "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-4o-mini")),
+                    "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-5-mini")),
                     'temperature': settings.get('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
                     'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
                     "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
@@ -53,7 +53,7 @@ else:
 
                 self.valid_model_types = [ "gpt", "o1", "o3", "o4" ]
                 self.excluded_model_types = [ "vision", "realtime", "audio" ]
-                self.reasoning_models = [ "o1","o3","o4","gpt5" ]
+                self.reasoning_models = [ "o1","o3","o4","gpt-5" ]
 
             @property
             def api_key(self):
