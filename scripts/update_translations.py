@@ -5,7 +5,7 @@ Update translations from POT into PO files and compile MO catalogs.
 import os
 import sys
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 # Add the parent directory to sys.path so we can import PySubtitle modules
@@ -28,7 +28,7 @@ def ensure_po(language_code: str) -> str:
     lang_dir = ensure_dirs(language_code)
     po_path = os.path.join(lang_dir, 'gui-subtrans.po')
     if not os.path.exists(po_path):
-        now = datetime.utcnow().strftime('%Y-%m-%d %H:%M+0000')
+    now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
         header = (
             'msgid ""\n'
             'msgstr ""\n'
