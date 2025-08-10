@@ -10,7 +10,6 @@ else:
 
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
-        from PySubtitle.Providers.OpenAI.InstructGPTClient import InstructGPTClient
         from PySubtitle.Providers.OpenAI.OpenAIReasoningClient import OpenAIReasoningClient
         from PySubtitle.SubtitleError import ProviderError
         from PySubtitle.TranslationClient import TranslationClient
@@ -52,8 +51,8 @@ else:
                 self.refresh_when_changed = ['api_key', 'api_base', 'model']
 
                 self.valid_model_types = [ "gpt", "o1", "o3", "o4" ]
-                self.excluded_model_types = [ "vision", "realtime", "audio" ]
-                self.reasoning_models = [ "o1","o3","o4","gpt-5" ]
+                self.excluded_model_types = [ "vision", "realtime", "audio", "instruct" ]
+                self.non_reasoning_models = [ "gpt-3", "gpt-4" ]
 
             @property
             def api_key(self):
@@ -69,13 +68,13 @@ else:
 
             @property
             def is_reasoning_model(self):
-                return self.selected_model and any(self.selected_model.startswith(reasoning_model) for reasoning_model in self.reasoning_models)
+                return self.selected_model and not any(self.selected_model.startswith(model) for model in self.non_reasoning_models)
 
             def GetTranslationClient(self, settings : dict) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 if self.is_instruct_model:
-                    return InstructGPTClient(client_settings)
+                    raise ProviderError("Instruct models are no longer supported", provider=self)
                 elif self.is_reasoning_model:
                     return OpenAIReasoningClient(client_settings)
                 else:

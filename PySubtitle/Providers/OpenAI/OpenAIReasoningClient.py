@@ -1,9 +1,6 @@
-import logging
-
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError, TranslationResponseError
-from PySubtitle.Translation import Translation
+from PySubtitle.SubtitleError import TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
 
 linesep = '\n'
