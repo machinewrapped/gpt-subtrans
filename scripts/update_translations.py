@@ -28,7 +28,7 @@ def ensure_po(language_code: str) -> str:
     lang_dir = ensure_dirs(language_code)
     po_path = os.path.join(lang_dir, 'gui-subtrans.po')
     if not os.path.exists(po_path):
-    now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
+        now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
         header = (
             'msgid ""\n'
             'msgstr ""\n'
