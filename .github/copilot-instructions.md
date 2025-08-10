@@ -1,5 +1,7 @@
 # Copilot Instructions for GPT-Subtrans
 
+Uses Python 3.10+
+
 ## Architecture overview
 - Desktop GUI app using PySide6 (Qt for Python) with MVC-ish separation:
   - GUI/ contains views, dialogs, toolbars, and controllers that emit/handle Qt signals.
