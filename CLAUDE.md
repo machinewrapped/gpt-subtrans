@@ -1,5 +1,7 @@
 # GPT-SubTrans Development Guide
 
+Uses Python 3.10+ and PySide6
+
 ## Commands
 - Run all tests: `python scripts/run_tests.py`
 - Run single test: `python -m unittest PySubtitle.UnitTests.test_MODULE`
