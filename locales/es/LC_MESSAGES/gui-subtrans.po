@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 14:53+0000\n"
+"POT-Creation-Date: 2025-08-10 17:26+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -760,6 +760,10 @@ msgstr "Solicitud: {text}"
 msgid "Provider"
 msgstr "Proveedor"
 
+#: GUI/SettingsDialog.py:83
+msgid "Provider Settings"
+msgstr "Configuración del proveedor"
+
 #: GUI/NewProjectSettings.py:142
 msgid "Provider error: {error}"
 msgstr "Error del proveedor: {error}"
@@ -1052,10 +1056,6 @@ msgstr "Traduciendo la escena número {scene}"
 #: GUI/Commands/TranslateSceneCommand.py:29
 msgid "Translating scene number {scene} batch {batches}"
 msgstr "Traduciendo la escena número {scene} lote {batches}"
-
-#: GUI/SettingsDialog.py:83
-msgid "Translation Provider"
-msgstr "Proveedor de traducción"
 
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
@@ -1566,6 +1566,9 @@ msgstr "{num} órdenes en cola."
 msgid "{starting} {threaded} translation"
 msgstr "{starting} traducción {threaded}"
 
+#~ msgid "Translation Provider"
+#~ msgstr "Proveedor de traducción"
+
 #~ msgid "Edit"
 #~ msgstr "Editar"
 
@@ -1577,6 +1580,3 @@ msgstr "{starting} traducción {threaded}"
 
 #~ msgid "Tools"
 #~ msgstr "Herramientas"
-
-#~ msgid "Provider Settings"
-#~ msgstr "Configuración del proveedor"

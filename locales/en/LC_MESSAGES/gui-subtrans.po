@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 14:53+0000\n"
-"PO-Revision-Date: 2025-08-10 14:53+0000\n"
+"POT-Creation-Date: 2025-08-10 17:26+0000\n"
+"PO-Revision-Date: 2025-08-10 17:26+0000\n"
 "Last-Translator: Auto-generated\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -759,6 +759,10 @@ msgstr ""
 msgid "Provider"
 msgstr ""
 
+#: GUI/SettingsDialog.py:83
+msgid "Provider Settings"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:142
 msgid "Provider error: {error}"
 msgstr ""
@@ -1050,10 +1054,6 @@ msgstr ""
 
 #: GUI/Commands/TranslateSceneCommand.py:29
 msgid "Translating scene number {scene} batch {batches}"
-msgstr ""
-
-#: GUI/SettingsDialog.py:83
-msgid "Translation Provider"
 msgstr ""
 
 #: GUI/GuiInterface.py:171

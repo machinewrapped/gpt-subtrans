@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 14:53+0000\n"
+"POT-Creation-Date: 2025-08-10 17:26+0000\n"
 "PO-Revision-Date: 2025-08-09 21:00+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Czech\n"
@@ -763,6 +763,10 @@ msgstr "Výzva: {text}"
 msgid "Provider"
 msgstr "Poskytovatel"
 
+#: GUI/SettingsDialog.py:83
+msgid "Provider Settings"
+msgstr "Nastavení poskytovatele"
+
 #: GUI/NewProjectSettings.py:142
 msgid "Provider error: {error}"
 msgstr "Chyba poskytovatele: {error}"
@@ -1055,10 +1059,6 @@ msgstr "Překlad scény číslo {scene}"
 #: GUI/Commands/TranslateSceneCommand.py:29
 msgid "Translating scene number {scene} batch {batches}"
 msgstr "Překlad scény číslo {scene} dávky {batches}"
-
-#: GUI/SettingsDialog.py:83
-msgid "Translation Provider"
-msgstr "Poskytovatel překladu"
 
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
@@ -1570,3 +1570,6 @@ msgstr "{num} příkazů ve frontě."
 #: GUI/Commands/StartTranslationCommand.py:34
 msgid "{starting} {threaded} translation"
 msgstr "{starting} {threaded} překlad"
+
+#~ msgid "Translation Provider"
+#~ msgstr "Poskytovatel překladu"
