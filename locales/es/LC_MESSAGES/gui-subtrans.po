@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 12:44+0000\n"
+"POT-Creation-Date: 2025-08-10 14:53+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -16,15 +16,15 @@ msgstr "1 línea"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:61
 msgid "A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)"
-msgstr ""
+msgstr "Se requiere una clave API de DeepSeek para usar este proveedor (https://platform.deepseek.com/api_keys)"
 
 #: PySubtitle/Providers/Provider_Gemini.py:62
 msgid "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"
-msgstr ""
+msgstr "Se requiere una clave API de Google Gemini para usar este proveedor (https://makersuite.google.com/app/apikey)"
 
 #: PySubtitle/Providers/Provider_Mistral.py:61
 msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
-msgstr ""
+msgstr "Se requiere una clave API de Mistral para usar este proveedor (https://console.mistral.ai/api-keys/)"
 
 #: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_OpenAI.py:98
 msgid "AI model to use as the translator"
@@ -48,7 +48,7 @@ msgstr "Agregar marcadores RTL"
 
 #: GUI/SettingsDialog.py:33
 msgid "Add RTL markers around translated lines that contain primarily right-to-left script on save"
-msgstr ""
+msgstr "Añadir marcadores RTL alrededor de las líneas traducidas que contengan principalmente escritura de derecha a izquierda al guardar"
 
 #: GUI/SettingsDialog.py:60
 msgid "Add line breaks to long single lines (post-process)"
@@ -57,6 +57,10 @@ msgstr "Agregar saltos de línea a líneas largas (posprocesado)"
 #: GUI/SettingsDialog.py:55
 msgid "Add line breaks to text with dialog markers"
 msgstr "Agregar saltos de línea al texto con marcas de diálogo"
+
+#: GUI/SettingsDialog.py:85
+msgid "Advanced"
+msgstr "Avanzado"
 
 #: GUI/ProjectActions.py:128 GUI/ProjectActions.py:149
 msgid "All Files"
@@ -79,7 +83,7 @@ msgstr "Alternativa a max_tokens para algunos servidores"
 #: PySubtitle/Providers/Provider_Mistral.py:70
 #: PySubtitle/Providers/Provider_OpenAI.py:108
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
-msgstr ""
+msgstr "Cantidad de variación aleatoria a añadir a las traducciones. En general, lo mejor es ninguna"
 
 #: PySubtitle/Providers/Provider_Custom.py:107
 msgid "An API key is normally not needed for a local server"
@@ -95,7 +99,7 @@ msgstr "Se requiere una clave secreta de acceso de AWS"
 
 #: PySubtitle/Providers/Provider_Claude.py:96
 msgid "An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"
-msgstr ""
+msgstr "Se requiere una clave API de Anthropic Claude para usar este proveedor (https://console.anthropic.com/settings/keys)"
 
 #: PySubtitle/Providers/Provider_Azure.py:65
 msgid "An Azure API deployment name is required"
@@ -111,7 +115,7 @@ msgstr "Se requiere una versión de API de Azure"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:87
 msgid "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"
-msgstr ""
+msgstr "Se requiere una clave API de OpenAI para usar este proveedor (https://platform.openai.com/account/api-keys)"
 
 #: PySubtitle/Providers/Provider_Custom.py:96
 msgid "Attempt to communicate with the endpoint using chat format"
@@ -226,7 +230,7 @@ msgstr "Lista separada por comas de filler_words para eliminar"
 
 #: GUI/SettingsDialog.py:70
 msgid "Consider a new scene to have started after this many seconds without subtitles"
-msgstr ""
+msgstr "Considerar que empieza una nueva escena después de este número de segundos sin subtítulos"
 
 #: GUI/Widgets/Editors.py:142
 msgid "Context"
@@ -377,7 +381,7 @@ msgstr "Opciones de primera ejecución"
 msgid "GUI-Subtrans"
 msgstr "GUI-Subtrans"
 
-#: GUI/SettingsDialog.py:111
+#: GUI/SettingsDialog.py:118
 msgid "GUI-Subtrans Settings"
 msgstr "Configuración de GUI-Subtrans"
 
@@ -387,7 +391,7 @@ msgstr ""
 
 #: GUI/AboutDialog.py:50
 msgid "GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or to improve the quality of an existing translation."
-msgstr ""
+msgstr "GUI-Subtrans utiliza LLMs para traducir subtítulos SRT a otros idiomas o para mejorar la calidad de una traducción existente."
 
 #: GUI/AboutDialog.py:80
 msgid "GUI-Subtrans would not work without these libraries:\n"
@@ -396,6 +400,10 @@ msgstr ""
 #: GUI/Widgets/Widgets.py:117
 msgid "Gap: {gap}, Length: {duration}"
 msgstr "Pausa: {gap}, Duración: {duration}"
+
+#: GUI/SettingsDialog.py:82
+msgid "General"
+msgstr "General"
 
 #: GUI/ProjectToolbar.py:19 GUI/ProjectToolbar.py:26
 msgid "Hide/Show Project Options"
@@ -407,11 +415,11 @@ msgstr "Instrucciones de alto nivel para el traductor"
 
 #: PySubtitle/Providers/Provider_Custom.py:103
 msgid "Higher temperature introduces more randomness to the translation (default 0.0)"
-msgstr ""
+msgstr "Una temperatura más alta introduce más aleatoriedad en la traducción (por defecto 0.0)"
 
 #: GUI/SettingsDialog.py:40
 msgid "If true, translations that fail validation will be retried with a note about the error"
-msgstr ""
+msgstr "Si es verdadero, las traducciones que no pasen la validación se reintentarán con una nota sobre el error"
 
 #: GUI/Widgets/SelectionView.py:58
 msgid "Improve Selection"
@@ -431,7 +439,7 @@ msgstr "Instrucciones que debe seguir el proveedor de traducción"
 
 #: PySubtitle/Providers/Provider_Custom.py:99
 msgid "Instructions will be sent as system messages rather than the user prompt"
-msgstr ""
+msgstr "Las instrucciones se enviarán como mensajes del sistema en lugar de como solicitud del usuario"
 
 #: GUI/NewProjectSettings.py:113
 msgid "Instructions: {text}"
@@ -451,7 +459,7 @@ msgstr "Duración: {duration}"
 
 #: GUI/SettingsDialog.py:72
 msgid "Limits the number of scene/batch summaries to include as context with each translation batch"
-msgstr ""
+msgstr "Limita el número de resúmenes de escena/lote que se incluyen como contexto con cada lote de traducción"
 
 #: GUI/ViewModel/BatchItem.py:162
 msgid "Line item {row} has no line number"
@@ -505,7 +513,7 @@ msgstr "Número máximo de solicitudes API por minuto."
 
 #: PySubtitle/Providers/Provider_OpenAI.py:99
 msgid "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"
-msgstr ""
+msgstr "Número máximo de solicitudes API de OpenAI por minuto. Principalmente útil si estás en el plan gratuito restringido"
 
 #: GUI/SettingsDialog.py:51
 msgid "Maximum duration of a single line of subtitles"
@@ -517,7 +525,7 @@ msgstr "Longitud máxima de una línea de subtítulos"
 
 #: GUI/SettingsDialog.py:73
 msgid "Maximum length of the context summary to include with each translation batch"
-msgstr ""
+msgstr "Longitud máxima del resumen de contexto que se incluirá con cada lote de traducción"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:71
 msgid "Maximum number of output tokens to return in the response."
@@ -529,7 +537,7 @@ msgstr "Número máximo de hilos simultáneos para traducción rápida"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:103
 msgid "Maximum tokens a completion can contain (only applicable for -instruct models)"
-msgstr ""
+msgstr "Número máximo de tokens que puede contener una finalización (solo aplicable a modelos -instruct)"
 
 #: GUI/Widgets/SelectionView.py:93
 msgid "Merge Batches"
@@ -621,7 +629,7 @@ msgstr "No hay subtítulos"
 
 #: GUI/GuiInterface.py:360 GUI/GuiInterface.py:361
 msgid "No translation providers available. Please install one or more providers."
-msgstr ""
+msgstr "No hay proveedores de traducción disponibles. Por favor, instala uno o más proveedores."
 
 #: GUI/Widgets/ScenesView.py:126
 msgid "Not sure what you just double-clicked on"
@@ -677,7 +685,7 @@ msgstr "Abrir archivo"
 
 #: PySubtitle/Providers/Provider_Claude.py:115
 msgid "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/"
-msgstr ""
+msgstr "Servidor proxy opcional para usar en las solicitudes (por ejemplo, https://api.not-anthropic.com/"
 
 #: GUI/ViewModel/BatchItem.py:189
 msgid "Original line {line} not found in batch {batch}"
@@ -714,6 +722,10 @@ msgstr "Preprocesar subtítulos antes de agrupar"
 #: GUI/SettingsDialog.py:48
 msgid "Preprocess subtitles when they are loaded"
 msgstr "Preprocesar subtítulos al cargarlos"
+
+#: GUI/SettingsDialog.py:84
+msgid "Processing"
+msgstr "Procesamiento"
 
 #: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37
 #: GUI/Widgets/ProjectSettings.py:86
@@ -798,7 +810,7 @@ msgstr "Reanudando"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:70
 msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
-msgstr ""
+msgstr "Reutilizar la conexión para varias solicitudes (de lo contrario, se establece una nueva conexión para cada una)"
 
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
 msgid "Save Instructions"
@@ -939,7 +951,7 @@ msgstr "Archivos de texto (*.txt);;Todos los archivos (*))"
 
 #: GUI/SettingsDialog.py:35
 msgid "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"
-msgstr ""
+msgstr "La instrucción (breve) para cada lote de subtítulos. Algunas [etiquetas] se rellenan automáticamente"
 
 #: GUI/NewProjectSettings.py:28 GUI/SettingsDialog.py:44
 msgid "The AI translation service to use"
@@ -971,13 +983,13 @@ msgstr "La URL base para las solicitudes (por defecto es https://api.mistral.ai)
 
 #: PySubtitle/Providers/Provider_OpenAI.py:88
 msgid "The base URL to use for requests - leave as default unless you know you need something else"
-msgstr ""
+msgstr "La URL base para las solicitudes: déjala por defecto salvo que sepas que necesitas otra"
 
-#: GUI/SettingsDialog.py:30
+#: GUI/SettingsDialog.py:31
 msgid "The default language to translate the subtitles to"
 msgstr "El idioma predeterminado al que traducir los subtítulos"
 
-#: GUI/FirstRunOptions.py:18 GUI/SettingsDialog.py:31
+#: GUI/FirstRunOptions.py:18 GUI/SettingsDialog.py:30
 msgid "The language of the application interface"
 msgstr "El idioma de la interfaz de la aplicación"
 
@@ -991,7 +1003,7 @@ msgstr "El número máximo de solicitudes que se pueden hacer por minuto"
 
 #: PySubtitle/Providers/Provider_Custom.py:104
 msgid "The maximum number of tokens the AI should generate in the response (0 for unlimited)"
-msgstr ""
+msgstr "El número máximo de tokens que la IA debe generar en la respuesta (0 para ilimitado)"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:87
 msgid "The maximum number of tokens to generate in a single request"
@@ -1007,7 +1019,7 @@ msgstr "El número máximo de tokens a usar para traducciones"
 
 #: PySubtitle/Providers/Provider_Custom.py:108
 msgid "The model is normally set by the server, and should not need to be specified here"
-msgstr ""
+msgstr "Normalmente, el modelo lo establece el servidor y no debería ser necesario especificarlo aquí"
 
 #: PySubtitle/Providers/Provider_Claude.py:105
 msgid "The model to use for translations"
@@ -1040,6 +1052,10 @@ msgstr "Traduciendo la escena número {scene}"
 #: GUI/Commands/TranslateSceneCommand.py:29
 msgid "Translating scene number {scene} batch {batches}"
 msgstr "Traduciendo la escena número {scene} lote {batches}"
+
+#: GUI/SettingsDialog.py:83
+msgid "Translation Provider"
+msgstr ""
 
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
@@ -1136,11 +1152,11 @@ msgstr "Actualizando escena {scene} con {update}"
 
 #: PySubtitle/Providers/Provider_Custom.py:109
 msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
-msgstr ""
+msgstr "Usar hilos paralelos para solicitudes de traducción (puede ser más rápido pero puede no funcionar con el servidor)"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:92
 msgid "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base"
-msgstr ""
+msgstr "Usar la biblioteca httpx para las solicitudes. Puede ayudar si recibes un error de redirección 307 con un api_base personalizado"
 
 #: GUI/ViewModel/BatchItem.py:247
 msgid "User Prompt:\n {text}"
@@ -1148,15 +1164,15 @@ msgstr ""
 
 #: GUI/SettingsDialog.py:74
 msgid "Validator: Maximum number of characters to allow in a single translated line"
-msgstr ""
+msgstr "Validador: número máximo de caracteres permitidos en una sola línea traducida"
 
 #: GUI/SettingsDialog.py:75
 msgid "Validator: Maximum number of newlines to allow in a single translated line"
-msgstr ""
+msgstr "Validador: número máximo de saltos de línea permitidos en una sola línea traducida"
 
 #: GUI/SettingsDialog.py:71
 msgid "Whether to substitute whole words or partial matches, or choose automatically based on input language"
-msgstr ""
+msgstr "Si sustituir palabras completas o coincidencias parciales, o elegir automáticamente según el idioma de entrada"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 msgid "access_key"
@@ -1561,15 +1577,6 @@ msgstr "{starting} traducción {threaded}"
 
 #~ msgid "Tools"
 #~ msgstr "Herramientas"
-
-#~ msgid "Advanced"
-#~ msgstr "Avanzado"
-
-#~ msgid "General"
-#~ msgstr "General"
-
-#~ msgid "Processing"
-#~ msgstr "Procesamiento"
 
 #~ msgid "Provider Settings"
 #~ msgstr "Configuración del proveedor"

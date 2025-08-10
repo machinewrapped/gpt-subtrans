@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 12:44+0000\n"
+"POT-Creation-Date: 2025-08-10 14:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -55,6 +55,10 @@ msgstr ""
 
 #: GUI/SettingsDialog.py:55
 msgid "Add line breaks to text with dialog markers"
+msgstr ""
+
+#: GUI/SettingsDialog.py:85
+msgid "Advanced"
 msgstr ""
 
 #: GUI/ProjectActions.py:128 GUI/ProjectActions.py:149
@@ -369,7 +373,7 @@ msgstr ""
 msgid "GUI-Subtrans"
 msgstr ""
 
-#: GUI/SettingsDialog.py:111
+#: GUI/SettingsDialog.py:118
 msgid "GUI-Subtrans Settings"
 msgstr ""
 
@@ -387,6 +391,10 @@ msgstr ""
 
 #: GUI/Widgets/Widgets.py:117
 msgid "Gap: {gap}, Length: {duration}"
+msgstr ""
+
+#: GUI/SettingsDialog.py:82
+msgid "General"
 msgstr ""
 
 #: GUI/ProjectToolbar.py:19 GUI/ProjectToolbar.py:26
@@ -701,6 +709,10 @@ msgstr ""
 msgid "Preprocess subtitles when they are loaded"
 msgstr ""
 
+#: GUI/SettingsDialog.py:84
+msgid "Processing"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37 GUI/Widgets/ProjectSettings.py:86
 msgid "Project Settings"
 msgstr ""
@@ -957,11 +969,11 @@ msgstr ""
 msgid "The base URL to use for requests - leave as default unless you know you need something else"
 msgstr ""
 
-#: GUI/SettingsDialog.py:30
+#: GUI/SettingsDialog.py:31
 msgid "The default language to translate the subtitles to"
 msgstr ""
 
-#: GUI/FirstRunOptions.py:18 GUI/SettingsDialog.py:31
+#: GUI/FirstRunOptions.py:18 GUI/SettingsDialog.py:30
 msgid "The language of the application interface"
 msgstr ""
 
@@ -1023,6 +1035,10 @@ msgstr ""
 
 #: GUI/Commands/TranslateSceneCommand.py:29
 msgid "Translating scene number {scene} batch {batches}"
+msgstr ""
+
+#: GUI/SettingsDialog.py:83
+msgid "Translation Provider"
 msgstr ""
 
 #: GUI/GuiInterface.py:171
