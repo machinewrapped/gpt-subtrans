@@ -307,7 +307,7 @@ msgstr "Habilitar modo de pensamiento para traducciones"
 
 #: GUI/SettingsDialog.py:56
 msgid "Ensure dialog markers match in multi-line subtitles"
-msgstr "Asegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneas"
+msgstr "Asegurar que las marcas de diálogo coincidan en subtítulos de varias líneas"
 
 #: GUI/SettingsDialog.py:58
 msgid "Ensure full-width punctuation is used in Asian languages"
