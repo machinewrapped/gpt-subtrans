@@ -3,16 +3,19 @@
 Update translations from POT into PO files and compile MO catalogs.
 """
 import os
+import sys
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 # Add the parent directory to sys.path so we can import PySubtitle modules
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, base_path)
+
+from PySubtitle.Helpers.Localization import get_available_locales
 
 LOCALES_DIR = os.path.join(base_path, 'locales')
 POT_PATH = os.path.join(LOCALES_DIR, 'gui-subtrans.pot')
-LANGUAGES = ('en', 'es')
 
 
 def ensure_dirs(language_code: str) -> str:
@@ -25,7 +28,7 @@ def ensure_po(language_code: str) -> str:
     lang_dir = ensure_dirs(language_code)
     po_path = os.path.join(lang_dir, 'gui-subtrans.po')
     if not os.path.exists(po_path):
-        now = datetime.utcnow().strftime('%Y-%m-%d %H:%M+0000')
+        now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
         header = (
             'msgid ""\n'
             'msgstr ""\n'
@@ -57,7 +60,13 @@ def merge_and_compile():
         print(f"POT not found at {POT_PATH}. Run extract_strings.py first.")
         return
 
-    for lang in LANGUAGES:
+    # Get available languages dynamically
+    languages = get_available_locales()
+    if not languages:
+        print("No locales found. Please ensure locale directories exist in the locales folder.")
+        return
+
+    for lang in languages:
         po_path = ensure_po(lang)
         mo_path = os.path.splitext(po_path)[0] + '.mo'
 

@@ -1,6 +1,7 @@
 python-dotenv
 srt
 regex
+babel
 appdirs
 events
 requests

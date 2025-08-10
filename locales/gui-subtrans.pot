@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-09 17:30+0000\n"
+"POT-Creation-Date: 2025-08-10 09:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -37,7 +37,11 @@ msgstr ""
 msgid "About GUI-Subtrans"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:112
+#: GUI/MainToolbar.py:76
+msgid "About this program"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:120
 msgid "Add RTL Markers"
 msgstr ""
 
@@ -109,7 +113,7 @@ msgstr ""
 msgid "Attempt to communicate with the endpoint using chat format"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:31
+#: GUI/Widgets/SelectionView.py:87
 msgid "Auto-Split Batch"
 msgstr ""
 
@@ -229,7 +233,7 @@ msgstr ""
 msgid "Convert wide dashes (emdash) to standard dashes"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:119
+#: GUI/Widgets/ProjectSettings.py:127
 msgid "Copy From Another Project"
 msgstr ""
 
@@ -245,7 +249,7 @@ msgstr ""
 msgid "Defaults"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:38
+#: GUI/Widgets/SelectionView.py:94
 msgid "Delete Lines"
 msgstr ""
 
@@ -253,7 +257,7 @@ msgstr ""
 msgid "Deleting lines {lines}"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:114
+#: GUI/Widgets/ProjectSettings.py:122
 msgid "Description"
 msgstr ""
 
@@ -269,11 +273,7 @@ msgstr ""
 msgid "Divide any batches larger than this into multiple batches"
 msgstr ""
 
-#: GUI/Widgets/MenuBar.py:11
-msgid "Edit"
-msgstr ""
-
-#: GUI/EditInstructionsDialog.py:22 GUI/Widgets/ProjectSettings.py:118
+#: GUI/EditInstructionsDialog.py:22 GUI/Widgets/ProjectSettings.py:126
 msgid "Edit Instructions"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr ""
 msgid "Ensure full-width punctuation is used in Asian languages"
 msgstr ""
 
-#: GUI/GuiInterface.py:346
+#: GUI/GuiInterface.py:361
 msgid "Error"
 msgstr ""
 
@@ -337,6 +337,10 @@ msgstr ""
 msgid "Executing LoadSubtitleFile {file}"
 msgstr ""
 
+#: GUI/MainToolbar.py:67
+msgid "Exit Program"
+msgstr ""
+
 #: GUI/GUICommands.py:18
 msgid "Exiting Program"
 msgstr ""
@@ -357,15 +361,11 @@ msgstr ""
 msgid "Fewest lines to send in separate batch"
 msgstr ""
 
-#: GUI/Widgets/MenuBar.py:8
-msgid "File"
-msgstr ""
-
 #: GUI/FirstRunOptions.py:26
 msgid "First Run Options"
 msgstr ""
 
-#: GUI/MainWindow.py:29
+#: GUI/MainWindow.py:30 GUI/MainWindow.py:175
 msgid "GUI-Subtrans"
 msgstr ""
 
@@ -389,7 +389,7 @@ msgstr ""
 msgid "Gap: {gap}, Length: {duration}"
 msgstr ""
 
-#: GUI/ProjectToolbar.py:19
+#: GUI/ProjectToolbar.py:19 GUI/ProjectToolbar.py:26
 msgid "Hide/Show Project Options"
 msgstr ""
 
@@ -405,11 +405,11 @@ msgstr ""
 msgid "If true, translations that fail validation will be retried with a note about the error"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:81
+#: GUI/Widgets/SelectionView.py:58
 msgid "Improve Selection"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:113
+#: GUI/Widgets/ProjectSettings.py:121
 msgid "Include Original Text"
 msgstr ""
 
@@ -473,11 +473,15 @@ msgstr ""
 msgid "Load Instructions"
 msgstr ""
 
+#: GUI/MainToolbar.py:68
+msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
+msgstr ""
+
 #: GUI/AboutDialog.py:31
 msgid "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
 msgstr ""
 
-#: GUI/MainToolbar.py:25
+#: GUI/MainToolbar.py:26
 msgid "Main Toolbar"
 msgstr ""
 
@@ -517,15 +521,15 @@ msgstr ""
 msgid "Maximum tokens a completion can contain (only applicable for -instruct models)"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:37
+#: GUI/Widgets/SelectionView.py:93
 msgid "Merge Batches"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:35
+#: GUI/Widgets/SelectionView.py:91
 msgid "Merge Lines"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:36
+#: GUI/Widgets/SelectionView.py:92
 msgid "Merge Scenes"
 msgstr ""
 
@@ -557,7 +561,7 @@ msgstr ""
 msgid "Minimum number of characters to split a line at"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:123
+#: GUI/Widgets/ProjectSettings.py:131
 msgid "Model"
 msgstr ""
 
@@ -565,11 +569,11 @@ msgstr ""
 msgid "Most lines to send in each batch"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:110
+#: GUI/Widgets/ProjectSettings.py:118
 msgid "Movie Name"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:115
+#: GUI/Widgets/ProjectSettings.py:123
 msgid "Names"
 msgstr ""
 
@@ -601,7 +605,7 @@ msgstr ""
 msgid "No subtitles"
 msgstr ""
 
-#: GUI/GuiInterface.py:345 GUI/GuiInterface.py:346
+#: GUI/GuiInterface.py:360 GUI/GuiInterface.py:361
 msgid "No translation providers available. Please install one or more providers."
 msgstr ""
 
@@ -625,7 +629,7 @@ msgstr ""
 msgid "Nothing selected to translate"
 msgstr ""
 
-#: GUI/MainToolbar.py:171
+#: GUI/MainToolbar.py:184
 msgid "Nothing to redo"
 msgstr ""
 
@@ -637,7 +641,7 @@ msgstr ""
 msgid "Nothing to translate"
 msgstr ""
 
-#: GUI/MainToolbar.py:165
+#: GUI/MainToolbar.py:178
 msgid "Nothing to undo"
 msgstr ""
 
@@ -665,11 +669,11 @@ msgstr ""
 msgid "Original line {line} not found in batch {batch}"
 msgstr ""
 
-#: GUI/MainWindow.py:110
+#: GUI/MainWindow.py:113
 msgid "Performing {action}"
 msgstr ""
 
-#: GUI/GuiInterface.py:368
+#: GUI/GuiInterface.py:383
 msgid "Please configure the translation provider settings"
 msgstr ""
 
@@ -697,11 +701,11 @@ msgstr ""
 msgid "Preprocess subtitles when they are loaded"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37
+#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37 GUI/Widgets/ProjectSettings.py:86
 msgid "Project Settings"
 msgstr ""
 
-#: GUI/ProjectToolbar.py:12
+#: GUI/ProjectToolbar.py:12 GUI/ProjectToolbar.py:25
 msgid "Project Toolbar"
 msgstr ""
 
@@ -725,7 +729,7 @@ msgstr ""
 msgid "Prompt: {text}"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:121
+#: GUI/Widgets/ProjectSettings.py:129
 msgid "Provider"
 msgstr ""
 
@@ -737,7 +741,7 @@ msgstr ""
 msgid "Provider {provider} needs configuring: {message}"
 msgstr ""
 
-#: GUI/MainWindow.py:64
+#: GUI/MainWindow.py:65 GUI/MainWindow.py:176
 msgid "Ready."
 msgstr ""
 
@@ -745,7 +749,11 @@ msgstr ""
 msgid "Reasoning"
 msgstr ""
 
-#: GUI/MainToolbar.py:169
+#: GUI/MainToolbar.py:75
+msgid "Redo last undone action"
+msgstr ""
+
+#: GUI/MainToolbar.py:182
 msgid "Redo {command}"
 msgstr ""
 
@@ -753,7 +761,7 @@ msgstr ""
 msgid "Remove filler_words and filler words from subtitles"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:32
+#: GUI/Widgets/SelectionView.py:88
 msgid "Reparse Translation"
 msgstr ""
 
@@ -793,6 +801,10 @@ msgstr ""
 msgid "Save preprocessed subtitles to a separate file"
 msgstr ""
 
+#: GUI/MainToolbar.py:69
+msgid "Save project (Hold shift to save as...)"
+msgstr ""
+
 #: GUI/Commands/LoadSubtitleFile.py:36
 msgid "Saving backup copy of the project"
 msgstr ""
@@ -813,19 +825,23 @@ msgstr ""
 msgid "Seconds to wait before retrying a failed translation"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:281
+#: GUI/Widgets/ProjectSettings.py:289
 msgid "Select project to copy settings from"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:83
+#: GUI/Widgets/SelectionView.py:60
 msgid "Selection {task_type}"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:33
+#: GUI/MainToolbar.py:70
+msgid "Settings"
+msgstr ""
+
+#: GUI/Widgets/SelectionView.py:89
 msgid "Split Batch"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:34
+#: GUI/Widgets/SelectionView.py:90
 msgid "Split Scene"
 msgstr ""
 
@@ -837,6 +853,14 @@ msgstr ""
 msgid "Splitting scene {scene} batch: {batch} at line {line}"
 msgstr ""
 
+#: GUI/MainToolbar.py:71
+msgid "Start Translating (hold shift to retranslate)"
+msgstr ""
+
+#: GUI/MainToolbar.py:72
+msgid "Start translating on multiple threads (fast but unsafe)"
+msgstr ""
+
 #: GUI/Commands/StartTranslationCommand.py:32
 msgid "Starting"
 msgstr ""
@@ -845,11 +869,15 @@ msgstr ""
 msgid "Stop translating if an error is encountered"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:117
+#: GUI/MainToolbar.py:73
+msgid "Stop translation"
+msgstr ""
+
+#: GUI/Widgets/ProjectSettings.py:125
 msgid "Substitution Mode"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:116
+#: GUI/Widgets/ProjectSettings.py:124
 msgid "Substitutions"
 msgstr ""
 
@@ -861,7 +889,7 @@ msgstr ""
 msgid "Subtitles have not been batched"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:280
+#: GUI/Widgets/ProjectSettings.py:288
 msgid "Subtrans Files (*.subtrans);;All Files (*)"
 msgstr ""
 
@@ -877,7 +905,7 @@ msgstr ""
 msgid "Supplementary instructions when retrying"
 msgstr ""
 
-#: GUI/Widgets/SelectionView.py:39
+#: GUI/Widgets/SelectionView.py:95
 msgid "Swap Text"
 msgstr ""
 
@@ -885,7 +913,7 @@ msgstr ""
 msgid "System instructions for the translator"
 msgstr ""
 
-#: GUI/Widgets/ProjectSettings.py:111
+#: GUI/Widgets/ProjectSettings.py:119
 msgid "Target Language"
 msgstr ""
 
@@ -933,12 +961,8 @@ msgstr ""
 msgid "The default language to translate the subtitles to"
 msgstr ""
 
-#: GUI/FirstRunOptions.py:18
+#: GUI/FirstRunOptions.py:18 GUI/SettingsDialog.py:31
 msgid "The language of the application interface"
-msgstr ""
-
-#: GUI/SettingsDialog.py:31
-msgid "The language of the application interface (requires restart)"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:106
@@ -989,11 +1013,7 @@ msgstr ""
 msgid "Timeout for the request in seconds (default 300)"
 msgstr ""
 
-#: GUI/Widgets/MenuBar.py:14
-msgid "Tools"
-msgstr ""
-
-#: GUI/Widgets/SelectionView.py:30 GUI/Widgets/SelectionView.py:79
+#: GUI/Widgets/SelectionView.py:56 GUI/Widgets/SelectionView.py:86
 msgid "Translate Selection"
 msgstr ""
 
@@ -1005,7 +1025,7 @@ msgstr ""
 msgid "Translating scene number {scene} batch {batches}"
 msgstr ""
 
-#: GUI/GuiInterface.py:170
+#: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
 msgstr ""
 
@@ -1069,7 +1089,11 @@ msgstr ""
 msgid "Unable to update settings: {error}"
 msgstr ""
 
-#: GUI/MainToolbar.py:163
+#: GUI/MainToolbar.py:74
+msgid "Undo last action"
+msgstr ""
+
+#: GUI/MainToolbar.py:176
 msgid "Undo {command}"
 msgstr ""
 
@@ -1421,27 +1445,27 @@ msgstr ""
 msgid "write_backup"
 msgstr ""
 
-#: GUI/MainWindow.py:138
+#: GUI/MainWindow.py:141
 msgid "{command} aborted."
 msgstr ""
 
-#: GUI/MainWindow.py:140
+#: GUI/MainWindow.py:143
 msgid "{command} added to queue."
 msgstr ""
 
-#: GUI/MainWindow.py:146
+#: GUI/MainWindow.py:149
 msgid "{command} failed."
 msgstr ""
 
-#: GUI/MainWindow.py:142
+#: GUI/MainWindow.py:145
 msgid "{command} started."
 msgstr ""
 
-#: GUI/MainWindow.py:136
+#: GUI/MainWindow.py:139
 msgid "{command} undone."
 msgstr ""
 
-#: GUI/MainWindow.py:144
+#: GUI/MainWindow.py:147
 msgid "{command} was successful."
 msgstr ""
 
@@ -1473,7 +1497,7 @@ msgstr ""
 msgid "{lines} lines in {scenes} scenes and {batches} batches"
 msgstr ""
 
-#: GUI/MainWindow.py:149
+#: GUI/MainWindow.py:152
 msgid "{num} commands in queue."
 msgstr ""
 

@@ -35,3 +35,4 @@ bedrock-subtrans.sh
 mistral-subtrans.sh
 *.zip
 *.pdf
+untranslated_msgids_*.txt

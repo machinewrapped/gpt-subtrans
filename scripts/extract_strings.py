@@ -17,7 +17,7 @@ import os
 import sys
 import importlib
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
 # Add the parent directory to sys.path so we can import PySubtitle modules
@@ -293,7 +293,7 @@ def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
 
 def write_pot(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]):
     ensure_parent(POT_PATH)
-    now = datetime.utcnow().strftime('%Y-%m-%d %H:%M+0000')
+    now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
 
     lines: List[str] = []
     # Header

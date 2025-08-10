@@ -8,7 +8,7 @@ from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
-from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Localization import LocaleDisplayItem, _, get_locale_display_items, get_locale_display_name
 
 class SettingsDialog(QDialog):
     """
@@ -119,8 +119,12 @@ class SettingsDialog(QDialog):
         # Qyery available themes
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
 
-        # Available UI languages (extendable)
-        self.SECTIONS['General']['ui_language'] = ['en', 'es']
+        # Available UI languages (dynamically detected) - hack to set the current locale as selected language
+        self._locales = get_locale_display_items()
+        current_locale = self.settings.get('ui_language', 'en')
+        current_locale_name = get_locale_display_name(current_locale)
+        self.settings['ui_language'] = current_locale_name
+        self.SECTIONS['General']['ui_language'] = (self._locales, self.SECTIONS['General']['ui_language'][1])
 
         # Query available instruction files
         instruction_files = GetInstructionsFiles()
@@ -175,14 +179,18 @@ class SettingsDialog(QDialog):
 
                 for row in range(layout.rowCount()):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
+                    if not hasattr(field, 'key'):
+                        continue
+
                     if section_name == self.PROVIDER_SECTION:
-                        if not hasattr(field, 'key'):
-                            continue
                         if field.key == 'provider':
                             self.settings[field.key] = field.GetValue()
                         else:
                             provider = self.settings.get('provider')
                             self.provider_settings[provider][field.key] = field.GetValue()
+                    elif field.key == 'ui_language':
+                        if isinstance(field.GetValue(), LocaleDisplayItem):
+                            self.settings[field.key] = field.GetValue().code
                     else:
                         self.settings[field.key] = field.GetValue()
 

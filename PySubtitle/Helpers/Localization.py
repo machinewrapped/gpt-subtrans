@@ -10,9 +10,13 @@ import gettext
 import os
 from typing import Optional
 
-from PySubtitle.Helpers.Resources import GetResourcePath
-from PySubtitle.Options import Options
+# Babel is optional; fall back gracefully if unavailable
+try:
+    from babel import Locale  # type: ignore
+except Exception:  # pragma: no cover - environment without Babel
+    Locale = None  # type: ignore
 
+from PySubtitle.Helpers.Resources import GetResourcePath
 
 _translator: Optional[gettext.NullTranslations] = None
 _domain = 'gui-subtrans'
@@ -33,11 +37,11 @@ def initialize_localization(language_code: Optional[str] = None) -> None:
     global _translator
 
     if language_code is None:
-        try:
-            options = Options()
-            language_code = options.get('ui_language', 'en')
-        except Exception:
-            language_code = 'en'
+        language_code = 'en'  # Default to English if no language code provided
+
+    # If a Babel Locale object is passed, convert to string code (e.g., 'en' or 'en_US')
+    if Locale is not None and isinstance(language_code, Locale):  # type: ignore[arg-type]
+        language_code = str(language_code)
 
     locale_dir = _get_locale_dir()
 
@@ -68,4 +72,73 @@ def tr(context: str, text: str) -> str:
     # Fallback: ignore context if pgettext not available
     return _(text)
 
+
+def get_available_locales() -> list[str]:
+    """
+    Scan the locales directory and return a list of available locale codes.
+    """
+    locales_dir = _get_locale_dir()
+    languages = []
+    try:
+        for name in os.listdir(locales_dir):
+            path = os.path.join(locales_dir, name, 'LC_MESSAGES')
+            if os.path.isdir(path):
+                languages.append(name)
+    except Exception:
+        # Fallback to known locales if scanning fails
+        languages = ['en', 'es']
+    
+    return sorted(set(languages)) or ['en']
+
+
+def get_locale_display_name(locale_code: str) -> str:
+    """
+    Get the human-readable display name for a locale code using Babel.
+    Falls back to the locale code if Babel is not available or lookup fails.
+    """
+    if Locale is None:
+        return locale_code
+    try:
+        # Normalize hyphen to underscore for Babel and parse the locale string
+        loc = Locale.parse(locale_code.replace('-', '_'))  # type: ignore[attr-defined]
+        return loc.display_name  # type: ignore[return-value]
+    except Exception:
+        # Fallback to locale code if Babel is not available or lookup fails
+        return locale_code
+
+
+def get_locales_with_names() -> list[tuple[str, str]]:
+    """
+    Get a list of (locale_code, display_name) tuples for all available locales.
+    """
+    locale_codes = get_available_locales()
+    return [(code, get_locale_display_name(code)) for code in locale_codes]
+
+
+class LocaleDisplayItem:
+    """
+    A simple class to represent a locale with both code and display name.
+    This enables the existing dropdown system to show display names while returning codes.
+    """
+    def __init__(self, code: str, name: str):
+        self.code = code
+        self.name = name
+    
+    def __str__(self):
+        return self.code
+    
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.code == other
+        elif isinstance(other, LocaleDisplayItem):
+            return self.code == other.code
+        return False
+
+
+def get_locale_display_items() -> list[LocaleDisplayItem]:
+    """
+    Get a list of LocaleDisplayItem objects for use in dropdowns.
+    """
+    locales_with_names = get_locales_with_names()
+    return [LocaleDisplayItem(code, name) for code, name in locales_with_names]
 
