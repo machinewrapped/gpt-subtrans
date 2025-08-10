@@ -187,7 +187,7 @@ class GuiInterface(QObject):
             self.uiLanguageChanged.emit(language_code)
 
         except Exception as e:
-            logging.warning(f"Failed to switch language - restart the application: {e}")
+            logging.warning(_("Failed to switch language - restart the application: {error}").format(error=e))
 
     def UpdateProjectSettings(self, settings : dict):
         """

@@ -465,7 +465,7 @@ def _parse_manual_translations(path: str) -> Dict[str, str]:
             data = ast.literal_eval(content)
         if not isinstance(data, dict):
             return {}
-        # Normalize keys to match PO msgids which contain C-style escaped sequences.
+        # Normalize keys to match PO msgids by converting Python string escaping to PO file format escaping.
         # Transform manual keys into the PO-escaped form: backslashes (\\), quotes (\"), newlines (\n).
         def _norm_key_po(k: str) -> str:
             s = str(k)

@@ -307,7 +307,7 @@ msgstr "Habilitar modo de pensamiento para traducciones"
 
 #: GUI/SettingsDialog.py:56
 msgid "Ensure dialog markers match in multi-line subtitles"
-msgstr "Asegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneasAsegurar que las marcas de diálogo coincidan en subtítulos de varias líneas"
+msgstr "Asegurar que las marcas de diálogo coincidan en subtítulos de varias líneas"
 
 #: GUI/SettingsDialog.py:58
 msgid "Ensure full-width punctuation is used in Asian languages"
@@ -1060,11 +1060,11 @@ msgstr "Traduciendo la escena número {scene} lote {batches}"
 
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
-msgstr "La configuración del proveedor de traducción no es válida. Por favor, revise la configuración.La configuración del proveedor de traducción no es válida. Por favor, revise la configuración."
+msgstr "La configuración del proveedor de traducción no es válida. Por favor, revise la configuración."
 
 #: GUI/EditInstructionsDialog.py:31
 msgid "Type of response expected for each line (must match the example format)"
-msgstr "Tipo de respuesta esperada para cada línea (debe coincidir con el formato del ejemplo)Tipo de respuesta esperada para cada línea (debe coincidir con el formato del ejemplo)"
+msgstr "Tipo de respuesta esperada para cada línea (debe coincidir con el formato del ejemplo)"
 
 #: GUI/NewProjectSettings.py:75
 msgid "Unable to create option widget for {key}: {error}"
@@ -1109,7 +1109,7 @@ msgstr "No se pueden obtener los modelos"
 
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
-msgstr "No se puede traducir la escena porque el proyecto no está establecido en el modelo de datosNo se puede traducir la escena porque el proyecto no está establecido en el modelo de datosNo se puede traducir la escena porque el proyecto no está establecido en el modelo de datosNo se puede traducir la escena porque el proyecto no está establecido en el modelo de datos"
+msgstr "No se puede traducir la escena porque el proyecto no está establecido en el modelo de datos"
 
 #: GUI/Commands/SplitBatchCommand.py:82
 msgid "Unable to undo SplitBatchCommand command: {error}"
