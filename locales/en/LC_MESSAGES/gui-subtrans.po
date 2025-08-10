@@ -1,13 +1,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 09:54+0000\n"
-"PO-Revision-Date: 2025-08-10 09:54+0000\n"
+"POT-Creation-Date: 2025-08-10 10:12+0000\n"
+"PO-Revision-Date: 2025-08-10 10:12+0000\n"
 "Last-Translator: Auto-generated\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en\n"
 
 #: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
 msgid "1 line"
@@ -73,7 +73,10 @@ msgstr ""
 msgid "Alternative to max_tokens for some servers"
 msgstr "Alternative To Max Tokens For Some Servers"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:72 PySubtitle/Providers/Provider_Gemini.py:71 PySubtitle/Providers/Provider_Mistral.py:70 PySubtitle/Providers/Provider_OpenAI.py:108
+#: PySubtitle/Providers/Provider_DeepSeek.py:72
+#: PySubtitle/Providers/Provider_Gemini.py:71
+#: PySubtitle/Providers/Provider_Mistral.py:70
+#: PySubtitle/Providers/Provider_OpenAI.py:108
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
 msgstr "Amount Of Random Variance To Add To Translations. Generally Speaking, None Is Best"
 
@@ -165,7 +168,8 @@ msgstr ""
 msgid "Cannot delete scenes or batches yet"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:28 GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
+#: GUI/Commands/AutoSplitBatchCommand.py:28
+#: GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
 msgid "Cannot find scene {scene} batch {batch}"
 msgstr ""
 
@@ -201,7 +205,9 @@ msgstr ""
 msgid "Cannot undo the last command"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:77 PySubtitle/Providers/Provider_Mistral.py:75 PySubtitle/Providers/Provider_OpenAI.py:111
+#: PySubtitle/Providers/Provider_DeepSeek.py:77
+#: PySubtitle/Providers/Provider_Mistral.py:75
+#: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Check API key and base URL and try again"
 msgstr "Check Api Key And Base Url And Try Again"
 
@@ -313,7 +319,8 @@ msgstr ""
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr ""
 
-#: GUI/Commands/TranslateSceneCommand.py:69 GUI/Commands/TranslateSceneCommand.py:73
+#: GUI/Commands/TranslateSceneCommand.py:69
+#: GUI/Commands/TranslateSceneCommand.py:73
 msgid "Error translating scene {scene}: {error}"
 msgstr ""
 
@@ -489,7 +496,9 @@ msgstr ""
 msgid "Max batch size is less than min batch size"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:73 PySubtitle/Providers/Provider_Gemini.py:72 PySubtitle/Providers/Provider_Mistral.py:71
+#: PySubtitle/Providers/Provider_DeepSeek.py:73
+#: PySubtitle/Providers/Provider_Gemini.py:72
+#: PySubtitle/Providers/Provider_Mistral.py:71
 msgid "Maximum API requests per minute."
 msgstr "Maximum Api Requests Per Minute."
 
@@ -601,7 +610,11 @@ msgstr ""
 msgid "No scenes selected for translation"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:23 GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23 GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62 GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45 GUI/ProjectActions.py:396
+#: GUI/Commands/AutoSplitBatchCommand.py:23
+#: GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23
+#: GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62
+#: GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45
+#: GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr ""
 
@@ -701,7 +714,8 @@ msgstr ""
 msgid "Preprocess subtitles when they are loaded"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37 GUI/Widgets/ProjectSettings.py:86
+#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37
+#: GUI/Widgets/ProjectSettings.py:86
 msgid "Project Settings"
 msgstr ""
 
@@ -809,7 +823,8 @@ msgstr ""
 msgid "Saving backup copy of the project"
 msgstr ""
 
-#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140 GUI/Widgets/Editors.py:86
+#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
+#: GUI/Widgets/Editors.py:86
 msgid "Scene {num}"
 msgstr ""
 
@@ -1069,7 +1084,8 @@ msgstr ""
 msgid "Unable to reparse batches because project is not set"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_OpenAI.py:98 PySubtitle/Providers/Provider_OpenAI.py:111
+#: PySubtitle/Providers/Provider_OpenAI.py:98
+#: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Unable to retrieve models"
 msgstr "Unable To Retrieve Models"
 
@@ -1149,11 +1165,19 @@ msgstr "Access Key"
 msgid "add_right_to_left_markers"
 msgstr "Add Right To Left Markers"
 
-#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_base"
 msgstr "Api Base"
 
-#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_key"
 msgstr "Api Key"
 
@@ -1273,7 +1297,10 @@ msgstr "Max Thinking Tokens"
 msgid "max_threads"
 msgstr "Max Threads"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
 msgid "max_tokens"
 msgstr "Max Tokens"
 
@@ -1297,7 +1324,13 @@ msgstr "Min Single Line Length"
 msgid "min_split_chars"
 msgstr "Min Split Chars"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "model"
 msgstr "Model"
 
@@ -1341,7 +1374,12 @@ msgstr "Provider Settings"
 msgid "proxy"
 msgstr "Proxy"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "rate_limit"
 msgstr "Rate Limit"
 
@@ -1409,7 +1447,13 @@ msgstr "Supports System Messages"
 msgid "target_language"
 msgstr "Target Language"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "temperature"
 msgstr "Temperature"
 
