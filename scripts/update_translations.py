@@ -27,8 +27,93 @@ sys.path.insert(0, base_path)
 
 from PySubtitle.Helpers.Localization import get_available_locales
 
+# Optional: use Babel to determine plural forms for locales
+try:
+    from babel.messages.catalog import Catalog as _BabelCatalog
+except Exception:
+    _BabelCatalog = None
+    print("Warning: Babel not available; plural forms will not be detected.")
+
 LOCALES_DIR = os.path.join(base_path, 'locales')
 POT_PATH = os.path.join(LOCALES_DIR, 'gui-subtrans.pot')
+
+
+def get_plural_forms(lang: str) -> Optional[str]:
+    """Return the Plural-Forms header value for a given language code.
+    Prefer Babel (CLDR) rules; fallback to the common English rule if Babel is unavailable.
+    """
+    lang = (lang or '').lower()
+    if _BabelCatalog is not None:
+        try:
+            cat = _BabelCatalog(locale=lang)
+            plural_expr = getattr(cat, 'plural_expr', None)
+            num_plurals = getattr(cat, 'num_plurals', None)
+            if plural_expr and num_plurals:
+                return f"nplurals={num_plurals}; plural={plural_expr};"
+        except Exception:
+            print(f"Warning: could not get plural forms for {lang} using Babel")
+    # Fallback: English-style plural rule
+    return 'nplurals=2; plural=(n != 1);'
+
+
+def ensure_header_fields(po_path: str, lang: str) -> bool:
+    """Ensure important header fields (e.g., Plural-Forms) exist. Returns True if file changed."""
+    try:
+        with open(po_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        return False
+
+    if not lines:
+        return False
+
+    # Header is at file start until first blank line after the header msgid/msgstr block.
+    # We assume standard format produced by gettext tools.
+    header_start = 0
+    i = 0
+    # Find end of header (first completely blank line after the quoted header lines)
+    while i < len(lines):
+        if lines[i].strip() == '':
+            break
+        i += 1
+    header_end = i  # exclusive
+
+    if header_end <= header_start:
+        return False
+
+    header_lines = lines[header_start:header_end]
+    has_plural = any(l.strip().startswith('"Plural-Forms:') for l in header_lines)
+    desired_plural = get_plural_forms(lang)
+
+    changed = False
+    if desired_plural:
+        if not has_plural:
+            # Insert after Language line if present, else at end of header block
+            insert_idx = None
+            for idx, l in enumerate(header_lines):
+                if l.strip().startswith('"Language:'):
+                    insert_idx = idx + 1
+                    break
+            if insert_idx is None:
+                insert_idx = len(header_lines)
+            header_lines.insert(insert_idx, f'"Plural-Forms: {desired_plural}\\n"\n')
+            changed = True
+        else:
+            # Update existing Plural-Forms if different
+            for idx, l in enumerate(header_lines):
+                if l.strip().startswith('"Plural-Forms:'):
+                    current = l.strip()[len('"Plural-Forms:'):].strip().strip('"')
+                    desired_line = f'"Plural-Forms: {desired_plural}\\n"\n'
+                    if l != desired_line:
+                        header_lines[idx] = desired_line
+                        changed = True
+                    break
+
+    if changed:
+        lines[header_start:header_end] = header_lines
+        with open(po_path, 'w', encoding='utf-8') as f:
+            f.writelines(lines)
+    return changed
 
 
 # --- PO cleaner helpers: collapse wrapped msgid lines into a single line ---
@@ -102,7 +187,20 @@ def clean_po_file(path: str) -> bool:
 
 def _escape_po(s: str) -> str:
     """Escape a Python string for inclusion inside a PO msgstr quoted string."""
-    return s.replace('\\', r'\\').replace('"', r'\"').replace('\n', r'\n')
+    # Normalize line endings
+    s = s.replace('\r\n', '\n')
+    # Protect existing literal \n sequences so we don't double-escape them
+    sentinel = '\x00'
+    s = s.replace('\\n', sentinel)
+    # Escape remaining backslashes
+    s = s.replace('\\', r'\\')
+    # Convert actual newline characters to literal \n
+    s = s.replace('\n', r'\n')
+    # Escape quotes
+    s = s.replace('"', r'\"')
+    # Restore protected \n sequences
+    s = s.replace(sentinel, r'\n')
+    return s
 
 
 def ensure_dirs(language_code: str) -> str:
@@ -129,6 +227,8 @@ def ensure_po(language_code: str) -> str:
         )
         with open(po_path, 'w', encoding='utf-8') as f:
             f.write(header)
+    # Ensure header fields (even if file already existed)
+    ensure_header_fields(po_path, language_code)
     return po_path
 
 
@@ -180,6 +280,20 @@ def merge_and_compile(languages: Optional[List[str]] = None):
                 print(f"Normalized msgid wrapping: {po_path}")
         except Exception as e:
             print(f"Warning: could not clean {po_path}: {e}")
+
+        # Ensure header completeness (Plural-Forms, etc.)
+        try:
+            if ensure_header_fields(po_path, lang):
+                print(f"Updated header fields: {po_path}")
+        except Exception as e:
+            print(f"Warning: could not ensure header fields for {po_path}: {e}")
+
+        # Fix any msgid/msgstr trailing \n parity issues that cause msgfmt fatal errors
+        try:
+            if fix_newline_parity(po_path):
+                print(f"Fixed newline parity: {po_path}")
+        except Exception as e:
+            print(f"Warning: could not fix newline parity for {po_path}: {e}")
 
         # Compile MO (msgfmt)
         run_cmd(['msgfmt', '-o', mo_path, po_path])
@@ -246,6 +360,78 @@ def _collect_untranslated_msgids(po_file_path: str) -> Dict[str, str]:
         untranslated[current_msgid] = ""
 
     return untranslated
+
+
+def fix_newline_parity(po_path: str) -> bool:
+    """Ensure that if a msgid ends with literal \n, the corresponding msgstr ends with literal \n too.
+    Returns True if the file was modified.
+    """
+    try:
+        with open(po_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        return False
+
+    out: List[str] = []
+    i = 0
+    changed = False
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.lstrip()
+        if stripped.startswith('msgid '):
+            # capture full msgid
+            j = i + 1
+            parts = [_extract_quoted(stripped) if '"' in stripped else '']
+            while j < len(lines) and _is_quoted_line(lines[j]):
+                parts.append(_extract_quoted(lines[j]))
+                j += 1
+            msgid_full = ''.join(parts)
+            out.extend(lines[i:j])
+            i = j
+            # expect msgstr next
+            if i < len(lines) and lines[i].lstrip().startswith('msgstr '):
+                msgstr_line = lines[i]
+                k = i + 1
+                # collect continuation lines to know block end
+                while k < len(lines) and _is_quoted_line(lines[k]):
+                    k += 1
+                # Only adjust simple single-line msgstr blocks (common case)
+                # We will reconstruct first line if needed to add trailing \n
+                # Extract first msgstr content
+                nstrip = msgstr_line.lstrip()
+                msgstr_first = _extract_quoted(nstrip) if '"' in nstrip else ''
+                ends_id = msgid_full.endswith(r'\n')
+                ends_str_nl = msgstr_first.endswith(r'\n')
+                ends_str_backslash_n = msgstr_first.endswith(r'\\n')
+                if ends_id and msgstr_first != '' and (not ends_str_nl or ends_str_backslash_n):
+                    # Ensure msgstr ends with literal \n (single backslash n)
+                    indent_len = len(msgstr_line) - len(nstrip)
+                    indent = msgstr_line[:indent_len]
+                    if ends_str_backslash_n:
+                        new_first = msgstr_first[:-2] + r'\n'
+                    else:
+                        new_first = msgstr_first + r'\n'
+                    out.append(f"{indent}msgstr \"{new_first}\"\n")
+                    # keep following continuation lines (if any)
+                    out.extend(lines[i+1:k])
+                    changed = True
+                    i = k
+                    continue
+                else:
+                    out.extend(lines[i:k])
+                    i = k
+                    continue
+            else:
+                # no msgstr line; just continue
+                continue
+        # default
+        out.append(line)
+        i += 1
+
+    if changed:
+        with open(po_path, 'w', encoding='utf-8') as f:
+            f.writelines(out)
+    return changed
 
 
 def write_untranslated_dict_file(lang: str, untranslated: Dict[str, str]) -> str:
@@ -348,6 +534,10 @@ def _update_po_with_translations(po_path: str, translations: Dict[str, str]) -> 
                     if current_msgid in translations and msgstr_first == '':
                         # Replace msgstr block with our translation (single line)
                         value = _escape_po(translations[current_msgid])
+                        # If msgid ends with literal \n, ensure msgstr also ends with literal \n to satisfy msgfmt
+                        ends_with_nl = current_msgid.endswith(r'\n')
+                        if ends_with_nl and not value.endswith(r'\n'):
+                            value = value + r'\n'
                         out.append(f"{msgstr_indent}msgstr \"{value}\"\n")
                         updated += 1
                         i = k

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-10 17:26+0000\n"
+"POT-Creation-Date: 2025-08-10 17:49+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -9,6 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
 msgid "1 line"
@@ -395,7 +396,7 @@ msgstr "GUI-Subtrans utiliza LLMs para traducir subtítulos SRT a otros idiomas 
 
 #: GUI/AboutDialog.py:80
 msgid "GUI-Subtrans would not work without these libraries:\n"
-msgstr "GUI-Subtrans no funcionaría sin estas bibliotecas:\\n"
+msgstr "GUI-Subtrans no funcionaría sin estas bibliotecas:\n"
 
 #: GUI/Widgets/Widgets.py:117
 msgid "Gap: {gap}, Length: {duration}"
