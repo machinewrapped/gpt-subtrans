@@ -278,7 +278,7 @@ msgstr "Instrucciones detalladas para el traductor"
 
 #: GUI/AboutDialog.py:54
 msgid "Developed by: MachineWrapped<br>Contact: machinewrapped@gmail.com<br><a href=\"https://github.com/machinewrapped/gpt-subtrans\">GitHub Repository</a><br>Thanks to all contributors and those who have reported issues."
-msgstr ""
+msgstr "Desarrollado por: MachineWrapped<br>Contacto: machinewrapped@gmail.com<br><a href=\\\"https://github.com/machinewrapped/gpt-subtrans\\\">Repositorio en GitHub</a><br>Gracias a todos los colaboradores y a quienes han informado de problemas."
 
 #: GUI/SettingsDialog.py:69
 msgid "Divide any batches larger than this into multiple batches"
@@ -387,7 +387,7 @@ msgstr "Configuración de GUI-Subtrans"
 
 #: GUI/AboutDialog.py:62
 msgid "GUI-Subtrans is released under the MIT License.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software."
-msgstr ""
+msgstr "GUI-Subtrans se publica bajo la Licencia MIT.\\n\\nPor la presente se concede permiso, libre de cargos, a cualquier persona que obtenga una copia de este software y de los archivos de documentación asociados, para tratar el software sin restricción, incluidos, sin limitación, los derechos de usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software."
 
 #: GUI/AboutDialog.py:50
 msgid "GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or to improve the quality of an existing translation."
@@ -395,7 +395,7 @@ msgstr "GUI-Subtrans utiliza LLMs para traducir subtítulos SRT a otros idiomas 
 
 #: GUI/AboutDialog.py:80
 msgid "GUI-Subtrans would not work without these libraries:\n"
-msgstr ""
+msgstr "GUI-Subtrans no funcionaría sin estas bibliotecas:\\n"
 
 #: GUI/Widgets/Widgets.py:117
 msgid "Gap: {gap}, Length: {duration}"
@@ -495,7 +495,7 @@ msgstr "Cargar proyecto/subtítulos (mantén pulsado shift para recargar subtít
 
 #: GUI/AboutDialog.py:31
 msgid "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
-msgstr ""
+msgstr "Logotipo generado con <a href=\\\"https://stability.ai/stablediffusion\\\">Stable Diffusion XL</a>"
 
 #: GUI/MainToolbar.py:26
 msgid "Main Toolbar"
@@ -1055,7 +1055,7 @@ msgstr "Traduciendo la escena número {scene} lote {batches}"
 
 #: GUI/SettingsDialog.py:83
 msgid "Translation Provider"
-msgstr ""
+msgstr "Proveedor de traducción"
 
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
@@ -1160,7 +1160,7 @@ msgstr "Usar la biblioteca httpx para las solicitudes. Puede ayudar si recibes u
 
 #: GUI/ViewModel/BatchItem.py:247
 msgid "User Prompt:\n {text}"
-msgstr ""
+msgstr "Solicitud del usuario:\\n {text}"
 
 #: GUI/SettingsDialog.py:74
 msgid "Validator: Maximum number of characters to allow in a single translated line"

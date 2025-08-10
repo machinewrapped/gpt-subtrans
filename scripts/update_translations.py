@@ -285,12 +285,10 @@ def _parse_manual_translations(path: str) -> Dict[str, str]:
             s = str(k)
             # Normalize Windows newlines to LF first
             s = s.replace('\r\n', '\n')
-            # Escape backslashes first to avoid interfering with subsequent escapes
-            s = s.replace('\\', r'\\')
-            # Escape double quotes to match PO msgid encoding
-            s = s.replace('"', r'\"')
-            # Finally, convert actual newlines to literal \n
+            # Convert actual newlines to literal \n; leave existing \n sequences as-is
             s = s.replace('\n', r'\n')
+            # Escape only unescaped double quotes to match PO msgid encoding
+            s = re.sub(r'(?<!\\)"', r'\\"', s)
             return s
         # Keep only entries with non-empty translations
         return {_norm_key_po(k): str(v) for k, v in data.items() if isinstance(v, str) and v != ''}
