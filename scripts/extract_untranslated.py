@@ -80,17 +80,23 @@ def extract_untranslated_msgids(po_file_path, output_file_path):
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    # Accept command line argument for language, or default to 'es'
-    target_lang = sys.argv[1] if len(sys.argv) > 1 else 'es'
+    # Accept command line argument for language, or process all available locales
+    if len(sys.argv) > 1:
+        target_langs = [sys.argv[1]]
+        # Verify the language exists
+        available_locales = get_available_locales()
+        if target_langs[0] not in available_locales:
+            print(f"Language '{target_langs[0]}' not found in available locales: {available_locales}")
+            print(f"Usage: python {sys.argv[0]} [language_code]")
+            sys.exit(1)
+    else:
+        # Process all available locales
+        target_langs = get_available_locales()
+        print(f"No language specified, processing all available locales: {target_langs}")
     
-    # Verify the language exists
-    available_locales = get_available_locales()
-    if target_lang not in available_locales:
-        print(f"Language '{target_lang}' not found in available locales: {available_locales}")
-        print(f"Usage: python {sys.argv[0]} [language_code]")
-        sys.exit(1)
-    
-    po_file = os.path.join(base_dir, 'locales', target_lang, 'LC_MESSAGES', 'gui-subtrans.po')
-    output_file = os.path.join(base_dir, f'untranslated_msgids_{target_lang}.txt')
-
-    extract_untranslated_msgids(po_file, output_file)
+    for target_lang in target_langs:
+        print(f"\nProcessing language: {target_lang}")
+        po_file = os.path.join(base_dir, 'locales', target_lang, 'LC_MESSAGES', 'gui-subtrans.po')
+        output_file = os.path.join(base_dir, f'untranslated_msgids_{target_lang}.txt')
+        
+        extract_untranslated_msgids(po_file, output_file)
