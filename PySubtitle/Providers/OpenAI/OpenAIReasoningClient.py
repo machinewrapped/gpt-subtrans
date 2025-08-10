@@ -78,12 +78,6 @@ class OpenAIReasoningClient(OpenAIClient):
             collected_text: list[str] = []
             collected_reasoning: list[str] = []
 
-            def _coerce_text(val):
-                try:
-                    return val if isinstance(val, str) else None
-                except Exception:
-                    return None
-
             for block in output_blocks or []:
                 content_list = getattr(block, 'content', None)
                 if isinstance(content_list, list):
@@ -103,11 +97,9 @@ class OpenAIReasoningClient(OpenAIClient):
                                 if r_text:
                                     collected_reasoning.append(r_text)
 
-                else:
+                elif isinstance(content_list, str):
                     # Fallback: if content is a str
-                    t = _coerce_text(content_list)
-                    if t:
-                        collected_text.append(t)
+                    collected_text.append(content_list)
 
                 # Stop reason may live per-block in some SDKs
                 if 'finish_reason' not in response:
