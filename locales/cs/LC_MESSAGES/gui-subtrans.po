@@ -278,7 +278,7 @@ msgstr "Podrobné pokyny pro překladatele"
 
 #: GUI/AboutDialog.py:54
 msgid "Developed by: MachineWrapped<br>Contact: machinewrapped@gmail.com<br><a href=\"https://github.com/machinewrapped/gpt-subtrans\">GitHub Repository</a><br>Thanks to all contributors and those who have reported issues."
-msgstr ""
+msgstr "Vyvinul: MachineWrapped<br>Kontakt: machinewrapped@gmail.com<br><a href=\"https://github.com/machinewrapped/gpt-subtrans\">Repozitář na GitHubu</a><br>Díky všem přispěvatelům a těm, kteří nahlásili problémy."
 
 #: GUI/SettingsDialog.py:69
 msgid "Divide any batches larger than this into multiple batches"
@@ -388,6 +388,9 @@ msgstr "Nastavení GUI-Subtrans"
 #: GUI/AboutDialog.py:62
 msgid "GUI-Subtrans is released under the MIT License.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software."
 msgstr ""
+"GUI-Subtrans je vydán pod licencí MIT.\n"
+"\n"
+"Tímto se bezplatně uděluje povolení jakékoli osobě, která získá kopii tohoto softwaru a souvisejících dokumentačních souborů, nakládat se softwarem bez omezení, včetně, bez omezení, práv na používání, kopírování, úpravu, slučování, publikování, distribuci, sublicencování a/nebo prodej kopií softwaru."
 
 #: GUI/AboutDialog.py:50
 msgid "GUI-Subtrans uses LLMs to translate SRT subtitles into other languages, or to improve the quality of an existing translation."
@@ -395,7 +398,7 @@ msgstr "GUI-Subtrans používá LLM k překladu titulků SRT do jiných jazyků 
 
 #: GUI/AboutDialog.py:80
 msgid "GUI-Subtrans would not work without these libraries:\n"
-msgstr ""
+msgstr "GUI-Subtrans by bez těchto knihoven nefungoval:\n"
 
 #: GUI/Widgets/Widgets.py:117
 msgid "Gap: {gap}, Length: {duration}"
@@ -495,7 +498,7 @@ msgstr "Načíst projekt/titulky (Podržte Shift pro opětovné načtení titulk
 
 #: GUI/AboutDialog.py:31
 msgid "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
-msgstr ""
+msgstr "Logo vygenerováno pomocí <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
 
 #: GUI/MainToolbar.py:26
 msgid "Main Toolbar"
@@ -1161,6 +1164,8 @@ msgstr "Použít knihovnu httpx pro požadavky. Může pomoci, pokud obdržíte 
 #: GUI/ViewModel/BatchItem.py:247
 msgid "User Prompt:\n {text}"
 msgstr ""
+"Uživatelská výzva:\n"
+" {text}"
 
 #: GUI/SettingsDialog.py:74
 msgid "Validator: Maximum number of characters to allow in a single translated line"

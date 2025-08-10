@@ -13,6 +13,7 @@ Also normalizes msgid wrapping inside PO files to single-line form so
 seeding/matching works reliably.
 """
 import os
+import json
 import re
 import sys
 import ast
@@ -249,12 +250,11 @@ def _collect_untranslated_msgids(po_file_path: str) -> Dict[str, str]:
 
 def write_untranslated_dict_file(lang: str, untranslated: Dict[str, str]) -> str:
     out_path = os.path.join(base_path, f'untranslated_msgids_{lang}.txt')
+    # Write as JSON for robust escaping
+    data = {key: '' for key in untranslated.keys()}
     with open(out_path, 'w', encoding='utf-8') as f:
-        f.write('{' + "\n")
-        for key in untranslated.keys():
-            escaped_key = key.replace("'", "\\'")
-            f.write(f"    '{escaped_key}': '',\n")
-        f.write('}' + "\n")
+        json.dump(data, f, ensure_ascii=False, indent=2, sort_keys=True)
+        f.write('\n')
     return out_path
 
 
@@ -271,11 +271,29 @@ def _parse_manual_translations(path: str) -> Dict[str, str]:
     try:
         with open(path, 'r', encoding='utf-8') as f:
             content = f.read()
-        data = ast.literal_eval(content)
+        # Prefer JSON (new format)
+        try:
+            data = json.loads(content)
+        except json.JSONDecodeError:
+            # Fallback to legacy Python dict literal
+            data = ast.literal_eval(content)
         if not isinstance(data, dict):
             return {}
+        # Normalize keys to match PO msgids which contain C-style escaped sequences.
+        # Transform manual keys into the PO-escaped form: backslashes (\\), quotes (\"), newlines (\n).
+        def _norm_key_po(k: str) -> str:
+            s = str(k)
+            # Normalize Windows newlines to LF first
+            s = s.replace('\r\n', '\n')
+            # Escape backslashes first to avoid interfering with subsequent escapes
+            s = s.replace('\\', r'\\')
+            # Escape double quotes to match PO msgid encoding
+            s = s.replace('"', r'\"')
+            # Finally, convert actual newlines to literal \n
+            s = s.replace('\n', r'\n')
+            return s
         # Keep only entries with non-empty translations
-        return {str(k): str(v) for k, v in data.items() if isinstance(v, str) and v != ''}
+        return {_norm_key_po(k): str(v) for k, v in data.items() if isinstance(v, str) and v != ''}
     except FileNotFoundError:
         return {}
     except Exception as e:
