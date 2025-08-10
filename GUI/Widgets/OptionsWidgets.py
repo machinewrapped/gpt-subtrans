@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QCo
 from PySide6.QtGui import QTextOption
 
 from PySubtitle.Helpers import GetValueFromName, GetValueName
-from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Localization import LocaleDisplayItem, _
 from PySubtitle.Options import MULTILINE_OPTION
 
 class OptionWidget(QWidget):
@@ -207,6 +207,8 @@ class DropdownOptionWidget(OptionWidget):
                 value_name = GetValueName(value)
                 self.combo_box.addItem(value_name)
                 if selected_value and value_name == selected_value_name:
+                    self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
+                elif isinstance(value, LocaleDisplayItem) and selected_value == value.code:
                     self.combo_box.setCurrentIndex(self.combo_box.count() - 1)
 
             self.combo_box.setEnabled(len(values) > 1)

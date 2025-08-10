@@ -27,8 +27,8 @@ class SettingsDialog(QDialog):
     PROVIDER_SECTION = 'Provider Settings'
     SECTIONS = {
         'General': {
-            'target_language': (str, _("The default language to translate the subtitles to")),
             'ui_language': (str, _("The language of the application interface")),
+            'target_language': (str, _("The default language to translate the subtitles to")),
             'include_original': (bool, _("Include original text in translated subtitles")),
             'add_right_to_left_markers': (bool, _("Add RTL markers around translated lines that contain primarily right-to-left script on save")),
             'instruction_file': (str, _("Instructions for the translation provider to follow")),
@@ -78,6 +78,13 @@ class SettingsDialog(QDialog):
         }
     }
 
+    _translated_sections = {
+        'General': _("General"),
+        PROVIDER_SECTION: _("Provider Settings"),
+        'Processing': _("Processing"),
+        'Advanced': _("Advanced")
+    }
+
     _preprocessor_setting = { 'preprocess_subtitles': True }
     _postprocessor_setting = { 'postprocess_translation': True }
     _prepostprocessor_setting = [ _preprocessor_setting, _postprocessor_setting ]
@@ -121,9 +128,6 @@ class SettingsDialog(QDialog):
 
         # Available UI languages (dynamically detected) - hack to set the current locale as selected language
         self._locales = get_locale_display_items()
-        current_locale = self.settings.get('ui_language', 'en')
-        current_locale_name = get_locale_display_name(current_locale)
-        self.settings['ui_language'] = current_locale_name
         self.SECTIONS['General']['ui_language'] = (self._locales, self.SECTIONS['General']['ui_language'][1])
 
         # Query available instruction files
@@ -152,7 +156,8 @@ class SettingsDialog(QDialog):
 
         for section_name in self.SECTIONS.keys():
             section_widget = self._create_section_widget(section_name)
-            self.tabs.addTab(section_widget, _(section_name))
+            tab_label = _(section_name)
+            self.tabs.addTab(section_widget, tab_label)
 
         if focus_provider_settings:
             self.tabs.setCurrentWidget(self.sections[self.PROVIDER_SECTION])
@@ -210,7 +215,7 @@ class SettingsDialog(QDialog):
         """
         section_widget = QFrame(self)
         section_widget.setObjectName(section_name)
-
+        
         layout = QFormLayout(section_widget)
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
