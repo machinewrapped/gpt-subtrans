@@ -2,6 +2,7 @@ from openai.types.chat import ChatCompletion
 
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationResponseError
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 linesep = '\n'
 
@@ -19,11 +20,12 @@ class DeepSeekClient(OpenAIClient):
     def max_tokens(self):
         return self.settings.get('max_tokens', None)
 
-    def _send_messages(self, messages : list[str], temperature):
+    def _send_messages(self, prompt : TranslationPrompt, temperature):
         """
         Make a request to DeepSeek's OpenAI-compatible API to provide a translation
         """
         response = {}
+        messages : list[str] = prompt.content
 
         result : ChatCompletion = self.client.chat.completions.create(
             model=self.model,
