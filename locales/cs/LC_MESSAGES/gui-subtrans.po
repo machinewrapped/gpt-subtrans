@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-11 18:45+0000\n"
+"POT-Creation-Date: 2025-08-11 18:59+0000\n"
 "PO-Revision-Date: 2025-08-09 21:00+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Czech\n"
@@ -384,6 +384,10 @@ msgstr "Chyba při komunikaci s Bedrock: {error}"
 msgid "Error communicating with provider"
 msgstr "Chyba při komunikaci s poskytovatelem"
 
+#: PySubtitle/SubtitleProject.py:215
+msgid "Error decoding JSON file: {}"
+msgstr "Chyba při dekódování souboru JSON: {}"
+
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
 msgstr "Chyba při opakování posledního příkazu: {error}"
@@ -465,6 +469,10 @@ msgstr "Nepodařilo se inicializovat OpenAI SDK. Poskytovatel OpenAI nebude k di
 msgid "Failed to initialize Anthropic client"
 msgstr "Nepodařilo se inicializovat klienta Anthropic"
 
+#: PySubtitle/SubtitleProject.py:102
+msgid "Failed to load subtitle file {}: {}"
+msgstr "Nepodařilo se načíst soubor s titulky {}: {}"
+
 #: GUI/Commands/MergeLinesCommand.py:48
 msgid "Failed to merge lines"
 msgstr "Sloučení řádků se nezdařilo"
@@ -480,6 +488,10 @@ msgstr "Přepnutí jazyka se nezdařilo - restartujte aplikaci: {error}"
 #: PySubtitle/SubtitleTranslator.py:125
 msgid "Failed to translate scene {scene}... stopping translation"
 msgstr "Nepodařilo se přeložit scénu {scene}... překlad se zastavuje"
+
+#: PySubtitle/SubtitleProject.py:284
+msgid "Failed to translate subtitles: {}"
+msgstr "Nepodařilo se přeložit titulky: {}"
 
 #: PySubtitle/SubtitleTranslator.py:139
 msgid "Failed to translate {count} lines:"
@@ -842,6 +854,10 @@ msgstr "Nebyly vybrány žádné scény k překladu"
 msgid "No subtitles"
 msgstr "Žádné titulky"
 
+#: PySubtitle/SubtitleProject.py:109
+msgid "No subtitles to translate in {}"
+msgstr "V {} nejsou žádné titulky k překladu"
+
 #: PySubtitle/SubtitleFile.py:321
 msgid "No subtitles translated"
 msgstr "Nebyly přeloženy žádné titulky"
@@ -999,6 +1015,18 @@ msgstr "Nastavení projektu"
 msgid "Project Toolbar"
 msgstr "Panel nástrojů projektu"
 
+#: PySubtitle/SubtitleProject.py:82
+msgid "Project file loaded"
+msgstr "Soubor projektu byl načten"
+
+#: PySubtitle/SubtitleProject.py:70
+msgid "Project file {} does not exist"
+msgstr "Soubor projektu {} neexistuje"
+
+#: PySubtitle/SubtitleProject.py:211
+msgid "Project file {} not found"
+msgstr "Soubor projektu {} nebyl nalezen"
+
 #: GUI/NewProjectSettings.py:101
 msgid "Project instructions set from {file}"
 msgstr "Pokyny pro projekt nastaveny ze souboru {file}"
@@ -1031,6 +1059,10 @@ msgstr "Nastavení poskytovatele"
 msgid "Provider error: {error}"
 msgstr "Chyba poskytovatele: {error}"
 
+#: GUI/ProjectActions.py:163
+msgid "Provider settings validated"
+msgstr "Nastavení poskytovatele ověřeno"
+
 #: GUI/GUICommands.py:39
 msgid "Provider {provider} needs configuring: {message}"
 msgstr "Poskytovatel {provider} vyžaduje konfiguraci: {message}"
@@ -1047,6 +1079,10 @@ msgstr "Dosažen limit rychlosti, opakuji za {retry_seconds} sekund..."
 msgid "Reached max_lines limit of ({lines} lines)... finishing"
 msgstr "Byl dosažen limit max_lines ({lines} řádků)... dokončuje se"
 
+#: PySubtitle/SubtitleProject.py:201
+msgid "Reading project data from {}"
+msgstr "Načítání dat projektu z {}"
+
 #: GUI/MainWindow.py:65 GUI/MainWindow.py:176
 msgid "Ready."
 msgstr "Připraveno."
@@ -1062,6 +1098,10 @@ msgstr "Znovu provést poslední vrácenou akci"
 #: GUI/MainToolbar.py:182
 msgid "Redo {command}"
 msgstr "Znovu provést {command}"
+
+#: PySubtitle/SubtitleProject.py:87
+msgid "Reloading subtitles from the source file"
+msgstr "Opětovné načítání titulků ze zdrojového souboru"
 
 #: GUI/SettingsDialog.py:63
 msgid "Remove filler_words and filler words from subtitles"
@@ -1447,7 +1487,7 @@ msgstr "Překládám s modelem {model}, používám základnu API: {api_base}"
 msgid "Translating {linecount} lines in {scenecount} scenes"
 msgstr "Překládá se {linecount} řádků v {scenecount} scénách"
 
-#: PySubtitle/SubtitleTranslator.py:129
+#: PySubtitle/SubtitleProject.py:278 PySubtitle/SubtitleTranslator.py:129
 msgid "Translation aborted"
 msgstr "Překlad byl přerušen"
 
@@ -1507,6 +1547,10 @@ msgstr "Nelze sloučit výběr ({selection})"
 msgid "Unable to preview batches: {error}"
 msgstr "Nelze zobrazit náhled dávek: {error}"
 
+#: PySubtitle/SubtitleProject.py:90
+msgid "Unable to read project file, starting afresh"
+msgstr "Nelze načíst soubor projektu, začíná se znovu"
+
 #: GUI/Commands/ReparseTranslationsCommand.py:29
 msgid "Unable to reparse batches because project is not set"
 msgstr "Nelze znovu analyzovat dávky, protože projekt není nastaven"
@@ -1530,6 +1574,14 @@ msgstr "Nepodařilo se načíst dostupné modely AI: {error}"
 #: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Unable to retrieve models"
 msgstr "Nelze načíst modely"
+
+#: PySubtitle/SubtitleProject.py:122
+msgid "Unable to save original subtitles: {}"
+msgstr "Nelze uložit původní titulky: {}"
+
+#: PySubtitle/SubtitleProject.py:133
+msgid "Unable to save translation: {}"
+msgstr "Nelze uložit překlad: {}"
 
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
@@ -1585,18 +1637,6 @@ msgstr "Nečekaný typ odpovědi: {response_type}"
 #: PySubtitle/SubtitleTranslator.py:141
 msgid "Untranslated > {number}. {text}"
 msgstr "Nepřeloženo > {number}. {text}"
-
-#: GUI/ProjectActions.py:283
-msgid "Updating line {line} with {original} > {translated}"
-msgstr "Aktualizace řádku {line} s {original} > {translated}"
-
-#: GUI/ProjectActions.py:273
-msgid "Updating scene {scene} batch {batch} with {update}"
-msgstr "Aktualizace scény {scene} dávky {batch} s {update}"
-
-#: GUI/ProjectActions.py:263
-msgid "Updating scene {scene} with {update}"
-msgstr "Aktualizace scény {scene} s {update}"
 
 #: PySubtitle/Providers/Provider_Custom.py:109
 msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
@@ -2038,6 +2078,15 @@ msgstr "{} řádků bylo prázdných a nebylo zapsáno do výstupního souboru"
 #: PySubtitle/SubtitleFile.py:349
 msgid "{} lines were invalid and were not written to the output file"
 msgstr "{} řádků bylo neplatných a nebylo zapsáno do výstupního souboru"
+
+#~ msgid "Updating line {line} with {original} > {translated}"
+#~ msgstr "Aktualizace řádku {line} s {original} > {translated}"
+
+#~ msgid "Updating scene {scene} batch {batch} with {update}"
+#~ msgstr "Aktualizace scény {scene} dávky {batch} s {update}"
+
+#~ msgid "Updating scene {scene} with {update}"
+#~ msgstr "Aktualizace scény {scene} s {update}"
 
 #~ msgid "Translation Provider"
 #~ msgstr "Poskytovatel překladu"

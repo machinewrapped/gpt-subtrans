@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-11 18:45+0000\n"
+"POT-Creation-Date: 2025-08-11 18:59+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -384,6 +384,10 @@ msgstr "Error al comunicarse con Bedrock: {error}"
 msgid "Error communicating with provider"
 msgstr "Error al comunicarse con el proveedor"
 
+#: PySubtitle/SubtitleProject.py:215
+msgid "Error decoding JSON file: {}"
+msgstr "Error al decodificar el archivo JSON: {}"
+
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
 msgstr "Error al rehacer la última acción: {error}"
@@ -465,6 +469,10 @@ msgstr "No se pudo inicializar el SDK de OpenAI. El proveedor OpenAI no estará 
 msgid "Failed to initialize Anthropic client"
 msgstr "No se pudo inicializar el cliente de Anthropic"
 
+#: PySubtitle/SubtitleProject.py:102
+msgid "Failed to load subtitle file {}: {}"
+msgstr "No se pudo cargar el archivo de subtítulos {}: {}"
+
 #: GUI/Commands/MergeLinesCommand.py:48
 msgid "Failed to merge lines"
 msgstr "Fallo al fusionar líneas"
@@ -480,6 +488,10 @@ msgstr "No se pudo cambiar el idioma - reinicie la aplicación: {error}"
 #: PySubtitle/SubtitleTranslator.py:125
 msgid "Failed to translate scene {scene}... stopping translation"
 msgstr "No se pudo traducir la escena {scene}... deteniendo traducción"
+
+#: PySubtitle/SubtitleProject.py:284
+msgid "Failed to translate subtitles: {}"
+msgstr "No se pudieron traducir los subtítulos: {}"
 
 #: PySubtitle/SubtitleTranslator.py:139
 msgid "Failed to translate {count} lines:"
@@ -839,6 +851,10 @@ msgstr "No hay escenas seleccionadas para traducir"
 msgid "No subtitles"
 msgstr "No hay subtítulos"
 
+#: PySubtitle/SubtitleProject.py:109
+msgid "No subtitles to translate in {}"
+msgstr "No hay subtítulos que traducir en {}"
+
 #: PySubtitle/SubtitleFile.py:321
 msgid "No subtitles translated"
 msgstr "No se tradujeron subtítulos"
@@ -996,6 +1012,18 @@ msgstr "Configuración del proyecto"
 msgid "Project Toolbar"
 msgstr "Barra de herramientas del proyecto"
 
+#: PySubtitle/SubtitleProject.py:82
+msgid "Project file loaded"
+msgstr "Archivo de proyecto cargado"
+
+#: PySubtitle/SubtitleProject.py:70
+msgid "Project file {} does not exist"
+msgstr "El archivo de proyecto {} no existe"
+
+#: PySubtitle/SubtitleProject.py:211
+msgid "Project file {} not found"
+msgstr "Archivo de proyecto {} no encontrado"
+
 #: GUI/NewProjectSettings.py:101
 msgid "Project instructions set from {file}"
 msgstr "Instrucciones del proyecto establecidas desde {file}"
@@ -1028,6 +1056,10 @@ msgstr "Configuración del proveedor"
 msgid "Provider error: {error}"
 msgstr "Error del proveedor: {error}"
 
+#: GUI/ProjectActions.py:163
+msgid "Provider settings validated"
+msgstr "Configuración del proveedor validada"
+
 #: GUI/GUICommands.py:39
 msgid "Provider {provider} needs configuring: {message}"
 msgstr "El proveedor {provider} necesita configuración: {message}"
@@ -1044,6 +1076,10 @@ msgstr "Límite de peticiones alcanzado, reintentando en {retry_seconds} segundo
 msgid "Reached max_lines limit of ({lines} lines)... finishing"
 msgstr "Se alcanzó el límite de max_lines de ({lines} líneas)... finalizando"
 
+#: PySubtitle/SubtitleProject.py:201
+msgid "Reading project data from {}"
+msgstr "Leyendo datos del proyecto desde {}"
+
 #: GUI/MainWindow.py:65 GUI/MainWindow.py:176
 msgid "Ready."
 msgstr "Listo."
@@ -1059,6 +1095,10 @@ msgstr "Rehacer la última acción deshecha"
 #: GUI/MainToolbar.py:182
 msgid "Redo {command}"
 msgstr "Rehacer {command}"
+
+#: PySubtitle/SubtitleProject.py:87
+msgid "Reloading subtitles from the source file"
+msgstr "Recargando subtítulos desde el archivo original"
 
 #: GUI/SettingsDialog.py:63
 msgid "Remove filler_words and filler words from subtitles"
@@ -1444,7 +1484,7 @@ msgstr "Traduciendo con el modelo {model}, usando la Base de API: {api_base}"
 msgid "Translating {linecount} lines in {scenecount} scenes"
 msgstr "Traduciendo {linecount} líneas en {scenecount} escenas"
 
-#: PySubtitle/SubtitleTranslator.py:129
+#: PySubtitle/SubtitleProject.py:278 PySubtitle/SubtitleTranslator.py:129
 msgid "Translation aborted"
 msgstr "Traducción cancelada"
 
@@ -1504,6 +1544,10 @@ msgstr "No se puede combinar la selección ({selection})"
 msgid "Unable to preview batches: {error}"
 msgstr "No se pueden previsualizar los lotes: {error}"
 
+#: PySubtitle/SubtitleProject.py:90
+msgid "Unable to read project file, starting afresh"
+msgstr "No se pudo leer el archivo de proyecto, comenzando de nuevo"
+
 #: GUI/Commands/ReparseTranslationsCommand.py:29
 msgid "Unable to reparse batches because project is not set"
 msgstr "No se pueden reanalizar lotes porque no se ha establecido el proyecto"
@@ -1527,6 +1571,14 @@ msgstr "No se pudo obtener la lista de modelos de IA disponibles: {error}"
 #: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Unable to retrieve models"
 msgstr "No se pueden obtener los modelos"
+
+#: PySubtitle/SubtitleProject.py:122
+msgid "Unable to save original subtitles: {}"
+msgstr "No se pudieron guardar los subtítulos originales: {}"
+
+#: PySubtitle/SubtitleProject.py:133
+msgid "Unable to save translation: {}"
+msgstr "No se pudo guardar la traducción: {}"
 
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
@@ -1582,18 +1634,6 @@ msgstr "Tipo de respuesta inesperado: {response_type}"
 #: PySubtitle/SubtitleTranslator.py:141
 msgid "Untranslated > {number}. {text}"
 msgstr "Sin traducir > {number}. {text}"
-
-#: GUI/ProjectActions.py:283
-msgid "Updating line {line} with {original} > {translated}"
-msgstr "Actualizando línea {line} con {original} > {translated}"
-
-#: GUI/ProjectActions.py:273
-msgid "Updating scene {scene} batch {batch} with {update}"
-msgstr "Actualizando escena {scene} lote {batch} con {update}"
-
-#: GUI/ProjectActions.py:263
-msgid "Updating scene {scene} with {update}"
-msgstr "Actualizando escena {scene} con {update}"
 
 #: PySubtitle/Providers/Provider_Custom.py:109
 msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
@@ -2033,6 +2073,15 @@ msgstr "{} líneas estaban vacías y no se escribieron en el archivo de salida"
 #: PySubtitle/SubtitleFile.py:349
 msgid "{} lines were invalid and were not written to the output file"
 msgstr "{} líneas no eran válidas y no se escribieron en el archivo de salida"
+
+#~ msgid "Updating line {line} with {original} > {translated}"
+#~ msgstr "Actualizando línea {line} con {original} > {translated}"
+
+#~ msgid "Updating scene {scene} batch {batch} with {update}"
+#~ msgstr "Actualizando escena {scene} lote {batch} con {update}"
+
+#~ msgid "Updating scene {scene} with {update}"
+#~ msgstr "Actualizando escena {scene} con {update}"
 
 #~ msgid "Translation Provider"
 #~ msgstr "Proveedor de traducción"

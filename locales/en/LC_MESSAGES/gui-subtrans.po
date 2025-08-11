@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-11 18:45+0000\n"
-"PO-Revision-Date: 2025-08-11 18:45+0000\n"
+"POT-Creation-Date: 2025-08-11 18:59+0000\n"
+"PO-Revision-Date: 2025-08-11 18:59+0000\n"
 "Last-Translator: Auto-generated\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -383,6 +383,10 @@ msgstr "Error Communicating With Bedrock: {Error}"
 msgid "Error communicating with provider"
 msgstr "Error Communicating With Provider"
 
+#: PySubtitle/SubtitleProject.py:215
+msgid "Error decoding JSON file: {}"
+msgstr ""
+
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
 msgstr ""
@@ -464,6 +468,10 @@ msgstr "Failed To Initialise Openai Sdk. Openai Provider Will Not Be Available"
 msgid "Failed to initialize Anthropic client"
 msgstr "Failed To Initialize Anthropic Client"
 
+#: PySubtitle/SubtitleProject.py:102
+msgid "Failed to load subtitle file {}: {}"
+msgstr ""
+
 #: GUI/Commands/MergeLinesCommand.py:48
 msgid "Failed to merge lines"
 msgstr ""
@@ -478,6 +486,10 @@ msgstr ""
 
 #: PySubtitle/SubtitleTranslator.py:125
 msgid "Failed to translate scene {scene}... stopping translation"
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:284
+msgid "Failed to translate subtitles: {}"
 msgstr ""
 
 #: PySubtitle/SubtitleTranslator.py:139
@@ -834,6 +846,10 @@ msgstr ""
 msgid "No subtitles"
 msgstr ""
 
+#: PySubtitle/SubtitleProject.py:109
+msgid "No subtitles to translate in {}"
+msgstr ""
+
 #: PySubtitle/SubtitleFile.py:321
 msgid "No subtitles translated"
 msgstr ""
@@ -991,6 +1007,18 @@ msgstr ""
 msgid "Project Toolbar"
 msgstr ""
 
+#: PySubtitle/SubtitleProject.py:82
+msgid "Project file loaded"
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:70
+msgid "Project file {} does not exist"
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:211
+msgid "Project file {} not found"
+msgstr ""
+
 #: GUI/NewProjectSettings.py:101
 msgid "Project instructions set from {file}"
 msgstr ""
@@ -1023,6 +1051,10 @@ msgstr ""
 msgid "Provider error: {error}"
 msgstr ""
 
+#: GUI/ProjectActions.py:163
+msgid "Provider settings validated"
+msgstr ""
+
 #: GUI/GUICommands.py:39
 msgid "Provider {provider} needs configuring: {message}"
 msgstr ""
@@ -1039,6 +1071,10 @@ msgstr "Rate Limit Hit, Retrying In {Retry Seconds} Seconds..."
 msgid "Reached max_lines limit of ({lines} lines)... finishing"
 msgstr ""
 
+#: PySubtitle/SubtitleProject.py:201
+msgid "Reading project data from {}"
+msgstr ""
+
 #: GUI/MainWindow.py:65 GUI/MainWindow.py:176
 msgid "Ready."
 msgstr ""
@@ -1053,6 +1089,10 @@ msgstr ""
 
 #: GUI/MainToolbar.py:182
 msgid "Redo {command}"
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:87
+msgid "Reloading subtitles from the source file"
 msgstr ""
 
 #: GUI/SettingsDialog.py:63
@@ -1439,7 +1479,7 @@ msgstr "Translating With Model {Model}, Using Api Base: {Api Base}"
 msgid "Translating {linecount} lines in {scenecount} scenes"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:129
+#: PySubtitle/SubtitleProject.py:278 PySubtitle/SubtitleTranslator.py:129
 msgid "Translation aborted"
 msgstr ""
 
@@ -1499,6 +1539,10 @@ msgstr ""
 msgid "Unable to preview batches: {error}"
 msgstr ""
 
+#: PySubtitle/SubtitleProject.py:90
+msgid "Unable to read project file, starting afresh"
+msgstr ""
+
 #: GUI/Commands/ReparseTranslationsCommand.py:29
 msgid "Unable to reparse batches because project is not set"
 msgstr ""
@@ -1522,6 +1566,14 @@ msgstr "Unable To Retrieve Available Ai Models: {Error}"
 #: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Unable to retrieve models"
 msgstr "Unable To Retrieve Models"
+
+#: PySubtitle/SubtitleProject.py:122
+msgid "Unable to save original subtitles: {}"
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:133
+msgid "Unable to save translation: {}"
+msgstr ""
 
 #: GUI/Commands/TranslateSceneCommand.py:34
 msgid "Unable to translate scene because project is not set on datamodel"
@@ -1576,18 +1628,6 @@ msgstr "Unexpected Response Type: {Response Type}"
 
 #: PySubtitle/SubtitleTranslator.py:141
 msgid "Untranslated > {number}. {text}"
-msgstr ""
-
-#: GUI/ProjectActions.py:283
-msgid "Updating line {line} with {original} > {translated}"
-msgstr ""
-
-#: GUI/ProjectActions.py:273
-msgid "Updating scene {scene} batch {batch} with {update}"
-msgstr ""
-
-#: GUI/ProjectActions.py:263
-msgid "Updating scene {scene} with {update}"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:109

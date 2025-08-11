@@ -160,7 +160,7 @@ class ProjectActions(QObject):
             if cmd.show_provider_settings:
                 self.showProviderSettings.emit()
             else:
-                logging.info("Provider settings validated")
+                logging.info(_("Provider settings validated"))
 
         command = CheckProviderSettings(options or self.datamodel.project_options)
         command.callback = callback
@@ -260,7 +260,7 @@ class ProjectActions(QObject):
         """
         Update the user-updatable properties of a subtitle scene
         """
-        logging.debug(_("Updating scene {scene} with {update}").format(scene=scene_number, update=str(update)))
+        logging.debug(f"Updating scene {scene_number} with {str(update)}")
 
         self._validate_datamodel()
 
@@ -270,7 +270,7 @@ class ProjectActions(QObject):
         """
         Update the user-updatable properties of a subtitle batch
         """
-        logging.debug(_("Updating scene {scene} batch {batch} with {update}").format(scene=scene_number, batch=batch_number, update=str(update)))
+        logging.debug(f"Updating scene {scene_number} batch {batch_number} with {str(update)}")
 
         self._validate_datamodel()
 
@@ -280,7 +280,7 @@ class ProjectActions(QObject):
         """
         Update the user-updatable properties of a subtitle batch
         """
-        logging.debug(_("Updating line {line} with {original} > {translated}").format(line=line_number, original=str(original_text), translated=str(translated_text)))
+        logging.debug(f"Updating line {line_number} with {original_text} > {translated_text}")
 
         self._validate_datamodel()
 

@@ -3,6 +3,7 @@ import os
 import logging
 import threading
 from PySubtitle.Helpers import GetOutputPath
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import SubtitleError, TranslationAbortedError
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -66,7 +67,7 @@ class SubtitleProject:
             self.write_project = True
 
         if self.read_project and not project_file_exists:
-            logging.info(f"Project file {self.projectfile} does not exist")
+            logging.info(_("Project file {} does not exist").format(self.projectfile))
             self.read_project = False
             self.load_subtitles = True
 
@@ -78,15 +79,15 @@ class SubtitleProject:
             if subtitles:
                 outputpath = outputpath or GetOutputPath(self.projectfile, subtitles.target_language)
                 sourcepath = subtitles.sourcepath                
-                logging.info("Project file loaded")
+                logging.info(_("Project file loaded"))
 
             if subtitles.scenes:
                 self.load_subtitles = reload_subtitles
                 if self.load_subtitles:
-                    logging.info("Reloading subtitles from the source file")
+                    logging.info(_("Reloading subtitles from the source file"))
 
             else:
-                logging.error(f"Unable to read project file, starting afresh")
+                logging.error(_("Unable to read project file, starting afresh"))
                 self.load_subtitles = True
 
         if self.load_subtitles:
@@ -98,14 +99,14 @@ class SubtitleProject:
                 if self.read_project and project_settings:
                     subtitles.UpdateProjectSettings(project_settings)
             except Exception as e:
-                logging.error(f"Failed to load subtitle file {filepath}: {str(e)}")
+                logging.error(_("Failed to load subtitle file {}: {}").format(filepath, str(e)))
                 raise
 
         if outputpath:
             subtitles.outputpath = outputpath
 
         if not subtitles.has_subtitles:
-            raise ValueError(f"No subtitles to translate in {filepath}")
+            raise ValueError(_("No subtitles to translate in {}").format(filepath))
 
         self.needs_writing = self.write_project
 
@@ -118,7 +119,7 @@ class SubtitleProject:
                 self.subtitles.SaveOriginal(outputpath)
 
         except Exception as e:
-            logging.error(f"Unable to save original subtitles: {e}")
+            logging.error(_("Unable to save original subtitles: {}").format(e))
 
     def SaveTranslation(self, outputpath : str = None):
         """
@@ -129,7 +130,7 @@ class SubtitleProject:
                 self.subtitles.SaveTranslation(outputpath)
 
         except Exception as e:
-            logging.error(f"Unable to save translation: {e}")
+            logging.error(_("Unable to save translation: {}").format(e))
 
     def GetProjectFilepath(self, filepath):
         path, ext = os.path.splitext(filepath)
@@ -197,7 +198,7 @@ class SubtitleProject:
         try:
             filepath = filepath or self.projectfile
             with self.lock:
-                logging.info(f"Reading project data from {str(filepath)}")
+                logging.info(_("Reading project data from {}").format(str(filepath)))
 
                 with open(filepath, 'r', encoding=default_encoding, newline='') as f:
                     subtitles: SubtitleFile = json.load(f, cls=SubtitleDecoder)
@@ -207,11 +208,11 @@ class SubtitleProject:
                 return subtitles
 
         except FileNotFoundError:
-            logging.error(f"Project file {filepath} not found")
+            logging.error(_("Project file {} not found").format(filepath))
             return None
 
         except json.JSONDecodeError as e:
-            logging.error(f"Error decoding JSON file: {e}")
+            logging.error(_("Error decoding JSON file: {}").format(e))
             return None
 
     def UpdateProjectFile(self):
@@ -274,13 +275,13 @@ class SubtitleProject:
                 self.SaveTranslation()
 
         except TranslationAbortedError:
-            logging.info(f"Translation aborted")
+            logging.info(_("Translation aborted"))
 
         except Exception as e:
             if self.subtitles and self.save_subtitles and translator.stop_on_error:
                 self.SaveTranslation()
 
-            logging.error(f"Failed to translate subtitles: {str(e)}")
+            logging.error(_("Failed to translate subtitles: {}").format(str(e)))
             raise
 
     def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
