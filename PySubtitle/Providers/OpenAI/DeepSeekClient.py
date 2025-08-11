@@ -25,7 +25,7 @@ class DeepSeekClient(OpenAIClient):
         Make a request to DeepSeek's OpenAI-compatible API to provide a translation
         """
         response = {}
-        messages : list[str] = prompt.content
+        messages : list[dict] = prompt.content
 
         result : ChatCompletion = self.client.chat.completions.create(
             model=self.model,
