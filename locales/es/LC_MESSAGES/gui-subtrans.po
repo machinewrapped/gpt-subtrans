@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-11 18:26+0000\n"
+"POT-Creation-Date: 2025-08-11 18:45+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -469,6 +469,10 @@ msgstr "No se pudo inicializar el cliente de Anthropic"
 msgid "Failed to merge lines"
 msgstr "Fallo al fusionar líneas"
 
+#: PySubtitle/SubtitleFile.py:270
+msgid "Failed to parse SRT string: {}"
+msgstr "No se pudo analizar la cadena SRT: {}"
+
 #: GUI/GuiInterface.py:190
 msgid "Failed to switch language - restart the application: {error}"
 msgstr "No se pudo cambiar el idioma - reinicie la aplicación: {error}"
@@ -655,11 +659,15 @@ msgstr "Logotipo generado con <a href=\\\"https://stability.ai/stablediffusion\\
 
 #: PySubtitle/SubtitleTranslator.py:268
 msgid "Made substitutions in input:\n{replaced}"
-msgstr "Se hicieron sustituciones en la entrada:\n{replaced}"
+msgstr ""
+"Se hicieron sustituciones en la entrada:\n"
+"{replaced}"
 
 #: PySubtitle/SubtitleTranslator.py:322
 msgid "Made substitutions in output:\n{replaced}"
-msgstr "Se hicieron sustituciones en la salida:\n{replaced}"
+msgstr ""
+"Se hicieron sustituciones en la salida:\n"
+"{replaced}"
 
 #: GUI/MainToolbar.py:26
 msgid "Main Toolbar"
@@ -830,6 +838,10 @@ msgstr "No hay escenas seleccionadas para traducir"
 #: GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr "No hay subtítulos"
+
+#: PySubtitle/SubtitleFile.py:321
+msgid "No subtitles translated"
+msgstr "No se tradujeron subtítulos"
 
 #: PySubtitle/Providers/OpenAI/OpenAIReasoningClient.py:63
 msgid "No text content found in response"
@@ -1052,6 +1064,10 @@ msgstr "Rehacer {command}"
 msgid "Remove filler_words and filler words from subtitles"
 msgstr "Eliminar filler_words y muletillas de los subtítulos"
 
+#: PySubtitle/SubtitleFile.py:557
+msgid "Removing {} translations lines in batch ({},{}) that don't match an original line"
+msgstr "Eliminando {} líneas de traducción en el lote ({},{}) que no coinciden con una línea original"
+
 #: GUI/Widgets/SelectionView.py:88
 msgid "Reparse Translation"
 msgstr "Reanalizar traducción"
@@ -1127,6 +1143,10 @@ msgstr "Guardar proyecto (mantén pulsado shift para guardar como...)"
 #: GUI/Commands/LoadSubtitleFile.py:36
 msgid "Saving backup copy of the project"
 msgstr "Guardando copia de seguridad del proyecto"
+
+#: PySubtitle/SubtitleFile.py:332
+msgid "Saving translation to {}"
+msgstr "Guardando traducción en {}"
 
 #: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
 #: GUI/Widgets/Editors.py:86
@@ -1599,6 +1619,10 @@ msgstr "Validador: número máximo de saltos de línea permitidos en una sola l�
 msgid "Whether to substitute whole words or partial matches, or choose automatically based on input language"
 msgstr "Si sustituir palabras completas o coincidencias parciales, o elegir automáticamente según el idioma de entrada"
 
+#: PySubtitle/SubtitleFile.py:280
+msgid "Writing project data to {}"
+msgstr "Escribiendo datos del proyecto en {}"
+
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 msgid "access_key"
 msgstr "Clave De Acceso"
@@ -2001,6 +2025,14 @@ msgstr "{num} órdenes en cola."
 #: GUI/Commands/StartTranslationCommand.py:34
 msgid "{starting} {threaded} translation"
 msgstr "{starting} traducción {threaded}"
+
+#: PySubtitle/SubtitleFile.py:353
+msgid "{} lines were empty and were not written to the output file"
+msgstr "{} líneas estaban vacías y no se escribieron en el archivo de salida"
+
+#: PySubtitle/SubtitleFile.py:349
+msgid "{} lines were invalid and were not written to the output file"
+msgstr "{} líneas no eran válidas y no se escribieron en el archivo de salida"
 
 #~ msgid "Translation Provider"
 #~ msgstr "Proveedor de traducción"

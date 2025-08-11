@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-11 18:26+0000\n"
+"POT-Creation-Date: 2025-08-11 18:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -453,6 +453,10 @@ msgstr ""
 msgid "Failed to merge lines"
 msgstr ""
 
+#: PySubtitle/SubtitleFile.py:270
+msgid "Failed to parse SRT string: {}"
+msgstr ""
+
 #: GUI/GuiInterface.py:190
 msgid "Failed to switch language - restart the application: {error}"
 msgstr ""
@@ -801,6 +805,10 @@ msgstr ""
 msgid "No subtitles"
 msgstr ""
 
+#: PySubtitle/SubtitleFile.py:321
+msgid "No subtitles translated"
+msgstr ""
+
 #: PySubtitle/Providers/OpenAI/OpenAIReasoningClient.py:63
 msgid "No text content found in response"
 msgstr ""
@@ -1021,6 +1029,10 @@ msgstr ""
 msgid "Remove filler_words and filler words from subtitles"
 msgstr ""
 
+#: PySubtitle/SubtitleFile.py:557
+msgid "Removing {} translations lines in batch ({},{}) that don't match an original line"
+msgstr ""
+
 #: GUI/Widgets/SelectionView.py:88
 msgid "Reparse Translation"
 msgstr ""
@@ -1095,6 +1107,10 @@ msgstr ""
 
 #: GUI/Commands/LoadSubtitleFile.py:36
 msgid "Saving backup copy of the project"
+msgstr ""
+
+#: PySubtitle/SubtitleFile.py:332
+msgid "Saving translation to {}"
 msgstr ""
 
 #: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140 GUI/Widgets/Editors.py:86
@@ -1557,6 +1573,10 @@ msgstr ""
 msgid "Whether to substitute whole words or partial matches, or choose automatically based on input language"
 msgstr ""
 
+#: PySubtitle/SubtitleFile.py:280
+msgid "Writing project data to {}"
+msgstr ""
+
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 msgid "access_key"
 msgstr ""
@@ -1927,4 +1947,12 @@ msgstr ""
 
 #: GUI/Commands/StartTranslationCommand.py:34
 msgid "{starting} {threaded} translation"
+msgstr ""
+
+#: PySubtitle/SubtitleFile.py:353
+msgid "{} lines were empty and were not written to the output file"
+msgstr ""
+
+#: PySubtitle/SubtitleFile.py:349
+msgid "{} lines were invalid and were not written to the output file"
 msgstr ""
