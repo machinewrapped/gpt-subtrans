@@ -41,7 +41,7 @@ class AboutDialog(QDialog):
         layout = QVBoxLayout()
 
         # Title
-        title_label = QLabel(_(f"GUI-Subtrans Version {__version__}"))
+        title_label = QLabel(_("GUI-Subtrans Version {version}").format(version=__version__))
         font = title_label.font()
         font.setPointSize(24)
         title_label.setFont(font)
