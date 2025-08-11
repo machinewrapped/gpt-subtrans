@@ -1,8 +1,10 @@
 import importlib.util
 import logging
 
+from PySubtitle.Helpers.Localization import _
+
 if not importlib.util.find_spec("anthropic"):
-    logging.info("Anthropic SDK is not installed. Claude provider will not be available")
+    logging.info(_("Anthropic SDK is not installed. Claude provider will not be available"))
 else:
     try:
         import anthropic
@@ -135,7 +137,9 @@ else:
                     return [ m for m in model_list if m.type == 'model' ]
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve Claude model list: {str(e)}")
+                    logging.error(_("Unable to retrieve Claude model list: {error}").format(
+                        error=str(e)
+                    ))
                     return []
 
             def _get_model_id(self, name : str) -> str:
@@ -149,4 +153,4 @@ else:
                 raise ValueError(f"Model {name} not found")
 
     except ImportError:
-        logging.info("Unable to initialise Anthropic SDK. Claude provider will not be available")
+        logging.info(_("Unable to initialise Anthropic SDK. Claude provider will not be available"))

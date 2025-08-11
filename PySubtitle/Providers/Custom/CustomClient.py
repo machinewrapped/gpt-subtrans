@@ -3,6 +3,7 @@ import time
 import httpx
 
 from PySubtitle.Helpers import FormatMessages
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -19,7 +20,9 @@ class CustomClient(TranslationClient):
         if self.api_key:
             self.headers['Authorization'] = f"Bearer {self.api_key}"
 
-        logging.info(f"Translating with local server at {self.server_address}{self.endpoint}")
+        logging.info(_("Translating with local server at {server_address}{endpoint}").format(
+            server_address=self.server_address, endpoint=self.endpoint
+        ))
 
     @property
     def server_address(self):
@@ -94,9 +97,13 @@ class CustomClient(TranslationClient):
 
                 if result.is_error:
                     if result.is_client_error:
-                        raise TranslationResponseError(f"Client error: {result.status_code} {result.text}", response=result)
+                        raise TranslationResponseError(_("Client error: {status_code} {text}").format(
+                            status_code=result.status_code, text=result.text
+                        ), response=result)
                     else:
-                        raise TranslationResponseError(f"Server error: {result.status_code} {result.text}", response=result)
+                        raise TranslationResponseError(_("Server error: {status_code} {text}").format(
+                            status_code=result.status_code, text=result.text
+                        ), response=result)
 
                 logging.debug(f"Response:\n{result.text}")
 
@@ -112,7 +119,7 @@ class CustomClient(TranslationClient):
 
                 choices = content.get('choices')
                 if not choices:
-                    raise TranslationResponseError("No choices returned in the response", response=result)
+                    raise TranslationResponseError(_("No choices returned in the response"), response=result)
 
                 for choice in choices:
                     if choice.get('text'):
@@ -126,34 +133,44 @@ class CustomClient(TranslationClient):
                         break
 
                 if not response.get('text'):
-                    raise TranslationResponseError("No text returned in the response", response=result)
+                    raise TranslationResponseError(_("No text returned in the response"), response=result)
 
                 # Return the response if the API call succeeds
                 return response
 
             except httpx.ConnectError as e:
                 if not self.aborted:
-                    logging.error(f"Failed to connect to server at {self.server_address}{self.endpoint}")
+                    logging.error(_("Failed to connect to server at {server_address}{endpoint}").format(
+                        server_address=self.server_address, endpoint=self.endpoint
+                    ))
 
             except httpx.NetworkError as e:
                 if not self.aborted:
-                    logging.error(f"Network error communicating with server: {str(e)}")
+                    logging.error(_("Network error communicating with server: {error}").format(
+                        error=str(e)
+                    ))
 
             except httpx.ReadTimeout as e:
                 if not self.aborted:
-                    logging.error(f"Request to server timed out: {str(e)}")
+                    logging.error(_("Request to server timed out: {error}").format(
+                        error=str(e)
+                    ))
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Unexpected error communicating with server", error=e)
+                raise TranslationImpossibleError(_("Unexpected error communicating with server"), error=e)
 
             if self.aborted:
                 return None
             
             if retry == self.max_retries:
-                raise TranslationImpossibleError(f"Failed to communicate with server after {self.max_retries} retries")
+                raise TranslationImpossibleError(_("Failed to communicate with server after {max_retries} retries").format(
+                    max_retries=self.max_retries
+                ))
 
             sleep_time = self.backoff_time * 2.0**retry
-            logging.warning(f"Retrying in {sleep_time} seconds...")
+            logging.warning(_("Retrying in {sleep_time} seconds...").format(
+                sleep_time=sleep_time
+            ))
             time.sleep(sleep_time)
 
     def _generate_request_body(self, prompt, temperature):

@@ -2,14 +2,13 @@ import importlib.util
 import logging
 import os
 
+from PySubtitle.Helpers.Localization import _
+
 if not importlib.util.find_spec("openai"):
-    logging.info("OpenAI SDK is not installed. Azure provider will not be available")
+    logging.info(_("OpenAI SDK is not installed. Azure provider will not be available"))
 else:
     try:
         import openai
-
-        from PySubtitle.Helpers.Localization import _
-
 
         from PySubtitle.Providers.Azure.AzureOpenAIClient import AzureOpenAIClient
         from PySubtitle.TranslationClient import TranslationClient
@@ -106,4 +105,4 @@ else:
                 return True
 
     except ImportError:
-        logging.info("OpenAI SDK not installed. Azure provider will not be available")
+        logging.info(_("OpenAI SDK not installed. Azure provider will not be available"))

@@ -5,6 +5,7 @@ import time
 try:
     import openai
 
+    from PySubtitle.Helpers.Localization import _
     from PySubtitle.Helpers.Parse import ParseDelayFromHeader
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Translation import Translation
@@ -20,21 +21,25 @@ try:
             super().__init__(settings)
 
             if not hasattr(openai, "AzureOpenAI"):
-                raise TranslationImpossibleError("The OpenAI library is out of date and must be updated")
+                raise TranslationImpossibleError(_("The OpenAI library is out of date and must be updated"))
 
             if not self.api_key:
-                raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("API key must be set in .env or provided as an argument"))
 
             if not self.api_base:
-                raise TranslationImpossibleError('API base must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("API base must be set in .env or provided as an argument"))
 
             if not self.api_version:
-                raise TranslationImpossibleError('API version must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("API version must be set in .env or provided as an argument"))
 
             if not self.deployment_name:
-                raise TranslationImpossibleError('Deployment name must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("Deployment name must be set in .env or provided as an argument"))
 
-            logging.info(f"Translating with Azure OpenAI deployment {self.deployment_name}, API-version {self.api_version}, API Base: {self.api_base}")
+            logging.info(_("Translating with Azure OpenAI deployment {deployment_name}, API-version {api_version}, API Base: {api_base}").format(
+                deployment_name=self.deployment_name,
+                api_version=self.api_version,
+                api_base=self.api_base
+            ))
 
             self.client = openai.AzureOpenAI(azure_endpoint=self.api_base, api_version=self.api_version, azure_deployment=self.deployment_name, api_key=self.api_key)
 
@@ -106,7 +111,7 @@ try:
                         response['finish_reason'] = getattr(choice, 'finish_reason', None)
                         response['text'] = getattr(reply, 'content', None)
                     else:
-                        raise TranslationResponseError("No choices returned in the response", response=result)
+                        raise TranslationResponseError(_("No choices returned in the response"), response=result)
 
                     # Return the response if the API call succeeds
                     return response
@@ -115,16 +120,20 @@ try:
                     retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
                     if retry_after:
                         retry_seconds = ParseDelayFromHeader(retry_after)
-                        logging.warning(f"Rate limit hit, retrying in {retry_seconds} seconds...")
+                        logging.warning(_("Rate limit hit, retrying in {retry_seconds} seconds...").format(
+                            retry_seconds=retry_seconds
+                        ))
                         time.sleep(retry_seconds)
                         continue
                     else:
-                        raise TranslationImpossibleError("OpenAI account quota reached, please upgrade your plan")
+                        raise TranslationImpossibleError(_("OpenAI account quota reached, please upgrade your plan"))
 
                 except openai.APITimeoutError as e:
                     if retry < self.max_retries and not self.aborted:
                         sleep_time = self.backoff_time * 2.0**retry
-                        logging.warning(f"OpenAI error {str(e)}, retrying in {sleep_time}...")
+                        logging.warning(_("OpenAI error {error}, retrying in {sleep_time}...").format(
+                            error=str(e), sleep_time=sleep_time
+                        ))
                         time.sleep(sleep_time)
                         continue
 
@@ -133,9 +142,11 @@ try:
                         raise TranslationImpossibleError(str(e), error=e)
 
                 except Exception as e:
-                    raise TranslationImpossibleError(f"Unexpected error communicating with OpenAI", error=e)
+                    raise TranslationImpossibleError(_("Unexpected error communicating with OpenAI"), error=e)
 
-            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+            raise TranslationImpossibleError(_("Failed to communicate with provider after {max_retries} retries").format(
+                max_retries=self.max_retries
+            ))
 
         def _abort(self):
             self.client.close()

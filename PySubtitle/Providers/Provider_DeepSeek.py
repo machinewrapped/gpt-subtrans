@@ -3,7 +3,8 @@ import logging
 import os
 
 if not importlib.util.find_spec("openai"):
-    logging.info("OpenAI SDK is not installed. DeepSeek provider will not be available")
+    from PySubtitle.Helpers.Localization import _
+    logging.info(_("OpenAI SDK is not installed. DeepSeek provider will not be available"))
 else:
     try:
         # We use the OpenAI client to access DeepSeek, as the API is compatible
@@ -104,7 +105,7 @@ else:
                     return sorted(model_list)
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve available AI models: {str(e)}")
+                    logging.error(_("Unable to retrieve available AI models: {error}").format(error=str(e)))
                     return []
 
             def GetInformation(self) -> str:
@@ -132,4 +133,5 @@ else:
                 return True
 
     except ImportError:
-        logging.info("OpenAI SDK not installed. DeepSeek provider will not be available")
+        from PySubtitle.Helpers.Localization import _
+        logging.info(_("OpenAI SDK not installed. DeepSeek provider will not be available"))

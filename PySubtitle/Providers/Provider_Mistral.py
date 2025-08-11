@@ -3,7 +3,8 @@ import logging
 import os
 
 if not importlib.util.find_spec("mistralai"):
-    logging.info("Mistral SDK is not installed. Mistral provider will not be available")
+    from PySubtitle.Helpers.Localization import _
+    logging.info(_("Mistral SDK is not installed. Mistral provider will not be available"))
 else:
     try:
         import mistralai
@@ -99,7 +100,7 @@ else:
                     return sorted(model_list)
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve available AI models: {str(e)}")
+                    logging.error(_("Unable to retrieve available AI models: {error}").format(error=str(e)))
                     return []
 
             def GetInformation(self) -> str:
@@ -127,4 +128,5 @@ else:
                 return True
 
     except ImportError:
-        logging.info("Mistral SDK not installed. Mistral provider will not be available")
+        from PySubtitle.Helpers.Localization import _
+        logging.info(_("Mistral SDK not installed. Mistral provider will not be available"))

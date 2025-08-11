@@ -2,8 +2,10 @@ import importlib.util
 import logging
 import os
 
+from PySubtitle.Helpers.Localization import _
+
 if not importlib.util.find_spec("boto3"):
-    logging.info("Amazon Boto3 SDK is not installed. Bedrock provider will not be available")
+    logging.info(_("Amazon Boto3 SDK is not installed. Bedrock provider will not be available"))
 else:
     try:
         import boto3
@@ -135,7 +137,9 @@ else:
                     return sorted(model_list)
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve available AI models: {str(e)}")
+                    logging.error(_("Unable to retrieve available AI models: {error}").format(
+                        error=str(e)
+                    ))
                     return []
 
             def ValidateSettings(self) -> bool:
@@ -175,4 +179,4 @@ else:
                     return []
 
     except ImportError:
-        logging.info("Amazon Boto3 SDK is not installed. Bedrock provider will not be available")
+        logging.info(_("Amazon Boto3 SDK is not installed. Bedrock provider will not be available"))

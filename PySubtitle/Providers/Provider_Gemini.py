@@ -3,7 +3,8 @@ import logging
 import os
 
 if not importlib.util.find_spec("google"):
-    logging.info("Google SDK (google-genai) is not installed. Gemini provider will not be available")
+    from PySubtitle.Helpers.Localization import _
+    logging.info(_("Google SDK (google-genai) is not installed. Gemini provider will not be available"))
 else:
     try:
         from google import genai
@@ -117,7 +118,7 @@ else:
                     return [ m for m in all_models if 'generateContent' in m.supported_actions ]
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve Gemini model list: {str(e)}")
+                    logging.error(_("Unable to retrieve Gemini model list: {error}").format(error=str(e)))
                     return []
 
             def _get_true_name(self, name : str) -> str:
@@ -140,5 +141,6 @@ else:
                 return True
 
     except ImportError:
-        logging.info("Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix.")
+        from PySubtitle.Helpers.Localization import _
+        logging.info(_("Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix."))
 
