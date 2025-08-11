@@ -87,18 +87,20 @@ def get_available_locales() -> list[str]:
     """
     Scan the locales directory and return a list of available locale codes.
     """
-    locales_dir = _get_locale_dir()
-    languages = []
-    try:
-        for name in os.listdir(locales_dir):
-            path = os.path.join(locales_dir, name, 'LC_MESSAGES')
-            if os.path.isdir(path):
-                languages.append(name)
-    except Exception:
-        # Fallback to known locales if scanning fails
-        languages = ['en', 'es']
-    
-    return sorted(set(languages)) or ['en']
+    # Cache the result after first scan
+    if not hasattr(get_available_locales, "_cached_locales"):
+        locales_dir = _get_locale_dir()
+        languages = []
+        try:
+            for name in os.listdir(locales_dir):
+                path = os.path.join(locales_dir, name, 'LC_MESSAGES')
+                if os.path.isdir(path):
+                    languages.append(name)
+        except Exception:
+            # Fallback to known locales if scanning fails
+            languages = ['en', 'es']
+        get_available_locales._cached_locales = sorted(set(languages)) or ['en']
+    return get_available_locales._cached_locales
 
 
 def get_locale_display_name(locale_code: str) -> str:
