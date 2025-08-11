@@ -2,6 +2,7 @@ from openai.types.chat import ChatCompletion
 
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationResponseError
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 linesep = '\n'
 
@@ -14,11 +15,12 @@ class ChatGPTClient(OpenAIClient):
         settings['supports_conversation'] = True
         super().__init__(settings)
 
-    def _send_messages(self, messages : list[str], temperature):
+    def _send_messages(self, prompt : TranslationPrompt, temperature):
         """
         Make a request to an OpenAI-compatible API to provide a translation
         """
         response = {}
+        messages: list[dict] = prompt.content
 
         result : ChatCompletion = self.client.chat.completions.create(
             model=self.model,

@@ -93,7 +93,7 @@ try:
                     if not self.client or not self.reuse_client:
                         self._create_client()
 
-                    response = self._send_messages(prompt.content, temperature)
+                    response = self._send_messages(prompt, temperature)
 
                     return response
                 

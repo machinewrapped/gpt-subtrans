@@ -11,7 +11,6 @@ else:
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
-        from PySubtitle.Providers.OpenAI.InstructGPTClient import InstructGPTClient
         from PySubtitle.Providers.OpenAI.OpenAIReasoningClient import OpenAIReasoningClient
         from PySubtitle.SubtitleError import ProviderError
         from PySubtitle.TranslationClient import TranslationClient
@@ -41,7 +40,7 @@ else:
                 super().__init__(self.name, {
                     "api_key": settings.get('api_key', os.getenv('OPENAI_API_KEY')),
                     "api_base": settings.get('api_base', os.getenv('OPENAI_API_BASE')),
-                    "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-4o-mini")),
+                    "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-5-mini")),
                     'temperature': settings.get('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
                     'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
                     "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
@@ -52,9 +51,9 @@ else:
 
                 self.refresh_when_changed = ['api_key', 'api_base', 'model']
 
-                self.valid_model_types = [ "gpt", "o1", "o3" ]
-                self.excluded_model_types = [ "vision", "realtime", "audio" ]
-                self.reasoning_models = [ "o1","o3","o4","o5" ]
+                self.valid_model_types = [ "gpt", "o1", "o3", "o4" ]
+                self.excluded_model_types = [ "vision", "realtime", "audio", "instruct" ]
+                self.non_reasoning_models = [ "gpt-3", "gpt-4" ]
 
             @property
             def api_key(self):
@@ -70,13 +69,13 @@ else:
 
             @property
             def is_reasoning_model(self):
-                return self.selected_model and any(self.selected_model.startswith(reasoning_model) for reasoning_model in self.reasoning_models)
+                return self.selected_model and not any(self.selected_model.startswith(model) for model in self.non_reasoning_models)
 
             def GetTranslationClient(self, settings : dict) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 if self.is_instruct_model:
-                    return InstructGPTClient(client_settings)
+                    raise ProviderError("Instruct models are no longer supported", provider=self)
                 elif self.is_reasoning_model:
                     return OpenAIReasoningClient(client_settings)
                 else:
