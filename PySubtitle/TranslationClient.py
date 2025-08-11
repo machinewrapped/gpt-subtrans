@@ -39,6 +39,10 @@ class TranslationClient:
         return self.settings.get('supports_system_messages_for_retry', self.supports_system_messages)
 
     @property
+    def system_role(self):
+        return self.settings.get('system_role', 'system')
+
+    @property
     def prompt_template(self):
         return self.settings.get('prompt_template') or default_prompt_template
 
@@ -66,6 +70,7 @@ class TranslationClient:
         prompt.supports_system_prompt = self.supports_system_prompt
         prompt.supports_system_messages = self.supports_conversation and self.supports_system_messages
         prompt.supports_system_messages_for_retry = self.supports_system_messages_for_retry
+        prompt.system_role = self.system_role
         prompt.prompt_template = self.prompt_template
         prompt.GenerateMessages(instructions, lines, context)
         return prompt
