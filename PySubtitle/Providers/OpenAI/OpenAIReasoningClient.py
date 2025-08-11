@@ -27,34 +27,30 @@ class OpenAIReasoningClient(OpenAIClient):
         """
         Make a request to OpenAI Responses API for translation
         """
-        try:
-            result = self.client.responses.create(
-                model=self.model,
-                input=prompt.content,
-                instructions=prompt.system_prompt,
-                reasoning={"effort": self.reasoning_effort}
-            )
+        result = self.client.responses.create(
+            model=self.model,
+            input=prompt.content,
+            instructions=prompt.system_prompt,
+            reasoning={"effort": self.reasoning_effort}
+        )
+        
+        if self.aborted:
+            return None
+        
+        # Build response with usage info and content
+        response = self._extract_usage_info(result)
+        text, reasoning = self._extract_text_content(result)
+        
+        response.update({
+            'text': text,
+            'finish_reason': self._normalize_finish_reason(result)
+        })
+        
+        if reasoning:
+            response['reasoning'] = reasoning
             
-            if self.aborted:
-                return None
+        return response
             
-            # Build response with usage info and content
-            response = self._extract_usage_info(result)
-            text, reasoning = self._extract_text_content(result)
-            
-            response.update({
-                'text': text,
-                'finish_reason': self._normalize_finish_reason(result)
-            })
-            
-            if reasoning:
-                response['reasoning'] = reasoning
-                
-            return response
-            
-        except Exception as e:
-            raise TranslationResponseError(f"API request failed: {str(e)}")
-
     def _extract_text_content(self, result):
         """Extract text content with cleaner fallback logic"""        
         if hasattr(result, 'output') and result.output:
@@ -72,6 +68,9 @@ class OpenAIReasoningClient(OpenAIClient):
         
         for block in output_blocks:
             content = getattr(block, 'content', [])
+            if content is None:
+                continue
+
             if isinstance(content, str):
                 text_parts.append(content)
                 continue
