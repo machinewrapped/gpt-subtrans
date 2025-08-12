@@ -103,7 +103,7 @@ else:
                             options['max_instruct_tokens'] = (int, _("Maximum tokens a completion can contain (only applicable for -instruct models)"))
 
                         if self.is_reasoning_model:
-                            options['reasoning_effort'] = (["low", "medium", "high"], _("The level of reasoning effort to use for the model"))
+                            options['reasoning_effort'] = (["minimal", "low", "medium", "high"], _("The level of reasoning effort to use for the model"))
                         else:
                             options['temperature'] = (float, _("Amount of random variance to add to translations. Generally speaking, none is best"))
 
