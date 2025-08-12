@@ -109,7 +109,7 @@ if __name__ == "__main__":
     app.main_window = MainWindow( options=options, filepath=filepath)
     app.main_window.show()
 
-    logging.info(f"Logging to {logger_options.log_path}")
+    logging.info(_("Logging to {path}").format(path=logger_options.log_path))
 
     if arguments.get('profile'):
         run_with_profiler(app)

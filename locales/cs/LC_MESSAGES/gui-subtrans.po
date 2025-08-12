@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-11 18:59+0000\n"
+"POT-Creation-Date: 2025-08-12 17:22+0000\n"
 "PO-Revision-Date: 2025-08-09 21:00+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Czech\n"
@@ -56,6 +56,10 @@ msgstr "Region AWS musí být nastaven v .env nebo poskytnut jako argument"
 #: GUI/Commands/TranslateSceneCommand.py:64
 msgid "Aborted translation of scene {scene}"
 msgstr "Překlad scény {scene} byl přerušen"
+
+#: GUI/Command.py:81
+msgid "Aborted {type}"
+msgstr "Přerušeno {type}"
 
 #: GUI/AboutDialog.py:16
 msgid "About GUI-Subtrans"
@@ -388,6 +392,18 @@ msgstr "Chyba při komunikaci s poskytovatelem"
 msgid "Error decoding JSON file: {}"
 msgstr "Chyba při dekódování souboru JSON: {}"
 
+#: GUI/Command.py:90
+msgid "Error executing {type}: {str}"
+msgstr "Chyba při provádění {type}: {str}"
+
+#: GUI/Command.py:121
+msgid "Error in {command}: {message}"
+msgstr "Chyba v {command}: {message}"
+
+#: PySubtitle/Options.py:192
+msgid "Error loading settings from {}"
+msgstr "Chyba při načítání nastavení z {}"
+
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
 msgstr "Chyba při opakování posledního příkazu: {error}"
@@ -395,6 +411,10 @@ msgstr "Chyba při opakování posledního příkazu: {error}"
 #: GUI/Commands/ReparseTranslationsCommand.py:60
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr "Chyba při opětovné analýze scény {scene} dávky {batch}: {error}"
+
+#: PySubtitle/Options.py:218
+msgid "Error saving settings to {}"
+msgstr "Chyba při ukládání nastavení do {}"
 
 #: PySubtitle/SubtitleTranslator.py:163
 msgid "Error translating scene {scene} batch {batch}: {error}"
@@ -512,6 +532,10 @@ msgstr "GUI-Subtrans"
 #: GUI/SettingsDialog.py:118
 msgid "GUI-Subtrans Settings"
 msgstr "Nastavení GUI-Subtrans"
+
+#: GUI/AboutDialog.py:44
+msgid "GUI-Subtrans Version {version}"
+msgstr "GUI-Subtrans verze {version}"
 
 #: GUI/AboutDialog.py:62
 msgid "GUI-Subtrans is released under the MIT License.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software."
@@ -667,6 +691,10 @@ msgstr "Načíst pokyny"
 #: GUI/MainToolbar.py:68
 msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
 msgstr "Načíst projekt/titulky (Podržte Shift pro opětovné načtení titulků)"
+
+#: scripts/gui-subtrans.py:112
+msgid "Logging to {path}"
+msgstr "Zaznamenávání do {path}"
 
 #: GUI/AboutDialog.py:31
 msgid "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
@@ -1527,6 +1555,10 @@ msgstr "Nepodařilo se inicializovat Anthropic SDK. Poskytovatel Claude nebude k
 msgid "Unable to load instructions from {file}: {error}"
 msgstr "Nelze načíst pokyny ze souboru {file}: {error}"
 
+#: PySubtitle/Options.py:250
+msgid "Unable to load instructions from {}: {}"
+msgstr "Nelze načíst pokyny z {}: {}"
+
 #: GUI/Commands/LoadSubtitleFile.py:32
 msgid "Unable to load subtitles from {file}"
 msgstr "Nelze načíst titulky ze souboru {file}"
@@ -1634,6 +1666,10 @@ msgstr "Nečekaná chyba při komunikaci s poskytovatelem"
 msgid "Unexpected response type: {response_type}"
 msgstr "Nečekaný typ odpovědi: {response_type}"
 
+#: GUI/Command.py:83
+msgid "Unrecoverable error in {name}"
+msgstr "Neopravitelná chyba v {name}"
+
 #: PySubtitle/SubtitleTranslator.py:141
 msgid "Untranslated > {number}. {text}"
 msgstr "Nepřeloženo > {number}. {text}"
@@ -1672,7 +1708,7 @@ msgstr "Zapisování dat projektu do {}"
 msgid "access_key"
 msgstr "Přístupový klíč"
 
-#: PySubtitle/Options.py:33
+#: PySubtitle/Options.py:34
 msgid "add_right_to_left_markers"
 msgstr "Přidat značky zprava doleva"
 
@@ -1696,7 +1732,7 @@ msgstr "API klíč"
 msgid "api_version"
 msgstr "Verze API"
 
-#: PySubtitle/Options.py:66
+#: PySubtitle/Options.py:67
 msgid "autosave"
 msgstr "Automatické ukládání"
 
@@ -1704,19 +1740,19 @@ msgstr "Automatické ukládání"
 msgid "aws_region"
 msgstr "Region AWS"
 
-#: PySubtitle/Options.py:64
+#: PySubtitle/Options.py:65
 msgid "backoff_time"
 msgstr "Čas odkladu"
 
-#: PySubtitle/Options.py:46
+#: PySubtitle/Options.py:47
 msgid "break_dialog_on_one_line"
 msgstr "Rozdělit dialog na jeden řádek"
 
-#: PySubtitle/Options.py:45
+#: PySubtitle/Options.py:46
 msgid "break_long_lines"
 msgstr "Rozdělit dlouhé řádky"
 
-#: PySubtitle/Options.py:57
+#: PySubtitle/Options.py:58
 msgid "convert_wide_dashes"
 msgstr "Převést široké pomlčky"
 
@@ -1739,11 +1775,11 @@ msgstr "Název nasazení"
 msgid "endpoint"
 msgstr "Koncový bod"
 
-#: PySubtitle/Options.py:53
+#: PySubtitle/Options.py:54
 msgid "filler_words"
 msgstr "Výplňková slova"
 
-#: PySubtitle/Options.py:72
+#: PySubtitle/Options.py:73
 msgid "firstrun"
 msgstr "První spuštění"
 
@@ -1751,27 +1787,27 @@ msgstr "První spuštění"
 msgid "free_plan"
 msgstr "Bezplatný plán"
 
-#: PySubtitle/Options.py:56
+#: PySubtitle/Options.py:57
 msgid "full_width_punctuation"
 msgstr "Interpunkce plné šířky"
 
-#: PySubtitle/Options.py:32
+#: PySubtitle/Options.py:33
 msgid "include_original"
 msgstr "Zahrnout originál"
 
-#: PySubtitle/Options.py:30
+#: PySubtitle/Options.py:31
 msgid "instruction_file"
 msgstr "Soubor s pokyny"
 
-#: PySubtitle/Options.py:67
+#: PySubtitle/Options.py:68
 msgid "last_used_path"
 msgstr "Poslední použitá cesta"
 
-#: PySubtitle/Options.py:36
+#: PySubtitle/Options.py:37
 msgid "max_batch_size"
 msgstr "Maximální velikost dávky"
 
-#: PySubtitle/Options.py:38
+#: PySubtitle/Options.py:39
 msgid "max_characters"
 msgstr "Maximální počet znaků"
 
@@ -1779,7 +1815,7 @@ msgstr "Maximální počet znaků"
 msgid "max_completion_tokens"
 msgstr "Maximální počet tokenů pro dokončení"
 
-#: PySubtitle/Options.py:37
+#: PySubtitle/Options.py:38
 msgid "max_context_summaries"
 msgstr "Maximální počet shrnutí kontextu"
 
@@ -1787,27 +1823,27 @@ msgstr "Maximální počet shrnutí kontextu"
 msgid "max_instruct_tokens"
 msgstr "Maximální počet tokenů pro instrukce"
 
-#: PySubtitle/Options.py:47
+#: PySubtitle/Options.py:48
 msgid "max_line_duration"
 msgstr "Maximální délka řádku"
 
-#: PySubtitle/Options.py:60
+#: PySubtitle/Options.py:61
 msgid "max_lines"
 msgstr "Maximální počet řádků"
 
-#: PySubtitle/Options.py:39
+#: PySubtitle/Options.py:40
 msgid "max_newlines"
 msgstr "Maximální počet nových řádků"
 
-#: PySubtitle/Options.py:62
+#: PySubtitle/Options.py:63
 msgid "max_retries"
 msgstr "Maximální počet opakování"
 
-#: PySubtitle/Options.py:40
+#: PySubtitle/Options.py:41
 msgid "max_single_line_length"
 msgstr "Maximální délka jednoho řádku"
 
-#: PySubtitle/Options.py:63
+#: PySubtitle/Options.py:64
 msgid "max_summary_length"
 msgstr "Maximální délka shrnutí"
 
@@ -1815,7 +1851,7 @@ msgstr "Maximální délka shrnutí"
 msgid "max_thinking_tokens"
 msgstr "Maximální počet tokenů pro přemýšlení"
 
-#: PySubtitle/Options.py:61
+#: PySubtitle/Options.py:62
 msgid "max_threads"
 msgstr "Maximální počet vláken"
 
@@ -1826,23 +1862,23 @@ msgstr "Maximální počet vláken"
 msgid "max_tokens"
 msgstr "Maximální počet tokenů"
 
-#: PySubtitle/Options.py:49
+#: PySubtitle/Options.py:50
 msgid "merge_line_duration"
 msgstr "Sloučit délku řádku"
 
-#: PySubtitle/Options.py:35
+#: PySubtitle/Options.py:36
 msgid "min_batch_size"
 msgstr "Minimální velikost dávky"
 
-#: PySubtitle/Options.py:48
+#: PySubtitle/Options.py:49
 msgid "min_line_duration"
 msgstr "Minimální délka řádku"
 
-#: PySubtitle/Options.py:41
+#: PySubtitle/Options.py:42
 msgid "min_single_line_length"
 msgstr "Minimální délka jednoho řádku"
 
-#: PySubtitle/Options.py:50
+#: PySubtitle/Options.py:51
 msgid "min_split_chars"
 msgstr "Minimální počet znaků pro rozdělení"
 
@@ -1860,23 +1896,23 @@ msgstr "Model"
 msgid "multithreaded"
 msgstr "Vícevláknové"
 
-#: PySubtitle/Options.py:51
+#: PySubtitle/Options.py:52
 msgid "normalise_dialog_tags"
 msgstr "Normalizovat značky dialogu"
 
-#: PySubtitle/Options.py:42
+#: PySubtitle/Options.py:43
 msgid "postprocess_translation"
 msgstr "Následné zpracování překladu"
 
-#: PySubtitle/Options.py:43
+#: PySubtitle/Options.py:44
 msgid "preprocess_subtitles"
 msgstr "Předzpracování titulků"
 
-#: PySubtitle/Options.py:65
+#: PySubtitle/Options.py:66
 msgid "project"
 msgstr "Projekt"
 
-#: PySubtitle/Options.py:29
+#: PySubtitle/Options.py:30
 msgid "prompt"
 msgstr "Výzva"
 
@@ -1884,11 +1920,11 @@ msgstr "Výzva"
 msgid "prompt_template"
 msgstr "Šablona výzvy"
 
-#: PySubtitle/Options.py:27
+#: PySubtitle/Options.py:28
 msgid "provider"
 msgstr "Poskytovatel"
 
-#: PySubtitle/Options.py:28
+#: PySubtitle/Options.py:29
 msgid "provider_settings"
 msgstr "Nastavení poskytovatele"
 
@@ -1909,11 +1945,11 @@ msgstr "Omezení rychlosti"
 msgid "reasoning_effort"
 msgstr "Úsilí pro uvažování"
 
-#: PySubtitle/Options.py:52
+#: PySubtitle/Options.py:53
 msgid "remove_filler_words"
 msgstr "Odstranit výplňková slova"
 
-#: PySubtitle/Options.py:58
+#: PySubtitle/Options.py:59
 msgid "retry_on_error"
 msgstr "Opakovat při chybě"
 
@@ -1921,11 +1957,11 @@ msgstr "Opakovat při chybě"
 msgid "reuse_client"
 msgstr "Znovu použít klienta"
 
-#: PySubtitle/Options.py:44
+#: PySubtitle/Options.py:45
 msgid "save_preprocessed_subtitles"
 msgstr "Uložit předzpracované titulky"
 
-#: PySubtitle/Options.py:34
+#: PySubtitle/Options.py:35
 msgid "scene_threshold"
 msgstr "Prahová hodnota scény"
 
@@ -1945,11 +1981,11 @@ msgstr "URL serveru"
 msgid "single threaded"
 msgstr "Jednovláknové"
 
-#: PySubtitle/Options.py:68
+#: PySubtitle/Options.py:69
 msgid "stop_on_error"
 msgstr "Zastavit při chybě"
 
-#: PySubtitle/Options.py:54
+#: PySubtitle/Options.py:55
 msgid "substitution_mode"
 msgstr "Režim nahrazování"
 
@@ -1965,7 +2001,7 @@ msgstr "Podporuje paralelní vlákna"
 msgid "supports_system_messages"
 msgstr "Podporuje systémové zprávy"
 
-#: PySubtitle/Options.py:31
+#: PySubtitle/Options.py:32
 msgid "target_language"
 msgstr "Cílový jazyk"
 
@@ -1979,7 +2015,7 @@ msgstr "Cílový jazyk"
 msgid "temperature"
 msgstr "Teplota"
 
-#: PySubtitle/Options.py:70
+#: PySubtitle/Options.py:71
 msgid "theme"
 msgstr "Motiv"
 
@@ -1991,7 +2027,7 @@ msgstr "Přemýšlení"
 msgid "timeout"
 msgstr "Časový limit"
 
-#: PySubtitle/Options.py:71
+#: PySubtitle/Options.py:72
 msgid "ui_language"
 msgstr "Jazyk uživatelského rozhraní"
 
@@ -1999,15 +2035,15 @@ msgstr "Jazyk uživatelského rozhraní"
 msgid "use_httpx"
 msgstr "Použít httpx"
 
-#: PySubtitle/Options.py:26
+#: PySubtitle/Options.py:27
 msgid "version"
 msgstr "Verze"
 
-#: PySubtitle/Options.py:55
+#: PySubtitle/Options.py:56
 msgid "whitespaces_to_newline"
 msgstr "Bílé znaky na nový řádek"
 
-#: PySubtitle/Options.py:69
+#: PySubtitle/Options.py:70
 msgid "write_backup"
 msgstr "Zapsat zálohu"
 
