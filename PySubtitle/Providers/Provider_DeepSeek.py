@@ -6,7 +6,6 @@ import httpx
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Providers.Custom.DeepSeekClient import DeepSeekClient
-from PySubtitle.SubtitleError import ProviderError
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
 
