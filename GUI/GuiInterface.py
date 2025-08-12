@@ -27,6 +27,7 @@ from PySubtitle.SubtitleError import ProviderConfigurationError
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__
+from PySubtitle.Helpers.Localization import _, set_language
 
 class GuiInterface(QObject):
     """
@@ -34,6 +35,7 @@ class GuiInterface(QObject):
     """
     dataModelChanged = Signal(object)
     settingsChanged = Signal(dict)
+    uiLanguageChanged = Signal(str)
     commandAdded = Signal(object)
     commandStarted = Signal(object)
     commandComplete = Signal(object)
@@ -166,12 +168,26 @@ class GuiInterface(QObject):
         self.datamodel.UpdateSettings(updated_settings)
 
         if not self.datamodel.ValidateProviderSettings():
-            logging.warning("Translation provider settings are not valid. Please check the settings.")
+            logging.warning(_("Translation provider settings are not valid. Please check the settings."))
+
+        # If UI language changed, reinitialize i18n and refresh visible UI
+        if 'ui_language' in updated_settings:
+            self.UpdateUiLanguage(updated_settings['ui_language'])
 
         self.settingsChanged.emit(updated_settings)
 
         if 'theme' in updated_settings:
             LoadStylesheet(self.global_options.theme)
+
+    def UpdateUiLanguage(self, language_code: str):
+        """Apply a new UI language at runtime and refresh visible UI elements."""
+        try:
+            set_language(language_code)
+
+            self.uiLanguageChanged.emit(language_code)
+
+        except Exception as e:
+            logging.warning(_("Failed to switch language - restart the application: {error}").format(error=e))
 
     def UpdateProjectSettings(self, settings : dict):
         """
@@ -341,8 +357,8 @@ class GuiInterface(QObject):
         First run initialisation
         """
         if not options.available_providers:
-            logging.error("No translation providers available. Please install one or more providers.")
-            QMessageBox.critical(self, "Error", "No translation providers available. Please install one or more providers.")
+            logging.error(_("No translation providers available. Please install one or more providers."))
+            QMessageBox.critical(self, _("Error"), _("No translation providers available. Please install one or more providers."))
             self.QueueCommand(ExitProgramCommand())
             return
 
@@ -364,7 +380,7 @@ class GuiInterface(QObject):
 
         if isinstance(error, ProviderConfigurationError):
             if self.datamodel and self.datamodel.project_options:
-                logging.warning("Please configure the translation provider settings")
+                logging.warning(_("Please configure the translation provider settings"))
                 self.ShowProviderSettingsDialog()
 
     def _exit_program(self):

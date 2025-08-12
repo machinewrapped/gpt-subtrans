@@ -2,6 +2,7 @@ from json import JSONDecodeError
 import logging
 import time
 
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader
 from PySubtitle.SubtitleError import TranslationResponseError
 
@@ -23,14 +24,17 @@ try:
             super().__init__(settings)
 
             if not hasattr(openai, "OpenAI"):
-                raise TranslationImpossibleError("The OpenAI library is out of date and must be updated")
+                raise TranslationImpossibleError(_("The OpenAI library is out of date and must be updated"))
 
             openai.api_key = self.api_key or openai.api_key
 
             if not openai.api_key:
-                raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("API key must be set in .env or provided as an argument"))
 
-            logging.info(f"Translating with model {self.model or 'default'}, Using API Base: {self.api_base or openai.base_url}")
+            logging.info(_("Translating with model {model}, Using API Base: {api_base}").format(
+                model=self.model or _("default"), 
+                api_base=self.api_base or openai.base_url
+            ))
 
             self.client = None
 
@@ -65,10 +69,10 @@ try:
 
             if translation:
                 if translation.quota_reached:
-                    raise TranslationImpossibleError("Account quota reached, please upgrade your plan or wait until it renews")
+                    raise TranslationImpossibleError(_("Account quota reached, please upgrade your plan or wait until it renews"))
 
                 if translation.reached_token_limit:
-                    raise TranslationError(f"Too many tokens in translation", translation=translation)
+                    raise TranslationError(_("Too many tokens in translation"), translation=translation)
 
             return translation
 
@@ -99,7 +103,9 @@ try:
                 
                 except TranslationResponseError as e:
                     if retry < self.max_retries and not self.aborted:
-                        logging.warning(f"{str(e)}, retrying in {backoff_time} seconds...")
+                        logging.warning(_("Translation response error: {error}, retrying in {backoff_time} seconds...").format(
+                            error=str(e), backoff_time=backoff_time
+                        ))
                         time.sleep(backoff_time)
                         continue
 
@@ -108,21 +114,27 @@ try:
                         retry_after = e.response.headers.get('x-ratelimit-reset-requests') or e.response.headers.get('Retry-After')
                         if retry_after:
                             backoff_time = ParseDelayFromHeader(retry_after)
-                            logging.warning(f"Rate limit hit, retrying in {backoff_time} seconds...")
+                            logging.warning(_("Rate limit hit, retrying in {backoff_time} seconds...").format(
+                                backoff_time=backoff_time
+                            ))
                             time.sleep(backoff_time)
                             continue
                         else:
-                            raise TranslationImpossibleError("Account quota reached, please upgrade your plan")
+                            raise TranslationImpossibleError(_("Account quota reached, please upgrade your plan"))
 
                 except openai.APITimeoutError as e:
                     if retry < self.max_retries and not self.aborted:
-                        logging.warning(f"API Timeout, retrying in {backoff_time} seconds...")
+                        logging.warning(_("API Timeout, retrying in {backoff_time} seconds...").format(
+                            backoff_time=backoff_time
+                        ))
                         time.sleep(backoff_time)
                         continue
 
                 except JSONDecodeError as e:
                     if retry < self.max_retries and not self.aborted:
-                        logging.warning(f"Invalid response received, retrying in {backoff_time} seconds...")
+                        logging.warning(_("Invalid response received, retrying in {backoff_time} seconds...").format(
+                            backoff_time=backoff_time
+                        ))
                         time.sleep(backoff_time)
                         continue
 
@@ -131,10 +143,12 @@ try:
                         raise TranslationError(str(e), error=e)
 
                 except Exception as e:
-                    raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
+                    raise TranslationImpossibleError(_("Unexpected error communicating with the provider"), error=e)
 
             if not self.aborted:
-                raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+                raise TranslationImpossibleError(_("Failed to communicate with provider after {max_retries} retries").format(
+                    max_retries=self.max_retries
+                ))
 
         def _create_client(self):
             http_client = None

@@ -1,4 +1,5 @@
 from PySubtitle.Helpers import FormatMessages
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -59,7 +60,7 @@ class OpenAIReasoningClient(OpenAIClient):
         if hasattr(result, 'output_text') and result.output_text:
             return result.output_text, None
 
-        raise TranslationResponseError("No text content found in response")
+        raise TranslationResponseError(_("No text content found in response"))
 
     def _parse_structured_output(self, output_blocks):
         """Parse structured output blocks"""

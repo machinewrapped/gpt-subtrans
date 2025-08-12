@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QToolBar, QStyle, QApplication
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QIcon
 
 from GUI.CommandQueue import CommandQueue
@@ -7,6 +8,7 @@ from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Commands.StartTranslationCommand import StartTranslationCommand
 from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
+from PySubtitle.Helpers.Localization import _
 
 class MainToolbar(QToolBar):
     """
@@ -21,9 +23,12 @@ class MainToolbar(QToolBar):
         ]
 
     def __init__(self,  gui_interface : GuiInterface):
-        super().__init__("Main Toolbar")
+        super().__init__(_("Main Toolbar"))
 
         self.gui = gui_interface
+
+        # Subscribe to UI language changes
+        self.gui.uiLanguageChanged.connect(self.UpdateUiLanguage, Qt.ConnectionType.QueuedConnection)
 
         self.DefineActions()
         self.AddActionGroups()
@@ -37,6 +42,16 @@ class MainToolbar(QToolBar):
         self.UpdateBusyStatus()
         self.UpdateTooltips()
 
+    def UpdateUiLanguage(self):
+        """Recreate actions/labels after language change."""
+        # Remove existing actions and rebuild with translated labels
+        for action in list(self.actions()):
+            self.removeAction(action)
+        self.clear()
+        self.DefineActions()
+        self.AddActionGroups()
+        self.UpdateToolbar()
+
     def GetAction(self, name : str) -> QAction:
         return self._actions[name]
 
@@ -49,20 +64,20 @@ class MainToolbar(QToolBar):
         """
         self._actions = {}
         action_handler : ProjectActions = self.gui.GetActionHandler()
-
-        self.DefineAction('Quit', action_handler.exitProgram, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', 'Exit Program')
-        self.DefineAction('Load Subtitles', action_handler.LoadProject, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', 'Load Project/Subtitles (Hold shift to reload subtitles)')
-        self.DefineAction('Save Project', action_handler.SaveProject, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', 'Save project (Hold shift to save as...)')
-        self.DefineAction('Settings', action_handler.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', 'Settings')
-        self.DefineAction('Start Translating', action_handler.StartTranslating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', 'Start Translating (hold shift to retranslate)')
-        self.DefineAction('Start Translating Fast', action_handler.StartTranslatingFast, QStyle.StandardPixmap.SP_MediaSeekForward, None, 'Start translating on multiple threads (fast but unsafe)')
-        self.DefineAction('Stop Translating', action_handler.StopTranslating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', 'Stop translation')
-        self.DefineAction("Undo", action_handler.UndoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', 'Undo last action')
-        self.DefineAction("Redo", action_handler.RedoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Shift+Z', 'Redo last undone action')
-        self.DefineAction('About', action_handler.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip='About this program')
+        self.DefineAction('Quit', action_handler.exitProgram, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', _('Exit Program'))
+        self.DefineAction('Load Subtitles', action_handler.LoadProject, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', _('Load Project/Subtitles (Hold shift to reload subtitles)'))
+        self.DefineAction('Save Project', action_handler.SaveProject, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', _('Save project (Hold shift to save as...)'))
+        self.DefineAction('Settings', action_handler.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', _('Settings'))
+        self.DefineAction('Start Translating', action_handler.StartTranslating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', _('Start Translating (hold shift to retranslate)'))
+        self.DefineAction('Start Translating Fast', action_handler.StartTranslatingFast, QStyle.StandardPixmap.SP_MediaSeekForward, None, _('Start translating on multiple threads (fast but unsafe)'))
+        self.DefineAction('Stop Translating', action_handler.StopTranslating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', _('Stop translation'))
+        self.DefineAction("Undo", action_handler.UndoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', _('Undo last action'))
+        self.DefineAction("Redo", action_handler.RedoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Shift+Z', _('Redo last undone action'))
+        self.DefineAction('About', action_handler.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip=_('About this program'))
 
     def DefineAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
-        action = QAction(name)
+        # Keep English name as key; show localized text
+        action = QAction(_(name))
         action.triggered.connect(function)
 
         if icon:
@@ -76,7 +91,8 @@ class MainToolbar(QToolBar):
             action.setShortcut(shortcut)
 
         if tooltip:
-            action.setToolTip(f"{tooltip} ({shortcut})" if shortcut else tooltip)
+            tip = _(tooltip)
+            action.setToolTip(f"{tip} ({shortcut})" if shortcut else tip)
 
         self._actions[name] = action
 
@@ -93,33 +109,36 @@ class MainToolbar(QToolBar):
         """
         Enable a list of commands
         """
-        for action in self.actions():
-            if action.text() in action_list:
+        for name in action_list:
+            action = self._actions.get(name)
+            if action:
                 action.setEnabled(True)
 
     def DisableActions(self, action_list : list[str]):
         """
         Disable a list of commands
         """
-        for action in self.actions():
-            if action.text() in action_list:
+        for name in action_list:
+            action = self._actions.get(name)
+            if action:
                 action.setEnabled(False)
 
     def SetActionsEnabled(self, action_list : list[str], enabled : bool):
         """
         Enable or disable a list of commands
         """
-        for action in self.actions():
-            if action.text() in action_list:
+        for name in action_list:
+            action = self._actions.get(name)
+            if action:
                 action.setEnabled(enabled)
 
     def UpdateTooltip(self, action_name : str, label : str):
         """
         Update the label of a command
         """
-        for action in self.actions():
-            if action.text() == action_name:
-                action.setToolTip(label)
+        action = self._actions.get(action_name)
+        if action:
+            action.setToolTip(label)
 
     def UpdateBusyStatus(self):
         """
@@ -154,12 +173,12 @@ class MainToolbar(QToolBar):
         command_queue : CommandQueue = self.gui.GetCommandQueue()
         if command_queue.can_undo:
             last_command = command_queue.undo_stack[-1]
-            self.UpdateTooltip("Undo", f"Undo {type(last_command).__name__}")
+            self.UpdateTooltip("Undo", _("Undo {command}").format(command=type(last_command).__name__))
         else:
-            self.UpdateTooltip("Undo", "Nothing to undo")
+            self.UpdateTooltip("Undo", _("Nothing to undo"))
 
         if command_queue.can_redo:
             next_command = command_queue.redo_stack[-1]
-            self.UpdateTooltip("Redo", f"Redo {type(next_command).__name__}")
+            self.UpdateTooltip("Redo", _("Redo {command}").format(command=type(next_command).__name__))
         else:
-            self.UpdateTooltip("Redo", "Nothing to redo")
+            self.UpdateTooltip("Redo", _("Nothing to redo"))

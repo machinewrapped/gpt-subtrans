@@ -8,6 +8,7 @@ from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
+from PySubtitle.Helpers.Localization import _
 
 class ProjectDataModel:
     def __init__(self, project : SubtitleProject = None, options : Options = None):
@@ -120,7 +121,7 @@ class ProjectDataModel:
 
         except Exception as e:
             if self.provider is not None:
-                logging.warning(f"Unable to create {self.provider} provider: {e}")
+                logging.warning(_("Unable to create {provider} provider: {error}").format(provider=self.provider, error=e))
             return None
 
     def UpdateProviderSettings(self, settings : dict):

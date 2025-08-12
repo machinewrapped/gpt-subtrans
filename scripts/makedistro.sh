@@ -8,4 +8,12 @@ pip install --upgrade anthropic
 pip install --upgrade mistralai
 pip install --upgrade boto3
 
-pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" --add-data "theme/*:theme/"  --add-data "assets/*:assets/" --add-data "instructions*:instructions/" --add-data "LICENSE:." --add-data "assets/gui-subtrans.ico:." scripts/gui-subtrans.py
+python scripts/update_translations.py
+
+pyinstaller --noconfirm --additional-hooks-dir="PySubtitleHooks" \
+    --add-data "theme/*:theme/"  --add-data "assets/*:assets/" \
+    --add-data "instructions/*:instructions/" \
+    --add-data "LICENSE:." \
+    --add-data "assets/gui-subtrans.ico:." \
+    --add-data "locales/*:locales/" \
+    scripts/gui-subtrans.py

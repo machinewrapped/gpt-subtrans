@@ -3,6 +3,7 @@ import logging
 import threading
 
 from PySubtitle.Helpers.Subtitles import MergeTranslations
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE, Instructions
 from PySubtitle.Substitutions import Substitutions
@@ -88,18 +89,18 @@ class SubtitleTranslator:
             raise TranslationImpossibleError("No subtitles to translate")
 
         if subtitles.scenes and self.resume:
-            logging.info("Resuming translation")
+            logging.info(_("Resuming translation"))
 
         if not subtitles.scenes:
             if self.retranslate or self.resume:
-                logging.warning(f"Previous subtitles not found, starting fresh...")
+                logging.warning(_("Previous subtitles not found, starting fresh..."))
 
             subtitles.AutoBatch(self.batcher)
 
         if not subtitles.scenes:
             raise TranslationImpossibleError("No scenes to translate")
 
-        logging.info(f"Translating {subtitles.linecount} lines in {subtitles.scenecount} scenes")
+        logging.info(_("Translating {linecount} lines in {scenecount} scenes").format(linecount=subtitles.linecount, scenecount=subtitles.scenecount))
 
         self.events.preprocessed(subtitles.scenes)
 
@@ -112,7 +113,7 @@ class SubtitleTranslator:
                 break
 
             if self.resume and scene.all_translated:
-                logging.info(f"Scene {scene.number} already translated {scene.linecount} lines...")
+                logging.info(_("Scene {scene} already translated {linecount} lines...").format(scene=scene.number, linecount=scene.linecount))
                 continue
 
             logging.debug(f"Translating scene {scene.number} of {subtitles.scenecount}")
@@ -121,23 +122,23 @@ class SubtitleTranslator:
             self.TranslateScene(subtitles, scene, batch_numbers=batch_numbers)
 
             if self.errors and self.stop_on_error:
-                logging.error(f"Failed to translate scene {scene.number}... stopping translation")
+                logging.error(_("Failed to translate scene {scene}... stopping translation").format(scene=scene.number))
                 return
 
         if self.aborted:
-            logging.info("Translation aborted")
+            logging.info(_("Translation aborted"))
             return
 
         # Linearise the translated scenes
         originals, translations, untranslated = UnbatchScenes(subtitles.scenes)
 
         if translations:
-            logging.info(f"Successfully translated {len(translations)} lines!")
+            logging.info(_("Successfully translated {count} lines!").format(count=len(translations)))
 
         if untranslated and not self.max_lines:
-            logging.warning(f"Failed to translate {len(untranslated)} lines:")
+            logging.warning(_("Failed to translate {count} lines:").format(count=len(untranslated)))
             for line in untranslated:
-                logging.info(f"Untranslated > {line.number}. {line.text}")
+                logging.info(_("Untranslated > {number}. {text}").format(number=line.number, text=line.text))
 
         subtitles.originals = originals
         subtitles.translated = translations
@@ -159,7 +160,7 @@ class SubtitleTranslator:
                     raise
 
                 except TranslationError as e:
-                    logging.warning(f"Error translating scene {batch.scene} batch {batch.number}: {str(e)}")
+                    logging.warning(_("Error translating scene {scene} batch {batch}: {error}").format(scene=batch.scene, batch=batch.number, error=str(e)))
                     batch.errors.append(e)
 
                 if self.aborted:
@@ -169,14 +170,14 @@ class SubtitleTranslator:
                 self.events.batch_translated(batch)
 
                 if batch.errors:
-                    logging.warning(f"Errors encountered translating scene {batch.scene} batch {batch.number}")
+                    logging.warning(_("Errors encountered translating scene {scene} batch {batch}").format(scene=batch.scene, batch=batch.number))
                     scene.errors.extend(batch.errors)
                     self.errors.extend(batch.errors)
                     if self.stop_on_error:
                         return
 
                 if self.max_lines and self.lines_processed >= self.max_lines:
-                    logging.info(f"Reached max_lines limit of ({self.max_lines} lines)... finishing")
+                    logging.info(_("Reached max_lines limit of ({lines} lines)... finishing").format(lines=self.max_lines))
                     break
 
             # Update the scene summary based on the best available information (we hope)
@@ -196,11 +197,11 @@ class SubtitleTranslator:
             return
 
         if self.resume and batch.all_translated:
-            logging.info(f"Scene {batch.scene} batch {batch.number} already translated {batch.size} lines...")
+            logging.info(_("Scene {scene} batch {batch} already translated {lines} lines...").format(scene=batch.scene, batch=batch.number, lines=batch.size))
             return
 
         if self.reparse and batch.translation:
-            logging.info(f"Reparsing scene {batch.scene} batch {batch.number} with {len(batch.originals)} lines...")
+            logging.info(_("Reparsing scene {scene} batch {batch} with {count} lines...").format(scene=batch.scene, batch=batch.number, count=len(batch.originals)))
             self.ProcessBatchTranslation(batch, batch.translation, line_numbers)
             return
 
@@ -225,7 +226,7 @@ class SubtitleTranslator:
         if (translation and translation.reached_token_limit) and not self.aborted:
             # Try again without the context to keep the tokens down
             # TODO: better to split the batch into smaller chunks
-            logging.warning("Hit API token limit, retrying batch without context...")
+            logging.warning(_("Hit API token limit, retrying batch without context..."))
             batch.prompt.GenerateMessages(self.instructions.instructions, batch.originals, {})
 
             translation = self.client.RequestTranslation(batch.prompt)
@@ -239,7 +240,7 @@ class SubtitleTranslator:
 
             # Consider retrying if there were errors
             if batch.errors and self.retry_on_error:
-                logging.warning(f"Scene {batch.scene} batch {batch.number} failed validation, requesting retranslation")
+                logging.warning(_("Scene {scene} batch {batch} failed validation, requesting retranslation").format(scene=batch.scene, batch=batch.number))
                 self.RequestRetranslation(batch, line_numbers=line_numbers, context=context)
 
             # Update the context, unless it's a retranslation pass
@@ -264,7 +265,7 @@ class SubtitleTranslator:
 
         if replacements:
             replaced = [f"{Linearise(k)} -> {Linearise(v)}" for k,v in replacements.items()]
-            logging.info(f"Made substitutions in input:\n{linesep.join(replaced)}")
+            logging.info(_("Made substitutions in input:\n{replaced}").format(replaced=linesep.join(replaced)))
             batch.AddContext('replacements', replaced)
 
         # Filter out empty lines
@@ -275,7 +276,7 @@ class SubtitleTranslator:
             line_count = min(self.max_lines - self.lines_processed, len(originals)) if self.max_lines else len(originals)
             self.lines_processed += line_count
             if len(originals) > line_count:
-                logging.info("Truncating batch to remain within max_lines")
+                logging.info(_("Truncating batch to remain within max_lines"))
                 originals = originals[:line_count] if line_count > 0 else []
 
         return originals, context
@@ -310,7 +311,7 @@ class SubtitleTranslator:
         batch.errors = parser.errors
 
         if batch.untranslated and not self.max_lines:
-            logging.warning(f"Unable to match {len(unmatched)} lines with a source line")
+            logging.warning(_("Unable to match {count} lines with a source line").format(count=len(unmatched)))
             batch.AddContext('untranslated_lines', [f"{item.number}. {item.text}" for item in batch.untranslated])
 
         # Apply any word/phrase substitutions to the translation
@@ -318,7 +319,7 @@ class SubtitleTranslator:
 
         if replacements:
             replaced = [f"{k} -> {v}" for k,v in replacements.items()]
-            logging.info(f"Made substitutions in output:\n{linesep.join(replaced)}")
+            logging.info(_("Made substitutions in output:\n{replaced}").format(replaced=linesep.join(replaced)))
 
         # Perform substitutions on the output
         translation.PerformSubstitutions(self.substitutions)
@@ -327,10 +328,15 @@ class SubtitleTranslator:
         if self.postprocessor:
             batch.translated = self.postprocessor.PostprocessSubtitles(batch.translated)
 
-        logging.info(f"Scene {batch.scene} batch {batch.number}: {len(batch.translated or [])} lines and {len(batch.untranslated or [])} untranslated.")
+            logging.info(_("Scene {scene} batch {batch}: {translated} lines and {untranslated} untranslated.").format(
+                scene=batch.scene, 
+                batch=batch.number, 
+                translated=len(batch.translated or []), 
+                untranslated=len(batch.untranslated or []))
+                )
 
         if translation.summary and translation.summary.strip():
-            logging.info(f"Summary: {translation.summary}")
+            logging.info(_("Summary: {summary}").format(summary=translation.summary))
 
     def RequestRetranslation(self, batch : SubtitleBatch, line_numbers : list[int] = None, context : dict = {}):
         """
@@ -363,9 +369,9 @@ class SubtitleTranslator:
         self.ProcessBatchTranslation(batch, retranslation, line_numbers)
 
         if batch.errors:
-            logging.warning(f"Retry failed validation: {FormatErrorMessages(batch.errors)}")
+            logging.warning(_("Retry failed validation: {errors}").format(errors=FormatErrorMessages(batch.errors)))
         else:
-            logging.info("Retry passed validation")
+            logging.info(_("Retry passed validation"))
 
     def _get_best_summary(self, candidates : list[str]):
         """
@@ -377,7 +383,7 @@ class SubtitleTranslator:
             sanitised = SanitiseSummary(candidate, movie_name, max_length)
             if sanitised:
                 if len(sanitised) < len(candidate):
-                    logging.info(f"Summary was truncated from {len(candidate)} to {len(sanitised)} characters")
+                    logging.info(_("Summary was truncated from {original} to {truncated} characters").format(original=len(candidate), truncated=len(sanitised)))
                 return sanitised
 
         return None

@@ -1,6 +1,6 @@
 # Copilot Instructions for GPT-Subtrans
 
-Uses Python 3.10+
+These instructions help AI coding agents work effectively in this repository. Follow the patterns and workflows used by this project.
 
 ## Architecture overview
 - Desktop GUI app using PySide6 (Qt for Python) with MVC-ish separation:
@@ -14,6 +14,7 @@ Uses Python 3.10+
   - Long-running operations (translate, split/merge) are Commands. Commands must be thread-safe and use model updates; never mutate Qt widgets from worker threads.
 
 ## Code Style
+- **Language version**: The project uses and requires Python 3.10+
 - **Naming**: PascalCase for classes and methods, snake_case for variables
 - **Imports**: Standard lib → third-party → local, alphabetical within groups
 - **Types**: Use type hints for parameters, return values, and class variables

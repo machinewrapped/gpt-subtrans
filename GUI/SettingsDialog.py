@@ -8,6 +8,7 @@ from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
+from PySubtitle.Helpers.Localization import LocaleDisplayItem, _, get_locale_display_items, get_locale_display_name
 
 class SettingsDialog(QDialog):
     """
@@ -26,54 +27,62 @@ class SettingsDialog(QDialog):
     PROVIDER_SECTION = 'Provider Settings'
     SECTIONS = {
         'General': {
-            'target_language': (str, "The default language to translate the subtitles to"),
-            'include_original': (bool, "Include original text in translated subtitles"),
-            'add_right_to_left_markers': (bool, "Add RTL markers around translated lines that contain primarily right-to-left script on save"),
-            'instruction_file': (str, "Instructions for the translation provider to follow"),
-            'prompt': (str, "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"),
+            'ui_language': (str, _("The language of the application interface")),
+            'target_language': (str, _("The default language to translate the subtitles to")),
+            'include_original': (bool, _("Include original text in translated subtitles")),
+            'add_right_to_left_markers': (bool, _("Add RTL markers around translated lines that contain primarily right-to-left script on save")),
+            'instruction_file': (str, _("Instructions for the translation provider to follow")),
+            'prompt': (str, _("The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in")),
             'theme': [],
-            'autosave': (bool, "Automatically save the project after each translation batch"),
-            'write_backup': (bool, "Save a backup copy of the project when opening it"),
+            'autosave': (bool, _("Automatically save the project after each translation batch")),
+            'write_backup': (bool, _("Save a backup copy of the project when opening it")),
             # 'autosplit_incomplete': (bool, "If true, incomplete translations will be split into smaller batches and retried"),
-            'retry_on_error': (bool, "If true, translations that fail validation will be retried with a note about the error"),
-            'stop_on_error': (bool, "Stop translating if an error is encountered")
+            'retry_on_error': (bool, _("If true, translations that fail validation will be retried with a note about the error")),
+            'stop_on_error': (bool, _("Stop translating if an error is encountered"))
         },
         PROVIDER_SECTION: {
-            'provider': ([], "The AI translation service to use"),
+            'provider': ([], _("The AI translation service to use")),
             'provider_settings': TranslationProvider,
         },
         'Processing': {
-            'preprocess_subtitles': (bool, "Preprocess subtitles when they are loaded"),
-            'postprocess_translation': (bool, "Postprocess subtitles after translation"),
-            'save_preprocessed_subtitles': (bool, "Save preprocessed subtitles to a separate file"),
-            'max_line_duration': (float, "Maximum duration of a single line of subtitles"),
-            'min_line_duration': (float, "Minimum duration of a single line of subtitles"),
-            'merge_line_duration': (float, "Merge lines with a duration less than this with the previous line"),
-            'min_split_chars': (int, "Minimum number of characters to split a line at"),
-            'break_dialog_on_one_line': (bool, "Add line breaks to text with dialog markers"),
-            'normalise_dialog_tags': (bool, "Ensure dialog markers match in multi-line subtitles"),
-            'whitespaces_to_newline': (bool, "Convert blocks of whitespace and Chinese Commas to newlines"),
-            'full_width_punctuation': (bool, "Ensure full-width punctuation is used in Asian languages"),
-            'convert_wide_dashes': (bool, "Convert wide dashes (emdash) to standard dashes"),
-            'break_long_lines': (bool, "Add line breaks to long single lines (post-process)"),
-            'max_single_line_length': (int, "Maximum length of a single line of subtitles"),
-            'min_single_line_length': (int, "Minimum length of a single line of subtitles"),
-            'remove_filler_words': (bool, "Remove filler_words and filler words from subtitles"),
-            'filler_words': (str, "Comma-separated list of filler_words to remove"),
+            'preprocess_subtitles': (bool, _("Preprocess subtitles when they are loaded")),
+            'postprocess_translation': (bool, _("Postprocess subtitles after translation")),
+            'save_preprocessed_subtitles': (bool, _("Save preprocessed subtitles to a separate file")),
+            'max_line_duration': (float, _("Maximum duration of a single line of subtitles")),
+            'min_line_duration': (float, _("Minimum duration of a single line of subtitles")),
+            'merge_line_duration': (float, _("Merge lines with a duration less than this with the previous line")),
+            'min_split_chars': (int, _("Minimum number of characters to split a line at")),
+            'break_dialog_on_one_line': (bool, _("Add line breaks to text with dialog markers")),
+            'normalise_dialog_tags': (bool, _("Ensure dialog markers match in multi-line subtitles")),
+            'whitespaces_to_newline': (bool, _("Convert blocks of whitespace and Chinese Commas to newlines")),
+            'full_width_punctuation': (bool, _("Ensure full-width punctuation is used in Asian languages")),
+            'convert_wide_dashes': (bool, _("Convert wide dashes (emdash) to standard dashes")),
+            'break_long_lines': (bool, _("Add line breaks to long single lines (post-process)")),
+            'max_single_line_length': (int, _("Maximum length of a single line of subtitles")),
+            'min_single_line_length': (int, _("Minimum length of a single line of subtitles")),
+            'remove_filler_words': (bool, _("Remove filler_words and filler words from subtitles")),
+            'filler_words': (str, _("Comma-separated list of filler_words to remove")),
         },
         'Advanced': {
-            'max_threads': (int, "Maximum number of simultaneous translation threads for fast translation"),
-            'min_batch_size': (int, "Avoid creating a new batch smaller than this"),
-            'max_batch_size': (int, "Divide any batches larger than this into multiple batches"),
-            'scene_threshold': (float, "Consider a new scene to have started after this many seconds without subtitles"),
-            'substitution_mode': (Substitutions.Mode, "Whether to substitute whole words or partial matches, or choose automatically based on input language"),
-            'max_context_summaries': (int, "Limits the number of scene/batch summaries to include as context with each translation batch"),
-            'max_summary_length': (int, "Maximum length of the context summary to include with each translation batch"),
-            'max_characters': (int, "Validator: Maximum number of characters to allow in a single translated line"),
-            'max_newlines': (int, "Validator: Maximum number of newlines to allow in a single translated line"),
-            'max_retries': (int, "Number of times to retry a failed translation before giving up"),
-            'backoff_time': (float, "Seconds to wait before retrying a failed translation"),
+            'max_threads': (int, _("Maximum number of simultaneous translation threads for fast translation")),
+            'min_batch_size': (int, _("Avoid creating a new batch smaller than this")),
+            'max_batch_size': (int, _("Divide any batches larger than this into multiple batches")),
+            'scene_threshold': (float, _("Consider a new scene to have started after this many seconds without subtitles")),
+            'substitution_mode': (Substitutions.Mode, _("Whether to substitute whole words or partial matches, or choose automatically based on input language")),
+            'max_context_summaries': (int, _("Limits the number of scene/batch summaries to include as context with each translation batch")),
+            'max_summary_length': (int, _("Maximum length of the context summary to include with each translation batch")),
+            'max_characters': (int, _("Validator: Maximum number of characters to allow in a single translated line")),
+            'max_newlines': (int, _("Validator: Maximum number of newlines to allow in a single translated line")),
+            'max_retries': (int, _("Number of times to retry a failed translation before giving up")),
+            'backoff_time': (float, _("Seconds to wait before retrying a failed translation")),
         }
+    }
+
+    _translated_sections = {
+        'General': _("General"),
+        PROVIDER_SECTION: _("Provider Settings"),
+        'Processing': _("Processing"),
+        'Advanced': _("Advanced")
     }
 
     _preprocessor_setting = { 'preprocess_subtitles': True }
@@ -106,7 +115,7 @@ class SettingsDialog(QDialog):
 
     def __init__(self, options : Options, provider_cache = None, parent=None, focus_provider_settings : bool = False):
         super(SettingsDialog, self).__init__(parent)
-        self.setWindowTitle("GUI-Subtrans Settings")
+        self.setWindowTitle(_("GUI-Subtrans Settings"))
         self.setMinimumWidth(800)
 
         self.translation_provider : TranslationProvider = None
@@ -116,6 +125,10 @@ class SettingsDialog(QDialog):
 
         # Qyery available themes
         self.SECTIONS['General']['theme'] = ['default'] + GetThemeNames()
+
+        # Available UI languages (dynamically detected) - hack to set the current locale as selected language
+        self._locales = get_locale_display_items()
+        self.SECTIONS['General']['ui_language'] = (self._locales, self.SECTIONS['General']['ui_language'][1])
 
         # Query available instruction files
         instruction_files = GetInstructionsFiles()
@@ -143,7 +156,8 @@ class SettingsDialog(QDialog):
 
         for section_name in self.SECTIONS.keys():
             section_widget = self._create_section_widget(section_name)
-            self.tabs.addTab(section_widget, section_name)
+            tab_label = _(section_name)
+            self.tabs.addTab(section_widget, tab_label)
 
         if focus_provider_settings:
             self.tabs.setCurrentWidget(self.sections[self.PROVIDER_SECTION])
@@ -170,14 +184,18 @@ class SettingsDialog(QDialog):
 
                 for row in range(layout.rowCount()):
                     field = layout.itemAt(row, QFormLayout.FieldRole).widget()
+                    if not hasattr(field, 'key'):
+                        continue
+
                     if section_name == self.PROVIDER_SECTION:
-                        if not hasattr(field, 'key'):
-                            continue
                         if field.key == 'provider':
                             self.settings[field.key] = field.GetValue()
                         else:
                             provider = self.settings.get('provider')
                             self.provider_settings[provider][field.key] = field.GetValue()
+                    elif field.key == 'ui_language':
+                        if isinstance(field.GetValue(), LocaleDisplayItem):
+                            self.settings[field.key] = field.GetValue().code
                     else:
                         self.settings[field.key] = field.GetValue()
 
@@ -197,7 +215,7 @@ class SettingsDialog(QDialog):
         """
         section_widget = QFrame(self)
         section_widget.setObjectName(section_name)
-
+        
         layout = QFormLayout(section_widget)
         layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
@@ -220,7 +238,7 @@ class SettingsDialog(QDialog):
             if key_type == TranslationProvider:
                 self._add_provider_options(section_name, layout)
             else:
-                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
+                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=_(tooltip))
                 field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
                 layout.addRow(field.name, field)
                 self.widgets[key] = field

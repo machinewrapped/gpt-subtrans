@@ -1,6 +1,7 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -11,16 +12,16 @@ class SplitSceneCommand(Command):
         self.batch_number = batch_number
 
     def execute(self):
-        logging.info(f"Splitting batch {str(self.scene_number)} at batch {str(self.batch_number)}")
+        logging.info(_("Splitting batch {scene} at batch {batch}").format(scene=str(self.scene_number), batch=str(self.batch_number)))
 
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise CommandError("No subtitles", command=self)
+            raise CommandError(_("No subtitles"), command=self)
 
         scene = project.subtitles.GetScene(self.scene_number)
         if not scene:
-            raise CommandError(f"Cannot split scene {self.scene_number} because it doesn't exist", command=self)
+            raise CommandError(_("Cannot split scene {scene} because it doesn't exist").format(scene=self.scene_number), command=self)
 
         last_batch = scene.batches[-1].number
 
@@ -41,7 +42,7 @@ class SplitSceneCommand(Command):
         project: SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
-            raise CommandError("No subtitles", command=self)
+            raise CommandError(_("No subtitles"), command=self)
 
         try:
             scene_numbers = [self.scene_number, self.scene_number + 1]
@@ -62,4 +63,4 @@ class SplitSceneCommand(Command):
             return True
 
         except Exception as e:
-            raise CommandError(f"Unable to undo SplitScene command: {str(e)}", command=self)
+            raise CommandError(_("Unable to undo SplitScene command: {error}").format(error=str(e)), command=self)

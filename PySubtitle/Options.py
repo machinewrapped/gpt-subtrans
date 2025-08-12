@@ -6,6 +6,7 @@ import dotenv
 
 from PySubtitle.Helpers.Version import VersionNumberLessThan
 from PySubtitle.Instructions import Instructions, LoadInstructions
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Resources import config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
 from PySubtitle.version import __version__
@@ -68,6 +69,7 @@ default_options = {
     'stop_on_error' : env_bool('STOP_ON_ERROR'),
     'write_backup' : env_bool('WRITE_BACKUP_FILE', True),
     'theme' : os.getenv('THEME', None),
+    'ui_language': os.getenv('UI_LANGUAGE', 'en'),
     'firstrun' : False
 }
 
@@ -106,6 +108,10 @@ class Options:
     @property
     def theme(self) -> str:
         return self.get('theme')
+    
+    @property
+    def ui_language(self) -> str:
+        return self.get('ui_language', 'en')
 
     @property
     def version(self) -> str:
@@ -183,7 +189,7 @@ class Options:
             return True
 
         except Exception as e:
-            logging.error(f"Error loading settings from {settings_path}")
+            logging.error(_("Error loading settings from {}").format(settings_path))
             return False
 
     def SaveSettings(self):
@@ -209,7 +215,7 @@ class Options:
             return True
 
         except Exception as e:
-            logging.error(f"Error saving settings to {settings_path}")
+            logging.error(_("Error saving settings to {}").format(settings_path))
             return False
 
     def BuildUserPrompt(self) -> str:
@@ -241,7 +247,7 @@ class Options:
                 self.options['retry_instructions'] = instructions.retry_instructions
 
             except Exception as e:
-                logging.error(f"Unable to load instructions from {instruction_file}: {e}")
+                logging.error(_("Unable to load instructions from {}: {}").format(instruction_file, e))
 
     def InitialiseProviderSettings(self, provider : str, settings : dict):
         """

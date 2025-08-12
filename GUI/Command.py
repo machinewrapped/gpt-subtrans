@@ -3,6 +3,8 @@ import logging
 
 from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
+from PySubtitle.Helpers.Localization import _
+
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 
@@ -76,16 +78,16 @@ class Command(QRunnable, QObject):
             success = self.execute()
 
             if self.aborted:
-                logging.info(f"Aborted {type(self).__name__}")
+                logging.info(_("Aborted {type}").format(type=type(self).__name__))
             elif self.terminal:
-                logging.error(f"Unrecoverable error in {type(self).__name__}")
+                logging.error(_("Unrecoverable error in {name}").format(name=type(self).__name__))
             else:
                 self.succeeded = success
 
             self.commandCompleted.emit(self)
 
         except Exception as e:
-            logging.error(f"Error executing {type(self).__name__}: ({str(e)})")
+            logging.error(_("Error executing {type}: {str}").format(type=type(self).__name__, str=e))
             self.commandCompleted.emit(self)
 
     def execute(self):
@@ -116,7 +118,7 @@ class CommandError(Exception):
         self.command = command
 
     def __str__(self) -> str:
-        return f"Error in {type(self.command).__name__}: {self.message}"
+        return _("Error in {command}: {message}").format(command=type(self.command).__name__, message=self.message)
 
 
 class UndoError(CommandError):

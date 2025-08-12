@@ -14,6 +14,7 @@ from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.Helpers.Localization import _
 
 if os.environ.get("DEBUG_MODE") == "1":
     try:
@@ -23,20 +24,20 @@ if os.environ.get("DEBUG_MODE") == "1":
 
 class NewProjectSettings(QDialog):
     OPTIONS = {
-        'target_language': (str, "Language to translate the subtitles to"),
-        'provider': ([], "The AI translation service to use"),
-        'model': (str, "AI model to use as the translator"),
-        'scene_threshold': (float, "Number of seconds gap to consider it a new scene"),
-        'min_batch_size': (int, "Fewest lines to send in separate batch"),
-        'max_batch_size': (int, "Most lines to send in each batch"),
-        'preprocess_subtitles': (bool, "Preprocess subtitles before batching"),
-        'instruction_file': (str, "Detailed instructions for the translator"),
-        'prompt': (str, "High-level instructions for the translator")
+        'target_language': (str, _("Language to translate the subtitles to")),
+        'provider': ([], _("The AI translation service to use")),
+        'model': (str, _("AI model to use as the translator")),
+        'scene_threshold': (float, _("Number of seconds gap to consider it a new scene")),
+        'min_batch_size': (int, _("Fewest lines to send in separate batch")),
+        'max_batch_size': (int, _("Most lines to send in each batch")),
+        'preprocess_subtitles': (bool, _("Preprocess subtitles before batching")),
+        'instruction_file': (str, _("Detailed instructions for the translator")),
+        'prompt': (str, _("High-level instructions for the translator"))
     }
 
     def __init__(self, datamodel : ProjectDataModel, parent=None):
         super(NewProjectSettings, self).__init__(parent)
-        self.setWindowTitle("Project Settings")
+        self.setWindowTitle(_("Project Settings"))
         self.setMinimumWidth(800)
 
         self.fields = {}
@@ -71,7 +72,7 @@ class NewProjectSettings(QDialog):
                 self.fields[key] = field
 
             except Exception as e:
-                logging.error(f"Unable to create option widget for {key}: {e}")
+                logging.error(_("Unable to create option widget for {key}: {error}").format(key=key, error=e))
 
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(settings_widget)
@@ -97,7 +98,7 @@ class NewProjectSettings(QDialog):
 
             instructions_file = self.settings.get('instruction_file')
             if instructions_file:
-                logging.info(f"Project instructions set from {instructions_file}")
+                logging.info(_("Project instructions set from {file}").format(file=instructions_file))
                 try:
                     instructions = LoadInstructions(instructions_file)
 
@@ -108,14 +109,14 @@ class NewProjectSettings(QDialog):
                     if instructions.target_language:
                         self.settings['target_language'] = instructions.target_language
 
-                    logging.debug(f"Prompt: {instructions.prompt}")
-                    logging.debug(f"Instructions: {instructions.instructions}")
+                    logging.debug(_("Prompt: {text}").format(text=instructions.prompt))
+                    logging.debug(_("Instructions: {text}").format(text=instructions.instructions))
 
                 except Exception as e:
-                    logging.error(f"Unable to load instructions from {instructions_file}: {e}")
+                    logging.error(_("Unable to load instructions from {file}: {error}").format(file=instructions_file, error=e))
 
         except Exception as e:
-            logging.error(f"Unable to update settings: {e}")
+            logging.error(_("Unable to update settings: {error}").format(error=e))
 
         # Wait for any remaining preview threads to complete
         self._wait_for_threads()
@@ -138,7 +139,7 @@ class NewProjectSettings(QDialog):
             self.settings['provider'] = provider
             self.settings['model'] = self.datamodel.selected_model
         except Exception as e:
-            logging.error(f"Provider error: {e}")
+            logging.error(_("Provider error: {error}").format(error=e))
 
     def _update_settings(self):
         layout = self.form_layout.layout()
@@ -157,7 +158,7 @@ class NewProjectSettings(QDialog):
                 if instructions.target_language:
                     self.fields['target_language'].SetValue(instructions.target_language)
             except Exception as e:
-                logging.error(f"Unable to load instructions from {instruction_file}: {e}")
+                logging.error(_("Unable to load instructions from {file}: {error}").format(file=instruction_file, error=e))
 
     def _preview_batches(self):
         try:
@@ -172,7 +173,7 @@ class NewProjectSettings(QDialog):
                 preview_thread.start()
 
         except Exception as e:
-            logging.error(f"Unable to preview batches: {e}")
+            logging.error(_("Unable to preview batches: {error}").format(error=e))
 
     @Slot(int, str)
     def _update_preview_widget(self, count : int, text : str):
@@ -221,15 +222,15 @@ class BatchPreviewWorker(QThread):
 
             batcher : SubtitleBatcher = SubtitleBatcher(self.settings)
             if batcher.max_batch_size < batcher.min_batch_size:
-                self.update_preview.emit(self.count, "Max batch size is less than min batch size")
+                self.update_preview.emit(self.count, _("Max batch size is less than min batch size"))
                 return
 
             scenes : list[SubtitleScene] = batcher.BatchSubtitles(lines)
             batch_count = sum(scene.size for scene in scenes)
             line_count = sum(scene.linecount for scene in scenes)
 
-            preview_text = f"{line_count} lines in {len(scenes)} scenes and {batch_count} batches"
+            preview_text = _("{lines} lines in {scenes} scenes and {batches} batches").format(lines=line_count, scenes=len(scenes), batches=batch_count)
             self.update_preview.emit(self.count, preview_text)
 
         except Exception as e:
-            self.update_preview.emit(self.count, f"Error: {e}")
+            self.update_preview.emit(self.count, _("Error: {error}").format(error=e))

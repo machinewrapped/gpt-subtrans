@@ -9,24 +9,33 @@ from PySide6.QtWidgets import (
 from GUI.GuiHelpers import GetThemeNames
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget
 from PySubtitle.Options import Options
+from PySubtitle.Helpers.Localization import _, get_locale_display_items
+from PySubtitle.Helpers.Resources import GetResourcePath
+import os
 
 class FirstRunOptions(QDialog):
     OPTIONS = {
-        'target_language': (str, "Default language to translate the subtitles to"),
-        'provider': ([], "The translation provider to use"),
-        'theme': ([], "Customise the appearance of gui-subtrans")
+        'ui_language': ([], _("The language of the application interface")),
+        'target_language': (str, _("Default language to translate the subtitles to")),
+        'provider': ([], _("The translation provider to use")),
+        'theme': ([], _("Customise the appearance of gui-subtrans"))
     }
 
     def __init__(self, options : Options, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("First Run Options")
+        self.setWindowTitle(_("First Run Options"))
         self.setMinimumWidth(600)
 
         self.options = Options(options)
 
+        # Populate provider list
         self.OPTIONS['provider'] = (options.available_providers, self.OPTIONS['provider'][1])
 
+        # Populate theme list
         self.OPTIONS['theme'] = (['default'] + GetThemeNames(), self.OPTIONS['theme'][1])
+
+        # Populate UI languages from locales folder using the shared helper
+        self.OPTIONS['ui_language'] = (get_locale_display_items(), self.OPTIONS['ui_language'][1])
 
         self.controls = {}
 
@@ -37,6 +46,7 @@ class FirstRunOptions(QDialog):
 
         settings = self.options.GetSettings()
         settings['provider'] = settings.get('provider') or "OpenAI"
+        settings['ui_language'] = settings.get('ui_language') or 'en'
 
         for key, option in self.OPTIONS.items():
             key_type, tooltip = option

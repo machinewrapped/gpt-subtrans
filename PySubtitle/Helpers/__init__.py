@@ -3,6 +3,7 @@ import os
 from typing import List
 
 import regex
+from PySubtitle.Helpers.Localization import LocaleDisplayItem
 from PySubtitle.SubtitleError import SubtitleError
 
 def GetEnvBool(key, default=False):
@@ -51,6 +52,8 @@ def GetValueFromName(name, values, default=None):
     """
     for value in values:
         if str(name) == str(value) or name == GetValueName(value):
+            if isinstance(value, LocaleDisplayItem):
+                return value.code
             return value
 
     if default is not None:
@@ -71,7 +74,7 @@ def GetInputPath(filepath):
     if not filepath:
         return None
 
-    basename, _ = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath))
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]
     if basename.endswith("-GPT"):
@@ -83,7 +86,7 @@ def GetOutputPath(filepath, language="translated"):
     if not filepath:
         return None
 
-    basename, _ = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath))
 
     if basename.endswith("-ChatGPT"):
         basename = basename[0:basename.index("-ChatGPT")]

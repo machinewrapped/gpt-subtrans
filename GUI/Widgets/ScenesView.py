@@ -8,6 +8,7 @@ from GUI.Widgets.Editors import EditBatchDialog, EditSceneDialog
 
 from GUI.ScenesBatchesModel import ScenesBatchesModel
 from GUI.ScenesBatchesDelegate import ScenesBatchesDelegate
+from PySubtitle.Helpers.Localization import _
 
 class ScenesView(QTreeView):
     """
@@ -122,7 +123,7 @@ class ScenesView(QTreeView):
                 if self._edit_scene(item):
                     self.model().dataChanged.emit(index, index)
             else:
-                logging.error("Not sure what you just double-clicked on")
+                logging.error(_("Not sure what you just double-clicked on"))
         except Exception as e:
             logging.error(str(e))
 
@@ -148,3 +149,5 @@ class ScenesView(QTreeView):
 
         return False
 
+    def UpdateUiLanguage(self):
+        self.Populate(self.viewmodel)

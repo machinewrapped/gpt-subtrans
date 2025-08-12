@@ -4,6 +4,7 @@ from GUI.Command import Command, CommandError
 from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
+from PySubtitle.Helpers.Localization import _
 
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -19,18 +20,18 @@ class StartTranslationCommand(Command):
 
     def execute(self):
         if not self.datamodel or not self.datamodel.project or not self.datamodel.project.subtitles:
-            raise CommandError("Nothing to translate", command=self)
+            raise CommandError(_("Nothing to translate"), command=self)
 
         project : SubtitleProject = self.datamodel.project
         subtitles : SubtitleFile = project.subtitles
 
         if self.resume and subtitles.scenes and all(scene.all_translated for scene in subtitles.scenes):
-            logging.info("All scenes are fully translated")
+            logging.info(_("All scenes are fully translated"))
             return True
 
-        starting = "Resuming" if self.resume and project.any_translated else "Starting"
-        threaded = "multithreaded" if self.multithreaded else "single threaded"
-        logging.info(f"{starting} {threaded} translation")
+        starting = _("Resuming") if self.resume and project.any_translated else _("Starting")
+        threaded = _("multithreaded") if self.multithreaded else _("single threaded")
+        logging.info(_("{starting} {threaded} translation").format(starting=starting, threaded=threaded))
 
         previous_command : TranslateSceneCommand = self
 

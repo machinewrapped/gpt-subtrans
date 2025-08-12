@@ -3,7 +3,8 @@ import logging
 import os
 
 if not importlib.util.find_spec("google"):
-    logging.info("Google SDK (google-genai) is not installed. Gemini provider will not be available")
+    from PySubtitle.Helpers.Localization import _
+    logging.info(_("Google SDK (google-genai) is not installed. Gemini provider will not be available"))
 else:
     try:
         from google import genai
@@ -11,6 +12,7 @@ else:
         from google.api_core.exceptions import FailedPrecondition
 
         from PySubtitle.Helpers import GetEnvFloat
+        from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -58,7 +60,7 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'api_key': (str, "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)")
+                    'api_key': (str, _("A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"))
                 }
 
                 if self.api_key:
@@ -67,12 +69,12 @@ else:
                         if models:
                             options.update({
                                 'model': (models, "AI model to use as the translator" if models else "Unable to retrieve models"),
-                                'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
-                                'rate_limit': (float, "Maximum API requests per minute.")
+                                'temperature': (float, _("Amount of random variance to add to translations. Generally speaking, none is best")),
+                                'rate_limit': (float, _("Maximum API requests per minute."))
                             })
 
                         else:
-                            options['model'] = (["Unable to retrieve models"], "Check API key is authorized and try again")
+                            options['model'] = (["Unable to retrieve models"], _("Check API key is authorized and try again"))
 
                     except FailedPrecondition as e:
                         options['model'] = (["Unable to access the Gemini API"], str(e))
@@ -116,7 +118,7 @@ else:
                     return [ m for m in all_models if 'generateContent' in m.supported_actions ]
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve Gemini model list: {str(e)}")
+                    logging.error(_("Unable to retrieve Gemini model list: {error}").format(error=str(e)))
                     return []
 
             def _get_true_name(self, name : str) -> str:
@@ -139,5 +141,6 @@ else:
                 return True
 
     except ImportError:
-        logging.info("Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix.")
+        from PySubtitle.Helpers.Localization import _
+        logging.info(_("Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix."))
 

@@ -89,7 +89,7 @@ def _add_test_file_logger(logger, results_path, input_filename, test_name):
     """
     Adds a file handler to log INFO level messages to a specific file named after the input file (without extension) and test name.
     """
-    base_filename, _ = os.path.splitext(input_filename)
+    base_filename, dummy = os.path.splitext(input_filename)
     input_log_path = os.path.join(results_path, f"{base_filename}-{test_name}.log")
     file_handler = logging.FileHandler(input_log_path, mode='w', encoding='utf-8')
     file_formatter = logging.Formatter('%(message)s')

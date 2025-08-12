@@ -27,6 +27,7 @@ from GUI.ProjectSelection import ProjectSelection
 
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.Helpers.Localization import _
 
 class ActionError(Exception):
     def __init__(self, message, error = None):
@@ -88,14 +89,14 @@ class ProjectActions(QObject):
             return
 
         if not self._command_queue.can_undo:
-            logging.error("Cannot undo the last command")
+            logging.error(_("Cannot undo the last command"))
             return
 
         try:
             self._command_queue.UndoLastCommand()
 
         except Exception as e:
-            logging.error(f"Error undoing the last command: {str(e)}")
+            logging.error(_("Error undoing the last command: {error}").format(error=str(e)))
             self._command_queue.ClearUndoStack()
 
     def RedoLastCommand(self):
@@ -107,14 +108,14 @@ class ProjectActions(QObject):
             return
 
         if not self._command_queue.can_redo:
-            logging.error("Cannot redo the last command")
+            logging.error(_("Cannot redo the last command"))
             return
 
         try:
             self._command_queue.RedoLastCommand()
 
         except Exception as e:
-            logging.error(f"Error redoing the last command: {str(e)}")
+            logging.error(_("Error redoing the last command: {error}").format(error=str(e)))
             self._command_queue.ClearRedoStack()
 
     def LoadProject(self):
@@ -124,8 +125,8 @@ class ProjectActions(QObject):
         initial_path = self.last_used_path
         shift_pressed = self._is_shift_pressed()
 
-        filters = "Subtitle files (*.srt *.subtrans);;All Files (*)"
-        filepath, _ = QFileDialog.getOpenFileName(parent=self._mainwindow, caption="Open File", dir=initial_path, filter=filters)
+        filters = f"{_('Subtitle files')} (*.srt *.subtrans);;{_('All Files')} (*)"
+        filepath, dummy = QFileDialog.getOpenFileName(parent=self._mainwindow, caption=_("Open File"), dir=initial_path, filter=filters)
 
         if filepath:
             self.loadProject.emit(filepath, shift_pressed)
@@ -136,7 +137,7 @@ class ProjectActions(QObject):
         """
         project : SubtitleProject = self.datamodel.project
         if not project:
-            raise ActionError("Nothing to save!")
+            raise ActionError(_("Nothing to save!"))
 
         self.saveSettings.emit()
 
@@ -145,7 +146,8 @@ class ProjectActions(QObject):
 
         if show_dialog or not filepath or not os.path.exists(filepath):
             filepath = os.path.join(self.last_used_path, os.path.basename(project.projectfile))
-            filepath, _ = QFileDialog.getSaveFileName(self._mainwindow, "Save Project File", filepath, "Subtrans projects (*.subtrans);;All Files (*)")
+            filters = f"{_('Subtrans projects')} (*.subtrans);;{_('All Files')} (*)"
+            filepath, dummy = QFileDialog.getSaveFileName(self._mainwindow, _("Save Project File"), filepath, filters)
 
         if filepath:
             self.saveProject.emit(filepath)
@@ -158,7 +160,7 @@ class ProjectActions(QObject):
             if cmd.show_provider_settings:
                 self.showProviderSettings.emit()
             else:
-                logging.info("Provider settings validated")
+                logging.info(_("Provider settings validated"))
 
         command = CheckProviderSettings(options or self.datamodel.project_options)
         command.callback = callback
@@ -206,7 +208,7 @@ class ProjectActions(QObject):
         Request translation of selected scenes and batches
         """
         if not selection.Any():
-            raise ActionError("Nothing selected to translate")
+            raise ActionError(_("Nothing selected to translate"))
 
         self._validate_datamodel()
 
@@ -234,7 +236,7 @@ class ProjectActions(QObject):
                 }
 
         if not scenes:
-            raise ActionError("No scenes selected for translation")
+            raise ActionError(_("No scenes selected for translation"))
 
         command = StartTranslationCommand(self.datamodel, multithreaded=multithreaded, resume=False, scenes = scenes)
 
@@ -245,7 +247,7 @@ class ProjectActions(QObject):
         Reparse selected batches
         """
         if not selection.AnyBatches():
-            raise ActionError("Nothing selected to reparse")
+            raise ActionError(_("Nothing selected to reparse"))
 
         self._validate_datamodel()
 
@@ -278,7 +280,7 @@ class ProjectActions(QObject):
         """
         Update the user-updatable properties of a subtitle batch
         """
-        logging.debug(f"Updating line {line_number} with {str(original_text)} > {str(translated_text)}")
+        logging.debug(f"Updating line {line_number} with {original_text} > {translated_text}")
 
         self._validate_datamodel()
 
@@ -294,10 +296,10 @@ class ProjectActions(QObject):
         Merge selected scenes, batches or lines
         """
         if not selection.Any():
-            raise ActionError("Nothing selected to merge")
+            raise ActionError(_("Nothing selected to merge"))
 
         if not selection.IsContiguous():
-            raise ActionError("Cannot merge non-sequential elements")
+            raise ActionError(_("Cannot merge non-sequential elements"))
 
         if selection.OnlyScenes():
             self.QueueCommand(MergeScenesCommand(selection.scene_numbers))
@@ -312,7 +314,7 @@ class ProjectActions(QObject):
             self.QueueCommand(MergeLinesCommand(line_numbers))
 
         else:
-            raise ActionError(f"Unable to merge selection ({str(selection)})")
+            raise ActionError(_("Unable to merge selection ({selection})").format(selection=str(selection)))
 
     def DeleteSelection(self, selection : ProjectSelection):
         """
@@ -321,10 +323,10 @@ class ProjectActions(QObject):
         self._validate_datamodel()
 
         if not selection.Any():
-            raise ActionError("Nothing selected to delete")
+            raise ActionError(_("Nothing selected to delete"))
 
         if not selection.AnyLines():
-            raise ActionError("Cannot delete scenes or batches yet")
+            raise ActionError(_("Cannot delete scenes or batches yet"))
 
         line_numbers = [ line.number for line in selection.selected_lines ]
         self.QueueCommand(DeleteLinesCommand(line_numbers))
@@ -334,10 +336,10 @@ class ProjectActions(QObject):
         Split a batch in two at the specified index (optionally, using a different index for translated lines)
         """
         if not selection.Any():
-            raise ActionError("Please select a line to split the batch at")
+            raise ActionError(_("Please select a line to split the batch at"))
 
         if selection.MultipleSelected():
-            raise ActionError("Please select a single split point")
+            raise ActionError(_("Please select a single split point"))
 
         selected_line = selection.selected_lines[0]
 
@@ -350,10 +352,10 @@ class ProjectActions(QObject):
         Split a batch in two at the specified index (optionally, using a different index for translated lines)
         """
         if not selection.AnyBatches():
-            raise ActionError("Please select a batch to split the scene at")
+            raise ActionError(_("Please select a batch to split the scene at"))
 
         if selection.MultipleSelected():
-            raise ActionError("Please select a single split point")
+            raise ActionError(_("Please select a single split point"))
 
         selected_batch = selection.selected_batches[0]
 
@@ -366,7 +368,7 @@ class ProjectActions(QObject):
         Split a batch in two automatically (using heuristics to find the best split point)
         """
         if not selection.AnyBatches() or selection.MultipleSelected():
-            raise ActionError("Can only autosplit a single batch")
+            raise ActionError(_("Can only autosplit a single batch"))
 
         scene_number, batch_number = selection.selected_batches[0].key
 
@@ -377,7 +379,7 @@ class ProjectActions(QObject):
         This is a simple action to test the GUI
         """
         if not selection.AnyBatches() or selection.MultipleSelected():
-            raise ActionError("Can only swap text of a single batch")
+            raise ActionError(_("Can only swap text of a single batch"))
 
         scene_number, batch_number = selection.batch_numbers[0]
 
@@ -388,13 +390,13 @@ class ProjectActions(QObject):
         Validate that there is a datamodel with subtitles that have been batched
         """
         if not self.datamodel or not self.datamodel.project:
-            raise ActionError("Project is not valid")
+            raise ActionError(_("Project is not valid"))
 
         if not self.datamodel.project.subtitles:
-            raise ActionError("No subtitles")
+            raise ActionError(_("No subtitles"))
 
         if not self.datamodel.project.subtitles.scenes:
-            raise ActionError("Subtitles have not been batched")
+            raise ActionError(_("Subtitles have not been batched"))
 
     def _is_shift_pressed(self):
         return bool(QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)

@@ -6,6 +6,7 @@ from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import TranslationAbortedError, TranslationImpossibleError
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleTranslator import SubtitleTranslator
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -25,12 +26,12 @@ class TranslateSceneCommand(Command):
 
     def execute(self):
         if self.batch_numbers:
-            logging.info(f"Translating scene number {self.scene_number} batch {','.join(str(x) for x in self.batch_numbers)}")
+            logging.info(_("Translating scene number {scene} batch {batches}").format(scene=self.scene_number, batches=','.join(str(x) for x in self.batch_numbers)))
         else:
-            logging.info(f"Translating scene number {self.scene_number}")
+            logging.info(_("Translating scene number {scene}").format(scene=self.scene_number))
 
         if not self.datamodel.project:
-            raise CommandError("Unable to translate scene because project is not set on datamodel", command=self)
+            raise CommandError(_("Unable to translate scene because project is not set on datamodel"), command=self)
 
         project : SubtitleProject = self.datamodel.project
 
@@ -51,8 +52,8 @@ class TranslateSceneCommand(Command):
                 })
 
             if self.translator.errors and self.translator.stop_on_error:
-                logging.info(f"Errors: {FormatErrorMessages(self.translator.errors)}")
-                logging.error(f"Errors translating scene {scene.number} - aborting translation")
+                logging.info(_("Errors: {errors}").format(errors=FormatErrorMessages(self.translator.errors)))
+                logging.error(_("Errors translating scene {scene} - aborting translation").format(scene=scene.number))
                 self.terminal = True
 
             if self.translator.aborted:
@@ -60,16 +61,16 @@ class TranslateSceneCommand(Command):
                 self.terminal = True
 
         except TranslationAbortedError as e:
-            logging.info(f"Aborted translation of scene {self.scene_number}")
+            logging.info(_("Aborted translation of scene {scene}").format(scene=self.scene_number))
             self.aborted = True
             self.terminal = True
 
         except TranslationImpossibleError as e:
-            logging.error(f"Error translating scene {self.scene_number}: {e}")
+            logging.error(_("Error translating scene {scene}: {error}").format(scene=self.scene_number, error=e))
             self.terminal = True
 
         except Exception as e:
-            logging.error(f"Error translating scene {self.scene_number}: {e}")
+            logging.error(_("Error translating scene {scene}: {error}").format(scene=self.scene_number, error=e))
             if self.translator.stop_on_error:
                 self.terminal = True
 

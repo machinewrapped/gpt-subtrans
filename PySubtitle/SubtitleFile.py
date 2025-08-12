@@ -6,6 +6,7 @@ import threading
 import srt
 import bisect
 from PySubtitle.Helpers.Text import IsRightToLeftText
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 from PySubtitle.Options import Options
 
@@ -90,7 +91,7 @@ class SubtitleFile:
     def scenes(self, scenes : list[SubtitleScene]):
         with self.lock:
             self._scenes = scenes
-            self.originals, self.translated, _ = UnbatchScenes(scenes)
+            self.originals, self.translated, dummy = UnbatchScenes(scenes)
             self.start_line_number = (self.originals[0].number if self.originals else 1) or 1
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
@@ -266,7 +267,7 @@ class SubtitleFile:
                 self.originals = [ SubtitleLine(item) for item in source ]
 
         except srt.SRTParseError as e:
-            logging.error(f"Failed to parse SRT string: {str(e)}")
+            logging.error(_("Failed to parse SRT string: {}").format(str(e)))
 
     def SaveProjectFile(self, projectfile : str, encoder_class):
         """
@@ -276,7 +277,7 @@ class SubtitleFile:
             raise ValueError("No encoder provided")
 
         projectfile = os.path.normpath(projectfile)
-        logging.info(f"Writing project data to {str(projectfile)}")
+        logging.info(_("Writing project data to {}").format(str(projectfile)))
 
         with self.lock:
             with open(projectfile, 'w', encoding=default_encoding) as f:
@@ -317,7 +318,7 @@ class SubtitleFile:
             originals, translated, untranslated = UnbatchScenes(self.scenes)
 
             if not translated:
-                logging.error("No subtitles translated")
+                logging.error(_("No subtitles translated"))
                 return
 
             if self.settings.get('include_original'):
@@ -328,7 +329,7 @@ class SubtitleFile:
             for line_number, line in enumerate(translated, start=self.start_line_number or 1):
                 output_lines.append(SubtitleLine.Construct(line_number, line.start, line.end, line.text))
 
-            logging.info(f"Saving translation to {str(outputpath)}")
+            logging.info(_("Saving translation to {}").format(str(outputpath)))
 
             items = [ line.item for line in output_lines if line.text and line.start is not None]
 
@@ -345,11 +346,11 @@ class SubtitleFile:
             # Log a warning if any lines had no text or start time
             num_invalid = len([line for line in translated if line.start is None])
             if num_invalid:
-                logging.warning(f"{num_invalid} lines were invalid and were not written to the output file")
+                logging.warning(_("{} lines were invalid and were not written to the output file").format(num_invalid))
 
             num_empty = len([line for line in translated if not line.text])
             if num_empty:
-                logging.warning(f"{num_empty} lines were empty and were not written to the output file")
+                logging.warning(_("{} lines were empty and were not written to the output file").format(num_empty))
 
             self.translated = translated
             self.outputpath = outputpath
@@ -553,7 +554,7 @@ class SubtitleFile:
                     original_line_numbers = [line.number for line in batch.originals]
                     unmatched_translated = [line for line in batch.translated if line.number not in original_line_numbers]
                     if unmatched_translated:
-                        logging.warning(f"Removing {len(unmatched_translated)} translations lines in batch ({batch.scene},{batch.number}) that don't match an original line")
+                        logging.warning(_("Removing {} translations lines in batch ({},{}) that don't match an original line").format(len(unmatched_translated), batch.scene, batch.number))
                         batch.translated = [line for line in batch.translated if line not in unmatched_translated]
 
         self.scenes = [scene for scene in self.scenes if scene.batches]

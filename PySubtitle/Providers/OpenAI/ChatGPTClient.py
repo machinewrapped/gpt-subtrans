@@ -1,5 +1,6 @@
 from openai.types.chat import ChatCompletion
 
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -32,10 +33,12 @@ class ChatGPTClient(OpenAIClient):
             return None
 
         if not isinstance(result, ChatCompletion):
-            raise TranslationResponseError(f"Unexpected response type: {type(result).__name__}", response=result)
+            raise TranslationResponseError(_("Unexpected response type: {response_type}").format(
+                response_type=type(result).__name__
+            ), response=result)
 
         if not getattr(result, 'choices'):
-            raise TranslationResponseError("No choices returned in the response", response=result)
+            raise TranslationResponseError(_("No choices returned in the response"), response=result)
 
         response['response_time'] = getattr(result, 'response_ms', 0)
 
@@ -51,7 +54,7 @@ class ChatGPTClient(OpenAIClient):
             response['finish_reason'] = getattr(choice, 'finish_reason', None)
             response['text'] = getattr(reply, 'content', None)
         else:
-            raise TranslationResponseError("No choices returned in the response", response=result)
+            raise TranslationResponseError(_("No choices returned in the response"), response=result)
 
         # Return the response if the API call succeeds
         return response

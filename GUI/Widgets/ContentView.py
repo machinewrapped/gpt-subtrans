@@ -96,3 +96,13 @@ class ContentView(QWidget):
         if self.viewmodel:
             self.viewmodel.ProcessUpdates()
 
+    def UpdateUiLanguage(self):
+        """Refresh texts in contained views/editors for new UI language."""
+        if self.viewmodel:
+            try:
+                self.selection_view.UpdateUiLanguage()
+                self.Populate(self.viewmodel)
+
+            except Exception as ex:
+                logging.error(f"Error updating selection view language: {ex}")
+

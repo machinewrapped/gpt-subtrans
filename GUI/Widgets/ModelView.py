@@ -135,3 +135,20 @@ class ModelView(QWidget):
     def _on_project_settings_changed(self, settings : dict):
         self.settingsChanged.emit(settings)
         self.content_view.UpdateSettings(settings)
+
+    def UpdateUiLanguage(self):
+        """Refresh texts in child widgets when UI language changes."""
+        try:
+            self._toolbar.UpdateUiLanguage()
+
+            if self.scenes_view:
+                self.scenes_view.UpdateUiLanguage()
+
+            if self.content_view:
+                self.content_view.UpdateUiLanguage()
+
+            if self.project_settings:
+                self.project_settings.UpdateUiLanguage()
+
+        except Exception:
+            pass

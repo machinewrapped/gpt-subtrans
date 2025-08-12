@@ -3,6 +3,7 @@ import logging
 from GUI.Command import Command
 from PySubtitle.Options import Options
 from PySubtitle.TranslationProvider import TranslationProvider
+from PySubtitle.Helpers.Localization import _
 
 class ExitProgramCommand(Command):
     """
@@ -14,7 +15,7 @@ class ExitProgramCommand(Command):
         self.can_undo = False
 
     def execute(self):
-        logging.info("Exiting Program")
+        logging.info(_("Exiting Program"))
 
 class CheckProviderSettings(Command):
     """
@@ -31,15 +32,15 @@ class CheckProviderSettings(Command):
         try:
             translation_provider : TranslationProvider = self.datamodel.translation_provider
             if not translation_provider:
-                logging.warning("Invalid translation provider")
+                logging.warning(_("Invalid translation provider"))
                 self.show_provider_settings = True
 
             elif not translation_provider.ValidateSettings():
-                logging.warning(f"Provider {translation_provider.name} needs configuring: {translation_provider.validation_message}")
+                logging.warning(_("Provider {provider} needs configuring: {message}").format(provider=translation_provider.name, message=translation_provider.validation_message))
                 self.show_provider_settings = True
 
         except Exception as e:
-            logging.error(f"CheckProviderSettings: {e}")
+            logging.error(_("CheckProviderSettings: {error}").format(error=e))
 
         return True
 

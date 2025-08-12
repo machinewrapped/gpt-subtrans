@@ -9,6 +9,7 @@ from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleFile import SubtitleFile
 
 from PySubtitle.SubtitleValidator import SubtitleValidator
+from PySubtitle.Helpers.Localization import _
 
 class EditLineCommand(Command):
     def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel = None):
@@ -18,23 +19,23 @@ class EditLineCommand(Command):
         self.undo_data = None
 
     def execute(self):
-        logging.debug(f"Editing line {self.line_number}")
+        logging.debug(_("Editing line {line}").format(line=self.line_number))
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
         if not subtitles:
-            raise CommandError("Unable to edit batch because datamodel is invalid", command=self)
+            raise CommandError(_("Unable to edit batch because datamodel is invalid"), command=self)
 
         if not isinstance(self.edit, dict):
-            raise CommandError("Edit data must be a dictionary", command=self)
+            raise CommandError(_("Edit data must be a dictionary"), command=self)
 
         with subtitles.lock:
             batch : SubtitleBatch = subtitles.GetBatchContainingLine(self.line_number)
             if not batch:
-                raise CommandError(f"Line {self.line_number} not found in any batch", command=self)
+                raise CommandError(_("Line {line} not found in any batch").format(line=self.line_number), command=self)
 
             line : SubtitleLine = batch.GetOriginalLine(self.line_number)
             if not line:
-                raise CommandError(f"Line {self.line_number} not found in batch ({batch.scene},{batch.number})", command=self)
+                raise CommandError(_("Line {line} not found in batch ({scene},{batch})").format(line=self.line_number, scene=batch.scene, batch=batch.number), command=self)
 
             self.undo_data = {
             }
@@ -72,18 +73,18 @@ class EditLineCommand(Command):
         return True
 
     def undo(self):
-        logging.debug(f"Undoing edit line {self.line_number}")
+        logging.debug(_("Undoing edit line {line}").format(line=self.line_number))
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         with subtitles.lock:
             batch : SubtitleBatch = subtitles.GetBatchContainingLine(self.line_number)
             if not batch:
-                raise CommandError(f"Line {self.line_number} not found in any batch", command=self)
+                raise CommandError(_("Line {line} not found in any batch").format(line=self.line_number), command=self)
 
             line : SubtitleLine = batch.GetOriginalLine(self.line_number)
             if not line:
-                raise CommandError(f"Line {self.line_number} not found in batch ({batch.scene},{batch.number})", command=self)
+                raise CommandError(_("Line {line} not found in batch ({scene},{batch})").format(line=self.line_number, scene=batch.scene, batch=batch.number), command=self)
 
             if 'start' in self.undo_data:
                 line.start = self.undo_data['start']

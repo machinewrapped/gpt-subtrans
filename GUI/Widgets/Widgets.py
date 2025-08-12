@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QSizePolicy
 )
+from PySubtitle.Helpers.Localization import _
 
 class TreeViewItemWidget(QFrame):
     def __init__(self, content, parent=None):
@@ -113,7 +114,7 @@ class LineItemHeader(QFrame):
         leftLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         leftLabel.setObjectName("line-header-left")
 
-        rightLabel = QLabel(f"Gap: {str(line.gap)}, Length: {str(line.duration)}" if line.gap else f"Length: {str(line.duration)})")
+        rightLabel = QLabel(_("Gap: {gap}, Length: {duration}").format(gap=str(line.gap), duration=str(line.duration)) if line.gap else _("Length: {duration}").format(duration=str(line.duration)))
         rightLabel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         rightLabel.setObjectName("line-header-right")
 

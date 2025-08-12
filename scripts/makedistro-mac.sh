@@ -16,6 +16,8 @@ pip install --upgrade mistralai
 # Remove boto3 from packaged version
 pip uninstall boto3
 
+python scripts/update_translations.py
+
 python tests/unit_tests.py
 if [ $? -ne 0 ]; then
     echo "Unit tests failed. Exiting..."
@@ -27,7 +29,8 @@ fi
     --paths="./envsubtrans/lib" \
     --add-data "theme/*:theme/" \
     --add-data "assets/*:assets/" \
-    --add-data "instructions*:instructions/" \
+    --add-data "instructions/*:instructions/" \
     --add-data "LICENSE:." \
+    --add-data "locales/*:locales/" \
     --noconfirm \
     scripts/gui-subtrans.py

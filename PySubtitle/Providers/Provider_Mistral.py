@@ -3,12 +3,14 @@ import logging
 import os
 
 if not importlib.util.find_spec("mistralai"):
-    logging.info("Mistral SDK is not installed. Mistral provider will not be available")
+    from PySubtitle.Helpers.Localization import _
+    logging.info(_("Mistral SDK is not installed. Mistral provider will not be available"))
 else:
     try:
         import mistralai
 
         from PySubtitle.Helpers import GetEnvFloat
+        from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.Mistral.MistralClient import MistralClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -57,8 +59,8 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'api_key': (str, "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"),
-                    'server_url': (str, "The base URL to use for requests (default is https://api.mistral.ai)"),
+                    'api_key': (str, _("A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)")),
+                    'server_url': (str, _("The base URL to use for requests (default is https://api.mistral.ai)")),
                 }
 
                 if self.api_key:
@@ -66,12 +68,12 @@ else:
                     if models:
                         options.update({
                             'model': (models, "AI model to use as the translator"),
-                            'temperature': (float, "Amount of random variance to add to translations. Generally speaking, none is best"),
-                            'rate_limit': (float, "Maximum API requests per minute.")
+                            'temperature': (float, _("Amount of random variance to add to translations. Generally speaking, none is best")),
+                            'rate_limit': (float, _("Maximum API requests per minute."))
                         })
 
                     else:
-                        options['model'] = (["Unable to retrieve models"], "Check API key and base URL and try again")
+                        options['model'] = (["Unable to retrieve models"], _("Check API key and base URL and try again"))
 
                 return options
 
@@ -98,7 +100,7 @@ else:
                     return sorted(model_list)
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve available AI models: {str(e)}")
+                    logging.error(_("Unable to retrieve available AI models: {error}").format(error=str(e)))
                     return []
 
             def GetInformation(self) -> str:
@@ -126,4 +128,5 @@ else:
                 return True
 
     except ImportError:
-        logging.info("Mistral SDK not installed. Mistral provider will not be available")
+        from PySubtitle.Helpers.Localization import _
+        logging.info(_("Mistral SDK not installed. Mistral provider will not be available"))

@@ -15,6 +15,7 @@ try:
     import boto3
 
     from PySubtitle.Helpers import FormatMessages
+    from PySubtitle.Helpers.Localization import _
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -27,7 +28,9 @@ try:
         def __init__(self, settings : dict):
             super().__init__(settings)
 
-            logging.info(f"Translating with Bedrock model {self.model_id}, using region: {self.aws_region}")
+            logging.info(_("Translating with Bedrock model {model_id}, using region: {aws_region}").format(
+                model_id=self.model_id, aws_region=self.aws_region
+            ))
 
             self.client = boto3.client(
                 'bedrock-runtime',
@@ -61,16 +64,16 @@ try:
             Request a translation based on the provided prompt
             """
             if not self.access_key:
-                raise TranslationImpossibleError('Access key must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("Access key must be set in .env or provided as an argument"))
 
             if not self.secret_access_key:
-                raise TranslationImpossibleError('Secret access key must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("Secret access key must be set in .env or provided as an argument"))
 
             if not self.aws_region:
-                raise TranslationImpossibleError('AWS region must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("AWS region must be set in .env or provided as an argument"))
 
             if not self.model_id:
-                raise TranslationImpossibleError('Model ID must be provided as an argument')
+                raise TranslationImpossibleError(_("Model ID must be provided as an argument"))
 
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
@@ -115,7 +118,7 @@ try:
                 output = result.get('output')
 
                 if not output:
-                    raise TranslationResponseError("No output returned in the response", response=result)
+                    raise TranslationResponseError(_("No output returned in the response"), response=result)
 
                 response = {}
 
@@ -136,7 +139,9 @@ try:
                 return response
 
             except Exception as e:
-                raise TranslationImpossibleError(f"Error communicating with Bedrock: {str(e)}", error=e)
+                raise TranslationImpossibleError(_("Error communicating with Bedrock: {error}").format(
+                    error=str(e)
+                ), error=e)
 
 except ImportError:
     logging.debug("AWS Boto3 SDK not installed.")

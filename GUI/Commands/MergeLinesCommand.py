@@ -3,6 +3,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
+from PySubtitle.Helpers.Localization import _
 
 import logging
 
@@ -19,12 +20,12 @@ class MergeLinesCommand(Command):
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         if not subtitles:
-            raise CommandError("No subtitles", command=self)
+            raise CommandError(_("No subtitles"), command=self)
 
         batches = subtitles.GetBatchesContainingLines(self.line_numbers)
 
         if not batches:
-            raise CommandError("No batches found for lines to merge", command=self)
+            raise CommandError(_("No batches found for lines to merge"), command=self)
 
         model_update = self.AddModelUpdate()
         for batch in batches:
@@ -32,10 +33,10 @@ class MergeLinesCommand(Command):
             originals = [batch.GetOriginalLine(line_number) for line_number in batch_lines]
             translated = [batch.GetTranslatedLine(line_number) for line_number in batch_lines]
 
-            logging.info(f"Merging lines {str([line.number for line in originals])} in batch {str((batch.scene, batch.number))}")
+            logging.info(_("Merging lines {lines} in batch {batch}").format(lines=str([line.number for line in originals]), batch=str((batch.scene, batch.number))))
 
             if any([line is None for line in originals]):
-                raise CommandError("Cannot merge lines, some lines are missing", command=self)
+                raise CommandError(_("Cannot merge lines, some lines are missing"), command=self)
 
             translated = [line for line in translated if line is not None]
 
@@ -44,7 +45,7 @@ class MergeLinesCommand(Command):
             merged_line, merged_translated = subtitles.MergeLinesInBatch(batch.scene, batch.number, batch_lines)
 
             if not merged_line:
-                raise CommandError("Failed to merge lines", command=self)
+                raise CommandError(_("Failed to merge lines"), command=self)
 
             line_update = {
                 'start': merged_line.start,
@@ -64,7 +65,7 @@ class MergeLinesCommand(Command):
 
     def undo(self):
         if not self.undo_data:
-            raise UndoError("Cannot undo merge, undo data was not saved", command=self)
+            raise UndoError(_("Cannot undo merge, undo data was not saved"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 

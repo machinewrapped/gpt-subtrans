@@ -2,8 +2,10 @@ import importlib.util
 import logging
 import os
 
+from PySubtitle.Helpers.Localization import _
+
 if not importlib.util.find_spec("openai"):
-    logging.info("OpenAI SDK is not installed. Azure provider will not be available")
+    logging.info(_("OpenAI SDK is not installed. Azure provider will not be available"))
 else:
     try:
         import openai
@@ -57,10 +59,10 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'api_key': (str, "An Azure API key is required"),
-                    'api_version': (str, "An Azure API version is required"),
-                    'deployment_name': (str, "An Azure API deployment name is required"),
-                    'api_base': (str, "The Azure API base URL to use for requests."),
+                    'api_key': (str, _("An Azure API key is required")),
+                    'api_version': (str, _("An Azure API version is required")),
+                    'deployment_name': (str, _("An Azure API deployment name is required")),
+                    'api_base': (str, _("The Azure API base URL to use for requests.")),
                 }
 
                 return options
@@ -103,4 +105,4 @@ else:
                 return True
 
     except ImportError:
-        logging.info("OpenAI SDK not installed. Azure provider will not be available")
+        logging.info(_("OpenAI SDK not installed. Azure provider will not be available"))

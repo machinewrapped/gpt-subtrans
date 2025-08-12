@@ -3,12 +3,14 @@ import logging
 import os
 
 if not importlib.util.find_spec("openai"):
-    logging.info("OpenAI SDK is not installed. OpenAI provider will not be available")
+    from PySubtitle.Helpers.Localization import _
+    logging.info(_("OpenAI SDK is not installed. OpenAI provider will not be available"))
 else:
     try:
         import openai
 
         from PySubtitle.Helpers import GetEnvFloat
+        from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
         from PySubtitle.Providers.OpenAI.OpenAIReasoningClient import OpenAIReasoningClient
         from PySubtitle.SubtitleError import ProviderError
@@ -82,31 +84,31 @@ else:
 
             def GetOptions(self) -> dict:
                 options = {
-                    'api_key': (str, "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"),
-                    'api_base': (str, "The base URL to use for requests - leave as default unless you know you need something else"),
+                    'api_key': (str, _("An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)")),
+                    'api_base': (str, _("The base URL to use for requests - leave as default unless you know you need something else")),
                 }
 
                 if self.api_base:
-                    options['use_httpx'] = (bool, "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base")
+                    options['use_httpx'] = (bool, _("Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base"))
 
                 if self.api_key:
                     models = self.available_models
                     if models:
                         options.update({
-                            'model': (models, "AI model to use as the translator" if models else "Unable to retrieve models"),
-                            'rate_limit': (float, "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan")
+                            'model': (models, _("AI model to use as the translator") if models else _("Unable to retrieve models")),
+                            'rate_limit': (float, _("Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"))
                         })
 
                         if self.is_instruct_model:
-                            options['max_instruct_tokens'] = (int, "Maximum tokens a completion can contain (only applicable for -instruct models)")
+                            options['max_instruct_tokens'] = (int, _("Maximum tokens a completion can contain (only applicable for -instruct models)"))
 
                         if self.is_reasoning_model:
-                            options['reasoning_effort'] = (["low", "medium", "high"], "The level of reasoning effort to use for the model")
+                            options['reasoning_effort'] = (["low", "medium", "high"], _("The level of reasoning effort to use for the model"))
                         else:
-                            options['temperature'] = (float, "Amount of random variance to add to translations. Generally speaking, none is best")
+                            options['temperature'] = (float, _("Amount of random variance to add to translations. Generally speaking, none is best"))
 
                     else:
-                        options['model'] = (["Unable to retrieve models"], "Check API key and base URL and try again")
+                        options['model'] = ([_("Unable to retrieve models")], _("Check API key and base URL and try again"))
 
                 return options
 
@@ -142,7 +144,7 @@ else:
                     return sorted(model_list)
 
                 except Exception as e:
-                    logging.error(f"Unable to retrieve available AI models: {str(e)}")
+                    logging.error(_("Unable to retrieve available AI models: {error}").format(error=str(e)))
                     return []
 
             def GetInformation(self) -> str:
@@ -175,4 +177,5 @@ else:
                 return True
 
     except ImportError:
-        logging.info("Failed to initialise OpenAI SDK. OpenAI provider will not be available")
+        from PySubtitle.Helpers.Localization import _
+        logging.info(_("Failed to initialise OpenAI SDK. OpenAI provider will not be available"))

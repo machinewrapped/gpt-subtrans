@@ -16,6 +16,7 @@ from google.genai.types import (
 )
 
 from PySubtitle.Helpers import FormatMessages
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -29,7 +30,9 @@ class GeminiClient(TranslationClient):
     def __init__(self, settings : dict):
         super().__init__(settings)
 
-        logging.info(f"Translating with Gemini {self.model or 'default'} model")
+        logging.info(_("Translating with Gemini {model} model").format(
+            model=self.model or _("default")
+        ))
 
         self.safety_settings = [
             SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
@@ -95,17 +98,19 @@ class GeminiClient(TranslationClient):
                     return None
 
                 if not gcr:
-                    raise TranslationImpossibleError("No response from Gemini")
+                    raise TranslationImpossibleError(_("No response from Gemini"))
 
                 if gcr.prompt_feedback and gcr.prompt_feedback.block_reason:
-                    raise TranslationResponseError(f"Request was blocked by Gemini: {str(gcr.prompt_feedback.block_reason)}", response=gcr)
+                    raise TranslationResponseError(_("Request was blocked by Gemini: {block_reason}").format(
+                        block_reason=str(gcr.prompt_feedback.block_reason)
+                    ), response=gcr)
 
                 # Try to find a validate candidate
                 candidates = [candidate for candidate in gcr.candidates if candidate.content]
                 candidates = [candidate for candidate in candidates if candidate.finish_reason == FinishReason.STOP] or candidates
 
                 if not candidates:
-                    raise TranslationResponseError("No valid candidates returned in the response", response=gcr)
+                    raise TranslationResponseError(_("No valid candidates returned in the response"), response=gcr)
 
                 candidate = candidates[0]
                 response['token_count'] = candidate.token_count
@@ -115,16 +120,16 @@ class GeminiClient(TranslationClient):
                     response['finish_reason'] = "complete"
                 elif finish_reason == "MAX_TOKENS" or finish_reason == FinishReason.MAX_TOKENS:
                     response['finish_reason'] = "length"
-                    raise TranslationResponseError("Gemini response exceeded token limit", response=candidate)
+                    raise TranslationResponseError(_("Gemini response exceeded token limit"), response=candidate)
                 elif finish_reason == "SAFETY" or finish_reason == FinishReason.SAFETY:
                     response['finish_reason'] = "blocked"
-                    raise TranslationResponseError("Gemini response was blocked for safety reasons", response=candidate)
+                    raise TranslationResponseError(_("Gemini response was blocked for safety reasons"), response=candidate)
                 elif finish_reason == "RECITATION" or finish_reason == FinishReason.RECITATION:
                     response['finish_reason'] = "recitation"
-                    raise TranslationResponseError("Gemini response was blocked for recitation", response=candidate)
+                    raise TranslationResponseError(_("Gemini response was blocked for recitation"), response=candidate)
                 elif finish_reason == "FINISH_REASON_UNSPECIFIED" or finish_reason == FinishReason.FINISH_REASON_UNSPECIFIED:
                     response['finish_reason'] = "unspecified"
-                    raise TranslationResponseError("Gemini response was incomplete", response=candidate)
+                    raise TranslationResponseError(_("Gemini response was incomplete"), response=candidate)
                 else:
                     # Probably a failure
                     response['finish_reason'] = finish_reason
@@ -136,12 +141,12 @@ class GeminiClient(TranslationClient):
                     response['total_tokens'] = usage_metadata.total_token_count
 
                 if not candidate.content.parts:
-                    raise TranslationResponseError("Gemini response has no valid content parts", response=candidate)
+                    raise TranslationResponseError(_("Gemini response has no valid content parts"), response=candidate)
 
                 response_text = "\n".join(part.text for part in candidate.content.parts)
 
                 if not response_text:
-                    raise TranslationResponseError("Gemini response is empty", response=candidate)
+                    raise TranslationResponseError(_("Gemini response is empty"), response=candidate)
 
                 response['text'] = response_text
 
@@ -153,10 +158,14 @@ class GeminiClient(TranslationClient):
 
             except Exception as e:
                 if retry == self.max_retries:
-                    raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+                    raise TranslationImpossibleError(_("Failed to communicate with provider after {max_retries} retries").format(
+                        max_retries=self.max_retries
+                    ))
 
                 if not self.aborted:
                     sleep_time = self.backoff_time * 2.0**retry
-                    logging.warning(f"Gemini request failure {str(e)}, retrying in {sleep_time} seconds...")
+                    logging.warning(_("Gemini request failure {error}, retrying in {sleep_time} seconds...").format(
+                        error=str(e), sleep_time=sleep_time
+                    ))
                     time.sleep(sleep_time)
 

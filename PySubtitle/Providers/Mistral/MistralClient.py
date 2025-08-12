@@ -7,6 +7,7 @@ try:
     from mistralai.models import ChatCompletionResponse as ChatCompletion
 
     from PySubtitle.Helpers import FormatMessages
+    from PySubtitle.Helpers.Localization import _
     from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
@@ -20,9 +21,12 @@ try:
             super().__init__(settings)
 
             if not self.api_key:
-                raise TranslationImpossibleError('API key must be set in .env or provided as an argument')
+                raise TranslationImpossibleError(_("API key must be set in .env or provided as an argument"))
 
-            logging.info(f"Translating with Mistral model {self.model or 'default'}, using server: {self.server_url or 'default'}")
+            logging.info(_("Translating with Mistral model {model}, using server: {server_url}").format(
+                model=self.model or _("default"),
+                server_url=self.server_url or _("default")
+            ))
 
             self.client = mistralai.Mistral(api_key=self.api_key, server_url=self.server_url)
 
@@ -51,10 +55,10 @@ try:
 
             if translation:
                 if translation.quota_reached:
-                    raise TranslationImpossibleError("Mistral account quota reached, please upgrade your plan or wait until it renews")
+                    raise TranslationImpossibleError(_("Mistral account quota reached, please upgrade your plan or wait until it renews"))
 
                 if translation.reached_token_limit:
-                    raise TranslationError(f"Too many tokens in translation", translation=translation)
+                    raise TranslationError(_("Too many tokens in translation"), translation=translation)
 
             return translation
 
@@ -80,10 +84,12 @@ try:
                         return None
 
                     if not isinstance(result, ChatCompletion):
-                        raise TranslationResponseError(f"Unexpected response type: {type(result).__name__}", response=result)
+                        raise TranslationResponseError(_("Unexpected response type: {response_type}").format(
+                            response_type=type(result).__name__
+                        ), response=result)
 
                     if not getattr(result, 'choices'):
-                        raise TranslationResponseError("No choices returned in the response", response=result)
+                        raise TranslationResponseError(_("No choices returned in the response"), response=result)
 
                     response['response_time'] = getattr(result, 'response_ms', 0)
 
@@ -99,16 +105,18 @@ try:
                         response['finish_reason'] = getattr(choice, 'finish_reason', None)
                         response['text'] = getattr(reply, 'content', None)
                     else:
-                        raise TranslationResponseError("No choices returned in the response", response=result)
+                        raise TranslationResponseError(_("No choices returned in the response"), response=result)
 
                     # Return the response if the API call succeeds
                     return response
 
                 except Exception as e:
                     #TODO: find out what specific exceptions mistralai raises
-                    raise TranslationImpossibleError(f"Unexpected error communicating with the provider", error=e)
+                    raise TranslationImpossibleError(_("Unexpected error communicating with the provider"), error=e)
 
-            raise TranslationImpossibleError(f"Failed to communicate with provider after {self.max_retries} retries")
+            raise TranslationImpossibleError(_("Failed to communicate with provider after {max_retries} retries").format(
+                max_retries=self.max_retries
+            ))
 
 except ImportError as e:
     logging.debug(f"Failed to import mistralai: {e}")
