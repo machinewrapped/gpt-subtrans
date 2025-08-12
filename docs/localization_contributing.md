@@ -17,10 +17,12 @@ A helper script automates extraction, merging, compilation, and a light-weight m
 
 ## Quick start (recommended)
 
-1) Add your locale folder (example: Italian):
+1) Install the project from source, if you only have a packaged version
+
+2) Add your locale folder (example: Italian):
    - Create `locales/it/LC_MESSAGES/` (case sensitive)
 
-2) Run the one-stop workflow from the repo root:
+3) Activate the virtual environment and run the one-stop workflow from the repo root:
    - `python scripts/update_translations.py`
    - This will:
      - Extract strings from application code to `locales/gui-subtrans.pot`
@@ -28,10 +30,10 @@ A helper script automates extraction, merging, compilation, and a light-weight m
      - Compile `.po` → `.mo`
      - Generate `untranslated_msgids_<lang>.txt` listing empty translations
 
-3) Either 
+4) Either 
     - Translate automatically
         - Upload `untranslated_msgids_<lang>.txt` to your favourite LLM and ask it to fill in translations.
-        - You'll need to mention that for keys like `max_completion_tokens` the translation should be human readable, e.g. "Max Completion Tokens" 
+        - Make sure to mention that for keys like `max_completion_tokens` the translation should be human readable, e.g. "Max Completion Tokens" 
 
     - Translate using the generated dict file:
         - Open `untranslated_msgids_<lang>.txt`
@@ -40,11 +42,11 @@ A helper script automates extraction, merging, compilation, and a light-weight m
     - Or use translation tools
         - You can edit `locales/<lang>/LC_MESSAGES/gui-subtrans.po` with Poedit or any PO editor
 
-4) Integrate and compile:
+5) Integrate and compile:
    - Run `python scripts/update_translations.py` again
    - Your translations are merged into the `.po` and `.mo` is recompiled
 
-5) Test in app:
+6) Test in app:
    - Launch the GUI and switch UI language in Settings. Some elements may not update until the app is restarted.
 
 ## What NOT to translate
@@ -61,13 +63,13 @@ A helper script automates extraction, merging, compilation, and a light-weight m
   - Do not change `{}` names; do not add extra spaces inside them
   - Keep paired quotes symmetrical; escape in PO only if your editor requires it
 - Punctuation and whitespace:
-  - Preserve terminal punctuation unless your language norms strongly differ
-  - Avoid trailing/leading spaces unless intentional
+  - Preserve terminal punctuation (this seems to be a requirement in the PO tools)
+  - Avoid trailing/leading spaces
 - Context (msgctxt):
   - Some entries include context (e.g., `msgctxt "menu"`). Translate based on where/how it’s used.
   - If a context-specific translation is missing at runtime, the app falls back to the general (non-context) translation.
 - UI length:
-  - Keep labels reasonably short to avoid layout issues
+  - Try to keep text similar in length to the English to avoid layout issues
   - Prefer concise, action-focused wording for buttons and menus
 
 ## Style guidance
@@ -78,7 +80,7 @@ A helper script automates extraction, merging, compilation, and a light-weight m
 
 ## Validate your translations
 
-- Run: `python scripts/update_translations.py` (rebuilds POT/PO/MO and regenerates untranslated lists)
+- Run: `python scripts/update_translations.py` (rebuilds POT/PO/MO and regenerates the untranslated_ids file - ideally this will be empty)
 - Run tests: `python scripts/run_tests.py` (includes localization unit tests)
 - Launch GUI and switch language in Settings; scan the UI for:
   - Truncated text
