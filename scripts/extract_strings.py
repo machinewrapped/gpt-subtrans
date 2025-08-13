@@ -47,6 +47,9 @@ EXCLUDE_DIRS = (
     'PySubtitleHooks',
 )
 
+# Global store of setting keys discovered during extraction
+SETTING_KEYS: set[str] = set()
+
 
 def ensure_parent(path: str):
     parent = os.path.dirname(path)
@@ -248,7 +251,9 @@ def extract_provider_settings_dynamic(provider_name: str) -> set[str]:
 
 def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
     entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]] = {}
-    setting_keys = set()
+    # Populate the global SETTING_KEYS directly
+    global SETTING_KEYS
+    SETTING_KEYS.clear()
 
     # Auto-extract setting keys from Options.py
     extract_setting_keys(entries)
@@ -266,9 +271,9 @@ def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
                 isinstance(node.value, ast.Dict)):
                 for key_node in node.value.keys:
                     if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
-                        setting_keys.add(key_node.value)
+                        SETTING_KEYS.add(key_node.value)
                     elif isinstance(key_node, ast.Str):
-                        setting_keys.add(key_node.s)
+                        SETTING_KEYS.add(key_node.s)
     except Exception as e:
         logging.error(f"Error reading {options_path}: {e}")
 
@@ -284,7 +289,7 @@ def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
             dynamic_keys = extract_provider_settings_dynamic(provider_file[:-3])
             all_keys = static_keys | dynamic_keys
             for key in all_keys:
-                setting_keys.add(key)
+                SETTING_KEYS.add(key)
         except Exception as e:
             logging.warning(f"Unable to extract settings from {provider_file}: {e}")
 
@@ -337,8 +342,6 @@ def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
             except Exception:
                 continue
 
-    # Attach setting_keys to entries for downstream use
-    entries['__setting_keys__'] = list(setting_keys)
     return entries
 
 
@@ -404,9 +407,6 @@ def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, in
     lines.append('')
 
 
-    # Extract setting_keys from entries
-    setting_keys = set(entries.pop('__setting_keys__', []))
-
     for key, refs in sorted(entries.items(), key=lambda k: (k[0][0] or '', k[0][1]) if isinstance(k[0], tuple) else ('', '')):
         if not isinstance(key, tuple) or len(key) != 2:
             continue
@@ -420,7 +420,7 @@ def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, in
         lines.append(f"msgid \"{escape_po(msgid)}\"")
 
         # Only auto-generate for actual setting keys (context must be None, msgid in setting_keys, and msgid looks like a key)
-        if context is None and msgid in setting_keys and msgid.isidentifier():
+        if context is None and msgid in SETTING_KEYS and msgid.isidentifier():
             msgstr = generate_english_name(msgid)
         else:
             msgstr = ""
