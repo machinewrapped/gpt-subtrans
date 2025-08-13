@@ -88,7 +88,7 @@ class Provider_CustomServer(TranslationProvider):
 
     def GetOptions(self) -> dict:
         options = {
-            'server_address': (str, _("The address of the local server")),
+            'server_address': (str, _("The address of the server")),
             'endpoint': (str, _("The API function to call on the server")),
         }
 
@@ -104,8 +104,8 @@ class Provider_CustomServer(TranslationProvider):
                 'max_tokens': (int, _("The maximum number of tokens the AI should generate in the response (0 for unlimited)")),
                 'max_completion_tokens': (int, _("Alternative to max_tokens for some servers")),
                 'timeout': (int, _("Timeout for the request in seconds (default 300)")),
-                'api_key': (str, _("An API key is normally not needed for a local server")),
-                'model': (str, _("The model is normally set by the server, and should not need to be specified here")),
+                'api_key': (str, _("API key if needed (this is normally not needed for a local server)")),
+                'model': (str, _("The model ID (for local servers this is usually not required")),
                 'supports_parallel_threads': (bool, _("Use parallel threads for translation requests (may be faster but may not work with the server)"))
             })
 

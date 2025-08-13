@@ -31,11 +31,10 @@ class DeepSeekProvider(TranslationProvider):
             'temperature': settings.get('temperature', GetEnvFloat('DEEPSEEK_TEMPERATURE', 1.3)),
             'rate_limit': settings.get('rate_limit', GetEnvFloat('DEEPSEEK_RATE_LIMIT')),
             'reuse_client': settings.get('reuse_client', False),
-            'server_address': settings.get('server_address', settings.get('api_base', os.getenv('DEEPSEEK_API_BASE', "https://api.deepseek.com"))),
             'endpoint': settings.get('endpoint', '/v1/chat/completions'),
         }
         super().__init__(self.name, provider_settings)
-        self.refresh_when_changed = ['api_key', 'api_base', 'model', 'server_address', 'endpoint']
+        self.refresh_when_changed = ['api_key', 'api_base', 'model', 'endpoint']
 
     @property
     def api_key(self):
@@ -47,7 +46,7 @@ class DeepSeekProvider(TranslationProvider):
     
     @property
     def server_address(self):
-        return self.settings.get('server_address')
+        return self.api_base
 
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         client_settings = self.settings.copy()
@@ -58,7 +57,6 @@ class DeepSeekProvider(TranslationProvider):
         options = {
             'api_key': (str, _("A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)")),
             'api_base': (str, _("The base URL to use for requests (default is https://api.deepseek.com)")),
-            'server_address': (str, _("The DeepSeek API server address (default is https://api.deepseek.com)")),
         }
 
         if self.api_key:
