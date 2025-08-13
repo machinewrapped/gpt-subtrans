@@ -308,6 +308,9 @@ def ExtractTag(tagname : str, text : str):
     """
     Look for an xml-like tag in the input text, and extract the contents.
     """
+    if not text or not tagname:
+        return None, None
+
     open_tag = f"<{tagname}>"
     close_tag = f"</{tagname}>"
     empty_tag = f"<{tagname}/>"
@@ -334,9 +337,11 @@ def ExtractTagList(tagname, text):
     """
     Look for an xml-like tag in the input text, and extract the contents as a comma or newline separated list.
     """
-    text, tag = ExtractTag(tagname, text)
-    tag_list = [ item.strip() for item in regex.split("[\n,]", tag) ] if tag else []
-    return text, tag_list
+    if text is not None:
+        text, tag = ExtractTag(tagname, text)
+        tag_list = [ item.strip() for item in regex.split("[\n,]", tag) ] if tag else []
+        return text, tag_list
+    return text, []
 
 def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length : int = None):
     """
