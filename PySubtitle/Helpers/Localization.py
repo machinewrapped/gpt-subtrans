@@ -109,8 +109,8 @@ def get_locale_display_name(locale_code: str) -> str:
     Get the human-readable display name for a locale code using Babel.
     Falls back to the locale code if Babel is not available or lookup fails.
     """
-    if Locale is None:
-        return locale_code
+    if Locale is None or not locale_code:
+        return locale_code or ''
     try:
         # Normalize hyphen to underscore for Babel and parse the locale string
         loc = Locale.parse(locale_code.replace('-', '_'))  # type: ignore[attr-defined]

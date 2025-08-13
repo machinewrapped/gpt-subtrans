@@ -105,8 +105,13 @@ def FormatMessages(messages):
         if 'role' in message:
             lines.append(f"Role: {message['role']}")
         if 'content' in message:
-            content = message['content'].replace('\\n', '\n')
-            lines.extend(["--------------------", content])
+            if isinstance(message['content'], str):
+                content = message['content'].replace('\\n', '\n')
+                lines.extend(["--------------------", content])
+            elif isinstance(message['content'], dict):
+                for key, value in message['content'].items():
+                    text = f"{key}: {value}".replace('\\n', '\n')
+                    lines.append(text)
         lines.append("")
 
     return '\n'.join(lines)
