@@ -81,7 +81,7 @@ else:
                 Validate the settings for the provider
                 """
                 if not self.api_key:
-                    self.validation_message = "API Key is required"
+                    self.validation_message = _("API Key is required")
                     return False
 
                 if not self.api_version:

@@ -20,7 +20,7 @@ class CustomClient(TranslationClient):
         if self.api_key:
             self.headers['Authorization'] = f"Bearer {self.api_key}"
 
-        logging.info(_("Translating with local server at {server_address}{endpoint}").format(
+        logging.info(_("Translating with server at {server_address}{endpoint}").format(
             server_address=self.server_address, endpoint=self.endpoint
         ))
 
@@ -116,19 +116,26 @@ class CustomClient(TranslationClient):
                 response['prompt_tokens'] = usage.get('prompt_tokens')
                 response['output_tokens'] = usage.get('completion_tokens')
                 response['total_tokens'] = usage.get('total_tokens')
+                if 'reasoning_tokens' in usage:
+                    response['reasoning_tokens'] = usage.get('reasoning_tokens')
 
                 choices = content.get('choices')
                 if not choices:
                     raise TranslationResponseError(_("No choices returned in the response"), response=result)
 
                 for choice in choices:
-                    if choice.get('text'):
-                        response['text'] = choice.get('text')
+                    # Try to extract translation from the response choice
+                    if 'message' in choice:
+                        message = choice.get('message', {})
                         response['finish_reason'] = choice.get('finish_reason')
+                        if 'reasoning_content' in message:
+                            response['reasoning'] = message['reasoning_content']
+
+                        response['text'] = message.get('content')
                         break
 
-                    if choice.get('message'):
-                        response['text'] = choice.get('message', {}).get('content')
+                    if 'text' in choice:
+                        response['text'] = choice.get('text')
                         response['finish_reason'] = choice.get('finish_reason')
                         break
 
@@ -194,4 +201,3 @@ class CustomClient(TranslationClient):
             request_body['prompt'] = prompt.content
 
         return request_body
-
