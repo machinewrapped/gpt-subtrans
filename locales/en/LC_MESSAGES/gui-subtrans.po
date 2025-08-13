@@ -1,13 +1,14 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-13 10:21+0000\n"
-"PO-Revision-Date: 2025-08-13 10:21+0000\n"
+"POT-Creation-Date: 2025-08-13 11:04+0000\n"
+"PO-Revision-Date: 2025-08-13 11:04+0000\n"
 "Last-Translator: Auto-generated\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
 msgid "1 line"
@@ -37,7 +38,9 @@ msgstr ""
 msgid "API base must be set in .env or provided as an argument"
 msgstr ""
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:27 PySubtitle/Providers/Mistral/MistralClient.py:24 PySubtitle/Providers/OpenAI/OpenAIClient.py:32
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:27
+#: PySubtitle/Providers/Mistral/MistralClient.py:24
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:32
 msgid "API key must be set in .env or provided as an argument"
 msgstr ""
 
@@ -113,11 +116,15 @@ msgstr ""
 msgid "Alternative to max_tokens for some servers"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_Bedrock.py:8 PySubtitle/Providers/Provider_Bedrock.py:182
+#: PySubtitle/Providers/Provider_Bedrock.py:8
+#: PySubtitle/Providers/Provider_Bedrock.py:182
 msgid "Amazon Boto3 SDK is not installed. Bedrock provider will not be available"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:73 PySubtitle/Providers/Provider_Gemini.py:72 PySubtitle/Providers/Provider_Mistral.py:71 PySubtitle/Providers/Provider_OpenAI.py:108
+#: PySubtitle/Providers/Provider_DeepSeek.py:73
+#: PySubtitle/Providers/Provider_Gemini.py:72
+#: PySubtitle/Providers/Provider_Mistral.py:71
+#: PySubtitle/Providers/Provider_OpenAI.py:108
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
 msgstr ""
 
@@ -221,7 +228,8 @@ msgstr ""
 msgid "Cannot delete scenes or batches yet"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:28 GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
+#: GUI/Commands/AutoSplitBatchCommand.py:28
+#: GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
 msgid "Cannot find scene {scene} batch {batch}"
 msgstr ""
 
@@ -257,7 +265,9 @@ msgstr ""
 msgid "Cannot undo the last command"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:78 PySubtitle/Providers/Provider_Mistral.py:76 PySubtitle/Providers/Provider_OpenAI.py:111
+#: PySubtitle/Providers/Provider_DeepSeek.py:78
+#: PySubtitle/Providers/Provider_Mistral.py:76
+#: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Check API key and base URL and try again"
 msgstr ""
 
@@ -409,7 +419,8 @@ msgstr ""
 msgid "Error translating scene {scene} batch {batch}: {error}"
 msgstr ""
 
-#: GUI/Commands/TranslateSceneCommand.py:69 GUI/Commands/TranslateSceneCommand.py:73
+#: GUI/Commands/TranslateSceneCommand.py:69
+#: GUI/Commands/TranslateSceneCommand.py:73
 msgid "Error translating scene {scene}: {error}"
 msgstr ""
 
@@ -453,7 +464,11 @@ msgstr ""
 msgid "Expected a patch dictionary"
 msgstr ""
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:151 PySubtitle/Providers/Azure/AzureOpenAIClient.py:147 PySubtitle/Providers/Gemini/GeminiClient.py:161 PySubtitle/Providers/Mistral/MistralClient.py:117 PySubtitle/Providers/OpenAI/OpenAIClient.py:149
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:151
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:147
+#: PySubtitle/Providers/Gemini/GeminiClient.py:161
+#: PySubtitle/Providers/Mistral/MistralClient.py:117
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:149
 msgid "Failed to communicate with provider after {max_retries} retries"
 msgstr ""
 
@@ -697,7 +712,9 @@ msgstr ""
 msgid "Max batch size is less than min batch size"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:74 PySubtitle/Providers/Provider_Gemini.py:73 PySubtitle/Providers/Provider_Mistral.py:72
+#: PySubtitle/Providers/Provider_DeepSeek.py:74
+#: PySubtitle/Providers/Provider_Gemini.py:73
+#: PySubtitle/Providers/Provider_Mistral.py:72
 msgid "Maximum API requests per minute."
 msgstr ""
 
@@ -809,7 +826,15 @@ msgstr ""
 msgid "No batches found for lines to merge"
 msgstr ""
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:111 PySubtitle/Providers/Azure/AzureOpenAIClient.py:114 PySubtitle/Providers/Custom/CustomClient.py:122 PySubtitle/Providers/Mistral/MistralClient.py:92 PySubtitle/Providers/Mistral/MistralClient.py:108 PySubtitle/Providers/OpenAI/ChatGPTClient.py:41 PySubtitle/Providers/OpenAI/ChatGPTClient.py:57 PySubtitle/Providers/OpenAI/DeepSeekClient.py:47 PySubtitle/Providers/OpenAI/DeepSeekClient.py:73
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:111
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:114
+#: PySubtitle/Providers/Custom/CustomClient.py:122
+#: PySubtitle/Providers/Mistral/MistralClient.py:92
+#: PySubtitle/Providers/Mistral/MistralClient.py:108
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:41
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:57
+#: PySubtitle/Providers/OpenAI/DeepSeekClient.py:47
+#: PySubtitle/Providers/OpenAI/DeepSeekClient.py:73
 msgid "No choices returned in the response"
 msgstr ""
 
@@ -845,7 +870,11 @@ msgstr ""
 msgid "No scenes to translate"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:23 GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23 GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62 GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45 GUI/ProjectActions.py:396
+#: GUI/Commands/AutoSplitBatchCommand.py:23
+#: GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23
+#: GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62
+#: GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45
+#: GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr ""
 
@@ -1005,7 +1034,8 @@ msgstr ""
 msgid "Processing"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37 GUI/Widgets/ProjectSettings.py:86
+#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37
+#: GUI/Widgets/ProjectSettings.py:86
 msgid "Project Settings"
 msgstr ""
 
@@ -1189,7 +1219,8 @@ msgstr ""
 msgid "Saving translation to {}"
 msgstr ""
 
-#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140 GUI/Widgets/Editors.py:86
+#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
+#: GUI/Widgets/Editors.py:86
 msgid "Scene {num}"
 msgstr ""
 
@@ -1357,7 +1388,8 @@ msgstr ""
 msgid "The Azure API base URL to use for requests."
 msgstr ""
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:24 PySubtitle/Providers/OpenAI/OpenAIClient.py:27
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:24
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:27
 msgid "The OpenAI library is out of date and must be updated"
 msgstr ""
 
@@ -1433,7 +1465,9 @@ msgstr ""
 msgid "Timeout for the request in seconds (default 300)"
 msgstr ""
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:83 PySubtitle/Providers/Mistral/MistralClient.py:61 PySubtitle/Providers/OpenAI/OpenAIClient.py:75
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:83
+#: PySubtitle/Providers/Mistral/MistralClient.py:61
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:75
 msgid "Too many tokens in translation"
 msgstr ""
 
@@ -1573,11 +1607,15 @@ msgstr ""
 msgid "Unable to retrieve Gemini model list: {error}"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_Bedrock.py:140 PySubtitle/Providers/Provider_DeepSeek.py:108 PySubtitle/Providers/Provider_Mistral.py:103 PySubtitle/Providers/Provider_OpenAI.py:147
+#: PySubtitle/Providers/Provider_Bedrock.py:140
+#: PySubtitle/Providers/Provider_DeepSeek.py:108
+#: PySubtitle/Providers/Provider_Mistral.py:103
+#: PySubtitle/Providers/Provider_OpenAI.py:147
 msgid "Unable to retrieve available AI models: {error}"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_OpenAI.py:98 PySubtitle/Providers/Provider_OpenAI.py:111
+#: PySubtitle/Providers/Provider_OpenAI.py:98
+#: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Unable to retrieve models"
 msgstr ""
 
@@ -1629,11 +1667,14 @@ msgstr ""
 msgid "Unexpected error communicating with server"
 msgstr ""
 
-#: PySubtitle/Providers/Mistral/MistralClient.py:115 PySubtitle/Providers/OpenAI/OpenAIClient.py:146
+#: PySubtitle/Providers/Mistral/MistralClient.py:115
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:146
 msgid "Unexpected error communicating with the provider"
 msgstr ""
 
-#: PySubtitle/Providers/Mistral/MistralClient.py:87 PySubtitle/Providers/OpenAI/ChatGPTClient.py:36 PySubtitle/Providers/OpenAI/DeepSeekClient.py:42
+#: PySubtitle/Providers/Mistral/MistralClient.py:87
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:36
+#: PySubtitle/Providers/OpenAI/DeepSeekClient.py:42
 msgid "Unexpected response type: {response_type}"
 msgstr ""
 
@@ -1681,11 +1722,19 @@ msgstr "Access Key"
 msgid "add_right_to_left_markers"
 msgstr "Add Right To Left Markers"
 
-#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_base"
 msgstr "API Base"
 
-#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_key"
 msgstr "API Key"
 
@@ -1717,7 +1766,10 @@ msgstr "Break Long Lines"
 msgid "convert_wide_dashes"
 msgstr "Convert Wide Dashes"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:34 PySubtitle/Providers/Mistral/MistralClient.py:27 PySubtitle/Providers/Mistral/MistralClient.py:28 PySubtitle/Providers/OpenAI/OpenAIClient.py:35
+#: PySubtitle/Providers/Gemini/GeminiClient.py:34
+#: PySubtitle/Providers/Mistral/MistralClient.py:27
+#: PySubtitle/Providers/Mistral/MistralClient.py:28
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:35
 msgid "default"
 msgstr ""
 
@@ -1813,7 +1865,10 @@ msgstr "Max Thinking Tokens"
 msgid "max_threads"
 msgstr "Max Threads"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
 msgid "max_tokens"
 msgstr "Max Tokens"
 
@@ -1837,7 +1892,13 @@ msgstr "Min Single Line Length"
 msgid "min_split_chars"
 msgstr "Min Split Chars"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "model"
 msgstr "Model"
 
@@ -1881,7 +1942,12 @@ msgstr "Provider Settings"
 msgid "proxy"
 msgstr "Proxy"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "rate_limit"
 msgstr "Rate Limit"
 
@@ -1949,7 +2015,13 @@ msgstr "Supports System Messages"
 msgid "target_language"
 msgstr "Target Language"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "temperature"
 msgstr "Temperature"
 

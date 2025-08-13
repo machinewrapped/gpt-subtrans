@@ -25,7 +25,6 @@ sys.path.append(base_path)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = base_path
 
-
 LOCALES_DIR = os.path.join(REPO_ROOT, 'locales')
 POT_PATH = os.path.join(LOCALES_DIR, 'gui-subtrans.pot')
 
@@ -51,12 +50,8 @@ def ensure_parent(path: str):
     parent = os.path.dirname(path)
     os.makedirs(parent, exist_ok=True)
 
-
-
-
 def escape_po(s: str) -> str:
     return s.replace('\\', r'\\').replace('"', r'\"').replace('\n', r'\n')
-
 
 def generate_english_name(key: str) -> str:
     """Generate English display name from setting key using the same logic as OptionWidget.GenerateName"""
@@ -115,7 +110,7 @@ class SettingKeyExtractor:
                     break
                             
         except Exception as e:
-            print(f"Warning: Could not extract setting keys from Options.py: {e}")
+            raise Exception(f"Could not extract setting keys from Options.py: {e}")
     
     def _extract_provider_keys(self, entries: dict[tuple[str | None, str], list[tuple[str, int]]]):
         """Extract setting keys from all translation providers"""
@@ -136,7 +131,7 @@ class SettingKeyExtractor:
                     entries.setdefault(entry_key, []).append((f'PySubtitle/Providers/{provider_file}', 0))
                     
             except Exception as e:
-                print(f"Warning: Could not extract settings from {provider_file}: {e}")
+                raise Exception(f"Could not extract settings from {provider_file}: {e}")
     
     def _extract_provider_settings_static(self, provider_path: str) -> set[str]:
         """Statically parse provider __init__ method to extract setting keys"""
@@ -164,8 +159,8 @@ class SettingKeyExtractor:
                                         keys.add(key_node.value)
                             
         except Exception as e:
-            print(f"Warning: Static analysis failed for {provider_path}: {e}")
-        
+            raise Exception(f"Static analysis failed for {provider_path}: {e}")
+
         return keys
 
 
@@ -207,8 +202,7 @@ class TranslatableStringExtractor:
                             entries.setdefault(key, []).append((rel, node.lineno))
 
                 except Exception as e:
-                    print(f"Warning: Could not parse {rel}: {e}")
-                    continue
+                    raise Exception(f"Failed to parse {rel} for translatable strings: {str(e)}")
 
         return entries
     
@@ -235,10 +229,7 @@ class TranslatableStringExtractor:
                 return (ctx_arg.value, txt_arg.value)
         return None
 
-
-
-
-
+############################################################################
 
 def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]]], set[str]]:
     """Collect all translatable entries (both strings and setting keys)"""
@@ -259,16 +250,15 @@ def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]
     return entries, setting_keys
 
 
-def write_pot(entries: dict[tuple[str | None, str], list[tuple[str, int]]]):
+def write_pot(entries: dict[tuple[str | None, str], list[tuple[str, int]]], timestamp: str):
     ensure_parent(POT_PATH)
-    now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
 
     lines: list[str] = []
     # Header
     lines.append('msgid ""')
     lines.append('msgstr ""')
     lines.append(f'"Project-Id-Version: GPT-SubTrans\\n"')
-    lines.append(f'"POT-Creation-Date: {now}\\n"')
+    lines.append(f'"POT-Creation-Date: {timestamp}\\n"')
     lines.append(f'"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"')
     lines.append(f'"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"')
     lines.append(f'"MIME-Version: 1.0\\n"')
@@ -345,13 +335,13 @@ def write_english_po(entries: dict[tuple[str | None, str], list[tuple[str, int]]
         f.write("\n".join(lines))
     print(f"Wrote {en_po_path} with auto-generated setting translations (sanitized)")
 
+#############################################################
 
 def main():
     entries, setting_keys = collect_entries()
     now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
-    write_pot(entries)
+    write_pot(entries, now)
     write_english_po(entries, now, setting_keys)
-
 
 if __name__ == '__main__':
     main()
