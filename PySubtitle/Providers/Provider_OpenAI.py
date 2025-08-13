@@ -54,7 +54,7 @@ else:
 
                 self.valid_model_types = [ "gpt", "o1", "o3", "o4" ]
                 self.excluded_model_types = [ "vision", "realtime", "audio", "instruct" ]
-                self.non_reasoning_models = [ "gpt-3", "gpt-4" ]
+                self.non_reasoning_models = [ "gpt-3", "gpt-4", "gpt-5-chat" ]
 
             @property
             def api_key(self):
