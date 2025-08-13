@@ -14,6 +14,7 @@ Only constant string literals are extracted from source code.
 """
 import ast
 import os
+import re
 import sys
 import importlib
 import logging
@@ -71,7 +72,6 @@ def generate_english_name(key: str) -> str:
     # Guard: setting keys must not contain format placeholders
     if '{' in key or '}' in key:
         raise ValueError(f"Invalid setting key for English name generation (contains braces): {key}")
-    import re
     name = key.replace('_', ' ').title()
     # Preserve common initialisms after title-casing
     replacements = {
@@ -269,8 +269,8 @@ def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
                         setting_keys.add(key_node.value)
                     elif isinstance(key_node, ast.Str):
                         setting_keys.add(key_node.s)
-    except Exception:
-        pass
+    except Exception as e:
+        logging.error(f"Error reading {options_path}: {e}")
 
     # Auto-extract provider setting keys
     providers_dir = os.path.join(REPO_ROOT, 'PySubtitle', 'Providers')
@@ -285,8 +285,9 @@ def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
             all_keys = static_keys | dynamic_keys
             for key in all_keys:
                 setting_keys.add(key)
-        except Exception:
-            pass
+        except Exception as e:
+            logging.warning(f"Unable to extract settings from {provider_file}: {e}")
+
     extract_provider_settings(entries)
 
     for root, _, files in os.walk(REPO_ROOT):
