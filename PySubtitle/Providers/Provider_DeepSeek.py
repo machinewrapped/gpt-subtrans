@@ -95,9 +95,13 @@ class DeepSeekProvider(TranslationProvider):
                         status=result.status_code, text=result.text))
                     return []
 
-                data = result.json()
-                models = [m['id'] for m in data.get('data', [])]
-                return sorted(models)
+                try:
+                    data = result.json()
+                    models = [m['id'] for m in data.get('data', [])]
+                    return sorted(models)
+                except json.JSONDecodeError:
+                    logging.error(_("Unable to parse server response as JSON: {response_text}").format(response_text=result.text))
+                    return []
 
         except Exception as e:
             logging.error(_("Unable to retrieve available models: {error}").format(error=str(e)))
