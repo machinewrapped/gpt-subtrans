@@ -85,8 +85,7 @@ else:
 
             def GetAvailableModels(self) -> list[str]:
                 if not self.gemini_models:
-                    models = self._get_gemini_models()
-                    self.gemini_models = self._deduplicate_models(models)
+                    self.gemini_models = self._get_gemini_models()
 
                 return sorted([m.display_name for m in self.gemini_models])
 
@@ -115,8 +114,10 @@ else:
                     gemini_client = genai.Client(api_key=self.api_key, http_options={'api_version': 'v1alpha'})
                     config = ListModelsConfig(query_base=True)
                     all_models = gemini_client.models.list(config=config)
+                    generate_models = [ m for m in all_models if 'generateContent' in m.supported_actions ]
+                    text_models = [m for m in generate_models if "Vision" not in m.display_name and "TTS" not in m.display_name]
 
-                    return [ m for m in all_models if 'generateContent' in m.supported_actions ]
+                    return self._deduplicate_models(text_models)
 
                 except Exception as e:
                     logging.error(_("Unable to retrieve Gemini model list: {error}").format(error=str(e)))
@@ -134,11 +135,9 @@ else:
 
             def _deduplicate_models(self, models):
                 """Deduplicate models by display name, preferring -latest versions"""
-                non_vision_models = [m for m in models if m.display_name.find("Vision") < 0 and m.display_name.find("TTS") < 0]
-                
                 # Group models by display name
                 model_groups = defaultdict(list)
-                for model in non_vision_models:
+                for model in models:
                     model_groups[model.display_name].append(model)
                 
                 # Select best model for each display name  
