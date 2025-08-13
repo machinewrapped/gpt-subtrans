@@ -206,7 +206,8 @@ class TranslatableStringExtractor:
                         if key:
                             entries.setdefault(key, []).append((rel, node.lineno))
 
-                except Exception:
+                except Exception as e:
+                    print(f"Warning: Could not parse {rel}: {e}")
                     continue
 
         return entries
