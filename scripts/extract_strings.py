@@ -240,7 +240,7 @@ class TranslatableStringExtractor:
 
 
 
-def collect_entries() -> dict[tuple[str | None, str], list[tuple[str, int]]]:
+def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]]], set[str]]:
     """Collect all translatable entries (both strings and setting keys)"""
     entries: dict[tuple[str | None, str], list[tuple[str, int]]] = {}
     
