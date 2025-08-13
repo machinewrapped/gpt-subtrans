@@ -72,13 +72,14 @@ def tr(context: str, text: str) -> str:
             ctx_value = _translator.pgettext(context, text)  # type: ignore[attr-defined]
             # If no context-specific entry exists, pgettext returns the original text.
             # In that case, fall back to general translation if available.
-            general_value = _translator.gettext(text)
-            if ctx_value == text and general_value != text:
-                return general_value
+            if ctx_value == text:
+                general_value = _translator.gettext(text)
+                if general_value != text:
+                    return general_value
             return ctx_value
         except Exception:
-            # On any unexpected error, fall back to general translation
-            return _(text)
+            # On any unexpected error, return untranslated text
+            return text
     # Fallback: ignore context if pgettext not available
     return _(text)
 

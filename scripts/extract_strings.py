@@ -14,6 +14,7 @@ Only constant string literals are extracted from source code.
 """
 import ast
 import os
+import re
 import sys
 import importlib
 import logging
@@ -46,6 +47,9 @@ EXCLUDE_DIRS = (
     'PySubtitleHooks',
 )
 
+# Global store of setting keys discovered during extraction
+SETTING_KEYS: set[str] = set()
+
 
 def ensure_parent(path: str):
     parent = os.path.dirname(path)
@@ -68,7 +72,21 @@ def escape_po(s: str) -> str:
 
 def generate_english_name(key: str) -> str:
     """Generate English display name from setting key using the same logic as OptionWidget.GenerateName"""
-    return key.replace('_', ' ').title()
+    # Guard: setting keys must not contain format placeholders
+    if '{' in key or '}' in key:
+        raise ValueError(f"Invalid setting key for English name generation (contains braces): {key}")
+    name = key.replace('_', ' ').title()
+    # Preserve common initialisms after title-casing
+    replacements = {
+        r"\bApi\b": "API",
+        r"\bAws\b": "AWS",
+        r"\bUrl\b": "URL",
+        r"\bUri\b": "URI",
+        r"\bUi\b": "UI",
+    }
+    for pattern, repl in replacements.items():
+        name = re.sub(pattern, repl, name)
+    return name
 
 
 def extract_setting_keys(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]):
@@ -233,11 +251,48 @@ def extract_provider_settings_dynamic(provider_name: str) -> set[str]:
 
 def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
     entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]] = {}
-    
+    # Populate the global SETTING_KEYS directly
+    global SETTING_KEYS
+    SETTING_KEYS.clear()
+
     # Auto-extract setting keys from Options.py
     extract_setting_keys(entries)
-    
+    # Collect setting keys from Options.py
+    options_path = os.path.join(REPO_ROOT, 'PySubtitle', 'Options.py')
+    try:
+        with open(options_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        tree = ast.parse(source, filename='PySubtitle/Options.py')
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Assign) and 
+                len(node.targets) == 1 and
+                isinstance(node.targets[0], ast.Name) and 
+                node.targets[0].id == 'default_options' and
+                isinstance(node.value, ast.Dict)):
+                for key_node in node.value.keys:
+                    if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
+                        SETTING_KEYS.add(key_node.value)
+                    elif isinstance(key_node, ast.Str):
+                        SETTING_KEYS.add(key_node.s)
+    except Exception as e:
+        logging.error(f"Error reading {options_path}: {e}")
+
     # Auto-extract provider setting keys
+    providers_dir = os.path.join(REPO_ROOT, 'PySubtitle', 'Providers')
+    provider_files = [f for f in os.listdir(providers_dir) if f.startswith('Provider_') and f.endswith('.py')]
+    for provider_file in provider_files:
+        provider_path = os.path.join(providers_dir, provider_file)
+        try:
+            # Extract settings statically first
+            static_keys = extract_provider_settings_static(provider_path)
+            # Try to extract settings dynamically
+            dynamic_keys = extract_provider_settings_dynamic(provider_file[:-3])
+            all_keys = static_keys | dynamic_keys
+            for key in all_keys:
+                SETTING_KEYS.add(key)
+        except Exception as e:
+            logging.warning(f"Unable to extract settings from {provider_file}: {e}")
+
     extract_provider_settings(entries)
 
     for root, _, files in os.walk(REPO_ROOT):
@@ -285,7 +340,6 @@ def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
                     entries.setdefault(key, []).append((rel, node.lineno))
 
             except Exception:
-                # Ignore parse/IO errors for extraction purposes
                 continue
 
     return entries
@@ -309,7 +363,10 @@ def write_pot(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]):
     lines.append(f'"Language: en\\n"')
     lines.append('')
 
-    for (context, msgid), refs in sorted(entries.items(), key=lambda k: (k[0][0] or '', k[0][1])):
+    for key, refs in sorted(entries.items(), key=lambda k: (k[0][0] or '', k[0][1]) if isinstance(k[0], tuple) else ('', '')):
+        if not isinstance(key, tuple) or len(key) != 2:
+            continue
+        context, msgid = key
         # References
         ref_chunks = [f"{f}:{n}" for f, n in sorted(refs)]
         if ref_chunks:
@@ -333,24 +390,9 @@ def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, in
     en_po_path = os.path.join(LOCALES_DIR, 'en', 'LC_MESSAGES', 'gui-subtrans.po')
     ensure_parent(en_po_path)
     
-    # Read existing PO file to preserve manual translations
-    existing_translations = {}
-    if os.path.exists(en_po_path):
-        try:
-            with open(en_po_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # Simple regex to extract existing msgid/msgstr pairs
-            import re
-            pattern = r'msgid "([^"]+)"\nmsgstr "([^"]*)"'
-            for match in re.finditer(pattern, content):
-                msgid, msgstr = match.groups()
-                if msgstr:  # Only preserve non-empty translations
-                    existing_translations[msgid] = msgstr
-        except Exception:
-            pass
-    
+    # Only auto-generate msgstr for setting keys (Options.py or Providers), all others blank
     lines: List[str] = []
+
     # Header
     lines.append('msgid ""')
     lines.append('msgstr ""')
@@ -364,7 +406,11 @@ def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, in
     lines.append(f'"Language: en\\n"')
     lines.append('')
 
-    for (context, msgid), refs in sorted(entries.items(), key=lambda k: (k[0][0] or '', k[0][1])):
+
+    for key, refs in sorted(entries.items(), key=lambda k: (k[0][0] or '', k[0][1]) if isinstance(k[0], tuple) else ('', '')):
+        if not isinstance(key, tuple) or len(key) != 2:
+            continue
+        context, msgid = key
         # References
         ref_chunks = [f"{f}:{n}" for f, n in sorted(refs)]
         if ref_chunks:
@@ -372,24 +418,19 @@ def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, in
         if context:
             lines.append(f"msgctxt \"{escape_po(context)}\"")
         lines.append(f"msgid \"{escape_po(msgid)}\"")
-        
-        # Generate translation
-        if msgid in existing_translations:
-            # Use existing manual translation
-            msgstr = existing_translations[msgid]
-        elif any(ref[0] == 'PySubtitle/Options.py' for ref in refs) or any(ref[0].startswith('PySubtitle/Providers/') for ref in refs):
-            # Auto-generate for setting keys from Options.py or provider files
+
+        # Only auto-generate for actual setting keys (context must be None, msgid in setting_keys, and msgid looks like a key)
+        if context is None and msgid in SETTING_KEYS and msgid.isidentifier():
             msgstr = generate_english_name(msgid)
         else:
-            # Leave empty for other strings
             msgstr = ""
-            
+
         lines.append(f"msgstr \"{escape_po(msgstr)}\"")
         lines.append("")
 
     with open(en_po_path, 'w', encoding='utf-8') as f:
         f.write("\n".join(lines))
-    print(f"Wrote {en_po_path} with auto-generated setting translations")
+    print(f"Wrote {en_po_path} with auto-generated setting translations (sanitized)")
 
 
 def main():

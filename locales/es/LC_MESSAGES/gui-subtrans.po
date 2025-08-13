@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-12 17:22+0000\n"
+"POT-Creation-Date: 2025-08-13 07:00+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -871,6 +871,10 @@ msgstr "Sin respuesta de Gemini"
 msgid "No scenes selected for translation"
 msgstr "No hay escenas seleccionadas para traducir"
 
+#: PySubtitle/SubtitleTranslator.py:101
+msgid "No scenes to translate"
+msgstr ""
+
 #: GUI/Commands/AutoSplitBatchCommand.py:23
 #: GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23
 #: GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62
@@ -878,6 +882,10 @@ msgstr "No hay escenas seleccionadas para traducir"
 #: GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr "No hay subtítulos"
+
+#: PySubtitle/SubtitleTranslator.py:89
+msgid "No subtitles to translate"
+msgstr ""
 
 #: PySubtitle/SubtitleProject.py:109
 msgid "No subtitles to translate in {}"
@@ -1516,6 +1524,10 @@ msgstr "Traduciendo {linecount} líneas en {scenecount} escenas"
 msgid "Translation aborted"
 msgstr "Traducción cancelada"
 
+#: PySubtitle/SubtitleTranslator.py:65
+msgid "Translation provider is unavailable"
+msgstr ""
+
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
 msgstr "La configuración del proveedor de traducción no es válida. Por favor, revise la configuración."
@@ -1535,6 +1547,14 @@ msgstr "Tipo de respuesta esperada para cada línea (debe coincidir con el forma
 #: GUI/NewProjectSettings.py:75
 msgid "Unable to create option widget for {key}: {error}"
 msgstr "No se puede crear el widget de opción para {key}: {error}"
+
+#: PySubtitle/SubtitleTranslator.py:71
+msgid "Unable to create provider client: {error}"
+msgstr ""
+
+#: PySubtitle/SubtitleTranslator.py:74
+msgid "Unable to create translation client"
+msgstr ""
 
 #: GUI/ProjectDataModel.py:124
 msgid "Unable to create {provider} provider: {error}"

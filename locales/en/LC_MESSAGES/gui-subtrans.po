@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-12 17:22+0000\n"
-"PO-Revision-Date: 2025-08-12 17:22+0000\n"
+"POT-Creation-Date: 2025-08-13 07:18+0000\n"
+"PO-Revision-Date: 2025-08-13 07:18+0000\n"
 "Last-Translator: Auto-generated\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -16,41 +16,41 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:62
 msgid "A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)"
-msgstr "A Deepseek Api Key Is Required To Use This Provider (Https://Platform.Deepseek.Com/Api Keys)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Gemini.py:63
 msgid "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"
-msgstr "A Google Gemini Api Key Is Required To Use This Provider (Https://Makersuite.Google.Com/App/Apikey)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Mistral.py:62
 msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
-msgstr "A Mistral Api Key Is Required To Use This Provider (Https://Console.Mistral.Ai/Api-Keys/)"
+msgstr ""
 
 #: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_OpenAI.py:98
 msgid "AI model to use as the translator"
-msgstr "Ai Model To Use As The Translator"
+msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:127
 msgid "API Timeout, retrying in {backoff_time} seconds..."
-msgstr "Api Timeout, Retrying In {Backoff Time} Seconds..."
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:30
 msgid "API base must be set in .env or provided as an argument"
-msgstr "Api Base Must Be Set In .Env Or Provided As An Argument"
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:27
 #: PySubtitle/Providers/Mistral/MistralClient.py:24
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:32
 msgid "API key must be set in .env or provided as an argument"
-msgstr "Api Key Must Be Set In .Env Or Provided As An Argument"
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:33
 msgid "API version must be set in .env or provided as an argument"
-msgstr "Api Version Must Be Set In .Env Or Provided As An Argument"
+msgstr ""
 
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:73
 msgid "AWS region must be set in .env or provided as an argument"
-msgstr "Aws Region Must Be Set In .Env Or Provided As An Argument"
+msgstr ""
 
 #: GUI/Commands/TranslateSceneCommand.py:64
 msgid "Aborted translation of scene {scene}"
@@ -70,15 +70,15 @@ msgstr ""
 
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:67
 msgid "Access key must be set in .env or provided as an argument"
-msgstr "Access Key Must Be Set In .Env Or Provided As An Argument"
+msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:123
 msgid "Account quota reached, please upgrade your plan"
-msgstr "Account Quota Reached, Please Upgrade Your Plan"
+msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:72
 msgid "Account quota reached, please upgrade your plan or wait until it renews"
-msgstr "Account Quota Reached, Please Upgrade Your Plan Or Wait Until It Renews"
+msgstr ""
 
 #: GUI/Widgets/ProjectSettings.py:120
 msgid "Add RTL Markers"
@@ -114,67 +114,67 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:105
 msgid "Alternative to max_tokens for some servers"
-msgstr "Alternative To Max Tokens For Some Servers"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:8
 #: PySubtitle/Providers/Provider_Bedrock.py:182
 msgid "Amazon Boto3 SDK is not installed. Bedrock provider will not be available"
-msgstr "Amazon Boto3 Sdk Is Not Installed. Bedrock Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:73
 #: PySubtitle/Providers/Provider_Gemini.py:72
 #: PySubtitle/Providers/Provider_Mistral.py:71
 #: PySubtitle/Providers/Provider_OpenAI.py:108
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
-msgstr "Amount Of Random Variance To Add To Translations. Generally Speaking, None Is Best"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:107
 msgid "An API key is normally not needed for a local server"
-msgstr "An Api Key Is Normally Not Needed For A Local Server"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:75
 msgid "An AWS access key is required"
-msgstr "An Aws Access Key Is Required"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:76
 msgid "An AWS secret access key is required"
-msgstr "An Aws Secret Access Key Is Required"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:98
 msgid "An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"
-msgstr "An Anthropic Claude Api Key Is Required To Use This Provider (Https://Console.Anthropic.Com/Settings/Keys)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Azure.py:64
 msgid "An Azure API deployment name is required"
-msgstr "An Azure Api Deployment Name Is Required"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Azure.py:62
 msgid "An Azure API key is required"
-msgstr "An Azure Api Key Is Required"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Azure.py:63
 msgid "An Azure API version is required"
-msgstr "An Azure Api Version Is Required"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:87
 msgid "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"
-msgstr "An Openai Api Key Is Required To Use This Provider (Https://Platform.Openai.Com/Account/Api-Keys)"
+msgstr ""
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:139
 msgid "Anthropic API error: {error}, retrying in {sleep_time} seconds..."
-msgstr "Anthropic Api Error: {Error}, Retrying In {Sleep Time} Seconds..."
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:7
 msgid "Anthropic SDK is not installed. Claude provider will not be available"
-msgstr "Anthropic Sdk Is Not Installed. Claude Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:80
 msgid "Anthropic account quota reached, please upgrade your plan or wait until it renews"
-msgstr "Anthropic Account Quota Reached, Please Upgrade Your Plan Or Wait Until It Renews"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:96
 msgid "Attempt to communicate with the endpoint using chat format"
-msgstr "Attempt To Communicate With The Endpoint Using Chat Format"
+msgstr ""
 
 #: GUI/Widgets/SelectionView.py:87
 msgid "Auto-Split Batch"
@@ -269,11 +269,11 @@ msgstr ""
 #: PySubtitle/Providers/Provider_Mistral.py:76
 #: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Check API key and base URL and try again"
-msgstr "Check Api Key And Base Url And Try Again"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Gemini.py:77
 msgid "Check API key is authorized and try again"
-msgstr "Check Api Key Is Authorized And Try Again"
+msgstr ""
 
 #: GUI/GUICommands.py:43
 msgid "CheckProviderSettings: {error}"
@@ -281,7 +281,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:100
 msgid "Client error: {status_code} {text}"
-msgstr "Client Error: {Status Code} {Text}"
+msgstr ""
 
 #: GUI/SettingsDialog.py:64
 msgid "Comma-separated list of filler_words to remove"
@@ -329,7 +329,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:36
 msgid "Deployment name must be set in .env or provided as an argument"
-msgstr "Deployment Name Must Be Set In .Env Or Provided As An Argument"
+msgstr ""
 
 #: GUI/Widgets/ProjectSettings.py:122
 msgid "Description"
@@ -365,7 +365,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:111
 msgid "Enable thinking mode for translations"
-msgstr "Enable Thinking Mode For Translations"
+msgstr ""
 
 #: GUI/SettingsDialog.py:56
 msgid "Ensure dialog markers match in multi-line subtitles"
@@ -381,11 +381,11 @@ msgstr ""
 
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:142
 msgid "Error communicating with Bedrock: {error}"
-msgstr "Error Communicating With Bedrock: {Error}"
+msgstr ""
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:149
 msgid "Error communicating with provider"
-msgstr "Error Communicating With Provider"
+msgstr ""
 
 #: PySubtitle/SubtitleProject.py:215
 msgid "Error decoding JSON file: {}"
@@ -401,7 +401,7 @@ msgstr ""
 
 #: PySubtitle/Options.py:192
 msgid "Error loading settings from {}"
-msgstr "Error Loading Settings From {}"
+msgstr ""
 
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
@@ -413,7 +413,7 @@ msgstr ""
 
 #: PySubtitle/Options.py:218
 msgid "Error saving settings to {}"
-msgstr "Error Saving Settings To {}"
+msgstr ""
 
 #: PySubtitle/SubtitleTranslator.py:163
 msgid "Error translating scene {scene} batch {batch}: {error}"
@@ -470,23 +470,23 @@ msgstr ""
 #: PySubtitle/Providers/Mistral/MistralClient.py:117
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:149
 msgid "Failed to communicate with provider after {max_retries} retries"
-msgstr "Failed To Communicate With Provider After {Max Retries} Retries"
+msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:166
 msgid "Failed to communicate with server after {max_retries} retries"
-msgstr "Failed To Communicate With Server After {Max Retries} Retries"
+msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:143
 msgid "Failed to connect to server at {server_address}{endpoint}"
-msgstr "Failed To Connect To Server At {Server Address}{Endpoint}"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:181
 msgid "Failed to initialise OpenAI SDK. OpenAI provider will not be available"
-msgstr "Failed To Initialise Openai Sdk. Openai Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:69
 msgid "Failed to initialize Anthropic client"
-msgstr "Failed To Initialize Anthropic Client"
+msgstr ""
 
 #: PySubtitle/SubtitleProject.py:102
 msgid "Failed to load subtitle file {}: {}"
@@ -554,31 +554,31 @@ msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:167
 msgid "Gemini request failure {error}, retrying in {sleep_time} seconds..."
-msgstr "Gemini Request Failure {Error}, Retrying In {Sleep Time} Seconds..."
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:123
 msgid "Gemini response exceeded token limit"
-msgstr "Gemini Response Exceeded Token Limit"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:144
 msgid "Gemini response has no valid content parts"
-msgstr "Gemini Response Has No Valid Content Parts"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:149
 msgid "Gemini response is empty"
-msgstr "Gemini Response Is Empty"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:129
 msgid "Gemini response was blocked for recitation"
-msgstr "Gemini Response Was Blocked For Recitation"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:126
 msgid "Gemini response was blocked for safety reasons"
-msgstr "Gemini Response Was Blocked For Safety Reasons"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:132
 msgid "Gemini response was incomplete"
-msgstr "Gemini Response Was Incomplete"
+msgstr ""
 
 #: GUI/SettingsDialog.py:82
 msgid "General"
@@ -586,7 +586,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Gemini.py:7
 msgid "Google SDK (google-genai) is not installed. Gemini provider will not be available"
-msgstr "Google Sdk (Google-Genai) Is Not Installed. Gemini Provider Will Not Be Available"
+msgstr ""
 
 #: GUI/ProjectToolbar.py:19 GUI/ProjectToolbar.py:26
 msgid "Hide/Show Project Options"
@@ -598,7 +598,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:103
 msgid "Higher temperature introduces more randomness to the translation (default 0.0)"
-msgstr "Higher Temperature Introduces More Randomness To The Translation (Default 0.0)"
+msgstr ""
 
 #: PySubtitle/SubtitleTranslator.py:229
 msgid "Hit API token limit, retrying batch without context..."
@@ -626,7 +626,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:99
 msgid "Instructions will be sent as system messages rather than the user prompt"
-msgstr "Instructions Will Be Sent As System Messages Rather Than The User Prompt"
+msgstr ""
 
 #: GUI/NewProjectSettings.py:113
 msgid "Instructions: {text}"
@@ -634,7 +634,7 @@ msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:135
 msgid "Invalid response received, retrying in {backoff_time} seconds..."
-msgstr "Invalid Response Received, Retrying In {Backoff Time} Seconds..."
+msgstr ""
 
 #: GUI/GUICommands.py:35
 msgid "Invalid translation provider"
@@ -646,7 +646,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Gemini.py:145
 msgid "Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix."
-msgstr "Latest Google Ai Sdk (Google-Genai) Is Not Installed. Gemini Provider Will Not Be Available. Run Installer Or `Pip Install Google-Genai` To Fix."
+msgstr ""
 
 #: GUI/Widgets/Widgets.py:117
 msgid "Length: {duration}"
@@ -716,11 +716,11 @@ msgstr ""
 #: PySubtitle/Providers/Provider_Gemini.py:73
 #: PySubtitle/Providers/Provider_Mistral.py:72
 msgid "Maximum API requests per minute."
-msgstr "Maximum Api Requests Per Minute."
+msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:99
 msgid "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"
-msgstr "Maximum Openai Api Requests Per Minute. Mainly Useful If You Are On The Restricted Free Plan"
+msgstr ""
 
 #: GUI/SettingsDialog.py:51
 msgid "Maximum duration of a single line of subtitles"
@@ -736,7 +736,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:72
 msgid "Maximum number of output tokens to return in the response."
-msgstr "Maximum Number Of Output Tokens To Return In The Response."
+msgstr ""
 
 #: GUI/SettingsDialog.py:67
 msgid "Maximum number of simultaneous translation threads for fast translation"
@@ -744,7 +744,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:103
 msgid "Maximum tokens a completion can contain (only applicable for -instruct models)"
-msgstr "Maximum Tokens A Completion Can Contain (Only Applicable For -Instruct Models)"
+msgstr ""
 
 #: GUI/Widgets/SelectionView.py:93
 msgid "Merge Batches"
@@ -788,15 +788,15 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Mistral.py:7
 msgid "Mistral SDK is not installed. Mistral provider will not be available"
-msgstr "Mistral Sdk Is Not Installed. Mistral Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Mistral.py:132
 msgid "Mistral SDK not installed. Mistral provider will not be available"
-msgstr "Mistral Sdk Not Installed. Mistral Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Mistral/MistralClient.py:58
 msgid "Mistral account quota reached, please upgrade your plan or wait until it renews"
-msgstr "Mistral Account Quota Reached, Please Upgrade Your Plan Or Wait Until It Renews"
+msgstr ""
 
 #: GUI/Widgets/ProjectSettings.py:131
 msgid "Model"
@@ -804,7 +804,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:76
 msgid "Model ID must be provided as an argument"
-msgstr "Model Id Must Be Provided As An Argument"
+msgstr ""
 
 #: GUI/NewProjectSettings.py:32
 msgid "Most lines to send in each batch"
@@ -820,7 +820,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:149
 msgid "Network error communicating with server: {error}"
-msgstr "Network Error Communicating With Server: {Error}"
+msgstr ""
 
 #: GUI/Commands/MergeLinesCommand.py:28
 msgid "No batches found for lines to merge"
@@ -836,7 +836,7 @@ msgstr ""
 #: PySubtitle/Providers/OpenAI/DeepSeekClient.py:47
 #: PySubtitle/Providers/OpenAI/DeepSeekClient.py:73
 msgid "No choices returned in the response"
-msgstr "No Choices Returned In The Response"
+msgstr ""
 
 #: GUI/Commands/DeleteLinesCommand.py:53
 msgid "No deletions to undo"
@@ -856,14 +856,18 @@ msgstr ""
 
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:121
 msgid "No output returned in the response"
-msgstr "No Output Returned In The Response"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:101
 msgid "No response from Gemini"
-msgstr "No Response From Gemini"
+msgstr ""
 
 #: GUI/ProjectActions.py:239
 msgid "No scenes selected for translation"
+msgstr ""
+
+#: PySubtitle/SubtitleTranslator.py:101
+msgid "No scenes to translate"
 msgstr ""
 
 #: GUI/Commands/AutoSplitBatchCommand.py:23
@@ -872,6 +876,10 @@ msgstr ""
 #: GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45
 #: GUI/ProjectActions.py:396
 msgid "No subtitles"
+msgstr ""
+
+#: PySubtitle/SubtitleTranslator.py:89
+msgid "No subtitles to translate"
 msgstr ""
 
 #: PySubtitle/SubtitleProject.py:109
@@ -884,11 +892,11 @@ msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIReasoningClient.py:63
 msgid "No text content found in response"
-msgstr "No Text Content Found In Response"
+msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:136
 msgid "No text returned in the response"
-msgstr "No Text Returned In The Response"
+msgstr ""
 
 #: GUI/GuiInterface.py:360 GUI/GuiInterface.py:361
 msgid "No translation providers available. Please install one or more providers."
@@ -896,7 +904,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:113
 msgid "No valid candidates returned in the response"
-msgstr "No Valid Candidates Returned In The Response"
+msgstr ""
 
 #: GUI/Widgets/ScenesView.py:126
 msgid "Not sure what you just double-clicked on"
@@ -952,35 +960,35 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Azure.py:8
 msgid "OpenAI SDK is not installed. Azure provider will not be available"
-msgstr "Openai Sdk Is Not Installed. Azure Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:7
 msgid "OpenAI SDK is not installed. DeepSeek provider will not be available"
-msgstr "Openai Sdk Is Not Installed. Deepseek Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:7
 msgid "OpenAI SDK is not installed. OpenAI provider will not be available"
-msgstr "Openai Sdk Is Not Installed. Openai Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Azure.py:108
 msgid "OpenAI SDK not installed. Azure provider will not be available"
-msgstr "Openai Sdk Not Installed. Azure Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:137
 msgid "OpenAI SDK not installed. DeepSeek provider will not be available"
-msgstr "Openai Sdk Not Installed. Deepseek Provider Will Not Be Available"
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:129
 msgid "OpenAI account quota reached, please upgrade your plan"
-msgstr "Openai Account Quota Reached, Please Upgrade Your Plan"
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:134
 msgid "OpenAI error {error}, retrying in {sleep_time}..."
-msgstr "Openai Error {Error}, Retrying In {Sleep Time}..."
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:117
 msgid "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/"
-msgstr "Optional Proxy Server To Use For Requests (E.G. Https://Api.Not-Anthropic.Com/"
+msgstr ""
 
 #: GUI/ViewModel/BatchItem.py:189
 msgid "Original line {line} not found in batch {batch}"
@@ -1089,11 +1097,11 @@ msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:117
 msgid "Rate limit hit, retrying in {backoff_time} seconds..."
-msgstr "Rate Limit Hit, Retrying In {Backoff Time} Seconds..."
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:123
 msgid "Rate limit hit, retrying in {retry_seconds} seconds..."
-msgstr "Rate Limit Hit, Retrying In {Retry Seconds} Seconds..."
+msgstr ""
 
 #: PySubtitle/SubtitleTranslator.py:180
 msgid "Reached max_lines limit of ({lines} lines)... finishing"
@@ -1145,11 +1153,11 @@ msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:155
 msgid "Request to server timed out: {error}"
-msgstr "Request To Server Timed Out: {Error}"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:104
 msgid "Request was blocked by Gemini: {block_reason}"
-msgstr "Request Was Blocked By Gemini: {Block Reason}"
+msgstr ""
 
 #: GUI/Widgets/Editors.py:127
 msgid "Response"
@@ -1177,11 +1185,11 @@ msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:171
 msgid "Retrying in {sleep_time} seconds..."
-msgstr "Retrying In {Sleep Time} Seconds..."
+msgstr ""
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:71
 msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
-msgstr "Reuse Connection For Multiple Requests (Otherwise A New Connection Is Established For Each)"
+msgstr ""
 
 #: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
 msgid "Save Instructions"
@@ -1246,7 +1254,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:70
 msgid "Secret access key must be set in .env or provided as an argument"
-msgstr "Secret Access Key Must Be Set In .Env Or Provided As An Argument"
+msgstr ""
 
 #: GUI/Widgets/ProjectSettings.py:289
 msgid "Select project to copy settings from"
@@ -1258,7 +1266,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:104
 msgid "Server error: {status_code} {text}"
-msgstr "Server Error: {Status Code} {Text}"
+msgstr ""
 
 #: GUI/MainToolbar.py:70
 msgid "Settings"
@@ -1370,36 +1378,36 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:92
 msgid "The API function to call on the server"
-msgstr "The Api Function To Call On The Server"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:81
 msgid "The AWS region to use for requests must be specified."
-msgstr "The Aws Region To Use For Requests Must Be Specified."
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Azure.py:65
 msgid "The Azure API base URL to use for requests."
-msgstr "The Azure Api Base Url To Use For Requests."
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:24
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:27
 msgid "The OpenAI library is out of date and must be updated"
-msgstr "The Openai Library Is Out Of Date And Must Be Updated"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:91
 msgid "The address of the local server"
-msgstr "The Address Of The Local Server"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:63
 msgid "The base URL to use for requests (default is https://api.deepseek.com)"
-msgstr "The Base Url To Use For Requests (Default Is Https://Api.Deepseek.Com)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Mistral.py:63
 msgid "The base URL to use for requests (default is https://api.mistral.ai)"
-msgstr "The Base Url To Use For Requests (Default Is Https://Api.Mistral.Ai)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:88
 msgid "The base URL to use for requests - leave as default unless you know you need something else"
-msgstr "The Base Url To Use For Requests - Leave As Default Unless You Know You Need Something Else"
+msgstr ""
 
 #: GUI/SettingsDialog.py:31
 msgid "The default language to translate the subtitles to"
@@ -1411,43 +1419,43 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:106
 msgid "The level of reasoning effort to use for the model"
-msgstr "The Level Of Reasoning Effort To Use For The Model"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:90
 msgid "The maximum number of requests to make per minute"
-msgstr "The Maximum Number Of Requests To Make Per Minute"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:104
 msgid "The maximum number of tokens the AI should generate in the response (0 for unlimited)"
-msgstr "The Maximum Number Of Tokens The Ai Should Generate In The Response (0 For Unlimited)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:89
 msgid "The maximum number of tokens to generate in a single request"
-msgstr "The Maximum Number Of Tokens To Generate In A Single Request"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:115
 msgid "The maximum number of tokens to use for thinking"
-msgstr "The Maximum Number Of Tokens To Use For Thinking"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:110
 msgid "The maximum number of tokens to use for translations"
-msgstr "The Maximum Number Of Tokens To Use For Translations"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:108
 msgid "The model is normally set by the server, and should not need to be specified here"
-msgstr "The Model Is Normally Set By The Server, And Should Not Need To Be Specified Here"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:107
 msgid "The model to use for translations"
-msgstr "The Model To Use For Translations"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:109
 msgid "The rate limit to use for translations (default 60.0)"
-msgstr "The Rate Limit To Use For Translations (Default 60.0)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:108
 msgid "The temperature to use for translations (default 0.0)"
-msgstr "The Temperature To Use For Translations (Default 0.0)"
+msgstr ""
 
 #: GUI/FirstRunOptions.py:20
 msgid "The translation provider to use"
@@ -1455,13 +1463,13 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:106
 msgid "Timeout for the request in seconds (default 300)"
-msgstr "Timeout For The Request In Seconds (Default 300)"
+msgstr ""
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:83
 #: PySubtitle/Providers/Mistral/MistralClient.py:61
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:75
 msgid "Too many tokens in translation"
-msgstr "Too Many Tokens In Translation"
+msgstr ""
 
 #: GUI/Widgets/SelectionView.py:56 GUI/Widgets/SelectionView.py:86
 msgid "Translate Selection"
@@ -1477,31 +1485,31 @@ msgstr ""
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:24
 msgid "Translating with Anthropic {model}"
-msgstr "Translating With Anthropic {Model}"
+msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:38
 msgid "Translating with Azure OpenAI deployment {deployment_name}, API-version {api_version}, API Base: {api_base}"
-msgstr "Translating With Azure Openai Deployment {Deployment Name}, Api-Version {Api Version}, Api Base: {Api Base}"
+msgstr ""
 
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:31
 msgid "Translating with Bedrock model {model_id}, using region: {aws_region}"
-msgstr "Translating With Bedrock Model {Model Id}, Using Region: {Aws Region}"
+msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:33
 msgid "Translating with Gemini {model} model"
-msgstr "Translating With Gemini {Model} Model"
+msgstr ""
 
 #: PySubtitle/Providers/Mistral/MistralClient.py:26
 msgid "Translating with Mistral model {model}, using server: {server_url}"
-msgstr "Translating With Mistral Model {Model}, Using Server: {Server Url}"
+msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:23
 msgid "Translating with local server at {server_address}{endpoint}"
-msgstr "Translating With Local Server At {Server Address}{Endpoint}"
+msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:34
 msgid "Translating with model {model}, Using API Base: {api_base}"
-msgstr "Translating With Model {Model}, Using Api Base: {Api Base}"
+msgstr ""
 
 #: PySubtitle/SubtitleTranslator.py:103
 msgid "Translating {linecount} lines in {scenecount} scenes"
@@ -1511,13 +1519,17 @@ msgstr ""
 msgid "Translation aborted"
 msgstr ""
 
+#: PySubtitle/SubtitleTranslator.py:65
+msgid "Translation provider is unavailable"
+msgstr ""
+
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
 msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:106
 msgid "Translation response error: {error}, retrying in {backoff_time} seconds..."
-msgstr "Translation Response Error: {Error}, Retrying In {Backoff Time} Seconds..."
+msgstr ""
 
 #: PySubtitle/SubtitleTranslator.py:279
 msgid "Truncating batch to remain within max_lines"
@@ -1531,6 +1543,14 @@ msgstr ""
 msgid "Unable to create option widget for {key}: {error}"
 msgstr ""
 
+#: PySubtitle/SubtitleTranslator.py:71
+msgid "Unable to create provider client: {error}"
+msgstr ""
+
+#: PySubtitle/SubtitleTranslator.py:74
+msgid "Unable to create translation client"
+msgstr ""
+
 #: GUI/ProjectDataModel.py:124
 msgid "Unable to create {provider} provider: {error}"
 msgstr ""
@@ -1541,7 +1561,7 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:156
 msgid "Unable to initialise Anthropic SDK. Claude provider will not be available"
-msgstr "Unable To Initialise Anthropic Sdk. Claude Provider Will Not Be Available"
+msgstr ""
 
 #: GUI/NewProjectSettings.py:116 GUI/NewProjectSettings.py:161
 msgid "Unable to load instructions from {file}: {error}"
@@ -1549,7 +1569,7 @@ msgstr ""
 
 #: PySubtitle/Options.py:250
 msgid "Unable to load instructions from {}: {}"
-msgstr "Unable To Load Instructions From {}: {}"
+msgstr ""
 
 #: GUI/Commands/LoadSubtitleFile.py:32
 msgid "Unable to load subtitles from {file}"
@@ -1581,23 +1601,23 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:140
 msgid "Unable to retrieve Claude model list: {error}"
-msgstr "Unable To Retrieve Claude Model List: {Error}"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Gemini.py:121
 msgid "Unable to retrieve Gemini model list: {error}"
-msgstr "Unable To Retrieve Gemini Model List: {Error}"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Bedrock.py:140
 #: PySubtitle/Providers/Provider_DeepSeek.py:108
 #: PySubtitle/Providers/Provider_Mistral.py:103
 #: PySubtitle/Providers/Provider_OpenAI.py:147
 msgid "Unable to retrieve available AI models: {error}"
-msgstr "Unable To Retrieve Available Ai Models: {Error}"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:98
 #: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Unable to retrieve models"
-msgstr "Unable To Retrieve Models"
+msgstr ""
 
 #: PySubtitle/SubtitleProject.py:122
 msgid "Unable to save original subtitles: {}"
@@ -1641,22 +1661,22 @@ msgstr ""
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:145
 msgid "Unexpected error communicating with OpenAI"
-msgstr "Unexpected Error Communicating With Openai"
+msgstr ""
 
 #: PySubtitle/Providers/Custom/CustomClient.py:160
 msgid "Unexpected error communicating with server"
-msgstr "Unexpected Error Communicating With Server"
+msgstr ""
 
 #: PySubtitle/Providers/Mistral/MistralClient.py:115
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:146
 msgid "Unexpected error communicating with the provider"
-msgstr "Unexpected Error Communicating With The Provider"
+msgstr ""
 
 #: PySubtitle/Providers/Mistral/MistralClient.py:87
 #: PySubtitle/Providers/OpenAI/ChatGPTClient.py:36
 #: PySubtitle/Providers/OpenAI/DeepSeekClient.py:42
 msgid "Unexpected response type: {response_type}"
-msgstr "Unexpected Response Type: {Response Type}"
+msgstr ""
 
 #: GUI/Command.py:83
 msgid "Unrecoverable error in {name}"
@@ -1668,11 +1688,11 @@ msgstr ""
 
 #: PySubtitle/Providers/Provider_Custom.py:109
 msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
-msgstr "Use Parallel Threads For Translation Requests (May Be Faster But May Not Work With The Server)"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_OpenAI.py:92
 msgid "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base"
-msgstr "Use The Httpx Library For Requests. May Help If You Receive A 307 Redirect Error With A Custom Api Base"
+msgstr ""
 
 #: GUI/ViewModel/BatchItem.py:247
 msgid "User Prompt:\n {text}"
@@ -1706,7 +1726,7 @@ msgstr "Add Right To Left Markers"
 #: PySubtitle/Providers/Provider_DeepSeek.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_base"
-msgstr "Api Base"
+msgstr "API Base"
 
 #: PySubtitle/Providers/Provider_Azure.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
@@ -1716,11 +1736,11 @@ msgstr "Api Base"
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_key"
-msgstr "Api Key"
+msgstr "API Key"
 
 #: PySubtitle/Providers/Provider_Azure.py:0
 msgid "api_version"
-msgstr "Api Version"
+msgstr "API Version"
 
 #: PySubtitle/Options.py:67
 msgid "autosave"
@@ -1728,7 +1748,7 @@ msgstr "Autosave"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 msgid "aws_region"
-msgstr "Aws Region"
+msgstr "AWS Region"
 
 #: PySubtitle/Options.py:65
 msgid "backoff_time"
@@ -1751,11 +1771,11 @@ msgstr "Convert Wide Dashes"
 #: PySubtitle/Providers/Mistral/MistralClient.py:28
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:35
 msgid "default"
-msgstr "Default"
+msgstr ""
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:25
 msgid "default model"
-msgstr "Default Model"
+msgstr ""
 
 #: PySubtitle/Providers/Provider_Azure.py:0
 msgid "deployment_name"
@@ -1965,7 +1985,7 @@ msgstr "Server Address"
 
 #: PySubtitle/Providers/Provider_Mistral.py:0
 msgid "server_url"
-msgstr "Server Url"
+msgstr "Server URL"
 
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "single threaded"
@@ -2019,7 +2039,7 @@ msgstr "Timeout"
 
 #: PySubtitle/Options.py:72
 msgid "ui_language"
-msgstr "Ui Language"
+msgstr "UI Language"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "use_httpx"
