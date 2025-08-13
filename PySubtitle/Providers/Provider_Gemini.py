@@ -11,6 +11,8 @@ else:
         from google.genai.types import ListModelsConfig
         from google.api_core.exceptions import FailedPrecondition
 
+        from collections import defaultdict
+
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
@@ -83,11 +85,10 @@ else:
 
             def GetAvailableModels(self) -> list[str]:
                 if not self.gemini_models:
-                    self.gemini_models = self._get_gemini_models()
+                    models = self._get_gemini_models()
+                    self.gemini_models = self._deduplicate_models(models)
 
-                models = [ m.display_name for m in self.gemini_models if m.display_name.find("Vision") < 0 ]
-
-                return models or []
+                return sorted([m.display_name for m in self.gemini_models])
 
             def GetInformation(self) -> str:
                 return self.information if self.api_key else self.information_noapikey
@@ -130,6 +131,24 @@ else:
                         return m.name
 
                 raise ValueError(f"Model {name} not found")
+
+            def _deduplicate_models(self, models):
+                """Deduplicate models by display name, preferring -latest versions"""
+                non_vision_models = [m for m in models if m.display_name.find("Vision") < 0 and m.display_name.find("TTS") < 0]
+                
+                # Group models by display name
+                model_groups = defaultdict(list)
+                for model in non_vision_models:
+                    model_groups[model.display_name].append(model)
+                
+                # Select best model for each display name  
+                selected_models = [
+                    latest_models[0] if (latest_models := [m for m in models if m.name.endswith('-latest')])
+                    else min(models, key=lambda m: len(m.name))
+                    for models in model_groups.values()
+                ]
+                
+                return selected_models
 
             def _allow_multithreaded_translation(self) -> bool:
                 """
