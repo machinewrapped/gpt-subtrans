@@ -62,16 +62,16 @@ class SubtitleTranslator:
         self.translation_provider : TranslationProvider = translation_provider
 
         if not self.translation_provider:
-            raise NoProviderError("Translation provider is unavailable")
+            raise NoProviderError(_("Translation provider is unavailable"))
 
         try:
             self.client : TranslationClient = self.translation_provider.GetTranslationClient(self.settings)
 
         except Exception as e:
-            raise ProviderError(f"Unable to create provider client: {str(e)}")
+            raise ProviderError(_("Unable to create provider client: {error}").format(error=str(e)), translation_provider)
 
         if not self.client:
-            raise ProviderError("Unable to create translation client")
+            raise ProviderError(_("Unable to create translation client"), translation_provider)
 
         self.batcher = SubtitleBatcher(options)
 
@@ -86,7 +86,7 @@ class SubtitleTranslator:
         Translate a SubtitleFile
         """
         if not subtitles:
-            raise TranslationImpossibleError("No subtitles to translate")
+            raise TranslationImpossibleError(_("No subtitles to translate"))
 
         if subtitles.scenes and self.resume:
             logging.info(_("Resuming translation"))
@@ -98,7 +98,7 @@ class SubtitleTranslator:
             subtitles.AutoBatch(self.batcher)
 
         if not subtitles.scenes:
-            raise TranslationImpossibleError("No scenes to translate")
+            raise TranslationImpossibleError(_("No scenes to translate"))
 
         logging.info(_("Translating {linecount} lines in {scenecount} scenes").format(linecount=subtitles.linecount, scenecount=subtitles.scenecount))
 
