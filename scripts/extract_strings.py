@@ -16,10 +16,7 @@ import ast
 import os
 import re
 import sys
-import importlib
-import logging
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
 
 # Add the parent directory to sys.path so we can import PySubtitle modules
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,8 +24,6 @@ sys.path.append(base_path)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = base_path
-
-from PySubtitle.TranslationProvider import TranslationProvider
 
 LOCALES_DIR = os.path.join(REPO_ROOT, 'locales')
 POT_PATH = os.path.join(LOCALES_DIR, 'gui-subtrans.pot')
@@ -55,20 +50,8 @@ def ensure_parent(path: str):
     parent = os.path.dirname(path)
     os.makedirs(parent, exist_ok=True)
 
-
-def should_include(path: str) -> bool:
-    rel = os.path.relpath(path, REPO_ROOT).replace('\\', '/')
-    if not rel.endswith('.py'):
-        return False
-    for ex in EXCLUDE_DIRS:
-        if rel.startswith(ex.rstrip('/') + '/') or rel == ex:
-            return False
-    return any(rel.startswith(d.rstrip('/') + '/') or rel == d for d in INCLUDE_DIRS)
-
-
 def escape_po(s: str) -> str:
     return s.replace('\\', r'\\').replace('"', r'\"').replace('\n', r'\n')
-
 
 def generate_english_name(key: str) -> str:
     """Generate English display name from setting key using the same logic as OptionWidget.GenerateName"""
@@ -89,272 +72,193 @@ def generate_english_name(key: str) -> str:
     return name
 
 
-def extract_setting_keys(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]):
-    """
-    Extract all setting keys from PySubtitle/Options.py default_options dictionary
-    and add them as translatable strings.
-    """
-    options_path = os.path.join(REPO_ROOT, 'PySubtitle', 'Options.py')
+class SettingKeyExtractor:
+    """Extracts setting keys from Options.py and provider classes"""
     
-    try:
-        with open(options_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        tree = ast.parse(source, filename='PySubtitle/Options.py')
-        
-        # Find the default_options dictionary
-        for node in ast.walk(tree):
-            if (isinstance(node, ast.Assign) and 
-                len(node.targets) == 1 and
-                isinstance(node.targets[0], ast.Name) and 
-                node.targets[0].id == 'default_options' and
-                isinstance(node.value, ast.Dict)):
-                
-                # Extract all dictionary keys
-                for key_node in node.value.keys:
-                    if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
-                        setting_key = key_node.value
-                        # Add as translatable string
-                        key = (None, setting_key)
-                        entries.setdefault(key, []).append(('PySubtitle/Options.py', key_node.lineno))
-                        
-    except Exception as e:
-        print(f"Warning: Could not extract setting keys from Options.py: {e}")
-
-
-def extract_provider_settings(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]):
-    """
-    Extract setting keys from all translation providers by importing them
-    and examining their __init__ methods and GetOptions() methods.
-    """
-    providers_dir = os.path.join(REPO_ROOT, 'PySubtitle', 'Providers')
+    def __init__(self):
+        self.setting_keys: set[str] = set()
     
-    # Find all Provider_*.py files
-    provider_files = []
-    for file in os.listdir(providers_dir):
-        if file.startswith('Provider_') and file.endswith('.py'):
-            provider_files.append(file)
+    def extract_to_entries(self, entries: dict[tuple[str | None, str], list[tuple[str, int]]]) -> set[str]:
+        """Extract all setting keys and add them to entries dict, return the keys"""
+        self.setting_keys.clear()
+        self._extract_options_keys(entries)
+        self._extract_provider_keys(entries)
+        return self.setting_keys.copy()
     
-    print(f"Found {len(provider_files)} provider files: {provider_files}")
-    
-    for provider_file in provider_files:
-        provider_path = os.path.join(providers_dir, provider_file)
-        provider_name = provider_file[:-3]  # Remove .py extension
+    def _extract_options_keys(self, entries: dict[tuple[str | None, str], list[tuple[str, int]]]):
+        """Extract setting keys from PySubtitle/Options.py default_options dictionary"""
+        options_path = os.path.join(REPO_ROOT, 'PySubtitle', 'Options.py')
         
         try:
-            # Extract settings statically first
-            static_keys = extract_provider_settings_static(provider_path)
+            with open(options_path, 'r', encoding='utf-8') as f:
+                source = f.read()
+            tree = ast.parse(source, filename='PySubtitle/Options.py')
             
-            # Try to extract settings dynamically
-            dynamic_keys = extract_provider_settings_dynamic(provider_name)
-            
-            # Combine both approaches
-            all_keys = static_keys | dynamic_keys
-            
-            for key in all_keys:
-                # Add as translatable string without context (all providers share same key translations)
-                entry_key = (None, key)
-                entries.setdefault(entry_key, []).append((f'PySubtitle/Providers/{provider_file}', 0))
-                
-        except Exception as e:
-            print(f"Warning: Could not extract settings from {provider_file}: {e}")
-
-
-def extract_provider_settings_static(provider_path: str) -> set[str]:
-    """
-    Statically parse provider __init__ method to extract setting keys.
-    """
-    keys = set()
-    
-    try:
-        with open(provider_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        tree = ast.parse(source)
-        
-        # Look for __init__ method in provider class
-        for node in ast.walk(tree):
-            if (isinstance(node, ast.FunctionDef) and 
-                node.name == '__init__'):
-                
-                # Look for super().__init__ call with settings dict
-                for child in ast.walk(node):
-                    if (isinstance(child, ast.Call) and
-                        isinstance(child.func, ast.Attribute) and
-                        child.func.attr == '__init__' and
-                        len(child.args) >= 2):
-                        
-                        # The second argument should be a dict with settings
-                        settings_arg = child.args[1]
-                        if isinstance(settings_arg, ast.Dict):
-                            for key_node in settings_arg.keys:
-                                if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
-                                    keys.add(key_node.value)
-                                elif isinstance(key_node, ast.Str):  # Python < 3.8 compatibility
-                                    keys.add(key_node.s)
-                        
-    except Exception as e:
-        print(f"Warning: Static analysis failed for {provider_path}: {e}")
-    
-    return keys
-
-
-def extract_provider_settings_dynamic(provider_name: str) -> set[str]:
-    """
-    Try to dynamically import provider and call GetOptions() to extract settings.
-    """
-    keys = set()
-    
-    try:
-        # Suppress provider warnings/errors during import
-        original_level = logging.getLogger().level
-        logging.getLogger().setLevel(logging.CRITICAL)
-        
-        # Import the provider module
-        module_name = f'PySubtitle.Providers.{provider_name}'
-        module = importlib.import_module(module_name)
-        
-        # Find the provider class
-        provider_class = getattr(module, provider_name, None)
-        if provider_class and issubclass(provider_class, TranslationProvider):
-            
-            # Try to instantiate with minimal settings
-            try:
-                instance = provider_class({})
-                options = instance.GetOptions()
-                keys.update(options.keys())
-                print(f"Dynamic extraction from {provider_name}: {list(keys)}")
-                
-            except Exception:
-                # Provider might need specific settings, try with some common ones
-                try:
-                    dummy_settings = {
-                        'api_key': 'dummy_key_for_extraction',
-                        'model': 'dummy_model',
-                    }
-                    instance = provider_class(dummy_settings)
-                    options = instance.GetOptions()
-                    keys.update(options.keys())
-                    print(f"Dynamic extraction from {provider_name} (with dummy settings): {list(keys)}")
+            for node in ast.walk(tree):
+                if (isinstance(node, ast.Assign) and 
+                    len(node.targets) == 1 and
+                    isinstance(node.targets[0], ast.Name) and 
+                    node.targets[0].id == 'default_options' and
+                    isinstance(node.value, ast.Dict)):
                     
-                except Exception as e:
-                    print(f"Dynamic extraction failed for {provider_name}: {e}")
-        
-    except ImportError as e:
-        print(f"Could not import {provider_name}: {e}")
-    except Exception as e:
-        print(f"Error with {provider_name}: {e}")
-    finally:
-        # Restore original logging level
-        logging.getLogger().setLevel(original_level)
-    
-    return keys
-
-
-def collect_entries() -> Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]:
-    entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]] = {}
-    # Populate the global SETTING_KEYS directly
-    global SETTING_KEYS
-    SETTING_KEYS.clear()
-
-    # Auto-extract setting keys from Options.py
-    extract_setting_keys(entries)
-    # Collect setting keys from Options.py
-    options_path = os.path.join(REPO_ROOT, 'PySubtitle', 'Options.py')
-    try:
-        with open(options_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        tree = ast.parse(source, filename='PySubtitle/Options.py')
-        for node in ast.walk(tree):
-            if (isinstance(node, ast.Assign) and 
-                len(node.targets) == 1 and
-                isinstance(node.targets[0], ast.Name) and 
-                node.targets[0].id == 'default_options' and
-                isinstance(node.value, ast.Dict)):
-                for key_node in node.value.keys:
-                    if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
-                        SETTING_KEYS.add(key_node.value)
-                    elif isinstance(key_node, ast.Str):
-                        SETTING_KEYS.add(key_node.s)
-    except Exception as e:
-        logging.error(f"Error reading {options_path}: {e}")
-
-    # Auto-extract provider setting keys
-    providers_dir = os.path.join(REPO_ROOT, 'PySubtitle', 'Providers')
-    provider_files = [f for f in os.listdir(providers_dir) if f.startswith('Provider_') and f.endswith('.py')]
-    for provider_file in provider_files:
-        provider_path = os.path.join(providers_dir, provider_file)
-        try:
-            # Extract settings statically first
-            static_keys = extract_provider_settings_static(provider_path)
-            # Try to extract settings dynamically
-            dynamic_keys = extract_provider_settings_dynamic(provider_file[:-3])
-            all_keys = static_keys | dynamic_keys
-            for key in all_keys:
-                SETTING_KEYS.add(key)
+                    for key_node in node.value.keys:
+                        if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
+                            setting_key = key_node.value
+                            self.setting_keys.add(setting_key)
+                            key = (None, setting_key)
+                            entries.setdefault(key, []).append(('PySubtitle/Options.py', key_node.lineno))
+                    break
+                            
         except Exception as e:
-            logging.warning(f"Unable to extract settings from {provider_file}: {e}")
-
-    extract_provider_settings(entries)
-
-    for root, _, files in os.walk(REPO_ROOT):
-        for name in files:
-            path = os.path.join(root, name)
-            if not should_include(path):
-                continue
-            rel = os.path.relpath(path, REPO_ROOT).replace('\\', '/')
+            raise Exception(f"Could not extract setting keys from Options.py: {e}")
+    
+    def _extract_provider_keys(self, entries: dict[tuple[str | None, str], list[tuple[str, int]]]):
+        """Extract setting keys from all translation providers"""
+        providers_dir = os.path.join(REPO_ROOT, 'PySubtitle', 'Providers')
+        provider_files = [f for f in os.listdir(providers_dir) if f.startswith('Provider_') and f.endswith('.py')]
+        
+        print(f"Found {len(provider_files)} provider files: {provider_files}")
+        
+        for provider_file in provider_files:
+            provider_path = os.path.join(providers_dir, provider_file)
+            
             try:
-                with open(path, 'r', encoding='utf-8') as f:
-                    source = f.read()
-                tree = ast.parse(source, filename=rel)
+                static_keys = self._extract_provider_settings_static(provider_path)
+                self.setting_keys.update(static_keys)
+                
+                for key in static_keys:
+                    entry_key = (None, key)
+                    entries.setdefault(entry_key, []).append((f'PySubtitle/Providers/{provider_file}', 0))
+                    
+            except Exception as e:
+                raise Exception(f"Could not extract settings from {provider_file}: {e}")
+    
+    def _extract_provider_settings_static(self, provider_path: str) -> set[str]:
+        """Statically parse provider __init__ method to extract setting keys"""
+        keys = set()
+        
+        try:
+            with open(provider_path, 'r', encoding='utf-8') as f:
+                source = f.read()
+            tree = ast.parse(source)
+            
+            for node in ast.walk(tree):
+                if (isinstance(node, ast.FunctionDef) and 
+                    node.name == '__init__'):
+                    
+                    for child in ast.walk(node):
+                        if (isinstance(child, ast.Call) and
+                            isinstance(child.func, ast.Attribute) and
+                            child.func.attr == '__init__' and
+                            len(child.args) >= 2):
+                            
+                            settings_arg = child.args[1]
+                            if isinstance(settings_arg, ast.Dict):
+                                for key_node in settings_arg.keys:
+                                    if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
+                                        keys.add(key_node.value)
+                            
+        except Exception as e:
+            raise Exception(f"Static analysis failed for {provider_path}: {e}")
 
-                for node in ast.walk(tree):
-                    if not isinstance(node, ast.Call):
-                        continue
-                    func = node.func
-                    func_name = None
-                    if isinstance(func, ast.Name):
-                        func_name = func.id
-                    elif isinstance(func, ast.Attribute):
-                        func_name = func.attr
-                    if func_name not in ('_', 'tr'):
-                        continue
+        return keys
 
-                    # Extract arguments
-                    if func_name == '_' and node.args:
-                        arg = node.args[0]
-                        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                            key = (None, arg.value)
-                        else:
+
+class TranslatableStringExtractor:
+    """Extracts translatable strings wrapped in _() and tr() from source code"""
+    
+    def extract_from_codebase(self) -> dict[tuple[str | None, str], list[tuple[str, int]]]:
+        """Extract all translatable strings from the codebase"""
+        entries: dict[tuple[str | None, str], list[tuple[str, int]]] = {}
+        
+        for root, _, files in os.walk(REPO_ROOT):
+            for name in files:
+                path = os.path.join(root, name)
+                if not self._should_include(path):
+                    continue
+                rel = os.path.relpath(path, REPO_ROOT).replace('\\', '/')
+                
+                try:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        source = f.read()
+                    tree = ast.parse(source, filename=rel)
+
+                    for node in ast.walk(tree):
+                        if not isinstance(node, ast.Call):
                             continue
-                    elif func_name == 'tr' and len(node.args) >= 2:
-                        ctx_arg, txt_arg = node.args[0], node.args[1]
-                        if (
-                            isinstance(ctx_arg, ast.Constant) and isinstance(ctx_arg.value, str)
-                            and isinstance(txt_arg, ast.Constant) and isinstance(txt_arg.value, str)
-                        ):
-                            key = (ctx_arg.value, txt_arg.value)
-                        else:
+                        
+                        func = node.func
+                        func_name = None
+                        if isinstance(func, ast.Name):
+                            func_name = func.id
+                        elif isinstance(func, ast.Attribute):
+                            func_name = func.attr
+                        
+                        if func_name not in ('_', 'tr'):
                             continue
-                    else:
-                        continue
 
-                    entries.setdefault(key, []).append((rel, node.lineno))
+                        key = self._extract_string_from_call(node, func_name)
+                        if key:
+                            entries.setdefault(key, []).append((rel, node.lineno))
 
-            except Exception:
-                continue
+                except Exception as e:
+                    raise Exception(f"Failed to parse {rel} for translatable strings: {str(e)}")
 
-    return entries
+        return entries
+    
+    def _should_include(self, path: str) -> bool:
+        """Check if file should be included in string extraction"""
+        rel = os.path.relpath(path, REPO_ROOT).replace('\\', '/')
+        if not rel.endswith('.py'):
+            return False
+        for ex in EXCLUDE_DIRS:
+            if rel.startswith(ex.rstrip('/') + '/') or rel == ex:
+                return False
+        return any(rel.startswith(d.rstrip('/') + '/') or rel == d for d in INCLUDE_DIRS)
+    
+    def _extract_string_from_call(self, node: ast.Call, func_name: str) -> tuple[str | None, str] | None:
+        """Extract string from _() or tr() call"""
+        if func_name == '_' and node.args:
+            arg = node.args[0]
+            if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                return (None, arg.value)
+        elif func_name == 'tr' and len(node.args) >= 2:
+            ctx_arg, txt_arg = node.args[0], node.args[1]
+            if (isinstance(ctx_arg, ast.Constant) and isinstance(ctx_arg.value, str)
+                and isinstance(txt_arg, ast.Constant) and isinstance(txt_arg.value, str)):
+                return (ctx_arg.value, txt_arg.value)
+        return None
+
+############################################################################
+
+def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]]], set[str]]:
+    """Collect all translatable entries (both strings and setting keys)"""
+    entries: dict[tuple[str | None, str], list[tuple[str, int]]] = {}
+    
+    # Extract setting keys first
+    setting_extractor = SettingKeyExtractor()
+    setting_keys = setting_extractor.extract_to_entries(entries)
+    
+    # Extract translatable strings from source code
+    string_extractor = TranslatableStringExtractor()
+    string_entries = string_extractor.extract_from_codebase()
+    
+    # Merge string entries with setting entries
+    for key, refs in string_entries.items():
+        entries.setdefault(key, []).extend(refs)
+    
+    return entries, setting_keys
 
 
-def write_pot(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]):
+def write_pot(entries: dict[tuple[str | None, str], list[tuple[str, int]]], timestamp: str):
     ensure_parent(POT_PATH)
-    now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
 
-    lines: List[str] = []
+    lines: list[str] = []
     # Header
     lines.append('msgid ""')
     lines.append('msgstr ""')
     lines.append(f'"Project-Id-Version: GPT-SubTrans\\n"')
-    lines.append(f'"POT-Creation-Date: {now}\\n"')
+    lines.append(f'"POT-Creation-Date: {timestamp}\\n"')
     lines.append(f'"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"')
     lines.append(f'"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"')
     lines.append(f'"MIME-Version: 1.0\\n"')
@@ -381,17 +285,16 @@ def write_pot(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]]):
         f.write("\n".join(lines))
     print(f"Wrote {POT_PATH} with {len(entries)} entries")
     
-    # Also write English PO with auto-generated setting names
-    write_english_po(entries, now)
+    # Return setting_keys for English PO generation
 
 
-def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, int]]], timestamp: str):
+def write_english_po(entries: dict[tuple[str | None, str], list[tuple[str, int]]], timestamp: str, setting_keys: set[str]):
     """Write English PO file with auto-generated translations for setting keys"""
     en_po_path = os.path.join(LOCALES_DIR, 'en', 'LC_MESSAGES', 'gui-subtrans.po')
     ensure_parent(en_po_path)
     
     # Only auto-generate msgstr for setting keys (Options.py or Providers), all others blank
-    lines: List[str] = []
+    lines: list[str] = []
 
     # Header
     lines.append('msgid ""')
@@ -420,7 +323,7 @@ def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, in
         lines.append(f"msgid \"{escape_po(msgid)}\"")
 
         # Only auto-generate for actual setting keys (context must be None, msgid in setting_keys, and msgid looks like a key)
-        if context is None and msgid in SETTING_KEYS and msgid.isidentifier():
+        if context is None and msgid in setting_keys and msgid.isidentifier():
             msgstr = generate_english_name(msgid)
         else:
             msgstr = ""
@@ -432,11 +335,13 @@ def write_english_po(entries: Dict[Tuple[Optional[str], str], List[Tuple[str, in
         f.write("\n".join(lines))
     print(f"Wrote {en_po_path} with auto-generated setting translations (sanitized)")
 
+#############################################################
 
 def main():
-    entries = collect_entries()
-    write_pot(entries)
-
+    entries, setting_keys = collect_entries()
+    now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M+0000')
+    write_pot(entries, now)
+    write_english_po(entries, now, setting_keys)
 
 if __name__ == '__main__':
     main()
