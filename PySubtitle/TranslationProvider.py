@@ -128,7 +128,8 @@ class TranslationProvider:
 
     @classmethod
     def create_provider(cls, name, provider_settings):
-        for provider_name, provider in cls.get_providers().items():
+        providers = cls.get_providers().items()
+        for provider_name, provider in providers:
             if provider_name == name:
                 return provider(provider_settings)
 

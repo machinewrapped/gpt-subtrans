@@ -7,6 +7,8 @@ if not importlib.util.find_spec("google"):
     logging.info(_("Google SDK (google-genai) is not installed. Gemini provider will not be available"))
 else:
     try:
+        from collections import defaultdict
+
         from google import genai
         from google.genai.types import ListModelsConfig
         from google.api_core.exceptions import FailedPrecondition
@@ -85,9 +87,7 @@ else:
                 if not self.gemini_models:
                     self.gemini_models = self._get_gemini_models()
 
-                models = [ m.display_name for m in self.gemini_models if m.display_name.find("Vision") < 0 ]
-
-                return models or []
+                return sorted([m.display_name for m in self.gemini_models])
 
             def GetInformation(self) -> str:
                 return self.information if self.api_key else self.information_noapikey
@@ -114,8 +114,10 @@ else:
                     gemini_client = genai.Client(api_key=self.api_key, http_options={'api_version': 'v1alpha'})
                     config = ListModelsConfig(query_base=True)
                     all_models = gemini_client.models.list(config=config)
+                    generate_models = [ m for m in all_models if 'generateContent' in m.supported_actions ]
+                    text_models = [m for m in generate_models if "Vision" not in m.display_name and "TTS" not in m.display_name]
 
-                    return [ m for m in all_models if 'generateContent' in m.supported_actions ]
+                    return self._deduplicate_models(text_models)
 
                 except Exception as e:
                     logging.error(_("Unable to retrieve Gemini model list: {error}").format(error=str(e)))
@@ -130,6 +132,22 @@ else:
                         return m.name
 
                 raise ValueError(f"Model {name} not found")
+
+            def _deduplicate_models(self, models : list) -> list:
+                """Deduplicate models by display name, preferring -latest versions"""
+                # Group models by display name
+                model_groups = defaultdict(list)
+                for model in models:
+                    model_groups[model.display_name].append(model)
+                
+                # Select best model for each display name  
+                selected_models = [
+                    latest_models[0] if (latest_models := [m for m in models if m.name.endswith('-latest')])
+                    else min(models, key=lambda m: len(m.name))
+                    for models in model_groups.values()
+                ]
+                
+                return selected_models
 
             def _allow_multithreaded_translation(self) -> bool:
                 """
