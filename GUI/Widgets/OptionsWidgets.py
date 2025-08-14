@@ -113,7 +113,7 @@ class IntegerOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
         super(IntegerOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         self.spin_box = QSpinBox(self)
-        self.spin_box.setMaximum(9999)
+        self.spin_box.setMaximum(99999)
         self.spin_box.setMinimumWidth(100)
         self.spin_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         self.spin_box.valueChanged.connect(self.contentChanged)
