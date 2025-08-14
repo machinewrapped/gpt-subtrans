@@ -7,11 +7,11 @@ if not importlib.util.find_spec("google"):
     logging.info(_("Google SDK (google-genai) is not installed. Gemini provider will not be available"))
 else:
     try:
+        from collections import defaultdict
+
         from google import genai
         from google.genai.types import ListModelsConfig
         from google.api_core.exceptions import FailedPrecondition
-
-        from collections import defaultdict
 
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
@@ -133,7 +133,7 @@ else:
 
                 raise ValueError(f"Model {name} not found")
 
-            def _deduplicate_models(self, models):
+            def _deduplicate_models(self, models : list) -> list:
                 """Deduplicate models by display name, preferring -latest versions"""
                 # Group models by display name
                 model_groups = defaultdict(list)
