@@ -3,6 +3,7 @@ import time
 import httpx
 
 from PySubtitle.Helpers import FormatMessages
+from PySubtitle.Helpers.Parse import ParseErrorMessageFromText
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
@@ -17,12 +18,15 @@ class CustomClient(TranslationClient):
         super().__init__(settings)
         self.client = None
         self.headers = {'Content-Type': 'application/json'}
+        self.headers.update(settings.get('additional_headers', {}))
         if self.api_key:
             self.headers['Authorization'] = f"Bearer {self.api_key}"
 
         logging.info(_("Translating with server at {server_address}{endpoint}").format(
             server_address=self.server_address, endpoint=self.endpoint
         ))
+        if self.model:
+            logging.info(_("Using model: {model}").format(model=self.model))
 
     @property
     def server_address(self):
@@ -96,13 +100,15 @@ class CustomClient(TranslationClient):
                     return None
 
                 if result.is_error:
+                    parsed_message = ParseErrorMessageFromText(result.text)
+                    summary_text = parsed_message if parsed_message else result.text
                     if result.is_client_error:
                         raise TranslationResponseError(_("Client error: {status_code} {text}").format(
-                            status_code=result.status_code, text=result.text
+                            status_code=result.status_code, text=summary_text
                         ), response=result)
                     else:
                         raise TranslationResponseError(_("Server error: {status_code} {text}").format(
-                            status_code=result.status_code, text=result.text
+                            status_code=result.status_code, text=summary_text
                         ), response=result)
 
                 logging.debug(f"Response:\n{result.text}")
@@ -144,6 +150,9 @@ class CustomClient(TranslationClient):
 
                 # Return the response if the API call succeeds
                 return response
+
+            except TranslationResponseError:
+                raise
 
             except httpx.ConnectError as e:
                 if not self.aborted:

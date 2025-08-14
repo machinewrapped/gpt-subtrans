@@ -355,7 +355,7 @@ class SettingsDialog(QDialog):
         self.translation_provider.ResetAvailableModels()
 
         provider_settings = self.provider_settings.get(self.translation_provider.name, {})
-        self.translation_provider.settings.update(provider_settings)
+        self.translation_provider.UpdateSettings(provider_settings)
 
         section_name = self.PROVIDER_SECTION
         section_widget = self.sections.get(section_name)
