@@ -1,4 +1,4 @@
-import pkg_resources
+from importlib import metadata
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QLabel, QHBoxLayout)
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
@@ -67,14 +67,14 @@ class AboutDialog(QDialog):
         license_text.setWordWrap(True)
 
         # Libraries and their versions
-        libraries = ["srt", "pyside6", "openai", "google-genai", "anthropic", "regex", "events", "httpx", "requests", "darkdetect", "appdirs", "python-dotenv"]
+        libraries = ["srt", "pyside6", "openai", "google-genai", "anthropic", "regex", "events", "httpx", "requests", "darkdetect", "appdirs", "babel", "python-dotenv"]
         library_strings = []
 
         for lib in libraries:
             try:
-                version = pkg_resources.get_distribution(lib).version
-                library_strings.append(f"{lib} ({version})")
-            except pkg_resources.DistributionNotFound:
+                ver = metadata.version(lib)
+                library_strings.append(f"{lib} ({ver})")
+            except metadata.PackageNotFoundError:
                 library_strings.append(lib)
 
         libraries_list = QLabel(_("GUI-Subtrans would not work without these libraries:\n") + ", ".join(library_strings))
