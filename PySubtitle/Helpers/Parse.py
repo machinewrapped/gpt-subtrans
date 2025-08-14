@@ -70,17 +70,16 @@ def ParseErrorMessageFromText(value: str) -> str | None:
         # Try direct JSON parse first
         try:
             data = json.loads(text)
-        except Exception:
+        except json.JSONDecodeError:
+            data = None
             # Fallback: try to locate an embedded JSON object
             brace_start = text.find('{')
             brace_end = text.rfind('}')
-            if brace_start != -1 and brace_end != -1 and brace_end > brace_start:
+            if brace_start != -1 and brace_end > brace_start:
                 try:
                     data = json.loads(text[brace_start:brace_end + 1])
-                except Exception:
-                    data = None
-            else:
-                data = None
+                except json.JSONDecodeError:
+                    pass  # data remains None
 
         # If JSON parsed, try common locations for an error message
         if isinstance(data, dict):
