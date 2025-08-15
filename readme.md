@@ -479,6 +479,7 @@ This project uses several useful libraries:
 - requests (https://github.com/psf/requests)
 - regex (https://github.com/mrabarnett/mrab-regex)
 - httpx (https://github.com/projectdiscovery/httpx)
+- babel (https://github.com/python-babel/)
 
 Translation providers:
 - openai (https://platform.openai.com/docs/libraries/python-bindings)
