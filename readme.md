@@ -6,7 +6,7 @@ Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to
 ## Installation
 For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/gpt-subtrans/releases), unzip to a folder and run `gui-subtrans`. You will be prompted for some basic settings on first run.
 
-Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**) and usually for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](##Installing-from-source).
+Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**) and usually for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](#installing-from-source).
 
 To use the application on Linux or Intel Macs you will need to [install from source](##Installing-from-source).
 
