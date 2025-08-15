@@ -32,6 +32,12 @@ A helper script automates extraction, merging, compilation, and a light-weight m
 
 4) Either 
     - Translate automatically
+      - Add `--auto` to send untranslated msgids to an LLM for translation
+      - The OPENROUTER_API_KEY environment variable must be set to use this option
+      - **Gemini 2.0 Flash (Free)** will be used by default but it may be rate limited 
+      - You can add the `--paid` argument to use a model that costs credits (currently **Gemini 2.5 Flash**)
+
+    - Translate semi-automatically
         - Upload `untranslated_msgids_<lang>.txt` to your favourite LLM and ask it to fill in translations.
         - Make sure to mention that for keys like `max_completion_tokens` the translation should be human readable, e.g. "Max Completion Tokens" 
 
