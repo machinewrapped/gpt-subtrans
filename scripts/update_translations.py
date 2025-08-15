@@ -564,7 +564,7 @@ def write_autotranslated_dict_file(lang: str, translations: Dict[str, str]) -> s
     return out_path
 
 
-def auto_translate_untranslated(languages: List[str], paid : bool = False) -> None:
+def auto_translate_untranslated(languages: List[str], paid: bool = False) -> None:
     """Auto-translate untranslated strings for all languages and save to autotranslated files."""
     for lang in languages:
         if lang == 'en':  # Skip English
