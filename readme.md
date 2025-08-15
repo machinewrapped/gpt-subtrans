@@ -435,20 +435,6 @@ It is recommended to use an IDE such as Visual Studio Code to run the program wh
 
 Note: Remember to activate the virtual environment every time you work on the project.
 
-## Localization
-
-GPT-Subtrans uses GNU gettext for UI localization.
-
-- Template (POT): `locales/gui-subtrans.pot`
-- Per‑language catalogs: `locales/<lang>/LC_MESSAGES/gui-subtrans.po`
-- Compiled catalogs: `locales/<lang>/LC_MESSAGES/gui-subtrans.mo`
-
-Strings in the code are marked with helpers (see codebase):
-- `_("text")` for simple strings
-- `tr("context", "text")` for contextualized strings
-
-Contributions are very welcome - you can add a new localization in minutes! See `docs/localization_contributing.md` for detailed instructions (tools, workflow, etc).
-
 ## Version History
 
 Version 1.3 added OpenRouter as the default translation service, opening up access to many more
@@ -496,6 +482,20 @@ Make your changes to the code and commit them with a descriptive commit message.
 Push your changes to your forked repository.
 
 Submit a pull request to the main GPT-Subtrans repository.
+
+## Localization
+
+GPT-Subtrans uses GNU gettext for UI localization.
+
+- Template (POT): `locales/gui-subtrans.pot`
+- Per‑language catalogs: `locales/<lang>/LC_MESSAGES/gui-subtrans.po`
+- Compiled catalogs: `locales/<lang>/LC_MESSAGES/gui-subtrans.mo`
+
+Strings in the code are marked with helpers (see codebase):
+- `_("text")` for simple strings
+- `tr("context", "text")` for contextualized strings
+
+Contributions are very welcome - you can add a new localization in minutes! See `docs/localization_contributing.md` for detailed instructions (tools, workflow, etc).
 
 ## Acknowledgements
 This project uses several useful libraries:
