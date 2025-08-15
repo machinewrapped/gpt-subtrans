@@ -17,8 +17,12 @@ function install_provider() {
     fi
     echo "PROVIDER=$provider" >> .env
     echo "${api_key_var_name}_API_KEY=$api_key" >> .env
-    echo "Installing $provider module..."
-    pip install $pip_package
+    if [ -n "$pip_package" ]; then
+        echo "Installing $provider module..."
+        pip install $pip_package
+    else
+        echo "$provider has no additional dependencies to install."
+    fi
     scripts/generate-cmd.sh $script_name
 }
 
@@ -94,7 +98,20 @@ source envsubtrans/bin/activate
 scripts/generate-cmd.sh gui-subtrans
 scripts/generate-cmd.sh llm-subtrans
 
-echo "Select which provider you want to install:"
+# Optional: configure OpenRouter API key
+echo "Optional: Configure OpenRouter API key (for OpenRouter.ai)"
+read -p "Would you like to set OPENROUTER_API_KEY now? (Y/N): " or_choice
+if [ "$or_choice" = "Y" ] || [ "$or_choice" = "y" ]; then
+    read -p "Enter your OpenRouter API Key: " openrouter_key
+    if [ -f ".env" ]; then
+        # Remove any existing OpenRouter API key
+        sed -i.bak "/^OPENROUTER_API_KEY=/d" .env
+        rm -f .env.bak
+    fi
+    echo "OPENROUTER_API_KEY=$openrouter_key" >> .env
+fi
+
+echo "Select additional providers to install:"
 echo "0 = None"
 echo "1 = OpenAI"
 echo "2 = Google Gemini"
@@ -119,7 +136,7 @@ case $provider_choice in
         install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
         ;;
     4)
-        install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
+        install_provider "DeepSeek" "DEEPSEEK" "" "deepseek-subtrans"
         ;;
     5)
         install_provider "Mistral" "MISTRAL" "mistralai" "mistral-subtrans"
@@ -130,8 +147,8 @@ case $provider_choice in
     a)
         install_provider "Claude" "CLAUDE" "anthropic" "claude-subtrans"
         install_provider "Google Gemini" "GEMINI" "google-genai google-api-core" "gemini-subtrans"
-        install_provider "DeepSeek" "DEEPSEEK" "openai" "deepseek-subtrans"
-        install_provider "Mistral", "MISTRAL" "mistralai" "mistral-subtrans"
+        install_provider "DeepSeek" "DEEPSEEK" "" "deepseek-subtrans"
+    install_provider "Mistral" "MISTRAL" "mistralai" "mistral-subtrans"
         install_provider "OpenAI" "OPENAI" "openai" "gpt-subtrans"
         ;;
     *)

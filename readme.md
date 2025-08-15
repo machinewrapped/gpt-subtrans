@@ -4,9 +4,22 @@ GPT-Subtrans is an open source subtitle translator that uses LLMs as a translati
 Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to the provider's servers for translation, so their privacy policy applies.
 
 ## Installation
-For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/gpt-subtrans/releases), unzip to a folder and run `gui-subtrans.exe`. You will be prompted for some basic settings on first run.
+For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/gpt-subtrans/releases), unzip to a folder and run `gui-subtrans`. You will be prompted for some basic settings on first run.
 
-Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**). MacOS packages are provided when possible (**gui-subtrans-x.x.x.macos-arm64.zip**), but are sometimes blocked by PyInstaller issues. If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](##Installing-from-source).
+Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**) and usually for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](##Installing-from-source).
+
+To use the application on Linux or Intel Macs you will need to [install from source](##Installing-from-source).
+
+## Translation Providers
+
+### OpenRouter
+https://openrouter.ai/privacy
+
+[OpenRouter](https://openrouter.ai/) is a service which aggregates [models](https://openrouter.ai/models) from a wide range of providers. You will need an [OpenRouter API Key](https://openrouter.ai/settings/keys) to use the service, and a credit balance (though some quite capable models are provided free of charge).
+
+You can choose to let OpenRouter select the model automatically (the "Use Default Model" setting in the GUI or `--auto` on the command line) or you can specify a specific model. Model preferences can also be specified in the OpenRouter dashboard.
+
+Since hundreds of models are available they are grouped by model family/company, and by default the list is pulled from the "Translation" category - though this excludes many other models that are perfectly capable of translation.
 
 ### OpenAI
 https://openai.com/policies/privacy-policy
@@ -82,22 +95,23 @@ Prebuilt Linux packages are not provided so you will need to install from source
 ## Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
-#### step1
-
 1. Clone the GPT-Subtrans repository onto your local machine using the following command:
 
     ```sh
     git clone https://github.com/machinewrapped/gpt-subtrans.git
     ```
 
-The easiest setup method is to run an installation script, e.g. `install-openai.bat` or `install-gemini.bat`. This will create a virtual environment and install all the required packages for the provider, and generate command scripts to launch the specified provider. MacOS and Linux users should run `install.sh` instead (this should work on any unix-like system).
+The easiest setup method is to run the unified installation script:
+- **Windows**: Run `install.bat`
+- **MacOS/Linux**: Run `install.sh`
+
+These scripts will create a virtual environment and guide you through selecting and installing your preferred provider(s). They will also generate appropriate command scripts to launch the applications.
 
 During the installing process, input the apikey for the selected provider if requested. It will be saved in a .env file so that you don't need to provide it every time you run the program.
 
 **If you ran an install script you can skip the remaining steps. Continue reading if you want to configure the environment manually instead.**
 
-#### step2
-
+#### Manual configuration
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
     ```sh
     OPENAI_API_KEY=<your_openai_api_key>
@@ -125,8 +139,6 @@ During the installing process, input the apikey for the selected provider if req
     OPENAI_REASONING_EFFORT=low/medium/high
     ```
 
-#### step3
-
 3. Create a virtual environment for the project by running the following command in the root folder to create a local environment for the Python interpreter.:
 
     ```sh
@@ -134,8 +146,6 @@ During the installing process, input the apikey for the selected provider if req
     ```
 
 notice： For linux user, the environment has already prepared during the installing process.
-
-#### step4
 
 4. Activate the virtual environment by running the appropriate command for your operating system:
 
@@ -145,15 +155,11 @@ notice： For linux user, the environment has already prepared during the instal
     source path/to/gpt-subtrans/envsubtrans/bin/activate    # for linux user
     ```
 
-#### step5
-
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
 
     ```sh
     pip install -r requirements.txt
     ```
-
-#### step6
 
 6. Install the SDKs for the provider(s) you intend to use
 
@@ -183,13 +189,27 @@ GPT-Subtrans can be used as a console command or shell script. The install scrip
 
 The most basic usage is:
 ```sh
+# Use OpenRouter with automatic model selection
+llm-subtrans --auto -l <language> <path_to_srt_file>
+
+# Use OpenRouter with a specific model
+llm-subtrans --model google/gemini-2.5-flash -l <language> <path_to_srt_file>
+
+# Use any server with an OpenAI=compatible API
+llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
+
+# Use specific providers
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
 gemini-subtrans <path_to_srt_file> --target_language <target_language>
 claude-subtrans <path_to_srt_file> --target_language <target_language>
-llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
-python3 batch_process.py  # process files in different folders
+
+# process files in different folders (the script will need editing to configure the path and provider settings)
+python3 batch_process.py
 ```
-If the target language is not specified the default is English. Other options that can be specified on the command line are detailed below.
+
+If the target language is not specified the default is English.
+
+Other options that can be specified on the command line are detailed below.
 
 ## Advanced usage
 
@@ -262,6 +282,13 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 
 ### Provider-specific arguments
 Some additional arguments are available for specific providers.
+
+### OpenRouter
+- `-k`, `--apikey`:
+  Your [OpenRouter API Key](https://openrouter.ai/settings/keys) (the app will look for OPENROUTER_API_KEY in the environment if this is not provided)
+
+- `--auto`
+  Automatically select the model to use (selection criteria can be configured in the [OpenRouter Dashboard](https://openrouter.ai/settings/preferences))
 
 #### OpenAI
 - `-k`, `--apikey`:
