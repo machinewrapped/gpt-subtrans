@@ -213,6 +213,20 @@ If the target language is not specified the default is English.
 
 Other options that can be specified on the command line are detailed below.
 
+## Project File
+
+**Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and updated automatically.
+
+The `--project` argument or `PROJECT` .env setting can take a number of values, which control whether and when an intermediate file will be written to disc.
+
+The default setting is `None`, which means the project file is neither written nor read, the only output of the program is the final translation.
+
+If the argument is set to `True` then a project file will be created with the `.subtrans` extension, containing details of the translation process,
+and it will be updated as the translation progresses. Writing a project file allows, amongst other things, resuming a translation that was interrupted.
+
+Other valid options include `preview`, `resume`, `reparse` and `retranslate`. These are probably only useful if you're modifying the code, in which case
+you should be able to see what they do.
+
 ## Advanced usage
 
 There are a number of command-line arguments that offer more control over the translation process.
@@ -232,7 +246,7 @@ Default values for many settings can be set in the .env file, using a NAME_IN_CA
   Specify a filename for the translated subtitles.
 
 - `--project`:
-  Read or Write a project file for the subtitles being translated. More on this below.
+  Read or Write a project file for the subtitles being translated (see above for details)
 
 - `--ratelimit`:
   Maximum number of requests to the translation service per minute (mainly relevant if you are using an OpenAI free trial account).
@@ -457,20 +471,6 @@ Manual workflow (optional):
 When submitting a PR, include your updated `locales/<lang>/LC_MESSAGES/gui-subtrans.po` (and the compiled `.mo` if you prefer; we can regenerate it if needed).
 
 For detailed translator guidance (workflow, style, and pitfalls), see `docs/localization_contributing.md`.
-
-## Project File
-
-**Note** If you are using the GUI a project file is created automatically when you open a subtitle file for the first time, and updated automatically.
-
-The `--project` argument or `PROJECT` .env setting can take a number of values, which control whether and when an intermediate file will be written to disc.
-
-The default setting is `None`, which means the project file is neither written nor read, the only output of the program is the final translation.
-
-If the argument is set to `True` then a project file will be created with the `.subtrans` extension, containing details of the translation process,
-and it will be updated as the translation progresses. Writing a project file allows, amongst other things, resuming a translation that was interrupted.
-
-Other valid options include `preview`, `resume`, `reparse` and `retranslate`. These are probably only useful if you're modifying the code, in which case
-you should be able to see what they do.
 
 ## Version History
 
