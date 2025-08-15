@@ -102,13 +102,9 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
     ```
 
-<<<<<<< HEAD
-The easiest setup method is to run the installation script:
-=======
 ### Installation scripts
 
 The easiest setup method is to run the unified installation script:
->>>>>>> ac3216faf2cfbe38073481783f9f7c11596ecc32
 - **Windows**: Run `install.bat`
 - **MacOS/Linux**: Run `install.sh`
 
