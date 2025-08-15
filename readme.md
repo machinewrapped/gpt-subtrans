@@ -8,7 +8,7 @@ For most users the packaged release is the easiest way to use the program. Downl
 
 Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**) and usually for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](#installing-from-source).
 
-To use the application on Linux or Intel Macs you will need to [install from source](##Installing-from-source).
+To use the application on Linux or Intel Macs you will need to [install from source](#installing-from-source).
 
 ## Translation Providers
 
