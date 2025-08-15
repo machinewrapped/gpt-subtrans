@@ -23,8 +23,8 @@ import httpx
 from datetime import datetime, timezone
 
 # Model to use for auto-translation
-free_translation_model = 'google/gemini-2.0-flash-exp:free'     # Free but may be rate-limited
-paid_translation_model = 'google/gemini-2.5-flash'              # Fast and reliable but not free
+free_translation_model = os.getenv('FREE_TRANSLATION_MODEL', 'google/gemini-2.0-flash-exp:free')     # Free but may be rate-limited
+paid_translation_model = os.getenv('PAID_TRANSLATION_MODEL', 'google/gemini-2.5-flash')              # Fast and reliable but not free
 
 # Add the parent directory to sys.path so we can import PySubtitle modules
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
