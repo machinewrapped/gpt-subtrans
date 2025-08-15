@@ -6,9 +6,16 @@ Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to
 ## Installation
 For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/gpt-subtrans/releases), unzip to a folder and run `gui-subtrans`. You will be prompted for some basic settings on first run.
 
-Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**) and usually for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](#installing-from-source).
+### Windows
+Every release is packaged for Windows as (**gui-subtrans-x.x.x.zip**).
 
-To use the application on Linux or Intel Macs you will need to [install from source](#installing-from-source).
+### MacOS
+Packaged builds are usually provided for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](#installing-from-source).
+
+If you have an Intel Mac you will need to install from source. If anybody would like to volunteer to maintain Intel releases, please get in touch.
+
+### Linux
+Prebuilt Linux packages are not provided so you will need to install from source.
 
 ## Translation Providers
 
@@ -19,7 +26,7 @@ https://openrouter.ai/privacy
 
 You can choose to let OpenRouter select the model automatically (the "Use Default Model" setting in the GUI or `--auto` on the command line) or you can specify a specific model. Model preferences can also be specified in the OpenRouter dashboard.
 
-Since hundreds of models are available they are grouped by model family/company, and by default the list is pulled from the "Translation" category - though this excludes many other models that are perfectly capable of translation.
+Since hundreds of models are available they are grouped by model family. By default the list of available models is pulled from the "Translation" category - though this excludes many other models that are perfectly capable of translation.
 
 ### OpenAI
 https://openai.com/policies/privacy-policy
@@ -86,12 +93,6 @@ To use Bedrock, you must:
   1. Create an **IAM user** or **role** with appropriate permissions (e.g., `bedrock:InvokeModel`, `bedrock:ListFoundationModels`).
   2. Ensure the model you wish to use is accessible in your selected AWS region and [enabled for the IAM user](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html).
 
-### MacOS
-Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source. If anybody would like to volunteer to maintain Intel releases, please get in touch.
-
-### Linux
-Prebuilt Linux packages are not provided so you will need to install from source.
-
 ## Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
@@ -101,17 +102,23 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
     ```
 
+<<<<<<< HEAD
 The easiest setup method is to run the installation script:
+=======
+### Installation scripts
+
+The easiest setup method is to run the unified installation script:
+>>>>>>> ac3216faf2cfbe38073481783f9f7c11596ecc32
 - **Windows**: Run `install.bat`
 - **MacOS/Linux**: Run `install.sh`
 
 These scripts will create a virtual environment and guide you through selecting and installing your preferred provider(s). They will also generate appropriate command scripts to launch the applications.
 
-During the installing process, input the apikey for the selected provider if requested. It will be saved in a .env file so that you don't need to provide it every time you run the program.
-
-**If you ran an install script you can skip the remaining steps. Continue reading if you want to configure the environment manually instead.**
+During the installing process, you can choose to input an API key for each selected provider when prompted. It will be saved in a .env file so that you don't need to provide it every time you run the program.
 
 #### Manual configuration
+**If you ran an install script you can skip the remaining steps. Continue reading _only_ if you want to configure the environment manually instead.**
+
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
     ```sh
     OPENROUTER_API_KEY=<your_openrouter_api_key>
