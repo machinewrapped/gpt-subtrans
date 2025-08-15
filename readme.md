@@ -19,7 +19,7 @@ https://openrouter.ai/privacy
 
 You can choose to let OpenRouter select the model automatically (the "Use Default Model" setting in the GUI or `--auto` on the command line) or you can specify a specific model. Model preferences can also be specified in the OpenRouter dashboard.
 
-Since hundreds of models are available they are grouped by model family/company, and by default the list is pulled from the "Translation" category - though this excludes many other models that are perfectly capable of translation.
+Since hundreds of models are available they are grouped by model family. By default the list of available models is pulled from the "Translation" category - though this excludes many other models that are perfectly capable of translation.
 
 ### OpenAI
 https://openai.com/policies/privacy-policy
