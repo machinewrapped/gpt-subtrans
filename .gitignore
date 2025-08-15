@@ -35,5 +35,6 @@ bedrock-subtrans.sh
 mistral-subtrans.sh
 *.zip
 *.pdf
+autotranslated_msgids_*.txt
 untranslated_msgids_*.txt
 /.claude

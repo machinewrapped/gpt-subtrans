@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-15 11:31+0000\n"
+"POT-Creation-Date: 2025-08-15 17:12+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -2182,7 +2182,7 @@ msgstr "{lines} líneas en {scenes} escenas y {batches} lotes"
 
 #: GUI/MainWindow.py:152
 msgid "{num} commands in queue."
-msgstr "{num} órdenes en cola."
+msgstr "{num} comandos en cola."
 
 #: GUI/Commands/StartTranslationCommand.py:34
 msgid "{starting} {threaded} translation"
@@ -2195,45 +2195,3 @@ msgstr "{} líneas estaban vacías y no se escribieron en el archivo de salida"
 #: PySubtitle/SubtitleFile.py:349
 msgid "{} lines were invalid and were not written to the output file"
 msgstr "{} líneas no eran válidas y no se escribieron en el archivo de salida"
-
-#~ msgid "An API key is normally not needed for a local server"
-#~ msgstr "Normalmente no se necesita una clave API para un servidor local"
-
-#~ msgid "OpenAI SDK is not installed. DeepSeek provider will not be available"
-#~ msgstr "El SDK de OpenAI no está instalado. El proveedor DeepSeek no estará disponible"
-
-#~ msgid "OpenAI SDK not installed. DeepSeek provider will not be available"
-#~ msgstr "SDK de OpenAI no instalado. El proveedor DeepSeek no estará disponible"
-
-#~ msgid "The address of the local server"
-#~ msgstr "La dirección del servidor local"
-
-#~ msgid "The model is normally set by the server, and should not need to be specified here"
-#~ msgstr "Normalmente, el modelo lo establece el servidor y no debería ser necesario especificarlo aquí"
-
-#~ msgid "Translating with local server at {server_address}{endpoint}"
-#~ msgstr "Traduciendo con el servidor local en {server_address}{endpoint}"
-
-#~ msgid "Updating line {line} with {original} > {translated}"
-#~ msgstr "Actualizando línea {line} con {original} > {translated}"
-
-#~ msgid "Updating scene {scene} batch {batch} with {update}"
-#~ msgstr "Actualizando escena {scene} lote {batch} con {update}"
-
-#~ msgid "Updating scene {scene} with {update}"
-#~ msgstr "Actualizando escena {scene} con {update}"
-
-#~ msgid "Translation Provider"
-#~ msgstr "Proveedor de traducción"
-
-#~ msgid "Edit"
-#~ msgstr "Editar"
-
-#~ msgid "File"
-#~ msgstr "Archivo"
-
-#~ msgid "The language of the application interface (requires restart)"
-#~ msgstr "El idioma de la interfaz de la aplicación (requiere reinicio)"
-
-#~ msgid "Tools"
-#~ msgstr "Herramientas"

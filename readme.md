@@ -447,30 +447,7 @@ Strings in the code are marked with helpers (see codebase):
 - `_("text")` for simple strings
 - `tr("context", "text")` for contextualized strings
 
-Contributions are very welcome. You can add a new language in minutes:
-1) Create a folder `locales/<lang>/LC_MESSAGES/` (for example `locales/it/LC_MESSAGES/`).
-2) Run the one‑stop script below; it will initialize the PO if missing, merge updates, compile, and generate a list of untranslated strings for you to fill in.
-3) Edit `untranslated_msgids_<lang>.txt` by adding translations for each msgid.
-4) Run the script again to integrate your translations into the PO and re‑compile the MO.
-
-Command (from the repo root):
-
-```powershell
-python scripts/update_translations.py
-```
-
-What this script does:
-- Extracts strings from the source tree and refreshes `gui-subtrans.pot`.
-- Merges the POT into each locale’s PO and compiles `.mo` files.
-- Generates `untranslated_msgids_<lang>.txt` files (dictionary format) listing remaining empty translations.
-- On subsequent runs, integrates any filled entries from those files into the corresponding `.po` and recompiles.
-
-Manual workflow (optional):
-- You can also use official tools like `msgmerge`/`msgfmt` (gettext) or editors like Poedit to update `.po` files directly. After editing, either re-run the script above to compile and normalize, or run `msgfmt` yourself to build the `.mo` files.
-
-When submitting a PR, include your updated `locales/<lang>/LC_MESSAGES/gui-subtrans.po` (and the compiled `.mo` if you prefer; we can regenerate it if needed).
-
-For detailed translator guidance (workflow, style, and pitfalls), see `docs/localization_contributing.md`.
+Contributions are very welcome - you can add a new localization in minutes! See `docs/localization_contributing.md` for detailed instructions (tools, workflow, etc).
 
 ## Version History
 
