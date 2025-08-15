@@ -12,14 +12,18 @@ Runs the end-to-end flow:
 Also normalizes msgid wrapping inside PO files to single-line form so
 seeding/matching works reliably.
 """
+import argparse
 import os
 import json
 import re
 import sys
 import ast
 import subprocess
+import httpx
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
+
+auto_translation_model = 'google/gemini-2.0-flash-exp:free'
 
 # Add the parent directory to sys.path so we can import PySubtitle modules
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,12 +34,109 @@ from PySubtitle.Helpers.Localization import get_available_locales
 # Optional: use Babel to determine plural forms for locales
 try:
     from babel.messages.catalog import Catalog as _BabelCatalog
+    from babel.core import Locale as _BabelLocale
 except Exception:
     _BabelCatalog = None
+    _BabelLocale = None
     print("Warning: Babel not available; plural forms will not be detected.")
 
 LOCALES_DIR = os.path.join(base_path, 'locales')
 POT_PATH = os.path.join(LOCALES_DIR, 'gui-subtrans.pot')
+
+
+def get_locale_english_name(lang: str) -> str:
+    """Get the English display name for a language code."""
+    if _BabelLocale is None:
+        return lang
+    try:
+        locale = _BabelLocale.parse(lang)
+        return locale.english_name or lang
+    except Exception:
+        return lang
+
+
+def auto_translate_strings(untranslated: Dict[str, str], target_language: str) -> Dict[str, str]:
+    """Call OpenRouter API to translate untranslated strings."""
+    api_key = os.getenv('OPENROUTER_API_KEY')
+    if not api_key:
+        print("Warning: OPENROUTER_API_KEY not found in environment variables")
+        return {}
+    
+    if not untranslated:
+        return {}
+    
+    language_name = get_locale_english_name(target_language)
+    
+    # Prepare request
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    
+    # Create the prompt
+    prompt = f"Populate translations in {language_name} for these UI strings and messages. Return only a valid JSON dictionary with the same keys but translated values:\n\n{json.dumps(untranslated, ensure_ascii=False, indent=2)}"
+    
+    request_body = {
+        'model': auto_translation_model,
+        'messages': [
+            {
+                'role': 'user',
+                'content': prompt
+            }
+        ],
+        'temperature': 0.3
+    }
+    
+    try:
+        print(f"Calling OpenRouter API to translate {len(untranslated)} strings to {language_name}...")
+        
+        with httpx.Client(timeout=300) as client:
+            response = client.post(
+                'https://openrouter.ai/api/v1/chat/completions',
+                headers=headers,
+                json=request_body
+            )
+            
+            if response.is_error:
+                print(f"OpenRouter API error: {response.status_code} - {response.text}")
+                return {}
+            
+            result = response.json()
+            
+            if 'choices' not in result or not result['choices']:
+                print("No choices returned from OpenRouter API")
+                return {}
+            
+            content = result['choices'][0]['message']['content']
+            
+            # Extract JSON from response (model might add prologue/epilogue)
+            try:
+                # Try to find JSON in the response
+                json_start = content.find('{')
+                json_end = content.rfind('}') + 1
+                
+                if json_start != -1 and json_end > json_start:
+                    json_content = content[json_start:json_end]
+                    translations = json.loads(json_content)
+                    
+                    if isinstance(translations, dict):
+                        # Filter out empty translations
+                        valid_translations = {k: v for k, v in translations.items() if v and v.strip()}
+                        print(f"Successfully translated {len(valid_translations)} strings")
+                        return valid_translations
+                    
+            except json.JSONDecodeError as e:
+                print(f"Failed to parse JSON from OpenRouter response: {e}")
+                print(f"Response content: {content[:500]}...")
+            
+            return {}
+            
+    except httpx.RequestError as e:
+        print(f"Request error calling OpenRouter API: {e}")
+        return {}
+    except Exception as e:
+        print(f"Unexpected error calling OpenRouter API: {e}")
+        return {}
 
 
 def get_plural_forms(lang: str) -> Optional[str]:
@@ -444,13 +545,36 @@ def write_untranslated_dict_file(lang: str, untranslated: Dict[str, str]) -> str
     return out_path
 
 
-def generate_untranslated_files(languages: List[str]) -> None:
+def generate_untranslated_files(languages: List[str], auto_translate: bool = False) -> None:
     for lang in languages:
         po_file = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
         untranslated = _collect_untranslated_msgids(po_file)
+        
+        if auto_translate and untranslated and lang != 'en':
+            # Try to auto-translate the untranslated strings
+            translations = auto_translate_strings(untranslated, lang)
+            if translations:
+                # Save translations to the untranslated file
+                dict_path = os.path.join(base_path, f'untranslated_msgids_{lang}.txt')
+                with open(dict_path, 'w', encoding='utf-8') as f:
+                    json.dump(translations, f, ensure_ascii=False, indent=2, sort_keys=True)
+                    f.write('\n')
+
+                print(f"Auto-translated and saved {len(translations)} strings to '{dict_path}'.")
+                
+                # Integrate the translations immediately
+                updated = _update_po_with_translations(po_file, translations)
+                if updated:
+                    print(f"Integrated {updated} auto-translations into {po_file}")
+                    # Compile after updates
+                    mo_path = os.path.splitext(po_file)[0] + '.mo'
+                    run_cmd(['msgfmt', '-o', mo_path, po_file])
+                
+                # Collect remaining untranslated strings after auto-translation
+                untranslated = _collect_untranslated_msgids(po_file)
+        
         out_path = write_untranslated_dict_file(lang, untranslated)
         print(f"Extracted {len(untranslated)} untranslated msgids to '{out_path}'.")
-
 
 def _parse_manual_translations(path: str) -> Dict[str, str]:
     """Safely parse a dict-like file produced by write_untranslated_dict_file, returning only non-empty translations."""
@@ -465,6 +589,7 @@ def _parse_manual_translations(path: str) -> Dict[str, str]:
             data = ast.literal_eval(content)
         if not isinstance(data, dict):
             return {}
+
         # Normalize keys to match PO msgids by converting Python string escaping to PO file format escaping.
         # Transform manual keys into the PO-escaped form: backslashes (\\), quotes (\"), newlines (\n).
         def _norm_key_po(k: str) -> str:
@@ -478,6 +603,7 @@ def _parse_manual_translations(path: str) -> Dict[str, str]:
             return s
         # Keep only entries with non-empty translations
         return {_norm_key_po(k): str(v) for k, v in data.items() if isinstance(v, str) and v != ''}
+
     except FileNotFoundError:
         return {}
     except Exception as e:
@@ -585,6 +711,20 @@ def integrate_manual_translations(languages: List[str]) -> None:
 
 
 def main():
+    parser = argparse.ArgumentParser(description='One-stop localization workflow for GPT-SubTrans')
+    parser.add_argument('--auto', action='store_true', 
+                       help='Automatically translate untranslated strings using OpenRouter API (requires OPENROUTER_API_KEY environment variable)')
+    args = parser.parse_args()
+
+    auto_translate = args.auto
+
+    if auto_translate:
+        api_key = os.getenv('OPENROUTER_API_KEY')
+        if not api_key:
+            print("Error: --auto requires OPENROUTER_API_KEY environment variable to be set")
+            sys.exit(1)
+        print("Auto-translation mode enabled")
+
     # 1) Extract strings -> POT
     print("[1/5] Extracting strings…")
     run_extract_strings()
@@ -601,13 +741,20 @@ def main():
     print("[3/5] Integrating any manual translations from untranslated_msgids_*.txt…")
     integrate_manual_translations(languages)
 
-    # 4) Re-compile already handled inside integrate when updates occur
-
-    # 5) Generate fresh untranslated files for all locales (remaining only)
+    # 4) Extract untranslated msgids
     print("[4/5] Generating untranslated lists…")
-    generate_untranslated_files(languages)
+    generate_untranslated_files(languages, auto_translate=auto_translate)
+        
+    # 5) Generate fresh untranslated files for all locales (remaining only)
+    if auto_translate:
+        # Repeat steps 3-4-5 to rebuild PO files with auto-translations
+        print("[4.1/5] Re-integrating auto-translations…")
+        integrate_manual_translations(languages)
+        
+        print("[4.2/5] Final untranslated lists generation…")
+        generate_untranslated_files(languages, auto_translate=False)
+    
     print("[5/5] Done.")
-
 
 if __name__ == '__main__':
     main()
