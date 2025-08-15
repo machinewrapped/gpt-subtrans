@@ -474,6 +474,12 @@ you should be able to see what they do.
 
 ## Version History
 
+Version 1.3 added OpenRouter as the default translation service, opening up access to many more
+
+Version 1.2 added localization for the GUI and support for the GPT-5 model line.
+
+Version 1.1 added support for a more flexible translation format for use with custom instructions.
+
 Version 1.0 is (ironically) a minor update, updating the major version to 1.0 because the project has been stable for some time.
 
 Version 0.7 introduced optional post-processing of translated subtitles to try to fix some of the common issues with LLM-translated subtitles (e.g. adding line breaks), along with new default instructions that tend to produce fewer errors.
