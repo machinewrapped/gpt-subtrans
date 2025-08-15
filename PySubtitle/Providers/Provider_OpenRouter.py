@@ -25,7 +25,7 @@ class OpenRouterProvider(TranslationProvider):
     """
 
     def __init__(self, settings : dict):
-        provider_settings = {
+        super().__init__(self.name, {
             "api_key": settings.get('api_key', os.getenv('OPENROUTER_API_KEY')),
             'use_default_model': settings.get('use_default_model', True),
             "server_address": settings.get('server_address', os.getenv('OPENROUTER_SERVER_ADDRESS', "https://openrouter.ai/api/")),
@@ -36,8 +36,7 @@ class OpenRouterProvider(TranslationProvider):
             'temperature': settings.get('temperature', GetEnvFloat('OPENROUTER_TEMPERATURE', 0.0)),
             'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENROUTER_RATE_LIMIT')),
             'reuse_client': settings.get('reuse_client', True),
-        }
-        super().__init__(self.name, provider_settings)
+        })
 
         self.refresh_when_changed = ['api_key', 'model', 'endpoint', 'only_translation_models', 'model_family', 'use_default_model']
         self.cached_models = {}
