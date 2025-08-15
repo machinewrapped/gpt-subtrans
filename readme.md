@@ -6,9 +6,16 @@ Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to
 ## Installation
 For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/gpt-subtrans/releases), unzip to a folder and run `gui-subtrans`. You will be prompted for some basic settings on first run.
 
-Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**) and usually for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](#installing-from-source).
+### Windoes
+Every release is packaged for Windows (**gui-subtrans-x.x.x.zip**)
 
-To use the application on Linux or Intel Macs you will need to [install from source](#installing-from-source).
+### MacOS
+Packaged builds are usually provided for MacOS with Apple Silicon (**gui-subtrans-x.x.x.macos-arm64.zip**). If the latest release does not have a macos-arm64 package you can download an earlier release or [install from source](#installing-from-source).
+
+If you have an Intel Mac you will need to install from source. If anybody would like to volunteer to maintain Intel releases, please get in touch.
+
+### Linux
+Prebuilt Linux packages are not provided so you will need to install from source.
 
 ## Translation Providers
 
@@ -85,12 +92,6 @@ https://aws.amazon.com/service-terms/
 To use Bedrock, you must:
   1. Create an **IAM user** or **role** with appropriate permissions (e.g., `bedrock:InvokeModel`, `bedrock:ListFoundationModels`).
   2. Ensure the model you wish to use is accessible in your selected AWS region and [enabled for the IAM user](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access-modify.html).
-
-### MacOS
-Building MacOS universal binaries with PyInstaller has not worked for some time so releases are only provided for Apple Silicon. If you have an Intel Mac you will need to install from source. If anybody would like to volunteer to maintain Intel releases, please get in touch.
-
-### Linux
-Prebuilt Linux packages are not provided so you will need to install from source.
 
 ## Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
