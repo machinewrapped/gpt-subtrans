@@ -102,16 +102,18 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
     ```
 
+### Installation scripts
+
 The easiest setup method is to run the unified installation script:
 - **Windows**: Run `install.bat`
 - **MacOS/Linux**: Run `install.sh`
 
 These scripts will create a virtual environment and guide you through selecting and installing your preferred provider(s). They will also generate appropriate command scripts to launch the applications.
 
-During the installing process, input the apikey for the selected provider if requested. It will be saved in a .env file so that you don't need to provide it every time you run the program.
+During the installing process, you can choose to input an API key for each selected provider when prompted. It will be saved in a .env file so that you don't need to provide it every time you run the program.
 
 #### Manual configuration
-**If you ran an install script you can skip the remaining steps. Continue reading if you want to configure the environment manually instead.**
+**If you ran an install script you can skip the remaining steps. Continue reading _only_ if you want to configure the environment manually instead.**
 
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
     ```sh
