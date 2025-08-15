@@ -110,9 +110,9 @@ These scripts will create a virtual environment and guide you through selecting 
 
 During the installing process, input the apikey for the selected provider if requested. It will be saved in a .env file so that you don't need to provide it every time you run the program.
 
+#### Manual configuration
 **If you ran an install script you can skip the remaining steps. Continue reading if you want to configure the environment manually instead.**
 
-#### Manual configuration
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
     ```sh
     OPENAI_API_KEY=<your_openai_api_key>
