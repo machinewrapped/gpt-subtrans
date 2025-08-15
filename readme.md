@@ -435,31 +435,6 @@ It is recommended to use an IDE such as Visual Studio Code to run the program wh
 
 Note: Remember to activate the virtual environment every time you work on the project.
 
-## Version History
-
-Version 1.3 added OpenRouter as the default translation service, opening up access to many more
-
-Version 1.2 added localization for the GUI and support for the GPT-5 model line.
-
-Version 1.1 added support for a more flexible translation format for use with custom instructions.
-
-Version 1.0 is (ironically) a minor update, updating the major version to 1.0 because the project has been stable for some time.
-
-Version 0.7 introduced optional post-processing of translated subtitles to try to fix some of the common issues with LLM-translated subtitles (e.g. adding line breaks), along with new default instructions that tend to produce fewer errors.
-
-Version 0.6 changes the architecture to a provider-based system, allowing multiple AI services to be used as translators.
-Settings are compartmentalised for each provider. For the intial release the only supported provider is **OpenAI**.
-
-Version 0.5 adds support for gpt-instruct models and a refactored code base to support different translation engines. For most users, the recommendation is still to use the **gpt-3.5-turbo-16k** model with batch sizes of between (10,100) lines, for the best combination of performance/cost and translation quality.
-
-Version 0.4 features significant optimisations to the GUI making it more responsive and usable, along with numerous bug fixes.
-
-Version 0.3 featured a major effort to bring the GUI up to full functionality and usability, including adding options dialogs and more, plus many bug fixes.
-
-Version 0.2 employs a new prompting approach that greatly reduces desyncs caused by GPT merging together source lines in the translation. This can reduce the naturalness of the translation when the source and target languages have very different grammar, but it provides a better base for a human to polish the output.
-
-The instructions have also been made more detailed, with multiple examples of correct output for GPT to reference, and the generation of summaries has been improved so that GPT is better able to understand the context of the batch it is translating. Additionally, double-clicking a scene or batch now allows the summary to be edited by hand, which can greatly improve the results of a retranslation and of subsequent batches or scenes. Individually lines can also be edited by double-clicking them.
-
 ## Contributing
 Contributions from the community are welcome! To contribute, follow these steps:
 
@@ -483,7 +458,7 @@ Push your changes to your forked repository.
 
 Submit a pull request to the main GPT-Subtrans repository.
 
-## Localization
+### Localization
 
 GPT-Subtrans uses GNU gettext for UI localization.
 
@@ -521,6 +496,31 @@ For the GUI:
 For bundled versions:
 - python (https://www.python.org/)
 - pyinstaller (https://pyinstaller.org/)
+
+## Version History
+
+Version 1.3 added OpenRouter as the default translation service, opening up access to many more
+
+Version 1.2 added localization for the GUI and support for the GPT-5 model line.
+
+Version 1.1 added support for a more flexible translation format for use with custom instructions.
+
+Version 1.0 is (ironically) a minor update, updating the major version to 1.0 because the project has been stable for some time.
+
+Version 0.7 introduced optional post-processing of translated subtitles to try to fix some of the common issues with LLM-translated subtitles (e.g. adding line breaks), along with new default instructions that tend to produce fewer errors.
+
+Version 0.6 changes the architecture to a provider-based system, allowing multiple AI services to be used as translators.
+Settings are compartmentalised for each provider. For the intial release the only supported provider is **OpenAI**.
+
+Version 0.5 adds support for gpt-instruct models and a refactored code base to support different translation engines. For most users, the recommendation is still to use the **gpt-3.5-turbo-16k** model with batch sizes of between (10,100) lines, for the best combination of performance/cost and translation quality.
+
+Version 0.4 features significant optimisations to the GUI making it more responsive and usable, along with numerous bug fixes.
+
+Version 0.3 featured a major effort to bring the GUI up to full functionality and usability, including adding options dialogs and more, plus many bug fixes.
+
+Version 0.2 employs a new prompting approach that greatly reduces desyncs caused by GPT merging together source lines in the translation. This can reduce the naturalness of the translation when the source and target languages have very different grammar, but it provides a better base for a human to polish the output.
+
+The instructions have also been made more detailed, with multiple examples of correct output for GPT to reference, and the generation of summaries has been improved so that GPT is better able to understand the context of the batch it is translating. Additionally, double-clicking a scene or batch now allows the summary to be edited by hand, which can greatly improve the results of a retranslation and of subsequent batches or scenes. Individually lines can also be edited by double-clicking them.
 
 ## License
 GPT-Subtrans is licensed under the MIT License. See LICENSE for the 3rd party library licenses.
