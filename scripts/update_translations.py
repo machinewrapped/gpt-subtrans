@@ -11,7 +11,7 @@ Runs the end-to-end flow:
 
 Also normalizes msgid wrapping inside PO files to single-line form so
 seeding/matching works reliably.
-"""
+# """
 import argparse
 import os
 import json
@@ -21,7 +21,6 @@ import ast
 import subprocess
 import httpx
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
 
 # Model to use for auto-translation
 free_translation_model = 'google/gemini-2.0-flash-exp:free'     # Free but may be rate-limited
@@ -57,7 +56,7 @@ def get_locale_english_name(lang: str) -> str:
         return lang
 
 
-def auto_translate_strings(untranslated: Dict[str, str], target_language: str, paid : bool = False) -> Dict[str, str]:
+def auto_translate_strings(untranslated: dict[str, str], target_language: str, paid: bool = False) -> dict[str, str]:
     """Call OpenRouter API to translate untranslated strings."""
     api_key = os.getenv('OPENROUTER_API_KEY')
     if not api_key:
@@ -149,7 +148,7 @@ def auto_translate_strings(untranslated: Dict[str, str], target_language: str, p
         return {}
 
 
-def get_plural_forms(lang: str) -> Optional[str]:
+def get_plural_forms(lang: str) -> str | None:
     """Return the Plural-Forms header value for a given language code.
     Prefer Babel (CLDR) rules; fallback to the common English rule if Babel is unavailable.
     """
@@ -343,7 +342,7 @@ def ensure_po(language_code: str) -> str:
     return po_path
 
 
-def run_cmd(cmd: List[str]) -> None:
+def run_cmd(cmd: list[str]) -> None:
     try:
         subprocess.check_call(cmd)
     except FileNotFoundError:
@@ -365,7 +364,7 @@ def run_extract_strings() -> None:
         print(f"extract_strings.py failed: {e}")
 
 
-def merge_and_compile(languages: Optional[List[str]] = None):
+def merge_and_compile(languages: list[str] | None = None):
     if not os.path.exists(POT_PATH):
         print(f"POT not found at {POT_PATH}. Run extract_strings.py first.")
         return
@@ -412,17 +411,17 @@ def merge_and_compile(languages: Optional[List[str]] = None):
         print(f"Updated {po_path} and {mo_path}")
 
 
-def _collect_untranslated_msgids(po_file_path: str) -> Dict[str, str]:
+def _collect_untranslated_msgids(po_file_path: str) -> dict[str, str]:
     """Parse a .po file and return a dict of msgid -> '' for empty msgstr entries."""
-    untranslated: Dict[str, str] = {}
+    untranslated: dict[str, str] = {}
     try:
         with open(po_file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except FileNotFoundError:
         return untranslated
 
-    current_msgid: Optional[str] = None
-    current_msgstr: Optional[str] = None
+    current_msgid: str | None = None
+    current_msgstr: str | None = None
     in_msgid = False
     in_msgstr = False
 
@@ -483,7 +482,7 @@ def fix_newline_parity(po_path: str) -> bool:
     except FileNotFoundError:
         return False
 
-    out: List[str] = []
+    out: list[str] = []
     i = 0
     changed = False
     while i < len(lines):
@@ -545,7 +544,7 @@ def fix_newline_parity(po_path: str) -> bool:
     return changed
 
 
-def write_untranslated_dict_file(lang: str, untranslated: Dict[str, str]) -> str:
+def write_untranslated_dict_file(lang: str, untranslated: dict[str, str]) -> str:
     out_path = os.path.join(base_path, f'untranslated_msgids_{lang}.txt')
     # Write as JSON for robust escaping
     data = {key: '' for key in untranslated.keys()}
@@ -555,7 +554,7 @@ def write_untranslated_dict_file(lang: str, untranslated: Dict[str, str]) -> str
     return out_path
 
 
-def write_autotranslated_dict_file(lang: str, translations: Dict[str, str]) -> str:
+def write_autotranslated_dict_file(lang: str, translations: dict[str, str]) -> str:
     """Write auto-translated strings to autotranslated_msgids_<lang>.txt for review."""
     out_path = os.path.join(base_path, f'autotranslated_msgids_{lang}.txt')
     with open(out_path, 'w', encoding='utf-8') as f:
@@ -564,37 +563,41 @@ def write_autotranslated_dict_file(lang: str, translations: Dict[str, str]) -> s
     return out_path
 
 
-def auto_translate_untranslated(languages: List[str], paid : bool = False) -> None:
-    """Auto-translate untranslated strings for all languages and save to autotranslated files."""
-    for lang in languages:
-        if lang == 'en':  # Skip English
+def auto_translate_untranslated(untranslated_map: dict[str, dict[str, str]], paid: bool = False) -> None:
+    """Auto-translate untranslated strings in the untranslated map (lang -> untranslated dict)."""
+    for lang, untranslated in untranslated_map.items():
+        if lang == 'en':
             continue
-            
-        po_file = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
-        untranslated = _collect_untranslated_msgids(po_file)
-        
-        if untranslated:
-            print(f"Auto-translating {len(untranslated)} strings for {lang}...")
-            translations = auto_translate_strings(untranslated, lang, paid)
-            if translations:
-                out_path = write_autotranslated_dict_file(lang, translations)
-                print(f"Saved {len(translations)} auto-translations to '{out_path}' for review.")
-            else:
-                print(f"No translations returned for {lang}")
-        else:
+
+        if not untranslated:
             print(f"No untranslated strings found for {lang}")
+            continue
+
+        print(f"Auto-translating {len(untranslated)} strings for {lang}...")
+        translations = auto_translate_strings(untranslated, lang, paid)
+        if translations:
+            out_path = write_autotranslated_dict_file(lang, translations)
+            print(f"Saved {len(translations)} auto-translations to '{out_path}' for review.")
+        else:
+            print(f"No translations returned for {lang}")
 
 
-def generate_untranslated_files(languages: List[str]) -> None:
-    """Generate untranslated_msgids_<lang>.txt files for all languages."""
+def generate_untranslated_files(languages: list[str]) -> dict[str, dict[str, str]]:
+    """Generate untranslated_msgids_<lang>.txt files for all languages.
+
+    Returns a map of language -> untranslated dict (msgid -> '') pairs.
+    """
+    result: dict[str, dict[str, str]] = {}
     for lang in languages:
         po_file = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
         untranslated = _collect_untranslated_msgids(po_file)
         out_path = write_untranslated_dict_file(lang, untranslated)
+        result[lang] = untranslated
         print(f"Extracted {len(untranslated)} untranslated msgids to '{out_path}'.")
+    return result
 
 
-def integrate_autotranslations(languages: List[str]) -> None:
+def integrate_autotranslations(languages: list[str]) -> None:
     """Integrate auto-translated files if they exist."""
     for lang in languages:
         if lang == 'en':
@@ -611,7 +614,7 @@ def integrate_autotranslations(languages: List[str]) -> None:
                     mo_path = os.path.splitext(po_file)[0] + '.mo'
                     run_cmd(['msgfmt', '-o', mo_path, po_file])
 
-def _parse_translations_file(path: str) -> Dict[str, str]:
+def _parse_translations_file(path: str) -> dict[str, str]:
     """Safely parse a dict-like file produced by write_untranslated_dict_file, returning only non-empty translations."""
     try:
         with open(path, 'r', encoding='utf-8') as f:
@@ -646,7 +649,7 @@ def _parse_translations_file(path: str) -> Dict[str, str]:
         return {}
 
 
-def _update_po_with_translations(po_path: str, translations: Dict[str, str]) -> int:
+def _update_po_with_translations(po_path: str, translations: dict[str, str]) -> int:
     """Update msgstr for matching msgid entries. Returns count of updated entries."""
     if not translations:
         return 0
@@ -657,10 +660,10 @@ def _update_po_with_translations(po_path: str, translations: Dict[str, str]) -> 
     except FileNotFoundError:
         return 0
 
-    out: List[str] = []
+    out: list[str] = []
     i = 0
     updated = 0
-    current_msgid: Optional[str] = None
+    current_msgid: str | None = None
     while i < len(lines):
         line = lines[i]
         stripped = line.lstrip()
@@ -723,7 +726,7 @@ def _update_po_with_translations(po_path: str, translations: Dict[str, str]) -> 
     return updated
 
 
-def integrate_manual_translations(languages: List[str]) -> None:
+def integrate_manual_translations(languages: list[str]) -> None:
     total_updated = 0
     for lang in languages:
         po_path = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
@@ -783,19 +786,19 @@ def main():
 
     # 4) Generate untranslated lists
     print(f"{steps.format(num=4)} Generating untranslated lists…")
-    generate_untranslated_files(languages)
-    
+    untranslated_map = generate_untranslated_files(languages)
+
     # 5) Auto-translate if requested
     if auto_translate:
         print(f"{steps.format(num=5)} Auto-translating untranslated strings…")
-        auto_translate_untranslated(languages, paid=paid_translation)
-        
+        auto_translate_untranslated(untranslated_map, paid=paid_translation)
+
         print(f"{steps.format(num=6)} Integrating auto-translations from autotranslated files…")
         integrate_autotranslations(languages)
-        
+
         print(f"{steps.format(num=7)} Final untranslated lists generation…")
         generate_untranslated_files(languages)
-    
+
     print("Done.")
 
 if __name__ == '__main__':
