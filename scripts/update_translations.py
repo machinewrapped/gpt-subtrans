@@ -545,38 +545,63 @@ def write_untranslated_dict_file(lang: str, untranslated: Dict[str, str]) -> str
     return out_path
 
 
-def generate_untranslated_files(languages: List[str], auto_translate: bool = False) -> None:
+def write_autotranslated_dict_file(lang: str, translations: Dict[str, str]) -> str:
+    """Write auto-translated strings to autotranslated_msgids_<lang>.txt for review."""
+    out_path = os.path.join(base_path, f'autotranslated_msgids_{lang}.txt')
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(translations, f, ensure_ascii=False, indent=2, sort_keys=True)
+        f.write('\n')
+    return out_path
+
+
+def auto_translate_untranslated(languages: List[str]) -> None:
+    """Auto-translate untranslated strings for all languages and save to autotranslated files."""
     for lang in languages:
+        if lang == 'en':  # Skip English
+            continue
+            
         po_file = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
         untranslated = _collect_untranslated_msgids(po_file)
         
-        if auto_translate and untranslated and lang != 'en':
-            # Try to auto-translate the untranslated strings
+        if untranslated:
+            print(f"Auto-translating {len(untranslated)} strings for {lang}...")
             translations = auto_translate_strings(untranslated, lang)
             if translations:
-                # Save translations to the untranslated file
-                dict_path = os.path.join(base_path, f'untranslated_msgids_{lang}.txt')
-                with open(dict_path, 'w', encoding='utf-8') as f:
-                    json.dump(translations, f, ensure_ascii=False, indent=2, sort_keys=True)
-                    f.write('\n')
+                out_path = write_autotranslated_dict_file(lang, translations)
+                print(f"Saved {len(translations)} auto-translations to '{out_path}' for review.")
+            else:
+                print(f"No translations returned for {lang}")
+        else:
+            print(f"No untranslated strings found for {lang}")
 
-                print(f"Auto-translated and saved {len(translations)} strings to '{dict_path}'.")
-                
-                # Integrate the translations immediately
+
+def generate_untranslated_files(languages: List[str]) -> None:
+    """Generate untranslated_msgids_<lang>.txt files for all languages."""
+    for lang in languages:
+        po_file = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
+        untranslated = _collect_untranslated_msgids(po_file)
+        out_path = write_untranslated_dict_file(lang, untranslated)
+        print(f"Extracted {len(untranslated)} untranslated msgids to '{out_path}'.")
+
+
+def integrate_autotranslations(languages: List[str]) -> None:
+    """Integrate auto-translated files if they exist."""
+    for lang in languages:
+        if lang == 'en':
+            continue
+        auto_dict_path = os.path.join(base_path, f'autotranslated_msgids_{lang}.txt')
+        if os.path.exists(auto_dict_path):
+            po_file = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
+            translations = _parse_translations_file(auto_dict_path)
+            if translations:
                 updated = _update_po_with_translations(po_file, translations)
                 if updated:
                     print(f"Integrated {updated} auto-translations into {po_file}")
                     # Compile after updates
                     mo_path = os.path.splitext(po_file)[0] + '.mo'
                     run_cmd(['msgfmt', '-o', mo_path, po_file])
-                
-                # Collect remaining untranslated strings after auto-translation
-                untranslated = _collect_untranslated_msgids(po_file)
-        
-        out_path = write_untranslated_dict_file(lang, untranslated)
-        print(f"Extracted {len(untranslated)} untranslated msgids to '{out_path}'.")
 
-def _parse_manual_translations(path: str) -> Dict[str, str]:
+def _parse_translations_file(path: str) -> Dict[str, str]:
     """Safely parse a dict-like file produced by write_untranslated_dict_file, returning only non-empty translations."""
     try:
         with open(path, 'r', encoding='utf-8') as f:
@@ -693,7 +718,7 @@ def integrate_manual_translations(languages: List[str]) -> None:
     for lang in languages:
         po_path = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
         dict_path = os.path.join(base_path, f'untranslated_msgids_{lang}.txt')
-        translations = _parse_manual_translations(dict_path)
+        translations = _parse_translations_file(dict_path)
         if not translations:
             print(f"No manual translations found for {lang} (or none filled). Skipping.")
             continue
@@ -725,8 +750,10 @@ def main():
             sys.exit(1)
         print("Auto-translation mode enabled")
 
+    steps = "{num}/7" if auto_translate else "{num}/5"
+
     # 1) Extract strings -> POT
-    print("[1/5] Extracting strings…")
+    print(f"{steps.format(num=1)} Extracting strings…")
     run_extract_strings()
 
     # discover locales
@@ -734,27 +761,29 @@ def main():
     print(f"Locales: {languages}")
 
     # 2) Merge & compile
-    print("[2/5] Merging POT into PO and compiling…")
+    print(f"{steps.format(num=2)} Merging POT into PO and compiling…")
     merge_and_compile(languages)
 
     # 3) Integrate manual translations if present
-    print("[3/5] Integrating any manual translations from untranslated_msgids_*.txt…")
+    print(f"{steps.format(num=3)} Integrating any manual translations from untranslated_msgids_*.txt…")
     integrate_manual_translations(languages)
 
-    # 4) Extract untranslated msgids
-    print("[4/5] Generating untranslated lists…")
-    generate_untranslated_files(languages, auto_translate=auto_translate)
-        
-    # 5) Generate fresh untranslated files for all locales (remaining only)
-    if auto_translate:
-        # Repeat steps 3-4-5 to rebuild PO files with auto-translations
-        print("[4.1/5] Re-integrating auto-translations…")
-        integrate_manual_translations(languages)
-        
-        print("[4.2/5] Final untranslated lists generation…")
-        generate_untranslated_files(languages, auto_translate=False)
+    # 4) Generate untranslated lists
+    print(f"{steps.format(num=4)} Generating untranslated lists…")
+    generate_untranslated_files(languages)
     
-    print("[5/5] Done.")
+    # 5) Auto-translate if requested
+    if auto_translate:
+        print(f"{steps.format(num=5)} Auto-translating untranslated strings…")
+        auto_translate_untranslated(languages)
+        
+        print(f"{steps.format(num=6)} Integrating auto-translations from autotranslated files…")
+        integrate_autotranslations(languages)
+        
+        print(f"{steps.format(num=7)} Final untranslated lists generation…")
+        generate_untranslated_files(languages)
+    
+    print("Done.")
 
 if __name__ == '__main__':
     main()
