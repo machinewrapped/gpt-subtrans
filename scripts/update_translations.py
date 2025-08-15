@@ -74,7 +74,13 @@ def auto_translate_strings(untranslated: Dict[str, str], target_language: str) -
     }
     
     # Create the prompt
-    prompt = f"Populate translations in {language_name} for these UI strings and messages. Return only a valid JSON dictionary with the same keys but translated values:\n\n{json.dumps(untranslated, ensure_ascii=False, indent=2)}"
+    prompt = '\n'.join([
+        f"Populate translations in {language_name} for these UI strings and messages.",
+        "String formatting tags in curly braces must be preserved.",
+        "Settings keys such as `api_key` or `server_address` should be given human-readable translations like `API Key` and `Server Address`.",
+        "Return only a valid JSON dictionary with the same keys with the translations as values:\n\n",
+        json.dumps(untranslated, ensure_ascii=False, indent=2)
+    ])
     
     request_body = {
         'model': auto_translation_model,
