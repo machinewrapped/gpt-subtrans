@@ -23,7 +23,9 @@ import httpx
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
-auto_translation_model = 'google/gemini-2.0-flash-exp:free'
+# Model to use for auto-translation
+free_translation_model = 'google/gemini-2.0-flash-exp:free'     # Free but may be rate-limited
+paid_translation_model = 'google/gemini-2.5-flash'              # Fast and reliable but not free
 
 # Add the parent directory to sys.path so we can import PySubtitle modules
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -55,7 +57,7 @@ def get_locale_english_name(lang: str) -> str:
         return lang
 
 
-def auto_translate_strings(untranslated: Dict[str, str], target_language: str) -> Dict[str, str]:
+def auto_translate_strings(untranslated: Dict[str, str], target_language: str, paid : bool = False) -> Dict[str, str]:
     """Call OpenRouter API to translate untranslated strings."""
     api_key = os.getenv('OPENROUTER_API_KEY')
     if not api_key:
@@ -81,9 +83,11 @@ def auto_translate_strings(untranslated: Dict[str, str], target_language: str) -
         "Return only a valid JSON dictionary with the same keys with the translations as values:\n\n",
         json.dumps(untranslated, ensure_ascii=False, indent=2)
     ])
+
+    model = paid_translation_model if paid else free_translation_model
     
     request_body = {
-        'model': auto_translation_model,
+        'model': model,
         'messages': [
             {
                 'role': 'user',
@@ -560,7 +564,7 @@ def write_autotranslated_dict_file(lang: str, translations: Dict[str, str]) -> s
     return out_path
 
 
-def auto_translate_untranslated(languages: List[str]) -> None:
+def auto_translate_untranslated(languages: List[str], paid : bool = False) -> None:
     """Auto-translate untranslated strings for all languages and save to autotranslated files."""
     for lang in languages:
         if lang == 'en':  # Skip English
@@ -571,7 +575,7 @@ def auto_translate_untranslated(languages: List[str]) -> None:
         
         if untranslated:
             print(f"Auto-translating {len(untranslated)} strings for {lang}...")
-            translations = auto_translate_strings(untranslated, lang)
+            translations = auto_translate_strings(untranslated, lang, paid)
             if translations:
                 out_path = write_autotranslated_dict_file(lang, translations)
                 print(f"Saved {len(translations)} auto-translations to '{out_path}' for review.")
@@ -745,9 +749,12 @@ def main():
     parser = argparse.ArgumentParser(description='One-stop localization workflow for GPT-SubTrans')
     parser.add_argument('--auto', action='store_true', 
                        help='Automatically translate untranslated strings using OpenRouter API (requires OPENROUTER_API_KEY environment variable)')
+    parser.add_argument('--paid', action='store_true',
+                       help='Use paid translation model for auto-translation (default is free model)')
     args = parser.parse_args()
 
     auto_translate = args.auto
+    paid_translation = args.paid
 
     if auto_translate:
         api_key = os.getenv('OPENROUTER_API_KEY')
@@ -781,7 +788,7 @@ def main():
     # 5) Auto-translate if requested
     if auto_translate:
         print(f"{steps.format(num=5)} Auto-translating untranslated strings…")
-        auto_translate_untranslated(languages)
+        auto_translate_untranslated(languages, paid=paid_translation)
         
         print(f"{steps.format(num=6)} Integrating auto-translations from autotranslated files…")
         integrate_autotranslations(languages)
