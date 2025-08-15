@@ -101,7 +101,7 @@ For other platforms, or if you want to modify the program, you will need to have
     git clone https://github.com/machinewrapped/gpt-subtrans.git
     ```
 
-The easiest setup method is to run the unified installation script:
+The easiest setup method is to run the installation script:
 - **Windows**: Run `install.bat`
 - **MacOS/Linux**: Run `install.sh`
 
@@ -114,6 +114,7 @@ During the installing process, input the apikey for the selected provider if req
 #### Manual configuration
 2. Create a new file named .env in the root directory of the project. Add any required settings for your chosen provider to the .env file like this:
     ```sh
+    OPENROUTER_API_KEY=<your_openrouter_api_key>
     OPENAI_API_KEY=<your_openai_api_key>
     GEMINI_API_KEY=<your_gemini_api_key>
     AZURE_API_KEY=<your_azure_api_key>
@@ -145,14 +146,11 @@ During the installing process, input the apikey for the selected provider if req
     python -m venv envsubtrans
     ```
 
-notice： For linux user, the environment has already prepared during the installing process.
-
 4. Activate the virtual environment by running the appropriate command for your operating system:
 
     ```sh
-    .\envsubtrans\Scripts\activate
-    .\envsubtrans\bin\activate
-    source path/to/gpt-subtrans/envsubtrans/bin/activate    # for linux user
+    .\envsubtrans\Scripts\activate      # Windows
+    source ./envsubtrans/bin/activate   # Mac/Linux
     ```
 
 5. Install the required libraries using pip by running the following command in your terminal to install the project dependencies (listed in the requirements.txt file):
@@ -161,15 +159,16 @@ notice： For linux user, the environment has already prepared during the instal
     pip install -r requirements.txt
     ```
 
-6. Install the SDKs for the provider(s) you intend to use
+6. Install any additional SDKs required for the provider(s) you intend to use:
 
     ```sh
     pip install openai
-    pip install google-genai
+    pip install google-genai google-api-core
     pip install anthropic
+    pip install mistral
     ```
 
-Note that steps 3 and 4 are optional, but they can help prevent conflicts with other Python applications.
+Note that steps 3 and 4 are optional but recommended, as they help prevent conflicts with other Python applications.
 
 ## Usage
 The program works by dividing the subtitles up into small batches and sending each one to the translation service in turn. It is likely to take time to complete, and can potentially make many API calls for each subtitle file.
@@ -195,8 +194,8 @@ llm-subtrans --auto -l <language> <path_to_srt_file>
 # Use OpenRouter with a specific model
 llm-subtrans --model google/gemini-2.5-flash -l <language> <path_to_srt_file>
 
-# Use any server with an OpenAI=compatible API
-llm-subtrans -s <server_address> -e <endpoint> -l <language> <path_to_srt_file>
+# Use any server with an OpenAI-compatible API
+llm-subtrans -s <server_address> -e <endpoint> -k <api_key> -l <language> <path_to_srt_file>
 
 # Use specific providers
 gpt-subtrans <path_to_srt_file> --target_language <target_language>
@@ -215,13 +214,13 @@ Other options that can be specified on the command line are detailed below.
 
 There are a number of command-line arguments that offer more control over the translation process.
 
-Default values for many settings can be set in the .env file, using a NAME_IN_CAPS with format. See Options.py for the full list.
-
 To use any of these arguments, add them to the command-line after the path to the SRT file. For example:
 
 ```sh
 gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit 10 --substitution cat::dog
 ```
+
+Default values for many settings can be set in the .env file, using a NAME_IN_CAPS format. See Options.py and the various Provider_XXX files for the full list.
 
 - `-l`, `--target_language`:
   The language to translate the subtitles to.
@@ -283,7 +282,7 @@ gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit
 ### Provider-specific arguments
 Some additional arguments are available for specific providers.
 
-### OpenRouter
+#### OpenRouter
 - `-k`, `--apikey`:
   Your [OpenRouter API Key](https://openrouter.ai/settings/keys) (the app will look for OPENROUTER_API_KEY in the environment if this is not provided)
 
@@ -297,11 +296,14 @@ Some additional arguments are available for specific providers.
 - `-b`, `--apibase`:
   API base URL if you are using a custom instance. if it is not set, the default URL will be used.
 
-- '--httpx':
+- `-httpx`:
   Use the [HTTPX library](https://github.com/projectdiscovery/httpx) for requests (only supported if apibase is specified)
 
 - `-m`, `--model`:
   Specify the [AI model](https://platform.openai.com/docs/models) to use for translation
+
+- `--proxy`:
+  SOCKS proxy URL
 
 #### Gemini
 - `-k`, `--apikey`:
@@ -370,17 +372,18 @@ Some additional arguments are available for specific providers.
 - `-e`, `--endpoint`:
   The API function to call on the server, e.g. `/v1/completions`. Choose an appropriate endpoint for the model running on the server.
 
+- `-k`, `--apikey`:
+  API key if required (local servers shouldn't need an api key)
+
+- `-m`, `--model`:
+  The model to use for translation if required (for local servers this is probably determined by the server)
+
 - `--chat`:
   Specify this argument if the endpoint expects requests in a conversation format - otherwise it is assumed to be a completion endpoint.
 
 - `--systemmessages`:
   If using a conversation endpoint, translation instructions will be sent as the "system" user if this flag is specified.
 
-- `-k`, `--apikey`:
-  Local servers shouldn't need an api key, but the option is provided in case it is needed for your setup.
-
-- `-m`, `--model`:
-  The model will usually be determined by the server, but the option is provided in case you need to specify it.
 
 ### Proxy
 
