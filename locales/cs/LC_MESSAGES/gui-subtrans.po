@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GPT-SubTrans\n"
-"POT-Creation-Date: 2025-08-13 07:00+0000\n"
+"POT-Creation-Date: 2025-08-15 11:31+0000\n"
 "PO-Revision-Date: 2025-08-09 21:00+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Czech\n"
@@ -15,11 +15,11 @@ msgstr ""
 msgid "1 line"
 msgstr "1 řádek"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:62
+#: PySubtitle/Providers/Provider_DeepSeek.py:58
 msgid "A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)"
 msgstr "Pro použití tohoto poskytovatele je vyžadován DeepSeek API klíč (https://platform.deepseek.com/api_keys)"
 
-#: PySubtitle/Providers/Provider_Gemini.py:63
+#: PySubtitle/Providers/Provider_Gemini.py:65
 msgid "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"
 msgstr "Pro použití tohoto poskytovatele je vyžadován Google Gemini API klíč (https://makersuite.google.com/app/apikey)"
 
@@ -27,9 +27,20 @@ msgstr "Pro použití tohoto poskytovatele je vyžadován Google Gemini API klí
 msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
 msgstr "Pro použití tohoto poskytovatele je vyžadován Mistral API klíč (https://console.mistral.ai/api-keys/)"
 
-#: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_OpenAI.py:98
+#: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_DeepSeek.py:66
+#: PySubtitle/Providers/Provider_OpenAI.py:98
+#: PySubtitle/Providers/Provider_OpenRouter.py:111
 msgid "AI model to use as the translator"
 msgstr "AI model pro použití jako překladač"
+
+#: PySubtitle/Providers/Provider_Azure.py:84
+#: PySubtitle/Providers/Provider_DeepSeek.py:118
+#: PySubtitle/Providers/Provider_Gemini.py:100
+#: PySubtitle/Providers/Provider_Mistral.py:116
+#: PySubtitle/Providers/Provider_OpenAI.py:162
+#: PySubtitle/Providers/Provider_OpenRouter.py:167
+msgid "API Key is required"
+msgstr "Je vyžadován API klíč"
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:127
 msgid "API Timeout, retrying in {backoff_time} seconds..."
@@ -38,6 +49,10 @@ msgstr "Časový limit API, opakuji za {backoff_time} sekund..."
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:30
 msgid "API base must be set in .env or provided as an argument"
 msgstr "Základna API musí být nastavena v .env nebo poskytnuta jako argument"
+
+#: PySubtitle/Providers/Provider_Custom.py:107
+msgid "API key if needed (this is normally not needed for a local server)"
+msgstr "API klíč, pokud je potřeba (pro místní server obvykle není potřeba)"
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:27
 #: PySubtitle/Providers/Mistral/MistralClient.py:24
@@ -122,16 +137,13 @@ msgstr "Alternativa k max_tokens pro některé servery"
 msgid "Amazon Boto3 SDK is not installed. Bedrock provider will not be available"
 msgstr "Amazon Boto3 SDK není nainstalováno. Poskytovatel Bedrock nebude k dispozici"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:73
-#: PySubtitle/Providers/Provider_Gemini.py:72
+#: PySubtitle/Providers/Provider_DeepSeek.py:69
+#: PySubtitle/Providers/Provider_Gemini.py:74
 #: PySubtitle/Providers/Provider_Mistral.py:71
 #: PySubtitle/Providers/Provider_OpenAI.py:108
+#: PySubtitle/Providers/Provider_OpenRouter.py:125
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
 msgstr "Míra náhodné odchylky přidaná do překladů. Obecně platí, že žádná je nejlepší"
-
-#: PySubtitle/Providers/Provider_Custom.py:107
-msgid "An API key is normally not needed for a local server"
-msgstr "Pro lokální server obvykle není potřeba API klíč"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:75
 msgid "An AWS access key is required"
@@ -160,6 +172,10 @@ msgstr "Je vyžadována verze Azure API"
 #: PySubtitle/Providers/Provider_OpenAI.py:87
 msgid "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"
 msgstr "K použití tohoto poskytovatele je vyžadován API klíč OpenAI (https://platform.openai.com/account/api-keys)"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:89
+msgid "An OpenRouter API key is required to use this provider (https://openrouter.ai/keys)"
+msgstr "Pro použití tohoto poskytovatele je vyžadován API klíč OpenRouter (https://openrouter.ai/keys)"
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:139
 msgid "Anthropic API error: {error}, retrying in {sleep_time} seconds..."
@@ -250,6 +266,10 @@ msgstr "Nelze sloučit nesekvenční prvky"
 msgid "Cannot redo the last command"
 msgstr "Nelze znovu provést poslední příkaz"
 
+#: PySubtitle/Providers/Provider_OpenRouter.py:148
+msgid "Cannot retrieve model list, check API key"
+msgstr "Nelze načíst seznam modelů, zkontrolujte API klíč"
+
 #: GUI/Commands/SplitSceneCommand.py:24
 msgid "Cannot split scene {scene} because it doesn't exist"
 msgstr "Nelze rozdělit scénu {scene}, protože neexistuje"
@@ -266,13 +286,17 @@ msgstr "Nelze vrátit zpět sloučení, data pro vrácení zpět nebyla uložena
 msgid "Cannot undo the last command"
 msgstr "Nelze vrátit zpět poslední příkaz"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:78
+#: PySubtitle/Providers/Provider_DeepSeek.py:73
 #: PySubtitle/Providers/Provider_Mistral.py:76
 #: PySubtitle/Providers/Provider_OpenAI.py:111
 msgid "Check API key and base URL and try again"
 msgstr "Zkontrolujte API klíč a základní URL a zkuste to znovu"
 
-#: PySubtitle/Providers/Provider_Gemini.py:77
+#: PySubtitle/Providers/Provider_OpenRouter.py:120
+msgid "Check API key and try again"
+msgstr "Zkontrolujte API klíč a zkuste to znovu"
+
+#: PySubtitle/Providers/Provider_Gemini.py:79
 msgid "Check API key is authorized and try again"
 msgstr "Zkontrolujte, zda je API klíč autorizován, a zkuste to znovu"
 
@@ -280,7 +304,7 @@ msgstr "Zkontrolujte, zda je API klíč autorizován, a zkuste to znovu"
 msgid "CheckProviderSettings: {error}"
 msgstr "KontrolaNastaveníPoskytovatele: {error}"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:100
+#: PySubtitle/Providers/Custom/CustomClient.py:106
 msgid "Client error: {status_code} {text}"
 msgstr "Chyba klienta: {status_code} {text}"
 
@@ -396,6 +420,11 @@ msgstr "Chyba při dekódování souboru JSON: {}"
 msgid "Error executing {type}: {str}"
 msgstr "Chyba při provádění {type}: {str}"
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:92
+#: PySubtitle/Providers/Provider_OpenRouter.py:203
+msgid "Error fetching models: {status} {text}"
+msgstr "Chyba při načítání modelů: {status} {text}"
+
 #: GUI/Command.py:121
 msgid "Error in {command}: {message}"
 msgstr "Chyba v {command}: {message}"
@@ -473,11 +502,11 @@ msgstr "Očekáván slovník s opravami"
 msgid "Failed to communicate with provider after {max_retries} retries"
 msgstr "Nepodařilo se navázat spojení s poskytovatelem po {max_retries} pokusech"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:166
+#: PySubtitle/Providers/Custom/CustomClient.py:182
 msgid "Failed to communicate with server after {max_retries} retries"
 msgstr "Nepodařilo se navázat spojení se serverem po {max_retries} pokusech"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:143
+#: PySubtitle/Providers/Custom/CustomClient.py:159
 msgid "Failed to connect to server at {server_address}{endpoint}"
 msgstr "Nepodařilo se připojit k serveru na adrese {server_address}{endpoint}"
 
@@ -648,7 +677,7 @@ msgstr "Neplatný poskytovatel překladu"
 msgid "Language to translate the subtitles to"
 msgstr "Jazyk, do kterého se mají titulky přeložit"
 
-#: PySubtitle/Providers/Provider_Gemini.py:145
+#: PySubtitle/Providers/Provider_Gemini.py:163
 msgid "Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix."
 msgstr "Nejnovější Google AI SDK (google-genai) není nainstalováno. Poskytovatel Gemini nebude k dispozici. Spusťte instalátor nebo použijte `pip install google-genai` k opravě."
 
@@ -720,9 +749,10 @@ msgstr "Hlavní panel nástrojů"
 msgid "Max batch size is less than min batch size"
 msgstr "Maximální velikost dávky je menší než minimální velikost dávky"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:74
-#: PySubtitle/Providers/Provider_Gemini.py:73
+#: PySubtitle/Providers/Provider_DeepSeek.py:70
+#: PySubtitle/Providers/Provider_Gemini.py:75
 #: PySubtitle/Providers/Provider_Mistral.py:72
+#: PySubtitle/Providers/Provider_OpenRouter.py:126
 msgid "Maximum API requests per minute."
 msgstr "Maximální počet požadavků API za minutu."
 
@@ -742,7 +772,8 @@ msgstr "Maximální délka jednoho řádku titulků"
 msgid "Maximum length of the context summary to include with each translation batch"
 msgstr "Maximální délka kontextového shrnutí, které se má zahrnout ke každé překladové dávce"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:72
+#: PySubtitle/Providers/Provider_DeepSeek.py:68
+#: PySubtitle/Providers/Provider_OpenRouter.py:124
 msgid "Maximum number of output tokens to return in the response."
 msgstr "Maximální počet výstupních tokenů, které se mají vrátit v odpovědi."
 
@@ -814,6 +845,10 @@ msgstr "Model"
 msgid "Model ID must be provided as an argument"
 msgstr "ID modelu musí být poskytnuto jako argument"
 
+#: PySubtitle/Providers/Provider_OpenRouter.py:105
+msgid "Model family/provider to choose from"
+msgstr "Rodina modelů/poskytovatel k výběru"
+
 #: GUI/NewProjectSettings.py:32
 msgid "Most lines to send in each batch"
 msgstr "Nejvíce řádků k odeslání v každé dávce"
@@ -826,7 +861,7 @@ msgstr "Název filmu"
 msgid "Names"
 msgstr "Jména"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:149
+#: PySubtitle/Providers/Custom/CustomClient.py:165
 msgid "Network error communicating with server: {error}"
 msgstr "Chyba sítě při komunikaci se serverem: {error}"
 
@@ -836,13 +871,11 @@ msgstr "Nebyly nalezeny žádné dávky pro sloučení řádků"
 
 #: PySubtitle/Providers/Anthropic/AnthropicClient.py:111
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:114
-#: PySubtitle/Providers/Custom/CustomClient.py:122
+#: PySubtitle/Providers/Custom/CustomClient.py:130
 #: PySubtitle/Providers/Mistral/MistralClient.py:92
 #: PySubtitle/Providers/Mistral/MistralClient.py:108
 #: PySubtitle/Providers/OpenAI/ChatGPTClient.py:41
 #: PySubtitle/Providers/OpenAI/ChatGPTClient.py:57
-#: PySubtitle/Providers/OpenAI/DeepSeekClient.py:47
-#: PySubtitle/Providers/OpenAI/DeepSeekClient.py:73
 msgid "No choices returned in the response"
 msgstr "V odpovědi nebyly vráceny žádné volby"
 
@@ -862,6 +895,10 @@ msgstr "Nebyly vybrány žádné řádky ke smazání"
 msgid "No lines were deleted"
 msgstr "Nebyly smazány žádné řádky"
 
+#: PySubtitle/Providers/Provider_OpenRouter.py:118
+msgid "No models available"
+msgstr "Žádné dostupné modely"
+
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:121
 msgid "No output returned in the response"
 msgstr "V odpovědi nebyl vrácen žádný výstup"
@@ -876,7 +913,7 @@ msgstr "Nebyly vybrány žádné scény k překladu"
 
 #: PySubtitle/SubtitleTranslator.py:101
 msgid "No scenes to translate"
-msgstr ""
+msgstr "Žádné scény k překladu"
 
 #: GUI/Commands/AutoSplitBatchCommand.py:23
 #: GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23
@@ -888,7 +925,7 @@ msgstr "Žádné titulky"
 
 #: PySubtitle/SubtitleTranslator.py:89
 msgid "No subtitles to translate"
-msgstr ""
+msgstr "Žádné titulky k překladu"
 
 #: PySubtitle/SubtitleProject.py:109
 msgid "No subtitles to translate in {}"
@@ -902,7 +939,7 @@ msgstr "Nebyly přeloženy žádné titulky"
 msgid "No text content found in response"
 msgstr "V odpovědi nebyl nalezen žádný textový obsah"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:136
+#: PySubtitle/Providers/Custom/CustomClient.py:149
 msgid "No text returned in the response"
 msgstr "V odpovědi nebyl vrácen žádný text"
 
@@ -962,6 +999,10 @@ msgstr "Počet pokusů o opakování neúspěšného překladu před vzdáním s
 msgid "OK"
 msgstr "OK"
 
+#: PySubtitle/Providers/Provider_OpenRouter.py:98
+msgid "Only show models from the translation category"
+msgstr "Zobrazit pouze modely z kategorie překladů"
+
 #: GUI/ProjectActions.py:129
 msgid "Open File"
 msgstr "Otevřít soubor"
@@ -970,10 +1011,6 @@ msgstr "Otevřít soubor"
 msgid "OpenAI SDK is not installed. Azure provider will not be available"
 msgstr "OpenAI SDK není nainstalováno. Poskytovatel Azure nebude k dispozici"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:7
-msgid "OpenAI SDK is not installed. DeepSeek provider will not be available"
-msgstr "OpenAI SDK není nainstalováno. Poskytovatel DeepSeek nebude k dispozici"
-
 #: PySubtitle/Providers/Provider_OpenAI.py:7
 msgid "OpenAI SDK is not installed. OpenAI provider will not be available"
 msgstr "OpenAI SDK není nainstalováno. Poskytovatel OpenAI nebude k dispozici"
@@ -981,10 +1018,6 @@ msgstr "OpenAI SDK není nainstalováno. Poskytovatel OpenAI nebude k dispozici"
 #: PySubtitle/Providers/Provider_Azure.py:108
 msgid "OpenAI SDK not installed. Azure provider will not be available"
 msgstr "OpenAI SDK není nainstalováno. Poskytovatel Azure nebude k dispozici"
-
-#: PySubtitle/Providers/Provider_DeepSeek.py:137
-msgid "OpenAI SDK not installed. DeepSeek provider will not be available"
-msgstr "OpenAI SDK není nainstalováno. Poskytovatel DeepSeek nebude k dispozici"
 
 #: PySubtitle/Providers/Azure/AzureOpenAIClient.py:129
 msgid "OpenAI account quota reached, please upgrade your plan"
@@ -1159,7 +1192,7 @@ msgstr "Znovu analyzovat dávky {batches}"
 msgid "Reparsing scene {scene} batch {batch} with {count} lines..."
 msgstr "Znovu se analyzuje scéna {scene} dávky {batch} s {count} řádky..."
 
-#: PySubtitle/Providers/Custom/CustomClient.py:155
+#: PySubtitle/Providers/Custom/CustomClient.py:171
 msgid "Request to server timed out: {error}"
 msgstr "Vypršel časový limit požadavku na server: {error}"
 
@@ -1191,11 +1224,12 @@ msgstr "Opakování po neúspěšné validaci: {errors}"
 msgid "Retry passed validation"
 msgstr "Opakování úspěšně prošlo validací"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:171
+#: PySubtitle/Providers/Custom/CustomClient.py:187
 msgid "Retrying in {sleep_time} seconds..."
 msgstr "Opakuji za {sleep_time} sekund..."
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:71
+#: PySubtitle/Providers/Provider_DeepSeek.py:67
+#: PySubtitle/Providers/Provider_OpenRouter.py:127
 msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
 msgstr "Znovu použít připojení pro více požadavků (jinak se pro každý naváže nové připojení)"
 
@@ -1272,7 +1306,7 @@ msgstr "Vyberte projekt, ze kterého chcete kopírovat nastavení"
 msgid "Selection {task_type}"
 msgstr "Výběr {task_type}"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:104
+#: PySubtitle/Providers/Custom/CustomClient.py:110
 msgid "Server error: {status_code} {text}"
 msgstr "Chyba serveru: {status_code} {text}"
 
@@ -1402,10 +1436,10 @@ msgid "The OpenAI library is out of date and must be updated"
 msgstr "Knihovna OpenAI je zastaralá a musí být aktualizována"
 
 #: PySubtitle/Providers/Provider_Custom.py:91
-msgid "The address of the local server"
-msgstr "Adresa lokálního serveru"
+msgid "The address of the server"
+msgstr "Adresa serveru"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:63
+#: PySubtitle/Providers/Provider_DeepSeek.py:59
 msgid "The base URL to use for requests (default is https://api.deepseek.com)"
 msgstr "Základní URL pro požadavky (výchozí je https://api.deepseek.com)"
 
@@ -1450,8 +1484,8 @@ msgid "The maximum number of tokens to use for translations"
 msgstr "Maximální počet tokenů pro překlady"
 
 #: PySubtitle/Providers/Provider_Custom.py:108
-msgid "The model is normally set by the server, and should not need to be specified here"
-msgstr "Model je obvykle nastaven serverem a neměl by zde být specifikován"
+msgid "The model ID (for local servers this is usually not required"
+msgstr "ID modelu (u místních serverů obvykle není potřeba)"
 
 #: PySubtitle/Providers/Provider_Claude.py:107
 msgid "The model to use for translations"
@@ -1511,13 +1545,13 @@ msgstr "Překládám s modelem Gemini {model}"
 msgid "Translating with Mistral model {model}, using server: {server_url}"
 msgstr "Překládám s modelem Mistral {model}, používám server: {server_url}"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:23
-msgid "Translating with local server at {server_address}{endpoint}"
-msgstr "Překládám s lokálním serverem na adrese {server_address}{endpoint}"
-
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:34
 msgid "Translating with model {model}, Using API Base: {api_base}"
 msgstr "Překládám s modelem {model}, používám základnu API: {api_base}"
+
+#: PySubtitle/Providers/Custom/CustomClient.py:25
+msgid "Translating with server at {server_address}{endpoint}"
+msgstr "Překládání pomocí serveru na adrese {server_address}{endpoint}"
 
 #: PySubtitle/SubtitleTranslator.py:103
 msgid "Translating {linecount} lines in {scenecount} scenes"
@@ -1529,7 +1563,7 @@ msgstr "Překlad byl přerušen"
 
 #: PySubtitle/SubtitleTranslator.py:65
 msgid "Translation provider is unavailable"
-msgstr ""
+msgstr "Poskytovatel překladu není k dispozici"
 
 #: GUI/GuiInterface.py:171
 msgid "Translation provider settings are not valid. Please check the settings."
@@ -1543,6 +1577,10 @@ msgstr "Chyba odpovědi překladu: {error}, opakuji za {backoff_time} sekund..."
 msgid "Truncating batch to remain within max_lines"
 msgstr "Dávka se zkracuje, aby zůstala v limitu max_lines"
 
+#: PySubtitle/Providers/Provider_OpenRouter.py:118
+msgid "Try a different model family or change filter settings"
+msgstr "Vyzkoušejte jinou rodinu modelů nebo změňte nastavení filtru"
+
 #: GUI/EditInstructionsDialog.py:31
 msgid "Type of response expected for each line (must match the example format)"
 msgstr "Typ odpovědi očekávaný pro každý řádek (musí odpovídat formátu příkladu)"
@@ -1553,11 +1591,11 @@ msgstr "Nelze vytvořit widget volby pro {key}: {error}"
 
 #: PySubtitle/SubtitleTranslator.py:71
 msgid "Unable to create provider client: {error}"
-msgstr ""
+msgstr "Nelze vytvořit klienta poskytovatele: {error}"
 
 #: PySubtitle/SubtitleTranslator.py:74
 msgid "Unable to create translation client"
-msgstr ""
+msgstr "Nelze vytvořit klienta překladu"
 
 #: GUI/ProjectDataModel.py:124
 msgid "Unable to create {provider} provider: {error}"
@@ -1595,6 +1633,11 @@ msgstr "Nepodařilo se spárovat {count} řádků se zdrojovým řádkem"
 msgid "Unable to merge selection ({selection})"
 msgstr "Nelze sloučit výběr ({selection})"
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:101
+#: PySubtitle/Providers/Provider_OpenRouter.py:238
+msgid "Unable to parse server response as JSON: {response_text}"
+msgstr "Nelze zpracovat odpověď serveru jako JSON: {response_text}"
+
 #: GUI/NewProjectSettings.py:176
 msgid "Unable to preview batches: {error}"
 msgstr "Nelze zobrazit náhled dávek: {error}"
@@ -1611,16 +1654,20 @@ msgstr "Nelze znovu analyzovat dávky, protože projekt není nastaven"
 msgid "Unable to retrieve Claude model list: {error}"
 msgstr "Nepodařilo se načíst seznam modelů Claude: {error}"
 
-#: PySubtitle/Providers/Provider_Gemini.py:121
+#: PySubtitle/Providers/Provider_Gemini.py:123
 msgid "Unable to retrieve Gemini model list: {error}"
 msgstr "Nepodařilo se načíst seznam modelů Gemini: {error}"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:140
-#: PySubtitle/Providers/Provider_DeepSeek.py:108
 #: PySubtitle/Providers/Provider_Mistral.py:103
 #: PySubtitle/Providers/Provider_OpenAI.py:147
 msgid "Unable to retrieve available AI models: {error}"
 msgstr "Nepodařilo se načíst dostupné modely AI: {error}"
+
+#: PySubtitle/Providers/Provider_DeepSeek.py:105
+#: PySubtitle/Providers/Provider_OpenRouter.py:242
+msgid "Unable to retrieve available models: {error}"
+msgstr "Nelze načíst dostupné modely: {error}"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:98
 #: PySubtitle/Providers/Provider_OpenAI.py:111
@@ -1671,7 +1718,7 @@ msgstr "Vracení úpravy řádku {line}"
 msgid "Unexpected error communicating with OpenAI"
 msgstr "Nečekaná chyba při komunikaci s OpenAI"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:160
+#: PySubtitle/Providers/Custom/CustomClient.py:176
 msgid "Unexpected error communicating with server"
 msgstr "Nečekaná chyba při komunikaci se serverem"
 
@@ -1682,7 +1729,6 @@ msgstr "Nečekaná chyba při komunikaci s poskytovatelem"
 
 #: PySubtitle/Providers/Mistral/MistralClient.py:87
 #: PySubtitle/Providers/OpenAI/ChatGPTClient.py:36
-#: PySubtitle/Providers/OpenAI/DeepSeekClient.py:42
 msgid "Unexpected response type: {response_type}"
 msgstr "Nečekaný typ odpovědi: {response_type}"
 
@@ -1698,6 +1744,10 @@ msgstr "Nepřeloženo > {number}. {text}"
 msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
 msgstr "Použít paralelní vlákna pro požadavky na překlad (může být rychlejší, ale nemusí fungovat se serverem)"
 
+#: PySubtitle/Providers/Provider_OpenRouter.py:90
+msgid "Use the default model and hide advanced model options"
+msgstr "Použít výchozí model a skrýt pokročilé možnosti modelu"
+
 #: PySubtitle/Providers/Provider_OpenAI.py:92
 msgid "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base"
 msgstr "Použít knihovnu httpx pro požadavky. Může pomoci, pokud obdržíte chybu přesměrování 307 s vlastním api_base"
@@ -1707,6 +1757,10 @@ msgid "User Prompt:\n {text}"
 msgstr ""
 "Uživatelská výzva:\n"
 " {text}"
+
+#: PySubtitle/Providers/Custom/CustomClient.py:29
+msgid "Using model: {model}"
+msgstr "Používá se model: {model}"
 
 #: GUI/SettingsDialog.py:74
 msgid "Validator: Maximum number of characters to allow in a single translated line"
@@ -1733,7 +1787,6 @@ msgid "add_right_to_left_markers"
 msgstr "Přidat značky zprava doleva"
 
 #: PySubtitle/Providers/Provider_Azure.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "api_base"
 msgstr "Základní API"
@@ -1741,10 +1794,10 @@ msgstr "Základní API"
 #: PySubtitle/Providers/Provider_Azure.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
 #: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
 #: PySubtitle/Providers/Provider_Gemini.py:0
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
 msgid "api_key"
 msgstr "API klíč"
 
@@ -1878,7 +1931,7 @@ msgstr "Maximální počet vláken"
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
 #: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
 msgid "max_tokens"
 msgstr "Maximální počet tokenů"
 
@@ -1905,12 +1958,16 @@ msgstr "Minimální počet znaků pro rozdělení"
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
 #: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
 #: PySubtitle/Providers/Provider_Gemini.py:0
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
 msgid "model"
 msgstr "Model"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "model_family"
+msgstr "Rodina modelů"
 
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "multithreaded"
@@ -1919,6 +1976,10 @@ msgstr "Vícevláknové"
 #: PySubtitle/Options.py:52
 msgid "normalise_dialog_tags"
 msgstr "Normalizovat značky dialogu"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "only_translation_models"
+msgstr "Pouze překladové modely"
 
 #: PySubtitle/Options.py:43
 msgid "postprocess_translation"
@@ -1954,10 +2015,10 @@ msgstr "Proxy"
 
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
 #: PySubtitle/Providers/Provider_Gemini.py:0
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
 msgid "rate_limit"
 msgstr "Omezení rychlosti"
 
@@ -1973,7 +2034,7 @@ msgstr "Odstranit výplňková slova"
 msgid "retry_on_error"
 msgstr "Opakovat při chybě"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
 msgid "reuse_client"
 msgstr "Znovu použít klienta"
 
@@ -1990,6 +2051,7 @@ msgid "secret_access_key"
 msgstr "Tajný přístupový klíč"
 
 #: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
 msgid "server_address"
 msgstr "Adresa serveru"
 
@@ -2028,10 +2090,10 @@ msgstr "Cílový jazyk"
 #: PySubtitle/Providers/Provider_Bedrock.py:0
 #: PySubtitle/Providers/Provider_Claude.py:0
 #: PySubtitle/Providers/Provider_Custom.py:0
-#: PySubtitle/Providers/Provider_DeepSeek.py:0
 #: PySubtitle/Providers/Provider_Gemini.py:0
 #: PySubtitle/Providers/Provider_Mistral.py:0
 #: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
 msgid "temperature"
 msgstr "Teplota"
 
@@ -2050,6 +2112,10 @@ msgstr "Časový limit"
 #: PySubtitle/Options.py:72
 msgid "ui_language"
 msgstr "Jazyk uživatelského rozhraní"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "use_default_model"
+msgstr "Použít výchozí model"
 
 #: PySubtitle/Providers/Provider_OpenAI.py:0
 msgid "use_httpx"
@@ -2134,6 +2200,24 @@ msgstr "{} řádků bylo prázdných a nebylo zapsáno do výstupního souboru"
 #: PySubtitle/SubtitleFile.py:349
 msgid "{} lines were invalid and were not written to the output file"
 msgstr "{} řádků bylo neplatných a nebylo zapsáno do výstupního souboru"
+
+#~ msgid "An API key is normally not needed for a local server"
+#~ msgstr "Pro lokální server obvykle není potřeba API klíč"
+
+#~ msgid "OpenAI SDK is not installed. DeepSeek provider will not be available"
+#~ msgstr "OpenAI SDK není nainstalováno. Poskytovatel DeepSeek nebude k dispozici"
+
+#~ msgid "OpenAI SDK not installed. DeepSeek provider will not be available"
+#~ msgstr "OpenAI SDK není nainstalováno. Poskytovatel DeepSeek nebude k dispozici"
+
+#~ msgid "The address of the local server"
+#~ msgstr "Adresa lokálního serveru"
+
+#~ msgid "The model is normally set by the server, and should not need to be specified here"
+#~ msgstr "Model je obvykle nastaven serverem a neměl by zde být specifikován"
+
+#~ msgid "Translating with local server at {server_address}{endpoint}"
+#~ msgstr "Překládám s lokálním serverem na adrese {server_address}{endpoint}"
 
 #~ msgid "Updating line {line} with {original} > {translated}"
 #~ msgstr "Aktualizace řádku {line} s {original} > {translated}"
