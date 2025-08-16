@@ -75,10 +75,6 @@ def GetInputPath(filepath):
         return None
 
     basename, dummy = os.path.splitext(os.path.basename(filepath))
-    if basename.endswith("-ChatGPT"):
-        basename = basename[0:basename.index("-ChatGPT")]
-    if basename.endswith("-GPT"):
-        basename = basename[0:basename.index("-GPT")]
     path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
     return os.path.normpath(path)
 
@@ -88,10 +84,6 @@ def GetOutputPath(filepath, language="translated"):
 
     basename, dummy = os.path.splitext(os.path.basename(filepath))
 
-    if basename.endswith("-ChatGPT"):
-        basename = basename[0:basename.index("-ChatGPT")]
-    if basename.endswith("-GPT"):
-        basename = basename[0:basename.index("-GPT")]
     language_suffix = f".{language}"
     if not basename.endswith(language_suffix):
         basename = basename + language_suffix
