@@ -3,6 +3,9 @@ from collections.abc import Callable
 from PySide6.QtWidgets import QToolBar, QStyle, QApplication
 from PySide6.QtCore import Qt, SignalInstance
 from PySide6.QtGui import QAction, QIcon
+from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtCore import QByteArray
+from PySide6.QtGui import QPainter, QPixmap
 
 from GUI.CommandQueue import CommandQueue
 from GUI.GuiInterface import GuiInterface
@@ -31,6 +34,9 @@ class MainToolbar(QToolBar):
         self.gui : GuiInterface = gui_interface
 
         self._actions : dict[str, QAction] = {}
+
+        self._enabled_icons : dict[str, QIcon] = {}
+        self._disabled_icons : dict[str, QIcon] = {}
 
         # Subscribe to UI language changes
         self.gui.uiLanguageChanged.connect(self.UpdateUiLanguage, Qt.ConnectionType.QueuedConnection)
@@ -63,6 +69,15 @@ class MainToolbar(QToolBar):
     def GetActionList(self, names : list[str]) -> list[QAction]:
         return [ self.GetAction(name) for name in names ]
 
+    def AddActionGroups(self):
+        for group in self._action_groups:
+            if group != self._action_groups[0]:
+                self.addSeparator()
+
+            actions = self.GetActionList(group)
+            for action in actions:
+                self.addAction(action)
+
     def DefineActions(self):
         """
         Define the supported actions
@@ -89,10 +104,15 @@ class MainToolbar(QToolBar):
         action.triggered.connect(function)
 
         if icon:
-            if isinstance(icon, QStyle.StandardPixmap):
+            if isinstance(icon, QIcon):
+                pass  # Already a QIcon, no need to convert
+            elif isinstance(icon, QStyle.StandardPixmap):
                 icon = QApplication.style().standardIcon(icon)
             else:
-                icon = QIcon(icon)
+                self._enabled_icons[name] = QIcon(icon)
+                self._disabled_icons[name] = _create_disabled_icon(icon)
+                icon = self._enabled_icons[name]
+
             action.setIcon(icon)
 
         if shortcut:
@@ -104,15 +124,6 @@ class MainToolbar(QToolBar):
 
         self._actions[name] = action
 
-    def AddActionGroups(self):
-        for group in self._action_groups:
-            if group != self._action_groups[0]:
-                self.addSeparator()
-
-            actions = self.GetActionList(group)
-            for action in actions:
-                self.addAction(action)
-
     def EnableActions(self, action_list : list[str]):
         """
         Enable a list of commands
@@ -121,6 +132,8 @@ class MainToolbar(QToolBar):
             action = self._actions.get(name)
             if action:
                 action.setEnabled(True)
+                if name in self._enabled_icons:
+                    action.setIcon(self._enabled_icons[name])
 
     def DisableActions(self, action_list : list[str]):
         """
@@ -130,6 +143,8 @@ class MainToolbar(QToolBar):
             action = self._actions.get(name)
             if action:
                 action.setEnabled(False)
+                if name in self._disabled_icons:
+                    action.setIcon(self._disabled_icons[name])
 
     def SetActionsEnabled(self, action_list : list[str], enabled : bool):
         """
@@ -196,3 +211,33 @@ class MainToolbar(QToolBar):
         Get the file path for an icon
         """
         return GetResourcePath("assets", "icons", f"{icon_name}.svg")
+
+def _create_disabled_icon(svg_path : str) -> QIcon:
+    """Generate a disabled version of an SVG icon"""
+    try:
+        with open(svg_path, 'r', encoding='utf-8') as f:
+            svg_content = f.read()
+        
+        # Replace colors for disabled look
+        disabled_svg = svg_content.replace('fill="#fff"', 'fill="#D0D0D0"')
+        disabled_svg = disabled_svg.replace('fill="white"', 'fill="#D0D0D0"')
+        disabled_svg = disabled_svg.replace('stroke="#000"', 'stroke="#808080"')
+        disabled_svg = disabled_svg.replace('stroke="black"', 'stroke="#808080"')
+        disabled_svg = disabled_svg.replace('fill="black"', 'fill="#606060"')
+        
+        # Create QIcon from modified SVG
+        svg_bytes = QByteArray(disabled_svg.encode('utf-8'))
+        svg_renderer = QSvgRenderer(svg_bytes)
+        pixmap = QPixmap(24, 24)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        svg_renderer.render(painter)
+        painter.end()
+        
+        disabled_icon = QIcon()
+        disabled_icon.addPixmap(pixmap)
+        return disabled_icon
+        
+    except Exception as e:
+        print(f"Failed to create disabled icon for {svg_path}: {e}")
+        return QIcon(svg_path)  # Fallback to original

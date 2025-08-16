@@ -31,10 +31,6 @@ QStatusBar {
     margin: 6px 8px;
 }
 
-.MainToolbar QToolButton:disabled {
-    background: #C9CCD3;
-}
-
 QTreeView:item {
     border-radius: 12;
 }

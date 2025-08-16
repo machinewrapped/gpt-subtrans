@@ -24,10 +24,6 @@ QLabel {
     margin: 6px 8px;
 }
 
-.MainToolbar QToolButton:disabled {
-    background: #606060;
-}
-
 .LogWindow {
     background-color: #121212;
     border: 1px solid #242424;
