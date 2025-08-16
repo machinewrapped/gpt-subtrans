@@ -1,6 +1,8 @@
 # LLM-Subtrans Development Guide
 
-Uses Python 3.10+ and PySide6
+Uses Python 3.10+ and PySide6.
+
+Secrets are stored in a .env file - you must never read the contents of the file.
 
 ## Commands
 - Run all tests: `python scripts/run_tests.py`

@@ -73,5 +73,6 @@ These instructions help AI coding agents work effectively in this repository. Fo
 - Do not directly modify Qt widgets from worker threads; only via model updates/signals.
 - When adding new user-facing strings, re-run extract/merge to keep POT/PO up to date.
 - Keep provider-specific identifiers (API model names) un-translated in UI text.
+- Secrets are stored in a .env file - you must never read the contents of the file.
 
 If anything is unclear, open an issue or check `CLAUDE.md` for dev conventions.
