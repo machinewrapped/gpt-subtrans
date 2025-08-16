@@ -58,7 +58,7 @@ def write_svg(filename: str, elements: str, viewbox: str = "0 0 24 24") -> None:
     svg = (
         f'<?xml version="1.0" encoding="UTF-8"?>\n'
         f'<svg viewBox="{viewbox}" width="24" height="24" '
-        f'fill="none" stroke="currentColor" stroke-width="2" '
+        f'fill="#ffffff" stroke="currentColor" stroke-width="2" '
         f'stroke-linecap="round" stroke-linejoin="round" '
         f'xmlns="http://www.w3.org/2000/svg">\n'
         f'{elements}\n'

@@ -101,7 +101,7 @@ class MainToolbar(QToolBar):
         """
         Get the file path for an icon
         """
-        return GetResourcePath("assets", f"{icon_name}.svg")
+        return GetResourcePath("assets", "icons", f"{icon_name}.svg")
 
     def AddActionGroups(self):
         for group in self._action_groups:

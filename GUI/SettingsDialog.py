@@ -28,12 +28,12 @@ class SettingsDialog(QDialog):
     SECTIONS = {
         'General': {
             'ui_language': (str, _("The language of the application interface")),
+            'theme': [],
             'target_language': (str, _("The default language to translate the subtitles to")),
             'include_original': (bool, _("Include original text in translated subtitles")),
             'add_right_to_left_markers': (bool, _("Add RTL markers around translated lines that contain primarily right-to-left script on save")),
             'instruction_file': (str, _("Instructions for the translation provider to follow")),
             'prompt': (str, _("The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in")),
-            'theme': [],
             'autosave': (bool, _("Automatically save the project after each translation batch")),
             'write_backup': (bool, _("Save a backup copy of the project when opening it")),
             # 'autosplit_incomplete': (bool, "If true, incomplete translations will be split into smaller batches and retried"),

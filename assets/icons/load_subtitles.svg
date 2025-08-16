@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- Folder body with top tab -->
+    <!-- The flap sits at y=6 (tab) and body descends to y=19. -->
+    <path d="M3 8 H9 L11 6 H21 V19 H3 Z" fill="white" stroke="black"/>    
+</svg>

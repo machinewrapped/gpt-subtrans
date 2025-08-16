@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-  <!-- Page with folded corner -->
-  <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-  <polyline points="15 2 15 7 20 7"/>
-  <!-- Centred cog -->
-  <circle cx="12" cy="14" r="2"/>
-  <path d="M12 10v1.5M12 16.5V18M9.2 11.2l1.1 1.1M13.7 15.7l1.1 1.1M8 14h1.5M14.5 14H16M9.2 16.8l1.1-1.1M13.7 12.3l1.1-1.1"/>
-</svg>

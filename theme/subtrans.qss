@@ -20,12 +20,19 @@ QStatusBar {
 }
 
 .MainToolbar, .ProjectToolbar {
-    background-color: #a0a0a0;
-    border: none;
+    background: #B8BCC5;
+    border: 1px solid #a0a0a0;
+    padding: 1px;
 }
 
-.MainToolbar QToolButton {
-    color: #ff0000;
+.MainToolbar::separator {
+    background: #C9CCD3;
+    width: 2px;
+    margin: 6px 8px;
+}
+
+.MainToolbar QToolButton:disabled {
+    background: #C9CCD3;
 }
 
 QTreeView:item {
