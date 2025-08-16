@@ -7,7 +7,7 @@ import dotenv
 from PySubtitle.Helpers.Version import VersionNumberLessThan
 from PySubtitle.Instructions import Instructions, LoadInstructions
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Resources import config_dir
+from PySubtitle.Helpers.Resources import config_dir, old_config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
 from PySubtitle.version import __version__
 
@@ -216,6 +216,39 @@ class Options:
 
         except Exception as e:
             logging.error(_("Error saving settings to {}").format(settings_path))
+            return False
+        
+    def MigrateSettings(self) -> bool:
+        """
+        Migrate settings from the old config directory to the new one
+        """
+        if os.path.exists(settings_path):
+            return False
+        
+        old_settings_path = os.path.join(old_config_dir, 'settings.json')
+        if not os.path.exists(old_settings_path):
+            return False
+
+        try:
+            if not os.path.exists(config_dir):
+                # Rename the old config directory to the new one
+                os.rename(old_config_dir, config_dir)
+                logging.info("Settings migrated to new location")
+            else:
+                os.rename(old_settings_path, settings_path)
+                logging.info("Settings file migrated to new location")
+
+                old_custom_instructions_path = os.path.join(old_config_dir, 'instructions')
+                if os.path.exists(old_custom_instructions_path):
+                    new_custom_instructions_path = os.path.join(config_dir, 'instructions')
+                    if not os.path.exists(new_custom_instructions_path):
+                        os.rename(old_custom_instructions_path, new_custom_instructions_path)
+                        logging.info("Custom instructions migrated to new location")                
+                
+            return True
+
+        except Exception as e:
+            logging.error(_("Error migrating settings from {} to {}. You can copy the files manually and restart the application.").format(old_config_dir, config_dir))
             return False
 
     def BuildUserPrompt(self) -> str:

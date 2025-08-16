@@ -28,7 +28,7 @@ class AboutDialog(QDialog):
         image_label.setPixmap(pixmap)
 
         # Label for image attribution
-        image_attribution_label = QLabel(_('Logo generated with <a href="https://stability.ai/stablediffusion">Stable Diffusion XL</a>'))
+        image_attribution_label = QLabel(_('Logo generated with <a href="https://qwen.ai/home">Qwen3</a>'))
         image_attribution_label.setOpenExternalLinks(True)  # This ensures the link opens in a default web browser
         image_attribution_label.setWordWrap(True)
         image_attribution_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -53,7 +53,7 @@ class AboutDialog(QDialog):
         # Author Information and GitHub link
         author_label = QLabel(_("Developed by: MachineWrapped<br>"
                               "Contact: machinewrapped@gmail.com<br>"
-                              '<a href="https://github.com/machinewrapped/gpt-subtrans">GitHub Repository</a><br>'
+                              '<a href="https://github.com/machinewrapped/llm-subtrans">GitHub Repository</a><br>'
                               'Thanks to all contributors and those who have reported issues.'))
         author_label.setOpenExternalLinks(True)
         author_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)

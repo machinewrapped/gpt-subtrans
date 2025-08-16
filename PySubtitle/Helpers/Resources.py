@@ -3,7 +3,8 @@ import os
 import sys
 import appdirs
 
-config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
+old_config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
+config_dir = appdirs.user_config_dir("LLMSubtrans", "MachineWrapped", roaming=True)
 
 def GetResourcePath(relative_path, *parts):
     """

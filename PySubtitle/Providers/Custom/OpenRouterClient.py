@@ -11,7 +11,7 @@ class OpenRouterClient(CustomClient):
         settings.setdefault('server_address', 'https://openrouter.ai/api/')
         settings.setdefault('endpoint', '/v1/chat/completions')
         settings.setdefault('additional_headers', {
-            'HTTP-Referer': 'https://github.com/machinewrapped/gpt-subtrans',
-            'X-Title': 'GPT-Subtrans'
+            'HTTP-Referer': 'https://github.com/machinewrapped/llm-subtrans',
+            'X-Title': 'LLM-Subtrans'
             })
         super().__init__(settings)

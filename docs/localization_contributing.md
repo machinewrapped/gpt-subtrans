@@ -1,10 +1,10 @@
 # Localization Contributing Guide
 
-Thanks for helping translate GPT-Subtrans! This guide explains the workflow, tools, and style rules for adding or improving translations.
+Thanks for helping translate LLM-Subtrans! This guide explains the workflow, tools, and style rules for adding or improving translations.
 
 ## Overview
 
-GPT-Subtrans uses GNU gettext. Translatable strings live in:
+LLM-Subtrans uses GNU gettext. Translatable strings live in:
 - Template (POT): `locales/gui-subtrans.pot`
 - Per-language catalogs: `locales/<lang>/LC_MESSAGES/gui-subtrans.po`
 - Compiled catalogs: `locales/<lang>/LC_MESSAGES/gui-subtrans.mo`
