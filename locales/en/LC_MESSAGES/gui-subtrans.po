@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-15 17:12+0000\n"
-"PO-Revision-Date: 2025-08-15 17:12+0000\n"
+"POT-Creation-Date: 2025-08-16 12:39+0000\n"
+"PO-Revision-Date: 2025-08-16 12:39+0000\n"
 "Last-Translator: Auto-generated\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -79,7 +79,7 @@ msgstr ""
 msgid "About GUI-Subtrans"
 msgstr ""
 
-#: GUI/MainToolbar.py:76
+#: GUI/MainToolbar.py:77
 msgid "About this program"
 msgstr ""
 
@@ -99,7 +99,7 @@ msgstr ""
 msgid "Add RTL Markers"
 msgstr ""
 
-#: GUI/SettingsDialog.py:33
+#: GUI/SettingsDialog.py:34
 msgid "Add RTL markers around translated lines that contain primarily right-to-left script on save"
 msgstr ""
 
@@ -432,6 +432,10 @@ msgstr ""
 msgid "Error loading settings from {}"
 msgstr ""
 
+#: PySubtitle/Options.py:251
+msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
+msgstr ""
+
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
 msgstr ""
@@ -477,7 +481,7 @@ msgstr ""
 msgid "Executing LoadSubtitleFile {file}"
 msgstr ""
 
-#: GUI/MainToolbar.py:67
+#: GUI/MainToolbar.py:68
 msgid "Exit Program"
 msgstr ""
 
@@ -617,7 +621,7 @@ msgstr ""
 msgid "Google SDK (google-genai) is not installed. Gemini provider will not be available"
 msgstr ""
 
-#: GUI/ProjectToolbar.py:19 GUI/ProjectToolbar.py:26
+#: GUI/ProjectToolbar.py:20 GUI/ProjectToolbar.py:27
 msgid "Hide/Show Project Options"
 msgstr ""
 
@@ -645,11 +649,11 @@ msgstr ""
 msgid "Include Original Text"
 msgstr ""
 
-#: GUI/SettingsDialog.py:32
+#: GUI/SettingsDialog.py:33
 msgid "Include original text in translated subtitles"
 msgstr ""
 
-#: GUI/SettingsDialog.py:34
+#: GUI/SettingsDialog.py:35
 msgid "Instructions for the translation provider to follow"
 msgstr ""
 
@@ -713,11 +717,11 @@ msgstr ""
 msgid "Load Instructions"
 msgstr ""
 
-#: GUI/MainToolbar.py:68
+#: GUI/MainToolbar.py:69
 msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
 msgstr ""
 
-#: scripts/gui-subtrans.py:112
+#: scripts/gui-subtrans.py:117
 msgid "Logging to {path}"
 msgstr ""
 
@@ -733,7 +737,7 @@ msgstr ""
 msgid "Made substitutions in output:\n{replaced}"
 msgstr ""
 
-#: GUI/MainToolbar.py:26
+#: GUI/MainToolbar.py:27
 msgid "Main Toolbar"
 msgstr ""
 
@@ -963,7 +967,7 @@ msgstr ""
 msgid "Nothing selected to translate"
 msgstr ""
 
-#: GUI/MainToolbar.py:184
+#: GUI/MainToolbar.py:191
 msgid "Nothing to redo"
 msgstr ""
 
@@ -975,7 +979,7 @@ msgstr ""
 msgid "Nothing to translate"
 msgstr ""
 
-#: GUI/MainToolbar.py:178
+#: GUI/MainToolbar.py:185
 msgid "Nothing to undo"
 msgstr ""
 
@@ -1072,7 +1076,7 @@ msgstr ""
 msgid "Project Settings"
 msgstr ""
 
-#: GUI/ProjectToolbar.py:12 GUI/ProjectToolbar.py:25
+#: GUI/ProjectToolbar.py:13 GUI/ProjectToolbar.py:26
 msgid "Project Toolbar"
 msgstr ""
 
@@ -1152,11 +1156,11 @@ msgstr ""
 msgid "Reasoning"
 msgstr ""
 
-#: GUI/MainToolbar.py:75
+#: GUI/MainToolbar.py:76
 msgid "Redo last undone action"
 msgstr ""
 
-#: GUI/MainToolbar.py:182
+#: GUI/MainToolbar.py:189
 msgid "Redo {command}"
 msgstr ""
 
@@ -1241,7 +1245,7 @@ msgstr ""
 msgid "Save preprocessed subtitles to a separate file"
 msgstr ""
 
-#: GUI/MainToolbar.py:69
+#: GUI/MainToolbar.py:70
 msgid "Save project (Hold shift to save as...)"
 msgstr ""
 
@@ -1302,7 +1306,7 @@ msgstr ""
 msgid "Server error: {status_code} {text}"
 msgstr ""
 
-#: GUI/MainToolbar.py:70
+#: GUI/MainToolbar.py:71
 msgid "Settings"
 msgstr ""
 
@@ -1322,11 +1326,11 @@ msgstr ""
 msgid "Splitting scene {scene} batch: {batch} at line {line}"
 msgstr ""
 
-#: GUI/MainToolbar.py:71
+#: GUI/MainToolbar.py:72
 msgid "Start Translating (hold shift to retranslate)"
 msgstr ""
 
-#: GUI/MainToolbar.py:72
+#: GUI/MainToolbar.py:73
 msgid "Start translating on multiple threads (fast but unsafe)"
 msgstr ""
 
@@ -1338,7 +1342,7 @@ msgstr ""
 msgid "Stop translating if an error is encountered"
 msgstr ""
 
-#: GUI/MainToolbar.py:73
+#: GUI/MainToolbar.py:74
 msgid "Stop translation"
 msgstr ""
 
@@ -1402,7 +1406,7 @@ msgstr ""
 msgid "Text Files (*.txt);;All Files (*))"
 msgstr ""
 
-#: GUI/SettingsDialog.py:35
+#: GUI/SettingsDialog.py:36
 msgid "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"
 msgstr ""
 
@@ -1443,7 +1447,7 @@ msgstr ""
 msgid "The base URL to use for requests - leave as default unless you know you need something else"
 msgstr ""
 
-#: GUI/SettingsDialog.py:31
+#: GUI/SettingsDialog.py:32
 msgid "The default language to translate the subtitles to"
 msgstr ""
 
@@ -1605,7 +1609,7 @@ msgstr ""
 msgid "Unable to load instructions from {file}: {error}"
 msgstr ""
 
-#: PySubtitle/Options.py:250
+#: PySubtitle/Options.py:283
 msgid "Unable to load instructions from {}: {}"
 msgstr ""
 
@@ -1690,11 +1694,11 @@ msgstr ""
 msgid "Unable to update settings: {error}"
 msgstr ""
 
-#: GUI/MainToolbar.py:74
+#: GUI/MainToolbar.py:75
 msgid "Undo last action"
 msgstr ""
 
-#: GUI/MainToolbar.py:176
+#: GUI/MainToolbar.py:183
 msgid "Undo {command}"
 msgstr ""
 

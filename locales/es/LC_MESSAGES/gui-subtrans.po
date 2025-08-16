@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-15 17:12+0000\n"
+"POT-Creation-Date: 2025-08-16 12:39+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -80,7 +80,7 @@ msgstr "{type} abortado"
 msgid "About GUI-Subtrans"
 msgstr "Acerca de GUI-Subtrans"
 
-#: GUI/MainToolbar.py:76
+#: GUI/MainToolbar.py:77
 msgid "About this program"
 msgstr "Acerca de este programa"
 
@@ -100,7 +100,7 @@ msgstr "Se ha alcanzado la cuota de la cuenta, actualiza tu plan o espera a que 
 msgid "Add RTL Markers"
 msgstr "Agregar marcadores RTL"
 
-#: GUI/SettingsDialog.py:33
+#: GUI/SettingsDialog.py:34
 msgid "Add RTL markers around translated lines that contain primarily right-to-left script on save"
 msgstr "Añadir marcadores RTL alrededor de las líneas traducidas que contengan principalmente escritura de derecha a izquierda al guardar"
 
@@ -433,6 +433,10 @@ msgstr "Error en {command}: {message}"
 msgid "Error loading settings from {}"
 msgstr "Error al cargar la configuración desde {}"
 
+#: PySubtitle/Options.py:251
+msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
+msgstr "Error al migrar la configuración de {} a {}. Puede copiar los archivos manualmente y reiniciar la aplicación."
+
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
 msgstr "Error al rehacer la última acción: {error}"
@@ -478,7 +482,7 @@ msgstr "Errores: {errors}"
 msgid "Executing LoadSubtitleFile {file}"
 msgstr "Ejecutando carga de archivo {file}"
 
-#: GUI/MainToolbar.py:67
+#: GUI/MainToolbar.py:68
 msgid "Exit Program"
 msgstr "Salir del programa"
 
@@ -618,7 +622,7 @@ msgstr "General"
 msgid "Google SDK (google-genai) is not installed. Gemini provider will not be available"
 msgstr "El SDK de Google (google-genai) no está instalado. El proveedor Gemini no estará disponible"
 
-#: GUI/ProjectToolbar.py:19 GUI/ProjectToolbar.py:26
+#: GUI/ProjectToolbar.py:20 GUI/ProjectToolbar.py:27
 msgid "Hide/Show Project Options"
 msgstr "Mostrar/Ocultar opciones del proyecto"
 
@@ -646,11 +650,11 @@ msgstr "Mejorar selección"
 msgid "Include Original Text"
 msgstr "Incluir texto original"
 
-#: GUI/SettingsDialog.py:32
+#: GUI/SettingsDialog.py:33
 msgid "Include original text in translated subtitles"
 msgstr "Incluir el texto original en los subtítulos traducidos"
 
-#: GUI/SettingsDialog.py:34
+#: GUI/SettingsDialog.py:35
 msgid "Instructions for the translation provider to follow"
 msgstr "Instrucciones que debe seguir el proveedor de traducción"
 
@@ -714,11 +718,11 @@ msgstr "Líneas {lines} no encontradas en el lote {batch}"
 msgid "Load Instructions"
 msgstr "Cargar instrucciones"
 
-#: GUI/MainToolbar.py:68
+#: GUI/MainToolbar.py:69
 msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
 msgstr "Cargar proyecto/subtítulos (mantén pulsado shift para recargar subtítulos)"
 
-#: scripts/gui-subtrans.py:112
+#: scripts/gui-subtrans.py:117
 msgid "Logging to {path}"
 msgstr "Registrando en {path}"
 
@@ -738,7 +742,7 @@ msgstr ""
 "Se hicieron sustituciones en la salida:\n"
 "{replaced}"
 
-#: GUI/MainToolbar.py:26
+#: GUI/MainToolbar.py:27
 msgid "Main Toolbar"
 msgstr "Barra de herramientas principal"
 
@@ -968,7 +972,7 @@ msgstr "Nada seleccionado para reanalizar"
 msgid "Nothing selected to translate"
 msgstr "Nada seleccionado para traducir"
 
-#: GUI/MainToolbar.py:184
+#: GUI/MainToolbar.py:191
 msgid "Nothing to redo"
 msgstr "Nada que rehacer"
 
@@ -980,7 +984,7 @@ msgstr "¡Nada que guardar!"
 msgid "Nothing to translate"
 msgstr "Nada que traducir"
 
-#: GUI/MainToolbar.py:178
+#: GUI/MainToolbar.py:185
 msgid "Nothing to undo"
 msgstr "Nada que deshacer"
 
@@ -1077,7 +1081,7 @@ msgstr "Procesamiento"
 msgid "Project Settings"
 msgstr "Configuración del proyecto"
 
-#: GUI/ProjectToolbar.py:12 GUI/ProjectToolbar.py:25
+#: GUI/ProjectToolbar.py:13 GUI/ProjectToolbar.py:26
 msgid "Project Toolbar"
 msgstr "Barra de herramientas del proyecto"
 
@@ -1157,11 +1161,11 @@ msgstr "Listo."
 msgid "Reasoning"
 msgstr "Razonamiento"
 
-#: GUI/MainToolbar.py:75
+#: GUI/MainToolbar.py:76
 msgid "Redo last undone action"
 msgstr "Rehacer la última acción deshecha"
 
-#: GUI/MainToolbar.py:182
+#: GUI/MainToolbar.py:189
 msgid "Redo {command}"
 msgstr "Rehacer {command}"
 
@@ -1246,7 +1250,7 @@ msgstr "Guardar una copia de seguridad del proyecto al abrirlo"
 msgid "Save preprocessed subtitles to a separate file"
 msgstr "Guardar los subtítulos preprocesados en un archivo separado"
 
-#: GUI/MainToolbar.py:69
+#: GUI/MainToolbar.py:70
 msgid "Save project (Hold shift to save as...)"
 msgstr "Guardar proyecto (mantén pulsado shift para guardar como...)"
 
@@ -1307,7 +1311,7 @@ msgstr "Selección {task_type}"
 msgid "Server error: {status_code} {text}"
 msgstr "Error del servidor: {status_code} {text}"
 
-#: GUI/MainToolbar.py:70
+#: GUI/MainToolbar.py:71
 msgid "Settings"
 msgstr "Ajustes"
 
@@ -1327,11 +1331,11 @@ msgstr "Dividiendo la escena {scene} en el lote {batch}"
 msgid "Splitting scene {scene} batch: {batch} at line {line}"
 msgstr "Dividiendo la escena {scene} lote: {batch} en la línea {line}"
 
-#: GUI/MainToolbar.py:71
+#: GUI/MainToolbar.py:72
 msgid "Start Translating (hold shift to retranslate)"
 msgstr "Iniciar traducción (mantén pulsado shift para retraducir)"
 
-#: GUI/MainToolbar.py:72
+#: GUI/MainToolbar.py:73
 msgid "Start translating on multiple threads (fast but unsafe)"
 msgstr "Iniciar traducción en varios hilos (rápido pero inseguro)"
 
@@ -1343,7 +1347,7 @@ msgstr "Iniciando"
 msgid "Stop translating if an error is encountered"
 msgstr "Detener la traducción si ocurre un error"
 
-#: GUI/MainToolbar.py:73
+#: GUI/MainToolbar.py:74
 msgid "Stop translation"
 msgstr "Detener traducción"
 
@@ -1407,7 +1411,7 @@ msgstr "Idioma objetivo"
 msgid "Text Files (*.txt);;All Files (*))"
 msgstr "Archivos de texto (*.txt);;Todos los archivos (*))"
 
-#: GUI/SettingsDialog.py:35
+#: GUI/SettingsDialog.py:36
 msgid "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"
 msgstr "La instrucción (breve) para cada lote de subtítulos. Algunas [etiquetas] se rellenan automáticamente"
 
@@ -1448,7 +1452,7 @@ msgstr "La URL base para las solicitudes (por defecto es https://api.mistral.ai)
 msgid "The base URL to use for requests - leave as default unless you know you need something else"
 msgstr "La URL base para las solicitudes: déjala por defecto salvo que sepas que necesitas otra"
 
-#: GUI/SettingsDialog.py:31
+#: GUI/SettingsDialog.py:32
 msgid "The default language to translate the subtitles to"
 msgstr "El idioma predeterminado al que traducir los subtítulos"
 
@@ -1610,7 +1614,7 @@ msgstr "No se pudo inicializar el SDK de Anthropic. El proveedor Claude no estar
 msgid "Unable to load instructions from {file}: {error}"
 msgstr "No se pueden cargar instrucciones desde {file}: {error}"
 
-#: PySubtitle/Options.py:250
+#: PySubtitle/Options.py:283
 msgid "Unable to load instructions from {}: {}"
 msgstr "No se pudieron cargar las instrucciones desde {}: {}"
 
@@ -1695,11 +1699,11 @@ msgstr "No se puede deshacer el comando SplitScene: {error}"
 msgid "Unable to update settings: {error}"
 msgstr "No se puede actualizar la configuración: {error}"
 
-#: GUI/MainToolbar.py:74
+#: GUI/MainToolbar.py:75
 msgid "Undo last action"
 msgstr "Deshacer última acción"
 
-#: GUI/MainToolbar.py:176
+#: GUI/MainToolbar.py:183
 msgid "Undo {command}"
 msgstr "Deshacer {command}"
 

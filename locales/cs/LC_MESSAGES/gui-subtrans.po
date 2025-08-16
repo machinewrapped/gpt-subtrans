@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-15 17:12+0000\n"
+"POT-Creation-Date: 2025-08-16 12:39+0000\n"
 "PO-Revision-Date: 2025-08-09 21:00+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Czech\n"
@@ -80,7 +80,7 @@ msgstr "Přerušeno {type}"
 msgid "About GUI-Subtrans"
 msgstr "O GUI-Subtrans"
 
-#: GUI/MainToolbar.py:76
+#: GUI/MainToolbar.py:77
 msgid "About this program"
 msgstr "O tomto programu"
 
@@ -100,7 +100,7 @@ msgstr "Kvóta účtu byla dosažena, prosím, upgradujte si plán nebo počkejt
 msgid "Add RTL Markers"
 msgstr "Přidat RTL značky"
 
-#: GUI/SettingsDialog.py:33
+#: GUI/SettingsDialog.py:34
 msgid "Add RTL markers around translated lines that contain primarily right-to-left script on save"
 msgstr "Při uložení přidat značky RTL kolem přeložených řádků, které obsahují primárně písmo zprava doleva"
 
@@ -433,6 +433,10 @@ msgstr "Chyba v {command}: {message}"
 msgid "Error loading settings from {}"
 msgstr "Chyba při načítání nastavení z {}"
 
+#: PySubtitle/Options.py:251
+msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
+msgstr "Chyba při migraci nastavení z {} do {}. Můžete soubory zkopírovat ručně a restartovat aplikaci."
+
 #: GUI/ProjectActions.py:118
 msgid "Error redoing the last command: {error}"
 msgstr "Chyba při opakování posledního příkazu: {error}"
@@ -478,7 +482,7 @@ msgstr "Chyby: {errors}"
 msgid "Executing LoadSubtitleFile {file}"
 msgstr "Provádění LoadSubtitleFile {file}"
 
-#: GUI/MainToolbar.py:67
+#: GUI/MainToolbar.py:68
 msgid "Exit Program"
 msgstr "Ukončit program"
 
@@ -621,7 +625,7 @@ msgstr "Obecné"
 msgid "Google SDK (google-genai) is not installed. Gemini provider will not be available"
 msgstr "Google SDK (google-genai) není nainstalováno. Poskytovatel Gemini nebude k dispozici"
 
-#: GUI/ProjectToolbar.py:19 GUI/ProjectToolbar.py:26
+#: GUI/ProjectToolbar.py:20 GUI/ProjectToolbar.py:27
 msgid "Hide/Show Project Options"
 msgstr "Skrýt/Zobrazit možnosti projektu"
 
@@ -649,11 +653,11 @@ msgstr "Vylepšit výběr"
 msgid "Include Original Text"
 msgstr "Zahrnout původní text"
 
-#: GUI/SettingsDialog.py:32
+#: GUI/SettingsDialog.py:33
 msgid "Include original text in translated subtitles"
 msgstr "Zahrnout původní text do přeložených titulků"
 
-#: GUI/SettingsDialog.py:34
+#: GUI/SettingsDialog.py:35
 msgid "Instructions for the translation provider to follow"
 msgstr "Pokyny pro poskytovatele překladu"
 
@@ -717,11 +721,11 @@ msgstr "Řádky {lines} nebyly nalezeny v dávce {batch}"
 msgid "Load Instructions"
 msgstr "Načíst pokyny"
 
-#: GUI/MainToolbar.py:68
+#: GUI/MainToolbar.py:69
 msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
 msgstr "Načíst projekt/titulky (Podržte Shift pro opětovné načtení titulků)"
 
-#: scripts/gui-subtrans.py:112
+#: scripts/gui-subtrans.py:117
 msgid "Logging to {path}"
 msgstr "Zaznamenávání do {path}"
 
@@ -741,7 +745,7 @@ msgstr ""
 "Provedeny záměny ve výstupu:\n"
 "{replaced}"
 
-#: GUI/MainToolbar.py:26
+#: GUI/MainToolbar.py:27
 msgid "Main Toolbar"
 msgstr "Hlavní panel nástrojů"
 
@@ -971,7 +975,7 @@ msgstr "Nic není vybráno k opětovné analýze"
 msgid "Nothing selected to translate"
 msgstr "Nic není vybráno k překladu"
 
-#: GUI/MainToolbar.py:184
+#: GUI/MainToolbar.py:191
 msgid "Nothing to redo"
 msgstr "Není co opakovat"
 
@@ -983,7 +987,7 @@ msgstr "Není co uložit!"
 msgid "Nothing to translate"
 msgstr "Není co překládat"
 
-#: GUI/MainToolbar.py:178
+#: GUI/MainToolbar.py:185
 msgid "Nothing to undo"
 msgstr "Není co vracet zpět"
 
@@ -1080,7 +1084,7 @@ msgstr "Zpracování"
 msgid "Project Settings"
 msgstr "Nastavení projektu"
 
-#: GUI/ProjectToolbar.py:12 GUI/ProjectToolbar.py:25
+#: GUI/ProjectToolbar.py:13 GUI/ProjectToolbar.py:26
 msgid "Project Toolbar"
 msgstr "Panel nástrojů projektu"
 
@@ -1160,11 +1164,11 @@ msgstr "Připraveno."
 msgid "Reasoning"
 msgstr "Odůvodnění"
 
-#: GUI/MainToolbar.py:75
+#: GUI/MainToolbar.py:76
 msgid "Redo last undone action"
 msgstr "Znovu provést poslední vrácenou akci"
 
-#: GUI/MainToolbar.py:182
+#: GUI/MainToolbar.py:189
 msgid "Redo {command}"
 msgstr "Znovu provést {command}"
 
@@ -1249,7 +1253,7 @@ msgstr "Uložit záložní kopii projektu při otevření"
 msgid "Save preprocessed subtitles to a separate file"
 msgstr "Uložit předzpracované titulky do samostatného souboru"
 
-#: GUI/MainToolbar.py:69
+#: GUI/MainToolbar.py:70
 msgid "Save project (Hold shift to save as...)"
 msgstr "Uložit projekt (Podržte Shift pro uložení jako...)"
 
@@ -1310,7 +1314,7 @@ msgstr "Výběr {task_type}"
 msgid "Server error: {status_code} {text}"
 msgstr "Chyba serveru: {status_code} {text}"
 
-#: GUI/MainToolbar.py:70
+#: GUI/MainToolbar.py:71
 msgid "Settings"
 msgstr "Nastavení"
 
@@ -1330,11 +1334,11 @@ msgstr "Rozdělování dávky {scene} u dávky {batch}"
 msgid "Splitting scene {scene} batch: {batch} at line {line}"
 msgstr "Rozdělování scény {scene} dávky: {batch} u řádku {line}"
 
-#: GUI/MainToolbar.py:71
+#: GUI/MainToolbar.py:72
 msgid "Start Translating (hold shift to retranslate)"
 msgstr "Spustit překlad (podržte Shift pro opětovný překlad)"
 
-#: GUI/MainToolbar.py:72
+#: GUI/MainToolbar.py:73
 msgid "Start translating on multiple threads (fast but unsafe)"
 msgstr "Spustit překlad ve více vláknech (rychlé, ale nebezpečné)"
 
@@ -1346,7 +1350,7 @@ msgstr "Spouštění"
 msgid "Stop translating if an error is encountered"
 msgstr "Zastavit překlad při výskytu chyby"
 
-#: GUI/MainToolbar.py:73
+#: GUI/MainToolbar.py:74
 msgid "Stop translation"
 msgstr "Zastavit překlad"
 
@@ -1410,7 +1414,7 @@ msgstr "Cílový jazyk"
 msgid "Text Files (*.txt);;All Files (*))"
 msgstr "Textové soubory (*.txt);;Všechny soubory (*)"
 
-#: GUI/SettingsDialog.py:35
+#: GUI/SettingsDialog.py:36
 msgid "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"
 msgstr "(Stručný) pokyn pro každou dávku titulků. Některé [značky] se vyplňují automaticky"
 
@@ -1451,7 +1455,7 @@ msgstr "Základní URL pro požadavky (výchozí je https://api.mistral.ai)"
 msgid "The base URL to use for requests - leave as default unless you know you need something else"
 msgstr "Základní URL pro požadavky - ponechte výchozí, pokud nevíte, že potřebujete něco jiného"
 
-#: GUI/SettingsDialog.py:31
+#: GUI/SettingsDialog.py:32
 msgid "The default language to translate the subtitles to"
 msgstr "Výchozí jazyk pro překlad titulků"
 
@@ -1613,7 +1617,7 @@ msgstr "Nepodařilo se inicializovat Anthropic SDK. Poskytovatel Claude nebude k
 msgid "Unable to load instructions from {file}: {error}"
 msgstr "Nelze načíst pokyny ze souboru {file}: {error}"
 
-#: PySubtitle/Options.py:250
+#: PySubtitle/Options.py:283
 msgid "Unable to load instructions from {}: {}"
 msgstr "Nelze načíst pokyny z {}: {}"
 
@@ -1698,11 +1702,11 @@ msgstr "Nelze vrátit zpět příkaz SplitScene: {error}"
 msgid "Unable to update settings: {error}"
 msgstr "Nelze aktualizovat nastavení: {error}"
 
-#: GUI/MainToolbar.py:74
+#: GUI/MainToolbar.py:75
 msgid "Undo last action"
 msgstr "Vrátit zpět poslední akci"
 
-#: GUI/MainToolbar.py:176
+#: GUI/MainToolbar.py:183
 msgid "Undo {command}"
 msgstr "Vrátit zpět {command}"
 
