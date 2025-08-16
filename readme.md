@@ -1,10 +1,10 @@
-# GPT-Subtrans
-GPT-Subtrans is an open source subtitle translator that uses LLMs as a translation service. It can translate subtitles between any language pairs supported by the language model.
+# LLM-Subtrans
+LLM-Subtrans is an open source subtitle translator that uses LLMs as a translation service. It can translate subtitles between any language pairs supported by the language model.
 
-Note: GPT-Subtrans requires an active internet connection. Subtitles are sent to the provider's servers for translation, so their privacy policy applies.
+Note: LLM-Subtrans requires an active internet connection. Subtitles are sent to the provider's servers for translation, so their privacy policy applies.
 
 ## Installation
-For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/gpt-subtrans/releases), unzip to a folder and run `gui-subtrans`. You will be prompted for some basic settings on first run.
+For most users the packaged release is the easiest way to use the program. Download a package from [the releases page](https://github.com/machinewrapped/llm-subtrans/releases), unzip to a folder and run `gui-subtrans`. You will be prompted for some basic settings on first run.
 
 ### Windows
 Every release is packaged for Windows as (**gui-subtrans-x.x.x.zip**).
@@ -78,7 +78,7 @@ You will need a Mistral API key from https://console.mistral.ai/api-keys/ to use
 Mistral AI is straightforward to set up, but its performance as a translator is not particularly good.
 
 ### Custom Server
-GPT-Subtrans can interface directly with any server that supports an OpenAI compatible API, including locally hosted models e.g. [LM Studio](https://lmstudio.ai/).
+LLM-Subtrans can interface directly with any server that supports an OpenAI compatible API, including locally hosted models e.g. [LM Studio](https://lmstudio.ai/).
 
 This is mainly for research and you should not expect particularly good results. LLMs derive much of their power from their size, so the small, quantized models you can run on a GPU are likely to produce poor translations, fail to generate valid responses or get stuck in endless loops. If you find a model that reliably producess good results, please post about it in the Discussions area!
 
@@ -87,7 +87,7 @@ Chat and completion endpoints are supported, you should configure the settings a
 ### Amazon Bedrock
 https://aws.amazon.com/service-terms/
 
-**Bedrock is not recommended for most users**: The setup process is complex, requiring AWS credentials, proper IAM permissions, and region configuration. Additionally, not all models on Bedrock support translation tasks or offer reliable results. Bedrock support will not be included in pre-packaged versions - if you can handle setting up AWS, you can handle installing gpt-subtrans from source!
+**Bedrock is not recommended for most users**: The setup process is complex, requiring AWS credentials, proper IAM permissions, and region configuration. Additionally, not all models on Bedrock support translation tasks or offer reliable results. Bedrock support will not be included in pre-packaged versions - if you can handle setting up AWS, you can handle installing llm-subtrans from source!
 
 To use Bedrock, you must:
   1. Create an **IAM user** or **role** with appropriate permissions (e.g., `bedrock:InvokeModel`, `bedrock:ListFoundationModels`).
@@ -96,10 +96,10 @@ To use Bedrock, you must:
 ## Installing from source
 For other platforms, or if you want to modify the program, you will need to have Python 3.10+ and pip installed on your system, then follow these steps.
 
-1. Clone the GPT-Subtrans repository onto your local machine using the following command:
+1. Clone the LLM-Subtrans repository onto your local machine using the following command:
 
     ```sh
-    git clone https://github.com/machinewrapped/gpt-subtrans.git
+    git clone https://github.com/machinewrapped/llm-subtrans.git
     ```
 
 ### Installation scripts
@@ -178,16 +178,16 @@ The program works by dividing the subtitles up into small batches and sending ea
 
 By default The translated subtitles will be written to a new SRT file in the same directory with the target langugage appended to the original filename.
 
-Subtitle Edit's (https://www.nikse.dk/subtitleedit) "Fix Common Errors" can help to clean up the translated subtitles, though some of its functionality is now covered by the post-process option (`--postprocess`) in GPT-Subtrans.
+Subtitle Edit's (https://www.nikse.dk/subtitleedit) "Fix Common Errors" can help to clean up the translated subtitles, though some of its functionality is now covered by the post-process option (`--postprocess`) in LLM-Subtrans.
 
 ### GUI
-The [Subtrans GUI](https://github.com/machinewrapped/gpt-subtrans/wiki/GUI#gui-subtrans) is the best and easiest way to use the program. After installation, launch the GUI with the `gui-subtrans` command or shell script, and hopefully the rest should be self-explanatory.
+The [Subtrans GUI](https://github.com/machinewrapped/llm-subtrans/wiki/GUI#gui-subtrans) is the best and easiest way to use the program. After installation, launch the GUI with the `gui-subtrans` command or shell script, and hopefully the rest should be self-explanatory.
 
 See the project wiki for further details on how to use the program.
 
 ### Command Line
 
-GPT-Subtrans can be used as a console command or shell script. The install scripts create a cmd or sh file in the project root for each provider, which will take care of activating the virtual environment and calling the corresponding translation script.
+LLM-Subtrans can be used as a console command or shell script. The install scripts create a cmd or sh file in the project root for each provider, which will take care of activating the virtual environment and calling the corresponding translation script.
 
 The most basic usage is:
 ```sh
@@ -234,7 +234,7 @@ There are a number of command-line arguments that offer more control over the tr
 To use any of these arguments, add them to the command-line after the path to the SRT file. For example:
 
 ```sh
-gpt-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit 10 --substitution cat::dog
+llm-subtrans path/to/my/subtitles.srt --moviename "My Awesome Movie" --ratelimit 10 --substitution cat::dog
 ```
 
 Default values for many settings can be set in the .env file, using a NAME_IN_CAPS format. See Options.py and the various Provider_XXX files for the full list.
@@ -443,7 +443,7 @@ Fork the repository onto your own GitHub account.
 Clone the repository onto your local machine using the following command:
 
 ```sh
-git clone https://github.com/your_username/GPT-Subtrans.git
+git clone https://github.com/your_username/llm-subtrans.git
 ```
 
 Create a new branch for your changes using the following command:
@@ -456,11 +456,11 @@ Make your changes to the code and commit them with a descriptive commit message.
 
 Push your changes to your forked repository.
 
-Submit a pull request to the main GPT-Subtrans repository.
+Submit a pull request to the main LLM-Subtrans repository.
 
 ### Localization
 
-GPT-Subtrans uses GNU gettext for UI localization.
+LLM-Subtrans uses GNU gettext for UI localization.
 
 - Template (POT): `locales/gui-subtrans.pot`
 - Per‑language catalogs: `locales/<lang>/LC_MESSAGES/gui-subtrans.po`
@@ -524,4 +524,4 @@ Version 0.2 employs a new prompting approach that greatly reduces desyncs caused
 The instructions have also been made more detailed, with multiple examples of correct output for GPT to reference, and the generation of summaries has been improved so that GPT is better able to understand the context of the batch it is translating. Additionally, double-clicking a scene or batch now allows the summary to be edited by hand, which can greatly improve the results of a retranslation and of subsequent batches or scenes. Individually lines can also be edited by double-clicking them.
 
 ## License
-GPT-Subtrans is licensed under the MIT License. See LICENSE for the 3rd party library licenses.
+LLM-Subtrans is licensed under the MIT License. See LICENSE for the 3rd party library licenses.

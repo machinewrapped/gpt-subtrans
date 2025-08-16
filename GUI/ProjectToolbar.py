@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QToolBar, QStyle, QApplication
 
 from GUI.ProjectActions import ProjectActions
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Resources import GetResourcePath
 
 class ProjectToolbar(QToolBar):
     _show_options = True
@@ -42,5 +43,8 @@ class ProjectToolbar(QToolBar):
 
     @property
     def show_setting_icon(self):
-        icon : QIcon = QStyle.StandardPixmap.SP_ArrowLeft if self.show_settings else QStyle.StandardPixmap.SP_FileDialogDetailedView
-        return QApplication.style().standardIcon(icon)
+        """Return the icon for the toggle settings button."""
+        if self.show_settings:
+            return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_ArrowLeft)
+        else:
+            return QApplication.style().standardIcon(QStyle.StandardPixmap.SP_ArrowRight)

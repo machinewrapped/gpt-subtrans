@@ -257,7 +257,7 @@ def write_pot(entries: dict[tuple[str | None, str], list[tuple[str, int]]], time
     # Header
     lines.append('msgid ""')
     lines.append('msgstr ""')
-    lines.append(f'"Project-Id-Version: GPT-SubTrans\\n"')
+    lines.append(f'"Project-Id-Version: LLM-Subtrans\\n"')
     lines.append(f'"POT-Creation-Date: {timestamp}\\n"')
     lines.append(f'"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"')
     lines.append(f'"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"')
@@ -299,7 +299,7 @@ def write_english_po(entries: dict[tuple[str | None, str], list[tuple[str, int]]
     # Header
     lines.append('msgid ""')
     lines.append('msgstr ""')
-    lines.append(f'"Project-Id-Version: GPT-SubTrans\\n"')
+    lines.append(f'"Project-Id-Version: LLM-Subtrans\\n"')
     lines.append(f'"POT-Creation-Date: {timestamp}\\n"')
     lines.append(f'"PO-Revision-Date: {timestamp}\\n"')
     lines.append(f'"Last-Translator: Auto-generated\\n"')

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GPT-SubTrans\n"
+"Project-Id-Version: LLM-Subtrans\n"
 "POT-Creation-Date: 2025-08-15 17:12+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
@@ -365,8 +365,8 @@ msgid "Detailed instructions for the translator"
 msgstr "Instrucciones detalladas para el traductor"
 
 #: GUI/AboutDialog.py:54
-msgid "Developed by: MachineWrapped<br>Contact: machinewrapped@gmail.com<br><a href=\"https://github.com/machinewrapped/gpt-subtrans\">GitHub Repository</a><br>Thanks to all contributors and those who have reported issues."
-msgstr "Desarrollado por: MachineWrapped<br>Contacto: machinewrapped@gmail.com<br><a href=\\\"https://github.com/machinewrapped/gpt-subtrans\\\">Repositorio en GitHub</a><br>Gracias a todos los colaboradores y a quienes han informado de problemas."
+msgid "Developed by: MachineWrapped<br>Contact: machinewrapped@gmail.com<br><a href=\"https://github.com/machinewrapped/llm-subtrans\">GitHub Repository</a><br>Thanks to all contributors and those who have reported issues."
+msgstr "Desarrollado por: MachineWrapped<br>Contacto: machinewrapped@gmail.com<br><a href=\\\"https://github.com/machinewrapped/llm-subtrans\\\">Repositorio en GitHub</a><br>Gracias a todos los colaboradores y a quienes han informado de problemas."
 
 #: GUI/SettingsDialog.py:69
 msgid "Divide any batches larger than this into multiple batches"
@@ -723,8 +723,8 @@ msgid "Logging to {path}"
 msgstr "Registrando en {path}"
 
 #: GUI/AboutDialog.py:31
-msgid "Logo generated with <a href=\"https://stability.ai/stablediffusion\">Stable Diffusion XL</a>"
-msgstr "Logotipo generado con <a href=\\\"https://stability.ai/stablediffusion\\\">Stable Diffusion XL</a>"
+msgid "Logo generated with <a href=\"https://qwen.ai/home\">Qwen3</a>"
+msgstr "Logotipo generado con <a href=\\\"https://qwen.ai/home\\\">Qwen3</a>"
 
 #: PySubtitle/SubtitleTranslator.py:268
 msgid "Made substitutions in input:\n{replaced}"

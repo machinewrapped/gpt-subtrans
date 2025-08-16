@@ -13,8 +13,19 @@ QLabel {
 }
 
 .MainToolbar, .ProjectToolbar {
-    background-color: #808080;
-    border: none;
+    background: #808080;
+    border: 1px solid #404040;
+    padding: 3px;
+}
+
+.MainToolbar::separator {
+    background: #B8BCC5;
+    width: 2px;
+    margin: 6px 8px;
+}
+
+.MainToolbar QToolButton:disabled {
+    background: #606060;
 }
 
 .LogWindow {

@@ -1,4 +1,4 @@
-# Copilot Instructions for GPT-Subtrans
+# Copilot Instructions for LLM-Subtrans
 
 These instructions help AI coding agents work effectively in this repository. Follow the patterns and workflows used by this project.
 

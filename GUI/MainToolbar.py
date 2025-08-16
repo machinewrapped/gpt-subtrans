@@ -9,6 +9,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Commands.StartTranslationCommand import StartTranslationCommand
 from GUI.Commands.TranslateSceneCommand import TranslateSceneCommand
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Resources import GetResourcePath
 
 class MainToolbar(QToolBar):
     """
@@ -64,16 +65,16 @@ class MainToolbar(QToolBar):
         """
         self._actions = {}
         action_handler : ProjectActions = self.gui.GetActionHandler()
-        self.DefineAction('Quit', action_handler.exitProgram, QStyle.StandardPixmap.SP_DialogCloseButton, 'Ctrl+W', _('Exit Program'))
-        self.DefineAction('Load Subtitles', action_handler.LoadProject, QStyle.StandardPixmap.SP_DialogOpenButton, 'Ctrl+O', _('Load Project/Subtitles (Hold shift to reload subtitles)'))
-        self.DefineAction('Save Project', action_handler.SaveProject, QStyle.StandardPixmap.SP_DialogSaveButton, 'Ctrl+S', _('Save project (Hold shift to save as...)'))
-        self.DefineAction('Settings', action_handler.showSettings, QStyle.StandardPixmap.SP_FileDialogListView, 'Ctrl+?', _('Settings'))
-        self.DefineAction('Start Translating', action_handler.StartTranslating, QStyle.StandardPixmap.SP_MediaPlay, 'Ctrl+T', _('Start Translating (hold shift to retranslate)'))
-        self.DefineAction('Start Translating Fast', action_handler.StartTranslatingFast, QStyle.StandardPixmap.SP_MediaSeekForward, None, _('Start translating on multiple threads (fast but unsafe)'))
-        self.DefineAction('Stop Translating', action_handler.StopTranslating, QStyle.StandardPixmap.SP_MediaStop, 'Esc', _('Stop translation'))
-        self.DefineAction("Undo", action_handler.UndoLastCommand, QStyle.StandardPixmap.SP_ArrowBack, 'Ctrl+Z', _('Undo last action'))
-        self.DefineAction("Redo", action_handler.RedoLastCommand, QStyle.StandardPixmap.SP_ArrowForward, 'Ctrl+Shift+Z', _('Redo last undone action'))
-        self.DefineAction('About', action_handler.showAboutDialog, QStyle.StandardPixmap.SP_MessageBoxInformation, tooltip=_('About this program'))
+        self.DefineAction('Quit', action_handler.exitProgram, self._icon_file('quit'), 'Ctrl+W', _('Exit Program'))
+        self.DefineAction('Load Subtitles', action_handler.LoadProject, self._icon_file('load_subtitles'), 'Ctrl+O', _('Load Project/Subtitles (Hold shift to reload subtitles)'))
+        self.DefineAction('Save Project', action_handler.SaveProject, self._icon_file('save_project'), 'Ctrl+S', _('Save project (Hold shift to save as...)'))
+        self.DefineAction('Settings', action_handler.showSettings, self._icon_file('settings'), 'Ctrl+?', _('Settings'))
+        self.DefineAction('Start Translating', action_handler.StartTranslating, self._icon_file('start_translating'), 'Ctrl+T', _('Start Translating (hold shift to retranslate)'))
+        self.DefineAction('Start Translating Fast', action_handler.StartTranslatingFast, self._icon_file('start_translating_fast'), None, _('Start translating on multiple threads (fast but unsafe)'))
+        self.DefineAction('Stop Translating', action_handler.StopTranslating, self._icon_file('stop_translating'), 'Esc', _('Stop translation'))
+        self.DefineAction('Undo', action_handler.UndoLastCommand, self._icon_file('undo'), 'Ctrl+Z', _('Undo last action'))
+        self.DefineAction('Redo', action_handler.RedoLastCommand, self._icon_file('redo'), 'Ctrl+Shift+Z', _('Redo last undone action'))
+        self.DefineAction('About', action_handler.showAboutDialog, self._icon_file('about'), tooltip=_('About this program'))
 
     def DefineAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
         # Keep English name as key; show localized text
@@ -95,6 +96,12 @@ class MainToolbar(QToolBar):
             action.setToolTip(f"{tip} ({shortcut})" if shortcut else tip)
 
         self._actions[name] = action
+
+    def _icon_file(self, icon_name):
+        """
+        Get the file path for an icon
+        """
+        return GetResourcePath("assets", "icons", f"{icon_name}.svg")
 
     def AddActionGroups(self):
         for group in self._action_groups:

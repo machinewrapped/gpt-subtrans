@@ -1,4 +1,4 @@
-# GPT-SubTrans Development Guide
+# LLM-Subtrans Development Guide
 
 Uses Python 3.10+ and PySide6
 

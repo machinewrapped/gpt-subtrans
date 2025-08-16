@@ -151,7 +151,7 @@ class TranslationParser:
                         possible_matches.append((item, translation))
                         continue
                     elif IsTextContentEqual(translation.text, item.text):
-                        # GPT sometimes swaps the original and translated text - swap them back
+                        # LLMs sometimes swap the original and translated text - swap them back
                         translation.text = translation.original
                         translation.original = item.text
                         possible_matches.append((item, translation))

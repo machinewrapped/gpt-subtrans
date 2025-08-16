@@ -14,8 +14,9 @@ from scripts.subtrans_common import InitLogger
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from PySubtitle.Options import Options, settings_path, config_dir
+from PySubtitle.Helpers.Localization import initialize_localization, _
+
 from GUI.MainWindow import MainWindow
-from PySubtitle.Helpers.Localization import initialize_localization
 
 def parse_arguments():
     # Parse command line arguments
@@ -94,8 +95,12 @@ if __name__ == "__main__":
 
     # Load default options and update with any explicit arguments
     options = Options()
-    if not arguments.get('firstrun') and options.LoadSettings():
-        logging.info(f"Loaded settings from {settings_path}")
+
+    if not arguments.get('firstrun'):
+        options.MigrateSettings()
+        if options.LoadSettings():
+            logging.info(f"Loaded settings from {settings_path}")
+
     options.update(arguments)
     options.InitialiseInstructions()
 

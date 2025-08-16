@@ -6,7 +6,7 @@ import requests
 from PySubtitle.version import __version__
 from PySubtitle.Helpers.Resources import config_dir
 
-repo_name = "gpt-subtrans"
+repo_name = "llm-subtrans"
 repo_owner = "machinewrapped"
 
 last_check_file = os.path.join(config_dir, 'last_check.txt')

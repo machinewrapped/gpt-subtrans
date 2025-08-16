@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-One-stop localization workflow for GPT-SubTrans.
+One-stop localization workflow for LLM-Subtrans.
 
 Runs the end-to-end flow:
     1) Extract translatable strings -> locales/gui-subtrans.pot
@@ -71,7 +71,9 @@ def auto_translate_strings(untranslated: dict[str, str], target_language: str, p
     # Prepare request
     headers = {
         'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://github.com/machinewrapped/llm-subtrans',
+        'X-Title': 'LLM-Subtrans'
     }
     
     # Create the prompt
@@ -327,7 +329,7 @@ def ensure_po(language_code: str) -> str:
         header = (
             'msgid ""\n'
             'msgstr ""\n'
-            f'"Project-Id-Version: GPT-SubTrans\\n"\n'
+            f'"Project-Id-Version: LLM-Subtrans\\n"\n'
             f'"POT-Creation-Date: {now}\\n"\n'
             f'"PO-Revision-Date: {now}\\n"\n'
             '"MIME-Version: 1.0\\n"\n'
@@ -749,7 +751,7 @@ def integrate_manual_translations(languages: list[str]) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='One-stop localization workflow for GPT-SubTrans')
+    parser = argparse.ArgumentParser(description='One-stop localization workflow for LLM-Subtrans')
     parser.add_argument('--auto', action='store_true', 
                        help='Automatically translate untranslated strings using OpenRouter API (requires OPENROUTER_API_KEY environment variable)')
     parser.add_argument('--paid', action='store_true',
