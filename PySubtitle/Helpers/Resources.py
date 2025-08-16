@@ -3,10 +3,10 @@ import os
 import sys
 import appdirs
 
-old_config_dir = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
-config_dir = appdirs.user_config_dir("LLMSubtrans", "MachineWrapped", roaming=True)
+old_config_dir : str = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
+config_dir : str = appdirs.user_config_dir("LLMSubtrans", "MachineWrapped", roaming=True)
 
-def GetResourcePath(relative_path, *parts):
+def GetResourcePath(relative_path : str, *parts : str) -> str:
     """
     Locate a resource file or folder in the application directory or the PyInstaller bundle.
     """

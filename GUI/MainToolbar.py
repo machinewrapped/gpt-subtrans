@@ -1,5 +1,7 @@
+from collections.abc import Callable
+
 from PySide6.QtWidgets import QToolBar, QStyle, QApplication
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, SignalInstance
 from PySide6.QtGui import QAction, QIcon
 
 from GUI.CommandQueue import CommandQueue
@@ -26,7 +28,9 @@ class MainToolbar(QToolBar):
     def __init__(self,  gui_interface : GuiInterface):
         super().__init__(_("Main Toolbar"))
 
-        self.gui = gui_interface
+        self.gui : GuiInterface = gui_interface
+
+        self._actions : dict[str, QAction] = {}
 
         # Subscribe to UI language changes
         self.gui.uiLanguageChanged.connect(self.UpdateUiLanguage, Qt.ConnectionType.QueuedConnection)
@@ -56,10 +60,10 @@ class MainToolbar(QToolBar):
     def GetAction(self, name : str) -> QAction:
         return self._actions[name]
 
-    def GetActionList(self, names : list) -> list[QAction]:
+    def GetActionList(self, names : list[str]) -> list[QAction]:
         return [ self.GetAction(name) for name in names ]
 
-    def DefineActions(self, action_handler : ProjectActions = None):
+    def DefineActions(self):
         """
         Define the supported actions
         """
@@ -76,7 +80,10 @@ class MainToolbar(QToolBar):
         self.DefineAction('Redo', action_handler.RedoLastCommand, self._icon_file('redo'), 'Ctrl+Shift+Z', _('Redo last undone action'))
         self.DefineAction('About', action_handler.showAboutDialog, self._icon_file('about'), tooltip=_('About this program'))
 
-    def DefineAction(self, name, function : callable, icon=None, shortcut=None, tooltip=None):
+    def DefineAction(self, name : str, function : Callable[..., None]|SignalInstance, icon : str|QIcon|None = None, shortcut : str|None = None, tooltip : str|None =None):
+        """
+        Define an action with a name, function, icon, shortcut, and tooltip.
+        """
         # Keep English name as key; show localized text
         action = QAction(_(name))
         action.triggered.connect(function)
@@ -96,12 +103,6 @@ class MainToolbar(QToolBar):
             action.setToolTip(f"{tip} ({shortcut})" if shortcut else tip)
 
         self._actions[name] = action
-
-    def _icon_file(self, icon_name):
-        """
-        Get the file path for an icon
-        """
-        return GetResourcePath("assets", "icons", f"{icon_name}.svg")
 
     def AddActionGroups(self):
         for group in self._action_groups:
@@ -143,7 +144,7 @@ class MainToolbar(QToolBar):
         """
         Update the label of a command
         """
-        action = self._actions.get(action_name)
+        action : QAction|None = self._actions.get(action_name)
         if action:
             action.setToolTip(label)
 
@@ -165,7 +166,7 @@ class MainToolbar(QToolBar):
             self.EnableActions([ "Stop Translating" ])
             return
 
-        self.DisableActions("Stop Translating")
+        self.DisableActions(["Stop Translating"])
 
         no_blocking_commands = not command_queue.has_blocking_commands
         self.SetActionsEnabled([ "Load Subtitles", "Save Project", "Start Translating" ], no_blocking_commands)
@@ -189,3 +190,9 @@ class MainToolbar(QToolBar):
             self.UpdateTooltip("Redo", _("Redo {command}").format(command=type(next_command).__name__))
         else:
             self.UpdateTooltip("Redo", _("Nothing to redo"))
+
+    def _icon_file(self, icon_name : str) -> str:
+        """
+        Get the file path for an icon
+        """
+        return GetResourcePath("assets", "icons", f"{icon_name}.svg")
