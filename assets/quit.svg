@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- Doorframe (open on the left) -->
+    <path d="M6 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6"/>
+    <!-- Exit arrow -->
+    <line x1="14" y1="12" x2="20" y2="12"/>
+    <polyline points="18 10 20 12 18 14"/>
+    
+</svg>

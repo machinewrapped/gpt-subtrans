@@ -24,6 +24,10 @@ QStatusBar {
     border: none;
 }
 
+.MainToolbar QToolButton {
+    color: #ff0000;
+}
+
 QTreeView:item {
     border-radius: 12;
 }
