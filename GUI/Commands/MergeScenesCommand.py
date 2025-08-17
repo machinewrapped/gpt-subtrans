@@ -9,7 +9,7 @@ class MergeScenesCommand(Command):
     """
     Combine multiple scenes into one
     """
-    def __init__(self, scene_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, scene_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_numbers = sorted(scene_numbers)
         self.scene_sizes = []

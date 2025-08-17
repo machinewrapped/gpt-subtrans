@@ -2,7 +2,7 @@ from datetime import timedelta
 import logging
 from typing import Any
 import regex
-import srt
+import srt # type: ignore
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleLine import SubtitleLine

@@ -62,7 +62,7 @@ class SubtitleTranslator:
         self.translation_provider : TranslationProvider = translation_provider
 
         if not self.translation_provider:
-            raise NoProviderError(_("Translation provider is unavailable"))
+            raise NoProviderError()
 
         try:
             self.client : TranslationClient = self.translation_provider.GetTranslationClient(self.settings)
@@ -342,11 +342,11 @@ class SubtitleTranslator:
         """
         Ask the client to retranslate the input and correct errors
         """
-        translation : Translation = batch.translation
+        translation : Translation|None = batch.translation
         if not translation:
             raise TranslationError("No translation to retranslate")
 
-        prompt : TranslationPrompt = batch.prompt
+        prompt : TranslationPrompt|None = batch.prompt
         if not prompt or not prompt.messages:
             raise TranslationError("No prompt to retranslate")
 

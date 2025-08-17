@@ -1,3 +1,4 @@
+from collections.abc import Callable
 import os
 import logging
 
@@ -18,20 +19,20 @@ class Command(QRunnable, QObject):
     commandStarted = Signal(object)
     commandCompleted = Signal(object)
 
-    def __init__(self, datamodel : ProjectDataModel = None):
+    def __init__(self, datamodel : ProjectDataModel|None = None):
         QRunnable.__init__(self)
         QObject.__init__(self)
-        self.datamodel = datamodel
+        self.datamodel : ProjectDataModel|None = datamodel
         self.can_undo : bool = True         # If true, cannot undo past this command
         self.skip_undo : bool = False       # If true, do not add this command to the undo stack
         self.is_blocking : bool = False      # If true, do not execute any other commands in parallel
         self.queued : bool = False
         self.started : bool = False
         self.executed : bool = False
-        self.succeeded : bool = False
+        self.succeeded : bool|None = False
         self.aborted : bool = False
         self.terminal : bool = False        # If true, command ended with a fatal error, no further commands can be executed
-        self.callback = None
+        self.callback : Callable|None = None
         self.undo_callback = None
         self.model_updates : list[ModelUpdate] = []
         self.commands_to_queue : list[Command] = []
@@ -69,7 +70,7 @@ class Command(QRunnable, QObject):
             return
 
         if 'debugpy' in globals():
-            debugpy.debug_this_thread()
+            debugpy.debug_this_thread() # type: ignore
 
         try:
             self.started = True

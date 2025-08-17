@@ -12,7 +12,7 @@ class DeleteLinesCommand(Command):
     """
     Delete one or several lines
     """
-    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_numbers = line_numbers
         self.deletions = []

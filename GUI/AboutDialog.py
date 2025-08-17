@@ -81,7 +81,7 @@ class AboutDialog(QDialog):
         libraries_list.setWordWrap(True)
 
         # OK Button
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         button_box.accepted.connect(self.accept)
 
         # Add widgets to layout

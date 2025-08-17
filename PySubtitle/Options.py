@@ -149,7 +149,8 @@ class Options:
         if not self.provider:
             return None
 
-        return self.current_provider_settings.get('model')
+        current_provider_settings = self.current_provider_settings
+        return current_provider_settings.get('model') if current_provider_settings else None
 
     @property
     def target_language(self) -> str:
@@ -191,6 +192,7 @@ class Options:
             return True
 
         except Exception as e:
+            logging.debug("Error loading settings from {}: {}".format(settings_path, e))
             logging.error(_("Error loading settings from {}").format(settings_path))
             return False
 
@@ -217,6 +219,7 @@ class Options:
             return True
 
         except Exception as e:
+            logging.debug("Error saving settings to {}: {}".format(settings_path, e))
             logging.error(_("Error saving settings to {}").format(settings_path))
             return False
         
@@ -250,6 +253,7 @@ class Options:
             return True
 
         except Exception as e:
+            logging.debug(f"Error migrating settings from {old_config_dir} to {config_dir}: {e}")
             logging.error(_("Error migrating settings from {} to {}. You can copy the files manually and restart the application.").format(old_config_dir, config_dir))
             return False
 
@@ -284,16 +288,16 @@ class Options:
             except Exception as e:
                 logging.error(_("Unable to load instructions from {}: {}").format(instruction_file, e))
 
-    def InitialiseProviderSettings(self, provider : str, settings : dict):
+    def InitialiseProviderSettings(self, provider : str, settings : dict[str, Any]) -> None:
         """
         Create or update the settings for a provider
         """
         if provider not in self.provider_settings:
             self.provider_settings[provider] = deepcopy(settings)
 
-        self.MoveSettingsToProvider(provider, settings.keys())
+        self.MoveSettingsToProvider(provider, list(settings.keys()))
 
-    def MoveSettingsToProvider(self, provider : str, keys : list):
+    def MoveSettingsToProvider(self, provider : str, keys : list[str]) -> None:
         """
         Move settings from the main options to a provider's settings
         """

@@ -16,7 +16,7 @@ class ReparseTranslationsCommand(Command):
     """
     Ask the translator to reparse the translation for selected batches
     """
-    def __init__(self, batch_numbers : list[(int,int)], line_numbers : list[int], datamodel : ProjectDataModel = None):
+    def __init__(self, batch_numbers : list[(int,int)], line_numbers : list[int], datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.batch_numbers = batch_numbers
         self.line_numbers = line_numbers

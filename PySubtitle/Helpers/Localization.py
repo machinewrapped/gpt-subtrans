@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import gettext
 import os
-from typing import Optional
 
 # Babel is optional; fall back gracefully if unavailable
 try:
@@ -27,7 +26,7 @@ def _get_locale_dir() -> str:
     return GetResourcePath('locales')
 
 
-def initialize_localization(language_code: Optional[str] = None) -> None:
+def initialize_localization(language_code: str|None = None) -> None:
     """
     Initialize the gettext translation system.
 

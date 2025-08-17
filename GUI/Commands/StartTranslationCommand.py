@@ -10,7 +10,7 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 
 class StartTranslationCommand(Command):
-    def __init__(self, datamodel: ProjectDataModel = None, resume : bool = False, multithreaded : bool = False, scenes : dict = None):
+    def __init__(self, datamodel: ProjectDataModel|None = None, resume : bool = False, multithreaded : bool = False, scenes : dict = None):
         super().__init__(datamodel)
         self.multithreaded = multithreaded
         self.skip_undo = True

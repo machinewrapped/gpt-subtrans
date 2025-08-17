@@ -11,7 +11,7 @@ class MergeBatchesCommand(Command):
     """
     Combine multiple batches into one
     """
-    def __init__(self, scene_number: int, batch_numbers: list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, scene_number: int, batch_numbers: list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_numbers = sorted(batch_numbers)

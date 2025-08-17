@@ -46,7 +46,7 @@ def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception : bool 
 
     return error
 
-def TimeDeltaToText(time: datetime.timedelta|None, include_milliseconds : bool = True) -> str:
+def TimedeltaToText(time: datetime.timedelta|None, include_milliseconds : bool = True) -> str:
     """
     Convert a timedelta to a minimal string representation, adhering to specific formatting rules:
     - Hours, minutes, and seconds may appear with leading zeros only as required.

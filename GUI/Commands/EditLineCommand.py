@@ -12,7 +12,7 @@ from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.Helpers.Localization import _
 
 class EditLineCommand(Command):
-    def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel = None):
+    def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_number = line_number
         self.edit = deepcopy(edit)

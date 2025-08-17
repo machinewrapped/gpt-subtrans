@@ -1,11 +1,11 @@
 from datetime import timedelta
-import logging
 from os import linesep
 from typing import Any
 import srt
 
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Time import GetTimeDelta, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimeDeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimedeltaToText
 
 class SubtitleLine:
     """
@@ -28,7 +28,7 @@ class SubtitleLine:
         return self.item.to_srt() if self.item else "Null SubtitleLine"
 
     def __repr__(self):
-        return f"[Line {self.number}] {TimeDeltaToText(self.start)}, {repr(self.text)}"
+        return f"[Line {self.number}] {TimedeltaToText(self.start)}, {repr(self.text)}"
 
     def __eq__(self, other : 'Any|SubtitleLine') -> bool:
         return self._item == other._item if isinstance(other, SubtitleLine) else False
@@ -54,12 +54,12 @@ class SubtitleLine:
         return self._item.start if self._item else None
 
     @property
-    def srt_start(self) -> str|None:
-        return TimedeltaToSrtTimestamp(self.start) if self.start is not None else None
+    def srt_start(self) -> str:
+        return TimedeltaToSrtTimestamp(self.start) if self.start is not None else "00:00:00,000"
 
     @property
-    def txt_start(self) -> str|None:
-        return TimeDeltaToText(self.start) if self.start is not None else None
+    def txt_start(self) -> str:
+        return TimedeltaToText(self.start) if self.start is not None else "00:00:00.000"
 
     @start.setter
     def start(self, time : timedelta | str):
@@ -83,7 +83,7 @@ class SubtitleLine:
 
     @property
     def txt_end(self) -> str|None:
-        return TimeDeltaToText(self.end) if self.end is not None else None
+        return TimedeltaToText(self.end) if self.end is not None else None
 
     @property
     def duration(self) -> timedelta:
@@ -103,7 +103,7 @@ class SubtitleLine:
 
     @property
     def srt_duration(self) -> str:
-        return TimeDeltaToText(self.duration)
+        return TimedeltaToText(self.duration)
 
     @property
     def line(self) -> str | None:

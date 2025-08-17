@@ -17,7 +17,7 @@ class SubtitleBatch:
         self.number : int = dct.get('batch') or dct.get('number') or 0
         self.summary : str|None = dct.get('summary')
         self.context : dict[str,Any] = dct.get('context', {})
-        self.errors : list[str]|list[Exception] = dct.get('errors', [])
+        self.errors : list[str]|list[SubtitleError] = dct.get('errors', [])
         self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', [])
         self._translated : list[SubtitleLine] = dct.get('translated', [])
         self.translation : Translation|None = dct.get('translation')

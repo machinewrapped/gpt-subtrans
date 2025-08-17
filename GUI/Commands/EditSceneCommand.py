@@ -6,7 +6,7 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 
 class EditSceneCommand(Command):
-    def __init__(self, scene_number : int, edit : dict, datamodel : ProjectDataModel = None):
+    def __init__(self, scene_number : int, edit : dict, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.edit = deepcopy(edit)

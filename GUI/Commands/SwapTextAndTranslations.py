@@ -9,7 +9,7 @@ class SwapTextAndTranslations(Command):
     """
     Test class for model updates
     """
-    def __init__(self, scene_number : int, batch_number : int, datamodel : ProjectDataModel = None):
+    def __init__(self, scene_number : int, batch_number : int, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_number = batch_number

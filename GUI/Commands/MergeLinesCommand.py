@@ -11,7 +11,7 @@ class MergeLinesCommand(Command):
     """
     Merge one or several lines together
     """
-    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_numbers = sorted(line_numbers)
         self.undo_data = []
