@@ -4,7 +4,6 @@ import os
 import logging
 import threading
 from typing import Any
-import srt # type: ignore
 import bisect
 from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Helpers.Localization import _
@@ -18,7 +17,7 @@ from PySubtitle.Helpers import GetInputPath, GetOutputPath
 from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
-from PySubtitle.SubtitleLine import SubtitleLine, CreateSrtSubtitle
+from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SrtFileHandler import SrtFileHandler
 
