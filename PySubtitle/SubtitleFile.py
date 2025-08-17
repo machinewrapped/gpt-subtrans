@@ -3,7 +3,6 @@ import json
 import os
 import logging
 import threading
-from tkinter import NO
 from typing import Any
 import srt
 import bisect
