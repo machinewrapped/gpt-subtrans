@@ -78,7 +78,7 @@ def GetInputPath(filepath : str|None) -> str | None:
     path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
     return os.path.normpath(path)
 
-def GetOutputPath(filepath : str|None, language : str|None):
+def GetOutputPath(filepath : str|None, language : str|None) -> str|None:
     if not filepath:
         return None
 
