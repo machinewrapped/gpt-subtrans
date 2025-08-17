@@ -12,10 +12,9 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from datetime import timedelta
-from PySubtitle.InternalSubtitle import InternalSubtitle
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.SrtFileHandler import SrtFileHandler
+from PySubtitle.Formats.SrtFileHandler import SrtFileHandler
 from PySubtitle.SubtitleFileHandler import SubtitleFileHandler
 from typing import Iterator, TextIO
 
@@ -61,15 +60,14 @@ def demo_format_agnostic_architecture():
     print("=== SRT Library Decoupling Demonstration ===\n")
     
     # 1. Show business logic using internal representation
-    print("1. Business Logic with Internal Representation:")
-    internal_sub = InternalSubtitle(
-        index=1,
-        start=timedelta(seconds=5),
-        end=timedelta(seconds=10),
-        content="This subtitle uses internal representation only"
+    print("1. Business Logic with SubtitleLine Representation:")
+    line = SubtitleLine.Construct(
+        1,
+        timedelta(seconds=5),
+        timedelta(seconds=10),
+        "This subtitle uses SubtitleLine representation only"
     )
     
-    line = SubtitleLine(internal_sub)
     print(f"   Created subtitle: {line.text}")
     print(f"   Timing: {line.start} to {line.end}")
     print(f"   Duration: {line.duration}")
@@ -123,13 +121,13 @@ def demo_format_agnostic_architecture():
     print(f"   First subtitle: {sf.originals[0].text}")
     print("   ✓ Existing API and functionality preserved\n")
     
-    print("=== Demonstration Complete ===")
-    print("\nArchitecture Benefits:")
+    print("=== Architecture Benefits:")
     print("• SRT library usage isolated to file I/O only")
-    print("• Business logic is completely format-agnostic") 
+    print("• SubtitleLine is the unified internal representation") 
     print("• Easy to add support for new subtitle formats")
     print("• 100% backward compatibility maintained")
     print("• Improved testability and maintainability")
+    print("• Simplified architecture with no unnecessary abstraction layers")
 
 if __name__ == "__main__":
     demo_format_agnostic_architecture()

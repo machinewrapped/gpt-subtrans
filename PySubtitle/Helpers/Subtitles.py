@@ -5,7 +5,6 @@ import regex
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.InternalSubtitle import InternalSubtitle
 
 _whitespace_collapse = regex.compile("\n\n+")
 
@@ -46,8 +45,16 @@ def MergeSubtitles(merged_lines : list[SubtitleLine]) -> SubtitleLine:
     merged_content : str = "\n".join(line.text or "Missing text" for line in merged_lines)
     merged_translation : str = "\n".join(line.translation for line in merged_lines if line.translation)
     merged_original : str = "\n".join(line.original for line in merged_lines if line.original)
-    subtitle = InternalSubtitle(merged_number, merged_start, merged_end, merged_content)
-    return SubtitleLine(subtitle, translation=merged_translation, original=merged_original)
+    
+    # Create merged SubtitleLine directly
+    merged_line = SubtitleLine()
+    merged_line.index = merged_number
+    merged_line.start = merged_start
+    merged_line.end = merged_end
+    merged_line.content = merged_content
+    merged_line.translation = merged_translation
+    merged_line.original = merged_original
+    return merged_line
 
 def MergeTranslations(lines : list[SubtitleLine], translated : list[SubtitleLine]) -> list[SubtitleLine]:
     """

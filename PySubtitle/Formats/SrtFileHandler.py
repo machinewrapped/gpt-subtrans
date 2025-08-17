@@ -27,8 +27,14 @@ class SrtFileHandler(SubtitleFileHandler):
         """
         try:
             srt_items = list(srt.parse(file_obj))
-            for item in srt_items:
-                yield SubtitleLine(item)
+            for srt_item in srt_items:
+                line = SubtitleLine()
+                line.index = srt_item.index
+                line.start = srt_item.start
+                line.end = srt_item.end
+                line.content = srt_item.content
+                line.proprietary = getattr(srt_item, 'proprietary', '')
+                yield line
         except srt.SRTParseError as e:
             raise SubtitleParseError(_("Failed to parse SRT file: {}").format(str(e)), e)
         except Exception as e:
@@ -49,8 +55,14 @@ class SrtFileHandler(SubtitleFileHandler):
         """
         try:
             srt_items = list(srt.parse(content))
-            for item in srt_items:
-                yield SubtitleLine(item)
+            for srt_item in srt_items:
+                line = SubtitleLine()
+                line.index = srt_item.index
+                line.start = srt_item.start
+                line.end = srt_item.end
+                line.content = srt_item.content
+                line.proprietary = getattr(srt_item, 'proprietary', '')
+                yield line
         except srt.SRTParseError as e:
             raise SubtitleParseError(_("Failed to parse SRT string: {}").format(str(e)), e)
         except Exception as e:
