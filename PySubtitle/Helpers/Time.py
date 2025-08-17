@@ -74,10 +74,13 @@ def TimeDeltaToText(time: datetime.timedelta|None, include_milliseconds : bool =
 
     return time_str.format(hours, minutes, seconds, milliseconds)
 
-def TimedeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str:
+def TimedeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str|None:
     """
     Convert a timedelta to a string suitable for SRT timestamps.
     """
+    if time is None:
+        return None
+
     timedelta : datetime.timedelta|Exception|None = time if isinstance(time, datetime.timedelta) else GetTimeDelta(time, raise_exception=True)
 
     if not isinstance(timedelta, datetime.timedelta):

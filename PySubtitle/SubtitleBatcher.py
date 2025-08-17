@@ -76,7 +76,7 @@ class SubtitleBatcher:
 
         if last_split_index > split_index:
             for i in range(split_index, last_split_index):
-                if lines[1].start is None:
+                if lines[i].start is None:
                     raise ValueError(f"Line {lines[i].number} has no start time.")
 
                 if lines[i - 1].end is None:

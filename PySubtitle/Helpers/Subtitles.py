@@ -7,6 +7,8 @@ import srt
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleLine import SubtitleLine
 
+_whitespace_collapse = regex.compile("\n\n+")
+
 def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int|None:
     """
     Insert a line into a list of lines at the correct position, or replace any existing line.
@@ -146,6 +148,6 @@ def LegaliseContent(content: str|None) -> str:
     if content and content[0] != "\n" and "\n\n" not in content:
         return content
 
-    legal_content = regex.compile("\n\n+").sub("\n", content.strip("\n"))
+    legal_content = _whitespace_collapse.sub("\n", content.strip("\n"))
     logging.info(_("Legalised content: {content}").format(content=content))
     return legal_content
