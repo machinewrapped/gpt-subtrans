@@ -68,7 +68,7 @@ def RemoveWhitespaceAndPunctuation(string) -> str:
 
     return normalized
 
-def IsTextContentEqual(string1 : str, string2 : str) -> bool:
+def IsTextContentEqual(string1 : str|None, string2 : str|None) -> bool:
     """
     Compare two strings for equality, ignoring whitespace and punctuation
     """
