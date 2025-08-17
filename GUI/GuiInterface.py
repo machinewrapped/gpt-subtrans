@@ -1,6 +1,5 @@
 import logging
 import os
-from tkinter import N
 
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import (
