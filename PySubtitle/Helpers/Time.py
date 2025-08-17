@@ -90,3 +90,22 @@ def TimedeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str:
     minutes, seconds = divmod(remainder, 60)
 
     return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
+
+def TimedeltaFromSrtTimestamp(timestamp: str|None) -> datetime.timedelta|None:
+    """
+    Convert a string in SRT timestamp format to a timedelta.
+    """
+    if not timestamp:
+        return None
+
+    match = regex.match(r"^(\d{2}):(\d{2}):(\d{2}),(\d{3})$", timestamp)
+    if not match:
+        raise ValueError(f"Invalid SRT timestamp format: {timestamp}")
+
+    hours = int(match.group(1))
+    minutes = int(match.group(2))
+    seconds = int(match.group(3))
+    milliseconds = int(match.group(4))
+
+    return datetime.timedelta(hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds)
+

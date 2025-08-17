@@ -5,7 +5,7 @@ from typing import Any
 import srt
 
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Time import GetTimeDelta, TimedeltaToSrtTimestamp, TimeDeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, TimedeltaFromSrtTimestamp, TimedeltaToSrtTimestamp, TimeDeltaToText
 
 class SubtitleLine:
     """
@@ -212,8 +212,8 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
         if match:
             raw_index, raw_start, raw_end, proprietary, content = match.groups()
             index = int(raw_index) if raw_index else None
-            start = TimedeltaToSrtTimestamp(raw_start)
-            end = TimedeltaToSrtTimestamp(raw_end)
+            start = TimedeltaFromSrtTimestamp(raw_start)
+            end = TimedeltaFromSrtTimestamp(raw_end)
             item = srt.Subtitle(index, start, end, content, proprietary)
         elif item is not None:
             logging.warning(f"Failed to parse line: {line}")
