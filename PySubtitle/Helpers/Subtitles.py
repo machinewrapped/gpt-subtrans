@@ -26,6 +26,8 @@ def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int|None
             lines.insert(i, line)
             return i
 
+    return None
+
 def MergeSubtitles(merged_lines : list[SubtitleLine]) -> SubtitleLine:
     """
     Merge multiple lines into a single line with the same start and end times.
