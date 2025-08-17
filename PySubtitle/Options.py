@@ -60,7 +60,7 @@ default_options : dict[str, Any] = {
     'convert_wide_dashes': env_bool('CONVERT_WIDE_DASHES', True),
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
     # 'autosplit_incomplete': env_bool('AUTOSPLIT_INCOMPLETE', True),
-    'max_lines': int(os.getenv('MAX_LINES','')) if os.getenv('MAX_LINES') else None,
+    'max_lines': env_int('MAX_LINES', None),
     'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 1)),
     'max_summary_length': int(os.getenv('MAX_SUMMARY_LENGTH', 240)),
