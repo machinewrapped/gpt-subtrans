@@ -273,7 +273,7 @@ class ProjectSettings(QGroupBox):
         dialog = EditInstructionsDialog(self.settings, parent=self)
         result = dialog.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             logging.info("Instructions for this project updated\n")
             self.settings.update(dialog.instructions.GetSettings())
             self.settingsChanged.emit(dialog.instructions.GetSettings())

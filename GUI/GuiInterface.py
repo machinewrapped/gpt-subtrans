@@ -129,7 +129,7 @@ class GuiInterface(QObject):
         dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self.GetMainWindow())
         result = dialog.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             self.UpdateSettings(dialog.settings)
 
             logging.info("Settings updated")
@@ -141,7 +141,7 @@ class GuiInterface(QObject):
         provider_cache = self.datamodel.provider_cache if self.datamodel else None
         dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self.GetMainWindow(), focus_provider_settings=True)
         result = dialog.exec()
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             self.UpdateSettings(dialog.settings)
 
     def SaveSettings(self):
@@ -256,7 +256,7 @@ class GuiInterface(QObject):
         try:
             dialog = NewProjectSettings(datamodel, parent=self.GetMainWindow())
 
-            if dialog.exec() == QDialog.Accepted:
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 datamodel.UpdateProjectSettings(dialog.settings)
                 self._check_provider_settings(datamodel.project_options)
                 self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
@@ -365,7 +365,7 @@ class GuiInterface(QObject):
         first_run_options = FirstRunOptions(options, parent = self.GetMainWindow())
         result = first_run_options.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             logging.info("First run options set")
             initial_settings = first_run_options.GetSettings()
             self.UpdateSettings(initial_settings)
