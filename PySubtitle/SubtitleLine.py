@@ -158,8 +158,6 @@ class SubtitleLine:
         i_number = int(number) if number else None
         t_start : timedelta|Exception|None = GetTimeDelta(start)
         t_end : timedelta|Exception|None = GetTimeDelta(end)
-        if t_start is Exception:
-            raise t_start
         if isinstance(t_start, Exception):
             raise t_start
         if isinstance(t_end, Exception):
