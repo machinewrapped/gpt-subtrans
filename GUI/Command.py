@@ -33,7 +33,7 @@ class Command(QRunnable, QObject):
         self.aborted : bool = False
         self.terminal : bool = False        # If true, command ended with a fatal error, no further commands can be executed
         self.callback : Callable|None = None
-        self.undo_callback = None
+        self.undo_callback : Callable|None = None
         self.model_updates : list[ModelUpdate] = []
         self.commands_to_queue : list[Command] = []
 
