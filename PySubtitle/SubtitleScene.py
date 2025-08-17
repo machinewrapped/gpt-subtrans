@@ -110,6 +110,8 @@ class SubtitleScene:
     def GetContextString(self, key : str) -> str|None:
         """ Get a context value that must be a string """
         value = self.GetContext(key)
+        if value is None:
+            return None
         if not isinstance(value, str):
             raise ValueError(f"Context value for key '{key}' is not a string")
         return value if value else None
