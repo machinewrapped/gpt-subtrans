@@ -202,17 +202,20 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle|
     if hasattr(item, 'item'):
         item = getattr(item, 'item')
 
-    if not isinstance(item, srt.Subtitle):
-        line = str(item).strip()
-        match = srt.SRT_REGEX.match(line)
-        if match:
-            raw_index, raw_start, raw_end, proprietary, content = match.groups()
-            index = int(raw_index) if raw_index else None
-            start = SrtTimestampToTimedelta(raw_start)
-            end = SrtTimestampToTimedelta(raw_end)
-            item = srt.Subtitle(index, start, end, content, proprietary)
-            return item
-        elif item is not None:
-            logging.warning(f"Failed to parse line: {line}")
+    if isinstance(item, srt.Subtitle):
+        return item
+
+    line = str(item).strip()
+    match = srt.SRT_REGEX.match(line)
+    if match:
+        raw_index, raw_start, raw_end, proprietary, content = match.groups()
+        index = int(raw_index) if raw_index else None
+        start = SrtTimestampToTimedelta(raw_start)
+        end = SrtTimestampToTimedelta(raw_end)
+        item = srt.Subtitle(index, start, end, content, proprietary)
+        return item
+
+    if item is not None:
+        raise ValueError(_("Invalid SRT line: {line}").format(line=item))
 
     return None

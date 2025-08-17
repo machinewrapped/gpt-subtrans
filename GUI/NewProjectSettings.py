@@ -211,7 +211,7 @@ class BatchPreviewWorker(QThread):
 
     def run(self):
         if 'debugpy' in globals():
-            debugpy.debug_this_thread()
+            debugpy.debug_this_thread()  # type: ignore
 
         try:
             if self.settings.get('preprocess_subtitles'):
