@@ -216,6 +216,6 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle|
         return item
 
     if item is not None:
-        raise ValueError(_("Invalid SRT line: {line}").format(line=item))
+        raise ValueError(_("Invalid SRT line: {line}").format(line=line))
 
     return None
