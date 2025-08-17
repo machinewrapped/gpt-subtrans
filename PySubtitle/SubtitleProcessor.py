@@ -58,7 +58,7 @@ class SubtitleProcessor:
 
         self.break_long_lines : bool = settings.get('break_long_lines', False)
         self.max_single_line_length : bool = settings.get('max_single_line_length', 40)
-        self.min_single_line_length : bool = settings.get('min_single_line_length', 4)
+        self.min_single_line_length : int = settings.get('min_single_line_length', 4)
 
         self.split_dialog_pattern : regex.Pattern|None = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
         self.filler_words_pattern : regex.Pattern|None = CompileFillerWordsPattern(settings.get('filler_words')) if self.remove_filler_words else None
