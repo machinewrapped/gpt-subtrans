@@ -150,10 +150,13 @@ class MainToolbar(QToolBar):
         """
         Enable or disable a list of commands
         """
+        icon_set : dict[str, QIcon] = self._enabled_icons if enabled else self._disabled_icons
         for name in action_list:
             action = self._actions.get(name)
             if action:
                 action.setEnabled(enabled)
+                if name in icon_set:
+                    action.setIcon(icon_set[name])
 
     def UpdateTooltip(self, action_name : str, label : str):
         """
