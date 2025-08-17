@@ -310,6 +310,7 @@ class SubtitleBatch:
             self.InsertOriginalLine(line)
 
         if translated:
-            sorted_lines = sorted(translated, key=lambda item: item.number)
+        if translated_lines:
+            sorted_lines = sorted(translated_lines, key=lambda item: item.number)
             for line in sorted_lines:
                 self.InsertTranslatedLine(line)
