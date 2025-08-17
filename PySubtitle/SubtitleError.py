@@ -1,5 +1,7 @@
 from typing import Any
 
+from PySubtitle.Helpers.Localization import _
+
 class SubtitleError(Exception):
     def __init__(self, message : str|None = None, error : Exception|None = None):
         super().__init__(message)
@@ -15,7 +17,7 @@ class SubtitleError(Exception):
 
 class NoProviderError(SubtitleError):
     def __init__(self):
-        super().__init__(f"Provider not specified in options")
+        super().__init__(_("Provider not specified in options"))
 
 class ProviderError(SubtitleError):
     def __init__(self, message : str|None = None, provider : Any = None):
@@ -35,7 +37,7 @@ class TranslationError(SubtitleError):
 
 class TranslationAbortedError(TranslationError):
     def __init__(self):
-        super().__init__("Translation aborted")
+        super().__init__(_("Translation aborted"))
 
 class TranslationImpossibleError(TranslationError):
     """ No chance of retry succeeding """
