@@ -25,6 +25,14 @@ def env_bool(key, default=False) -> bool:
     var = os.getenv(key, default)
     return True if var and str(var).lower() in ('true', 'yes', '1') else False
 
+def env_int(key, default : int|None = None) -> int|None:
+    value = os.getenv(key, default)
+    return int(value) if value is not None else None
+
+def env_float(key, default : float|None = None) -> float|None:
+    value = os.getenv(key, default)
+    return float(value) if value is not None else None
+
 default_options : dict[str, Any] = {
     'version': __version__,
     'provider': os.getenv('PROVIDER', None),
@@ -34,23 +42,23 @@ default_options : dict[str, Any] = {
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'include_original': env_bool('INCLUDE_ORIGINAL', False),
     'add_right_to_left_markers': env_bool('add_right_to_left_markers', False),
-    'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 30.0)),
-    'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 10)),
-    'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 30)),
-    'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
-    'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
-    'max_newlines': int(os.getenv('MAX_NEWLINES', 2)),
-    'max_single_line_length': int(os.getenv('MAX_SINGLE_LINE_LENGTH', 44)),
-    'min_single_line_length': int(os.getenv('MIN_SINGLE_LINE_LENGTH', 8)),
+    'scene_threshold': env_float('SCENE_THRESHOLD', 30.0),
+    'min_batch_size': env_int('MIN_BATCH_SIZE', 10),
+    'max_batch_size': env_int('MAX_BATCH_SIZE', 30),
+    'max_context_summaries': env_int('MAX_CONTEXT_SUMMARIES', 10),
+    'max_characters': env_int('MAX_CHARACTERS', 120),
+    'max_newlines': env_int('MAX_NEWLINES', 2),
+    'max_single_line_length': env_int('MAX_SINGLE_LINE_LENGTH', 44),
+    'min_single_line_length': env_int('MIN_SINGLE_LINE_LENGTH', 8),
     'postprocess_translation': env_bool('POSTPROCESS_TRANSLATION', False),
     'preprocess_subtitles': env_bool('PREPROCESS_SUBTITLES', False),
     'save_preprocessed_subtitles': env_bool('SAVE_PREPROCESSED_SUBTITLES', False),
     'break_long_lines': env_bool('BREAK_LONG_LINES', True),
     'break_dialog_on_one_line': env_bool('break_dialog_on_one_line', True),
-    'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.0)),
-    'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
-    'merge_line_duration': float(os.getenv('MERGE_LINE_DURATION', 0.0)),
-    'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 3)),
+    'max_line_duration': env_float('MAX_LINE_DURATION', 4.0),
+    'min_line_duration': env_float('MIN_LINE_DURATION', 0.8),
+    'merge_line_duration': env_float('MERGE_LINE_DURATION', 0.0),
+    'min_split_chars': env_int('MIN_SPLIT_CHARS', 3),
     'normalise_dialog_tags': env_bool('NORMALISE_DIALOG_TAGS', True),
     'remove_filler_words': env_bool('REMOVE_FILLER_WORDS', True),
     'filler_words': standard_filler_words,
@@ -61,10 +69,10 @@ default_options : dict[str, Any] = {
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
     # 'autosplit_incomplete': env_bool('AUTOSPLIT_INCOMPLETE', True),
     'max_lines': env_int('MAX_LINES', None),
-    'max_threads': int(os.getenv('MAX_THREADS', 4)),
-    'max_retries': int(os.getenv('MAX_RETRIES', 1)),
-    'max_summary_length': int(os.getenv('MAX_SUMMARY_LENGTH', 240)),
-    'backoff_time': float(os.getenv('BACKOFF_TIME', 3.0)),
+    'max_threads': env_int('MAX_THREADS', 4),
+    'max_retries': env_int('MAX_RETRIES', 1),
+    'max_summary_length': env_int('MAX_SUMMARY_LENGTH', 240),
+    'backoff_time': env_float('BACKOFF_TIME', 3.0),
     'project' : os.getenv('PROJECT', None),
     'autosave': env_bool('AUTOSAVE', True),
     'last_used_path': None,

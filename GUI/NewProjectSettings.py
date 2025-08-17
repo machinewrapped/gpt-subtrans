@@ -1,12 +1,13 @@
 from copy import deepcopy
 import logging
 import os
+from typing import cast
 
 from PySide6.QtCore import Qt, QThread, Signal, Slot, QRecursiveMutex, QMutexLocker
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel, QWidget, QLayout)
 
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget, OptionWidget
 
 from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
@@ -145,10 +146,10 @@ class NewProjectSettings(QDialog):
             logging.error(_("Provider error: {error}").format(error=e))
 
     def _update_settings(self):
-        layout = self.form_layout.layout()
+        layout : QFormLayout = cast(QFormLayout, self.form_layout.layout())
 
         for row in range(layout.rowCount()): # type: ignore
-            field = layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
+            field : OptionWidget = cast(OptionWidget, layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget())
             self.settings[field.key] = field.GetValue()
 
     def _update_instruction_file(self):

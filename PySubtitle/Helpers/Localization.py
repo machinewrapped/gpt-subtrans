@@ -17,9 +17,9 @@ except Exception:  # pragma: no cover - environment without Babel
 
 from PySubtitle.Helpers.Resources import GetResourcePath
 
-_translator: Optional[gettext.NullTranslations] = None
+_translator: gettext.NullTranslations|None = None
 _domain = 'gui-subtrans'
-
+_cached_locales: list[str] = []  # Cache for available locales
 
 def _get_locale_dir() -> str:
     # Locale directory is resolved via resource path helper so it works in dev and bundled builds
@@ -88,7 +88,8 @@ def get_available_locales() -> list[str]:
     Scan the locales directory and return a list of available locale codes.
     """
     # Cache the result after first scan
-    if not hasattr(get_available_locales, "_cached_locales"):
+    global _cached_locales
+    if not _cached_locales:
         locales_dir = _get_locale_dir()
         languages = []
         try:
@@ -99,8 +100,8 @@ def get_available_locales() -> list[str]:
         except Exception:
             # Fallback to known locales if scanning fails
             languages = ['en', 'es']
-        get_available_locales._cached_locales = sorted(set(languages)) or ['en']
-    return get_available_locales._cached_locales
+        _cached_locales = sorted(set(languages)) or ['en']
+    return _cached_locales
 
 
 def get_locale_display_name(locale_code: str) -> str:

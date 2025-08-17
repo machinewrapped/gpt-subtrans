@@ -3,7 +3,7 @@ import logging
 import threading
 
 from PySubtitle.Helpers.Subtitles import MergeTranslations
-from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Localization import _, tr
 from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE, Instructions
 from PySubtitle.Substitutions import Substitutions
@@ -349,6 +349,12 @@ class SubtitleTranslator:
         prompt : TranslationPrompt|None = batch.prompt
         if not prompt or not prompt.messages:
             raise TranslationError("No prompt to retranslate")
+
+        if not self.instructions.retry_instructions:
+            raise TranslationError("No retry instructions provided")
+
+        if not translation.text:
+            raise TranslationError("No translation text to retranslate", translation=translation)
 
         prompt.GenerateRetryPrompt(translation.text, self.instructions.retry_instructions, batch.errors)
 

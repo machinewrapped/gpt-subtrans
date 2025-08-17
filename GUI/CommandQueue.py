@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 
 from PySide6.QtCore import Qt, QObject, Signal, Slot, QThreadPool, QRecursiveMutex, QMutexLocker
 
