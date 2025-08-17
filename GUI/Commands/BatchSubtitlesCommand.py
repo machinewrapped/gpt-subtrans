@@ -1,8 +1,9 @@
 from copy import deepcopy
-from GUI.Command import Command
+from GUI.Command import Command, CommandError
 from GUI.Commands.SaveProjectFile import SaveProjectFile
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Helpers import GetOutputPath
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
@@ -26,8 +27,8 @@ class BatchSubtitlesCommand(Command):
 
         project : SubtitleProject = self.project
 
-        if not project or not project.subtitles:
-            logging.error("No subtitles to batch")
+        if not project or not project.subtitles or not project.subtitles.originals:
+            raise CommandError(_("No subtitles to batch"), command=self)
 
         if self.preprocess_subtitles:
             originals = deepcopy(project.subtitles.originals)
@@ -47,7 +48,7 @@ class BatchSubtitlesCommand(Command):
         if project.write_project:
             self.commands_to_queue.append(SaveProjectFile(project=project))
 
-        self.datamodel : ProjectDataModel = ProjectDataModel(project, self.options)
+        self.datamodel = ProjectDataModel(project, self.options)
         self.datamodel.CreateViewModel()
         return True
 

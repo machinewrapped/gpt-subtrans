@@ -2,6 +2,7 @@ import logging
 from copy import deepcopy
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
 
@@ -14,6 +15,9 @@ class EditSceneCommand(Command):
 
     def execute(self):
         logging.debug(f"Editing scene {self.scene_number}")
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
         if not subtitles:
@@ -39,6 +43,12 @@ class EditSceneCommand(Command):
 
     def undo(self):
         logging.debug(f"Undoing edit scene {self.scene_number}")
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
+        if not self.undo_data:
+            raise CommandError(_("No undo data available"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 

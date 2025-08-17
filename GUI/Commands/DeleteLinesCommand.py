@@ -23,6 +23,9 @@ class DeleteLinesCommand(Command):
 
         logging.info(_("Deleting lines {lines}").format(lines=str(self.line_numbers)))
 
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
@@ -51,6 +54,9 @@ class DeleteLinesCommand(Command):
     def undo(self):
         if not self.deletions:
             raise CommandError(_("No deletions to undo"), command=self)
+        
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         logging.info(_("Restoring deleted lines"))
         project : SubtitleProject = self.datamodel.project
@@ -63,7 +69,7 @@ class DeleteLinesCommand(Command):
             batch.InsertLines(deleted_originals, deleted_translated)
 
             for line in deleted_originals:
-                translated : SubtitleLine = next((translated for translated in deleted_translated if translated.number == line.number), None)
+                translated : SubtitleLine|None = next((translated for translated in deleted_translated if translated.number == line.number), None)
                 if translated:
                     line.translated = translated
 

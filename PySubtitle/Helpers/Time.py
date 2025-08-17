@@ -81,13 +81,13 @@ def TimedeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str|None:
     if time is None:
         return None
 
-    timedelta : datetime.timedelta|Exception|None = time if isinstance(time, datetime.timedelta) else GetTimeDelta(time, raise_exception=True)
+    tdelta : datetime.timedelta|Exception|None = time if isinstance(time, datetime.timedelta) else GetTimeDelta(time, raise_exception=True)
 
-    if not isinstance(timedelta, datetime.timedelta):
+    if not isinstance(tdelta, datetime.timedelta):
         raise ValueError(f"Invalid timedelta: {time}")
 
-    total_seconds = int(timedelta.total_seconds())
-    milliseconds = timedelta.microseconds // 1000
+    total_seconds = int(tdelta.total_seconds())
+    milliseconds = tdelta.microseconds // 1000
 
     hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)

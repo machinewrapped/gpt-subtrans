@@ -1,5 +1,6 @@
-from GUI.Command import Command
+from GUI.Command import Command, CommandError
 from PySubtitle.Helpers import GetOutputPath
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleProject import SubtitleProject
 
 class SaveProjectFile(Command):
@@ -12,7 +13,10 @@ class SaveProjectFile(Command):
 
     def execute(self):
         if not self.filepath:
-            raise ValueError("Project file path must be specified.")
+            raise CommandError(_("Project file path must be specified."), command=self)
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         self.project.projectfile = self.project.GetProjectFilepath(self.filepath)
         self.project.subtitles.outputpath = GetOutputPath(self.project.projectfile, self.project.target_language)

@@ -1,6 +1,7 @@
 from collections.abc import Callable
 import os
 import logging
+from typing import Any
 
 from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
@@ -32,8 +33,8 @@ class Command(QRunnable, QObject):
         self.succeeded : bool|None = False
         self.aborted : bool = False
         self.terminal : bool = False        # If true, command ended with a fatal error, no further commands can be executed
-        self.callback : Callable|None = None
-        self.undo_callback : Callable|None = None
+        self.callback : Callable[[Command], Any]|None = None
+        self.undo_callback : Callable[[Command], Any]|None = None
         self.model_updates : list[ModelUpdate] = []
         self.commands_to_queue : list[Command] = []
 
@@ -94,7 +95,7 @@ class Command(QRunnable, QObject):
     def execute(self):
         raise NotImplementedError
 
-    def undo(self):
+    def undo(self) -> bool:
         if self.skip_undo:
             logging.warning(f"Command {type(self).__name__} has no undo function and is not set to skip undo")
             return False
@@ -120,7 +121,6 @@ class CommandError(Exception):
 
     def __str__(self) -> str:
         return _("Error in {command}: {message}").format(command=type(self.command).__name__, message=self.message)
-
 
 class UndoError(CommandError):
     pass

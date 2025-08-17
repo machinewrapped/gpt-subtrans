@@ -18,6 +18,9 @@ class MergeScenesCommand(Command):
     def execute(self):
         logging.info(_("Merging scenes {scenes}").format(scenes=','.join(str(x) for x in self.scene_numbers)))
 
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         if len(self.scene_numbers) < 2:
@@ -46,6 +49,9 @@ class MergeScenesCommand(Command):
         """
         if not self.scene_sizes:
             raise UndoError(_("Cannot undo merge, scene sizes were not saved"), command=self)
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 

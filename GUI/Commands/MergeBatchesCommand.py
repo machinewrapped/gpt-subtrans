@@ -1,5 +1,6 @@
-from GUI.Command import Command
+from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 
@@ -13,13 +14,16 @@ class MergeBatchesCommand(Command):
     """
     def __init__(self, scene_number: int, batch_numbers: list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
-        self.scene_number = scene_number
-        self.batch_numbers = sorted(batch_numbers)
-        self.original_first_line_numbers = None
-        self.original_summaries = {}
+        self.scene_number : int = scene_number
+        self.batch_numbers : list[int] = sorted(batch_numbers)
+        self.original_first_line_numbers : list[int] = []
+        self.original_summaries : dict[int, str] = {}
 
     def execute(self):
         logging.info(f"Merging scene {str(self.scene_number)} batches: {','.join(str(x) for x in self.batch_numbers)}")
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         project: SubtitleProject = self.datamodel.project
         scene = project.subtitles.GetScene(self.scene_number)
@@ -28,13 +32,17 @@ class MergeBatchesCommand(Command):
             merged_batch_number = self.batch_numbers[0]
 
             original_batches = [scene.GetBatch(batch_number) for batch_number in self.batch_numbers]
-            self.original_first_line_numbers = [batch.first_line_number for batch in original_batches]
-            self.original_summaries = {batch.number: batch.summary for batch in original_batches}
+
+            if any(b is None or b.scene != scene.number or b.first_line_number is None or b.last_line_number is None for b in original_batches):
+                raise CommandError(_("Invalid batch"), command=self)
+
+            self.original_first_line_numbers = [batch.first_line_number for batch in original_batches if batch and batch.first_line_number]
+            self.original_summaries = {batch.number: batch.summary for batch in original_batches if batch and batch.summary}
 
             project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
             merged_batch = scene.GetBatch(merged_batch_number)
-            if merged_batch.any_translated:
+            if merged_batch and merged_batch.any_translated:
                 validator = SubtitleValidator(self.datamodel.project_options)
                 validator.ValidateBatch(merged_batch)
 
@@ -46,6 +54,9 @@ class MergeBatchesCommand(Command):
         return True
 
     def undo(self):
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         project: SubtitleProject = self.datamodel.project
         scene = project.subtitles.GetScene(self.scene_number)
 
@@ -55,8 +66,9 @@ class MergeBatchesCommand(Command):
 
         # Restore the original summaries
         for batch_number, summary in self.original_summaries.items():
-            batch : SubtitleBatch = scene.GetBatch(batch_number)
-            batch.summary = summary
+            batch : SubtitleBatch|None = scene.GetBatch(batch_number)
+            if batch:
+                batch.summary = summary
 
         model_update = self.AddModelUpdate()
         model_update.scenes.replace(scene.number, scene)

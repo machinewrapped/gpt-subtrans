@@ -14,6 +14,9 @@ class SplitSceneCommand(Command):
     def execute(self):
         logging.info(_("Splitting batch {scene} at batch {batch}").format(scene=str(self.scene_number), batch=str(self.batch_number)))
 
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         project : SubtitleProject = self.datamodel.project
 
         if not project.subtitles:
@@ -39,6 +42,9 @@ class SplitSceneCommand(Command):
         return True
 
     def undo(self):
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         project: SubtitleProject = self.datamodel.project
 
         if not project.subtitles:

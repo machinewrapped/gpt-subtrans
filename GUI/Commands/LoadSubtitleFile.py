@@ -10,7 +10,7 @@ class LoadSubtitleFile(Command):
     def __init__(self, filepath, options : Options, reload_subtitles : bool = False):
         super().__init__()
         self.filepath = filepath
-        self.project : SubtitleProject = None
+        self.project : SubtitleProject|None = None
         self.options : Options = Options(options)
         self.reload_subtitles = reload_subtitles
         self.write_backup = self.options.get('write_backup', False)

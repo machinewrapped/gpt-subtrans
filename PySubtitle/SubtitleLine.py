@@ -21,8 +21,8 @@ class SubtitleLine:
         if isinstance(line, SubtitleLine):
             self._item = line._item
             self._duration = line._duration
-            self.original = original if original is not None else line.original
-            self.translation = translation if translation is not None else line.translation
+            self.original = original or line.original
+            self.translation = translation or line.translation
         elif line is not None:
             self.item = line
 
@@ -63,12 +63,6 @@ class SubtitleLine:
     def txt_start(self) -> str:
         return TimedeltaToText(self.start) or _("Invalid timestamp")
 
-    @start.setter
-    def start(self, time : timedelta | str):
-        if self._item:
-            self._item.start = GetTimeDelta(time)
-            self._duration = None
-
     @property
     def end(self) -> timedelta:
         return self._item.end if self._item else timedelta(seconds=0)
@@ -76,12 +70,6 @@ class SubtitleLine:
     @property
     def srt_end(self) -> str:
         return TimedeltaToSrtTimestamp(self.end) or "00:00.00,000"
-
-    @end.setter
-    def end(self, time : timedelta | str):
-        if self._item:
-            self._item.end = GetTimeDelta(time)
-            self._duration = None
 
     @property
     def txt_end(self) -> str:
@@ -92,16 +80,6 @@ class SubtitleLine:
         if not self._duration:
             self._duration = self.end - self.start if self.start is not None and self.end else timedelta(seconds=0)
         return self._duration
-
-    @duration.setter
-    def duration(self, duration : timedelta|str):
-        if self._item and self._item.start is not None:
-            tdelta : timedelta|Exception|None = GetTimeDelta(duration)
-            if isinstance(tdelta, Exception):
-                raise SubtitleError(f"Invalid duration", error=tdelta)
-
-            self._duration = tdelta or timedelta(seconds=0)
-            self._item.end = self._item.start + self._duration
 
     @property
     def srt_duration(self) -> str:
@@ -115,7 +93,7 @@ class SubtitleLine:
         return self._item.to_srt(strict=False)
 
     @property
-    def translated(self) -> 'None|SubtitleLine':
+    def translated(self) -> 'SubtitleLine|None':
         if self.translation is None:
             return None
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
@@ -151,9 +129,19 @@ class SubtitleLine:
             self._item.end = GetTimeDelta(time)
             self._duration = None
 
+    @duration.setter
+    def duration(self, duration : timedelta|str):
+        if self._item and self._item.start is not None:
+            tdelta : timedelta|Exception|None = GetTimeDelta(duration)
+            if isinstance(tdelta, Exception):
+                raise SubtitleError(f"Invalid duration", error=tdelta)
+
+            self._duration = tdelta or timedelta(seconds=0)
+            self._item.end = self._item.start + self._duration
+
     @translated.setter
-    def translated(self, translated : 'srt.Subtitle|str|SubtitleLine'):
-        self.translation = SubtitleLine(translated).text
+    def translated(self, translated : 'SubtitleLine|srt.Subtitle|str|None'):
+        self.translation = SubtitleLine(translated).text if translated else None
 
     @classmethod
     def Construct(cls, number : int|str|None, start : timedelta|str|None, end : timedelta|str|None, text : str, original : str|None = None):
