@@ -160,7 +160,9 @@ class SubtitleLine:
         t_end : timedelta|Exception|None = GetTimeDelta(end)
         if t_start is Exception:
             raise t_start
-        if t_end is Exception:
+        if isinstance(t_start, Exception):
+            raise t_start
+        if isinstance(t_end, Exception):
             raise t_end
 
         legal_text : str = srt.make_legal_content(text.strip()) if text else ""
