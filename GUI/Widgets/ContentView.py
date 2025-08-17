@@ -82,7 +82,7 @@ class ContentView(QWidget):
 
         dialog = EditSubtitleDialog(item)
 
-        if dialog.exec() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             if dialog.model:
                 original_text = dialog.model.get('original')
                 translated_text = dialog.model.get('translated')

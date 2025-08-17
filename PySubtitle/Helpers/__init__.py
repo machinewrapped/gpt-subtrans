@@ -1,12 +1,12 @@
 import os
 
-from typing import List
+from typing import Any
 
 import regex
 from PySubtitle.Helpers.Localization import LocaleDisplayItem
 from PySubtitle.SubtitleError import SubtitleError
 
-def GetEnvBool(key, default=False):
+def GetEnvBool(key : str, default : bool|None = False) -> bool|None:
     """
     Get a boolean value from an environment variable
     """
@@ -15,7 +15,7 @@ def GetEnvBool(key, default=False):
         return str(var).lower() in ('true', 'yes', '1')
     return default
 
-def GetEnvFloat(name, default=None):
+def GetEnvFloat(name : str, default : float|None = None) -> float|None:
     """
     Get a float value from an environment variable
     """
@@ -24,7 +24,7 @@ def GetEnvFloat(name, default=None):
         return float(value)
     return default
 
-def GetEnvInteger(name, default=None):
+def GetEnvInteger(name : str, default : int|None = None) -> int|None:
     """
     Get an integer value from an environment variable
     """
@@ -33,7 +33,7 @@ def GetEnvInteger(name, default=None):
         return int(value)
     return default
 
-def GetValueName(value):
+def GetValueName(value : Any) -> str:
     """
     Get the name of an object if it has one, or a string representation of the object.
     Then, if the name is in CamelCase, insert spaces between each word.
@@ -46,7 +46,7 @@ def GetValueName(value):
 
     return str(value)
 
-def GetValueFromName(name, values, default=None):
+def GetValueFromName(name : str, values : list[Any], default : Any = None) -> Any:
     """
     Get the value from a name in a list of values
     """
@@ -61,7 +61,7 @@ def GetValueFromName(name, values, default=None):
 
     raise ValueError(f"Value '{name}' not found in {values}")
 
-def UpdateFields(item : dict, update: dict, fields : list[str]):
+def UpdateFields(item : dict[str,Any], update : dict[str,Any], fields : list[str]):
     """
     Patch selected fields in a dictionary
     """
@@ -70,19 +70,21 @@ def UpdateFields(item : dict, update: dict, fields : list[str]):
 
     item.update({field: update[field] for field in update.keys() if field in fields})
 
-def GetInputPath(filepath):
+def GetInputPath(filepath : str|None) -> str | None:
     if not filepath:
         return None
 
-    basename, dummy = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore[unused-ignore]
     path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
     return os.path.normpath(path)
 
-def GetOutputPath(filepath, language="translated"):
+def GetOutputPath(filepath : str|None, language : str|None = None) -> str|None:
     if not filepath:
         return None
 
-    basename, dummy = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore[unused-ignore]
+
+    language = language or "translated"
 
     language_suffix = f".{language}"
     if not basename.endswith(language_suffix):
@@ -90,8 +92,8 @@ def GetOutputPath(filepath, language="translated"):
 
     return os.path.join(os.path.dirname(filepath), f"{basename}.srt")
 
-def FormatMessages(messages):
-    lines = []
+def FormatMessages(messages : list[dict[str,Any]]) -> str:
+    lines : list[str] = []
     for index, message in enumerate(messages, start=1):
         lines.append(f"Message {index}")
         if 'role' in message:
@@ -108,8 +110,8 @@ def FormatMessages(messages):
 
     return '\n'.join(lines)
 
-def FormatErrorMessages(errors : List[SubtitleError]):
+def FormatErrorMessages(errors : list[SubtitleError|str]) -> str:
     """
     Extract error messages from a list of errors
     """
-    return ", ".join([ error.message for error in errors ])
+    return ", ".join([ error.message or str(error) if isinstance(error, SubtitleError) else str(error) for error in errors ])

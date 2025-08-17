@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 
 from PySide6.QtCore import Qt, QObject, Signal, Slot, QThreadPool, QRecursiveMutex, QMutexLocker
 
@@ -12,7 +13,7 @@ class ClearCommandQueue(Command):
     """
     Pseudo-command to clear the command queue
     """
-    def __init__(self, datamodel: ProjectDataModel = None):
+    def __init__(self, datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
 
     def execute(self):
@@ -121,7 +122,7 @@ class CommandQueue(QObject):
 
         self.command_pool.waitForDone()
 
-    def AddCommand(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
+    def AddCommand(self, command: Command, datamodel: ProjectDataModel|None = None, callback: Callable|None = None, undo_callback: Callable|None = None):
         """
         Add a command to the command queue, with optional callbacks for completion/undo events
         """
@@ -212,7 +213,7 @@ class CommandQueue(QObject):
         self.commandAdded.emit(command)
         self._start_command_queue()
 
-    def Contains(self, command_type: type = None, type_list : list[type] = None):
+    def Contains(self, command_type: type|None = None, type_list : list[type]|None = None):
         """
         Check if the queue contains a command type(s)
         """
@@ -293,7 +294,7 @@ class CommandQueue(QObject):
 
         self._start_command_queue()
 
-    def _queue_command(self, command: Command, datamodel: ProjectDataModel = None, callback=None, undo_callback=None):
+    def _queue_command(self, command: Command, datamodel: ProjectDataModel|None = None, callback: Callable|None = None, undo_callback: Callable|None = None):
         """
         Add a command to the worker thread queue
         """

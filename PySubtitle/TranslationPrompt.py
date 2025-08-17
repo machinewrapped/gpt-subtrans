@@ -1,6 +1,5 @@
-from typing import Optional, List
-
-from PySubtitle.SubtitleError import TranslationError
+from PySubtitle.Helpers.Localization import _
+from PySubtitle.SubtitleError import SubtitleError, TranslationError
 from PySubtitle.SubtitleLine import SubtitleLine
 
 default_prompt_template = "<context>\n{context}\n</context>\n\n{prompt}\n\n<summary>Summary of the batch</summary>\n<scene>Summary of the scene</scene>\n"
@@ -74,7 +73,7 @@ class TranslationPrompt:
 
         self._generate_content()
 
-    def GenerateBatchPrompt(self, lines : list, context : dict = None):
+    def GenerateBatchPrompt(self, lines : list, context : dict|None = None):
         """
         Create the user prompt for translating a set of lines
 
@@ -82,11 +81,16 @@ class TranslationPrompt:
         :param template: optional template to format the prompt.
         """
         if not lines:
-            raise ValueError("No source lines provided")
+            raise TranslationError("No source lines provided")
 
-        source_lines = [ _get_line_prompt(line, self.line_template) for line in lines ]
+        source_lines : list[str|None] = [ _get_line_prompt(line, self.line_template) for line in lines ]
 
-        prompt = '\n\n'.join(source_lines).strip()
+        real_lines = [line for line in source_lines if line is not None]
+
+        if not real_lines:
+            raise ValueError("No valid source lines to translate")
+
+        prompt = '\n\n'.join(real_lines).strip()
 
         if self.user_prompt:
             prompt = f"{self.user_prompt}\n\n{prompt}\n"
@@ -98,7 +102,7 @@ class TranslationPrompt:
 
         return prompt
 
-    def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[TranslationError]):
+    def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[SubtitleError|str]|None):
         """
         Request retranslation of lines that were not translated originally
         """
@@ -116,7 +120,7 @@ class TranslationPrompt:
         messages.append({ 'role': assistant_role, 'content': reponse })
 
         if errors:
-            unique_errors = set(( f"- {str(e).strip()}" for e in errors ))
+            unique_errors = set(( f"- {str(e).strip()}" for e in errors if isinstance(e, TranslationError) ))
             error_list = list(unique_errors)
             error_message = '\n'.join(error_list)
             retry_prompt = f"There were some problems with the translation:\n{error_message}\n\nPlease correct them."
@@ -148,16 +152,19 @@ class TranslationPrompt:
         else:
             return "\n\n".join([ m.get('content') for m in self.messages ])
 
-def _get_line_prompt(line : SubtitleLine, line_template : str = None):
+def _get_line_prompt(line : SubtitleLine, line_template : str|None = None) -> str|None:
     """
     Generate a prompt for a single subtitle line
     """
     if not line._item:
         return None
 
+    if line_template is None:
+        raise TranslationError(_("No line template provided"))
+
     return line_template.format(number=line.number, text=line.text_normalized)
 
-def _generate_tag(tag, content : str | List[str], tag_template : str) -> str:
+def _generate_tag(tag, content : str|list[str], tag_template : str) -> str:
     """
     Generate tag with content using the provided template
     """
@@ -166,7 +173,7 @@ def _generate_tag(tag, content : str | List[str], tag_template : str) -> str:
 
     return tag_template.format(tag=tag, content=content).strip()
 
-def _generate_tag_lines(context : dict, tags : List[str], tag_template : str) -> Optional[str]:
+def _generate_tag_lines(context : dict, tags : list[str], tag_template : str) -> str|None:
     """
     Create a user message for specifying a set of tags
 

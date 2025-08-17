@@ -6,13 +6,16 @@ from PySubtitle.Helpers.Localization import _
 import logging
 
 class SplitSceneCommand(Command):
-    def __init__(self, scene_number : int, batch_number : int, datamodel: ProjectDataModel = None):
+    def __init__(self, scene_number : int, batch_number : int, datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_number = batch_number
 
     def execute(self):
         logging.info(_("Splitting batch {scene} at batch {batch}").format(scene=str(self.scene_number), batch=str(self.batch_number)))
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         project : SubtitleProject = self.datamodel.project
 
@@ -39,6 +42,9 @@ class SplitSceneCommand(Command):
         return True
 
     def undo(self):
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         project: SubtitleProject = self.datamodel.project
 
         if not project.subtitles:

@@ -129,7 +129,7 @@ class GuiInterface(QObject):
         dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self.GetMainWindow())
         result = dialog.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             self.UpdateSettings(dialog.settings)
 
             logging.info("Settings updated")
@@ -141,7 +141,7 @@ class GuiInterface(QObject):
         provider_cache = self.datamodel.provider_cache if self.datamodel else None
         dialog = SettingsDialog(self.global_options, provider_cache=provider_cache, parent=self.GetMainWindow(), focus_provider_settings=True)
         result = dialog.exec()
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             self.UpdateSettings(dialog.settings)
 
     def SaveSettings(self):
@@ -197,7 +197,7 @@ class GuiInterface(QObject):
             self.datamodel.UpdateProjectSettings(settings)
             self.settingsChanged.emit(settings)
 
-    def Startup(self, filepath : str = None):
+    def Startup(self, filepath : str|None = None):
         """
         Perform startup tasks
         """
@@ -242,7 +242,7 @@ class GuiInterface(QObject):
         command = LoadSubtitleFile(filepath, self.global_options, reload_subtitles=reload_subtitles)
         self.QueueCommand(command, callback=self._on_project_loaded)
 
-    def SaveProject(self, filepath : str = None):
+    def SaveProject(self, filepath : str|None = None):
         """
         Save the project file
         """
@@ -256,7 +256,7 @@ class GuiInterface(QObject):
         try:
             dialog = NewProjectSettings(datamodel, parent=self.GetMainWindow())
 
-            if dialog.exec() == QDialog.Accepted:
+            if dialog.exec() == QDialog.DialogCode.Accepted:
                 datamodel.UpdateProjectSettings(dialog.settings)
                 self._check_provider_settings(datamodel.project_options)
                 self.QueueCommand(BatchSubtitlesCommand(datamodel.project, datamodel.project_options))
@@ -302,7 +302,9 @@ class GuiInterface(QObject):
         Handle the completion of a command
         """
         if isinstance(command, ExitProgramCommand):
-            QApplication.instance().quit()
+            app = QApplication.instance()
+            if app:
+                app.quit()
             return
 
         logging.debug(f"A {type(command).__name__} command {'succeeded' if command.succeeded else 'failed'}")
@@ -314,7 +316,7 @@ class GuiInterface(QObject):
 
                 command.ClearModelUpdates()
 
-            elif command.datamodel != self.datamodel:
+            elif command.datamodel and command.datamodel != self.datamodel:
                 # Shouldn't need to do a full model rebuild often?
                 self.SetDataModel(command.datamodel)
 
@@ -332,6 +334,10 @@ class GuiInterface(QObject):
         """
         Update the data model and last used path after loading a project
         """
+        if command.datamodel is None:
+            logging.error(_("Failed to load project data model."))
+            return
+
         self.SetDataModel(command.datamodel)
         self._update_last_used_path(command.filepath)
         if self.datamodel.IsProjectValid() and not self.datamodel.IsProjectInitialised():
@@ -341,8 +347,9 @@ class GuiInterface(QObject):
         """
         Update the data model and last used path after saving a project
         """
-        self._update_last_used_path(command.filepath)
-        self.SetDataModel(command.datamodel)
+        if command.datamodel and command.filepath:
+            self._update_last_used_path(command.filepath)
+            self.SetDataModel(command.datamodel)
 
     def _update_last_used_path(self, filepath : str):
         """
@@ -358,14 +365,14 @@ class GuiInterface(QObject):
         """
         if not options.available_providers:
             logging.error(_("No translation providers available. Please install one or more providers."))
-            QMessageBox.critical(self, _("Error"), _("No translation providers available. Please install one or more providers."))
+            QMessageBox.critical(self.mainwindow, _("Error"), _("No translation providers available. Please install one or more providers."))
             self.QueueCommand(ExitProgramCommand())
             return
 
         first_run_options = FirstRunOptions(options, parent = self.GetMainWindow())
         result = first_run_options.exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             logging.info("First run options set")
             initial_settings = first_run_options.GetSettings()
             self.UpdateSettings(initial_settings)

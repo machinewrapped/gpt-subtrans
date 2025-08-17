@@ -130,7 +130,7 @@ class ScenesView(QTreeView):
     def _edit_scene(self, item : SceneItem):
         dialog = EditSceneDialog(item, parent = self)
 
-        if dialog.exec() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             if dialog.model:
                 item.Update(dialog.model)
                 self.onSceneEdited.emit(item.number, item.scene_model)
@@ -141,7 +141,7 @@ class ScenesView(QTreeView):
     def _edit_batch(self, item : BatchItem):
         dialog = EditBatchDialog(item)
 
-        if dialog.exec() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             if dialog.model:
                 item.Update(dialog.model)
                 self.onBatchEdited.emit(item.scene, item.number, item.batch_model)

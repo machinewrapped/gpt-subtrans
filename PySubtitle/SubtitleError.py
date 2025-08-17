@@ -1,5 +1,9 @@
+from typing import Any
+
+from PySubtitle.Helpers.Localization import _
+
 class SubtitleError(Exception):
-    def __init__(self, message, error = None):
+    def __init__(self, message : str|None = None, error : Exception|None = None):
         super().__init__(message)
         self.error = error
         self.message = message
@@ -13,64 +17,64 @@ class SubtitleError(Exception):
 
 class NoProviderError(SubtitleError):
     def __init__(self):
-        super().__init__(f"Provider not specified in options")
+        super().__init__(_("Provider not specified in options"))
 
 class ProviderError(SubtitleError):
-    def __init__(self, message, provider = None):
+    def __init__(self, message : str|None = None, provider : Any = None):
         super().__init__(message)
         self.provider = provider
  
 class ProviderConfigurationError(ProviderError):
-    def __init__(self, message, provider = None, error = None):
+    def __init__(self, message : str, provider : Any, error : Exception|None = None):
         super().__init__(message, provider)
         self.error = error
 
 class TranslationError(SubtitleError):
-    def __init__(self, message, translation = None, error = None):
+    def __init__(self, message : str, translation : Any = None, error : Exception|None = None):
         super().__init__(message)
         self.translation = translation
         self.error = error
 
 class TranslationAbortedError(TranslationError):
     def __init__(self):
-        super().__init__("Translation aborted")
+        super().__init__(_("Translation aborted"))
 
 class TranslationImpossibleError(TranslationError):
     """ No chance of retry succeeding """
-    def __init__(self, message, error = None):
+    def __init__(self, message : str, error : Exception|None = None):
         super().__init__(message, error)
 
 class TranslationResponseError(TranslationError):
-    def __init__(self, message, response):
+    def __init__(self, message : str, response : Any):
         super().__init__(message)
         self.response = response
 
 class NoTranslationError(TranslationError):
-    def __init__(self, message, translation = None):
+    def __init__(self, message : str, translation : str|None = None):
         super().__init__(message=message, translation=translation)
 
 class TranslationValidationError(TranslationError):
-    def __init__(self, message, lines, translation):
+    def __init__(self, message : str, lines : list[Any]|None = None, translation : Any|None = None):
         super().__init__(message, translation)
         self.lines = lines or []
 
 class UntranslatedLinesError(TranslationValidationError):
-    def __init__(self, message, lines = None, translation = None):
+    def __init__(self, message : str, lines : list[Any]|None = None, translation : Any|None = None):
         super().__init__(message, lines=lines, translation=translation)
 
 class UnmatchedLinesError(TranslationValidationError):
-    def __init__(self, message, lines = None, translation = None):
+    def __init__(self, message : str, lines : list[Any]|None = None, translation : Any|None = None):
         super().__init__(message, lines=lines, translation=translation)
 
 class EmptyLinesError(TranslationValidationError):
-    def __init__(self, message, lines = None, translation = None):
+    def __init__(self, message : str, lines : list[Any]|None = None, translation : Any|None = None):
         super().__init__(message, lines=lines, translation=translation)
 
 class TooManyNewlinesError(TranslationValidationError):
-    def __init__(self, message, lines = None, translation = None):
+    def __init__(self, message : str, lines : list[Any]|None = None, translation : Any|None = None):
         super().__init__(message, lines=lines, translation=translation)
 
 class LineTooLongError(TranslationValidationError):
-    def __init__(self, message, lines = None, translation = None):
+    def __init__(self, message : str, lines : list[Any]|None = None, translation : Any|None = None):
         super().__init__(message, lines=lines, translation=translation)
  

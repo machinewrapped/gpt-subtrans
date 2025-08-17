@@ -7,6 +7,8 @@ linesep = '\n'
 
 DEFAULT_TASK_TYPE = "Translation"
 
+default_user_prompt = "Translate these subtitles [ for movie][ to language]"
+
 default_instructions = linesep.join([
 	"Your task is to accurately translate subtitles into a target language.",
 	"",
@@ -52,6 +54,12 @@ default_retry_instructions = linesep.join([
 
 class Instructions:
     def __init__(self, settings):
+        self.prompt : str|None = None
+        self.instructions : str|None = None
+        self.retry_instructions : str|None = None
+        self.instruction_file : str|None = None
+        self.target_language : str|None = None
+        self.task_type : str|None = DEFAULT_TASK_TYPE
         self.InitialiseInstructions(settings)
 
     def GetSettings(self):
@@ -116,20 +124,21 @@ class Instructions:
                 self.instruction_file = os.path.basename(filepath)
             return
 
-        sections = {}
+        sections : dict[str, list[str]] = {}
+        section_name : str|None = None
         for line in lines:
             if line.startswith('###'):
                 section_name = line[3:].strip()
                 sections[section_name] = []
-            elif line.strip() or sections[section_name]:
+            elif section_name is not None and (line.strip() or sections[section_name]):
                 sections[section_name].append(line)
 
         self.prompt = linesep.join(sections.get('prompt', []))
         self.instructions = linesep.join(sections.get('instructions', []))
         self.retry_instructions = linesep.join(sections.get('retry_instructions', [])) or default_retry_instructions
         self.instruction_file = os.path.basename(filepath)
-        self.target_language = ''.join(sections.get('target_language', None)) if 'target_language' in sections else None
-        self.task_type = ''.join(sections.get('task_type', None)) if 'task_type' in sections else DEFAULT_TASK_TYPE
+        self.target_language = ''.join(sections.get('target_language', [])) if 'target_language' in sections else None
+        self.task_type = ''.join(sections.get('task_type', [])) if 'task_type' in sections else DEFAULT_TASK_TYPE
 
         if not self.prompt or not self.instructions:
             raise ValueError("Invalid instruction file")
@@ -146,18 +155,18 @@ class Instructions:
             # Write each section to the file with a header
             with open(filepath, "w", encoding="utf-8", newline='') as f:
                 f.write("### prompt\n")
-                f.write(self.prompt)
+                f.write(self.prompt or default_instructions)
                 if self.task_type != DEFAULT_TASK_TYPE:
                     f.write("\n\n### task_type\n{}".format(self.task_type))
                 f.write("\n\n### instructions\n")
-                f.write(self.instructions)
+                f.write(self.instructions or default_instructions)
                 f.write("\n\n### retry_instructions\n")
-                f.write(self.retry_instructions)
+                f.write(self.retry_instructions or default_retry_instructions)
                 f.write("\n")
 
             self.instruction_file = os.path.basename(filepath)
 
-def GetInstructionsResourcePath(instructions_file : str = None):
+def GetInstructionsResourcePath(instructions_file : str|None = None):
     """
     Get the path for an instructions file (or the directory that contains them).
     """
@@ -185,7 +194,7 @@ def LoadInstructionsResource(resource_name):
     instructions.LoadInstructionsFile(filepath)
     return instructions
 
-def GetInstructionsUserPath(instructions_file : str = None):
+def GetInstructionsUserPath(instructions_file : str|None = None):
     """
     Get the path for an instructions file (or the directory that contains them).
     """
@@ -229,7 +238,7 @@ def LoadInstructions(name : str):
 
     return LoadInstructionsResource(name)
 
-def LoadLegacyInstructions(lines):
+def LoadLegacyInstructions(lines) -> tuple[str|None, str|None]:
     """
     Retry instructions can be added to the file after a line of at least 3 # characters.
     """
@@ -238,7 +247,7 @@ def LoadLegacyInstructions(lines):
             if len(item) >= 3 and all(c == '#' for c in item):
                 return linesep.join(lines[:idx]), linesep.join(lines[idx + 1:])
 
-        return linesep.join(lines), []
+        return linesep.join(lines), None
 
     return None, None
 

@@ -8,7 +8,7 @@ from GUI.ViewModel.LineItem import LineItem
 from GUI.ViewModel.SceneItem import SceneItem
 from GUI.ViewModel.ViewModelError import ViewModelError
 
-from PySubtitle.Helpers.Time import TimeDeltaToText
+from PySubtitle.Helpers.Time import TimedeltaToText
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -110,7 +110,7 @@ class ProjectViewModel(QStandardItemModel):
                 'start': line.txt_start,
                 'end': line.srt_end,
                 'duration': line.srt_duration,
-                'gap': TimeDeltaToText(line.start - gap_start) if gap_start else "",
+                'gap': TimedeltaToText(line.start - gap_start) if gap_start else "",
                 'text': line.text
             })
 

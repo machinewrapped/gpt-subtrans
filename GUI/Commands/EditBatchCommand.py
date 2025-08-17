@@ -8,7 +8,7 @@ import logging
 from PySubtitle.Helpers.Localization import _
 
 class EditBatchCommand(Command):
-    def __init__(self, scene_number : int, batch_number : int, edit : dict, datamodel : ProjectDataModel = None):
+    def __init__(self, scene_number : int, batch_number : int, edit : dict, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_number = batch_number
@@ -17,6 +17,9 @@ class EditBatchCommand(Command):
 
     def execute(self):
         logging.debug(_("Editing batch ({scene},{batch})").format(scene=self.scene_number, batch=self.batch_number))
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
         if not subtitles:
@@ -42,6 +45,12 @@ class EditBatchCommand(Command):
 
     def undo(self):
         logging.debug(_("Undoing edit batch ({scene},{batch})").format(scene=self.scene_number, batch=self.batch_number))
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
+        if not self.undo_data:
+            raise CommandError(_("No undo data available"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 

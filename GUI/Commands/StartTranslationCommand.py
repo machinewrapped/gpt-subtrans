@@ -10,7 +10,7 @@ from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 
 class StartTranslationCommand(Command):
-    def __init__(self, datamodel: ProjectDataModel = None, resume : bool = False, multithreaded : bool = False, scenes : dict = None):
+    def __init__(self, datamodel: ProjectDataModel|None = None, resume : bool = False, multithreaded : bool = False, scenes : dict|None = None):
         super().__init__(datamodel)
         self.multithreaded = multithreaded
         self.skip_undo = True
@@ -33,7 +33,7 @@ class StartTranslationCommand(Command):
         threaded = _("multithreaded") if self.multithreaded else _("single threaded")
         logging.info(_("{starting} {threaded} translation").format(starting=starting, threaded=threaded))
 
-        previous_command : TranslateSceneCommand = self
+        previous_command : Command = self
 
         # Save the project first if it needs updating
         if project.needs_writing:
@@ -53,8 +53,8 @@ class StartTranslationCommand(Command):
             line_numbers = scene_data.get('lines', None)
 
             if self.resume and scene.any_translated:
-                batch_numbers = batch_numbers or [ batch.number for batch in scene.batches ]
-                batch_numbers = [ number for number in batch_numbers if not scene.GetBatch(number).all_translated ]
+                batches = [ batch for batch in scene.batches if not batch.all_translated ]
+                batch_numbers = [ batch.number for batch in batches ]
 
             command = TranslateSceneCommand(scene.number, batch_numbers, line_numbers, datamodel=self.datamodel)
 

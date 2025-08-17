@@ -1,4 +1,5 @@
-from GUI.Command import Command
+from GUI.Command import Command, CommandError
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleProject import SubtitleProject
 
 class SaveSubtitleFile(Command):

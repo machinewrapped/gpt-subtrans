@@ -1,5 +1,7 @@
+from collections.abc import Callable
 import os
 import logging
+from typing import Any
 
 from PySide6.QtCore import QObject, QRunnable, Slot, Signal
 
@@ -18,21 +20,21 @@ class Command(QRunnable, QObject):
     commandStarted = Signal(object)
     commandCompleted = Signal(object)
 
-    def __init__(self, datamodel : ProjectDataModel = None):
+    def __init__(self, datamodel : ProjectDataModel|None = None):
         QRunnable.__init__(self)
         QObject.__init__(self)
-        self.datamodel = datamodel
+        self.datamodel : ProjectDataModel|None = datamodel
         self.can_undo : bool = True         # If true, cannot undo past this command
         self.skip_undo : bool = False       # If true, do not add this command to the undo stack
         self.is_blocking : bool = False      # If true, do not execute any other commands in parallel
         self.queued : bool = False
         self.started : bool = False
         self.executed : bool = False
-        self.succeeded : bool = False
+        self.succeeded : bool|None = False
         self.aborted : bool = False
         self.terminal : bool = False        # If true, command ended with a fatal error, no further commands can be executed
-        self.callback = None
-        self.undo_callback = None
+        self.callback : Callable[[Command], Any]|None = None
+        self.undo_callback : Callable[[Command], Any]|None = None
         self.model_updates : list[ModelUpdate] = []
         self.commands_to_queue : list[Command] = []
 
@@ -69,7 +71,7 @@ class Command(QRunnable, QObject):
             return
 
         if 'debugpy' in globals():
-            debugpy.debug_this_thread()
+            debugpy.debug_this_thread() # type: ignore
 
         try:
             self.started = True
@@ -93,7 +95,7 @@ class Command(QRunnable, QObject):
     def execute(self):
         raise NotImplementedError
 
-    def undo(self):
+    def undo(self) -> bool:
         if self.skip_undo:
             logging.warning(f"Command {type(self).__name__} has no undo function and is not set to skip undo")
             return False
@@ -119,7 +121,6 @@ class CommandError(Exception):
 
     def __str__(self) -> str:
         return _("Error in {command}: {message}").format(command=type(self.command).__name__, message=self.message)
-
 
 class UndoError(CommandError):
     pass

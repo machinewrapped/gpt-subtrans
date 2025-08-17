@@ -1,17 +1,18 @@
 from datetime import timedelta
 import logging
+from typing import Any
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.Helpers.Subtitles import ResyncTranslatedLines
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleScene:
-    def __init__(self, dct = None):
+    def __init__(self, dct : dict[str,Any]|None = None):
         dct = dct or {}
-        self.number = dct.get('scene') or dct.get('number')
-        self.context = dct.get('context', {})
-        self._batches = dct.get('batches', [])
-        self.errors = dct.get('errors', [])
+        self.number : int = dct.get('scene') or dct.get('number') or 0
+        self.context : dict[str,Any] = dct.get('context', {})
+        self._batches : list[SubtitleBatch] = dct.get('batches', [])
+        self.errors : list[str|Exception] = dct.get('errors', [])
 
     def __str__(self) -> str:
         return f"SubtitleScene {self.number} with {self.size} batches and {self.linecount} lines"
@@ -21,43 +22,53 @@ class SubtitleScene:
 
     @property
     def batches(self) -> list[SubtitleBatch]:
+        """ Get the list of batches in the scene """
         return self._batches
 
     @property
-    def size(self):
+    def size(self) -> int:
+        """ Get the number of batches in the scene """
         return len(self._batches)
 
     @property
-    def linecount(self):
+    def linecount(self) -> int:
+        """ Get the total number of lines in all batches """
         return sum(batch.size for batch in self.batches)
 
     @property
-    def originals(self) -> list[SubtitleLine]:
+    def originals(self) -> list[SubtitleLine] | None:
+        """ Get all original lines in the scene """
         return [ line for batch in self.batches for line in batch.originals ] if self.batches else None
 
     @property
-    def translated(self) -> list[SubtitleLine]:
+    def translated(self) -> list[SubtitleLine] | None:
+        """ Get all translated lines in the scene """
         return [ line for batch in self.batches for line in batch.translated ] if self.batches else None
 
     @property
-    def first_line_number(self):
+    def first_line_number(self) -> int | None:
+        """ Get the first line number in the first batch of the scene """
         return self.batches[0].first_line_number if self.batches else None
 
     @property
-    def last_line_number(self):
+    def last_line_number(self) -> int | None:
+        """ Get the last line number in the last batch of the scene """
         return self.batches[-1].last_line_number if self.batches else None
 
     @property
-    def all_translated(self):
+    def all_translated(self) -> bool:
+        """ Check if all batches in the scene are fully translated """
         return all(batch.all_translated for batch in self.batches)
 
     @property
-    def any_translated(self):
+    def any_translated(self) -> bool:
+        """ Check if any batch in the scene has translations """
         return any(batch.all_translated for batch in self.batches)
 
     @property
-    def summary(self):
-        return self.GetContext('summary')
+    def summary(self) -> str | None:
+        """ Get a summary of the scene's content """
+        return self.GetContextString('summary')
 
     @summary.setter
     def summary(self, value):
@@ -70,17 +81,17 @@ class SubtitleScene:
 
         self._batches = value
 
-    def GetBatch(self, batch_number) -> SubtitleBatch:
+    def GetBatch(self, batch_number : int) -> SubtitleBatch|None:
         for batch in self.batches:
             if batch.number == batch_number:
                 return batch
 
         return None
 
-    def AddBatch(self, batch):
+    def AddBatch(self, batch : SubtitleBatch):
         self._batches.append(batch)
 
-    def AddNewBatch(self):
+    def AddNewBatch(self) -> SubtitleBatch:
         batch = SubtitleBatch({
             'scene': self.number,
             'number': len(self.batches) + 1
@@ -88,15 +99,24 @@ class SubtitleScene:
         self._batches.append(batch)
         return self._batches[-1]
 
-    def AddContext(self, key, value):
+    def AddContext(self, key : str, value : str|dict[str,str]):
         if not self.context:
             self.context = {}
         self.context[key] = value
 
-    def GetContext(self, key):
+    def GetContext(self, key : str) -> str|dict[str,str]|None:
         return self.context.get(key) if self.context else None
 
-    def UpdateContext(self, update) -> bool:
+    def GetContextString(self, key : str) -> str|None:
+        """ Get a context value that must be a string """
+        value = self.GetContext(key)
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(f"Context value for key '{key}' is not a string")
+        return value if value else None
+
+    def UpdateContext(self, update : dict[str,str]) -> bool:
         if not self.context:
             self.context = {}
 
@@ -108,7 +128,7 @@ class SubtitleScene:
 
         return updated
 
-    def MergeScenes(self, merged_scenes):
+    def MergeScenes(self, merged_scenes : list['SubtitleScene']):
         """
         Merge another scene into this scene
         """
@@ -151,7 +171,7 @@ class SubtitleScene:
 
         self._renumber_batches()
 
-    def SplitBatch(self, batch_number: int, line_number: int, translated_number: int = None):
+    def SplitBatch(self, batch_number: int, line_number: int, translated_number: int|None = None):
         batch = self.GetBatch(batch_number)
         if not batch:
             raise ValueError("Invalid batch number")
@@ -171,14 +191,14 @@ class SubtitleScene:
             'originals': batch.originals[split_index:]
         })
 
-        batch.originals = batch.originals[:split_index]
+        batch._originals = batch.originals[:split_index]
 
         if batch.translated:
             split_translated = translated_number or line_number
             translated_index = next((i for i, line in enumerate(batch.translated) if line.number == split_translated), -1)
             if translated_index >= 0:
-                new_batch.translated = batch.translated[translated_index:]
-                batch.translated = batch.translated[:translated_index]
+                new_batch._translated = batch.translated[translated_index:]
+                batch._translated = batch.translated[:translated_index]
 
                 if split_translated != line_number:
                     ResyncTranslatedLines(new_batch.originals, new_batch.translated)
@@ -187,7 +207,7 @@ class SubtitleScene:
                 logging.warning(f"Translated line number {translated_number} not found in batch translations")
 
             elif batch.translated[0].number >= split_translated:
-                new_batch.translated = batch.translated
+                new_batch._translated = batch.translated
                 batch.translated = []
 
         batch_index = self._batches.index(batch)
@@ -195,7 +215,7 @@ class SubtitleScene:
 
         self._renumber_batches()
 
-    def AutoSplitBatch(self, batch_number, min_size=1):
+    def AutoSplitBatch(self, batch_number : int, min_size : int = 1):
         """
         Split a list of lines in two at the optimal split point
         """
@@ -230,13 +250,13 @@ class SubtitleScene:
             batch.number = number
 
 
-def UnbatchScenes(scenes : list[SubtitleScene]):
+def UnbatchScenes(scenes : list[SubtitleScene]) -> tuple[list[SubtitleLine], list[SubtitleLine], list[SubtitleLine]]:
     """
     Reconstruct a sequential subtitle from multiple scenes
     """
-    originals = []
-    translations = []
-    untranslated = []
+    originals : list[SubtitleLine] = []
+    translations : list[SubtitleLine] = []
+    untranslated : list[SubtitleLine] = []
 
     for scene in scenes:
         for batch in scene.batches:

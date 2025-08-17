@@ -16,7 +16,7 @@ class ReparseTranslationsCommand(Command):
     """
     Ask the translator to reparse the translation for selected batches
     """
-    def __init__(self, batch_numbers : list[(int,int)], line_numbers : list[int], datamodel : ProjectDataModel = None):
+    def __init__(self, batch_numbers : list[tuple[int,int]], line_numbers : list[int], datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.batch_numbers = batch_numbers
         self.line_numbers = line_numbers
@@ -25,8 +25,8 @@ class ReparseTranslationsCommand(Command):
     def execute(self):
         logging.info(_("Reparse batches {batches}").format(batches=','.join(str(x) for x in self.batch_numbers)))
 
-        if not self.datamodel.project:
-            raise CommandError(_("Unable to reparse batches because project is not set"), command=self)
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         project : SubtitleProject = self.datamodel.project
         subtitles : SubtitleFile = project.subtitles
@@ -41,7 +41,7 @@ class ReparseTranslationsCommand(Command):
                 batch : SubtitleBatch = subtitles.GetBatch(scene_number, batch_number)
 
                 original_summary = batch.summary
-                original_translations = { line.number : line.text for line in batch.translated if line.number }
+                original_translations : dict[int,str|None] = { line.number : line.text for line in batch.translated if line.number }
 
                 project.ReparseBatchTranslation(translator, scene_number, batch_number, line_numbers=self.line_numbers)
 
@@ -61,7 +61,7 @@ class ReparseTranslationsCommand(Command):
 
         return True
 
-    def _generate_undo_data(self, batch : SubtitleBatch, original_summary : str, original_translations : dict[int,str]):
+    def _generate_undo_data(self, batch : SubtitleBatch, original_summary : str|None, original_translations : dict[int,str|None]):
         undo_data = { 'summary' : None, 'lines' : {} }
         if batch.summary != original_summary:
             undo_data['summary'] = original_summary
@@ -74,6 +74,9 @@ class ReparseTranslationsCommand(Command):
         self.undo_data.append((batch.scene, batch.number, undo_data))
 
     def undo(self):
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         project : SubtitleProject = self.datamodel.project
         subtitles : SubtitleFile = project.subtitles
         options = self.datamodel.project_options

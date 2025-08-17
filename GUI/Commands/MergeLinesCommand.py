@@ -11,12 +11,15 @@ class MergeLinesCommand(Command):
     """
     Merge one or several lines together
     """
-    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_numbers = sorted(line_numbers)
         self.undo_data = []
 
     def execute(self):
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         if not subtitles:
@@ -29,11 +32,15 @@ class MergeLinesCommand(Command):
 
         model_update = self.AddModelUpdate()
         for batch in batches:
-            batch_lines = [number for number in self.line_numbers if number >= batch.first_line_number and number <= batch.last_line_number]
+            batch_lines = [number for number in self.line_numbers 
+                if batch.first_line_number is not None and batch.last_line_number is not None 
+                and batch.first_line_number <= number <= batch.last_line_number
+                ]
+
             originals = [batch.GetOriginalLine(line_number) for line_number in batch_lines]
             translated = [batch.GetTranslatedLine(line_number) for line_number in batch_lines]
 
-            logging.info(_("Merging lines {lines} in batch {batch}").format(lines=str([line.number for line in originals]), batch=str((batch.scene, batch.number))))
+            logging.info(_("Merging lines {lines} in batch {batch}").format(lines=str([number for number in batch_lines]), batch=str((batch.scene, batch.number))))
 
             if any([line is None for line in originals]):
                 raise CommandError(_("Cannot merge lines, some lines are missing"), command=self)
@@ -64,8 +71,11 @@ class MergeLinesCommand(Command):
         return True
 
     def undo(self):
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         if not self.undo_data:
-            raise UndoError(_("Cannot undo merge, undo data was not saved"), command=self)
+            raise UndoError(_("No undo data available"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 

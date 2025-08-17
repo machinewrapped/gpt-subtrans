@@ -50,7 +50,7 @@ class ProjectActions(QObject):
     saveProject = Signal(str)
     exitProgram = Signal()
 
-    def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel = None, mainwindow : QMainWindow = None):
+    def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel|None = None, mainwindow : QMainWindow = None):
         super().__init__()
 
         if not isinstance(command_queue, CommandQueue):

@@ -1,12 +1,13 @@
 from copy import deepcopy
 import logging
 import os
+from typing import cast
 
 from PySide6.QtCore import Qt, QThread, Signal, Slot, QRecursiveMutex, QMutexLocker
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel)
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QDialogButtonBox, QFormLayout, QFrame, QLabel, QWidget, QLayout)
 
 from GUI.ProjectDataModel import ProjectDataModel
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget, OptionWidget
 
 from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
@@ -74,15 +75,15 @@ class NewProjectSettings(QDialog):
             except Exception as e:
                 logging.error(_("Unable to create option widget for {key}: {error}").format(key=key, error=e))
 
-        self.layout = QVBoxLayout(self)
-        self.layout.addWidget(settings_widget)
+        self.layout = QVBoxLayout(self) # type: ignore
+        self._add_widget(settings_widget)
 
         self.preview_widget = QLabel(self)
-        self.layout.addWidget(self.preview_widget)
+        self._add_widget(self.preview_widget)
 
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok, self)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok, self)
         self.buttonBox.accepted.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
-        self.layout.addWidget(self.buttonBox)
+        self._add_widget(self.buttonBox)
 
         self.fields['instruction_file'].contentChanged.connect(self._update_instruction_file, type=Qt.ConnectionType.QueuedConnection)
 
@@ -91,6 +92,9 @@ class NewProjectSettings(QDialog):
         self.preview_mutex = QRecursiveMutex()
 
         self._preview_batches()
+
+    def _add_widget(self, settings_widget):
+        self.layout.addWidget(settings_widget) # type: ignore
 
     def accept(self):
         try:
@@ -142,10 +146,10 @@ class NewProjectSettings(QDialog):
             logging.error(_("Provider error: {error}").format(error=e))
 
     def _update_settings(self):
-        layout = self.form_layout.layout()
+        layout : QFormLayout = cast(QFormLayout, self.form_layout.layout())
 
-        for row in range(layout.rowCount()):
-            field = layout.itemAt(row, QFormLayout.FieldRole).widget()
+        for row in range(layout.rowCount()): # type: ignore
+            field : OptionWidget = cast(OptionWidget, layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget())
             self.settings[field.key] = field.GetValue()
 
     def _update_instruction_file(self):
@@ -164,13 +168,14 @@ class NewProjectSettings(QDialog):
         try:
             self._update_settings()
 
-            with QMutexLocker(self.preview_mutex):
-                self.preview_count += 1
-                preview_thread = BatchPreviewWorker(self.preview_count, self.settings, self.project.subtitles.originals)
-                preview_thread.update_preview.connect(self._update_preview_widget, type=Qt.ConnectionType.QueuedConnection)
-                preview_thread.finished.connect(self._remove_preview_thread, type=Qt.ConnectionType.QueuedConnection)
-                self.preview_threads.append(preview_thread)
-                preview_thread.start()
+            if self.project.subtitles and self.project.subtitles.originals:
+                with QMutexLocker(self.preview_mutex):
+                    self.preview_count += 1
+                    preview_thread = BatchPreviewWorker(self.preview_count, self.settings, self.project.subtitles.originals)
+                    preview_thread.update_preview.connect(self._update_preview_widget, type=Qt.ConnectionType.QueuedConnection)
+                    preview_thread.finished.connect(self._remove_preview_thread, type=Qt.ConnectionType.QueuedConnection)
+                    self.preview_threads.append(preview_thread)
+                    preview_thread.start()
 
         except Exception as e:
             logging.error(_("Unable to preview batches: {error}").format(error=e))
@@ -211,7 +216,7 @@ class BatchPreviewWorker(QThread):
 
     def run(self):
         if 'debugpy' in globals():
-            debugpy.debug_this_thread()
+            debugpy.debug_this_thread()  # type: ignore
 
         try:
             if self.settings.get('preprocess_subtitles'):

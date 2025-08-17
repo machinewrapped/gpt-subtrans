@@ -18,7 +18,7 @@ re_timestamps = [
     regex.compile(pattern) for pattern in timestamp_patterns
 ]
 
-def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception = False) -> datetime.timedelta:
+def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception : bool = False) -> datetime.timedelta|Exception|None:
     """
     Ensure the input value is a timedelta, as best we can
     """
@@ -46,12 +46,11 @@ def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception = False
 
     return error
 
-def TimeDeltaToText(time: datetime.timedelta, include_milliseconds = True) -> str:
+def TimedeltaToText(time: datetime.timedelta|None, include_milliseconds : bool = True) -> str:
     """
     Convert a timedelta to a minimal string representation, adhering to specific formatting rules:
     - Hours, minutes, and seconds may appear with leading zeros only as required.
     - Milliseconds are appended after a comma if they are present.
-    - Seconds can be a single digit if no preceding hours or minutes are present.
     """
     if time is None:
         return ""
@@ -72,5 +71,43 @@ def TimeDeltaToText(time: datetime.timedelta, include_milliseconds = True) -> st
     if include_milliseconds:
         time_str += f",{milliseconds:03d}"
 
-    return time_str.format(hours, minutes, seconds, milliseconds)
+    return time_str
+
+def TimedeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str|None:
+    """
+    Convert a timedelta to a string suitable for SRT timestamps.
+    """
+    if time is None:
+        return None
+
+    tdelta : datetime.timedelta|Exception|None = time if isinstance(time, datetime.timedelta) else GetTimeDelta(time, raise_exception=True)
+
+    if not isinstance(tdelta, datetime.timedelta):
+        raise ValueError(f"Invalid timedelta: {time}")
+
+    total_seconds = int(tdelta.total_seconds())
+    milliseconds = tdelta.microseconds // 1000
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
+
+def SrtTimestampToTimedelta(timestamp: str|None) -> datetime.timedelta|None:
+    """
+    Convert a string in SRT timestamp format to a timedelta.
+    """
+    if not timestamp:
+        return None
+
+    match = regex.match(r"^(\d{2}):(\d{2}):(\d{2}),(\d{3})$", timestamp)
+    if not match:
+        raise ValueError(f"Invalid SRT timestamp format: {timestamp}")
+
+    hours = int(match.group(1))
+    minutes = int(match.group(2))
+    seconds = int(match.group(3))
+    milliseconds = int(match.group(4))
+
+    return datetime.timedelta(hours=hours, minutes=minutes, seconds=seconds, milliseconds=milliseconds)
 

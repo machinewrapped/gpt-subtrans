@@ -1,5 +1,7 @@
+from datetime import timedelta
 import logging
 from copy import deepcopy
+from math import e
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
@@ -12,7 +14,7 @@ from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.Helpers.Localization import _
 
 class EditLineCommand(Command):
-    def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel = None):
+    def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_number = line_number
         self.edit = deepcopy(edit)
@@ -20,6 +22,9 @@ class EditLineCommand(Command):
 
     def execute(self):
         logging.debug(_("Editing line {line}").format(line=self.line_number))
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
         if not subtitles:
@@ -29,11 +34,11 @@ class EditLineCommand(Command):
             raise CommandError(_("Edit data must be a dictionary"), command=self)
 
         with subtitles.lock:
-            batch : SubtitleBatch = subtitles.GetBatchContainingLine(self.line_number)
+            batch : SubtitleBatch|None = subtitles.GetBatchContainingLine(self.line_number)
             if not batch:
                 raise CommandError(_("Line {line} not found in any batch").format(line=self.line_number), command=self)
 
-            line : SubtitleLine = batch.GetOriginalLine(self.line_number)
+            line : SubtitleLine|None = batch.GetOriginalLine(self.line_number)
             if not line:
                 raise CommandError(_("Line {line} not found in batch ({scene},{batch})").format(line=self.line_number, scene=batch.scene, batch=batch.number), command=self)
 
@@ -42,18 +47,26 @@ class EditLineCommand(Command):
 
             if 'start' in self.edit:
                 self.undo_data['start'] = line.start
-                line.start = GetTimeDelta(self.edit['start'])
+                start_time = GetTimeDelta(self.edit['start'])
+                if isinstance(start_time, timedelta):
+                    line.start = start_time
+                else:
+                    raise CommandError(_("Invalid start time format"), command=self)
 
             if 'end' in self.edit:
                 self.undo_data['end'] = line.end
-                line.end = GetTimeDelta(self.edit['end'])
+                end_time = GetTimeDelta(self.edit['end'])
+                if isinstance(end_time, timedelta):
+                    line.end = end_time
+                else:
+                    raise CommandError(_("Invalid end time format"), command=self)
 
             if 'text' in self.edit:
                 self.undo_data['text'] = line.text
                 line.text = self.edit['text']
 
             if 'translation' in self.edit:
-                translated_line : SubtitleLine = batch.GetTranslatedLine(self.line_number)
+                translated_line : SubtitleLine|None = batch.GetTranslatedLine(self.line_number)
 
                 if translated_line:
                     self.undo_data['translation'] = translated_line.text
@@ -75,14 +88,20 @@ class EditLineCommand(Command):
     def undo(self):
         logging.debug(_("Undoing edit line {line}").format(line=self.line_number))
 
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
+        if not self.undo_data:
+            raise CommandError(_("No undo data available"), command=self)
+
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
         with subtitles.lock:
-            batch : SubtitleBatch = subtitles.GetBatchContainingLine(self.line_number)
+            batch : SubtitleBatch|None = subtitles.GetBatchContainingLine(self.line_number)
             if not batch:
                 raise CommandError(_("Line {line} not found in any batch").format(line=self.line_number), command=self)
 
-            line : SubtitleLine = batch.GetOriginalLine(self.line_number)
+            line : SubtitleLine|None = batch.GetOriginalLine(self.line_number)
             if not line:
                 raise CommandError(_("Line {line} not found in batch ({scene},{batch})").format(line=self.line_number, scene=batch.scene, batch=batch.number), command=self)
 
@@ -117,8 +136,8 @@ class EditLineCommand(Command):
                                             'translation': line.translation
                                             })
 
-        validator = SubtitleValidator(self.datamodel.project_options)
-        self.errors = validator.ValidateBatch(batch)
-
-        viewmodel_update.batches.update((batch.scene,batch.number), { 'errors': self.errors })
+        if self.datamodel:
+            validator = SubtitleValidator(self.datamodel.project_options)
+            self.errors = validator.ValidateBatch(batch)
+            viewmodel_update.batches.update((batch.scene,batch.number), { 'errors': self.errors })
 

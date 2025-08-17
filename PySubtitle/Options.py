@@ -2,10 +2,11 @@ from copy import deepcopy
 import json
 import logging
 import os
+from typing import Any
 import dotenv
 
 from PySubtitle.Helpers.Version import VersionNumberLessThan
-from PySubtitle.Instructions import Instructions, LoadInstructions
+from PySubtitle.Instructions import Instructions, LoadInstructions, default_user_prompt
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Resources import config_dir, old_config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
@@ -14,41 +15,48 @@ from PySubtitle.version import __version__
 MULTILINE_OPTION = 'multiline'
 
 settings_path = os.path.join(config_dir, 'settings.json')
-default_user_prompt = "Translate these subtitles [ for movie][ to language]"
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
 
-def env_bool(key, default=False):
+def env_bool(key, default=False) -> bool:
     var = os.getenv(key, default)
-    return var and str(var).lower() in ('true', 'yes', '1')
+    return True if var and str(var).lower() in ('true', 'yes', '1') else False
 
-default_options = {
+def env_int(key, default : int|None = None) -> int|None:
+    value = os.getenv(key, default)
+    return int(value) if value is not None else None
+
+def env_float(key, default : float|None = None) -> float|None:
+    value = os.getenv(key, default)
+    return float(value) if value is not None else None
+
+default_options : dict[str, Any] = {
     'version': __version__,
     'provider': os.getenv('PROVIDER', None),
     'provider_settings': {},
-    'prompt': os.getenv('PROMPT', "Please translate these subtitles[ for movie][ to language]."),
+    'prompt': os.getenv('PROMPT', default_user_prompt),
     'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'include_original': env_bool('INCLUDE_ORIGINAL', False),
     'add_right_to_left_markers': env_bool('add_right_to_left_markers', False),
-    'scene_threshold': float(os.getenv('SCENE_THRESHOLD', 30.0)),
-    'min_batch_size': int(os.getenv('MIN_BATCH_SIZE', 10)),
-    'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', 30)),
-    'max_context_summaries': int(os.getenv('MAX_CONTEXT_SUMMARIES', 10)),
-    'max_characters': int(os.getenv('MAX_CHARACTERS', 120)),
-    'max_newlines': int(os.getenv('MAX_NEWLINES', 2)),
-    'max_single_line_length': int(os.getenv('MAX_SINGLE_LINE_LENGTH', 44)),
-    'min_single_line_length': int(os.getenv('MIN_SINGLE_LINE_LENGTH', 8)),
+    'scene_threshold': env_float('SCENE_THRESHOLD', 30.0),
+    'min_batch_size': env_int('MIN_BATCH_SIZE', 10),
+    'max_batch_size': env_int('MAX_BATCH_SIZE', 30),
+    'max_context_summaries': env_int('MAX_CONTEXT_SUMMARIES', 10),
+    'max_characters': env_int('MAX_CHARACTERS', 120),
+    'max_newlines': env_int('MAX_NEWLINES', 2),
+    'max_single_line_length': env_int('MAX_SINGLE_LINE_LENGTH', 44),
+    'min_single_line_length': env_int('MIN_SINGLE_LINE_LENGTH', 8),
     'postprocess_translation': env_bool('POSTPROCESS_TRANSLATION', False),
     'preprocess_subtitles': env_bool('PREPROCESS_SUBTITLES', False),
     'save_preprocessed_subtitles': env_bool('SAVE_PREPROCESSED_SUBTITLES', False),
     'break_long_lines': env_bool('BREAK_LONG_LINES', True),
     'break_dialog_on_one_line': env_bool('break_dialog_on_one_line', True),
-    'max_line_duration': float(os.getenv('MAX_LINE_DURATION', 4.0)),
-    'min_line_duration': float(os.getenv('MIN_LINE_DURATION', 0.8)),
-    'merge_line_duration': float(os.getenv('MERGE_LINE_DURATION', 0.0)),
-    'min_split_chars': int(os.getenv('MIN_SPLIT_CHARS', 3)),
+    'max_line_duration': env_float('MAX_LINE_DURATION', 4.0),
+    'min_line_duration': env_float('MIN_LINE_DURATION', 0.8),
+    'merge_line_duration': env_float('MERGE_LINE_DURATION', 0.0),
+    'min_split_chars': env_int('MIN_SPLIT_CHARS', 3),
     'normalise_dialog_tags': env_bool('NORMALISE_DIALOG_TAGS', True),
     'remove_filler_words': env_bool('REMOVE_FILLER_WORDS', True),
     'filler_words': standard_filler_words,
@@ -58,11 +66,11 @@ default_options = {
     'convert_wide_dashes': env_bool('CONVERT_WIDE_DASHES', True),
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
     # 'autosplit_incomplete': env_bool('AUTOSPLIT_INCOMPLETE', True),
-    'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None,
-    'max_threads': int(os.getenv('MAX_THREADS', 4)),
-    'max_retries': int(os.getenv('MAX_RETRIES', 1)),
-    'max_summary_length': int(os.getenv('MAX_SUMMARY_LENGTH', 240)),
-    'backoff_time': float(os.getenv('BACKOFF_TIME', 3.0)),
+    'max_lines': env_int('MAX_LINES', None),
+    'max_threads': env_int('MAX_THREADS', 4),
+    'max_retries': env_int('MAX_RETRIES', 1),
+    'max_summary_length': env_int('MAX_SUMMARY_LENGTH', 240),
+    'backoff_time': env_float('BACKOFF_TIME', 3.0),
     'project' : os.getenv('PROJECT', None),
     'autosave': env_bool('AUTOSAVE', True),
     'last_used_path': None,
@@ -77,9 +85,9 @@ def serialize(value):
     return value.serialize() if hasattr(value, 'serialize') else value
 
 class Options:
-    def __init__(self, options=None, **kwargs):
+    def __init__(self, options : 'dict[str,Any]|Options|None'=None, **kwargs):
         # Initialise from defaults
-        self.options = deepcopy(default_options)
+        self.options : dict[str, Any] = deepcopy(default_options)
 
         if isinstance(options, Options):
             options = options.options
@@ -92,13 +100,13 @@ class Options:
         # Apply any explicit parameters
         self.options.update(kwargs)
 
-    def get(self, option, default=None):
+    def get(self, option, default=None) -> Any:
         return self.options.get(option, default)
 
     def add(self, option, value):
         self.options[option] = value
 
-    def update(self, options):
+    def update(self, options) -> None:
         if isinstance(options, Options):
             return self.update(options.options)
 
@@ -132,7 +140,7 @@ class Options:
         return self.get('provider_settings', {})
 
     @property
-    def current_provider_settings(self) -> dict:
+    def current_provider_settings(self) -> dict[str,Any]|None:
         if not self.provider:
             return None
 
@@ -143,15 +151,16 @@ class Options:
         return self.get('available_providers', [])
 
     @property
-    def model(self) -> str:
+    def model(self) -> str|None:
         if not self.provider:
             return None
 
-        return self.current_provider_settings.get('model')
+        current_provider_settings = self.current_provider_settings
+        return current_provider_settings.get('model') if current_provider_settings else None
 
     @property
     def target_language(self) -> str:
-        return self.get('target_language')
+        return self.get('target_language', default_options['target_language'])
 
     def GetInstructions(self) -> Instructions:
         """ Construct an Instructions object from the settings """
@@ -189,6 +198,7 @@ class Options:
             return True
 
         except Exception as e:
+            logging.debug("Error loading settings from {}: {}".format(settings_path, e))
             logging.error(_("Error loading settings from {}").format(settings_path))
             return False
 
@@ -215,6 +225,7 @@ class Options:
             return True
 
         except Exception as e:
+            logging.debug("Error saving settings to {}: {}".format(settings_path, e))
             logging.error(_("Error saving settings to {}").format(settings_path))
             return False
         
@@ -248,6 +259,7 @@ class Options:
             return True
 
         except Exception as e:
+            logging.debug(f"Error migrating settings from {old_config_dir} to {config_dir}: {e}")
             logging.error(_("Error migrating settings from {} to {}. You can copy the files manually and restart the application.").format(old_config_dir, config_dir))
             return False
 
@@ -282,16 +294,16 @@ class Options:
             except Exception as e:
                 logging.error(_("Unable to load instructions from {}: {}").format(instruction_file, e))
 
-    def InitialiseProviderSettings(self, provider : str, settings : dict):
+    def InitialiseProviderSettings(self, provider : str, settings : dict[str, Any]) -> None:
         """
         Create or update the settings for a provider
         """
         if provider not in self.provider_settings:
             self.provider_settings[provider] = deepcopy(settings)
 
-        self.MoveSettingsToProvider(provider, settings.keys())
+        self.MoveSettingsToProvider(provider, list(settings.keys()))
 
-    def MoveSettingsToProvider(self, provider : str, keys : list):
+    def MoveSettingsToProvider(self, provider : str, keys : list[str]) -> None:
         """
         Move settings from the main options to a provider's settings
         """

@@ -9,7 +9,7 @@ class MergeScenesCommand(Command):
     """
     Combine multiple scenes into one
     """
-    def __init__(self, scene_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, scene_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_numbers = sorted(scene_numbers)
         self.scene_sizes = []
@@ -17,6 +17,9 @@ class MergeScenesCommand(Command):
 
     def execute(self):
         logging.info(_("Merging scenes {scenes}").format(scenes=','.join(str(x) for x in self.scene_numbers)))
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
@@ -46,6 +49,9 @@ class MergeScenesCommand(Command):
         """
         if not self.scene_sizes:
             raise UndoError(_("Cannot undo merge, scene sizes were not saved"), command=self)
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 

@@ -12,7 +12,7 @@ class DeleteLinesCommand(Command):
     """
     Delete one or several lines
     """
-    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel = None):
+    def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.line_numbers = line_numbers
         self.deletions = []
@@ -22,6 +22,9 @@ class DeleteLinesCommand(Command):
             raise CommandError(_("No lines selected to delete"), command=self)
 
         logging.info(_("Deleting lines {lines}").format(lines=str(self.line_numbers)))
+
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         project : SubtitleProject = self.datamodel.project
 
@@ -36,7 +39,7 @@ class DeleteLinesCommand(Command):
         # Update the viewmodel. Priginal and translated lines are currently linked, deleting one means deleting both
         model_update = self.AddModelUpdate()
         for deletion in self.deletions:
-            scene_number, batch_number, originals, translated = deletion
+            scene_number, batch_number, originals, translated = deletion # type: ignore[unused-ignore]
             for line in originals:
                 model_update.lines.remove((scene_number, batch_number, line.number))
 
@@ -51,6 +54,9 @@ class DeleteLinesCommand(Command):
     def undo(self):
         if not self.deletions:
             raise CommandError(_("No deletions to undo"), command=self)
+        
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
 
         logging.info(_("Restoring deleted lines"))
         project : SubtitleProject = self.datamodel.project
@@ -63,7 +69,7 @@ class DeleteLinesCommand(Command):
             batch.InsertLines(deleted_originals, deleted_translated)
 
             for line in deleted_originals:
-                translated : SubtitleLine = next((translated for translated in deleted_translated if translated.number == line.number), None)
+                translated : SubtitleLine|None = next((translated for translated in deleted_translated if translated.number == line.number), None)
                 if translated:
                     line.translated = translated
 

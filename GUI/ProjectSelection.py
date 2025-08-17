@@ -73,7 +73,7 @@ class ProjectSelection():
         return [ scene for scene in self.scenes.values() if scene.selected]
 
     @property
-    def batch_numbers(self) -> list[(int,int)]:
+    def batch_numbers(self) -> list[tuple[int,int]]:
         return sorted([ (batch.scene, batch.number) for batch in self.batches.values() ])
 
     @property

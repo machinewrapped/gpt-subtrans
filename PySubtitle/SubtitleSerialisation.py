@@ -16,17 +16,17 @@ def classname(obj):
 
 # Convert our custom types to JSON
 class SubtitleEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, TranslationError):
+    def default(self, o):
+        if isinstance(o, TranslationError):
             # Don't bother trying to serialise all the error types (why not?)
             return {
                 "__class": classname(TranslationError),
-                "type": classname(obj),
-                "problem": str(obj)
+                "type": classname(o),
+                "problem": str(o)
             }
 
-        _class = classname(obj)
-        properties = self.serialize_object(obj)
+        _class = classname(o)
+        properties = self.serialize_object(o)
         if isinstance(properties, dict):
             properties = {k: v for k, v in properties.items() if v is not None}
             return {**{ "_class": _class }, **properties}
@@ -98,64 +98,63 @@ class SubtitleEncoder(json.JSONEncoder):
 
         return super().default(obj)
 
-# Reconstruct our custom types from JSON
 class SubtitleDecoder(json.JSONDecoder):
     def __init__(self, *args, **kwargs):
-        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+        super().__init__(object_hook=_object_hook, *args, **kwargs)
 
-    def object_hook(self, dct):
-        if '_class' in dct:
-            class_name = dct.pop('_class')
-            if class_name == classname(SubtitleFile):
-                sourcepath = dct.get('sourcepath')
-                outpath = dct.get('outputpath') or dct.get('filename')
-                obj = SubtitleFile(sourcepath, outpath)
-                obj.settings = dct.get('settings', {}) or dct.get('context', {})
-                obj.scenes = dct.get('scenes', [])
-                obj.UpdateProjectSettings({}) # Force update for legacy files
-                return obj
-            elif class_name == classname(SubtitleScene):
-                obj = SubtitleScene(dct)
-                return obj
-            elif class_name == classname(SubtitleBatch):
-                obj = SubtitleBatch(dct)
-                return obj
-            elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-                return SubtitleLine(dct.get('line'), translation=dct.get('translation'), original=dct.get('original'))
-            elif class_name == classname(Translation) or class_name == "GPTTranslation":
-                content = dct.get('content') or {
-                    'text' : dct.get('text'),
-                    'finish_reason' : dct.get('finish_reason'),
-                    'response_time' : dct.get('response_time'),
-                    'prompt_tokens' : dct.get('prompt_tokens'),
-                    'output_tokens' : dct.get('completion_tokens'),
-                    'reasoning_tokens' : dct.get('reasoning_tokens'),
-                    'accepted_prediction_tokens' : dct.get('accepted_prediction_tokens'),
-                    'rejected_prediction_tokens' : dct.get('rejected_prediction_tokens'),
-                    'total_tokens' : dct.get('total_tokens'),
-                    'summary': dct.get('summary'),
-                    'scene': dct.get('scene'),
-                    'synopsis': dct.get('synopsis'),
-                    'names': dct.get('names') or dct.get('characters')
-                    }
+def _object_hook(dct):
+    # Reconstruct our custom types from JSON
+    if '_class' in dct:
+        class_name = dct.pop('_class')
+        if class_name == classname(SubtitleFile):
+            sourcepath = dct.get('sourcepath')
+            outpath = dct.get('outputpath') or dct.get('filename')
+            obj = SubtitleFile(sourcepath, outpath)
+            obj.settings = dct.get('settings', {}) or dct.get('context', {})
+            obj.scenes = dct.get('scenes', [])
+            obj.UpdateProjectSettings({}) # Force update for legacy files
+            return obj
+        elif class_name == classname(SubtitleScene):
+            obj = SubtitleScene(dct)
+            return obj
+        elif class_name == classname(SubtitleBatch):
+            obj = SubtitleBatch(dct)
+            return obj
+        elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
+            return SubtitleLine(dct.get('line'), translation=dct.get('translation'), original=dct.get('original'))
+        elif class_name == classname(Translation) or class_name == "GPTTranslation":
+            content = dct.get('content') or {
+                'text' : dct.get('text'),
+                'finish_reason' : dct.get('finish_reason'),
+                'response_time' : dct.get('response_time'),
+                'prompt_tokens' : dct.get('prompt_tokens'),
+                'output_tokens' : dct.get('completion_tokens'),
+                'reasoning_tokens' : dct.get('reasoning_tokens'),
+                'accepted_prediction_tokens' : dct.get('accepted_prediction_tokens'),
+                'rejected_prediction_tokens' : dct.get('rejected_prediction_tokens'),
+                'total_tokens' : dct.get('total_tokens'),
+                'summary': dct.get('summary'),
+                'scene': dct.get('scene'),
+                'synopsis': dct.get('synopsis'),
+                'names': dct.get('names') or dct.get('characters')
+                }
 
-                if isinstance(content['text'], list):
-                    # This shouldn't happen, but try to recover if it does
-                    content['text'] = '\n'.join(content['text'])
+            if isinstance(content['text'], list):
+                # This shouldn't happen, but try to recover if it does
+                content['text'] = '\n'.join(content['text'])
 
-                obj = Translation(content)
-                return obj
-            elif class_name == classname(TranslationPrompt):
-                user_prompt = dct.get('user_prompt')
-                conversation = dct.get('conversation')
-                obj = TranslationPrompt(user_prompt, conversation)
-                obj.supports_system_messages = dct.get('supports_system_messages')
-                obj.supports_system_prompt = dct.get('supports_system_prompt')
-                obj.batch_prompt = dct.get('batch_prompt')
-                obj.messages = dct.get('messages')
-                return obj
-            elif class_name == classname(TranslationError):
-                return TranslationError(dct.get('message'))
+            obj = Translation(content)
+            return obj
+        elif class_name == classname(TranslationPrompt):
+            user_prompt = dct.get('user_prompt')
+            conversation = dct.get('conversation')
+            obj = TranslationPrompt(user_prompt, conversation)
+            obj.supports_system_messages = dct.get('supports_system_messages')
+            obj.supports_system_prompt = dct.get('supports_system_prompt')
+            obj.batch_prompt = dct.get('batch_prompt')
+            obj.messages = dct.get('messages')
+            return obj
+        elif class_name == classname(TranslationError):
+            return TranslationError(dct.get('message'))
 
-        return dct
-
+    return dct

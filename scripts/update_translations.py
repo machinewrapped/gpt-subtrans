@@ -63,7 +63,7 @@ def get_locale_english_name(lang: str) -> str:
         return lang
 
 
-def auto_translate_strings(untranslated: dict[str, str], target_language: str, paid: bool = False) -> dict[str, str]:
+def auto_translate_strings(untranslated: dict[str,str], target_language: str, paid: bool = False) -> dict[str,str]:
     """Call OpenRouter API to translate untranslated strings."""
     api_key = os.getenv('OPENROUTER_API_KEY')
     if not api_key:
@@ -420,9 +420,9 @@ def merge_and_compile(languages: list[str] | None = None):
         print(f"Updated {po_path} and {mo_path}")
 
 
-def _collect_untranslated_msgids(po_file_path: str) -> dict[str, str]:
+def _collect_untranslated_msgids(po_file_path: str) -> dict[str,str]:
     """Parse a .po file and return a dict of msgid -> '' for empty msgstr entries."""
-    untranslated: dict[str, str] = {}
+    untranslated: dict[str,str] = {}
     try:
         with open(po_file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -553,7 +553,7 @@ def fix_newline_parity(po_path: str) -> bool:
     return changed
 
 
-def write_untranslated_dict_file(lang: str, untranslated: dict[str, str]) -> str:
+def write_untranslated_dict_file(lang: str, untranslated: dict[str,str]) -> str:
     out_path = os.path.join(base_path, f'untranslated_msgids_{lang}.txt')
     # Write as JSON for robust escaping
     data = {key: '' for key in untranslated.keys()}
@@ -563,7 +563,7 @@ def write_untranslated_dict_file(lang: str, untranslated: dict[str, str]) -> str
     return out_path
 
 
-def write_autotranslated_dict_file(lang: str, translations: dict[str, str]) -> str:
+def write_autotranslated_dict_file(lang: str, translations: dict[str,str]) -> str:
     """Write auto-translated strings to autotranslated_msgids_<lang>.txt for review."""
     out_path = os.path.join(base_path, f'autotranslated_msgids_{lang}.txt')
     with open(out_path, 'w', encoding='utf-8') as f:
@@ -572,7 +572,7 @@ def write_autotranslated_dict_file(lang: str, translations: dict[str, str]) -> s
     return out_path
 
 
-def auto_translate_untranslated(untranslated_map: dict[str, dict[str, str]], paid: bool = False) -> None:
+def auto_translate_untranslated(untranslated_map: dict[str, dict[str,str]], paid: bool = False) -> None:
     """Auto-translate untranslated strings in the untranslated map (lang -> untranslated dict)."""
     for lang, untranslated in untranslated_map.items():
         if lang == 'en':
@@ -591,12 +591,12 @@ def auto_translate_untranslated(untranslated_map: dict[str, dict[str, str]], pai
             print(f"No translations returned for {lang}")
 
 
-def generate_untranslated_files(languages: list[str]) -> dict[str, dict[str, str]]:
+def generate_untranslated_files(languages: list[str]) -> dict[str, dict[str,str]]:
     """Generate untranslated_msgids_<lang>.txt files for all languages.
 
     Returns a map of language -> untranslated dict (msgid -> '') pairs.
     """
-    result: dict[str, dict[str, str]] = {}
+    result: dict[str, dict[str,str]] = {}
     for lang in languages:
         po_file = os.path.join(LOCALES_DIR, lang, 'LC_MESSAGES', 'gui-subtrans.po')
         untranslated = _collect_untranslated_msgids(po_file)
@@ -623,7 +623,7 @@ def integrate_autotranslations(languages: list[str]) -> None:
                     mo_path = os.path.splitext(po_file)[0] + '.mo'
                     run_cmd(['msgfmt', '-o', mo_path, po_file])
 
-def _parse_translations_file(path: str) -> dict[str, str]:
+def _parse_translations_file(path: str) -> dict[str,str]:
     """Safely parse a dict-like file produced by write_untranslated_dict_file, returning only non-empty translations."""
     try:
         with open(path, 'r', encoding='utf-8') as f:
@@ -658,7 +658,7 @@ def _parse_translations_file(path: str) -> dict[str, str]:
         return {}
 
 
-def _update_po_with_translations(po_path: str, translations: dict[str, str]) -> int:
+def _update_po_with_translations(po_path: str, translations: dict[str,str]) -> int:
     """Update msgstr for matching msgid entries. Returns count of updated entries."""
     if not translations:
         return 0

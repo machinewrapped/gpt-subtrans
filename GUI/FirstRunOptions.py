@@ -58,7 +58,7 @@ class FirstRunOptions(QDialog):
         self.layout.addWidget(settings_widget)
 
         # Add Ok and Cancel buttons
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok, self)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok, self)
         self.buttonBox.accepted.connect(self.accept)
         self.layout.addWidget(self.buttonBox)
 
@@ -67,7 +67,7 @@ class FirstRunOptions(QDialog):
     def accept(self):
         """ Update the settings """
         for row in range(self.form_layout.rowCount()):
-            field = self.form_layout.itemAt(row, QFormLayout.FieldRole).widget()
+            field = self.form_layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
             value = field.GetValue()
             if value:
                 self.options.add(field.key, value)

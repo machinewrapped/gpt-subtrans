@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
 
@@ -9,16 +10,13 @@ class SwapTextAndTranslations(Command):
     """
     Test class for model updates
     """
-    def __init__(self, scene_number : int, batch_number : int, datamodel : ProjectDataModel = None):
+    def __init__(self, scene_number : int, batch_number : int, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
         self.scene_number = scene_number
         self.batch_number = batch_number
 
     def execute(self):
         logging.info(f"Swapping text and translations in scene {self.scene_number} batch {self.batch_number}")
-        if not self.datamodel.project:
-            raise CommandError("Unable to translate scene because project is not set on datamodel", command=self)
-
         self._swap_text_and_translation()
 
         return True
@@ -29,6 +27,9 @@ class SwapTextAndTranslations(Command):
         return True
 
     def _swap_text_and_translation(self):
+        if not self.datamodel or not self.datamodel.project:
+            raise CommandError(_("No project data"), command=self)
+
         project : SubtitleProject = self.datamodel.project
         subtitles : SubtitleFile = project.subtitles
         batch = subtitles.GetBatch(self.scene_number, self.batch_number)
