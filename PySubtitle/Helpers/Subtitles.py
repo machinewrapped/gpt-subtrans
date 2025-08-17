@@ -1,11 +1,12 @@
 from datetime import timedelta
 import logging
+from typing import Any
 import regex
 import srt
 
 from PySubtitle.SubtitleLine import SubtitleLine
 
-def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int:
+def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int|None:
     """
     Insert a line into a list of lines at the correct position, or replace any existing line.
     """
@@ -77,7 +78,7 @@ def ResyncTranslatedLines(original_lines : list[SubtitleLine], translated_lines 
     elif num_original > num_translated:
         logging.warning(f"Number of lines in original and translated subtitles don't match. Synced {min_lines} lines.")
 
-def FindSplitPoint(line: SubtitleLine, split_sequences: list[regex.Pattern], min_duration: timedelta, min_split_chars: int) -> int | None:
+def FindSplitPoint(line: SubtitleLine, split_sequences: list[regex.Pattern[Any]], min_duration: timedelta, min_split_chars: int) -> int | None:
     """
     Find the optimal split point for a subtitle.
 
@@ -116,7 +117,7 @@ def FindSplitPoint(line: SubtitleLine, split_sequences: list[regex.Pattern], min
 
     return None
 
-def GetProportionalDuration(line : SubtitleLine, num_characters : int, min_duration : timedelta = None) -> timedelta:
+def GetProportionalDuration(line : SubtitleLine, num_characters : int, min_duration : timedelta|None = None) -> timedelta:
     """
     Calculate the proportional duration of a character string as a percentage of a subtitle
     """

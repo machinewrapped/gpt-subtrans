@@ -62,7 +62,7 @@ class Substitutions:
 
         return result
 
-    def PerformSubstitutionsOnAll(self, input : list):
+    def PerformSubstitutionsOnAll(self, input : list[str]) -> tuple[list[str], dict[str, str]]:
         """
         Try to substitute all (before,after) pairs in a list of strings.
 
