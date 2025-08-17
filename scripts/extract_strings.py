@@ -94,20 +94,41 @@ class SettingKeyExtractor:
                 source = f.read()
             tree = ast.parse(source, filename='PySubtitle/Options.py')
             
+            found_default_options = False
             for node in ast.walk(tree):
-                if (isinstance(node, ast.Assign) and 
-                    len(node.targets) == 1 and
-                    isinstance(node.targets[0], ast.Name) and 
-                    node.targets[0].id == 'default_options' and
-                    isinstance(node.value, ast.Dict)):
+                # Handle both regular assignment and annotated assignment
+                target_name = None
+                value_node = None
+                
+                if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+                    target_name = node.targets[0].id
+                    value_node = node.value
+                elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+                    target_name = node.target.id
+                    value_node = node.value
+                
+                if target_name == 'default_options' and isinstance(value_node, ast.Dict):
+                    found_default_options = True
+                    print(f"Found default_options dictionary with {len(value_node.keys)} keys")
                     
-                    for key_node in node.value.keys:
+                    keys_extracted = 0
+                    for key_node in value_node.keys:
                         if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
                             setting_key = key_node.value
                             self.setting_keys.add(setting_key)
                             key = (None, setting_key)
                             entries.setdefault(key, []).append(('PySubtitle/Options.py', key_node.lineno))
+                            keys_extracted += 1
+                    
+                    print(f"Extracted {keys_extracted} setting keys from Options.py")
+                    if keys_extracted == 0:
+                        raise Exception("Found default_options dictionary but no string keys could be extracted!")
+                    if keys_extracted < 20:  # We expect at least 20 setting keys
+                        raise Exception(f"Only extracted {keys_extracted} setting keys from Options.py - this seems too few! Expected at least 20.")
                     break
+            
+            if not found_default_options:
+                raise Exception("Could not find default_options dictionary in Options.py! This will result in missing translations.")
                             
         except Exception as e:
             raise Exception(f"Could not extract setting keys from Options.py: {e}")
@@ -239,6 +260,10 @@ def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]
     setting_extractor = SettingKeyExtractor()
     setting_keys = setting_extractor.extract_to_entries(entries)
     
+    print(f"Total setting keys extracted: {len(setting_keys)}")
+    if len(setting_keys) == 0:
+        raise Exception("CRITICAL ERROR: No setting keys were extracted! This will result in missing translations.")
+    
     # Extract translatable strings from source code
     string_extractor = TranslatableStringExtractor()
     string_entries = string_extractor.extract_from_codebase()
@@ -246,6 +271,8 @@ def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]
     # Merge string entries with setting entries
     for key, refs in string_entries.items():
         entries.setdefault(key, []).extend(refs)
+    
+    print(f"Total entries to be written: {len(entries)} (includes {len(setting_keys)} setting keys + {len(string_entries)} translatable strings)")
     
     return entries, setting_keys
 

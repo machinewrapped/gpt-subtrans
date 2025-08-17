@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-16 12:39+0000\n"
+"POT-Creation-Date: 2025-08-17 17:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:29 PySubtitle/Providers/Provider_DeepSeek.py:66 PySubtitle/Providers/Provider_OpenAI.py:98 PySubtitle/Providers/Provider_OpenRouter.py:111
+#: GUI/NewProjectSettings.py:30 PySubtitle/Providers/Provider_DeepSeek.py:66 PySubtitle/Providers/Provider_OpenAI.py:98 PySubtitle/Providers/Provider_OpenRouter.py:111
 msgid "AI model to use as the translator"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 msgid "Aborted translation of scene {scene}"
 msgstr ""
 
-#: GUI/Command.py:81
+#: GUI/Command.py:83
 msgid "Aborted {type}"
 msgstr ""
 
@@ -69,7 +69,7 @@ msgstr ""
 msgid "About GUI-Subtrans"
 msgstr ""
 
-#: GUI/MainToolbar.py:77
+#: GUI/MainToolbar.py:96
 msgid "About this program"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgstr ""
 msgid "Avoid creating a new batch smaller than this"
 msgstr ""
 
-#: GUI/Commands/EditBatchCommand.py:31 GUI/Commands/EditBatchCommand.py:51
+#: GUI/Commands/EditBatchCommand.py:34 GUI/Commands/EditBatchCommand.py:60
 msgid "Batch ({scene},{batch}) not found"
 msgstr ""
 
@@ -213,11 +213,11 @@ msgstr ""
 msgid "Can only swap text of a single batch"
 msgstr ""
 
-#: GUI/CommandQueue.py:112
+#: GUI/CommandQueue.py:113
 msgid "Can redo {command}"
 msgstr ""
 
-#: GUI/CommandQueue.py:105
+#: GUI/CommandQueue.py:106
 msgid "Can undo {command}"
 msgstr ""
 
@@ -229,15 +229,15 @@ msgstr ""
 msgid "Cannot delete scenes or batches yet"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:28 GUI/Commands/SplitBatchCommand.py:31 GUI/Commands/SplitBatchCommand.py:67
+#: GUI/Commands/SplitBatchCommand.py:34 GUI/Commands/SplitBatchCommand.py:77
 msgid "Cannot find scene {scene} batch {batch}"
 msgstr ""
 
-#: GUI/Commands/MergeScenesCommand.py:24
+#: GUI/Commands/MergeScenesCommand.py:27
 msgid "Cannot merge less than two scenes"
 msgstr ""
 
-#: GUI/Commands/MergeLinesCommand.py:39
+#: GUI/Commands/MergeLinesCommand.py:46
 msgid "Cannot merge lines, some lines are missing"
 msgstr ""
 
@@ -253,16 +253,12 @@ msgstr ""
 msgid "Cannot retrieve model list, check API key"
 msgstr ""
 
-#: GUI/Commands/SplitSceneCommand.py:24
+#: GUI/Commands/SplitSceneCommand.py:27
 msgid "Cannot split scene {scene} because it doesn't exist"
 msgstr ""
 
-#: GUI/Commands/MergeScenesCommand.py:48
+#: GUI/Commands/MergeScenesCommand.py:51
 msgid "Cannot undo merge, scene sizes were not saved"
-msgstr ""
-
-#: GUI/Commands/MergeLinesCommand.py:68
-msgid "Cannot undo merge, undo data was not saved"
 msgstr ""
 
 #: GUI/ProjectActions.py:92
@@ -341,7 +337,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:34
+#: GUI/NewProjectSettings.py:35
 msgid "Detailed instructions for the translator"
 msgstr ""
 
@@ -357,7 +353,7 @@ msgstr ""
 msgid "Edit Instructions"
 msgstr ""
 
-#: GUI/Commands/EditBatchCommand.py:26 GUI/Commands/EditLineCommand.py:29
+#: GUI/Commands/EditBatchCommand.py:29 GUI/Commands/EditLineCommand.py:34
 msgid "Edit data must be a dictionary"
 msgstr ""
 
@@ -365,7 +361,7 @@ msgstr ""
 msgid "Editing batch ({scene},{batch})"
 msgstr ""
 
-#: GUI/Commands/EditLineCommand.py:22
+#: GUI/Commands/EditLineCommand.py:24
 msgid "Editing line {line}"
 msgstr ""
 
@@ -381,7 +377,7 @@ msgstr ""
 msgid "Ensure full-width punctuation is used in Asian languages"
 msgstr ""
 
-#: GUI/GuiInterface.py:361
+#: GUI/GuiInterface.py:368
 msgid "Error"
 msgstr ""
 
@@ -393,11 +389,11 @@ msgstr ""
 msgid "Error communicating with provider"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:215
+#: PySubtitle/SubtitleProject.py:224
 msgid "Error decoding JSON file: {}"
 msgstr ""
 
-#: GUI/Command.py:90
+#: GUI/Command.py:92
 msgid "Error executing {type}: {str}"
 msgstr ""
 
@@ -405,16 +401,20 @@ msgstr ""
 msgid "Error fetching models: {status} {text}"
 msgstr ""
 
-#: GUI/Command.py:121
+#: GUI/Command.py:123
 msgid "Error in {command}: {message}"
 msgstr ""
 
-#: PySubtitle/Options.py:192
+#: PySubtitle/Options.py:202
 msgid "Error loading settings from {}"
 msgstr ""
 
-#: PySubtitle/Options.py:251
+#: PySubtitle/Options.py:263
 msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
+msgstr ""
+
+#: PySubtitle/SubtitleFile.py:259
+msgid "Error parsing SRT file... trying with fallback encoding: {}"
 msgstr ""
 
 #: GUI/ProjectActions.py:118
@@ -425,11 +425,11 @@ msgstr ""
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr ""
 
-#: PySubtitle/Options.py:218
+#: PySubtitle/Options.py:229
 msgid "Error saving settings to {}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:163
+#: PySubtitle/SubtitleTranslator.py:168
 msgid "Error translating scene {scene} batch {batch}: {error}"
 msgstr ""
 
@@ -441,11 +441,11 @@ msgstr ""
 msgid "Error undoing the last command: {error}"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:236
+#: GUI/NewProjectSettings.py:241
 msgid "Error: {error}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:173
+#: PySubtitle/SubtitleTranslator.py:178
 msgid "Errors encountered translating scene {scene} batch {batch}"
 msgstr ""
 
@@ -461,7 +461,7 @@ msgstr ""
 msgid "Executing LoadSubtitleFile {file}"
 msgstr ""
 
-#: GUI/MainToolbar.py:68
+#: GUI/MainToolbar.py:87
 msgid "Exit Program"
 msgstr ""
 
@@ -489,6 +489,10 @@ msgstr ""
 msgid "Failed to connect to server at {server_address}{endpoint}"
 msgstr ""
 
+#: GUI/Commands/SplitBatchCommand.py:44
+msgid "Failed to create new batch after splitting"
+msgstr ""
+
 #: PySubtitle/Providers/Provider_OpenAI.py:181
 msgid "Failed to initialise OpenAI SDK. OpenAI provider will not be available"
 msgstr ""
@@ -497,15 +501,19 @@ msgstr ""
 msgid "Failed to initialize Anthropic client"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:102
+#: GUI/GuiInterface.py:338
+msgid "Failed to load project data model."
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:106
 msgid "Failed to load subtitle file {}: {}"
 msgstr ""
 
-#: GUI/Commands/MergeLinesCommand.py:48
+#: GUI/Commands/MergeLinesCommand.py:55
 msgid "Failed to merge lines"
 msgstr ""
 
-#: PySubtitle/SubtitleFile.py:270
+#: PySubtitle/SubtitleFile.py:277
 msgid "Failed to parse SRT string: {}"
 msgstr ""
 
@@ -513,19 +521,19 @@ msgstr ""
 msgid "Failed to switch language - restart the application: {error}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:125
+#: PySubtitle/SubtitleTranslator.py:129
 msgid "Failed to translate scene {scene}... stopping translation"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:284
+#: PySubtitle/SubtitleProject.py:293
 msgid "Failed to translate subtitles: {}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:139
+#: PySubtitle/SubtitleTranslator.py:143
 msgid "Failed to translate {count} lines:"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:31
+#: GUI/NewProjectSettings.py:32
 msgid "Fewest lines to send in separate batch"
 msgstr ""
 
@@ -601,7 +609,7 @@ msgstr ""
 msgid "Hide/Show Project Options"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:35
+#: GUI/NewProjectSettings.py:36
 msgid "High-level instructions for the translator"
 msgstr ""
 
@@ -609,7 +617,7 @@ msgstr ""
 msgid "Higher temperature introduces more randomness to the translation (default 0.0)"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:229
+#: PySubtitle/SubtitleTranslator.py:237
 msgid "Hit API token limit, retrying batch without context..."
 msgstr ""
 
@@ -637,24 +645,48 @@ msgstr ""
 msgid "Instructions will be sent as system messages rather than the user prompt"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:113
+#: GUI/NewProjectSettings.py:117
 msgid "Instructions: {text}"
+msgstr ""
+
+#: PySubtitle/SubtitleLine.py:209
+msgid "Invalid SRT line: {line}"
+msgstr ""
+
+#: GUI/Commands/MergeBatchesCommand.py:37
+msgid "Invalid batch"
+msgstr ""
+
+#: GUI/Commands/EditLineCommand.py:62
+msgid "Invalid end time format"
 msgstr ""
 
 #: PySubtitle/Providers/OpenAI/OpenAIClient.py:135
 msgid "Invalid response received, retrying in {backoff_time} seconds..."
 msgstr ""
 
+#: GUI/Commands/EditLineCommand.py:54
+msgid "Invalid start time format"
+msgstr ""
+
+#: PySubtitle/SubtitleLine.py:64 PySubtitle/SubtitleLine.py:76
+msgid "Invalid timestamp"
+msgstr ""
+
 #: GUI/GUICommands.py:35
 msgid "Invalid translation provider"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:27
+#: GUI/NewProjectSettings.py:28
 msgid "Language to translate the subtitles to"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Gemini.py:163
 msgid "Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix."
+msgstr ""
+
+#: PySubtitle/Helpers/Subtitles.py:154
+msgid "Legalised content: {content}"
 msgstr ""
 
 #: GUI/Widgets/Widgets.py:117
@@ -669,11 +701,11 @@ msgstr ""
 msgid "Line item {row} has no line number"
 msgstr ""
 
-#: GUI/Commands/EditLineCommand.py:34 GUI/Commands/EditLineCommand.py:83
+#: GUI/Commands/EditLineCommand.py:39 GUI/Commands/EditLineCommand.py:102
 msgid "Line {line} not found in any batch"
 msgstr ""
 
-#: GUI/Commands/EditLineCommand.py:38 GUI/Commands/EditLineCommand.py:87
+#: GUI/Commands/EditLineCommand.py:43 GUI/Commands/EditLineCommand.py:106
 msgid "Line {line} not found in batch ({scene},{batch})"
 msgstr ""
 
@@ -693,7 +725,7 @@ msgstr ""
 msgid "Load Instructions"
 msgstr ""
 
-#: GUI/MainToolbar.py:69
+#: GUI/MainToolbar.py:88
 msgid "Load Project/Subtitles (Hold shift to reload subtitles)"
 msgstr ""
 
@@ -705,19 +737,19 @@ msgstr ""
 msgid "Logo generated with <a href=\"https://qwen.ai/home\">Qwen3</a>"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:268
+#: PySubtitle/SubtitleTranslator.py:277
 msgid "Made substitutions in input:\n{replaced}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:322
+#: PySubtitle/SubtitleTranslator.py:331
 msgid "Made substitutions in output:\n{replaced}"
 msgstr ""
 
-#: GUI/MainToolbar.py:27
+#: GUI/MainToolbar.py:32
 msgid "Main Toolbar"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:225
+#: GUI/NewProjectSettings.py:230
 msgid "Max batch size is less than min batch size"
 msgstr ""
 
@@ -769,7 +801,7 @@ msgstr ""
 msgid "Merge lines with a duration less than this with the previous line"
 msgstr ""
 
-#: GUI/Commands/MergeLinesCommand.py:36
+#: GUI/Commands/MergeLinesCommand.py:43
 msgid "Merging lines {lines} in batch {batch}"
 msgstr ""
 
@@ -817,7 +849,7 @@ msgstr ""
 msgid "Model family/provider to choose from"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:32
+#: GUI/NewProjectSettings.py:33
 msgid "Most lines to send in each batch"
 msgstr ""
 
@@ -833,7 +865,7 @@ msgstr ""
 msgid "Network error communicating with server: {error}"
 msgstr ""
 
-#: GUI/Commands/MergeLinesCommand.py:28
+#: GUI/Commands/MergeLinesCommand.py:31
 msgid "No batches found for lines to merge"
 msgstr ""
 
@@ -841,7 +873,7 @@ msgstr ""
 msgid "No choices returned in the response"
 msgstr ""
 
-#: GUI/Commands/DeleteLinesCommand.py:53
+#: GUI/Commands/DeleteLinesCommand.py:56
 msgid "No deletions to undo"
 msgstr ""
 
@@ -849,11 +881,19 @@ msgstr ""
 msgid "No file path specified"
 msgstr ""
 
+#: PySubtitle/SubtitleTranslator.py:224
+msgid "No instructions provided for translation"
+msgstr ""
+
+#: PySubtitle/TranslationPrompt.py:163
+msgid "No line template provided"
+msgstr ""
+
 #: GUI/Commands/DeleteLinesCommand.py:22
 msgid "No lines selected to delete"
 msgstr ""
 
-#: GUI/Commands/DeleteLinesCommand.py:34
+#: GUI/Commands/DeleteLinesCommand.py:37
 msgid "No lines were deleted"
 msgstr ""
 
@@ -861,8 +901,20 @@ msgstr ""
 msgid "No models available"
 msgstr ""
 
+#: PySubtitle/SubtitleFile.py:309
+msgid "No original subtitles to save to {}"
+msgstr ""
+
 #: PySubtitle/Providers/Bedrock/BedrockClient.py:121
 msgid "No output returned in the response"
+msgstr ""
+
+#: GUI/Commands/DeleteLinesCommand.py:27 GUI/Commands/DeleteLinesCommand.py:59 GUI/Commands/EditBatchCommand.py:22 GUI/Commands/EditBatchCommand.py:50 GUI/Commands/EditLineCommand.py:27 GUI/Commands/EditLineCommand.py:92 GUI/Commands/EditSceneCommand.py:20 GUI/Commands/EditSceneCommand.py:48 GUI/Commands/MergeBatchesCommand.py:26 GUI/Commands/MergeBatchesCommand.py:58 GUI/Commands/MergeLinesCommand.py:21 GUI/Commands/MergeLinesCommand.py:75 GUI/Commands/MergeScenesCommand.py:22 GUI/Commands/MergeScenesCommand.py:54 GUI/Commands/ReparseTranslationsCommand.py:29 GUI/Commands/ReparseTranslationsCommand.py:78 GUI/Commands/SaveProjectFile.py:19 GUI/Commands/SplitBatchCommand.py:22 GUI/Commands/SplitBatchCommand.py:67 GUI/Commands/SplitSceneCommand.py:18 GUI/Commands/SplitSceneCommand.py:46 GUI/Commands/SwapTextAndTranslations.py:31 GUI/Commands/TranslateSceneCommand.py:34
+msgid "No project data"
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:207
+msgid "No project file path provided"
 msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:101
@@ -873,23 +925,27 @@ msgstr ""
 msgid "No scenes selected for translation"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:101
+#: PySubtitle/SubtitleTranslator.py:105
 msgid "No scenes to translate"
 msgstr ""
 
-#: GUI/Commands/AutoSplitBatchCommand.py:23 GUI/Commands/DeleteLinesCommand.py:29 GUI/Commands/MergeLinesCommand.py:23 GUI/Commands/SplitBatchCommand.py:24 GUI/Commands/SplitBatchCommand.py:62 GUI/Commands/SplitSceneCommand.py:20 GUI/Commands/SplitSceneCommand.py:45 GUI/ProjectActions.py:396
+#: GUI/Commands/AutoSplitBatchCommand.py:26 GUI/Commands/DeleteLinesCommand.py:32 GUI/Commands/MergeLinesCommand.py:26 GUI/Commands/SplitBatchCommand.py:27 GUI/Commands/SplitBatchCommand.py:72 GUI/Commands/SplitSceneCommand.py:23 GUI/Commands/SplitSceneCommand.py:51 GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:89
+#: GUI/Commands/BatchSubtitlesCommand.py:31
+msgid "No subtitles to batch"
+msgstr ""
+
+#: PySubtitle/SubtitleTranslator.py:93
 msgid "No subtitles to translate"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:109
+#: PySubtitle/SubtitleProject.py:110
 msgid "No subtitles to translate in {}"
 msgstr ""
 
-#: PySubtitle/SubtitleFile.py:321
+#: PySubtitle/SubtitleFile.py:332
 msgid "No subtitles translated"
 msgstr ""
 
@@ -901,8 +957,12 @@ msgstr ""
 msgid "No text returned in the response"
 msgstr ""
 
-#: GUI/GuiInterface.py:360 GUI/GuiInterface.py:361
+#: GUI/GuiInterface.py:367 GUI/GuiInterface.py:368
 msgid "No translation providers available. Please install one or more providers."
+msgstr ""
+
+#: GUI/Commands/EditBatchCommand.py:53 GUI/Commands/EditLineCommand.py:95 GUI/Commands/EditSceneCommand.py:51 GUI/Commands/MergeLinesCommand.py:78
+msgid "No undo data available"
 msgstr ""
 
 #: PySubtitle/Providers/Gemini/GeminiClient.py:113
@@ -929,7 +989,7 @@ msgstr ""
 msgid "Nothing selected to translate"
 msgstr ""
 
-#: GUI/MainToolbar.py:191
+#: GUI/MainToolbar.py:210
 msgid "Nothing to redo"
 msgstr ""
 
@@ -941,11 +1001,11 @@ msgstr ""
 msgid "Nothing to translate"
 msgstr ""
 
-#: GUI/MainToolbar.py:185
+#: GUI/MainToolbar.py:204
 msgid "Nothing to undo"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:30
+#: GUI/NewProjectSettings.py:31
 msgid "Number of seconds gap to consider it a new scene"
 msgstr ""
 
@@ -997,7 +1057,7 @@ msgstr ""
 msgid "Performing {action}"
 msgstr ""
 
-#: GUI/GuiInterface.py:383
+#: GUI/GuiInterface.py:390
 msgid "Please configure the translation provider settings"
 msgstr ""
 
@@ -1017,7 +1077,7 @@ msgstr ""
 msgid "Postprocess subtitles after translation"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:33
+#: GUI/NewProjectSettings.py:34
 msgid "Preprocess subtitles before batching"
 msgstr ""
 
@@ -1025,7 +1085,7 @@ msgstr ""
 msgid "Preprocess subtitles when they are loaded"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:96
+#: PySubtitle/SubtitleTranslator.py:100
 msgid "Previous subtitles not found, starting fresh..."
 msgstr ""
 
@@ -1033,7 +1093,7 @@ msgstr ""
 msgid "Processing"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:40 GUI/Widgets/ProjectSettings.py:37 GUI/Widgets/ProjectSettings.py:86
+#: GUI/NewProjectSettings.py:41 GUI/Widgets/ProjectSettings.py:37 GUI/Widgets/ProjectSettings.py:86
 msgid "Project Settings"
 msgstr ""
 
@@ -1041,19 +1101,23 @@ msgstr ""
 msgid "Project Toolbar"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:82
+#: PySubtitle/SubtitleProject.py:85
 msgid "Project file loaded"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:70
+#: GUI/Commands/SaveProjectFile.py:16
+msgid "Project file path must be specified."
+msgstr ""
+
+#: PySubtitle/SubtitleProject.py:73
 msgid "Project file {} does not exist"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:211
+#: PySubtitle/SubtitleProject.py:220
 msgid "Project file {} not found"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:101
+#: GUI/NewProjectSettings.py:105
 msgid "Project instructions set from {file}"
 msgstr ""
 
@@ -1069,7 +1133,7 @@ msgstr ""
 msgid "Prompt for each translation request"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:112
+#: GUI/NewProjectSettings.py:116
 msgid "Prompt: {text}"
 msgstr ""
 
@@ -1081,8 +1145,12 @@ msgstr ""
 msgid "Provider Settings"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:142
+#: GUI/NewProjectSettings.py:146
 msgid "Provider error: {error}"
+msgstr ""
+
+#: PySubtitle/SubtitleError.py:20
+msgid "Provider not specified in options"
 msgstr ""
 
 #: GUI/ProjectActions.py:163
@@ -1101,11 +1169,11 @@ msgstr ""
 msgid "Rate limit hit, retrying in {retry_seconds} seconds..."
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:180
+#: PySubtitle/SubtitleTranslator.py:185
 msgid "Reached max_lines limit of ({lines} lines)... finishing"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:201
+#: PySubtitle/SubtitleProject.py:210
 msgid "Reading project data from {}"
 msgstr ""
 
@@ -1117,15 +1185,15 @@ msgstr ""
 msgid "Reasoning"
 msgstr ""
 
-#: GUI/MainToolbar.py:76
+#: GUI/MainToolbar.py:95
 msgid "Redo last undone action"
 msgstr ""
 
-#: GUI/MainToolbar.py:189
+#: GUI/MainToolbar.py:208
 msgid "Redo {command}"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:87
+#: PySubtitle/SubtitleProject.py:90
 msgid "Reloading subtitles from the source file"
 msgstr ""
 
@@ -1133,7 +1201,7 @@ msgstr ""
 msgid "Remove filler_words and filler words from subtitles"
 msgstr ""
 
-#: PySubtitle/SubtitleFile.py:557
+#: PySubtitle/SubtitleFile.py:574
 msgid "Removing {} translations lines in batch ({},{}) that don't match an original line"
 msgstr ""
 
@@ -1145,7 +1213,7 @@ msgstr ""
 msgid "Reparse batches {batches}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:204
+#: PySubtitle/SubtitleTranslator.py:209
 msgid "Reparsing scene {scene} batch {batch} with {count} lines..."
 msgstr ""
 
@@ -1161,7 +1229,7 @@ msgstr ""
 msgid "Response"
 msgstr ""
 
-#: GUI/Commands/DeleteLinesCommand.py:55
+#: GUI/Commands/DeleteLinesCommand.py:61
 msgid "Restoring deleted lines"
 msgstr ""
 
@@ -1169,15 +1237,15 @@ msgstr ""
 msgid "Resuming"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:92
+#: PySubtitle/SubtitleTranslator.py:96
 msgid "Resuming translation"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:372
+#: PySubtitle/SubtitleTranslator.py:391
 msgid "Retry failed validation: {errors}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:374
+#: PySubtitle/SubtitleTranslator.py:393
 msgid "Retry passed validation"
 msgstr ""
 
@@ -1205,7 +1273,7 @@ msgstr ""
 msgid "Save preprocessed subtitles to a separate file"
 msgstr ""
 
-#: GUI/MainToolbar.py:70
+#: GUI/MainToolbar.py:89
 msgid "Save project (Hold shift to save as...)"
 msgstr ""
 
@@ -1213,7 +1281,7 @@ msgstr ""
 msgid "Saving backup copy of the project"
 msgstr ""
 
-#: PySubtitle/SubtitleFile.py:332
+#: PySubtitle/SubtitleFile.py:344
 msgid "Saving translation to {}"
 msgstr ""
 
@@ -1225,19 +1293,19 @@ msgstr ""
 msgid "Scene {scene} Batch {batch}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:116
+#: PySubtitle/SubtitleTranslator.py:120
 msgid "Scene {scene} already translated {linecount} lines..."
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:200
+#: PySubtitle/SubtitleTranslator.py:205
 msgid "Scene {scene} batch {batch} already translated {lines} lines..."
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:243
+#: PySubtitle/SubtitleTranslator.py:251
 msgid "Scene {scene} batch {batch} failed validation, requesting retranslation"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:331
+#: PySubtitle/SubtitleTranslator.py:340
 msgid "Scene {scene} batch {batch}: {translated} lines and {untranslated} untranslated."
 msgstr ""
 
@@ -1265,7 +1333,7 @@ msgstr ""
 msgid "Server error: {status_code} {text}"
 msgstr ""
 
-#: GUI/MainToolbar.py:71
+#: GUI/MainToolbar.py:90
 msgid "Settings"
 msgstr ""
 
@@ -1285,11 +1353,11 @@ msgstr ""
 msgid "Splitting scene {scene} batch: {batch} at line {line}"
 msgstr ""
 
-#: GUI/MainToolbar.py:72
+#: GUI/MainToolbar.py:91
 msgid "Start Translating (hold shift to retranslate)"
 msgstr ""
 
-#: GUI/MainToolbar.py:73
+#: GUI/MainToolbar.py:92
 msgid "Start translating on multiple threads (fast but unsafe)"
 msgstr ""
 
@@ -1301,7 +1369,7 @@ msgstr ""
 msgid "Stop translating if an error is encountered"
 msgstr ""
 
-#: GUI/MainToolbar.py:74
+#: GUI/MainToolbar.py:93
 msgid "Stop translation"
 msgstr ""
 
@@ -1329,7 +1397,7 @@ msgstr ""
 msgid "Subtrans projects"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:136
+#: PySubtitle/SubtitleTranslator.py:140
 msgid "Successfully translated {count} lines!"
 msgstr ""
 
@@ -1337,11 +1405,11 @@ msgstr ""
 msgid "Summary"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:386
+#: PySubtitle/SubtitleTranslator.py:408
 msgid "Summary was truncated from {original} to {truncated} characters"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:339
+#: PySubtitle/SubtitleTranslator.py:348
 msgid "Summary: {summary}"
 msgstr ""
 
@@ -1369,7 +1437,7 @@ msgstr ""
 msgid "The (brief) instruction for each batch of subtitles. Some [tags] are automatically filled in"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:28 GUI/SettingsDialog.py:44
+#: GUI/NewProjectSettings.py:29 GUI/SettingsDialog.py:44
 msgid "The AI translation service to use"
 msgstr ""
 
@@ -1505,16 +1573,12 @@ msgstr ""
 msgid "Translating with server at {server_address}{endpoint}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:103
+#: PySubtitle/SubtitleTranslator.py:107
 msgid "Translating {linecount} lines in {scenecount} scenes"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:278 PySubtitle/SubtitleTranslator.py:129
+#: PySubtitle/SubtitleError.py:40 PySubtitle/SubtitleProject.py:287 PySubtitle/SubtitleTranslator.py:133
 msgid "Translation aborted"
-msgstr ""
-
-#: PySubtitle/SubtitleTranslator.py:65
-msgid "Translation provider is unavailable"
 msgstr ""
 
 #: GUI/GuiInterface.py:171
@@ -1525,7 +1589,7 @@ msgstr ""
 msgid "Translation response error: {error}, retrying in {backoff_time} seconds..."
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:279
+#: PySubtitle/SubtitleTranslator.py:288
 msgid "Truncating batch to remain within max_lines"
 msgstr ""
 
@@ -1537,15 +1601,15 @@ msgstr ""
 msgid "Type of response expected for each line (must match the example format)"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:75
+#: GUI/NewProjectSettings.py:76
 msgid "Unable to create option widget for {key}: {error}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:71
+#: PySubtitle/SubtitleTranslator.py:75
 msgid "Unable to create provider client: {error}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:74
+#: PySubtitle/SubtitleTranslator.py:78
 msgid "Unable to create translation client"
 msgstr ""
 
@@ -1553,7 +1617,7 @@ msgstr ""
 msgid "Unable to create {provider} provider: {error}"
 msgstr ""
 
-#: GUI/Commands/EditBatchCommand.py:23 GUI/Commands/EditLineCommand.py:26
+#: GUI/Commands/EditBatchCommand.py:26 GUI/Commands/EditLineCommand.py:31
 msgid "Unable to edit batch because datamodel is invalid"
 msgstr ""
 
@@ -1561,11 +1625,11 @@ msgstr ""
 msgid "Unable to initialise Anthropic SDK. Claude provider will not be available"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:116 GUI/NewProjectSettings.py:161
+#: GUI/NewProjectSettings.py:120 GUI/NewProjectSettings.py:165
 msgid "Unable to load instructions from {file}: {error}"
 msgstr ""
 
-#: PySubtitle/Options.py:283
+#: PySubtitle/Options.py:295
 msgid "Unable to load instructions from {}: {}"
 msgstr ""
 
@@ -1577,7 +1641,7 @@ msgstr ""
 msgid "Unable to load {file} ({error})"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:314
+#: PySubtitle/SubtitleTranslator.py:323
 msgid "Unable to match {count} lines with a source line"
 msgstr ""
 
@@ -1589,16 +1653,12 @@ msgstr ""
 msgid "Unable to parse server response as JSON: {response_text}"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:176
+#: GUI/NewProjectSettings.py:181
 msgid "Unable to preview batches: {error}"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:90
+#: PySubtitle/SubtitleProject.py:93
 msgid "Unable to read project file, starting afresh"
-msgstr ""
-
-#: GUI/Commands/ReparseTranslationsCommand.py:29
-msgid "Unable to reparse batches because project is not set"
 msgstr ""
 
 #: PySubtitle/Providers/Provider_Claude.py:140
@@ -1621,43 +1681,39 @@ msgstr ""
 msgid "Unable to retrieve models"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:122
+#: PySubtitle/SubtitleProject.py:126
 msgid "Unable to save original subtitles: {}"
 msgstr ""
 
-#: PySubtitle/SubtitleProject.py:133
+#: PySubtitle/SubtitleProject.py:137
 msgid "Unable to save translation: {}"
 msgstr ""
 
-#: GUI/Commands/TranslateSceneCommand.py:34
-msgid "Unable to translate scene because project is not set on datamodel"
-msgstr ""
-
-#: GUI/Commands/SplitBatchCommand.py:82
+#: GUI/Commands/SplitBatchCommand.py:92
 msgid "Unable to undo SplitBatchCommand command: {error}"
 msgstr ""
 
-#: GUI/Commands/SplitSceneCommand.py:66
+#: GUI/Commands/SplitSceneCommand.py:72
 msgid "Unable to undo SplitScene command: {error}"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:119
+#: GUI/NewProjectSettings.py:123
 msgid "Unable to update settings: {error}"
 msgstr ""
 
-#: GUI/MainToolbar.py:75
+#: GUI/MainToolbar.py:94
 msgid "Undo last action"
 msgstr ""
 
-#: GUI/MainToolbar.py:183
+#: GUI/MainToolbar.py:202
 msgid "Undo {command}"
 msgstr ""
 
-#: GUI/Commands/EditBatchCommand.py:44
+#: GUI/Commands/EditBatchCommand.py:47
 msgid "Undoing edit batch ({scene},{batch})"
 msgstr ""
 
-#: GUI/Commands/EditLineCommand.py:76
+#: GUI/Commands/EditLineCommand.py:89
 msgid "Undoing edit line {line}"
 msgstr ""
 
@@ -1677,11 +1733,11 @@ msgstr ""
 msgid "Unexpected response type: {response_type}"
 msgstr ""
 
-#: GUI/Command.py:83
+#: GUI/Command.py:85
 msgid "Unrecoverable error in {name}"
 msgstr ""
 
-#: PySubtitle/SubtitleTranslator.py:141
+#: PySubtitle/SubtitleTranslator.py:145
 msgid "Untranslated > {number}. {text}"
 msgstr ""
 
@@ -1717,7 +1773,7 @@ msgstr ""
 msgid "Whether to substitute whole words or partial matches, or choose automatically based on input language"
 msgstr ""
 
-#: PySubtitle/SubtitleFile.py:280
+#: PySubtitle/SubtitleFile.py:287
 msgid "Writing project data to {}"
 msgstr ""
 
@@ -1725,7 +1781,7 @@ msgstr ""
 msgid "access_key"
 msgstr ""
 
-#: PySubtitle/Options.py:34
+#: PySubtitle/Options.py:42
 msgid "add_right_to_left_markers"
 msgstr ""
 
@@ -1741,7 +1797,7 @@ msgstr ""
 msgid "api_version"
 msgstr ""
 
-#: PySubtitle/Options.py:67
+#: PySubtitle/Options.py:75
 msgid "autosave"
 msgstr ""
 
@@ -1749,19 +1805,19 @@ msgstr ""
 msgid "aws_region"
 msgstr ""
 
-#: PySubtitle/Options.py:65
+#: PySubtitle/Options.py:73
 msgid "backoff_time"
 msgstr ""
 
-#: PySubtitle/Options.py:47
+#: PySubtitle/Options.py:55
 msgid "break_dialog_on_one_line"
 msgstr ""
 
-#: PySubtitle/Options.py:46
+#: PySubtitle/Options.py:54
 msgid "break_long_lines"
 msgstr ""
 
-#: PySubtitle/Options.py:58
+#: PySubtitle/Options.py:66
 msgid "convert_wide_dashes"
 msgstr ""
 
@@ -1781,11 +1837,11 @@ msgstr ""
 msgid "endpoint"
 msgstr ""
 
-#: PySubtitle/Options.py:54
+#: PySubtitle/Options.py:62
 msgid "filler_words"
 msgstr ""
 
-#: PySubtitle/Options.py:73
+#: PySubtitle/Options.py:81
 msgid "firstrun"
 msgstr ""
 
@@ -1793,27 +1849,27 @@ msgstr ""
 msgid "free_plan"
 msgstr ""
 
-#: PySubtitle/Options.py:57
+#: PySubtitle/Options.py:65
 msgid "full_width_punctuation"
 msgstr ""
 
-#: PySubtitle/Options.py:33
+#: PySubtitle/Options.py:41
 msgid "include_original"
 msgstr ""
 
-#: PySubtitle/Options.py:31
+#: PySubtitle/Options.py:39
 msgid "instruction_file"
 msgstr ""
 
-#: PySubtitle/Options.py:68
+#: PySubtitle/Options.py:76
 msgid "last_used_path"
 msgstr ""
 
-#: PySubtitle/Options.py:37
+#: PySubtitle/Options.py:45
 msgid "max_batch_size"
 msgstr ""
 
-#: PySubtitle/Options.py:39
+#: PySubtitle/Options.py:47
 msgid "max_characters"
 msgstr ""
 
@@ -1821,7 +1877,7 @@ msgstr ""
 msgid "max_completion_tokens"
 msgstr ""
 
-#: PySubtitle/Options.py:38
+#: PySubtitle/Options.py:46
 msgid "max_context_summaries"
 msgstr ""
 
@@ -1829,27 +1885,27 @@ msgstr ""
 msgid "max_instruct_tokens"
 msgstr ""
 
-#: PySubtitle/Options.py:48
+#: PySubtitle/Options.py:56
 msgid "max_line_duration"
 msgstr ""
 
-#: PySubtitle/Options.py:61
+#: PySubtitle/Options.py:69
 msgid "max_lines"
 msgstr ""
 
-#: PySubtitle/Options.py:40
+#: PySubtitle/Options.py:48
 msgid "max_newlines"
 msgstr ""
 
-#: PySubtitle/Options.py:63
+#: PySubtitle/Options.py:71
 msgid "max_retries"
 msgstr ""
 
-#: PySubtitle/Options.py:41
+#: PySubtitle/Options.py:49
 msgid "max_single_line_length"
 msgstr ""
 
-#: PySubtitle/Options.py:64
+#: PySubtitle/Options.py:72
 msgid "max_summary_length"
 msgstr ""
 
@@ -1857,7 +1913,7 @@ msgstr ""
 msgid "max_thinking_tokens"
 msgstr ""
 
-#: PySubtitle/Options.py:62
+#: PySubtitle/Options.py:70
 msgid "max_threads"
 msgstr ""
 
@@ -1865,23 +1921,23 @@ msgstr ""
 msgid "max_tokens"
 msgstr ""
 
-#: PySubtitle/Options.py:50
+#: PySubtitle/Options.py:58
 msgid "merge_line_duration"
 msgstr ""
 
-#: PySubtitle/Options.py:36
+#: PySubtitle/Options.py:44
 msgid "min_batch_size"
 msgstr ""
 
-#: PySubtitle/Options.py:49
+#: PySubtitle/Options.py:57
 msgid "min_line_duration"
 msgstr ""
 
-#: PySubtitle/Options.py:42
+#: PySubtitle/Options.py:50
 msgid "min_single_line_length"
 msgstr ""
 
-#: PySubtitle/Options.py:51
+#: PySubtitle/Options.py:59
 msgid "min_split_chars"
 msgstr ""
 
@@ -1897,7 +1953,7 @@ msgstr ""
 msgid "multithreaded"
 msgstr ""
 
-#: PySubtitle/Options.py:52
+#: PySubtitle/Options.py:60
 msgid "normalise_dialog_tags"
 msgstr ""
 
@@ -1905,19 +1961,19 @@ msgstr ""
 msgid "only_translation_models"
 msgstr ""
 
-#: PySubtitle/Options.py:43
+#: PySubtitle/Options.py:51
 msgid "postprocess_translation"
 msgstr ""
 
-#: PySubtitle/Options.py:44
+#: PySubtitle/Options.py:52
 msgid "preprocess_subtitles"
 msgstr ""
 
-#: PySubtitle/Options.py:66
+#: PySubtitle/Options.py:74
 msgid "project"
 msgstr ""
 
-#: PySubtitle/Options.py:30
+#: PySubtitle/Options.py:38
 msgid "prompt"
 msgstr ""
 
@@ -1925,11 +1981,11 @@ msgstr ""
 msgid "prompt_template"
 msgstr ""
 
-#: PySubtitle/Options.py:28
+#: PySubtitle/Options.py:36
 msgid "provider"
 msgstr ""
 
-#: PySubtitle/Options.py:29
+#: PySubtitle/Options.py:37
 msgid "provider_settings"
 msgstr ""
 
@@ -1945,11 +2001,11 @@ msgstr ""
 msgid "reasoning_effort"
 msgstr ""
 
-#: PySubtitle/Options.py:53
+#: PySubtitle/Options.py:61
 msgid "remove_filler_words"
 msgstr ""
 
-#: PySubtitle/Options.py:59
+#: PySubtitle/Options.py:67
 msgid "retry_on_error"
 msgstr ""
 
@@ -1957,11 +2013,11 @@ msgstr ""
 msgid "reuse_client"
 msgstr ""
 
-#: PySubtitle/Options.py:45
+#: PySubtitle/Options.py:53
 msgid "save_preprocessed_subtitles"
 msgstr ""
 
-#: PySubtitle/Options.py:35
+#: PySubtitle/Options.py:43
 msgid "scene_threshold"
 msgstr ""
 
@@ -1981,11 +2037,11 @@ msgstr ""
 msgid "single threaded"
 msgstr ""
 
-#: PySubtitle/Options.py:69
+#: PySubtitle/Options.py:77
 msgid "stop_on_error"
 msgstr ""
 
-#: PySubtitle/Options.py:55
+#: PySubtitle/Options.py:63
 msgid "substitution_mode"
 msgstr ""
 
@@ -2001,7 +2057,7 @@ msgstr ""
 msgid "supports_system_messages"
 msgstr ""
 
-#: PySubtitle/Options.py:32
+#: PySubtitle/Options.py:40
 msgid "target_language"
 msgstr ""
 
@@ -2009,7 +2065,7 @@ msgstr ""
 msgid "temperature"
 msgstr ""
 
-#: PySubtitle/Options.py:71
+#: PySubtitle/Options.py:79
 msgid "theme"
 msgstr ""
 
@@ -2021,7 +2077,7 @@ msgstr ""
 msgid "timeout"
 msgstr ""
 
-#: PySubtitle/Options.py:72
+#: PySubtitle/Options.py:80
 msgid "ui_language"
 msgstr ""
 
@@ -2033,15 +2089,15 @@ msgstr ""
 msgid "use_httpx"
 msgstr ""
 
-#: PySubtitle/Options.py:27
+#: PySubtitle/Options.py:35
 msgid "version"
 msgstr ""
 
-#: PySubtitle/Options.py:56
+#: PySubtitle/Options.py:64
 msgid "whitespaces_to_newline"
 msgstr ""
 
-#: PySubtitle/Options.py:70
+#: PySubtitle/Options.py:78
 msgid "write_backup"
 msgstr ""
 
@@ -2093,7 +2149,7 @@ msgstr ""
 msgid "{lines} lines in {batches} batches"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:232
+#: GUI/NewProjectSettings.py:237
 msgid "{lines} lines in {scenes} scenes and {batches} batches"
 msgstr ""
 
@@ -2105,10 +2161,10 @@ msgstr ""
 msgid "{starting} {threaded} translation"
 msgstr ""
 
-#: PySubtitle/SubtitleFile.py:353
+#: PySubtitle/SubtitleFile.py:365
 msgid "{} lines were empty and were not written to the output file"
 msgstr ""
 
-#: PySubtitle/SubtitleFile.py:349
+#: PySubtitle/SubtitleFile.py:361
 msgid "{} lines were invalid and were not written to the output file"
 msgstr ""
