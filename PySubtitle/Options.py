@@ -1,7 +1,9 @@
 from copy import deepcopy
 import json
 import logging
+from math import e
 import os
+from typing import Any
 import dotenv
 
 from PySubtitle.Helpers.Version import VersionNumberLessThan
@@ -19,11 +21,11 @@ default_user_prompt = "Translate these subtitles [ for movie][ to language]"
 # Load environment variables from .env file
 dotenv.load_dotenv()
 
-def env_bool(key, default=False):
+def env_bool(key, default=False) -> bool:
     var = os.getenv(key, default)
-    return var and str(var).lower() in ('true', 'yes', '1')
+    return True if var and str(var).lower() in ('true', 'yes', '1') else False
 
-default_options = {
+default_options : dict[str, Any] = {
     'version': __version__,
     'provider': os.getenv('PROVIDER', None),
     'provider_settings': {},
@@ -58,7 +60,7 @@ default_options = {
     'convert_wide_dashes': env_bool('CONVERT_WIDE_DASHES', True),
     'retry_on_error': env_bool('RETRY_ON_ERROR', True),
     # 'autosplit_incomplete': env_bool('AUTOSPLIT_INCOMPLETE', True),
-    'max_lines': int(os.getenv('MAX_LINES')) if os.getenv('MAX_LINES') else None,
+    'max_lines': int(os.getenv('MAX_LINES','')) if os.getenv('MAX_LINES') else None,
     'max_threads': int(os.getenv('MAX_THREADS', 4)),
     'max_retries': int(os.getenv('MAX_RETRIES', 1)),
     'max_summary_length': int(os.getenv('MAX_SUMMARY_LENGTH', 240)),
@@ -77,9 +79,9 @@ def serialize(value):
     return value.serialize() if hasattr(value, 'serialize') else value
 
 class Options:
-    def __init__(self, options=None, **kwargs):
+    def __init__(self, options : 'dict[str,Any]|Options|None'=None, **kwargs):
         # Initialise from defaults
-        self.options = deepcopy(default_options)
+        self.options : dict[str, Any] = deepcopy(default_options)
 
         if isinstance(options, Options):
             options = options.options
@@ -92,13 +94,13 @@ class Options:
         # Apply any explicit parameters
         self.options.update(kwargs)
 
-    def get(self, option, default=None):
+    def get(self, option, default=None) -> Any:
         return self.options.get(option, default)
 
     def add(self, option, value):
         self.options[option] = value
 
-    def update(self, options):
+    def update(self, options) -> None:
         if isinstance(options, Options):
             return self.update(options.options)
 
@@ -132,7 +134,7 @@ class Options:
         return self.get('provider_settings', {})
 
     @property
-    def current_provider_settings(self) -> dict:
+    def current_provider_settings(self) -> dict[str,Any]|None:
         if not self.provider:
             return None
 
@@ -143,7 +145,7 @@ class Options:
         return self.get('available_providers', [])
 
     @property
-    def model(self) -> str:
+    def model(self) -> str|None:
         if not self.provider:
             return None
 
@@ -151,7 +153,7 @@ class Options:
 
     @property
     def target_language(self) -> str:
-        return self.get('target_language')
+        return self.get('target_language', default_options['target_language'])
 
     def GetInstructions(self) -> Instructions:
         """ Construct an Instructions object from the settings """

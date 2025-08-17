@@ -5,7 +5,7 @@ from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleValidator:
     def __init__(self, options : Options) -> None:
-        self.options = options
+        self.options : Options = options
 
     def ValidateBatch(self, batch : SubtitleBatch):
         """
@@ -28,7 +28,7 @@ class SubtitleValidator:
         if not translated:
             return [ UntranslatedLinesError(f"Failed to extract any translations") ]
 
-        max_characters : int = self.options.get('max_characters', 1000)
+        max_characters : int = int(self.options.get('max_characters', 1000))
         max_newlines : int = self.options.get('max_newlines', 3)
 
         no_number : list[SubtitleLine] = []

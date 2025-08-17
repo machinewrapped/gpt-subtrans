@@ -36,7 +36,7 @@ class TranslationParser:
     def __init__(self, task_type : str, options : Options):
         self.options : Options = options
         self.text : str|None = None
-        self.translations : dict[str, SubtitleLine] = {}
+        self.translations : dict[int|str, SubtitleLine] = {}
         self.translated : list[SubtitleLine] = []
         self.errors : list[Exception] = []
         self.metatags : list[str] = ["summary", "scene"]
@@ -79,7 +79,7 @@ class TranslationParser:
         logging.debug(f"Matches: {str(matches)}")
 
         subs = [SubtitleLine.FromDictionary(match) for match in matches]
-        self.translations : dict[int|str, SubtitleLine] = {
+        self.translations = {
             sub.key: sub for sub in subs
             }
 
@@ -141,7 +141,7 @@ class TranslationParser:
             self.TryFuzzyMatches(unmatched)
 
         if unmatched:
-            self.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", lines=unmatched, translation=translation))
+            self.errors.append(UntranslatedLinesError(f"No translation found for {len(unmatched)} lines", lines=unmatched))
 
         return matched, unmatched
 

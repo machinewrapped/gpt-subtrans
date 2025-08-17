@@ -1,3 +1,5 @@
+from re import A
+from typing import Any
 import unicodedata
 import regex
 import unicodedata
@@ -239,7 +241,7 @@ def LimitTextLength(text : str, max_length : int) -> str:
         # As a last resort, cut directly at the max length
         return text[:max_length] + '...'
 
-def CompileFillerWordsPattern(filler_words: str | list[str]) -> regex.Pattern:
+def CompileFillerWordsPattern(filler_words: str | list[str]) -> regex.Pattern[Any] | None:
     """
     Compile a regex pattern to match any provided filler word, assuming they are
     followed by mandatory punctuation and possibly preceded by punctuation.
@@ -259,10 +261,9 @@ def RemoveFillerWords(text: str, fillerWords: str | list[str] | regex.Pattern) -
     """
     Remove filler words from a text string, adjusting capitalization based on the capitalization of the filler word.
     """
-    if not isinstance(fillerWords, regex.Pattern):
-        fillerWords = CompileFillerWordsPattern(fillerWords)
+    fillerPatterns = fillerWords if isinstance(fillerWords, regex.Pattern) else CompileFillerWordsPattern(fillerWords)
 
-    if fillerWords is None:
+    if fillerPatterns is None:
         return text
 
     output = []
@@ -279,7 +280,7 @@ def RemoveFillerWords(text: str, fillerWords: str | list[str] | regex.Pattern) -
             else:
                 output.append(text[previous_start:previous_end])
 
-    for match in fillerWords.finditer(text):
+    for match in fillerPatterns.finditer(text):
         start, end = match.span()
 
         # Output any text before the match
@@ -343,7 +344,7 @@ def ExtractTagList(tagname, text):
         return text, tag_list
     return text, []
 
-def SanitiseSummary(summary : str, movie_name : str = None, max_summary_length : int = None):
+def SanitiseSummary(summary : str, movie_name : str|None = None, max_summary_length : int|None = None):
     """
     Remove trivial parts of summary text and limit the length if required
     """
