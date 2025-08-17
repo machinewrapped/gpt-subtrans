@@ -21,15 +21,15 @@ class SubtitleLine:
         if isinstance(line, SubtitleLine):
             self._item = line._item
             self._duration = line._duration
-            self.original = original or line.original
-            self.translation = translation or line.translation
+            self.original = original if original is not None else line.original
+            self.translation = translation if translation is not None else line.translation
         elif line is not None:
             self.item = line
 
     def __str__(self) -> str:
         return self.item.to_srt() if self.item else "Null SubtitleLine"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"[Line {self.number}] {TimedeltaToText(self.start)}, {repr(self.text)}"
 
     def __eq__(self, other : 'Any|SubtitleLine') -> bool:

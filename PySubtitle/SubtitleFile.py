@@ -92,7 +92,7 @@ class SubtitleFile:
     def scenes(self, scenes : list[SubtitleScene]):
         with self.lock:
             self._scenes = scenes
-            self.originals, self.translated, dummy = UnbatchScenes(scenes) # type: ignore
+            self.originals, self.translated, dummy = UnbatchScenes(scenes) # type: ignore[unused-ignore]
             self.start_line_number = (self.originals[0].number if self.originals else 1) or 1
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
@@ -326,7 +326,7 @@ class SubtitleFile:
                 raise ValueError("No scenes in subtitles")
 
             # Linearise the translation
-            originals, translated, untranslated = UnbatchScenes(self.scenes) # type: ignore
+            originals, translated, untranslated = UnbatchScenes(self.scenes) # type: ignore[unused-ignore]
 
             if not translated:
                 logging.error(_("No subtitles translated"))

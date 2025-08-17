@@ -74,7 +74,7 @@ def GetInputPath(filepath : str|None) -> str | None:
     if not filepath:
         return None
 
-    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore
+    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore[unused-ignore]
     path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
     return os.path.normpath(path)
 
@@ -82,7 +82,7 @@ def GetOutputPath(filepath : str|None, language : str|None = None) -> str|None:
     if not filepath:
         return None
 
-    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore
+    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore[unused-ignore]
 
     language = language or "translated"
 

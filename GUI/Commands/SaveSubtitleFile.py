@@ -9,8 +9,5 @@ class SaveSubtitleFile(Command):
         self.project = project
 
     def execute(self):
-        if not self.datamodel or not self.datamodel.project:
-            raise CommandError(_("No project data"), command=self)
-
         self.project.subtitles.SaveOriginal(self.filepath)
         return True

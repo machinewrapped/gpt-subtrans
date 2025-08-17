@@ -39,7 +39,7 @@ class DeleteLinesCommand(Command):
         # Update the viewmodel. Priginal and translated lines are currently linked, deleting one means deleting both
         model_update = self.AddModelUpdate()
         for deletion in self.deletions:
-            scene_number, batch_number, originals, translated = deletion
+            scene_number, batch_number, originals, translated = deletion # type: ignore[unused-ignore]
             for line in originals:
                 model_update.lines.remove((scene_number, batch_number, line.number))
 

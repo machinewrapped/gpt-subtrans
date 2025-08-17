@@ -51,7 +51,6 @@ def TimedeltaToText(time: datetime.timedelta|None, include_milliseconds : bool =
     Convert a timedelta to a minimal string representation, adhering to specific formatting rules:
     - Hours, minutes, and seconds may appear with leading zeros only as required.
     - Milliseconds are appended after a comma if they are present.
-    - Seconds can be a single digit if no preceding hours or minutes are present.
     """
     if time is None:
         return ""
@@ -72,7 +71,7 @@ def TimedeltaToText(time: datetime.timedelta|None, include_milliseconds : bool =
     if include_milliseconds:
         time_str += f",{milliseconds:03d}"
 
-    return time_str.format(hours, minutes, seconds, milliseconds)
+    return time_str
 
 def TimedeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str|None:
     """
