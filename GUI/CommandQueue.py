@@ -121,7 +121,7 @@ class CommandQueue(QObject):
 
         self.command_pool.waitForDone()
 
-    def AddCommand(self, command: Command, datamodel: ProjectDataModel|None = None, callback=None, undo_callback=None):
+    def AddCommand(self, command: Command, datamodel: ProjectDataModel|None = None, callback: Callable|None = None, undo_callback: Callable|None = None):
         """
         Add a command to the command queue, with optional callbacks for completion/undo events
         """
