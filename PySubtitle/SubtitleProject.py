@@ -297,8 +297,8 @@ class SubtitleProject:
         if not self.subtitles:
             raise Exception("No subtitles to translate")
 
-        translator.events.preprocessed += self._on_preprocessed
-        translator.events.batch_translated += self._on_batch_translated
+        translator.events.preprocessed += self._on_preprocessed # type: ignore
+        translator.events.batch_translated += self._on_batch_translated # type: ignore
 
         try:
             scene : SubtitleScene = self.subtitles.GetScene(scene_number)
@@ -316,10 +316,10 @@ class SubtitleProject:
             pass
 
         finally:
-            translator.events.preprocessed -= self._on_preprocessed
-            translator.events.batch_translated -= self._on_batch_translated
+            translator.events.preprocessed -= self._on_preprocessed # type: ignore
+            translator.events.batch_translated -= self._on_batch_translated # type: ignore
 
-    def ReparseBatchTranslation(self, translator : SubtitleTranslator, scene_number : int, batch_number : int, line_numbers : list[int] = None):
+    def ReparseBatchTranslation(self, translator : SubtitleTranslator, scene_number : int, batch_number : int, line_numbers : list[int]|None = None):
         """
         Reparse the translation of a batch of subtitles
         """
