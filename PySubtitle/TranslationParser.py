@@ -121,7 +121,7 @@ class TranslationParser:
         for item in originals:
             translation = self.translations.get(item.key)
             if translation:
-                translation.number = item.number or 0
+                translation.number = item.number
                 translation.start = item.start or timedelta(seconds=0)
                 translation.end = item.end or timedelta(seconds=0)
 

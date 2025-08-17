@@ -281,7 +281,7 @@ class SubtitleTranslator:
 
         return originals, context
 
-    def ProcessBatchTranslation(self, batch : SubtitleBatch, translation : Translation, line_numbers : list[int]):
+    def ProcessBatchTranslation(self, batch : SubtitleBatch, translation : Translation, line_numbers : list[int]|None):
         """
         Attempt to extract translation from the API response
         """

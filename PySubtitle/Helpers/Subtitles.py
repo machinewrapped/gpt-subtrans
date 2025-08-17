@@ -13,7 +13,7 @@ def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int|None
     """
     Insert a line into a list of lines at the correct position, or replace any existing line.
     """
-    if not lines or (line.number or 1) > (lines[-1].number or 0):
+    if not lines or line.number > lines[-1].number:
         lines.append(line)
         return len(lines) - 1
 
@@ -22,7 +22,7 @@ def AddOrUpdateLine(lines : list[SubtitleLine], line : SubtitleLine) -> int|None
             lines[i] = line
             return i
 
-        if (item.number or 1) > (line.number or 0):
+        if item.number > line.number:
             lines.insert(i, line)
             return i
 

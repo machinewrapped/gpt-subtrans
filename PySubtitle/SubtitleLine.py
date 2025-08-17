@@ -38,8 +38,8 @@ class SubtitleLine:
         return self.number if self.number else str(self.start)
 
     @property
-    def number(self) -> int|None:
-        return self._item.index if self._item else None
+    def number(self) -> int:
+        return self._item.index if self._item else 0
 
     @property
     def text(self) -> str|None:

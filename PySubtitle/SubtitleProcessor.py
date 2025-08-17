@@ -75,7 +75,7 @@ class SubtitleProcessor:
             return []
 
         processed : list[SubtitleLine] = []
-        line_number : int = lines[0].number or 0
+        line_number : int = lines[0].number
 
         if self.merge_line_duration.total_seconds() > 0.0:
             lines = self._merge_short_lines(lines, self.merge_line_duration)
