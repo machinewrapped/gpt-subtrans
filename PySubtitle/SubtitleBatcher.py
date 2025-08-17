@@ -1,11 +1,12 @@
 from datetime import timedelta
 from typing import Any
+from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleBatcher:
-    def __init__(self, settings : dict[str, Any]):
+    def __init__(self, settings : Options|dict[str, Any]):
         """ Initialize a SubtitleBatcher helper class with settings """
         self.min_batch_size : int = settings.get('min_batch_size', 0)
         self.max_batch_size : int = settings.get('max_batch_size', 99)
@@ -57,7 +58,7 @@ class SubtitleBatcher:
 
         for lines in split_lines:
             batch : SubtitleBatch = scene.AddNewBatch()
-            batch.originals = lines
+            batch._originals = lines
 
         return scene
 

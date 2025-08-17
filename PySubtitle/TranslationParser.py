@@ -65,7 +65,7 @@ class TranslationParser:
         if not self.text:
             raise TranslationError("No translated text provided", translation=translation)
 
-        matches : list[dict[str, str]] = []
+        matches : list[dict[str,str]] = []
 
         for template in self.regex_patterns:
             matches = self.FindMatches(f"{self.text}\n\n", template)
@@ -96,7 +96,7 @@ class TranslationParser:
 
         return self.translated
 
-    def FindMatches(self, text, template) -> list[dict[str, str]]:
+    def FindMatches(self, text, template) -> list[dict[str,str]]:
         """
         re.findall has some very unhelpful behaviour, so we use finditer instead.
         """

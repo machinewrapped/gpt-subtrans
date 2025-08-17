@@ -7,7 +7,7 @@ from typing import Any
 import dotenv
 
 from PySubtitle.Helpers.Version import VersionNumberLessThan
-from PySubtitle.Instructions import Instructions, LoadInstructions
+from PySubtitle.Instructions import Instructions, LoadInstructions, default_user_prompt
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Resources import config_dir, old_config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
@@ -16,7 +16,6 @@ from PySubtitle.version import __version__
 MULTILINE_OPTION = 'multiline'
 
 settings_path = os.path.join(config_dir, 'settings.json')
-default_user_prompt = "Translate these subtitles [ for movie][ to language]"
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -37,7 +36,7 @@ default_options : dict[str, Any] = {
     'version': __version__,
     'provider': os.getenv('PROVIDER', None),
     'provider_settings': {},
-    'prompt': os.getenv('PROMPT', "Please translate these subtitles[ for movie][ to language]."),
+    'prompt': os.getenv('PROMPT', default_user_prompt),
     'instruction_file': os.getenv('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': os.getenv('TARGET_LANGUAGE', 'English'),
     'include_original': env_bool('INCLUDE_ORIGINAL', False),

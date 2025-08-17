@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 import regex
 from enum import Enum
 
@@ -44,7 +45,7 @@ class Substitutions:
         self._patterns = None
 
     @property
-    def patterns(self) -> list[regex.Pattern, str]:
+    def patterns(self) -> list[tuple[regex.Pattern[Any], str]]:
         if self._patterns is None:
             self._patterns = self._compile_patterns()
         return self._patterns
@@ -62,7 +63,7 @@ class Substitutions:
 
         return result
 
-    def PerformSubstitutionsOnAll(self, input : list[str]) -> tuple[list[str], dict[str, str]]:
+    def PerformSubstitutionsOnAll(self, input : list[str]) -> tuple[list[str], dict[str,str]]:
         """
         Try to substitute all (before,after) pairs in a list of strings.
 
@@ -73,7 +74,7 @@ class Substitutions:
         replacements = { line: new_line for line, new_line in zip(input, result) if new_line != str(line) }
         return result, replacements
 
-    def _compile_patterns(self) -> list[regex.Pattern, str]:
+    def _compile_patterns(self) -> list[tuple[regex.Pattern[Any], str]]:
         patterns = []
         template = self._get_template()
 
@@ -102,7 +103,7 @@ class Substitutions:
             except ValueError:
                 raise ValueError(f"No enum member for value: {mode}")
 
-        return GetValueFromName(mode, self.Mode)
+        return GetValueFromName(mode, list(self.Mode))
 
     @classmethod
     def Parse(cls, sub_list : str | list[str] | dict, separator="::") -> dict:

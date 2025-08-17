@@ -12,7 +12,7 @@ class SubtitleScene:
         self.number : int = dct.get('scene') or dct.get('number') or 0
         self.context : dict[str,Any] = dct.get('context', {})
         self._batches : list[SubtitleBatch] = dct.get('batches', [])
-        self.errors : list[str]|list[Exception] = dct.get('errors', [])
+        self.errors : list[str|Exception] = dct.get('errors', [])
 
     def __str__(self) -> str:
         return f"SubtitleScene {self.number} with {self.size} batches and {self.linecount} lines"
@@ -68,7 +68,7 @@ class SubtitleScene:
     @property
     def summary(self) -> str | None:
         """ Get a summary of the scene's content """
-        return self.GetContext('summary')
+        return self.GetContextString('summary')
 
     @summary.setter
     def summary(self, value):
@@ -99,15 +99,22 @@ class SubtitleScene:
         self._batches.append(batch)
         return self._batches[-1]
 
-    def AddContext(self, key : str, value : str|dict[str,Any]):
+    def AddContext(self, key : str, value : str|dict[str,str]):
         if not self.context:
             self.context = {}
         self.context[key] = value
 
-    def GetContext(self, key : str) -> str|dict[str,Any]|None:
+    def GetContext(self, key : str) -> str|dict[str,str]|None:
         return self.context.get(key) if self.context else None
 
-    def UpdateContext(self, update : dict[str,Any]) -> bool:
+    def GetContextString(self, key : str) -> str|None:
+        """ Get a context value that must be a string """
+        value = self.GetContext(key)
+        if not isinstance(value, str):
+            raise ValueError(f"Context value for key '{key}' is not a string")
+        return value if value else None
+
+    def UpdateContext(self, update : dict[str,str]) -> bool:
         if not self.context:
             self.context = {}
 
@@ -182,14 +189,14 @@ class SubtitleScene:
             'originals': batch.originals[split_index:]
         })
 
-        batch.originals = batch.originals[:split_index]
+        batch._originals = batch.originals[:split_index]
 
         if batch.translated:
             split_translated = translated_number or line_number
             translated_index = next((i for i, line in enumerate(batch.translated) if line.number == split_translated), -1)
             if translated_index >= 0:
-                new_batch.translated = batch.translated[translated_index:]
-                batch.translated = batch.translated[:translated_index]
+                new_batch._translated = batch.translated[translated_index:]
+                batch._translated = batch.translated[:translated_index]
 
                 if split_translated != line_number:
                     ResyncTranslatedLines(new_batch.originals, new_batch.translated)
@@ -198,7 +205,7 @@ class SubtitleScene:
                 logging.warning(f"Translated line number {translated_number} not found in batch translations")
 
             elif batch.translated[0].number >= split_translated:
-                new_batch.translated = batch.translated
+                new_batch._translated = batch.translated
                 batch.translated = []
 
         batch_index = self._batches.index(batch)

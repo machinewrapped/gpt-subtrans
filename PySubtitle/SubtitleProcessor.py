@@ -60,8 +60,8 @@ class SubtitleProcessor:
         self.max_single_line_length : bool = settings.get('max_single_line_length', 40)
         self.min_single_line_length : int = settings.get('min_single_line_length', 4)
 
-        self.split_dialog_pattern : regex.Pattern|None = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
-        self.filler_words_pattern : regex.Pattern|None = CompileFillerWordsPattern(settings.get('filler_words')) if self.remove_filler_words else None
+        self.split_dialog_pattern : regex.Pattern[Any]|None = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
+        self.filler_words_pattern : regex.Pattern[Any]|None = CompileFillerWordsPattern(settings.get('filler_words', [])) if self.remove_filler_words else None
 
         self.split_by_duration : bool = self.max_line_duration.total_seconds() > 0.0
 
@@ -146,11 +146,11 @@ class SubtitleProcessor:
             text = EnsureFullWidthPunctuation(text)
 
         # Remove filler words
-        if self.remove_filler_words:
+        if self.remove_filler_words and self.filler_words_pattern:
             text = RemoveFillerWords(text, self.filler_words_pattern)
 
         # If the subtitle is a single line, see if it should have line breaks added
-        if self.break_dialog_on_one_line:
+        if self.break_dialog_on_one_line and self.split_dialog_pattern:
             text = BreakDialogOnOneLine(text, self.split_dialog_pattern)
 
         # If the subtitle has multiple lines, make sure dialog markers match
@@ -172,13 +172,13 @@ class SubtitleProcessor:
         if not text:
             return line
 
-        if self.remove_filler_words:
+        if self.remove_filler_words and self.filler_words_pattern:
             text = RemoveFillerWords(text, self.filler_words_pattern)
 
         if self.convert_wide_dashes:
             text = ConvertWideDashesToStandardDashes(text)
 
-        if self.break_dialog_on_one_line:
+        if self.break_dialog_on_one_line and self.split_dialog_pattern:
             text = BreakDialogOnOneLine(text, self.split_dialog_pattern)
 
         if self.normalise_dialog_tags:
@@ -207,7 +207,8 @@ class SubtitleProcessor:
         max_length = self.max_single_line_length
         min_length = self.min_single_line_length
         break_sequences = self._compiled_break_sequences
-        text = BreakLongLine(text, max_line_length=max_length, min_line_length=min_length, break_sequences=break_sequences)
+        if break_sequences:
+            text = BreakLongLine(text, max_line_length=max_length, min_line_length=min_length, break_sequences=break_sequences)
         return text
 
     def _split_line_by_duration(self, line: SubtitleLine) -> list[SubtitleLine]:
@@ -267,13 +268,13 @@ class SubtitleProcessor:
         current_line : SubtitleLine = lines[0]
 
         for line in lines[1:]:
-            if not current_line.text.strip():
+            if not current_line.text_normalized:
                 current_line = line
                 continue
 
             if line.duration < short_duration:
-                if current_line.text[-1] in sentence_end_punctuation:
-                    # If the line ends with a sentence-ending punctuation mark, assume different speakers (questionable logic)
+                # If the line ends with a sentence-ending punctuation mark, assume different speakers (questionable logic)
+                if current_line.text_normalized[-1] in sentence_end_punctuation:
                     current_line.text = f"{dialog_marker}{current_line.text}\n{dialog_marker}{line.text}"
                 else:
                     current_line.text = f"{current_line.text}\n{line.text}"

@@ -1,7 +1,7 @@
 from datetime import timedelta
 from os import linesep
 from typing import Any
-import srt
+import srt # type: ignore
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
@@ -47,19 +47,19 @@ class SubtitleLine:
 
     @property
     def text_normalized(self) -> str|None:
-        return self.text.replace(linesep, '\n') if self.text else None
+        return self.text.replace(linesep, '\n').strip() if self.text else None
 
     @property
-    def start(self) -> timedelta|None:
-        return self._item.start if self._item else None
+    def start(self) -> timedelta:
+        return self._item.start if self._item else timedelta(seconds=0)
 
     @property
     def srt_start(self) -> str:
-        return TimedeltaToSrtTimestamp(self.start) if self.start is not None else "00:00:00,000"
+        return TimedeltaToSrtTimestamp(self.start) or "00:00.00,000"
 
     @property
     def txt_start(self) -> str:
-        return TimedeltaToText(self.start) if self.start is not None else "00:00:00.000"
+        return TimedeltaToText(self.start) or _("Invalid timestamp")
 
     @start.setter
     def start(self, time : timedelta | str):
@@ -68,12 +68,12 @@ class SubtitleLine:
             self._duration = None
 
     @property
-    def end(self) -> timedelta|None:
-        return self._item.end if self._item else None
+    def end(self) -> timedelta:
+        return self._item.end if self._item else timedelta(seconds=0)
 
     @property
-    def srt_end(self) -> str|None:
-        return TimedeltaToSrtTimestamp(self.end) if self.end else None
+    def srt_end(self) -> str:
+        return TimedeltaToSrtTimestamp(self.end) or "00:00.00,000"
 
     @end.setter
     def end(self, time : timedelta | str):
@@ -82,8 +82,8 @@ class SubtitleLine:
             self._duration = None
 
     @property
-    def txt_end(self) -> str|None:
-        return TimedeltaToText(self.end) if self.end is not None else None
+    def txt_end(self) -> str:
+        return TimedeltaToText(self.end) or _("Invalid timestamp")
 
     @property
     def duration(self) -> timedelta:

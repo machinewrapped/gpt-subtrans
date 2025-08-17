@@ -4,7 +4,7 @@ import os
 import logging
 import threading
 from typing import Any
-import srt
+import srt # type: ignore
 import bisect
 from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Helpers.Localization import _
@@ -20,6 +20,7 @@ from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
+from PySubtitle.SubtitleSerialisation import SubtitleEncoder
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
@@ -92,7 +93,7 @@ class SubtitleFile:
     def scenes(self, scenes : list[SubtitleScene]):
         with self.lock:
             self._scenes = scenes
-            self.originals, self.translated, dummy = UnbatchScenes(scenes)
+            self.originals, self.translated, dummy = UnbatchScenes(scenes) # type: ignore
             self.start_line_number = (self.originals[0].number if self.originals else 1) or 1
 
     def GetScene(self, scene_number : int) -> SubtitleScene:
@@ -276,7 +277,7 @@ class SubtitleFile:
         except srt.SRTParseError as e:
             logging.error(_("Failed to parse SRT string: {}").format(str(e)))
 
-    def SaveProjectFile(self, projectfile : str, encoder_class : json.JSONEncoder|None = None):
+    def SaveProjectFile(self, projectfile : str, encoder_class : type|None = None):
         """
         Save the project settings to a JSON file
         """
@@ -288,7 +289,7 @@ class SubtitleFile:
 
         with self.lock:
             with open(projectfile, 'w', encoding=default_encoding) as f:
-                project_json = json.dumps(self, cls=encoder_class, ensure_ascii=False, indent=4)
+                project_json = json.dumps(self, cls=encoder_class, ensure_ascii=False, indent=4) # type: ignore
                 f.write(project_json)
 
     def SaveOriginal(self, path : str|None = None):
@@ -302,7 +303,7 @@ class SubtitleFile:
         with self.lock:
             originals = self.originals
             if originals:
-                srtfile = srt.compose([ line.item for line in self.originals ], reindex=False)
+                srtfile = srt.compose([ line.item for line in originals ], reindex=False)
                 with open(path, 'w', encoding=default_encoding) as f:
                     f.write(srtfile)
             else:
@@ -326,7 +327,7 @@ class SubtitleFile:
                 raise ValueError("No scenes in subtitles")
 
             # Linearise the translation
-            originals, translated, untranslated = UnbatchScenes(self.scenes)
+            originals, translated, untranslated = UnbatchScenes(self.scenes) # type: ignore
 
             if not translated:
                 logging.error(_("No subtitles translated"))
@@ -338,7 +339,8 @@ class SubtitleFile:
             # Renumber the lines to ensure compliance with SRT format
             output_lines : list[SubtitleLine] = []
             for line_number, line in enumerate(translated, start=self.start_line_number or 1):
-                output_lines.append(SubtitleLine.Construct(line_number, line.start, line.end, line.text))
+                if line.text:
+                    output_lines.append(SubtitleLine.Construct(line_number, line.start, line.end, line.text))
 
             logging.info(_("Saving translation to {}").format(str(outputpath)))
 
@@ -376,8 +378,8 @@ class SubtitleFile:
         with self.lock:
             self.settings.update({key: settings[key] for key in settings if key in self.DEFAULT_PROJECT_SETTINGS})
 
-            self.settings['names'] = ParseNames(self.settings.get('names'))
-            self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions'))
+            self.settings['names'] = ParseNames(self.settings.get('names', []))
+            self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions', []))
 
             self._update_compatibility(self.settings)
 
@@ -394,14 +396,16 @@ class SubtitleFile:
         Preprocess subtitles
         """
         with self.lock:
-            self.originals = preprocessor.PreprocessSubtitles(self.originals)
+            if self.originals:
+                self.originals = preprocessor.PreprocessSubtitles(self.originals)
 
     def AutoBatch(self, batcher : SubtitleBatcher):
         """
         Divide subtitles into scenes and batches based on threshold options
         """
         with self.lock:
-            self.scenes = batcher.BatchSubtitles(self.originals)
+            if self.originals:
+                self.scenes = batcher.BatchSubtitles(self.originals)
 
     def AddScene(self, scene):
         with self.lock:
@@ -426,6 +430,9 @@ class SubtitleFile:
 
     def UpdateLineText(self, line_number : int, original_text : str, translated_text : str):
         with self.lock:
+            if self.originals is None:
+                raise SubtitleError("Original subtitles are missing!")
+
             original_line = next((original for original in self.originals if original.number == line_number), None)
             if not original_line:
                 raise ValueError(f"Line {line_number} not found")
@@ -481,9 +488,9 @@ class SubtitleFile:
             raise ValueError("Scene numbers to be merged are not sequential")
 
         with self.lock:
-            scenes = [scene for scene in self.scenes if scene.number in scene_numbers]
+            scenes : list[SubtitleScene] = [scene for scene in self.scenes if scene.number in scene_numbers]
             if len(scenes) != len(scene_numbers):
-                raise ValueError(f"Could not find scenes {','.join(scene_numbers)}")
+                raise ValueError(f"Could not find scenes {','.join([str(i) for i in scene_numbers])}")
 
             # Merge all scenes into the first
             merged_scene = scenes[0]
@@ -506,7 +513,7 @@ class SubtitleFile:
             raise ValueError("No batch numbers supplied to MergeBatches")
 
         with self.lock:
-            scene : SubtitleScene = next((scene for scene in self.scenes if scene.number == scene_number), None)
+            scene : SubtitleScene|None = next((scene for scene in self.scenes if scene.number == scene_number), None)
             if not scene:
                 raise ValueError(f"Scene {str(scene_number)} not found")
 
@@ -526,7 +533,7 @@ class SubtitleFile:
         """
         with self.lock:
             scene : SubtitleScene = self.GetScene(scene_number)
-            batch : SubtitleBatch = scene.GetBatch(batch_number) if scene else None
+            batch : SubtitleBatch|None = scene.GetBatch(batch_number) if scene else None
 
             if not batch:
                 raise ValueError(f"Scene {scene_number} batch {batch_number} does not exist")

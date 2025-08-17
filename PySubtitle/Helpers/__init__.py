@@ -74,15 +74,15 @@ def GetInputPath(filepath : str|None) -> str | None:
     if not filepath:
         return None
 
-    basename, dummy = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore
     path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
     return os.path.normpath(path)
 
-def GetOutputPath(filepath : str|None, language : str|None) -> str|None:
+def GetOutputPath(filepath : str|None, language : str|None = None) -> str|None:
     if not filepath:
         return None
 
-    basename, dummy = os.path.splitext(os.path.basename(filepath))
+    basename, dummy = os.path.splitext(os.path.basename(filepath)) # type: ignore
 
     language = language or "translated"
 
@@ -110,8 +110,8 @@ def FormatMessages(messages : list[dict[str,Any]]) -> str:
 
     return '\n'.join(lines)
 
-def FormatErrorMessages(errors : list[SubtitleError]) -> str:
+def FormatErrorMessages(errors : list[SubtitleError|str]) -> str:
     """
     Extract error messages from a list of errors
     """
-    return ", ".join([ error.message or str(error) for error in errors ])
+    return ", ".join([ error.message or str(error) if isinstance(error, SubtitleError) else str(error) for error in errors ])

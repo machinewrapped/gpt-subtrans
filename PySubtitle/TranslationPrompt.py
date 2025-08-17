@@ -102,7 +102,7 @@ class TranslationPrompt:
 
         return prompt
 
-    def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[SubtitleError]|None):
+    def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[SubtitleError|str]|None):
         """
         Request retranslation of lines that were not translated originally
         """

@@ -58,7 +58,7 @@ class SubtitleProject:
         :param filepath: the path to the project or a source subtitle file (in .srt format) to be translated
         :param outputpath: the path to write the translated subtitles too (a default path is used if None specified)
         """
-        filepath : str = os.path.normpath(filepath)
+        filepath = os.path.normpath(filepath)
         sourcepath : str = filepath
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
 
@@ -203,6 +203,9 @@ class SubtitleProject:
         """
         try:
             filepath = filepath or self.projectfile
+            if not filepath:
+                raise ValueError(_("No project file path provided"))
+
             with self.lock:
                 logging.info(_("Reading project data from {}").format(str(filepath)))
 
@@ -267,15 +270,15 @@ class SubtitleProject:
         self.UpdateProjectFile()
 
         try:
-            translator.events.preprocessed += self._on_preprocessed
-            translator.events.batch_translated += self._on_batch_translated
-            translator.events.scene_translated += self._on_scene_translated
+            translator.events.preprocessed += self._on_preprocessed # type: ignore
+            translator.events.batch_translated += self._on_batch_translated # type: ignore
+            translator.events.scene_translated += self._on_scene_translated # type: ignore
 
             translator.TranslateSubtitles(self.subtitles)
 
-            translator.events.preprocessed -= self._on_preprocessed
-            translator.events.batch_translated -= self._on_batch_translated
-            translator.events.scene_translated -= self._on_scene_translated
+            translator.events.preprocessed -= self._on_preprocessed # type: ignore
+            translator.events.batch_translated -= self._on_batch_translated # type: ignore
+            translator.events.scene_translated -= self._on_scene_translated # type: ignore
 
             if self.save_subtitles and not translator.aborted:
                 self.SaveTranslation()
@@ -290,7 +293,7 @@ class SubtitleProject:
             logging.error(_("Failed to translate subtitles: {}").format(str(e)))
             raise
 
-    def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int] = None, line_numbers : list[int] = None):
+    def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int]|None = None, line_numbers : list[int]|None = None):
         """
         Pass batches of subtitles to the translation engine.
         """

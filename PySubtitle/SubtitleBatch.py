@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
-import srt
+import srt # type: ignore
 
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -17,7 +17,7 @@ class SubtitleBatch:
         self.number : int = dct.get('batch') or dct.get('number') or 0
         self.summary : str|None = dct.get('summary')
         self.context : dict[str,Any] = dct.get('context', {})
-        self.errors : list[str]|list[SubtitleError] = dct.get('errors', [])
+        self.errors : list[str|SubtitleError] = dct.get('errors', [])
         self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', [])
         self._translated : list[SubtitleLine] = dct.get('translated', [])
         self.translation : Translation|None = dct.get('translation')
@@ -147,7 +147,7 @@ class SubtitleBatch:
         """ Get a translated line from the batch by its number """
         return next((line for line in self._translated if line.number == line_number), None)
 
-    def AddContext(self, key : str, value : str|dict[str,Any]):
+    def AddContext(self, key : str, value : str|list[str]|dict[str,Any]):
         self.context[key] = value
 
     def GetContext(self, key : str) -> str|dict[str,Any]|None:
@@ -173,39 +173,42 @@ class SubtitleBatch:
 
         return updated
 
-    def PerformInputSubstitutions(self, substitutions : Substitutions) -> dict[str, str]|None:
+    def PerformInputSubstitutions(self, substitutions : Substitutions) -> dict[str,str]|None:
         """
         Perform any word/phrase substitutions on source text
         """
         if substitutions and self.originals:
-            lines = [item.text for item in self.originals]
+            lines : list[str] = [item.text for item in self.originals if item.text]
 
             lines, replacements = substitutions.PerformSubstitutionsOnAll(lines)
 
             if replacements:
                 self.AddContext('input_replacements', replacements)
                 for item in self.originals:
-                    item.text = replacements.get(item.text) or item.text
+                    if item.text:
+                        # Replace the text in the original lines
+                        item.text = replacements.get(item.text, item.text)
 
             return replacements
 
-    def PerformOutputSubstitutions(self, substitutions : Substitutions) -> dict[str, str]|None:
+    def PerformOutputSubstitutions(self, substitutions : Substitutions) -> dict[str,str]|None:
         """
         Perform any word/phrase substitutions on translated text
         """
         if substitutions and self.translated:
-            lines = [item.text for item in self.translated]
+            lines = [item.text for item in self.translated if item.text]
 
             _, replacements = substitutions.PerformSubstitutionsOnAll(lines)
 
             if replacements:
                 self.AddContext('output_replacements', replacements)
                 for item in self.translated:
-                    item.text = replacements.get(item.text) or item.text
+                    if item.text:
+                        item.text = replacements.get(item.text) or item.text
 
             return replacements
 
-    def MergeLines(self, line_numbers : list[int]):
+    def MergeLines(self, line_numbers : list[int]) -> tuple[SubtitleLine, SubtitleLine|None]:
         """
         Merge multiple lines into a single line with the same start/end times
         """
