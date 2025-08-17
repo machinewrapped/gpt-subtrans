@@ -5,14 +5,14 @@ from typing import Any
 import srt
 
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Time import GetTimeDelta, TimeDeltaToSrtTimestamp, TimeDeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, TimedeltaToSrtTimestamp, TimeDeltaToText
 
 class SubtitleLine:
     """
     Represents a single line, with a number and start and end times plus original text
     and (optionally) an associated translation.
     """
-    def __init__(self, line : srt.Subtitle|str|'SubtitleLine'|None, translation : str|None = None, original : str|None = None):
+    def __init__(self, line : 'srt.Subtitle|str|SubtitleLine|None', translation : str|None = None, original : str|None = None):
         if isinstance(line, SubtitleLine):
             self._item : srt.Subtitle = line._item
             self._duration : timedelta|None = line._duration
@@ -34,7 +34,7 @@ class SubtitleLine:
     def __repr__(self):
         return f"[Line {self.number}] {TimeDeltaToText(self.start)}, {repr(self.text)}"
 
-    def __eq__(self, other : Any|'SubtitleLine') -> bool:
+    def __eq__(self, other : 'Any|SubtitleLine') -> bool:
         return self._item == other._item if isinstance(other, SubtitleLine) else False
 
     @property
@@ -59,7 +59,7 @@ class SubtitleLine:
 
     @property
     def srt_start(self) -> str|None:
-        return TimeDeltaToSrtTimestamp(self.start) if self.start is not None else None
+        return TimedeltaToSrtTimestamp(self.start) if self.start is not None else None
 
     @property
     def txt_start(self) -> str|None:
@@ -77,7 +77,7 @@ class SubtitleLine:
 
     @property
     def srt_end(self) -> str|None:
-        return TimeDeltaToSrtTimestamp(self.end) if self.end else None
+        return TimedeltaToSrtTimestamp(self.end) if self.end else None
 
     @end.setter
     def end(self, time : timedelta | str):
@@ -212,8 +212,8 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
         if match:
             raw_index, raw_start, raw_end, proprietary, content = match.groups()
             index = int(raw_index) if raw_index else None
-            start = TimeDeltaToSrtTimestamp(raw_start)
-            end = TimeDeltaToSrtTimestamp(raw_end)
+            start = TimedeltaToSrtTimestamp(raw_start)
+            end = TimedeltaToSrtTimestamp(raw_end)
             item = srt.Subtitle(index, start, end, content, proprietary)
         elif item is not None:
             logging.warning(f"Failed to parse line: {line}")

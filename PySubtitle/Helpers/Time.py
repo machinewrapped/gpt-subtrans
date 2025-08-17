@@ -74,7 +74,7 @@ def TimeDeltaToText(time: datetime.timedelta|None, include_milliseconds : bool =
 
     return time_str.format(hours, minutes, seconds, milliseconds)
 
-def TimeDeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str:
+def TimedeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str:
     """
     Convert a timedelta to a string suitable for SRT timestamps.
     """
@@ -89,4 +89,4 @@ def TimeDeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str:
     hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
 
-    return f"{hours:01}:{minutes:02}:{seconds:02},{milliseconds:03}"
+    return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
