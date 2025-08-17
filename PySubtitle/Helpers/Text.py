@@ -1,4 +1,3 @@
-from re import A
 from typing import Any
 import unicodedata
 import regex
