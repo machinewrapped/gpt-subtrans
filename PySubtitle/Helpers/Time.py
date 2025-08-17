@@ -74,3 +74,19 @@ def TimeDeltaToText(time: datetime.timedelta|None, include_milliseconds : bool =
 
     return time_str.format(hours, minutes, seconds, milliseconds)
 
+def TimeDeltaToSrtTimestamp(time: datetime.timedelta|str|None) -> str:
+    """
+    Convert a timedelta to a string suitable for SRT timestamps.
+    """
+    timedelta : datetime.timedelta|Exception|None = time if isinstance(time, datetime.timedelta) else GetTimeDelta(time, raise_exception=True)
+
+    if not isinstance(timedelta, datetime.timedelta):
+        raise ValueError(f"Invalid timedelta: {time}")
+
+    total_seconds = int(timedelta.total_seconds())
+    milliseconds = timedelta.microseconds // 1000
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    return f"{hours:01}:{minutes:02}:{seconds:02},{milliseconds:03}"

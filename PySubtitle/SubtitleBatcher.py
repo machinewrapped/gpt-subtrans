@@ -1,25 +1,30 @@
 from datetime import timedelta
+from typing import Any
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleBatcher:
-    def __init__(self, settings):
-        self.min_batch_size = settings.get('min_batch_size', 0)
-        self.max_batch_size = settings.get('max_batch_size', 99)
+    def __init__(self, settings : dict[str, Any]):
+        """ Initialize a SubtitleBatcher helper class with settings """
+        self.min_batch_size : int = settings.get('min_batch_size', 0)
+        self.max_batch_size : int = settings.get('max_batch_size', 99)
 
-        scene_threshold_seconds = settings.get('scene_threshold', 30.0)
-        self.scene_threshold = timedelta(seconds=scene_threshold_seconds)
+        scene_threshold_seconds : float = settings.get('scene_threshold', 30.0)
+        self.scene_threshold : timedelta = timedelta(seconds=scene_threshold_seconds)
 
-    def BatchSubtitles(self, lines : list[SubtitleLine]):
+    def BatchSubtitles(self, lines : list[SubtitleLine]) -> list[SubtitleScene]:
         if self.min_batch_size > self.max_batch_size:
             raise ValueError("min_batch_size must be less than max_batch_size.")
 
-        scenes = []
-        current_lines = []
-        last_endtime = None
+        scenes : list[SubtitleScene] = []
+        current_lines : list[SubtitleLine] = []
+        last_endtime : timedelta|None = None
 
         for line in lines:
+            if line.start is None or line.end is None:
+                raise ValueError(f"Line {line.number} has missing start or end time.")
+
             # Fix overlapping display times
             if last_endtime and line.start < last_endtime:
                 line.start = last_endtime + timedelta(milliseconds=10)
@@ -48,7 +53,7 @@ class SubtitleBatcher:
         scenes.append(scene)
         scene.number = len(scenes)
 
-        split_lines = self._split_lines(current_lines)
+        split_lines : list[list[SubtitleLine]] = self._split_lines(current_lines)
 
         for lines in split_lines:
             batch : SubtitleBatch = scene.AddNewBatch()
@@ -56,7 +61,7 @@ class SubtitleBatcher:
 
         return scene
 
-    def _split_lines(self, lines : list[SubtitleLine]):
+    def _split_lines(self, lines : list[SubtitleLine]) -> list[list[SubtitleLine]]:
         """
         Recursively divide the lines at the largest gap until there is no batch larger than the maximum batch size
         """
@@ -65,13 +70,19 @@ class SubtitleBatcher:
             return [ lines ]
 
         # Find the longest gap starting from the min_batch_size index
-        longest_gap = timedelta(seconds=0)
-        split_index = self.min_batch_size
-        last_split_index = len(lines) - self.min_batch_size
+        longest_gap : timedelta = timedelta(seconds=0)
+        split_index : int = self.min_batch_size
+        last_split_index : int = len(lines) - self.min_batch_size
 
         if last_split_index > split_index:
             for i in range(split_index, last_split_index):
-                gap = lines[i].start - lines[i - 1].end
+                if lines[1].start is None:
+                    raise ValueError(f"Line {lines[i].number} has no start time.")
+
+                if lines[i - 1].end is None:
+                    raise ValueError(f"Line {lines[i - 1].number} has no end time.")
+
+                gap : timedelta = lines[i].start - lines[i - 1].end
                 if gap > longest_gap:
                     longest_gap = gap
                     split_index = i

@@ -78,11 +78,13 @@ def GetInputPath(filepath : str|None) -> str | None:
     path = os.path.join(os.path.dirname(filepath), f"{basename}.srt")
     return os.path.normpath(path)
 
-def GetOutputPath(filepath : str|None, language : str = "translated"):
+def GetOutputPath(filepath : str|None, language : str|None):
     if not filepath:
         return None
 
     basename, dummy = os.path.splitext(os.path.basename(filepath))
+
+    language = language or "translated"
 
     language_suffix = f".{language}"
     if not basename.endswith(language_suffix):
@@ -112,4 +114,4 @@ def FormatErrorMessages(errors : list[SubtitleError]) -> str:
     """
     Extract error messages from a list of errors
     """
-    return ", ".join([ error.message for error in errors ])
+    return ", ".join([ error.message or str(error) for error in errors ])

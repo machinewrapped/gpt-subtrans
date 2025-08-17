@@ -316,7 +316,7 @@ class SubtitleFile:
         outputpath = outputpath or self.outputpath
         if not outputpath:
             if self.sourcepath and os.path.exists(self.sourcepath):
-                outputpath = GetOutputPath(self.sourcepath, self.target_language or "translated")
+                outputpath = GetOutputPath(self.sourcepath, self.target_language)
             if not outputpath:
                 raise Exception("I don't know where to save the translated subtitles")
 
@@ -367,7 +367,7 @@ class SubtitleFile:
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateProjectSettings(self, settings):
+    def UpdateProjectSettings(self, settings : dict[str, Any]) -> None:
         """
         Update the project settings
         """
@@ -382,7 +382,7 @@ class SubtitleFile:
 
             self._update_compatibility(self.settings)
 
-    def UpdateOutputPath(self, outputpath : str = None):
+    def UpdateOutputPath(self, outputpath : str|None = None):
         """
         Set or generate the output path for the translated subtitles
         """
