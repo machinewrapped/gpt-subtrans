@@ -294,7 +294,7 @@ class CommandQueue(QObject):
 
         self._start_command_queue()
 
-    def _queue_command(self, command: Command, datamodel: ProjectDataModel|None = None, callback=None, undo_callback=None):
+    def _queue_command(self, command: Command, datamodel: ProjectDataModel|None = None, callback: Callable|None = None, undo_callback: Callable|None = None):
         """
         Add a command to the worker thread queue
         """
