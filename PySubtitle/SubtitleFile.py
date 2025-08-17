@@ -13,13 +13,14 @@ from PySubtitle.Options import Options
 
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatch import SubtitleBatch
-from PySubtitle.SubtitleError import SubtitleError
+from PySubtitle.SubtitleError import SubtitleError, SubtitleParseError
 from PySubtitle.Helpers import GetInputPath, GetOutputPath
 from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.SubtitleScene import SubtitleScene, UnbatchScenes
-from PySubtitle.SubtitleLine import SubtitleLine
+from PySubtitle.SubtitleLine import SubtitleLine, CreateSrtSubtitle
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
+from PySubtitle.SrtFileHandler import SrtFileHandler
 
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 fallback_encoding = os.getenv('DEFAULT_ENCODING', 'iso-8859-1')
@@ -250,30 +251,38 @@ class SubtitleFile:
 
         if not self.sourcepath:
             raise ValueError("No source path set for subtitles")
-            
+        
+        # Use file handler for format-agnostic loading
+        handler = SrtFileHandler()  # For now, we only support SRT
+        
         try:
             with open(self.sourcepath, 'r', encoding=default_encoding, newline='') as f:
-                source = list(srt.parse(f))
+                lines = list(handler.parse_file(f))
 
-        except srt.SRTParseError as e:
+        except SubtitleParseError as e:
             logging.warning(_("Error parsing SRT file... trying with fallback encoding: {}").format(str(e)))
-            with open(self.sourcepath, 'r', encoding=fallback_encoding) as f:
-                source = list(srt.parse(f))
+            try:
+                with open(self.sourcepath, 'r', encoding=fallback_encoding) as f:
+                    lines = list(handler.parse_file(f))
+            except SubtitleParseError as e2:
+                logging.error(_("Failed to parse SRT file with fallback encoding: {}").format(str(e2)))
+                raise e2
 
         with self.lock:
-            self.originals = [ SubtitleLine(item) for item in source ]
+            self.originals = lines
 
     def LoadSubtitlesFromString(self, srt_string : str):
         """
         Load subtitles from an SRT string
         """
+        # Use file handler for format-agnostic parsing
+        handler = SrtFileHandler()  # For now, we only support SRT
+        
         try:
-            source = list(srt.parse(srt_string))
-
             with self.lock:
-                self.originals = [ SubtitleLine(item) for item in source ]
+                self.originals = list(handler.parse_string(srt_string))
 
-        except srt.SRTParseError as e:
+        except SubtitleParseError as e:
             logging.error(_("Failed to parse SRT string: {}").format(str(e)))
 
     def SaveProjectFile(self, projectfile : str, encoder_class : type|None = None):
@@ -299,10 +308,13 @@ class SubtitleFile:
         if not path:
             raise ValueError("No file path set")
 
+        # Use file handler for format-agnostic saving
+        handler = SrtFileHandler()  # For now, we only support SRT
+
         with self.lock:
             originals = self.originals
             if originals:
-                srtfile = srt.compose([ line.item for line in originals ], reindex=False)
+                srtfile = handler.compose_lines(originals, reindex=False)
                 with open(path, 'w', encoding=default_encoding) as f:
                     f.write(srtfile)
             else:
@@ -343,15 +355,15 @@ class SubtitleFile:
 
             logging.info(_("Saving translation to {}").format(str(outputpath)))
 
-            items = [ line.item for line in output_lines if line.text and line.start is not None]
-
             # Add Right-To-Left markers to lines that contain primarily RTL script, if requested
             if self.settings.get('add_right_to_left_markers'):
-                for item in items:
-                    if IsRightToLeftText(item.content) and not item.content.startswith("\u202b"):
-                        item.content = f"\u202b{item.content}\u202c"
+                for line in output_lines:
+                    if line.text and IsRightToLeftText(line.text) and not line.text.startswith("\u202b"):
+                        line.text = f"\u202b{line.text}\u202c"
 
-            srtfile = srt.compose(items, reindex=False)
+            # Use file handler for format-agnostic saving
+            handler = SrtFileHandler()  # For now, we only support SRT
+            srtfile = handler.compose_lines(output_lines, reindex=False)
             with open(outputpath, 'w', encoding=default_encoding) as f:
                 f.write(srtfile)
 

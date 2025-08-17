@@ -1,8 +1,6 @@
 from datetime import timedelta
 from typing import Any
 
-import srt # type: ignore
-
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.SubtitleError import SubtitleError
@@ -105,28 +103,28 @@ class SubtitleBatch:
         return self.originals[-1].number if self.originals else None
 
     @originals.setter
-    def originals(self, value : list[SubtitleLine|srt.Subtitle|str]):
+    def originals(self, value : list[SubtitleLine|str]):
         """
-        :type value: list[SubtitleLine | srt.Subtitle | str]
+        :type value: list[SubtitleLine | str]
         """
         lines = [SubtitleLine(line) for line in value] if value else []
         self._originals = [line for line in lines if line.number]
 
     @translated.setter
-    def translated(self, value : list[SubtitleLine|srt.Subtitle|str]):
+    def translated(self, value : list[SubtitleLine|str]):
         """
-        :type value: list[SubtitleLine | srt.Subtitle | str]
+        :type value: list[SubtitleLine | str]
         """
         lines = [SubtitleLine(line) for line in value] if value else []
         self._translated = [line for line in lines if line.number]
 
-    def AddLine(self, line : SubtitleLine|srt.Subtitle|str):
+    def AddLine(self, line : SubtitleLine|str):
         """
         Insert a line into the batch or replace an existing line
         """
         AddOrUpdateLine(self._originals, SubtitleLine(line))
 
-    def AddTranslatedLine(self, line : SubtitleLine|srt.Subtitle|str):
+    def AddTranslatedLine(self, line : SubtitleLine|str):
        """ Insert a translated line into the batch or replace an existing translation """
        AddOrUpdateLine(self._translated, SubtitleLine(line))
 

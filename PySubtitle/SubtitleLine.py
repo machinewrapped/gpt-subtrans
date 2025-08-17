@@ -6,6 +6,7 @@ import srt # type: ignore
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers.Time import GetTimeDelta, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimedeltaToText
+from PySubtitle.InternalSubtitle import InternalSubtitle
 
 class SubtitleLine:
     """
@@ -13,13 +14,13 @@ class SubtitleLine:
     and (optionally) an associated translation.
     """
     def __init__(self, line : 'srt.Subtitle|str|SubtitleLine|None', translation : str|None = None, original : str|None = None):
-        self._item : srt.Subtitle|None = None
+        self._item : InternalSubtitle|None = None
         self.translation : str|None = translation
         self.original : str|None = original
         self._duration : timedelta|None = None
 
         if isinstance(line, SubtitleLine):
-            self._item = line._item
+            self._item = line._item.copy() if line._item else None
             self._duration = line._duration
             self.original = original if original is not None else line.original
             self.translation = translation if translation is not None else line.translation
@@ -99,12 +100,12 @@ class SubtitleLine:
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
 
     @property
-    def item(self) -> srt.Subtitle:
-        return self._item or srt.Subtitle(index=None, start=timedelta(seconds=0), end=timedelta(seconds=0), content="Invalid Line")
+    def item(self) -> InternalSubtitle:
+        return self._item or InternalSubtitle(index=None, start=timedelta(seconds=0), end=timedelta(seconds=0), content="Invalid Line")
 
     @item.setter
     def item(self, item : srt.Subtitle | str):
-        self._item = CreateSrtSubtitle(item)
+        self._item = CreateInternalSubtitle(item)
         self._duration = None
 
     @number.setter
@@ -153,9 +154,9 @@ class SubtitleLine:
         if isinstance(t_end, Exception):
             raise t_end
 
-        legal_text : str = srt.make_legal_content(text.strip()) if text else ""
-        legal_original = srt.make_legal_content(original.strip()) if original else ""
-        item = srt.Subtitle(i_number, t_start, t_end, legal_text)
+        legal_text : str = InternalSubtitle.make_legal_content(text.strip()) if text else ""
+        legal_original = InternalSubtitle.make_legal_content(original.strip()) if original else ""
+        item = InternalSubtitle(i_number, t_start, t_end, legal_text)
         return SubtitleLine(item, original=legal_original)
 
     @classmethod
@@ -185,15 +186,24 @@ class SubtitleLine:
 
         return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
 
-def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle|None:
+def CreateInternalSubtitle(item : srt.Subtitle | SubtitleLine | str) -> InternalSubtitle|None:
     """
-    Try to construct an srt.Subtitle from the argument
+    Try to construct an InternalSubtitle from the argument
     """
     if hasattr(item, 'item'):
         item = getattr(item, 'item')
 
     if isinstance(item, srt.Subtitle):
-        return item
+        return InternalSubtitle(
+            index=item.index,
+            start=item.start,
+            end=item.end,
+            content=item.content,
+            proprietary=getattr(item, 'proprietary', '')
+        )
+    
+    if isinstance(item, InternalSubtitle):
+        return item.copy()
 
     line = str(item).strip()
     match = srt.SRT_REGEX.match(line)
@@ -202,10 +212,52 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle|
         index = int(raw_index) if raw_index else None
         start = SrtTimestampToTimedelta(raw_start)
         end = SrtTimestampToTimedelta(raw_end)
-        item = srt.Subtitle(index, start, end, content, proprietary)
-        return item
+        return InternalSubtitle(index, start, end, content, proprietary or "")
 
     if item is not None:
         raise ValueError(_("Invalid SRT line: {line}").format(line=line))
 
+    return None
+
+
+def CreateSrtSubtitle(item: InternalSubtitle | SubtitleLine | srt.Subtitle | str) -> srt.Subtitle|None:
+    """
+    Convert InternalSubtitle to srt.Subtitle for backward compatibility.
+    This function is used for file I/O operations that still need srt.Subtitle objects.
+    """
+    if isinstance(item, srt.Subtitle):
+        return item
+    
+    if isinstance(item, SubtitleLine):
+        internal = item._item
+        if not internal:
+            return None
+        return srt.Subtitle(
+            index=internal.index,
+            start=internal.start,
+            end=internal.end,
+            content=internal.content,
+            proprietary=internal.proprietary
+        )
+    
+    if isinstance(item, InternalSubtitle):
+        return srt.Subtitle(
+            index=item.index,
+            start=item.start,
+            end=item.end,
+            content=item.content,
+            proprietary=item.proprietary
+        )
+    
+    # Try to parse string
+    internal = CreateInternalSubtitle(item)
+    if internal:
+        return srt.Subtitle(
+            index=internal.index,
+            start=internal.start,
+            end=internal.end,
+            content=internal.content,
+            proprietary=internal.proprietary
+        )
+    
     return None
