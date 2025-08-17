@@ -13,20 +13,16 @@ class SubtitleLine:
     and (optionally) an associated translation.
     """
     def __init__(self, line : 'srt.Subtitle|str|SubtitleLine|None', translation : str|None = None, original : str|None = None):
+        self._item : srt.Subtitle|None = None
+        self.translation : str|None = translation
+        self.original : str|None = original
+        self._duration : timedelta|None = None
+
         if isinstance(line, SubtitleLine):
-            self._item : srt.Subtitle = line._item
-            self._duration : timedelta|None = line._duration
-            self.translation : str|None = translation or line.translation
-            self.original : str|None = original or line.original
+            self._item = line._item
+            self._duration = line._duration
         elif line is not None:
             self.item = line
-            self.translation : str|None = translation
-            self.original : str|None = original
-        else:
-            self._item = srt.Subtitle(0, timedelta(seconds=0), timedelta(seconds=0), "Invalid line")
-            self._duration : timedelta|None = None
-            self.translation : str|None = translation
-            self.original : str|None = original
 
     def __str__(self) -> str:
         return self.item.to_srt() if self.item else "Null SubtitleLine"
@@ -124,11 +120,11 @@ class SubtitleLine:
 
     @property
     def item(self) -> srt.Subtitle:
-        return self._item
+        return self._item or srt.Subtitle(index=None, start=timedelta(seconds=0), end=timedelta(seconds=0), content="Invalid Line")
 
     @item.setter
     def item(self, item : srt.Subtitle | str):
-        self._item : srt.Subtitle = CreateSrtSubtitle(item)
+        self._item = CreateSrtSubtitle(item)
         self._duration = None
 
     @number.setter
@@ -199,12 +195,12 @@ class SubtitleLine:
 
         return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
 
-def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
+def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle|None:
     """
     Try to construct an srt.Subtitle from the argument
     """
     if hasattr(item, 'item'):
-        item = item.item
+        item = getattr(item, 'item')
 
     if not isinstance(item, srt.Subtitle):
         line = str(item).strip()
@@ -215,7 +211,8 @@ def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle:
             start = SrtTimestampToTimedelta(raw_start)
             end = SrtTimestampToTimedelta(raw_end)
             item = srt.Subtitle(index, start, end, content, proprietary)
+            return item
         elif item is not None:
             logging.warning(f"Failed to parse line: {line}")
 
-    return item
+    return None
