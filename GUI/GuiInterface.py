@@ -303,7 +303,9 @@ class GuiInterface(QObject):
         Handle the completion of a command
         """
         if isinstance(command, ExitProgramCommand):
-            QApplication.instance().quit() # type: ignore
+            app = QApplication.instance()
+            if app:
+                app.quit()
             return
 
         logging.debug(f"A {type(command).__name__} command {'succeeded' if command.succeeded else 'failed'}")
