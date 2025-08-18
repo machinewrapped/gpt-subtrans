@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from PySubtitle.Options import Options
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -9,6 +10,7 @@ from PySubtitle.Helpers.Localization import _
 import logging
 
 from PySubtitle.SubtitleValidator import SubtitleValidator
+from PySubtitle.TranslationProvider import TranslationProvider
 
 #############################################################
 
@@ -30,8 +32,11 @@ class ReparseTranslationsCommand(Command):
 
         project : SubtitleProject = self.datamodel.project
         subtitles : SubtitleFile = project.subtitles
-        options = self.datamodel.project_options
-        translation_provider = self.datamodel.translation_provider
+        options : Options = self.datamodel.project_options
+        translation_provider : TranslationProvider|None = self.datamodel.translation_provider
+
+        if translation_provider is None:
+            raise CommandError(_("No translation provider available"), command=self)
 
         translator = SubtitleTranslator(options, translation_provider)
         validator = SubtitleValidator(options)

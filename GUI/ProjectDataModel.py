@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 
@@ -11,9 +12,9 @@ from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.Helpers.Localization import _
 
 class ProjectDataModel:
-    def __init__(self, project : SubtitleProject = None, options : Options = None):
-        self.project : SubtitleProject = project
-        self.viewmodel : ProjectViewModel = None
+    def __init__(self, project : SubtitleProject|None = None, options : Options|None = None):
+        self.project : SubtitleProject|None = project
+        self.viewmodel : ProjectViewModel|None = None
         self.project_options = Options(options)
         self.mutex = QRecursiveMutex()
 
@@ -22,7 +23,7 @@ class ProjectDataModel:
             self.project_options.update(project_settings)
 
         self.provider_cache = {}
-        self.translation_provider : TranslationProvider = None
+        self.translation_provider : TranslationProvider|None = None
 
         if self.project_options.provider:
             self.CreateTranslationProvider()
@@ -32,19 +33,19 @@ class ProjectDataModel:
         return self.translation_provider.name if self.translation_provider else None
 
     @property
-    def provider_settings(self):
-        return self.project_options.current_provider_settings
+    def provider_settings(self) -> dict[str, Any]:
+        return self.project_options.current_provider_settings or {} if self.project_options else {}
 
     @property
-    def available_providers(self):
+    def available_providers(self) -> list[str]:
         return self.project_options.available_providers if self.project_options else []
 
     @property
-    def available_models(self):
+    def available_models(self) -> list[str]:
         return self.translation_provider.available_models if self.translation_provider else []
 
     @property
-    def selected_model(self):
+    def selected_model(self) -> str|None:
         return self.translation_provider.selected_model if self.translation_provider else None
 
     @property
@@ -87,30 +88,30 @@ class ProjectDataModel:
             self._update_translation_provider()
             self.project.UpdateProjectSettings(settings)
 
-    def IsProjectValid(self):
+    def IsProjectValid(self) -> bool:
         """Check whether the project is valid (has any subtitles)"""
-        return self.project and self.project.subtitles
+        return self.project is not None and self.project.subtitles is not None
 
-    def IsProjectInitialised(self):
+    def IsProjectInitialised(self) -> bool:
         """Check whether the project has been initialised (subtitles loaded and batched)"""
-        return self.project and self.project.subtitles and self.project.subtitles.scenes
+        return self.project is not None and self.project.subtitles is not None and self.project.subtitles.scenes is not None
 
-    def NeedsSave(self):
+    def NeedsSave(self) -> bool:
         """Does the project have changes that should be saved"""
-        return self.IsProjectInitialised() and self.project.write_project
+        return self.project is not None and self.IsProjectInitialised() and self.project.write_project
 
-    def NeedsAutosave(self):
+    def NeedsAutosave(self) -> bool:
         """Does the project have changes that should be auto-saved"""
         return self.NeedsSave() and self.project_options.get('autosave')
 
     def SaveProject(self):
-        if self.NeedsSave():
+        if self.project is not None and self.NeedsSave():
             self.project.UpdateProjectFile()
 
     def GetLock(self):
         return QMutexLocker(self.mutex)
 
-    def CreateTranslationProvider(self):
+    def CreateTranslationProvider(self) -> TranslationProvider|None:
         """ Create a translation provider for the current settings """
         if not self.project_options.provider:
             return None
@@ -130,20 +131,21 @@ class ProjectDataModel:
         if self.translation_provider:
             self.translation_provider.UpdateSettings(settings)
 
-    def ValidateProviderSettings(self):
+    def ValidateProviderSettings(self) -> bool:
         """Check if the translation provider is configured correctly."""
         if not self.translation_provider or not self.translation_provider.ValidateSettings():
             return False
 
         return True
 
-    def CreateViewModel(self):
+    def CreateViewModel(self) -> ProjectViewModel:
         """
         Create a viewmodel for the subtitles
         """
         with QMutexLocker(self.mutex):
             self.viewmodel = ProjectViewModel()
-            self.viewmodel.CreateModel(self.project.subtitles)
+            if self.project is not None:
+                self.viewmodel.CreateModel(self.project.subtitles)
         return self.viewmodel
 
     def UpdateViewModel(self, update : ModelUpdate):
@@ -166,8 +168,9 @@ class ProjectDataModel:
             return
 
         if provider in self.provider_cache:
-            self.translation_provider : TranslationProvider = self.provider_cache[provider]
-            self.translation_provider.UpdateSettings(self.project_options)
+            self.translation_provider = self.provider_cache[provider]
+            if self.translation_provider:
+                self.translation_provider.UpdateSettings(self.project_options)
             return
 
         self.CreateTranslationProvider()
