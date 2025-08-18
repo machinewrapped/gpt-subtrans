@@ -623,7 +623,7 @@ class SubtitleFile:
         return history_lines
 
     def _merge_original_and_translated(self, originals : list[SubtitleLine], translated : list[SubtitleLine]):
-        lines = {item.key: SubtitleLine(item.line) for item in originals if item.key}
+        lines = {item.key: SubtitleLine(item) for item in originals if item.key}
 
         for item in translated:
             if item.key in lines:

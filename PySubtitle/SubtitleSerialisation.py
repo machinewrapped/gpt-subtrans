@@ -77,11 +77,11 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleLine):
             return {
-                "index": obj.index,
+                "index": obj._index,
                 "start": obj.start.total_seconds() if obj.start else None,
                 "end": obj.end.total_seconds() if obj.end else None,
                 "content": obj.content,
-                "proprietary": obj.proprietary,
+                "metadata": getattr(obj, 'metadata'),
                 "translation": getattr(obj, 'translation'),
                 "original": getattr(obj, 'original')
             }

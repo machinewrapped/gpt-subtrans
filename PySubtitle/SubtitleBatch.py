@@ -103,7 +103,7 @@ class SubtitleBatch:
         return self.originals[-1].number if self.originals else None
 
     @originals.setter
-    def originals(self, value : list[SubtitleLine|str]):
+    def originals(self, value : list[SubtitleLine]|list[str]):
         """
         :type value: list[SubtitleLine | str]
         """
@@ -111,7 +111,7 @@ class SubtitleBatch:
         self._originals = [line for line in lines if line.number]
 
     @translated.setter
-    def translated(self, value : list[SubtitleLine|str]):
+    def translated(self, value : list[SubtitleLine]|list[str]):
         """
         :type value: list[SubtitleLine | str]
         """

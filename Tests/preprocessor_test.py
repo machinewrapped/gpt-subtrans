@@ -27,7 +27,7 @@ def preprocess_test(subtitles: SubtitleFile, logger, options : dict):
 
     for line in test_lines:
         if max_line_duration > 0.0 and line.duration.total_seconds() > max_line_duration:
-            logger.info(f"Line too long: {line.srt_duration}")
+            logger.info(f"Line too long: {line.txt_duration}")
             logger.info(str(line))
 
         # if min_line_duration > 0.0 and line.duration.total_seconds() < min_line_duration:

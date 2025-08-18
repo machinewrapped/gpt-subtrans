@@ -62,9 +62,10 @@ class ReparseTranslationsCommandTest(SubtitleTestCase):
                     for line in batch.translated:
                         reference_line = reference_batch.GetTranslatedLine(line.number) if line.number in line_numbers else batch.GetOriginalLine(line.number)
                         self.assertIsNotNone(reference_line)
-                        self.assertEqual(line.start, reference_line.start)
-                        self.assertEqual(line.end, reference_line.end)
-                        self.assertEqual(line.text, reference_line.text)
+                        if reference_line is not None:
+                            self.assertEqual(line.start, reference_line.start)
+                            self.assertEqual(line.end, reference_line.end)
+                            self.assertEqual(line.text, reference_line.text)
                 else:
                     self._assert_same_as_reference_batch(batch, reference_batch)
 

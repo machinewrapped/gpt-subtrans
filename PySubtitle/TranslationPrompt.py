@@ -156,7 +156,7 @@ def _get_line_prompt(line : SubtitleLine, line_template : str|None = None) -> st
     """
     Generate a prompt for a single subtitle line
     """
-    if not line._item:
+    if not line.text or not line._index:
         return None
 
     if line_template is None:

@@ -78,7 +78,7 @@ class TranslationParser:
 
         logging.debug(f"Matches: {str(matches)}")
 
-        subs = [SubtitleLine.FromDictionary(match) for match in matches]
+        subs = [SubtitleLine(match) for match in matches]
         self.translations = {
             sub.key: sub for sub in subs
             }

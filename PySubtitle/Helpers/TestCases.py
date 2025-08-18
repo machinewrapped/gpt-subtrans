@@ -17,7 +17,7 @@ from PySubtitle.TranslationPrompt import TranslationPrompt
 from PySubtitle.TranslationProvider import TranslationProvider
 
 class SubtitleTestCase(unittest.TestCase):
-    def __init__(self, methodName: str = "runTest", custom_options : dict = None) -> None:
+    def __init__(self, methodName: str = "runTest", custom_options : dict|None = None) -> None:
         super().__init__(methodName)
 
         options = {
@@ -60,10 +60,16 @@ class SubtitleTestCase(unittest.TestCase):
 
             self._assert_same_as_reference_batch(batch, reference_batch)
 
-    def _assert_same_as_reference_batch(self, batch : SubtitleBatch, reference_batch : SubtitleBatch):
+    def _assert_same_as_reference_batch(self, batch : SubtitleBatch|None, reference_batch : SubtitleBatch|None):
         """
         Assert that the current state of the batch is identical to the reference batch
         """
+        self.assertIsNotNone(batch, f"Batch is None")
+        self.assertIsNotNone(reference_batch, f"Reference batch is None")
+
+        if batch is None or reference_batch is None:
+            return
+
         self.assertEqual(batch.size, reference_batch.size)
         self.assertEqual(batch.summary, reference_batch.summary)
 
@@ -91,6 +97,8 @@ def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 
     """
     translated_file = PrepareSubtitles(subtitle_data, key)
     subtitles.translated = translated_file.originals
+    if subtitles.translated is None:
+        raise ValueError("No translated subtitles found in the provided data")
 
     for scene in subtitles.scenes:
         for batch in scene.batches:
@@ -100,9 +108,9 @@ def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 
 
             for line in batch.originals:
                 line.translated = next((l for l in batch_translated if l.number == line.number), None)
-                line.translation = line.translated.text if line.translated else None
+                line.translation = line.translated.text if line.translated is not None else None
 
-def CreateTestDataModel(test_data : dict, options : Options = None) -> ProjectDataModel:
+def CreateTestDataModel(test_data : dict, options : Options|None = None) -> ProjectDataModel:
     """
     Creates a ProjectDataModel from test data.
     """
@@ -132,7 +140,9 @@ def AddResponsesFromMap(subtitles : SubtitleFile, test_data : dict):
     """
     for prompt, response_text in test_data.get('response_map', []).items():
         # Find scene and batch number from the prompt, e.g. "Translate scene 1 batch 1"
-        re_match = regex.match(r"Translate scene (\d+) batch (\d+)", prompt)
+        re_match : regex.Match|None = regex.match(r"Translate scene (\d+) batch (\d+)", prompt)
+        if not re_match:
+            raise ValueError(f"Invalid prompt format: {prompt}")
         scene_number = int(re_match.group(1))
         batch_number = int(re_match.group(2))
         batch = subtitles.GetBatch(scene_number, batch_number)
