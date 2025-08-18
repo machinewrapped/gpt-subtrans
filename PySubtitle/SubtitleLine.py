@@ -7,6 +7,14 @@ from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
 from PySubtitle.Helpers.Time import GetTimeDelta, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimedeltaToText
 
+# Global regex pattern for SRT parsing (compiled once for performance)
+SRT_PATTERN = regex.compile(
+    r'^(?P<index>\d+)\s*\n'
+    r'(?P<start>\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(?P<end>\d{2}:\d{2}:\d{2},\d{3})\s*\n'
+    r'(?P<content>.*?)$',
+    regex.DOTALL
+)
+
 class SubtitleLine:
     """
     Represents a single subtitle line with timing, content, and metadata.
@@ -78,22 +86,12 @@ class SubtitleLine:
         
         # Parse basic SRT format: number\ntimestamp\ncontent
         # Pattern matches: index, start --> end, content (multiline)
-        srt_pattern = regex.compile(
-            r'^(?P<index>\d+)\s*\n'
-            r'(?P<start>\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(?P<end>\d{2}:\d{2}:\d{2},\d{3})\s*\n'
-            r'(?P<content>.*?)$',
-            regex.DOTALL
-        )
-        
-        match = srt_pattern.match(line)
+        match = SRT_PATTERN.match(line)
         if match:
             self.index = int(match.group('index'))
-            try:
-                self._start = SrtTimestampToTimedelta(match.group('start'))
-                self._end = SrtTimestampToTimedelta(match.group('end'))
-            except ValueError:
-                # If timestamp parsing fails, keep defaults and store raw content
-                pass
+            # Allow timestamp parsing exceptions to propagate
+            self._start = SrtTimestampToTimedelta(match.group('start'))
+            self._end = SrtTimestampToTimedelta(match.group('end'))
             self.content = match.group('content').strip()
         else:
             # If doesn't match SRT format, store as raw content
@@ -150,25 +148,6 @@ class SubtitleLine:
             parts.append(self.proprietary)
         
         return "\n".join(parts)
-
-    @staticmethod
-    def make_legal_content(content: str) -> str:
-        """
-        Make content legal for subtitle format.
-        """
-        if not content:
-            return ""
-        
-        # Remove or replace problematic characters that could break subtitle parsing
-        content = content.strip()
-        
-        # Replace problematic sequences that could interfere with SRT parsing
-        content = content.replace("-->", "→")  # Replace SRT timestamp separator
-        
-        # Normalize line endings
-        content = content.replace("\r\n", "\n").replace("\r", "\n")
-        
-        return content
 
     @property
     def start(self) -> timedelta:
@@ -284,8 +263,8 @@ class SubtitleLine:
         if isinstance(t_end, Exception):
             raise t_end
 
-        legal_text : str = SubtitleLine.make_legal_content(text.strip()) if text else ""
-        legal_original = SubtitleLine.make_legal_content(original.strip()) if original else ""
+        legal_text : str = text.strip() if text else ""
+        legal_original = original.strip() if original else ""
         
         line = SubtitleLine()
         line.index = i_number
