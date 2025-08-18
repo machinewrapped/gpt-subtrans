@@ -28,7 +28,7 @@ class SrtFileHandler(SubtitleFileHandler):
         try:
             srt_items = list(srt.parse(file_obj))
             for srt_item in srt_items:
-                line = SubtitleLine.Contruct(
+                line = SubtitleLine.Construct(
                     number=srt_item.index, 
                     start=srt_item.start, 
                     end=srt_item.end, 

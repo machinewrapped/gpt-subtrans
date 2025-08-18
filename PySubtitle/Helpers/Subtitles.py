@@ -47,13 +47,14 @@ def MergeSubtitles(merged_lines : list[SubtitleLine]) -> SubtitleLine:
     merged_original : str = "\n".join(line.original for line in merged_lines if line.original)
     
     # Create merged SubtitleLine directly
-    merged_line = SubtitleLine()
-    merged_line.index = merged_number
-    merged_line.start = merged_start
-    merged_line.end = merged_end
-    merged_line.content = merged_content
-    merged_line.translation = merged_translation
-    merged_line.original = merged_original
+    merged_line = SubtitleLine.Construct(
+        number=merged_number,
+        start=merged_start,
+        end=merged_end,
+        text=merged_content,
+    )
+    merged_line.translation = merged_translation.strip()
+    merged_line.original = merged_original.strip()
     return merged_line
 
 def MergeTranslations(lines : list[SubtitleLine], translated : list[SubtitleLine]) -> list[SubtitleLine]:

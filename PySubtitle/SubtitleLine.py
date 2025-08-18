@@ -51,12 +51,12 @@ class SubtitleLine:
                 self._parse_from_string(str(line['line']))
             else:
                 # New format: use individual properties
-                self._index = line.get('index') or line.get('number')
+                self._index = int(line.get('index') or line.get('number') or 0)
                 start_time = line.get('start')
                 end_time = line.get('end')
                 self._start = GetTimeDeltaSafe(start_time)
                 self._end = GetTimeDeltaSafe(end_time)
-                self.content = line.get('content') or line.get('text')
+                self.text = line.get('content') or line.get('text') or line.get('body')
 
             self.metadata = deepcopy(line.get('metadata', {}))
             
@@ -77,11 +77,10 @@ class SubtitleLine:
     def __eq__(self, other : 'Any|SubtitleLine') -> bool:
         if not isinstance(other, SubtitleLine):
             return False
-        return (self._index == other._index and 
+        return (self.number == other.number and 
                 self.start == other.start and 
                 self.end == other.end and 
-                self.content == other.content and
-                self.metadata == other.metadata)
+                self.text == other.text)
 
     def copy(self) -> 'SubtitleLine':
         """Create a copy of this subtitle line."""
@@ -180,8 +179,8 @@ class SubtitleLine:
         self._index = int(value)
 
     @text.setter
-    def text(self, text : str):
-        self.content = text.strip() if text else None
+    def text(self, text : str|None):
+        self.content = str(text).strip() if text else None
 
     @duration.setter
     def duration(self, duration : timedelta|str):
@@ -202,16 +201,13 @@ class SubtitleLine:
         """
         Parse subtitle line from basic SRT format string.
         """
-        line = line_str.strip()
-        
-        if not line:
+        if not line_str.strip():
             raise SubtitleError(_("Invalid subtitle line format: {}").format("empty line"))
         
-        # Parse basic SRT format: number\ntimestamp\ncontent
-        # Pattern matches: index, start --> end, content (multiline)
-        match = SRT_PATTERN.match(line)
+        # Pattern matches: {index}\n{start} --> {end}\n{content (multiline)}
+        match = SRT_PATTERN.match(line_str)
         if not match:
-            raise SubtitleError(_("Invalid subtitle line format: {}").format(line))
+            raise SubtitleError(_("Invalid subtitle line format: {}").format(line_str))
 
         self._index = int(match.group('index'))
         # Allow timestamp parsing exceptions to propagate
