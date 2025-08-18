@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -76,7 +77,11 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleLine):
             return {
-                "line": obj.line,
+                "index": obj.index,
+                "start": obj.start.total_seconds() if obj.start else None,
+                "end": obj.end.total_seconds() if obj.end else None,
+                "content": obj.content,
+                "proprietary": obj.proprietary,
                 "translation": getattr(obj, 'translation'),
                 "original": getattr(obj, 'original')
             }
@@ -121,7 +126,22 @@ def _object_hook(dct):
             obj = SubtitleBatch(dct)
             return obj
         elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-            return SubtitleLine(dct.get('line'), translation=dct.get('translation'), original=dct.get('original'))
+            # Handle both new format (individual properties) and old format (line property)
+            if 'line' in dct:
+                # Old format - backwards compatibility
+                return SubtitleLine(dct.get('line'), translation=dct.get('translation'), original=dct.get('original'))
+            else:
+                # New format - individual properties
+                line_dict = {
+                    'index': dct.get('index'),
+                    'start': timedelta(seconds=dct['start']) if dct.get('start') is not None else None,
+                    'end': timedelta(seconds=dct['end']) if dct.get('end') is not None else None,
+                    'content': dct.get('content'),
+                    'proprietary': dct.get('proprietary'),
+                    'translation': dct.get('translation'),
+                    'original': dct.get('original')
+                }
+                return SubtitleLine(line_dict)
         elif class_name == classname(Translation) or class_name == "GPTTranslation":
             content = dct.get('content') or {
                 'text' : dct.get('text'),

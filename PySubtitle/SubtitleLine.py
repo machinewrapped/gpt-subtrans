@@ -1,6 +1,7 @@
 from datetime import timedelta
 from os import linesep
 from typing import Any
+import regex
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
@@ -11,7 +12,7 @@ class SubtitleLine:
     Represents a single subtitle line with timing, content, and metadata.
     This is the internal representation used throughout the application.
     """
-    def __init__(self, line : 'SubtitleLine|str|None' = None, translation : str|None = None, original : str|None = None):
+    def __init__(self, line : 'SubtitleLine|str|dict|None' = None, translation : str|None = None, original : str|None = None):
         # Core subtitle properties 
         self.index: int | None = None
         self.start: timedelta = timedelta(seconds=0)
@@ -34,21 +35,59 @@ class SubtitleLine:
             self._duration = line._duration
             self.original = original if original is not None else line.original
             self.translation = translation if translation is not None else line.translation
+        elif isinstance(line, dict):
+            # Construct from dictionary
+            if 'line' in line:
+                # Backwards compatibility: extract from line property 
+                self._parse_from_string(str(line['line']))
+            else:
+                # New format: use individual properties
+                self.index = line.get('index') or line.get('number')
+                start_time = line.get('start')
+                if start_time is not None:
+                    self.start = GetTimeDelta(start_time) or timedelta(seconds=0)
+                end_time = line.get('end')
+                if end_time is not None:
+                    self.end = GetTimeDelta(end_time) or timedelta(seconds=0)
+                self.content = line.get('content') or line.get('text') or ""
+                self.proprietary = line.get('proprietary', "")
+            
+            # Override with provided translation/original if specified
+            self.translation = translation if translation is not None else line.get('translation')
+            self.original = original if original is not None else line.get('original')
         elif line is not None:
             # Parse from string
             self._parse_from_string(str(line))
 
     def _parse_from_string(self, line_str: str) -> None:
-        """Parse subtitle line from string format."""
+        """Parse subtitle line from basic SRT format string."""
         line = line_str.strip()
         
-        # Basic parsing - this is simplified since SRT-specific parsing 
-        # should be handled by the SrtFileHandler
         if not line:
             return
-            
-        # For now, just store as content - proper parsing will be done by file handlers
-        self.content = line
+        
+        # Parse basic SRT format: number\ntimestamp\ncontent
+        # Pattern matches: index, start --> end, content (multiline)
+        srt_pattern = regex.compile(
+            r'^(?P<index>\d+)\s*\n'
+            r'(?P<start>\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(?P<end>\d{2}:\d{2}:\d{2},\d{3})\s*\n'
+            r'(?P<content>.*?)$',
+            regex.DOTALL
+        )
+        
+        match = srt_pattern.match(line)
+        if match:
+            self.index = int(match.group('index'))
+            try:
+                self.start = SrtTimestampToTimedelta(match.group('start'))
+                self.end = SrtTimestampToTimedelta(match.group('end'))
+            except ValueError:
+                # If timestamp parsing fails, keep defaults and store raw content
+                pass
+            self.content = match.group('content').strip()
+        else:
+            # If doesn't match SRT format, store as raw content
+            self.content = line
 
     def __str__(self) -> str:
         return self.to_srt() if self.start is not None and self.end is not None else "Invalid SubtitleLine"
@@ -127,11 +166,11 @@ class SubtitleLine:
 
     @property
     def number(self) -> int:
-        return self.index if self.index else 0
+        return self.index or 0
 
     @property
     def text(self) -> str|None:
-        return self.content if self.content else None
+        return self.content
 
     @property
     def text_normalized(self) -> str|None:
@@ -185,14 +224,18 @@ class SubtitleLine:
 
     def set_start(self, time : timedelta | str):
         """Set the start time, handling string conversion."""
-        new_time = GetTimeDelta(time)
+        new_time = GetTimeDelta(time, raise_exception=True)
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid start time: {time}", error=new_time)
         if new_time is not None:
             self.start = new_time
             self._duration = None
 
     def set_end(self, time : timedelta | str):
         """Set the end time, handling string conversion.""" 
-        new_time = GetTimeDelta(time)
+        new_time = GetTimeDelta(time, raise_exception=True)
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid end time: {time}", error=new_time)
         if new_time is not None:
             self.end = new_time
             self._duration = None
