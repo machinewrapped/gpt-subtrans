@@ -18,7 +18,7 @@ re_timestamps = [
     regex.compile(pattern) for pattern in timestamp_patterns
 ]
 
-def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception : bool = False) -> datetime.timedelta|Exception|None:
+def GetTimeDelta(time : datetime.timedelta|str|int|float|None, raise_exception : bool = False) -> datetime.timedelta|Exception|None:
     """
     Ensure the input value is a timedelta, as best we can
     """
@@ -27,6 +27,9 @@ def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception : bool 
 
     if isinstance(time, datetime.timedelta):
         return time
+
+    if isinstance(time, (int, float)):
+        return datetime.timedelta(seconds=time)
 
     timestamp = str(time).strip()
 
@@ -45,6 +48,16 @@ def GetTimeDelta(time : datetime.timedelta | str | None, raise_exception : bool 
         raise error
 
     return error
+
+def GetTimeDeltaSafe(time : datetime.timedelta|str|int|float|None) -> datetime.timedelta|None:
+    """
+    Ensure the input value is a timedelta, returning None if it cannot be parsed.
+    """
+    timedelta = GetTimeDelta(time, raise_exception=False)
+    if isinstance(timedelta, Exception):
+        raise timedelta
+    else:
+        return timedelta
 
 def TimedeltaToText(time: datetime.timedelta|None, include_milliseconds : bool = True) -> str:
     """

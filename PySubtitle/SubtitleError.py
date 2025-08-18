@@ -77,4 +77,9 @@ class TooManyNewlinesError(TranslationValidationError):
 class LineTooLongError(TranslationValidationError):
     def __init__(self, message : str, lines : list[Any]|None = None, translation : Any|None = None):
         super().__init__(message, lines=lines, translation=translation)
+
+class SubtitleParseError(SubtitleError):
+    """Error raised when subtitle file cannot be parsed."""
+    def __init__(self, message : str, error : Exception|None = None):
+        super().__init__(message, error)
  

@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -76,7 +77,11 @@ class SubtitleEncoder(json.JSONEncoder):
             }
         elif isinstance(obj, SubtitleLine):
             return {
-                "line": obj.line,
+                "index": obj._index,
+                "start": obj.start.total_seconds() if obj.start else None,
+                "end": obj.end.total_seconds() if obj.end else None,
+                "content": obj.content,
+                "metadata": getattr(obj, 'metadata'),
                 "translation": getattr(obj, 'translation'),
                 "original": getattr(obj, 'original')
             }
@@ -121,7 +126,7 @@ def _object_hook(dct):
             obj = SubtitleBatch(dct)
             return obj
         elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-            return SubtitleLine(dct.get('line'), translation=dct.get('translation'), original=dct.get('original'))
+            return SubtitleLine(dct)
         elif class_name == classname(Translation) or class_name == "GPTTranslation":
             content = dct.get('content') or {
                 'text' : dct.get('text'),

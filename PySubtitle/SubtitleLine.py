@@ -1,39 +1,107 @@
+from copy import deepcopy
 from datetime import timedelta
+from hmac import new
 from os import linesep
 from typing import Any
-import srt # type: ignore
+import regex
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Time import GetTimeDelta, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimedeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, GetTimeDeltaSafe, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimedeltaToText
+
+# Global regex pattern for SRT parsing (compiled once for performance)
+SRT_PATTERN = regex.compile(
+    r'^(?P<index>\d+)\s*\n'
+    r'(?P<start>\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(?P<end>\d{2}:\d{2}:\d{2},\d{3})\s*\n'
+    r'(?P<content>.*?)$',
+    regex.DOTALL
+)
 
 class SubtitleLine:
     """
-    Represents a single line, with a number and start and end times plus original text
-    and (optionally) an associated translation.
+    Represents a single subtitle line with timing, content, and metadata.
+    This is the internal representation used throughout the application.
     """
-    def __init__(self, line : 'srt.Subtitle|str|SubtitleLine|None', translation : str|None = None, original : str|None = None):
-        self._item : srt.Subtitle|None = None
+    def __init__(self, line : 'SubtitleLine|str|dict|None' = None, translation : str|None = None, original : str|None = None):
+        # Core subtitle properties 
+        self._index: int | None = None
+        self._start: timedelta|None = None
+        self._end: timedelta|None = None
+        self.content: str|None = None
+        self.metadata: dict[str, Any] = {}
+        
+        # Additional properties
         self.translation : str|None = translation
         self.original : str|None = original
         self._duration : timedelta|None = None
 
         if isinstance(line, SubtitleLine):
-            self._item = line._item
+            self._index = line._index
+            self._start = line._start
+            self._end = line._end
+            self.content = line.content
             self._duration = line._duration
             self.original = original if original is not None else line.original
             self.translation = translation if translation is not None else line.translation
+            self.metadata = line.metadata.copy()
+
+        elif isinstance(line, dict):
+            if 'line' in line:
+                # Backwards compatibility: extract from line property 
+                self._parse_from_string(str(line['line']))
+            else:
+                # New format: use individual properties
+                self._index = int(line.get('index') or line.get('number') or 0)
+                start_time = line.get('start')
+                end_time = line.get('end')
+                self._start = GetTimeDeltaSafe(start_time)
+                self._end = GetTimeDeltaSafe(end_time)
+                self.text = line.get('content') or line.get('text') or line.get('body')
+
+            self.metadata = deepcopy(line.get('metadata', {}))
+            
+            # Override with provided translation/original if specified
+            self.translation = translation if translation is not None else line.get('translation')
+            self.original = original if original is not None else line.get('original')
+
         elif line is not None:
-            self.item = line
+            # Parse from string
+            self._parse_from_string(str(line))
 
     def __str__(self) -> str:
-        return self.item.to_srt() if self.item else "Null SubtitleLine"
+        return f"{self.number}:{self.srt_start}-->{self.srt_end}: {self.text}" if self.start is not None and self.end is not None else "Invalid SubtitleLine"
 
     def __repr__(self) -> str:
         return f"[Line {self.number}] {TimedeltaToText(self.start)}, {repr(self.text)}"
 
     def __eq__(self, other : 'Any|SubtitleLine') -> bool:
-        return self._item == other._item if isinstance(other, SubtitleLine) else False
+        if not isinstance(other, SubtitleLine):
+            return False
+        return (self.number == other.number and 
+                self.start == other.start and 
+                self.end == other.end and 
+                self.text == other.text)
+
+    def copy(self) -> 'SubtitleLine':
+        """Create a copy of this subtitle line."""
+        new_line = SubtitleLine()
+        new_line._index = self._index
+        new_line._start = self._start
+        new_line._end = self._end
+        new_line.content = self.content
+        new_line.translation = self.translation
+        new_line.original = self.original
+        new_line._duration = self._duration
+        new_line.metadata = deepcopy(self.metadata)
+        return new_line
+
+    @property
+    def start(self) -> timedelta:
+        return self._start or timedelta(seconds=0)
+
+    @property
+    def end(self) -> timedelta:
+        return self._end or timedelta(seconds=0)
 
     @property
     def key(self) -> int | str:
@@ -41,19 +109,15 @@ class SubtitleLine:
 
     @property
     def number(self) -> int:
-        return self._item.index if self._item else 0
+        return self._index or 0
 
     @property
     def text(self) -> str|None:
-        return self._item.content if self._item else None
+        return self.content
 
     @property
     def text_normalized(self) -> str|None:
         return self.text.replace(linesep, '\n').strip() if self.text else None
-
-    @property
-    def start(self) -> timedelta:
-        return self._item.start if self._item else timedelta(seconds=0)
 
     @property
     def srt_start(self) -> str:
@@ -62,10 +126,6 @@ class SubtitleLine:
     @property
     def txt_start(self) -> str:
         return TimedeltaToText(self.start) or _("Invalid timestamp")
-
-    @property
-    def end(self) -> timedelta:
-        return self._item.end if self._item else timedelta(seconds=0)
 
     @property
     def srt_end(self) -> str:
@@ -82,15 +142,8 @@ class SubtitleLine:
         return self._duration
 
     @property
-    def srt_duration(self) -> str:
+    def txt_duration(self) -> str:
         return TimedeltaToText(self.duration)
-
-    @property
-    def line(self) -> str | None:
-        if not self._item or self._item.start is None or self._item.end is None:
-            return None
-
-        return self._item.to_srt(strict=False)
 
     @property
     def translated(self) -> 'SubtitleLine|None':
@@ -98,54 +151,71 @@ class SubtitleLine:
             return None
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
 
-    @property
-    def item(self) -> srt.Subtitle:
-        return self._item or srt.Subtitle(index=None, start=timedelta(seconds=0), end=timedelta(seconds=0), content="Invalid Line")
-
-    @item.setter
-    def item(self, item : srt.Subtitle | str):
-        self._item = CreateSrtSubtitle(item)
-        self._duration = None
-
     @number.setter
-    def number(self, value : int):
-        if self._item:
-            self._item.index = value
+    def number(self, value : int|str):
+        self._index = int(value)
 
     @text.setter
-    def text(self, text : str):
-        if self._item:
-            self._item.content = text
+    def text(self, text : str|None):
+        self.content = str(text).strip() if text else None
 
     @start.setter
     def start(self, time : timedelta | str):
-        if self._item:
-            self._item.start = GetTimeDelta(time)
-            self._duration = None
+        """Set the start time, handling string conversion."""
+        new_time = GetTimeDelta(time, raise_exception=False)
+
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid start time: {time}", error=new_time)
+
+        self._start = new_time
+        self._duration = None
 
     @end.setter
     def end(self, time : timedelta | str):
-        if self._item:
-            self._item.end = GetTimeDelta(time)
-            self._duration = None
+        """Set the end time, handling string conversion."""
+        new_time = GetTimeDelta(time, raise_exception=False)
+
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid end time: {time}", error=new_time)
+
+        self._end = new_time
+        self._duration = None
 
     @duration.setter
     def duration(self, duration : timedelta|str):
-        if self._item and self._item.start is not None:
-            tdelta : timedelta|Exception|None = GetTimeDelta(duration)
-            if isinstance(tdelta, Exception):
-                raise SubtitleError(f"Invalid duration", error=tdelta)
+        """Set the duration and update end time accordingly."""
+        tdelta : timedelta|Exception|None = GetTimeDelta(duration)
+        if isinstance(tdelta, Exception):
+            raise SubtitleError(f"Invalid duration", error=tdelta)
 
-            self._duration = tdelta or timedelta(seconds=0)
-            self._item.end = self._item.start + self._duration
+        self._duration = tdelta or timedelta(seconds=0)
+        if self._start is not None:
+            self._end = self._start + self._duration
 
     @translated.setter
-    def translated(self, translated : 'SubtitleLine|srt.Subtitle|str|None'):
+    def translated(self, translated : 'SubtitleLine|str|None'):
         self.translation = SubtitleLine(translated).text if translated else None
 
+    def _parse_from_string(self, line_str: str) -> None:
+        """
+        Parse subtitle line from basic SRT format string.
+        """
+        if not line_str.strip():
+            raise SubtitleError(_("Invalid subtitle line format: {}").format("empty line"))
+        
+        # Pattern matches: {index}\n{start} --> {end}\n{content (multiline)}
+        match = SRT_PATTERN.match(line_str)
+        if not match:
+            raise SubtitleError(_("Invalid subtitle line format: {}").format(line_str))
+
+        self._index = int(match.group('index'))
+        # Allow timestamp parsing exceptions to propagate
+        self._start = SrtTimestampToTimedelta(match.group('start'))
+        self._end = SrtTimestampToTimedelta(match.group('end'))
+        self.content = match.group('content').strip()
+
     @classmethod
-    def Construct(cls, number : int|str|None, start : timedelta|str|None, end : timedelta|str|None, text : str, original : str|None = None):
-        i_number = int(number) if number else None
+    def Construct(cls, number : int|str, start : timedelta|str|None, end : timedelta|str|None, text : str, metadata : dict[str,Any]|None = None) -> 'SubtitleLine':
         t_start : timedelta|Exception|None = GetTimeDelta(start)
         t_end : timedelta|Exception|None = GetTimeDelta(end)
         if isinstance(t_start, Exception):
@@ -153,22 +223,15 @@ class SubtitleLine:
         if isinstance(t_end, Exception):
             raise t_end
 
-        legal_text : str = srt.make_legal_content(text.strip()) if text else ""
-        legal_original = srt.make_legal_content(original.strip()) if original else ""
-        item = srt.Subtitle(i_number, t_start, t_end, legal_text)
-        return SubtitleLine(item, original=legal_original)
-
-    @classmethod
-    def FromDictionary(cls, values : dict[str, Any]) -> 'SubtitleLine':
-        """
-        Construct a SubtitleLine from a dictionary.
-        """
-        return SubtitleLine.Construct(
-            values.get('number') or values.get('index') or values.get('id') or -1,
-            values.get('start') or timedelta(seconds=0),
-            values.get('end') or timedelta(seconds=0),
-            values.get('body') or values.get('original') or values.get('text') or "** Missing text **",
-            values.get('original'))
+        legal_text : str = text.strip() if text else ""
+        
+        line = SubtitleLine()
+        line.number = number
+        line.start = t_start or timedelta(seconds=0)
+        line.end = t_end or timedelta(seconds=0)
+        line.content = legal_text
+        line.metadata = metadata or {}
+        return line
 
     @classmethod
     def FromMatch(cls, match : tuple[str, str, str, str]) -> 'SubtitleLine':
@@ -182,30 +245,8 @@ class SubtitleLine:
         else:
             start, end, body = match
             number = None
+        
+        if number is None:
+            raise SubtitleError(_("Invalid subtitle line format: {}").format(match))
 
         return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
-
-def CreateSrtSubtitle(item : srt.Subtitle | SubtitleLine | str) -> srt.Subtitle|None:
-    """
-    Try to construct an srt.Subtitle from the argument
-    """
-    if hasattr(item, 'item'):
-        item = getattr(item, 'item')
-
-    if isinstance(item, srt.Subtitle):
-        return item
-
-    line = str(item).strip()
-    match = srt.SRT_REGEX.match(line)
-    if match:
-        raw_index, raw_start, raw_end, proprietary, content = match.groups()
-        index = int(raw_index) if raw_index else None
-        start = SrtTimestampToTimedelta(raw_start)
-        end = SrtTimestampToTimedelta(raw_end)
-        item = srt.Subtitle(index, start, end, content, proprietary)
-        return item
-
-    if item is not None:
-        raise ValueError(_("Invalid SRT line: {line}").format(line=line))
-
-    return None
