@@ -126,22 +126,7 @@ def _object_hook(dct):
             obj = SubtitleBatch(dct)
             return obj
         elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
-            # Handle both new format (individual properties) and old format (line property)
-            if 'line' in dct:
-                # Old format - backwards compatibility
-                return SubtitleLine(dct.get('line'), translation=dct.get('translation'), original=dct.get('original'))
-            else:
-                # New format - individual properties
-                line_dict = {
-                    'index': dct.get('index'),
-                    'start': timedelta(seconds=dct['start']) if dct.get('start') is not None else None,
-                    'end': timedelta(seconds=dct['end']) if dct.get('end') is not None else None,
-                    'content': dct.get('content'),
-                    'proprietary': dct.get('proprietary'),
-                    'translation': dct.get('translation'),
-                    'original': dct.get('original')
-                }
-                return SubtitleLine(line_dict)
+            return SubtitleLine(dct)
         elif class_name == classname(Translation) or class_name == "GPTTranslation":
             content = dct.get('content') or {
                 'text' : dct.get('text'),

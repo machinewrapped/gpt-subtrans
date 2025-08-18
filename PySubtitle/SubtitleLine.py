@@ -15,8 +15,8 @@ class SubtitleLine:
     def __init__(self, line : 'SubtitleLine|str|dict|None' = None, translation : str|None = None, original : str|None = None):
         # Core subtitle properties 
         self.index: int | None = None
-        self.start: timedelta = timedelta(seconds=0)
-        self.end: timedelta = timedelta(seconds=0)
+        self._start: timedelta = timedelta(seconds=0)
+        self._end: timedelta = timedelta(seconds=0)
         self.content: str = ""
         self.proprietary: str = ""
         
@@ -28,8 +28,8 @@ class SubtitleLine:
         if isinstance(line, SubtitleLine):
             # Copy from another SubtitleLine
             self.index = line.index
-            self.start = line.start
-            self.end = line.end
+            self._start = line._start
+            self._end = line._end
             self.content = line.content
             self.proprietary = line.proprietary
             self._duration = line._duration
@@ -45,10 +45,20 @@ class SubtitleLine:
                 self.index = line.get('index') or line.get('number')
                 start_time = line.get('start')
                 if start_time is not None:
-                    self.start = GetTimeDelta(start_time) or timedelta(seconds=0)
+                    if isinstance(start_time, (int, float)):
+                        # Seconds from serialization
+                        self._start = timedelta(seconds=start_time)
+                    else:
+                        # String timestamp
+                        self._start = GetTimeDelta(start_time) or timedelta(seconds=0)
                 end_time = line.get('end')
                 if end_time is not None:
-                    self.end = GetTimeDelta(end_time) or timedelta(seconds=0)
+                    if isinstance(end_time, (int, float)):
+                        # Seconds from serialization
+                        self._end = timedelta(seconds=end_time)
+                    else:
+                        # String timestamp
+                        self._end = GetTimeDelta(end_time) or timedelta(seconds=0)
                 self.content = line.get('content') or line.get('text') or ""
                 self.proprietary = line.get('proprietary', "")
             
@@ -79,8 +89,8 @@ class SubtitleLine:
         if match:
             self.index = int(match.group('index'))
             try:
-                self.start = SrtTimestampToTimedelta(match.group('start'))
-                self.end = SrtTimestampToTimedelta(match.group('end'))
+                self._start = SrtTimestampToTimedelta(match.group('start'))
+                self._end = SrtTimestampToTimedelta(match.group('end'))
             except ValueError:
                 # If timestamp parsing fails, keep defaults and store raw content
                 pass
@@ -108,8 +118,8 @@ class SubtitleLine:
         """Create a copy of this subtitle line."""
         new_line = SubtitleLine()
         new_line.index = self.index
-        new_line.start = self.start
-        new_line.end = self.end
+        new_line._start = self._start
+        new_line._end = self._end
         new_line.content = self.content
         new_line.proprietary = self.proprietary
         new_line.translation = self.translation
@@ -159,6 +169,34 @@ class SubtitleLine:
         content = content.replace("\r\n", "\n").replace("\r", "\n")
         
         return content
+
+    @property
+    def start(self) -> timedelta:
+        return self._start
+
+    @start.setter
+    def start(self, time : timedelta | str):
+        """Set the start time, handling string conversion."""
+        new_time = GetTimeDelta(time, raise_exception=True)
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid start time: {time}", error=new_time)
+        if new_time is not None:
+            self._start = new_time
+            self._duration = None
+
+    @property
+    def end(self) -> timedelta:
+        return self._end
+
+    @end.setter
+    def end(self, time : timedelta | str):
+        """Set the end time, handling string conversion."""
+        new_time = GetTimeDelta(time, raise_exception=True)
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid end time: {time}", error=new_time)
+        if new_time is not None:
+            self._end = new_time
+            self._duration = None
 
     @property
     def key(self) -> int | str:
@@ -222,33 +260,15 @@ class SubtitleLine:
     def text(self, text : str):
         self.content = text
 
-    def set_start(self, time : timedelta | str):
-        """Set the start time, handling string conversion."""
-        new_time = GetTimeDelta(time, raise_exception=True)
-        if isinstance(new_time, Exception):
-            raise SubtitleError(f"Invalid start time: {time}", error=new_time)
-        if new_time is not None:
-            self.start = new_time
-            self._duration = None
-
-    def set_end(self, time : timedelta | str):
-        """Set the end time, handling string conversion.""" 
-        new_time = GetTimeDelta(time, raise_exception=True)
-        if isinstance(new_time, Exception):
-            raise SubtitleError(f"Invalid end time: {time}", error=new_time)
-        if new_time is not None:
-            self.end = new_time
-            self._duration = None
-
     def set_duration(self, duration : timedelta|str):
         """Set the duration and update end time accordingly."""
-        if self.start is not None:
+        if self._start is not None:
             tdelta : timedelta|Exception|None = GetTimeDelta(duration)
             if isinstance(tdelta, Exception):
                 raise SubtitleError(f"Invalid duration", error=tdelta)
 
             self._duration = tdelta or timedelta(seconds=0)
-            self.end = self.start + self._duration
+            self._end = self._start + self._duration
 
     @translated.setter
     def translated(self, translated : 'SubtitleLine|str|None'):
