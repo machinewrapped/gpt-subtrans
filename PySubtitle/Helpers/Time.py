@@ -51,7 +51,7 @@ def GetTimeDelta(time : datetime.timedelta|str|int|float|None, raise_exception :
 
 def GetTimeDeltaSafe(time : datetime.timedelta|str|int|float|None) -> datetime.timedelta|None:
     """
-    Ensure the input value is a timedelta, returning None if it cannot be parsed.
+    Ensure the input value is a timedelta, raising an exception if it cannot be parsed.
     """
     timedelta = GetTimeDelta(time, raise_exception=False)
     if isinstance(timedelta, Exception):

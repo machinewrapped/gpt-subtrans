@@ -15,65 +15,15 @@ class SrtFileHandler(SubtitleFileHandler):
     def parse_file(self, file_obj: TextIO) -> Iterator[SubtitleLine]:
         """
         Parse SRT file content and yield SubtitleLine objects.
-        
-        Args:
-            file_obj: Open file object to read from
-            
-        Yields:
-            SubtitleLine: Parsed subtitle lines
-            
-        Raises:
-            SubtitleParseError: If file cannot be parsed
         """
-        try:
-            srt_items = list(srt.parse(file_obj))
-            for srt_item in srt_items:
-                line = SubtitleLine.Construct(
-                    number=srt_item.index, 
-                    start=srt_item.start, 
-                    end=srt_item.end, 
-                    text=srt_item.content,
-                    metadata={
-                        "proprietary": getattr(srt_item, 'proprietary', '')
-                    }
-                )
-                yield line
-        except srt.SRTParseError as e:
-            raise SubtitleParseError(_("Failed to parse SRT file: {}").format(str(e)), e)
-        except Exception as e:
-            raise SubtitleParseError(_("Unexpected error parsing SRT file: {}").format(str(e)), e)
+        yield from self._parse_srt_items(file_obj)
     
     def parse_string(self, content: str) -> Iterator[SubtitleLine]:
         """
         Parse SRT string content and yield SubtitleLine objects.
-        
-        Args:
-            content: String content to parse
-            
-        Yields:
-            SubtitleLine: Parsed subtitle lines
-            
-        Raises:
-            SubtitleParseError: If content cannot be parsed
         """
-        try:
-            srt_items = list(srt.parse(content))
-            for srt_item in srt_items:
-                line = SubtitleLine.Construct(
-                    number=srt_item.index, 
-                    start=srt_item.start, 
-                    end=srt_item.end, 
-                    text=srt_item.content,
-                    metadata={
-                        "proprietary": getattr(srt_item, 'proprietary', '')
-                    }
-                )
-                yield line
-        except srt.SRTParseError as e:
-            raise SubtitleParseError(_("Failed to parse SRT string: {}").format(str(e)), e)
-        except Exception as e:
-            raise SubtitleParseError(_("Unexpected error parsing SRT string: {}").format(str(e)), e)
-    
+        yield from self._parse_srt_items(content)
+
     def compose_lines(self, lines: list[SubtitleLine], reindex: bool = True) -> str:
         """
         Compose subtitle lines into SRT format string.
@@ -110,3 +60,28 @@ class SrtFileHandler(SubtitleFileHandler):
             list[str]: List of file extensions
         """
         return ['.srt']
+
+    def _parse_srt_items(self, source) -> Iterator[SubtitleLine]:
+        """
+        Internal helper to parse SRT items from a file object or string and yield SubtitleLine objects.
+        Handles error translation to SubtitleParseError.
+        """
+        try:
+            srt_items = list(srt.parse(source))
+            for srt_item in srt_items:
+                line = SubtitleLine.Construct(
+                    number=srt_item.index,
+                    start=srt_item.start,
+                    end=srt_item.end,
+                    text=srt_item.content,
+                    metadata={
+                        "proprietary": getattr(srt_item, 'proprietary', '')
+                    }
+                )
+                yield line
+                
+        except srt.SRTParseError as e:
+            raise SubtitleParseError(_("Failed to parse SRT: {}" ).format(str(e)), e)
+        except Exception as e:
+            raise SubtitleParseError(_("Unexpected error parsing SRT: {}" ).format(str(e)), e)
+    

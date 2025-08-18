@@ -1,6 +1,5 @@
 from copy import deepcopy
 from datetime import timedelta
-from hmac import new
 from os import linesep
 from typing import Any
 import regex
