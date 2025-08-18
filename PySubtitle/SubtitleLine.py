@@ -43,7 +43,7 @@ class SubtitleLine:
             self._duration = line._duration
             self.original = original if original is not None else line.original
             self.translation = translation if translation is not None else line.translation
-            self.metadata = deepcopy(line.metadata)
+            self.metadata = line.metadata.copy()
 
         elif isinstance(line, dict):
             if 'line' in line:
@@ -99,32 +99,9 @@ class SubtitleLine:
     def start(self) -> timedelta:
         return self._start or timedelta(seconds=0)
 
-    @start.setter
-    def start(self, time : timedelta | str):
-        """Set the start time, handling string conversion."""
-        new_time = GetTimeDelta(time, raise_exception=False)
-
-        if isinstance(new_time, Exception):
-            raise SubtitleError(f"Invalid start time: {time}", error=new_time)
-
-        self._start = new_time or timedelta(seconds=0)
-        self._duration = None
-
     @property
     def end(self) -> timedelta:
         return self._end or timedelta(seconds=0)
-
-    @end.setter
-    def end(self, time : timedelta | str):
-        """Set the end time, handling string conversion."""
-        new_time = GetTimeDelta(time, raise_exception=False)
-
-        if isinstance(new_time, Exception):
-            raise SubtitleError(f"Invalid end time: {time}", error=new_time)
-
-        if new_time is not None:
-            self._end = new_time
-            self._duration = None
 
     @property
     def key(self) -> int | str:
@@ -182,15 +159,37 @@ class SubtitleLine:
     def text(self, text : str|None):
         self.content = str(text).strip() if text else None
 
+    @start.setter
+    def start(self, time : timedelta | str):
+        """Set the start time, handling string conversion."""
+        new_time = GetTimeDelta(time, raise_exception=False)
+
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid start time: {time}", error=new_time)
+
+        self._start = new_time
+        self._duration = None
+
+    @end.setter
+    def end(self, time : timedelta | str):
+        """Set the end time, handling string conversion."""
+        new_time = GetTimeDelta(time, raise_exception=False)
+
+        if isinstance(new_time, Exception):
+            raise SubtitleError(f"Invalid end time: {time}", error=new_time)
+
+        self._end = new_time
+        self._duration = None
+
     @duration.setter
     def duration(self, duration : timedelta|str):
         """Set the duration and update end time accordingly."""
-        if self._start is not None:
-            tdelta : timedelta|Exception|None = GetTimeDelta(duration)
-            if isinstance(tdelta, Exception):
-                raise SubtitleError(f"Invalid duration", error=tdelta)
+        tdelta : timedelta|Exception|None = GetTimeDelta(duration)
+        if isinstance(tdelta, Exception):
+            raise SubtitleError(f"Invalid duration", error=tdelta)
 
-            self._duration = tdelta or timedelta(seconds=0)
+        self._duration = tdelta or timedelta(seconds=0)
+        if self._start is not None:
             self._end = self._start + self._duration
 
     @translated.setter
