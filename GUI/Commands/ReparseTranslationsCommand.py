@@ -48,7 +48,7 @@ class ReparseTranslationsCommand(Command):
                 batch : SubtitleBatch = subtitles.GetBatch(scene_number, batch_number)
 
                 original_summary = batch.summary
-                original_translations : dict[int,str|None] = { line.number : line.text for line in batch.translated if line.number }
+                original_translations : dict[int,str|None] = { line.number : line.text for line in batch.translated if line.number is not None }
 
                 project.ReparseBatchTranslation(translator, scene_number, batch_number, line_numbers=self.line_numbers)
 

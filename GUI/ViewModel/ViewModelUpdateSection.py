@@ -25,10 +25,10 @@ class ModelUpdateSection:
     def update(self, key: Key, item_update: UpdateValue) -> None:
         self.updates[key] = item_update
 
-    def replace(self, key: Key, item: Any) -> None:
+    def replace(self, key: Key, item: ModelTypes) -> None:
         self.replacements[key] = item
 
-    def add(self, key: Key, item: Any) -> None:
+    def add(self, key: Key, item: ModelTypes) -> None:
         self.additions[key] = item
 
     def remove(self, key: Key) -> None:

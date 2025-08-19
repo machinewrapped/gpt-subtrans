@@ -105,7 +105,7 @@ class SubtitleBatch:
     @property
     def error_messages(self) -> list[str]:
         """ Get the list of error messages associated with the batch """
-        return [str(error) for error in self.errors if isinstance(error,str) or isinstance(error, (str, Exception))]
+        return [str(error) for error in self.errors if isinstance(error, (str, Exception))]
 
     @originals.setter
     def originals(self, value : list[SubtitleLine]|list[str]):
