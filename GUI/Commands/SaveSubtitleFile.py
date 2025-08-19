@@ -8,6 +8,6 @@ class SaveSubtitleFile(Command):
         self.filepath = filepath
         self.project = project
 
-    def execute(self):
+    def execute(self) -> bool:
         self.project.subtitles.SaveOriginal(self.filepath)
         return True

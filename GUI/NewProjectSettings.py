@@ -44,7 +44,7 @@ class NewProjectSettings(QDialog):
         self.fields = {}
 
         self.datamodel = datamodel
-        self.project : SubtitleProject = datamodel.project
+        self.project : SubtitleProject|None = datamodel.project
         self.settings = datamodel.project_options.GetSettings()
 
         self.providers = datamodel.available_providers
@@ -168,7 +168,7 @@ class NewProjectSettings(QDialog):
         try:
             self._update_settings()
 
-            if self.project.subtitles and self.project.subtitles.originals:
+            if self.project and self.project.subtitles and self.project.subtitles.originals:
                 with QMutexLocker(self.preview_mutex):
                     self.preview_count += 1
                     preview_thread = BatchPreviewWorker(self.preview_count, self.settings, self.project.subtitles.originals)

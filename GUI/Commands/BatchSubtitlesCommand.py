@@ -19,10 +19,10 @@ class BatchSubtitlesCommand(Command):
         super().__init__()
         self.project : SubtitleProject = project
         self.options : Options = options
-        self.preprocess_subtitles = options.get('preprocess_subtitles', False)
+        self.preprocess_subtitles : bool = options.get('preprocess_subtitles', False)
         self.can_undo = False
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info("Executing BatchSubtitlesCommand")
 
         project : SubtitleProject = self.project

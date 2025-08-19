@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Any
 
 from PySubtitle.Helpers.Resources import GetResourcePath, config_dir
 
@@ -53,7 +54,7 @@ default_retry_instructions = linesep.join([
     ])
 
 class Instructions:
-    def __init__(self, settings):
+    def __init__(self, settings : dict[str, Any]) -> None:
         self.prompt : str|None = None
         self.instructions : str|None = None
         self.retry_instructions : str|None = None
@@ -62,7 +63,7 @@ class Instructions:
         self.task_type : str|None = DEFAULT_TASK_TYPE
         self.InitialiseInstructions(settings)
 
-    def GetSettings(self):
+    def GetSettings(self) -> dict[str, str|None]:
         """ Generate the settings for these instructions """
         settings = {
             'prompt': self.prompt,
@@ -77,8 +78,8 @@ class Instructions:
 
         return settings
 
-    def InitialiseInstructions(self, settings : dict):
-        self.prompt = settings.get('prompt') or settings.get('gpt_prompt')
+    def InitialiseInstructions(self, settings : dict[str, str|None]) -> None:
+        self.prompt = settings.get('prompt') or settings.get('gpt_prompt') or default_user_prompt
         self.instructions = settings.get('instructions') or default_instructions
         self.retry_instructions = settings.get('retry_instructions') or default_retry_instructions
         self.instruction_file = settings.get('instruction_file') or None
@@ -86,7 +87,7 @@ class Instructions:
         self.task_type = settings.get('task_type') or DEFAULT_TASK_TYPE
 
         # Add any additional instructions from the command line
-        if settings.get('instruction_args'):
+        if settings.get('instruction_args') and isinstance(settings['instruction_args'], list):
             additional_instructions = linesep.join(settings['instruction_args'])
             if additional_instructions:
                 self.instructions = linesep.join([self.instructions, additional_instructions])
@@ -102,7 +103,7 @@ class Instructions:
         self.instructions = ReplaceTags(self.instructions, tags)
         self.retry_instructions = ReplaceTags(self.retry_instructions, tags)
 
-    def LoadInstructionsFile(self, filepath : str):
+    def LoadInstructionsFile(self, filepath : str) -> None:
         """
         Try to load instructions from a text file.
         """
@@ -143,7 +144,7 @@ class Instructions:
         if not self.prompt or not self.instructions:
             raise ValueError("Invalid instruction file")
 
-    def SaveInstructions(self, filepath : str):
+    def SaveInstructions(self, filepath : str) -> None:
         """
         Save instructions to a text file.
         """
@@ -166,7 +167,7 @@ class Instructions:
 
             self.instruction_file = os.path.basename(filepath)
 
-def GetInstructionsResourcePath(instructions_file : str|None = None):
+def GetInstructionsResourcePath(instructions_file : str|None = None) -> str:
     """
     Get the path for an instructions file (or the directory that contains them).
     """
@@ -175,7 +176,7 @@ def GetInstructionsResourcePath(instructions_file : str|None = None):
 
     return GetResourcePath("instructions", instructions_file)
 
-def GetInstructionsResourceFiles():
+def GetInstructionsResourceFiles() -> list[str]:
     """
     Get a list of instruction files in the instructions directory.
     """
@@ -184,7 +185,7 @@ def GetInstructionsResourceFiles():
     files = os.listdir(instruction_path)
     return [ file for file in files if file.lower().startswith("instructions") ]
 
-def LoadInstructionsResource(resource_name):
+def LoadInstructionsResource(resource_name : str) -> Instructions:
     """
     Load instructions from a file in the project/package.
     """
@@ -194,14 +195,14 @@ def LoadInstructionsResource(resource_name):
     instructions.LoadInstructionsFile(filepath)
     return instructions
 
-def GetInstructionsUserPath(instructions_file : str|None = None):
+def GetInstructionsUserPath(instructions_file : str|None = None) -> str:
     """
     Get the path for an instructions file (or the directory that contains them).
     """
     instructions_dir = os.path.join(config_dir, "instructions")
     return os.path.join(instructions_dir, instructions_file) if instructions_file else instructions_dir
 
-def GetInstructionsUserFiles():
+def GetInstructionsUserFiles() -> list[str]:
     """
     Get a list of instruction files in the user directory.
     """
@@ -213,7 +214,7 @@ def GetInstructionsUserFiles():
     files = os.listdir(instructions_dir)
     return [ file for file in files if file.lower().endswith(".txt") ]
 
-def GetInstructionsFiles():
+def GetInstructionsFiles() -> list[str]:
     """
     Get a list of instruction files in the user and resource directories.
     """
@@ -226,7 +227,7 @@ def GetInstructionsFiles():
     # Sort 'instructions.txt' to the top of the list followed by other names case-insensitive
     return sorted(list(instructions_map.values()), key=lambda x: (x.lower() != 'instructions.txt', x.lower()))
 
-def LoadInstructions(name : str):
+def LoadInstructions(name : str) -> Instructions:
     """
     Load instructions from user directory if they exist, otherwise load from resources.
     """
@@ -238,7 +239,7 @@ def LoadInstructions(name : str):
 
     return LoadInstructionsResource(name)
 
-def LoadLegacyInstructions(lines) -> tuple[str|None, str|None]:
+def LoadLegacyInstructions(lines : list[str]) -> tuple[str|None, str|None]:
     """
     Retry instructions can be added to the file after a line of at least 3 # characters.
     """
@@ -251,7 +252,7 @@ def LoadLegacyInstructions(lines) -> tuple[str|None, str|None]:
 
     return None, None
 
-def ReplaceTags(text, tags):
+def ReplaceTags(text : str, tags : dict[str, str]) -> str:
     """
     Replace option tags in a string with the value of the corresponding option.
     """

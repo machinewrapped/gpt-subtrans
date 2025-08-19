@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleValidator import SubtitleValidator
@@ -15,7 +16,7 @@ class SplitBatchCommand(Command):
         self.line_number : int = line_number
         self.translation_number : int|None = translation_number
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info(_("Splitting scene {scene} batch: {batch} at line {line}").format(scene=str(self.scene_number), batch=str(self.batch_number), line=self.line_number))
 
         if not self.datamodel or not self.datamodel.project:
@@ -50,7 +51,7 @@ class SplitBatchCommand(Command):
 
         if split_batch is not None and new_batch is not None and new_batch.last_line_number is not None:
             # Remove lines from the original batch that are in the new batch now
-            model_update = self.AddModelUpdate()
+            model_update : ModelUpdate =  self.AddModelUpdate()
             for line_removed in range(self.line_number, new_batch.last_line_number + 1):
                 model_update.lines.remove((self.scene_number, self.batch_number, line_removed))
 
@@ -81,7 +82,7 @@ class SplitBatchCommand(Command):
 
             new_batch_number = self.batch_number + 1
 
-            model_update = self.AddModelUpdate()
+            model_update : ModelUpdate =  self.AddModelUpdate()
             model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
             model_update.batches.remove((self.scene_number, new_batch_number))
 

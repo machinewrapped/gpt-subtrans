@@ -20,7 +20,7 @@ class EditLineCommand(Command):
         self.edit = deepcopy(edit)
         self.undo_data = None
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.debug(_("Editing line {line}").format(line=self.line_number))
 
         if not self.datamodel or not self.datamodel.project:

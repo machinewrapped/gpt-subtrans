@@ -1,7 +1,9 @@
+from __future__ import annotations
 import logging
 import os
+from collections.abc import Callable
 from PySide6.QtCore import Qt, QModelIndex, QRecursiveMutex, QMutexLocker, Signal
-from PySide6.QtGui import QStandardItemModel
+from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.LineItem import LineItem
@@ -21,16 +23,16 @@ class ProjectViewModel(QStandardItemModel):
 
     def __init__(self):
         super().__init__()
-        self.model = {}
-        self.updates = []
+        self.model : dict[int, SceneItem] = {}
+        self.updates : list[Callable[[ProjectViewModel], None]] = []
         self.update_lock = QRecursiveMutex()
-        self.debug_view = os.environ.get("DEBUG_MODE") == "1"
-        self.task_type = DEFAULT_TASK_TYPE
+        self.debug_view : bool = os.environ.get("DEBUG_MODE") == "1"
+        self.task_type : str = DEFAULT_TASK_TYPE
 
-    def getRootItem(self):
+    def getRootItem(self) -> QStandardItem:
         return self.invisibleRootItem()
 
-    def AddUpdate(self, update : callable):
+    def AddUpdate(self, update : Callable[[ProjectViewModel], None]) -> None:
         """ Add an update to the queue and signal the main thread to process it """
         with QMutexLocker(self.update_lock):
             self.updates.append(update)
@@ -56,7 +58,7 @@ class ProjectViewModel(QStandardItemModel):
 
         self.layoutChanged.emit()
 
-    def ApplyUpdate(self, update_function):
+    def ApplyUpdate(self, update_function : Callable[[ProjectViewModel], None]) -> None:
         """
         Patch the viewmodel
         """
@@ -90,7 +92,7 @@ class ProjectViewModel(QStandardItemModel):
             self.model[scene.number] = scene_item
             self.getRootItem().appendRow(scene_item)
 
-    def CreateSceneItem(self, scene : SubtitleScene):
+    def CreateSceneItem(self, scene : SubtitleScene) -> SceneItem:
         scene_item = SceneItem(scene)
 
         for batch in scene.batches:
@@ -99,7 +101,7 @@ class ProjectViewModel(QStandardItemModel):
 
         return scene_item
 
-    def CreateBatchItem(self, scene_number : int, batch : SubtitleBatch):
+    def CreateBatchItem(self, scene_number : int, batch : SubtitleBatch) -> BatchItem:
         batch_item = BatchItem(scene_number, batch, debug_view=self.debug_view)
 
         gap_start = None
@@ -122,7 +124,7 @@ class ProjectViewModel(QStandardItemModel):
 
         return batch_item
 
-    def GetLineItem(self, line_number):
+    def GetLineItem(self, line_number : int) -> LineItem|None:
         """ Find a line item in the viewmodel """
         if not line_number:
             return None
@@ -204,7 +206,7 @@ class ProjectViewModel(QStandardItemModel):
 
         self.endInsertRows()
 
-    def ReplaceScene(self, scene):
+    def ReplaceScene(self, scene : SubtitleScene):
         logging.debug(f"Replacing scene {scene.number}")
         if not isinstance(scene, SubtitleScene):
             raise ViewModelError(f"Wrong type for ReplaceScene ({type(scene).__name__})")

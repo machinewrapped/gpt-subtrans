@@ -97,7 +97,7 @@ class LineItemView(QWidget):
         layout.setContentsMargins(4, 4, 4, 4)
         layout.addWidget(LineItemHeader(line, parent=self))
         h_layout = QHBoxLayout()
-        h_layout.addWidget(LineItemBody(line.text, parent=self))
+        h_layout.addWidget(LineItemBody(line.line_text, parent=self))
         h_layout.addWidget(LineItemBody(line.translation or "", parent=self))
         layout.addLayout(h_layout)
 

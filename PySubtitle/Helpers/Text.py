@@ -80,7 +80,7 @@ def IsTextContentEqual(string1 : str|None, string2 : str|None) -> bool:
 
     return string1 == string2
 
-def Linearise(lines : str | list[str]) -> str:
+def Linearise(lines : str|list[str]) -> str:
     """
     Ensure that the input is a single string
     """
@@ -127,7 +127,7 @@ def CompileDialogSplitPattern(dialog_marker):
     re_split = r"(?<=[^a-zA-Z0-9\s])\s*(?=" + escaped_marker + ")"
     return regex.compile(re_split)
 
-def BreakDialogOnOneLine(text : str, dialog_marker : str | regex.Pattern) -> str:
+def BreakDialogOnOneLine(text : str, dialog_marker : str|regex.Pattern) -> str:
     """
     Break dialog into separate lines
     """
@@ -164,7 +164,7 @@ def NormaliseDialogTags(text : str, dialog_marker : str) -> str:
 
     return text
 
-def FindBreakPoint(text : str, break_sequences: list[regex.Pattern], max_line_length : int, min_line_length : int) -> int | None:
+def FindBreakPoint(text : str, break_sequences: list[regex.Pattern], max_line_length : int, min_line_length : int) -> int|None:
     """
     Find the optimal break point for a long line
     """
@@ -240,7 +240,7 @@ def LimitTextLength(text : str, max_length : int) -> str:
         # As a last resort, cut directly at the max length
         return text[:max_length] + '...'
 
-def CompileFillerWordsPattern(filler_words: str | list[str]) -> regex.Pattern[Any] | None:
+def CompileFillerWordsPattern(filler_words: str|list[str]) -> regex.Pattern[Any]|None:
     """
     Compile a regex pattern to match any provided filler word, assuming they are
     followed by mandatory punctuation and possibly preceded by punctuation.
@@ -256,7 +256,7 @@ def CompileFillerWordsPattern(filler_words: str | list[str]) -> regex.Pattern[An
 
     return regex.compile(filler_words_pattern, flags=regex.IGNORECASE|regex.MULTILINE)
 
-def RemoveFillerWords(text: str, fillerWords: str | list[str] | regex.Pattern) -> str:
+def RemoveFillerWords(text: str, fillerWords: str|list[str]|regex.Pattern) -> str:
     """
     Remove filler words from a text string, adjusting capitalization based on the capitalization of the filler word.
     """

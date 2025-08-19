@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -15,7 +16,7 @@ class SwapTextAndTranslations(Command):
         self.scene_number = scene_number
         self.batch_number = batch_number
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info(f"Swapping text and translations in scene {self.scene_number} batch {self.batch_number}")
         self._swap_text_and_translation()
 
@@ -35,7 +36,7 @@ class SwapTextAndTranslations(Command):
         batch = subtitles.GetBatch(self.scene_number, self.batch_number)
 
         # Swap original and translated text (only in the viewmodel)
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         for original, translated in zip(batch.originals, batch.translated):
             if original and translated:
                 model_update.lines.update((batch.scene, batch.number, original.number), { 'text': translated.text, 'translation': original.text } )

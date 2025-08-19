@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError, UndoError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -16,7 +17,7 @@ class MergeLinesCommand(Command):
         self.line_numbers = sorted(line_numbers)
         self.undo_data = []
 
-    def execute(self):
+    def execute(self) -> bool:
         if not self.datamodel or not self.datamodel.project:
             raise CommandError(_("No project data"), command=self)
 
@@ -30,7 +31,7 @@ class MergeLinesCommand(Command):
         if not batches:
             raise CommandError(_("No batches found for lines to merge"), command=self)
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         for batch in batches:
             batch_lines = [number for number in self.line_numbers 
                 if batch.first_line_number is not None and batch.last_line_number is not None 
@@ -90,7 +91,7 @@ class MergeLinesCommand(Command):
                 batch.AddTranslatedLine(line)
                 updates[(scene_number, batch_number, line.number)]['translation'] = line.text
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         model_update.lines.updates = updates
 
         return True

@@ -11,7 +11,7 @@ class SaveProjectFile(Command):
         self.project : SubtitleProject = project
         self.filepath : str|None = filepath or project.projectfile
 
-    def execute(self):
+    def execute(self) -> bool:
         if not self.filepath:
             raise CommandError(_("Project file path must be specified."), command=self)
 

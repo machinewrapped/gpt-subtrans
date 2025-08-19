@@ -2,6 +2,7 @@ import logging
 from copy import deepcopy
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleScene import SubtitleScene
@@ -13,7 +14,7 @@ class EditSceneCommand(Command):
         self.edit = deepcopy(edit)
         self.undo_data = None
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.debug(f"Editing scene {self.scene_number}")
 
         if not self.datamodel or not self.datamodel.project:
@@ -63,6 +64,6 @@ class EditSceneCommand(Command):
 
         return True
 
-    def _update_viewmodel(self, scene):
-        viewmodel_update = self.AddModelUpdate()
+    def _update_viewmodel(self, scene : SubtitleScene):
+        viewmodel_update : ModelUpdate = self.AddModelUpdate()
         viewmodel_update.scenes.update(self.scene_number, { 'summary': scene.summary })

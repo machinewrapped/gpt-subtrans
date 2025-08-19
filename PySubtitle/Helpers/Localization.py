@@ -90,8 +90,8 @@ def get_available_locales() -> list[str]:
     # Cache the result after first scan
     global _cached_locales
     if not _cached_locales:
-        locales_dir = _get_locale_dir()
-        languages = []
+        locales_dir : str = _get_locale_dir()
+        languages : list[str] = []
         try:
             for name in os.listdir(locales_dir):
                 path = os.path.join(locales_dir, name, 'LC_MESSAGES')
@@ -134,13 +134,13 @@ class LocaleDisplayItem:
     This enables the existing dropdown system to show display names while returning codes.
     """
     def __init__(self, code: str, name: str):
-        self.code = code
-        self.name = name
+        self.code : str = code
+        self.name : str = name
     
-    def __str__(self):
+    def __str__(self) -> str:
         return self.code
     
-    def __eq__(self, other):
+    def __eq__(self, other : object) -> bool:
         if isinstance(other, str):
             return self.code == other
         elif isinstance(other, LocaleDisplayItem):

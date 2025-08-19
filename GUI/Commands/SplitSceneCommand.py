@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.Helpers.Localization import _
 
@@ -11,7 +12,7 @@ class SplitSceneCommand(Command):
         self.scene_number = scene_number
         self.batch_number = batch_number
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info(_("Splitting batch {scene} at batch {batch}").format(scene=str(self.scene_number), batch=str(self.batch_number)))
 
         if not self.datamodel or not self.datamodel.project:
@@ -30,7 +31,7 @@ class SplitSceneCommand(Command):
 
         project.subtitles.SplitScene(self.scene_number, self.batch_number)
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         for scene_number in range(self.scene_number + 1, len(project.subtitles.scenes)):
              model_update.scenes.update(scene_number, { 'number' : scene_number + 1})
 
@@ -57,7 +58,7 @@ class SplitSceneCommand(Command):
             merged_scene = project.subtitles.MergeScenes(scene_numbers)
 
             # Recombine the split scenes
-            model_update = self.AddModelUpdate()
+            model_update : ModelUpdate =  self.AddModelUpdate()
             model_update.scenes.replace(scene_numbers[0], merged_scene)
             model_update.scenes.remove(scene_numbers[1])
 

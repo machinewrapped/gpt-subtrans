@@ -14,7 +14,7 @@ class ExitProgramCommand(Command):
         self.is_blocking = True
         self.can_undo = False
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info(_("Exiting Program"))
 
 class CheckProviderSettings(Command):
@@ -28,7 +28,7 @@ class CheckProviderSettings(Command):
         self.options = options
         self.show_provider_settings = False
 
-    def execute(self):
+    def execute(self) -> bool:
         try:
             translation_provider : TranslationProvider = self.datamodel.translation_provider
             if not translation_provider:

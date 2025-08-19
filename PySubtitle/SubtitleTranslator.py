@@ -396,7 +396,8 @@ class SubtitleTranslator:
         """
         Generate a summary of the translated subtitles
         """
-        movie_name = self.settings.get('movie_name')
+        movie_name = self.settings.get('movie_name', None)
+        movie_name = str(movie_name).strip() if movie_name else None
         max_length = self.max_summary_length
         for candidate in candidates:
             if candidate is None:

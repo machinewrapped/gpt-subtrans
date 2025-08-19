@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.SubtitleValidator import SubtitleValidator
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -14,10 +15,10 @@ class DeleteLinesCommand(Command):
     """
     def __init__(self, line_numbers : list[int], datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
-        self.line_numbers = line_numbers
-        self.deletions = []
+        self.line_numbers : list[int] = line_numbers
+        self.deletions : list[tuple[int, int, list[SubtitleLine], list[SubtitleLine]]] = []
 
-    def execute(self):
+    def execute(self) -> bool:
         if not self.line_numbers:
             raise CommandError(_("No lines selected to delete"), command=self)
 
@@ -37,7 +38,7 @@ class DeleteLinesCommand(Command):
             raise CommandError(_("No lines were deleted"), command=self)
 
         # Update the viewmodel. Priginal and translated lines are currently linked, deleting one means deleting both
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate = self.AddModelUpdate()
         for deletion in self.deletions:
             scene_number, batch_number, originals, translated = deletion # type: ignore[unused-ignore]
             for line in originals:
@@ -47,7 +48,7 @@ class DeleteLinesCommand(Command):
             if batch.errors:
                 validator = SubtitleValidator(self.datamodel.project_options)
                 validator.ValidateBatch(batch)
-                model_update.batches.update((scene_number, batch_number), {'errors': batch.errors})
+                model_update.batches.update((scene_number, batch_number), {'errors': batch.error_messages})
 
         return True
 
@@ -62,7 +63,7 @@ class DeleteLinesCommand(Command):
         project : SubtitleProject = self.datamodel.project
         subtitles = project.subtitles
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
 
         for scene_number, batch_number, deleted_originals, deleted_translated in self.deletions:
             batch : SubtitleBatch = subtitles.GetBatch(scene_number, batch_number)

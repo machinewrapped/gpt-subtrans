@@ -24,7 +24,7 @@ class TranslateSceneCommand(Command):
         self.line_numbers = line_numbers
         self.can_undo = False
 
-    def execute(self):
+    def execute(self) -> bool:
         if self.batch_numbers:
             logging.info(_("Translating scene number {scene} batch {batches}").format(scene=self.scene_number, batches=','.join(str(x) for x in self.batch_numbers)))
         else:
@@ -46,7 +46,7 @@ class TranslateSceneCommand(Command):
             scene = project.TranslateScene(self.translator, self.scene_number, batch_numbers=self.batch_numbers, line_numbers=self.line_numbers)
 
             if scene:
-                model_update = self.AddModelUpdate()
+                model_update : ModelUpdate =  self.AddModelUpdate()
                 model_update.scenes.update(scene.number, {
                     'summary' : scene.summary
                 })

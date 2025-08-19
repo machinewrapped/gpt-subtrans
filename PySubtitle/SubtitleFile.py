@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from copy import deepcopy
 import json
 import os
@@ -8,7 +10,7 @@ import bisect
 from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
-from PySubtitle.Options import Options
+from PySubtitle.Options import Options, SettingsType
 
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -28,7 +30,7 @@ class SubtitleFile:
     """
     High level class for manipulating subtitle files
     """
-    DEFAULT_PROJECT_SETTINGS = {
+    DEFAULT_PROJECT_SETTINGS : SettingsType = {
         'provider': None,
         'model': None,
         'target_language': None,
@@ -46,7 +48,7 @@ class SubtitleFile:
         'instruction_file': None
     }
 
-    def __init__(self, filepath : str|None = None, outputpath : str|None = None):
+    def __init__(self, filepath: str|None = None, outputpath: str|None = None) -> None:
         self.originals : list[SubtitleLine]|None = None
         self.translated : list[SubtitleLine]|None = None
         self.start_line_number : int = 1
@@ -56,40 +58,40 @@ class SubtitleFile:
         self.sourcepath : str|None = GetInputPath(filepath)
         self.outputpath : str|None = outputpath or None
 
-        self.settings : dict[str,Any] = deepcopy(self.DEFAULT_PROJECT_SETTINGS)
+        self.settings : SettingsType = deepcopy(self.DEFAULT_PROJECT_SETTINGS)
 
     @property
-    def movie_name(self):
-        return self.settings.get('movie_name')
+    def movie_name(self) -> str|None:
+        return self._get_setting_str('movie_name')
 
     @property
-    def target_language(self):
-        return self.settings.get('target_language')
+    def target_language(self) -> str|None:
+        return self._get_setting_str('target_language')
     
     @property
-    def task_type(self):
-        return self.settings.get('task_type') or DEFAULT_TASK_TYPE
+    def task_type(self) -> str:
+        return self._get_setting_str('task_type') or DEFAULT_TASK_TYPE
 
     @property
-    def has_subtitles(self):
+    def has_subtitles(self) -> bool:
         return self.linecount > 0 or self.scenecount > 0
 
     @property
-    def linecount(self):
+    def linecount(self) -> int:
         with self.lock:
             return len(self.originals) if self.originals else 0
 
     @property
-    def scenecount(self):
+    def scenecount(self) -> int:
         with self.lock:
             return len(self.scenes) if self.scenes else 0
 
     @property
-    def scenes(self):
+    def scenes(self) -> list[SubtitleScene]:
         return self._scenes
 
     @scenes.setter
-    def scenes(self, scenes : list[SubtitleScene]):
+    def scenes(self, scenes: list[SubtitleScene]):
         with self.lock:
             self._scenes = scenes
             self.originals, self.translated, dummy = UnbatchScenes(scenes) # type: ignore[unused-ignore]
@@ -141,7 +143,7 @@ class SubtitleFile:
             with self.lock:
                 return next((line for line in self.translated if line.number == line_number), None)
 
-    def GetBatchContainingLine(self, line_number : int):
+    def GetBatchContainingLine(self, line_number: int) -> SubtitleBatch|None:
         """
         Get the batch containing a line number
         """
@@ -204,7 +206,7 @@ class SubtitleFile:
 
         return out_batches
 
-    def GetBatchContext(self, scene_number : int, batch_number : int, max_lines : int|None = None) -> dict[str,Any]:
+    def GetBatchContext(self, scene_number: int, batch_number: int, max_lines: int|None = None) -> dict[str, Any]:
         """
         Get context for a batch of subtitles, by extracting summaries from previous scenes and batches
         """
@@ -224,13 +226,13 @@ class SubtitleFile:
                 'batch': f"Batch {batch.number}: {batch.summary}" if batch.summary else f"Batch {batch.number}"
             }
 
-            if self.settings.get('movie_name'):
-                context['movie_name'] = self.settings.get('movie_name')
+            if 'movie_name' in self.settings:
+                context['movie_name'] = self._get_setting_str('movie_name')
 
-            if self.settings.get('description'):
-                context['description'] = self.settings.get('description')
+            if 'description' in self.settings:
+                context['description'] = self._get_setting_str('description')
 
-            if self.settings.get('names'):
+            if 'names' in self.settings:
                 context['names'] = ParseNames(self.settings.get('names', []))
 
             history_lines = self._get_history(scene_number, batch_number, max_lines)
@@ -240,7 +242,7 @@ class SubtitleFile:
 
         return context
 
-    def LoadSubtitles(self, filepath : str|None = None):
+    def LoadSubtitles(self, filepath: str|None = None) -> None:
         """
         Load subtitles from an SRT file
         """
@@ -270,7 +272,7 @@ class SubtitleFile:
         with self.lock:
             self.originals = lines
 
-    def LoadSubtitlesFromString(self, srt_string : str):
+    def LoadSubtitlesFromString(self, srt_string: str) -> None:
         """
         Load subtitles from an SRT string
         """
@@ -284,7 +286,7 @@ class SubtitleFile:
         except SubtitleParseError as e:
             logging.error(_("Failed to parse SRT string: {}").format(str(e)))
 
-    def SaveProjectFile(self, projectfile : str, encoder_class : type|None = None):
+    def SaveProjectFile(self, projectfile: str, encoder_class: type|None = None) -> None:
         """
         Save the project settings to a JSON file
         """
@@ -299,7 +301,7 @@ class SubtitleFile:
                 project_json = json.dumps(self, cls=encoder_class, ensure_ascii=False, indent=4) # type: ignore
                 f.write(project_json)
 
-    def SaveOriginal(self, path : str|None = None):
+    def SaveOriginal(self, path: str|None = None) -> None:
         """
         Write original subtitles to an SRT file
         """
@@ -319,7 +321,7 @@ class SubtitleFile:
             else:
                 logging.warning(_("No original subtitles to save to {}").format(str(path)))
 
-    def SaveTranslation(self, outputpath : str|None = None):
+    def SaveTranslation(self, outputpath: str|None = None) -> None:
         """
         Write translated subtitles to an SRT file
         """
@@ -378,7 +380,7 @@ class SubtitleFile:
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateProjectSettings(self, settings : dict[str, Any]) -> None:
+    def UpdateProjectSettings(self, settings: dict[str, Any]) -> None:
         """
         Update the project settings
         """
@@ -388,12 +390,15 @@ class SubtitleFile:
         with self.lock:
             self.settings.update({key: settings[key] for key in settings if key in self.DEFAULT_PROJECT_SETTINGS})
 
-            self.settings['names'] = ParseNames(self.settings.get('names', []))
-            self.settings['substitutions'] = Substitutions.Parse(self.settings.get('substitutions', []))
+            names_list = self.settings.get('names', [])
+            self.settings['names'] = ParseNames(names_list)
+            substitions_list = self.settings.get('substitutions', [])
+            if substitions_list:
+                self.settings['substitutions'] = Substitutions.Parse(substitions_list)
 
             self._update_compatibility(self.settings)
 
-    def UpdateOutputPath(self, outputpath : str|None = None):
+    def UpdateOutputPath(self, outputpath: str|None = None) -> None:
         """
         Set or generate the output path for the translated subtitles
         """
@@ -401,7 +406,7 @@ class SubtitleFile:
             outputpath = GetOutputPath(self.sourcepath, self.target_language)
         self.outputpath = outputpath
 
-    def PreProcess(self, preprocessor : SubtitleProcessor):
+    def PreProcess(self, preprocessor: SubtitleProcessor) -> None:
         """
         Preprocess subtitles
         """
@@ -409,7 +414,7 @@ class SubtitleFile:
             if self.originals:
                 self.originals = preprocessor.PreprocessSubtitles(self.originals)
 
-    def AutoBatch(self, batcher : SubtitleBatcher):
+    def AutoBatch(self, batcher: SubtitleBatcher) -> None:
         """
         Divide subtitles into scenes and batches based on threshold options
         """
@@ -417,28 +422,28 @@ class SubtitleFile:
             if self.originals:
                 self.scenes = batcher.BatchSubtitles(self.originals)
 
-    def AddScene(self, scene):
+    def AddScene(self, scene: SubtitleScene) -> None:
         with self.lock:
             self.scenes.append(scene)
             logging.debug("Added a new scene")
 
-    def UpdateScene(self, scene_number, update):
+    def UpdateScene(self, scene_number: int, update: dict[str, Any]) -> Any:
         with self.lock:
-            scene : SubtitleScene = self.GetScene(scene_number)
+            scene: SubtitleScene = self.GetScene(scene_number)
             if not scene:
                 raise ValueError(f"Scene {scene_number} does not exist")
 
             return scene.UpdateContext(update)
 
-    def UpdateBatch(self, scene_number, batch_number, update):
+    def UpdateBatch(self, scene_number: int, batch_number: int, update: dict[str, Any]) -> bool:
         with self.lock:
-            batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
+            batch: SubtitleBatch = self.GetBatch(scene_number, batch_number)
             if not batch:
                 raise ValueError(f"Batch ({scene_number},{batch_number}) does not exist")
 
             return batch.UpdateContext(update)
 
-    def UpdateLineText(self, line_number : int, original_text : str, translated_text : str):
+    def UpdateLineText(self, line_number : int, original_text : str, translated_text : str) -> None:
         with self.lock:
             if self.originals is None:
                 raise SubtitleError("Original subtitles are missing!")
@@ -467,7 +472,7 @@ class SubtitleFile:
             insertIndex = bisect.bisect_left([line.number for line in self.translated], line_number)
             self.translated.insert(insertIndex, translated_line)
 
-    def DeleteLines(self, line_numbers : list[int]):
+    def DeleteLines(self, line_numbers: list[int]) -> list[tuple[int, int, list[SubtitleLine], list[SubtitleLine]]]:
         """
         Delete lines from the subtitles
         """
@@ -486,7 +491,7 @@ class SubtitleFile:
 
         return deletions
 
-    def MergeScenes(self, scene_numbers: list[int]):
+    def MergeScenes(self, scene_numbers: list[int]) -> SubtitleScene:
         """
         Merge several (sequential) scenes into one scene
         """
@@ -515,7 +520,7 @@ class SubtitleFile:
 
         return merged_scene
 
-    def MergeBatches(self, scene_number : int, batch_numbers: list[int]):
+    def MergeBatches(self, scene_number: int, batch_numbers: list[int]) -> None:
         """
         Merge several (sequential) batches from a scene into one batch
         """
@@ -529,7 +534,7 @@ class SubtitleFile:
 
             scene.MergeBatches(batch_numbers)
 
-    def MergeLinesInBatch(self, scene_number : int, batch_number : int, line_numbers : list[int]):
+    def MergeLinesInBatch(self, scene_number: int, batch_number: int, line_numbers: list[int]) -> tuple[SubtitleLine, SubtitleLine|None]:
         """
         Merge several sequential lines together, remapping originals and translated lines if necessary.
         """
@@ -537,7 +542,7 @@ class SubtitleFile:
             batch : SubtitleBatch = self.GetBatch(scene_number, batch_number)
             return batch.MergeLines(line_numbers)
 
-    def SplitScene(self, scene_number : int, batch_number : int):
+    def SplitScene(self, scene_number: int, batch_number: int) -> None:
         """
         Split a scene into two at the specified batch number
         """
@@ -566,7 +571,7 @@ class SubtitleFile:
 
             self._renumber_scenes()
 
-    def Sanitise(self):
+    def Sanitise(self) -> None:
         """
         Remove invalid lines, empty batches and empty scenes
         """
@@ -588,7 +593,7 @@ class SubtitleFile:
         self.scenes = [scene for scene in self.scenes if scene.batches]
         self._renumber_scenes()
 
-    def _renumber_scenes(self):
+    def _renumber_scenes(self) -> None:
         """
         Ensure scenes are numbered sequentially
         """
@@ -598,7 +603,7 @@ class SubtitleFile:
                 batch.scene = scene.number
                 batch.number = batch_number
 
-    def _get_history(self, scene_number : int, batch_number : int, max_lines : int|None = None) -> list[str]:
+    def _get_history(self, scene_number: int, batch_number: int, max_lines: int|None = None) -> list[str]:
         """
         Get a list of historical summaries up to a given scene and batch number
         """
@@ -622,7 +627,7 @@ class SubtitleFile:
 
         return history_lines
 
-    def _merge_original_and_translated(self, originals : list[SubtitleLine], translated : list[SubtitleLine]):
+    def _merge_original_and_translated(self, originals: list[SubtitleLine], translated: list[SubtitleLine]) -> list[SubtitleLine]:
         lines = {item.key: SubtitleLine(item) for item in originals if item.key}
 
         for item in translated:
@@ -632,7 +637,14 @@ class SubtitleFile:
 
         return sorted(lines.values(), key=lambda item: item.key)
 
-    def _update_compatibility(self, settings : dict[str, Any]):
+    def _get_setting_str(self, key: str, default: str|None = None) -> str|None:
+        """
+        Get a setting as a string, or None if not set
+        """
+        value = self.settings.get(key, default)
+        return value if isinstance(value, str) else default
+
+    def _update_compatibility(self, settings: dict[str, Any]) -> None:
         """ Update settings for compatibility with older versions """
         if not settings.get('description') and settings.get('synopsis'):
             settings['description'] = settings.get('synopsis')

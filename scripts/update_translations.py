@@ -157,7 +157,7 @@ def auto_translate_strings(untranslated: dict[str,str], target_language: str, pa
         return {}
 
 
-def get_plural_forms(lang: str) -> str | None:
+def get_plural_forms(lang: str) -> str|None:
     """Return the Plural-Forms header value for a given language code.
     Prefer Babel (CLDR) rules; fallback to the common English rule if Babel is unavailable.
     """
@@ -373,7 +373,7 @@ def run_extract_strings() -> None:
         print(f"extract_strings.py failed: {e}")
 
 
-def merge_and_compile(languages: list[str] | None = None):
+def merge_and_compile(languages: list[str]|None = None):
     if not os.path.exists(POT_PATH):
         print(f"POT not found at {POT_PATH}. Run extract_strings.py first.")
         return
@@ -429,8 +429,8 @@ def _collect_untranslated_msgids(po_file_path: str) -> dict[str,str]:
     except FileNotFoundError:
         return untranslated
 
-    current_msgid: str | None = None
-    current_msgstr: str | None = None
+    current_msgid: str|None = None
+    current_msgstr: str|None = None
     in_msgid = False
     in_msgstr = False
 
@@ -672,7 +672,7 @@ def _update_po_with_translations(po_path: str, translations: dict[str,str]) -> i
     out: list[str] = []
     i = 0
     updated = 0
-    current_msgid: str | None = None
+    current_msgid: str|None = None
     while i < len(lines):
         line = lines[i]
         stripped = line.lstrip()

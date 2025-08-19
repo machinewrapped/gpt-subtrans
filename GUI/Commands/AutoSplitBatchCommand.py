@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleValidator import SubtitleValidator
@@ -14,7 +15,7 @@ class AutoSplitBatchCommand(Command):
         self.batch_number : int= batch_number
         self.split_line : int|None = None
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info(_("Auto-splitting batch {scene} batch {batch}").format(scene=str(self.scene_number), batch=str(self.batch_number)))
 
         if not self.datamodel or not self.datamodel.project:
@@ -49,14 +50,14 @@ class AutoSplitBatchCommand(Command):
             raise CommandError(f"New batch {new_batch_number} has no lines", command=self)
 
         # Remove lines from the original batch that are in the new batch now
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         for line_removed in range(new_batch.first_line_number, new_batch.last_line_number + 1):
             model_update.lines.remove((self.scene_number, self.batch_number, line_removed))
 
         for batch_number in range(self.batch_number + 1, len(scene.batches)):
              model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
 
-        model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.errors })
+        model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.error_messages })
         model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
 
         self.split_line = new_batch.first_line_number
@@ -80,15 +81,15 @@ class AutoSplitBatchCommand(Command):
         if not merged_batch:
             raise CommandError(f"Cannot find merged batch {self.batch_number}", command=self)
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         model_update.batches.remove((self.scene_number, self.batch_number + 1))
-        model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : merged_batch.errors })
+        model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : merged_batch.error_messages })
 
         if not self.split_line or not merged_batch.first_line_number or not merged_batch.last_line_number:
             logging.warning(f"Split line number {self.split_line} or merged batch line numbers ({merged_batch.first_line_number}, {merged_batch.last_line_number}) is not set")
             return True
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         for line_number in range(self.split_line, merged_batch.last_line_number + 1):
             key = (self.scene_number, self.batch_number, line_number)
             line = merged_batch.GetOriginalLine(line_number)
