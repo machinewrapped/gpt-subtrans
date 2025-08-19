@@ -60,7 +60,7 @@ class CustomClient(TranslationClient):
     def timeout(self):
         return self.settings.get('timeout', 300)
 
-    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """
         Request a translation based on the provided prompt
         """
