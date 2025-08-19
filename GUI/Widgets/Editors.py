@@ -14,22 +14,22 @@ class EditDialog(QDialog):
         self.editors = {}
         self.setMinimumWidth(800)
 
-        self.layout = QVBoxLayout(self)
+        self._layout : QVBoxLayout = QVBoxLayout(self)
 
         if title:
             self.setWindowTitle(title)
-            self.layout.addWidget(QLabel(title))
+            self._layout.addWidget(QLabel(title))
 
         # Subclass populates the editor widget
         editor_widget = self.CreateEditor()
 
-        self.layout.addWidget(editor_widget)
+        self._layout.addWidget(editor_widget)
 
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
-        self.layout.addWidget(self.buttonBox)
+        self._layout.addWidget(self.buttonBox)
 
     def GetFormLayout(self):
         layout = QFormLayout()

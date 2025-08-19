@@ -178,13 +178,13 @@ class BatchItem(ViewModelItem):
 
         self._invalidate_first_and_last()
 
-    def AddTranslation(self, line_number : int, text : str):
+    def AddTranslation(self, line_number : int, translation_text : str|None):
         """
         Add a translation to the line item
         """
         if line_number in self.lines.keys():
             line_item : LineItem = self.lines[line_number]
-            line_item.Update({ 'translation' : text })
+            line_item.Update({ 'translation' : translation_text })
         else:
             logging.warning(_("Original line {line} not found in batch {batch}").format(line=line_number, batch=self.number))
 

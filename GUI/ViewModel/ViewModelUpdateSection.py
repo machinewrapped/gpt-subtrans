@@ -4,14 +4,16 @@ from typing import Any, TypeAlias
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleScene import SubtitleScene
+from PySubtitle.Translation import Translation
+from PySubtitle.TranslationPrompt import TranslationPrompt
 
 SceneKey = int
 BatchKey = tuple[int, int]
 LineKey = tuple[int, int, int]
 
 Key : TypeAlias = SceneKey | BatchKey | LineKey
-Value : TypeAlias = str | int | float | list[str] | None
-UpdateValue : TypeAlias = Value | dict[str, 'UpdateValue'] | dict[int, 'UpdateValue']
+Value : TypeAlias = str | int | float | list[str] | dict[str, str|list|dict] | Translation | TranslationPrompt | None
+UpdateValue : TypeAlias = dict[str, 'UpdateValue'] | dict[int, 'UpdateValue'] | Value
 UpdateType : TypeAlias = dict[Key, UpdateValue]
 ModelTypes : TypeAlias = SubtitleLine | SubtitleBatch | SubtitleScene
 

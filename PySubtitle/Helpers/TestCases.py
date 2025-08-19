@@ -114,6 +114,7 @@ def CreateTestDataModel(test_data : dict, options : Options|None = None) -> Proj
     """
     Creates a ProjectDataModel from test data.
     """
+    options = options or Options()
     file : SubtitleFile = PrepareSubtitles(test_data, 'original')
     datamodel = ProjectDataModel(options = options)
     datamodel.project = SubtitleProject(options, file)
