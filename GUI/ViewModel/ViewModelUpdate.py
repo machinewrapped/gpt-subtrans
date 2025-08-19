@@ -3,13 +3,13 @@ from GUI.ViewModel.ViewModel import ProjectViewModel
 
 class ModelUpdate:
     def __init__(self):
-        self.scenes = ModelUpdateSection()
-        self.batches = ModelUpdateSection()
-        self.lines = ModelUpdateSection()
+        self.scenes : ModelUpdateSection = ModelUpdateSection()
+        self.batches : ModelUpdateSection = ModelUpdateSection()
+        self.lines : ModelUpdateSection = ModelUpdateSection()
 
     def HasUpdate(self) -> bool:
         """ Returns True if there are any updates """
-        return self.scenes.HasUpdate() or self.batches.HasUpdate() or self.lines.HasUpdate()
+        return self.scenes.has_updates or self.batches.has_updates or self.lines.has_updates
 
     def ApplyToViewModel(self, viewmodel : ProjectViewModel):
         """ Apply the updates to the viewmodel """

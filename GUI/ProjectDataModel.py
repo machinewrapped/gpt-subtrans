@@ -15,7 +15,7 @@ class ProjectDataModel:
     def __init__(self, project : SubtitleProject|None = None, options : Options|None = None):
         self.project : SubtitleProject|None = project
         self.viewmodel : ProjectViewModel|None = None
-        self.project_options = Options(options)
+        self.project_options : Options = Options(options)
         self.mutex = QRecursiveMutex()
 
         if project:

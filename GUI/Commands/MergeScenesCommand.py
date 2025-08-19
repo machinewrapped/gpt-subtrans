@@ -2,6 +2,7 @@ import logging
 
 from GUI.Command import Command, CommandError, UndoError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.Helpers.Localization import _
 
@@ -15,7 +16,7 @@ class MergeScenesCommand(Command):
         self.scene_sizes = []
         self.original_summaries = {}
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info(_("Merging scenes {scenes}").format(scenes=','.join(str(x) for x in self.scene_numbers)))
 
         if not self.datamodel or not self.datamodel.project:
@@ -34,7 +35,7 @@ class MergeScenesCommand(Command):
 
         merged_scene = subtitles.MergeScenes(self.scene_numbers)
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         for new_number, current_number in enumerate(later_scenes, start=merged_scene.number + 1):
             model_update.scenes.update(current_number, { 'number' : new_number })
 
@@ -55,7 +56,7 @@ class MergeScenesCommand(Command):
 
         subtitles : SubtitleFile = self.datamodel.project.subtitles
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
 
         # Remove the previously merged batches from the merged scene
         scene_to_split = subtitles.GetScene(self.scene_numbers[0])

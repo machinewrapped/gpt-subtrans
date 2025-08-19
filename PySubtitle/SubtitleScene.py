@@ -36,22 +36,22 @@ class SubtitleScene:
         return sum(batch.size for batch in self.batches)
 
     @property
-    def originals(self) -> list[SubtitleLine] | None:
+    def originals(self) -> list[SubtitleLine]|None:
         """ Get all original lines in the scene """
         return [ line for batch in self.batches for line in batch.originals ] if self.batches else None
 
     @property
-    def translated(self) -> list[SubtitleLine] | None:
+    def translated(self) -> list[SubtitleLine]|None:
         """ Get all translated lines in the scene """
         return [ line for batch in self.batches for line in batch.translated ] if self.batches else None
 
     @property
-    def first_line_number(self) -> int | None:
+    def first_line_number(self) -> int|None:
         """ Get the first line number in the first batch of the scene """
         return self.batches[0].first_line_number if self.batches else None
 
     @property
-    def last_line_number(self) -> int | None:
+    def last_line_number(self) -> int|None:
         """ Get the last line number in the last batch of the scene """
         return self.batches[-1].last_line_number if self.batches else None
 
@@ -66,7 +66,7 @@ class SubtitleScene:
         return any(batch.all_translated for batch in self.batches)
 
     @property
-    def summary(self) -> str | None:
+    def summary(self) -> str|None:
         """ Get a summary of the scene's content """
         return self.GetContextString('summary')
 

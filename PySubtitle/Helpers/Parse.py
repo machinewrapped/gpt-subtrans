@@ -1,11 +1,15 @@
+from typing import Any
 import regex
 import json
 import logging
 
-def ParseNames(name_list : str | list[str]) -> list[str]:
+def ParseNames(name_list : str|list|None|Any) -> list[str]:
     """
     Parse a list of names from a string or list of strings
     """
+    if name_list is None:
+        return []
+
     if isinstance(name_list, str):
         name_list = regex.split(r"[\n,]\s*", name_list)
 
@@ -46,7 +50,7 @@ def ParseDelayFromHeader(value : str) -> float:
         logging.error(f"Unexpected time value '{value}'")
         return 6.66
 
-def ParseErrorMessageFromText(value: str) -> str | None:
+def ParseErrorMessageFromText(value: str) -> str|None:
     """
     Try to extract a human-friendly error message from an HTTP response body.
 

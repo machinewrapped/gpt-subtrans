@@ -18,7 +18,7 @@ class StartTranslationCommand(Command):
         self.resume = resume
         self.scenes = scenes or {}
 
-    def execute(self):
+    def execute(self) -> bool:
         if not self.datamodel or not self.datamodel.project or not self.datamodel.project.subtitles:
             raise CommandError(_("Nothing to translate"), command=self)
 

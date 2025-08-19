@@ -6,7 +6,7 @@ from typing import Any
 
 from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import Options
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleError import SubtitleError, TranslationAbortedError
 from PySubtitle.SubtitleFile import SubtitleFile
 
@@ -238,7 +238,7 @@ class SubtitleProject:
         """
         return { key : value for key, value in self.subtitles.settings.items() if value }
 
-    def UpdateProjectSettings(self, settings: dict[str,Any] | Options):
+    def UpdateProjectSettings(self, settings: Options|SettingsType):
         """
         Replace settings if the provided dictionary has an entry with the same key
         """

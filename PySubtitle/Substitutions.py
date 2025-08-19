@@ -21,7 +21,7 @@ class Substitutions:
     template_partialwords = r"{}"
     template_automatic = r"(?<!\p{{Script=Latin}}){}(?!\p{{Script=Latin}})"
 
-    def __init__(self, substitutions : dict | list | str, mode : Mode = Mode.Auto):
+    def __init__(self, substitutions : dict|list|str, mode : Mode = Mode.Auto):
         self._patterns = None
         self._mode = self._parse_mode(mode)
         self.substitutions = substitutions
@@ -31,7 +31,7 @@ class Substitutions:
         return self._mode
 
     @mode.setter
-    def mode(self, mode : Mode | int | str):
+    def mode(self, mode : Mode|int|str):
         self._mode = self._parse_mode(mode)
         self._patterns = None
 
@@ -40,7 +40,7 @@ class Substitutions:
         return self._substitutions
 
     @substitutions.setter
-    def substitutions(self, substitutions : dict | list | str):
+    def substitutions(self, substitutions : dict|list|str):
         self._substitutions = Substitutions.Parse(substitutions) if substitutions else {}
         self._patterns = None
 
@@ -50,7 +50,7 @@ class Substitutions:
             self._patterns = self._compile_patterns()
         return self._patterns
 
-    def PerformSubstitutions(self, input : list | str):
+    def PerformSubstitutions(self, input : list|str):
         """
         Try to substitute all (before,after) pairs in an input string
 
@@ -106,7 +106,7 @@ class Substitutions:
         return GetValueFromName(mode, list(self.Mode))
 
     @classmethod
-    def Parse(cls, sub_list : str | list[str] | dict, separator="::") -> dict:
+    def Parse(cls, sub_list : str|list|dict|Any, separator="::") -> dict:
         """
         Parse a list of (before,after) pairs from a string, dictionary or list of strings, or a file containing such pairs.
 

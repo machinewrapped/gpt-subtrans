@@ -151,7 +151,7 @@ class EditSubtitleDialog(EditDialog):
     def __init__(self, line : LineItem, parent=None) -> None:
         self.line = line
         self.model = {
-            'original' : self.line.text if line else "",
+            'original' : self.line.line_text if line else "",
             'translated'  : self.line.translation_text if line else "",
             'was_translated' : bool(self.line.translation_text)
         }

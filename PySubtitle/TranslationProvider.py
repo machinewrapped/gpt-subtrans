@@ -1,7 +1,8 @@
 import importlib
 import logging
 import pkgutil
-from PySubtitle.Options import Options
+from typing import cast
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 
 class TranslationProvider:
@@ -12,8 +13,8 @@ class TranslationProvider:
         self.name : str = name
         self.settings : dict = settings
         self._available_models : list[str] = []
-        self.refresh_when_changed = []
-        self.validation_message = None
+        self.refresh_when_changed : list[str] = []
+        self.validation_message : str|None = None
 
     @property
     def available_models(self) -> list[str]:
@@ -26,11 +27,11 @@ class TranslationProvider:
         return self._available_models
 
     @property
-    def selected_model(self) -> str:
+    def selected_model(self) -> str|None:
         """
         The currently selected model for the provider
         """
-        name : str = self.settings.get('model')
+        name : str = str(self.settings.get('model'))
         return name.strip() if name else None
 
     @property
@@ -52,7 +53,7 @@ class TranslationProvider:
         """
         self._available_models = []
 
-    def GetInformation(self) -> str:
+    def GetInformation(self) -> str|None:
         """
         Returns information about the provider settings
         """
@@ -70,7 +71,7 @@ class TranslationProvider:
         """
         return True
 
-    def UpdateSettings(self, settings : dict | Options):
+    def UpdateSettings(self, settings : SettingsType|Options):
         """
         Update the settings for the provider
         """
@@ -101,7 +102,7 @@ class TranslationProvider:
             except Exception as e:
                 logging.error(f"Error importing providers: {str(e)}")
 
-        providers = { provider.name : provider for provider in cls.__subclasses__() }
+        providers = { cast(TranslationProvider, provider).name : provider for provider in cls.__subclasses__() }
 
         return providers
 
@@ -141,7 +142,7 @@ class TranslationProvider:
         Dynamically import all modules in the providers package.
         """
         package = importlib.import_module(package_name)
-        for loader, module_name, is_pkg in pkgutil.iter_modules(package.__path__, package.__name__ + '.'):
+        for loader, module_name, is_pkg in pkgutil.iter_modules(package.__path__, package.__name__ + '.'): # type: ignore[ignore-unused]
             logging.debug(f"Importing provider: {module_name}")
             importlib.import_module(module_name)
 

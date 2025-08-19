@@ -7,6 +7,6 @@ class SaveTranslationFile(Command):
         self.filepath = filepath or project.subtitles.outputpath
         self.project = project
 
-    def execute(self):
+    def execute(self) -> bool:
         self.project.SaveTranslation(self.filepath)
         return True

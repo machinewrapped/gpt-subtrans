@@ -16,8 +16,9 @@ class ClearCommandQueue(Command):
     def __init__(self, datamodel: ProjectDataModel|None = None):
         super().__init__(datamodel)
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info("Terminating command queue...")
+        return True
 
 #############################################################
 
@@ -100,14 +101,14 @@ class CommandQueue(QObject):
             return len(self.redo_stack) > 0
 
     @property
-    def undoable_command_text(self) -> str | None:
+    def undoable_command_text(self) -> str|None:
         with QMutexLocker(self.mutex):
             if self.undo_stack:
                 return _("Can undo {command}").format(command=type(self.undo_stack[-1]).__name__)
             return None
 
     @property
-    def redoable_command_text(self) -> str | None:
+    def redoable_command_text(self) -> str|None:
         with QMutexLocker(self.mutex):
             if self.redo_stack:
                 return _("Can redo {command}").format(command=type(self.redo_stack[-1]).__name__)

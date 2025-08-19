@@ -14,7 +14,7 @@ class SubtitleBatch:
         self.scene : int = dct.get('scene', 0)
         self.number : int = dct.get('batch') or dct.get('number') or 0
         self.summary : str|None = dct.get('summary')
-        self.context : dict[str,Any] = dct.get('context', {})
+        self.context : dict[str,str|list|dict] = dct.get('context', {})
         self.errors : list[str|SubtitleError] = dct.get('errors', [])
         self._originals : list[SubtitleLine] = dct.get('originals', []) or dct.get('subtitles', [])
         self._translated : list[SubtitleLine] = dct.get('translated', [])
@@ -102,18 +102,23 @@ class SubtitleBatch:
         """ Get the last line number in the batch """
         return self.originals[-1].number if self.originals else None
 
+    @property
+    def error_messages(self) -> list[str]:
+        """ Get the list of error messages associated with the batch """
+        return [str(error) for error in self.errors if isinstance(error,str) or isinstance(error, (str, Exception))]
+
     @originals.setter
     def originals(self, value : list[SubtitleLine]|list[str]):
         """
-        :type value: list[SubtitleLine | str]
+        Update the original text for the batch
         """
         lines = [SubtitleLine(line) for line in value] if value else []
         self._originals = [line for line in lines if line.number]
 
     @translated.setter
     def translated(self, value : list[SubtitleLine]|list[str]):
-        """
-        :type value: list[SubtitleLine | str]
+        """ 
+        Update the translated text for the batch
         """
         lines = [SubtitleLine(line) for line in value] if value else []
         self._translated = [line for line in lines if line.number]
@@ -148,7 +153,7 @@ class SubtitleBatch:
     def AddContext(self, key : str, value : str|list[str]|dict[str,Any]):
         self.context[key] = value
 
-    def GetContext(self, key : str) -> str|dict[str,Any]|None:
+    def GetContext(self, key : str) -> str|dict|list|None:
         return self.context.get(key)
 
     def SetContext(self, context : dict[str,Any]):

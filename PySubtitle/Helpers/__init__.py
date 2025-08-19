@@ -70,7 +70,7 @@ def UpdateFields(item : dict[str,Any], update : dict[str,Any], fields : list[str
 
     item.update({field: update[field] for field in update.keys() if field in fields})
 
-def GetInputPath(filepath : str|None) -> str | None:
+def GetInputPath(filepath : str|None) -> str|None:
     if not filepath:
         return None
 

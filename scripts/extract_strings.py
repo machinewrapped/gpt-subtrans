@@ -78,14 +78,14 @@ class SettingKeyExtractor:
     def __init__(self):
         self.setting_keys: set[str] = set()
     
-    def extract_to_entries(self, entries: dict[tuple[str | None, str], list[tuple[str, int]]]) -> set[str]:
+    def extract_to_entries(self, entries: dict[tuple[str|None, str], list[tuple[str, int]]]) -> set[str]:
         """Extract all setting keys and add them to entries dict, return the keys"""
         self.setting_keys.clear()
         self._extract_options_keys(entries)
         self._extract_provider_keys(entries)
         return self.setting_keys.copy()
     
-    def _extract_options_keys(self, entries: dict[tuple[str | None, str], list[tuple[str, int]]]):
+    def _extract_options_keys(self, entries: dict[tuple[str|None, str], list[tuple[str, int]]]):
         """Extract setting keys from PySubtitle/Options.py default_options dictionary"""
         options_path = os.path.join(REPO_ROOT, 'PySubtitle', 'Options.py')
         
@@ -133,7 +133,7 @@ class SettingKeyExtractor:
         except Exception as e:
             raise Exception(f"Could not extract setting keys from Options.py: {e}")
     
-    def _extract_provider_keys(self, entries: dict[tuple[str | None, str], list[tuple[str, int]]]):
+    def _extract_provider_keys(self, entries: dict[tuple[str|None, str], list[tuple[str, int]]]):
         """Extract setting keys from all translation providers"""
         providers_dir = os.path.join(REPO_ROOT, 'PySubtitle', 'Providers')
         provider_files = [f for f in os.listdir(providers_dir) if f.startswith('Provider_') and f.endswith('.py')]
@@ -188,9 +188,9 @@ class SettingKeyExtractor:
 class TranslatableStringExtractor:
     """Extracts translatable strings wrapped in _() and tr() from source code"""
     
-    def extract_from_codebase(self) -> dict[tuple[str | None, str], list[tuple[str, int]]]:
+    def extract_from_codebase(self) -> dict[tuple[str|None, str], list[tuple[str, int]]]:
         """Extract all translatable strings from the codebase"""
-        entries: dict[tuple[str | None, str], list[tuple[str, int]]] = {}
+        entries: dict[tuple[str|None, str], list[tuple[str, int]]] = {}
         
         for root, _, files in os.walk(REPO_ROOT):
             for name in files:
@@ -237,7 +237,7 @@ class TranslatableStringExtractor:
                 return False
         return any(rel.startswith(d.rstrip('/') + '/') or rel == d for d in INCLUDE_DIRS)
     
-    def _extract_string_from_call(self, node: ast.Call, func_name: str) -> tuple[str | None, str] | None:
+    def _extract_string_from_call(self, node: ast.Call, func_name: str) -> tuple[str|None, str]|None:
         """Extract string from _() or tr() call"""
         if func_name == '_' and node.args:
             arg = node.args[0]
@@ -252,9 +252,9 @@ class TranslatableStringExtractor:
 
 ############################################################################
 
-def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]]], set[str]]:
+def collect_entries() -> tuple[dict[tuple[str|None, str], list[tuple[str, int]]], set[str]]:
     """Collect all translatable entries (both strings and setting keys)"""
-    entries: dict[tuple[str | None, str], list[tuple[str, int]]] = {}
+    entries: dict[tuple[str|None, str], list[tuple[str, int]]] = {}
     
     # Extract setting keys first
     setting_extractor = SettingKeyExtractor()
@@ -277,7 +277,7 @@ def collect_entries() -> tuple[dict[tuple[str | None, str], list[tuple[str, int]
     return entries, setting_keys
 
 
-def write_pot(entries: dict[tuple[str | None, str], list[tuple[str, int]]], timestamp: str):
+def write_pot(entries: dict[tuple[str|None, str], list[tuple[str, int]]], timestamp: str):
     ensure_parent(POT_PATH)
 
     lines: list[str] = []
@@ -315,7 +315,7 @@ def write_pot(entries: dict[tuple[str | None, str], list[tuple[str, int]]], time
     # Return setting_keys for English PO generation
 
 
-def write_english_po(entries: dict[tuple[str | None, str], list[tuple[str, int]]], timestamp: str, setting_keys: set[str]):
+def write_english_po(entries: dict[tuple[str|None, str], list[tuple[str, int]]], timestamp: str, setting_keys: set[str]):
     """Write English PO file with auto-generated translations for setting keys"""
     en_po_path = os.path.join(LOCALES_DIR, 'en', 'LC_MESSAGES', 'gui-subtrans.po')
     ensure_parent(en_po_path)

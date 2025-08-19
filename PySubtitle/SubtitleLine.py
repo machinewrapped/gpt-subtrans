@@ -1,3 +1,4 @@
+from __future__ import annotations
 from copy import deepcopy
 from datetime import timedelta
 from os import linesep
@@ -21,9 +22,9 @@ class SubtitleLine:
     Represents a single subtitle line with timing, content, and metadata.
     This is the internal representation used throughout the application.
     """
-    def __init__(self, line : 'SubtitleLine|str|dict|None' = None, translation : str|None = None, original : str|None = None):
+    def __init__(self, line : SubtitleLine|str|dict|None = None, translation : str|None = None, original : str|None = None):
         # Core subtitle properties 
-        self._index: int | None = None
+        self._index: int|None = None
         self._start: timedelta|None = None
         self._end: timedelta|None = None
         self.content: str|None = None
@@ -38,7 +39,7 @@ class SubtitleLine:
             self._index = line._index
             self._start = line._start
             self._end = line._end
-            self.content = line.content
+            self.content = line.text
             self._duration = line._duration
             self.original = original if original is not None else line.original
             self.translation = translation if translation is not None else line.translation
@@ -68,7 +69,7 @@ class SubtitleLine:
             self._parse_from_string(str(line))
 
     def __str__(self) -> str:
-        return f"{self.number}:{self.srt_start}-->{self.srt_end}: {self.text}" if self.start is not None and self.end is not None else "Invalid SubtitleLine"
+        return f"{self.number}:{self.srt_start}-->{self.srt_end}: {self.text}" if self._start is not None and self._end is not None else "Invalid SubtitleLine"
 
     def __repr__(self) -> str:
         return f"[Line {self.number}] {TimedeltaToText(self.start)}, {repr(self.text)}"
@@ -81,7 +82,7 @@ class SubtitleLine:
                 self.end == other.end and 
                 self.text == other.text)
 
-    def copy(self) -> 'SubtitleLine':
+    def copy(self) -> SubtitleLine:
         """Create a copy of this subtitle line."""
         new_line = SubtitleLine()
         new_line._index = self._index
@@ -103,7 +104,7 @@ class SubtitleLine:
         return self._end or timedelta(seconds=0)
 
     @property
-    def key(self) -> int | str:
+    def key(self) -> int|str:
         return self.number if self.number else str(self.start)
 
     @property
@@ -137,7 +138,7 @@ class SubtitleLine:
     @property
     def duration(self) -> timedelta:
         if not self._duration:
-            self._duration = self.end - self.start if self.start is not None and self.end else timedelta(seconds=0)
+            self._duration = self.end - self.start if self._start is not None and self.end else timedelta(seconds=0)
         return self._duration
 
     @property
@@ -145,7 +146,7 @@ class SubtitleLine:
         return TimedeltaToText(self.duration)
 
     @property
-    def translated(self) -> 'SubtitleLine|None':
+    def translated(self) -> SubtitleLine|None:
         if self.translation is None:
             return None
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
@@ -159,7 +160,7 @@ class SubtitleLine:
         self.content = str(text).strip() if text else None
 
     @start.setter
-    def start(self, time : timedelta | str):
+    def start(self, time : timedelta|str):
         """Set the start time, handling string conversion."""
         new_time = GetTimeDelta(time, raise_exception=False)
 
@@ -170,7 +171,7 @@ class SubtitleLine:
         self._duration = None
 
     @end.setter
-    def end(self, time : timedelta | str):
+    def end(self, time : timedelta|str):
         """Set the end time, handling string conversion."""
         new_time = GetTimeDelta(time, raise_exception=False)
 
@@ -192,7 +193,7 @@ class SubtitleLine:
             self._end = self._start + self._duration
 
     @translated.setter
-    def translated(self, translated : 'SubtitleLine|str|None'):
+    def translated(self, translated : SubtitleLine|str|None):
         self.translation = SubtitleLine(translated).text if translated else None
 
     def _parse_from_string(self, line_str: str) -> None:
@@ -214,7 +215,7 @@ class SubtitleLine:
         self.content = match.group('content').strip()
 
     @classmethod
-    def Construct(cls, number : int|str, start : timedelta|str|None, end : timedelta|str|None, text : str, metadata : dict[str,Any]|None = None) -> 'SubtitleLine':
+    def Construct(cls, number : int|str, start : timedelta|str|None, end : timedelta|str|None, text : str, metadata : dict[str,Any]|None = None) -> SubtitleLine:
         t_start : timedelta|Exception|None = GetTimeDelta(start)
         t_end : timedelta|Exception|None = GetTimeDelta(end)
         if isinstance(t_start, Exception):
@@ -228,12 +229,12 @@ class SubtitleLine:
         line.number = number
         line.start = t_start or timedelta(seconds=0)
         line.end = t_end or timedelta(seconds=0)
-        line.content = legal_text
+        line.text = legal_text
         line.metadata = metadata or {}
         return line
 
     @classmethod
-    def FromMatch(cls, match : tuple[str, str, str, str]) -> 'SubtitleLine':
+    def FromMatch(cls, match : tuple[str, str, str, str]) -> SubtitleLine:
         """
         Construct a SubtitleLine from a regex match.
 
@@ -245,7 +246,7 @@ class SubtitleLine:
             start, end, body = match
             number = None
         
-        if number is None:
+        if number is None or not isinstance(start, str) or not isinstance(end, str) or not isinstance(body, str):
             raise SubtitleError(_("Invalid subtitle line format: {}").format(match))
 
-        return SubtitleLine.Construct(number, start.strip(), end.strip(), body.strip())
+        return SubtitleLine.Construct(int(number), start.strip(), end.strip(), body.strip())

@@ -1,5 +1,6 @@
 from GUI.Command import Command, CommandError
 from GUI.ProjectDataModel import ProjectDataModel
+from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -19,7 +20,7 @@ class MergeBatchesCommand(Command):
         self.original_first_line_numbers : list[int] = []
         self.original_summaries : dict[int, str] = {}
 
-    def execute(self):
+    def execute(self) -> bool:
         logging.info(f"Merging scene {str(self.scene_number)} batches: {','.join(str(x) for x in self.batch_numbers)}")
 
         if not self.datamodel or not self.datamodel.project:
@@ -46,7 +47,7 @@ class MergeBatchesCommand(Command):
                 validator = SubtitleValidator(self.datamodel.project_options)
                 validator.ValidateBatch(merged_batch)
 
-            model_update = self.AddModelUpdate()
+            model_update : ModelUpdate =  self.AddModelUpdate()
             model_update.batches.replace((scene.number, merged_batch_number), merged_batch)
             for batch_number in self.batch_numbers[1:]:
                 model_update.batches.remove((scene.number, batch_number))
@@ -70,7 +71,7 @@ class MergeBatchesCommand(Command):
             if batch:
                 batch.summary = summary
 
-        model_update = self.AddModelUpdate()
+        model_update : ModelUpdate =  self.AddModelUpdate()
         model_update.scenes.replace(scene.number, scene)
 
         return True

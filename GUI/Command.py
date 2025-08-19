@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Callable
 import os
 import logging
@@ -38,16 +40,16 @@ class Command(QRunnable, QObject):
         self.model_updates : list[ModelUpdate] = []
         self.commands_to_queue : list[Command] = []
 
-    def SetDataModel(self, datamodel):
+    def SetDataModel(self, datamodel: ProjectDataModel|None) -> None:
         self.datamodel = datamodel
 
-    def SetCallback(self, callback):
+    def SetCallback(self, callback: Callable[[Command], Any]|None) -> None:
         self.callback = callback
 
-    def SetUndoCallback(self, undo_callback):
+    def SetUndoCallback(self, undo_callback: Callable[[Command], Any]|None) -> None:
         self.undo_callback = undo_callback
 
-    def Abort(self):
+    def Abort(self) -> None:
         if not self.aborted:
             self.aborted = True
             self.queued = False
@@ -58,11 +60,11 @@ class Command(QRunnable, QObject):
         self.model_updates.append(update)
         return update
 
-    def ClearModelUpdates(self):
+    def ClearModelUpdates(self) -> None:
         self.model_updates = []
 
     @Slot()
-    def run(self):
+    def run(self) -> None:
         self.succeeded = None
 
         if self.aborted:
@@ -92,7 +94,7 @@ class Command(QRunnable, QObject):
             logging.error(_("Error executing {type}: {str}").format(type=type(self).__name__, str=e))
             self.commandCompleted.emit(self)
 
-    def execute(self):
+    def execute(self) -> bool:
         raise NotImplementedError
 
     def undo(self) -> bool:
@@ -102,14 +104,14 @@ class Command(QRunnable, QObject):
 
         raise NotImplementedError
 
-    def on_abort(self):
+    def on_abort(self) -> None:
         pass
 
-    def execute_callback(self):
+    def execute_callback(self) -> None:
         if self.callback:
             self.callback(self)
 
-    def execute_undo_callback(self):
+    def execute_undo_callback(self) -> None:
         if self.undo_callback:
             self.undo_callback(self)
 
