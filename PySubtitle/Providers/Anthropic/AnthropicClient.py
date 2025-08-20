@@ -2,6 +2,8 @@ import logging
 import time
 from typing import Any
 
+from anthropic import NotGiven
+
 try:
     import anthropic
 
@@ -42,7 +44,7 @@ try:
             return self.settings.get('thinking', False)
         
         @property
-        def thinking(self) -> dict[str, Any] | Any:
+        def thinking(self) -> dict|NotGiven:
             if self.allow_thinking:
                 return {
                     'type' : 'enabled',
@@ -78,6 +80,9 @@ try:
             if not prompt.content:
                 raise TranslationError(_("No content provided for translation"))
 
+            if not isinstance(prompt.content, list):
+                raise TranslationError(_("Content must be a list of messages"))
+
             response = self._send_messages(prompt.system_prompt, prompt.content, temperature)
 
             translation = Translation(response) if response else None
@@ -91,7 +96,7 @@ try:
 
             return translation
 
-        def _send_messages(self, system_prompt : str, messages : list[dict[str, Any]], temperature: float) -> dict[str, Any]|None:
+        def _send_messages(self, system_prompt : str, messages : list[dict[str, str]], temperature: float) -> dict[str, Any]|None:
             """
             Make a request to the LLM to provide a translation
             """
@@ -101,11 +106,17 @@ try:
                 if self.aborted:
                     return None
 
+                if not self.client:
+                    raise TranslationImpossibleError(_("Client not initialized"))
+
+                if self.model is None:
+                    raise TranslationError(_("No model specified for translation"))
+                
                 try:
                     api_response = self.client.messages.create(
                         model=self.model,
-                        thinking=self.thinking,
-                        messages=messages,
+                        thinking=self.thinking,     # type: ignore
+                        messages=messages,          # type: ignore
                         system=system_prompt,
                         temperature=temperature if not self.allow_thinking else 1,
                         max_tokens=self.max_tokens
@@ -160,7 +171,16 @@ try:
             ))
 
         def _get_error_message(self, e : anthropic.APIError) -> str:
-            return e.message or (e.body.get('error', {}).get('message', e.message) if hasattr(e, 'body') else str(e))
+            """ 
+            Extract a user-friendly error message from the API error
+            """
+            if hasattr(e, 'body') and isinstance(e.body, dict):
+                if 'error' in e.body and isinstance(e.body['error'], dict):
+                    return str(e.body['error'].get('message', str(e)))
+                elif 'message' in e.body:
+                    return str(e.body['message'])
+
+            return str(e)
 
 except ImportError as e:
     logging.debug(f"Failed to import anthropic: {e}")
