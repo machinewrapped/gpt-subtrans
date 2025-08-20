@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import cast
 from PySide6.QtWidgets import (
     QGroupBox,
     QVBoxLayout,
@@ -101,7 +102,7 @@ class ProjectSettings(QGroupBox):
             translation_provider = datamodel.translation_provider
             if translation_provider is not None:
                 self.model_list = translation_provider.all_available_models
-                
+
         except Exception as e:
             logging.warning(f"Unable to retrieve models: {e}")
             self.model_list = []
@@ -207,7 +208,7 @@ class ProjectSettings(QGroupBox):
         self.widgets[key] = input_widget
         self.current_row += 1
 
-    def _gettextvalue(self, key):
+    def _gettextvalue(self, key : str) -> str:
         widget = self.widgets.get(key)
         if isinstance(widget, QLineEdit):
             return widget.text()
@@ -218,25 +219,25 @@ class ProjectSettings(QGroupBox):
         else:
             raise ValueError(f"Unexpected widget for key {key}")
 
-    def _getcheckboxvalue(self, key):
+    def _getcheckboxvalue(self, key : str) -> bool:
         widget = self.widgets.get(key)
         if isinstance(widget, QCheckBox):
             return widget.isChecked()
         else:
             raise ValueError(f"Unexpected widget for key {key}")
 
-    def _setvalue(self, key, value):
+    def _setvalue(self, key : str, value : str|bool|None):
         widget = self.widgets.get(key)
         if isinstance(widget, QCheckBox):
-            widget.setChecked(value or False)
+            widget.setChecked(bool(value) or False)
         elif isinstance(widget, QComboBox):
             self._update_combo_box(widget, value)
         elif widget is not None:
-            self._settext(widget, value)
+            self._settext(widget, str(value))
         else:
             raise ValueError(f"No widget for key {key}")
 
-    def _settext(self, widget, value):
+    def _settext(self, widget : QLineEdit|TextBoxEditor, value : str|list[str]|dict[str, str]|None):
         if isinstance(value, list):
             value = '\n'.join(value)
         elif isinstance(value, dict):
@@ -244,12 +245,12 @@ class ProjectSettings(QGroupBox):
             value = '\n'.join(items)
         widget.setText(value or "")
 
-    def _update_combo_box(self, widget, value):
+    def _update_combo_box(self, widget : QComboBox, value : str):
         index = widget.findText(value)
         if index >= 0:
             widget.setCurrentIndex(index)
 
-    def _text_changed(self, text = None):
+    def _text_changed(self, text : str|None = None):
         self.UpdateSettings()
         self.settingsChanged.emit(self.settings)
 
@@ -257,14 +258,15 @@ class ProjectSettings(QGroupBox):
         self.UpdateSettings()
         self.settingsChanged.emit(self.settings)
 
-    def _option_changed(self, key, value):
-        if key == 'provider':
-            self._update_provider_settings(value)
-            self.datamodel.SaveProject()
-        elif key == 'model' and not self.updating_model_list:
-            if value and value != self.settings.get('model'):
-                self.datamodel.UpdateProjectSettings({ "model": value })
-                self.settings['model'] = self.datamodel.selected_model
+    def _option_changed(self, key : str, value : str|bool|None):
+        if self.datamodel is not None:
+            if key == 'provider':
+                self._update_provider_settings(str(value))
+                self.datamodel.SaveProject()
+            elif key == 'model' and not self.updating_model_list:
+                if value and value != self.settings.get('model'):
+                    self.datamodel.UpdateProjectSettings({ "model": value })
+                    self.settings['model'] = self.datamodel.selected_model
 
     def _update_provider_settings(self, provider : str):
         try:
@@ -288,13 +290,13 @@ class ProjectSettings(QGroupBox):
             logging.error(f"Provider error: {e}")
 
     def _update_available_models(self):
-        model_input = self.widgets.get('model')
+        model_input : QComboBox|None = cast(QComboBox, self.widgets.get('model'))
         if model_input:
             try:
                 self.updating_model_list = True
                 model_input.clear()
                 model_input.addItems(self.model_list)
-                self._update_combo_box(model_input, self.settings.get('model'))
+                self._update_combo_box(model_input, str(self.settings.get('model')))
 
             except Exception as e:
                 logging.error(f"Error updating model list: {e}")

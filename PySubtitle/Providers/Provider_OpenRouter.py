@@ -260,7 +260,7 @@ class OpenRouterProvider(TranslationProvider):
         """
         full_model_name = model.get('name', '')
         model_series, model_name = full_model_name.split(': ', 1) if ': ' in full_model_name else ("Generic", full_model_name)
-        return model_series,model_name
+        return model_series, model_name
     
     def _get_model_id(self, display_name: str) -> str:
         """
