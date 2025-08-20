@@ -18,7 +18,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Helpers import GetValueName
-from PySubtitle.Options import Options
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -32,40 +32,40 @@ class ProjectSettings(QGroupBox):
     """
     settingsChanged = Signal(dict)
 
-    def __init__(self, action_handler : ProjectActions = None, parent=None):
+    def __init__(self, action_handler : ProjectActions|None = None, parent=None):
         super().__init__(parent=parent)
         self.setTitle(_("Project Settings"))
         self.setMinimumWidth(450)
 
-        self.action_handler = action_handler
+        self.action_handler : ProjectActions|None = action_handler
         self.provider_list = sorted(TranslationProvider.get_providers())
-        self.model_list = []
-        self.widgets = {}
-        self.settings = {}
-        self.current_provider = None
-        self.datamodel = None
-        self.updating_model_list = False
+        self.model_list : list[str] = []
+        self.widgets : dict[str, QLineEdit|QCheckBox|QComboBox] = {}
+        self.settings : SettingsType = {}
+        self.current_provider : str|None = None
+        self.datamodel : ProjectDataModel|None = None
+        self.updating_model_list : bool = False
 
-        self.layout = QVBoxLayout(self)
+        self._layout = QVBoxLayout(self)
         self.grid_layout = OptionsGrid()
 
-        self.layout.addLayout(self.grid_layout)
+        self._layout.addLayout(self.grid_layout)
 
-    def GetSettings(self):
+    def GetSettings(self) -> SettingsType:
         """
         Get a dictionary of the user's settings
         """
         settings = {
-            'movie_name': self.widgets['movie_name'].text(),
-            'target_language': self.widgets['target_language'].text(),
-            'add_right_to_left_markers': self.widgets['add_right_to_left_markers'].isChecked(),
-            'include_original': self.widgets['include_original'].isChecked(),
-            'description': self.widgets['description'].toPlainText(),
-            'names': ParseNames(self.widgets['names'].toPlainText()),
-            'substitutions': Substitutions.Parse(self.widgets['substitutions'].toPlainText()),
-            'substitution_mode': self.widgets['substitution_mode'].currentText(),
-            'model': self.widgets['model'].currentText() if 'model' in self.widgets else self.settings.get('model'),
-            'provider': self.widgets['provider'].currentText() if 'provider' in self.widgets else self.settings.get('provider'),
+            'movie_name': self._gettextvalue('movie_name'),
+            'target_language': self._gettextvalue('target_language'),
+            'add_right_to_left_markers': self._getcheckboxvalue('add_right_to_left_markers'),
+            'include_original': self._getcheckboxvalue('include_original'),
+            'description': self._gettextvalue('description'),
+            'names': ParseNames(self._gettextvalue('names')),
+            'substitutions': Substitutions.Parse(self._gettextvalue('substitutions')),
+            'substitution_mode': self._gettextvalue('substitution_mode'),
+            'model': self._gettextvalue('model') if 'model' in self.widgets else self.settings.get('model'),
+            'provider': self._gettextvalue('provider') if 'provider' in self.widgets else self.settings.get('provider'),
         }
 
         return settings
@@ -79,7 +79,6 @@ class ProjectSettings(QGroupBox):
 
     def OpenSettings(self):
         self._update_available_models()
-
         self.show()
 
     def UpdateUiLanguage(self):
@@ -92,18 +91,27 @@ class ProjectSettings(QGroupBox):
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
-        self.current_provider = datamodel.provider
+        if datamodel is None:
+            self.ClearForm()
+            self.settings = {}
+            return
+            
+        self.current_provider : str|None = datamodel.provider
         try:
-            self.model_list = datamodel.available_models
+            translation_provider = datamodel.translation_provider
+            if translation_provider is not None:
+                self.model_list = translation_provider.all_available_models
+                
         except Exception as e:
             logging.warning(f"Unable to retrieve models: {e}")
             self.model_list = []
 
-        self.settings = datamodel.project.GetProjectSettings()
-        self.settings['model'] = datamodel.selected_model
-        self.settings['provider'] = datamodel.provider
-        self.settings['project_path'] = os.path.dirname(datamodel.project.projectfile)
-        self.BuildForm(self.settings)
+        if datamodel.project is not None:
+            self.settings : SettingsType = datamodel.project.GetProjectSettings()
+            self.settings['model'] = datamodel.selected_model
+            self.settings['provider'] = datamodel.provider
+            self.settings['project_path'] = os.path.dirname(datamodel.project.projectfile or "project.subtrans")
+            self.BuildForm(self.settings)
 
     def Populate(self):
         with QSignalBlocker(self):
@@ -199,6 +207,24 @@ class ProjectSettings(QGroupBox):
         self.widgets[key] = input_widget
         self.current_row += 1
 
+    def _gettextvalue(self, key):
+        widget = self.widgets.get(key)
+        if isinstance(widget, QLineEdit):
+            return widget.text()
+        elif isinstance(widget, TextBoxEditor):
+            return widget.toPlainText()
+        elif isinstance(widget, QComboBox):
+            return widget.currentText()
+        else:
+            raise ValueError(f"Unexpected widget for key {key}")
+
+    def _getcheckboxvalue(self, key):
+        widget = self.widgets.get(key)
+        if isinstance(widget, QCheckBox):
+            return widget.isChecked()
+        else:
+            raise ValueError(f"Unexpected widget for key {key}")
+
     def _setvalue(self, key, value):
         widget = self.widgets.get(key)
         if isinstance(widget, QCheckBox):
@@ -242,12 +268,21 @@ class ProjectSettings(QGroupBox):
 
     def _update_provider_settings(self, provider : str):
         try:
+            if self.datamodel is None:
+                raise Exception("Data model is not set")
+
+            if self.action_handler is None:
+                raise Exception("Action handler is not set")
+
             self.datamodel.UpdateProjectSettings({ "provider": provider})
             self.action_handler.CheckProviderSettings()
-            self.model_list = self.datamodel.available_models
             self.settings['provider'] = provider
             self.settings['model'] = self.datamodel.selected_model
-            self._update_available_models()
+
+            translation_provider = self.datamodel.translation_provider
+            if translation_provider is not None:
+                self.model_list = translation_provider.all_available_models
+                self._update_available_models()
 
         except Exception as e:
             logging.error(f"Provider error: {e}")
