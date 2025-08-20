@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Any
 import httpx
 
 from PySubtitle.Helpers import FormatMessages
@@ -14,10 +15,10 @@ class CustomClient(TranslationClient):
     """
     Handles communication with local LLM server to request translations
     """
-    def __init__(self, settings : dict):
+    def __init__(self, settings : dict[str, Any]):
         super().__init__(settings)
-        self.client = None
-        self.headers = {'Content-Type': 'application/json'}
+        self.client: httpx.Client|None = None
+        self.headers: dict[str, str] = {'Content-Type': 'application/json'}
         self.headers.update(settings.get('additional_headers', {}))
         if self.api_key:
             self.headers['Authorization'] = f"Bearer {self.api_key}"
@@ -29,35 +30,35 @@ class CustomClient(TranslationClient):
             logging.info(_("Using model: {model}").format(model=self.model))
 
     @property
-    def server_address(self):
+    def server_address(self) -> str|None:
         return self.settings.get('server_address')
 
     @property
-    def endpoint(self):
+    def endpoint(self) -> str|None:
         return self.settings.get('endpoint')
 
     @property
-    def supports_conversation(self):
+    def supports_conversation(self) -> bool:
         return self.settings.get('supports_conversation', False)
 
     @property
-    def api_key(self):
+    def api_key(self) -> str|None:
         return self.settings.get('api_key')
 
     @property
-    def model(self):
+    def model(self) -> str|None:
         return self.settings.get('model')
 
     @property
-    def max_tokens(self):
+    def max_tokens(self) -> int|None:
         return self.settings.get('max_tokens', None)
     
     @property
-    def max_completion_tokens(self):
+    def max_completion_tokens(self) -> int|None:
         return self.settings.get('max_completion_tokens', None)
     
     @property
-    def timeout(self):
+    def timeout(self) -> int:
         return self.settings.get('timeout', 300)
 
     def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
@@ -73,12 +74,12 @@ class CustomClient(TranslationClient):
 
         return translation
 
-    def _abort(self):
+    def _abort(self) -> None:
         if self.client:
             self.client.close()
         return super()._abort()
 
-    def _make_request(self, prompt : TranslationPrompt, temperature):
+    def _make_request(self, prompt : TranslationPrompt, temperature: float|None) -> dict[str, Any]|None:
         """
         Make a request to the server to provide a translation
         """
@@ -91,6 +92,9 @@ class CustomClient(TranslationClient):
             try:
                 request_body = self._generate_request_body(prompt, temperature)
                 logging.debug(f"Request Body:\n{request_body}")
+
+                if self.server_address is None or self.endpoint is None:
+                    raise TranslationImpossibleError(_("Server address or endpoint is not set"))
 
                 self.client = httpx.Client(base_url=self.server_address, follow_redirects=True, timeout=self.timeout, headers=self.headers)
 
@@ -189,7 +193,7 @@ class CustomClient(TranslationClient):
             ))
             time.sleep(sleep_time)
 
-    def _generate_request_body(self, prompt, temperature):
+    def _generate_request_body(self, prompt: TranslationPrompt, temperature: float|None) -> dict[str, Any]:
         request_body = {
             'temperature': temperature,
             'stream': False

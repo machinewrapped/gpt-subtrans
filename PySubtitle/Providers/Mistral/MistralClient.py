@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from PySubtitle.SubtitleError import TranslationResponseError
 
@@ -17,7 +18,7 @@ try:
         """
         Handles communication with Mistral to request translations
         """
-        def __init__(self, settings : dict):
+        def __init__(self, settings : dict[str, Any]):
             super().__init__(settings)
 
             if not self.api_key:
@@ -42,7 +43,7 @@ try:
         def model(self):
             return self.settings.get('model')
 
-        def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+        def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
             Request a translation based on the provided prompt
             """

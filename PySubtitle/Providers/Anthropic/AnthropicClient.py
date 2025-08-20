@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Any
 
 try:
     import anthropic
@@ -9,7 +10,6 @@ try:
     from PySubtitle.SubtitleError import TranslationError, TranslationResponseError, TranslationImpossibleError
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.Translation import Translation
-    from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
 
     linesep = '\n'
@@ -18,7 +18,7 @@ try:
         """
         Handles communication with Claude via the anthropic SDK
         """
-        def __init__(self, settings : dict):
+        def __init__(self, settings : dict[str, Any]):
             super().__init__(settings)
 
             logging.info(_("Translating with Anthropic {model}").format(
@@ -26,23 +26,23 @@ try:
             ))
 
         @property
-        def api_key(self):
+        def api_key(self) -> str|None:
             return self.settings.get('api_key')
 
         @property
-        def model(self):
+        def model(self) -> str|None:
             return self.settings.get('model')
 
         @property
-        def max_tokens(self):
+        def max_tokens(self) -> int:
             return self.settings.get('max_tokens', 0)
         
         @property
-        def allow_thinking(self):
+        def allow_thinking(self) -> bool:
             return self.settings.get('thinking', False)
         
         @property
-        def thinking(self):
+        def thinking(self) -> dict[str, Any] | Any:
             if self.allow_thinking:
                 return {
                     'type' : 'enabled',
@@ -51,7 +51,7 @@ try:
             
             return anthropic.NOT_GIVEN
 
-        def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+        def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
             Request a translation based on the provided prompt
             """
@@ -84,7 +84,7 @@ try:
 
             return translation
 
-        def _send_messages(self, system_prompt : str, messages : list[str], temperature):
+        def _send_messages(self, system_prompt : str, messages : list[dict[str, Any]], temperature: float) -> dict[str, Any]|None:
             """
             Make a request to the LLM to provide a translation
             """
@@ -152,7 +152,7 @@ try:
                 max_retries=self.max_retries
             ))
 
-        def _get_error_message(self, e : anthropic.APIError):
+        def _get_error_message(self, e : anthropic.APIError) -> str:
             return e.message or (e.body.get('error', {}).get('message', e.message) if hasattr(e, 'body') else str(e))
 
 except ImportError as e:
