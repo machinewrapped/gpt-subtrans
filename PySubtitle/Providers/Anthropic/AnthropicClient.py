@@ -61,7 +61,7 @@ try:
                 # Try to add proxy settings if specified
                 if self.settings.get('proxy'):
                     http_client = anthropic.DefaultHttpxClient(
-                        proxies = self.settings.get('proxy')
+                        proxy = self.settings.get('proxy')
                     )
                     self.client = self.client.with_options(http_client=http_client)
 
@@ -71,6 +71,13 @@ try:
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
             temperature = temperature or self.temperature
+
+            if prompt.system_prompt is None:
+                raise TranslationError(_("System prompt is required"))
+
+            if not prompt.content:
+                raise TranslationError(_("No content provided for translation"))
+
             response = self._send_messages(prompt.system_prompt, prompt.content, temperature)
 
             translation = Translation(response) if response else None
