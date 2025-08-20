@@ -46,8 +46,7 @@ class ProjectDataModel:
 
     @property
     def all_available_models(self) -> list[str]:
-        return self.project_options.all_available_models if self.project_options else []
-        
+        return self.translation_provider.all_available_models if self.translation_provider else []
 
     @property
     def selected_model(self) -> str|None:
