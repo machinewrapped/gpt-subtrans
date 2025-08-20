@@ -100,7 +100,7 @@ def _add_test_file_logger(logger, results_path, input_filename, test_name):
     logger.addHandler(file_handler)
     return file_handler
 
-def RunTestOnAllSrtFiles(run_test: Callable[[SubtitleFile, logging.Logger, dict]], test_options: list[dict], directory_path: str, results_path: str|None = None):
+def RunTestOnAllSrtFiles(run_test, test_options: list[dict], directory_path: str, results_path: str|None = None):
     """
     Run a series of tests on all .srt files in the test_subtitles directory.
     """
