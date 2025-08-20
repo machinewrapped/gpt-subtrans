@@ -39,8 +39,9 @@ class OpenRouterProvider(TranslationProvider):
         })
 
         self.refresh_when_changed = ['api_key', 'model', 'endpoint', 'only_translation_models', 'model_family', 'use_default_model']
-        self.cached_models = {}
-        self.model_cache_filtered = False
+        self._all_model_list = []
+        self._cached_models = {}
+        self._model_cache_filtered = False
 
     @property
     def use_default_model(self) -> bool:
@@ -59,7 +60,7 @@ class OpenRouterProvider(TranslationProvider):
         """
         Returns a list of available providers for the OpenRouter API
         """
-        available_families = sorted(self.cached_models.keys()) if self.cached_models else []
+        available_families = sorted(self._cached_models.keys()) if self._cached_models else []
         if self.model_family not in available_families:
             available_families = [self.model_family] + available_families
         return available_families
@@ -67,6 +68,16 @@ class OpenRouterProvider(TranslationProvider):
     @property
     def model_family(self) -> str:
         return self.settings.get('model_family', "Google")
+
+    @property
+    def all_available_models(self) -> list[str]:
+        """
+        Returns all available models for the provider, including those currently filtered out
+        """
+        if not self._cached_models:
+            self._populate_model_cache()
+        
+        return self._all_model_list
     
     def GetTranslationClient(self, settings : dict) -> TranslationClient:
         """ Returns a new instance of the OpenRouter client """
@@ -100,7 +111,7 @@ class OpenRouterProvider(TranslationProvider):
             # First populate cached models if needed
             self._populate_model_cache()
             
-            if self.cached_models:
+            if self._cached_models:
                 options.update({
                     'model_family': (self.available_model_families, _( "Model family/provider to choose from")),
                 })
@@ -144,12 +155,12 @@ class OpenRouterProvider(TranslationProvider):
         # Ensure cache is populated
         self._populate_model_cache()
 
-        if not self.cached_models:
+        if not self._cached_models:
             logging.warning(_("Cannot retrieve model list, check API key"))
             return []
 
         family = self.model_family
-        family_models = self.cached_models.get(family, {})
+        family_models = self._cached_models.get(family, {})
         
         # Return display names sorted
         return sorted(family_models.keys())
@@ -185,7 +196,7 @@ class OpenRouterProvider(TranslationProvider):
         if not self.api_key:
             return
         
-        if self.cached_models and self.model_cache_filtered == self.settings.get('only_translation_models', True):
+        if self._cached_models and self._model_cache_filtered == self.settings.get('only_translation_models', True):
             return  # Cache already populated with current filter setting
             
         try:
@@ -218,11 +229,12 @@ class OpenRouterProvider(TranslationProvider):
                         if 'text' in input_modalities and 'text' in output_modalities:
                             filtered_models.append(model)
 
+                    self._all_model_list = sorted(self._get_model_name(model)[1] for model in filtered_models if model.get('name'))
+
                     # Group models by family based on model name
                     for model in filtered_models:
                         model_id = model.get('id', '')
-                        full_model_name = model.get('name', '')
-                        model_series, model_name = full_model_name.split(': ', 1) if ': ' in full_model_name else ("Generic", full_model_name)
+                        model_series, model_name = self._get_model_name(model)
 
                         if model_series not in model_cache:
                             model_cache[model_series] = {}
@@ -231,8 +243,8 @@ class OpenRouterProvider(TranslationProvider):
                         display_name = model_name if model_name else model_id
                         model_cache[model_series][display_name] = model_id
 
-                    self.cached_models = model_cache
-                    self.model_cache_filtered = use_model_filter
+                    self._cached_models = model_cache
+                    self._model_cache_filtered = use_model_filter
 
                 except json.JSONDecodeError:
                     logging.error(_("Unable to parse server response as JSON: {response_text}").format(response_text=result.text))
@@ -241,6 +253,14 @@ class OpenRouterProvider(TranslationProvider):
         except Exception as e:
             logging.error(_("Unable to retrieve available models: {error}").format(error=str(e)))
             return
+
+    def _get_model_name(self, model : dict) -> tuple[str, str]:
+        """
+        Split model name into series and name
+        """
+        full_model_name = model.get('name', '')
+        model_series, model_name = full_model_name.split(': ', 1) if ': ' in full_model_name else ("Generic", full_model_name)
+        return model_series, model_name
     
     def _get_model_id(self, display_name: str) -> str:
         """
@@ -253,7 +273,7 @@ class OpenRouterProvider(TranslationProvider):
         self._populate_model_cache()
         
         family = self.model_family
-        family_models = self.cached_models.get(family, {})
+        family_models = self._cached_models.get(family, {})
         
         # Return the model ID if found, otherwise return the display name as-is
         return family_models.get(display_name, display_name)

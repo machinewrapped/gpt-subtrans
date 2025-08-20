@@ -27,6 +27,13 @@ class TranslationProvider:
         return self._available_models
 
     @property
+    def all_available_models(self) -> list[str]:
+        """
+        Returns all available models for the provider, including those currently filtered out
+        """
+        return self.available_models
+
+    @property
     def selected_model(self) -> str|None:
         """
         The currently selected model for the provider

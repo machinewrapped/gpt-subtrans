@@ -29,7 +29,7 @@ class ProjectDataModel:
             self.CreateTranslationProvider()
 
     @property
-    def provider(self):
+    def provider(self) -> str|None:
         return self.translation_provider.name if self.translation_provider else None
 
     @property
@@ -43,6 +43,10 @@ class ProjectDataModel:
     @property
     def available_models(self) -> list[str]:
         return self.translation_provider.available_models if self.translation_provider else []
+
+    @property
+    def all_available_models(self) -> list[str]:
+        return self.translation_provider.all_available_models if self.translation_provider else []
 
     @property
     def selected_model(self) -> str|None:
