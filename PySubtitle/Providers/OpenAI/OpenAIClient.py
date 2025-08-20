@@ -1,6 +1,7 @@
 from json import JSONDecodeError
 import logging
 import time
+from typing import Any
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader
@@ -20,7 +21,7 @@ try:
         """
         Handles communication with OpenAI to request translations
         """
-        def __init__(self, settings : dict):
+        def __init__(self, settings : dict[str, Any]):
             super().__init__(settings)
 
             if not hasattr(openai, "OpenAI"):
@@ -36,25 +37,25 @@ try:
                 api_base=self.api_base or openai.base_url
             ))
 
-            self.client = None
+            self.client: openai.OpenAI|None = None
 
         @property
-        def api_key(self):
+        def api_key(self) -> str|None:
             return self.settings.get('api_key')
 
         @property
-        def api_base(self):
+        def api_base(self) -> str|None:
             return self.settings.get('api_base')
 
         @property
-        def model(self):
+        def model(self) -> str|None:
             return self.settings.get('model')
         
         @property
-        def reuse_client(self):
+        def reuse_client(self) -> bool:
             return self.settings.get('reuse_client', True)
 
-        def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+        def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
             Request a translation based on the provided prompt
             """
@@ -76,17 +77,18 @@ try:
 
             return translation
 
-        def _send_messages(self, messages : list[str], temperature : float):
+        def _send_messages(self, prompt: TranslationPrompt, temperature : float) -> dict[str, Any]|None:
             """
             Communicate with the API
             """
             raise NotImplementedError
 
-        def _abort(self):
-            self.client.close()
+        def _abort(self) -> None:
+            if self.client:
+                self.client.close()
             return super()._abort()
         
-        def _try_send_messages(self, prompt : TranslationPrompt, temperature: float):
+        def _try_send_messages(self, prompt : TranslationPrompt, temperature: float) -> dict[str, Any]|None:
             for retry in range(self.max_retries + 1):
                 if self.aborted:
                     return None
@@ -150,8 +152,8 @@ try:
                     max_retries=self.max_retries
                 ))
 
-        def _create_client(self):
-            http_client = None
+        def _create_client(self) -> None:
+            http_client: httpx.Client|None = None
             if self.settings.get('proxy'):
                 # Use httpx with SOCKS proxy support
                 proxies = {

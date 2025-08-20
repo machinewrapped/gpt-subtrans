@@ -19,13 +19,18 @@ from PySubtitle.Helpers.Text import (
     NormaliseDialogTags,
     RemoveFillerWords
 )
-from PySubtitle.Helpers.Time import GetTimeDeltaSafe
+from PySubtitle.Helpers.Settings import (
+    get_bool_setting,
+    get_int_setting, 
+    get_list_setting,
+    get_timedelta_setting
+)
 from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleProcessor:
     """
-    Helper class to pre-process subtitles to make them suitable for translation.
+    Helper class to pre-process or post-process subtitles to make them suitable for translation.
 
     Will split long lines, add line breaks and remove empty lines.
     """
@@ -44,29 +49,29 @@ class SubtitleProcessor:
             ("‘", "’"),
         ]
 
-        self.max_line_duration : timedelta = GetTimeDeltaSafe(settings.get('max_line_duration', 0.0)) or timedelta(seconds=0.0)
-        self.min_line_duration : timedelta = GetTimeDeltaSafe(settings.get('min_line_duration', 0.0)) or timedelta(seconds=0.0)
-        self.merge_line_duration : timedelta = GetTimeDeltaSafe(settings.get('merge_line_duration', 0.0)) or timedelta(seconds=0.0)
-        self.min_gap : timedelta = GetTimeDeltaSafe(settings.get('min_gap', 0.05)) or timedelta(seconds=0.05)
-        self.min_split_chars : int = int(settings.get('min_split_chars', 4))
+        self.max_line_duration : timedelta = get_timedelta_setting(settings, 'max_line_duration', 0.0)
+        self.min_line_duration : timedelta = get_timedelta_setting(settings, 'min_line_duration', 0.0)
+        self.merge_line_duration : timedelta = get_timedelta_setting(settings, 'merge_line_duration', 0.0)
+        self.min_gap : timedelta = get_timedelta_setting(settings, 'min_gap', 0.05)
+        self.min_split_chars : int = get_int_setting(settings, 'min_split_chars', 4)
 
-        self.convert_whitespace_to_linebreak : bool = bool(settings.get('whitespaces_to_newline', False))
-        self.break_dialog_on_one_line : bool = bool(settings.get('break_dialog_on_one_line', False))
-        self.normalise_dialog_tags : bool = bool(settings.get('normalise_dialog_tags', False))
-        self.remove_filler_words : bool = bool(settings.get('remove_filler_words', False))
-        self.full_width_punctuation : bool = bool(settings.get('full_width_punctuation', False))
-        self.convert_wide_dashes : bool = bool(settings.get('convert_wide_dashes', False))
+        self.convert_whitespace_to_linebreak : bool = get_bool_setting(settings, 'whitespaces_to_newline', False)
+        self.break_dialog_on_one_line : bool = get_bool_setting(settings, 'break_dialog_on_one_line', False)
+        self.normalise_dialog_tags : bool = get_bool_setting(settings, 'normalise_dialog_tags', False)
+        self.remove_filler_words : bool = get_bool_setting(settings, 'remove_filler_words', False)
+        self.full_width_punctuation : bool = get_bool_setting(settings, 'full_width_punctuation', False)
+        self.convert_wide_dashes : bool = get_bool_setting(settings, 'convert_wide_dashes', False)
 
-        self.break_long_lines : bool = bool(settings.get('break_long_lines', False))
-        self.max_single_line_length : int = int(settings.get('max_single_line_length', 40))
-        self.min_single_line_length : int = int(settings.get('min_single_line_length', 4))
+        self.break_long_lines : bool = get_bool_setting(settings, 'break_long_lines', False)
+        self.max_single_line_length : int = get_int_setting(settings, 'max_single_line_length', 40)
+        self.min_single_line_length : int = get_int_setting(settings, 'min_single_line_length', 4)
 
-        self.split_dialog_pattern : regex.Pattern[Any]|None = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
+        self.split_dialog_pattern: regex.Pattern[Any]|None = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
 
-        filler_words = settings.get('filler_words', [])
-        self.filler_words_pattern : regex.Pattern[Any]|None = CompileFillerWordsPattern(filler_words) if self.remove_filler_words else None
+        filler_words = get_list_setting(settings, 'filler_words', [])
+        self.filler_words_pattern: regex.Pattern[Any]|None = CompileFillerWordsPattern(filler_words) if self.remove_filler_words else None
 
-        self.split_by_duration : bool = self.max_line_duration.total_seconds() > 0.0
+        self.split_by_duration: bool = self.max_line_duration.total_seconds() > 0.0
 
     def PreprocessSubtitles(self, lines : list[SubtitleLine]) -> list[SubtitleLine]:
         """

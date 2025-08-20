@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Any
 
 from google import genai
 from google.genai.types import (
@@ -27,14 +28,14 @@ class GeminiClient(TranslationClient):
     """
     Handles communication with Google Gemini to request translations
     """
-    def __init__(self, settings : dict):
+    def __init__(self, settings : dict[str, Any]):
         super().__init__(settings)
 
         logging.info(_("Translating with Gemini {model} model").format(
             model=self.model or _("default")
         ))
 
-        self.safety_settings = [
+        self.safety_settings: list[SafetySetting] = [
             SafetySetting(category=HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=HarmBlockThreshold.BLOCK_NONE),
             SafetySetting(category=HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=HarmBlockThreshold.BLOCK_NONE),
             SafetySetting(category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=HarmBlockThreshold.BLOCK_NONE),
@@ -42,21 +43,21 @@ class GeminiClient(TranslationClient):
             SafetySetting(category=HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY, threshold=HarmBlockThreshold.BLOCK_NONE)
         ]
 
-        self.automatic_function_calling = AutomaticFunctionCallingConfig(disable=True, maximum_remote_calls=None)
+        self.automatic_function_calling: AutomaticFunctionCallingConfig = AutomaticFunctionCallingConfig(disable=True, maximum_remote_calls=None)
 
     @property
-    def api_key(self):
+    def api_key(self) -> str|None:
         return self.settings.get('api_key')
 
     @property
-    def model(self):
+    def model(self) -> str|None:
         return self.settings.get('model')
 
     @property
-    def rate_limit(self):
+    def rate_limit(self) -> float|None:
         return self.settings.get('rate_limit')
 
-    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """
         Request a translation based on the provided prompt
         """
@@ -67,11 +68,11 @@ class GeminiClient(TranslationClient):
 
         return Translation(response) if response else None
 
-    def _abort(self):
+    def _abort(self) -> None:
         # TODO cancel any ongoing requests
         return super()._abort()
 
-    def _send_messages(self, system_instruction : str, completion : str, temperature):
+    def _send_messages(self, system_instruction : str, completion : str, temperature: float) -> dict[str, Any]|None:
         """
         Make a request to the Gemini API to provide a translation
         """

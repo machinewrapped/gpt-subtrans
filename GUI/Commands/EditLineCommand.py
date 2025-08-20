@@ -16,9 +16,9 @@ from PySubtitle.Helpers.Localization import _
 class EditLineCommand(Command):
     def __init__(self, line_number : int, edit : dict, datamodel : ProjectDataModel|None = None):
         super().__init__(datamodel)
-        self.line_number = line_number
-        self.edit = deepcopy(edit)
-        self.undo_data = None
+        self.line_number : int = line_number
+        self.edit : dict = deepcopy(edit)
+        self.undo_data : dict|None = None
 
     def execute(self) -> bool:
         logging.debug(_("Editing line {line}").format(line=self.line_number))

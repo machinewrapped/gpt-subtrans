@@ -13,4 +13,4 @@ from PySubtitle.UnitTests.test_ReparseTranslationCommand import ReparseTranslati
 from PySubtitle.UnitTests.test_StartTranslationCommand import StartTranslationCommandTests
 from PySubtitle.UnitTests.test_EditCommands import EditCommandsTests
 from PySubtitle.UnitTests.test_localization import TestLocalization
-
+from PySubtitle.UnitTests.test_Options import TestOptions

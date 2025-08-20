@@ -1,50 +1,52 @@
+from typing import Any
+
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError, TranslationError
 from PySubtitle.SubtitleLine import SubtitleLine
 
-default_prompt_template = "<context>\n{context}\n</context>\n\n{prompt}\n\n<summary>Summary of the batch</summary>\n<scene>Summary of the scene</scene>\n"
-default_line_template = "#{number}\nOriginal>\n{text}\nTranslation>\n"
-default_tag_template = "<{tag}>{content}</{tag}>"
-default_context_tags = ['description', 'names', 'history', 'scene', 'summary', 'batch']
+default_prompt_template: str = "<context>\n{context}\n</context>\n\n{prompt}\n\n<summary>Summary of the batch</summary>\n<scene>Summary of the scene</scene>\n"
+default_line_template: str = "#{number}\nOriginal>\n{text}\nTranslation>\n"
+default_tag_template: str = "<{tag}>{content}</{tag}>"
+default_context_tags: list[str] = ['description', 'names', 'history', 'scene', 'summary', 'batch']
 
 class TranslationPrompt:
     """
     Class for formatting a prompt to request translation of a batch of subtitles
     """
-    def __init__(self, user_prompt : str, conversation : bool = True):
+    def __init__(self, user_prompt: str, conversation: bool = True):
         """
         Construct a translation prompt for a batch of subtitles
         """
         # User prompt to include at the top of the prompt
-        self.user_prompt = user_prompt
+        self.user_prompt: str = user_prompt
 
         # Flag controlling whether the prompt content is formatted as a list of messages for a conversational model
-        self.conversation = conversation
+        self.conversation: bool = conversation
 
         # Flag controlling whether to include a system prompt
-        self.supports_system_prompt = False
+        self.supports_system_prompt: bool = False
 
         # Flag controlling whether to include messages in the "system" role
-        self.supports_system_messages = False
+        self.supports_system_messages: bool = False
 
         # Name of the privileged role to use when supports_system_messages is True
-        self.system_role = "system"
+        self.system_role: str = "system"
 
         # Flag controlling whether to use the "system" role for retry instructions
-        self.supports_system_messages_for_retry = False
+        self.supports_system_messages_for_retry: bool = False
 
         # Templates for formatting the prompt - override these to customize the prompt
-        self.prompt_template = default_prompt_template
-        self.line_template = default_line_template
-        self.tag_template = default_tag_template
-        self.context_tags = default_context_tags
+        self.prompt_template: str = default_prompt_template
+        self.line_template: str = default_line_template
+        self.tag_template: str = default_tag_template
+        self.context_tags: list[str] = default_context_tags
 
-        self.system_prompt = None
-        self.batch_prompt = None
-        self.content = None
-        self.messages = []
+        self.system_prompt: str|None = None
+        self.batch_prompt: str|None = None
+        self.content: str|list[dict[str, str]]|None = None
+        self.messages: list[dict[str, str]] = []
 
-    def GenerateMessages(self, instructions : str, lines : list, context : dict):
+    def GenerateMessages(self, instructions: str, lines: list[SubtitleLine], context: dict[str, Any]) -> None:
         """
         Generate the messages to request translation of a batch of subtitles
 
@@ -73,7 +75,7 @@ class TranslationPrompt:
 
         self._generate_content()
 
-    def GenerateBatchPrompt(self, lines : list, context : dict|None = None):
+    def GenerateBatchPrompt(self, lines: list[SubtitleLine], context: dict[str, Any]|None = None) -> str:
         """
         Create the user prompt for translating a set of lines
 
@@ -83,7 +85,7 @@ class TranslationPrompt:
         if not lines:
             raise TranslationError("No source lines provided")
 
-        source_lines : list[str|None] = [ _get_line_prompt(line, self.line_template) for line in lines ]
+        source_lines: list[str|None] = [ _get_line_prompt(line, self.line_template) for line in lines ]
 
         real_lines = [line for line in source_lines if line is not None]
 
@@ -102,7 +104,7 @@ class TranslationPrompt:
 
         return prompt
 
-    def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[SubtitleError|str]|None):
+    def GenerateRetryPrompt(self, reponse : str, retry_instructions : str, errors : list[SubtitleError|str]|None) -> None:
         """
         Request retranslation of lines that were not translated originally
         """
@@ -138,19 +140,22 @@ class TranslationPrompt:
         self.messages = messages
         self._generate_content()
 
-    def _wrap_system_message(self, message : str):
+    def _wrap_system_message(self, message : str) -> str:
         separator = "--------"
         return '\n'.join( [ separator, "SYSTEM", separator, message.strip(), separator])
 
-    def _generate_content(self):
+    def _generate_content(self) -> None:
         self.content = self.messages if self.conversation else self._generate_completion()
 
-    def _generate_completion(self):
+    def _generate_completion(self) -> str:
         """ Convert a series of messages to a script for the AI to complete """
+        if not self.messages:
+            raise TranslationError(_("No messages for the translation prompt"))
+
         if self.supports_system_messages:
             return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in self.messages ])
         else:
-            return "\n\n".join([ m.get('content') for m in self.messages ])
+            return "\n\n".join([ str(m.get('content')) for m in self.messages if m.get('content') is not None ])
 
 def _get_line_prompt(line : SubtitleLine, line_template : str|None = None) -> str|None:
     """
@@ -164,7 +169,7 @@ def _get_line_prompt(line : SubtitleLine, line_template : str|None = None) -> st
 
     return line_template.format(number=line.number, text=line.text_normalized)
 
-def _generate_tag(tag, content : str|list[str], tag_template : str) -> str:
+def _generate_tag(tag : str, content : str|list[str], tag_template : str) -> str:
     """
     Generate tag with content using the provided template
     """
@@ -173,7 +178,7 @@ def _generate_tag(tag, content : str|list[str], tag_template : str) -> str:
 
     return tag_template.format(tag=tag, content=content).strip()
 
-def _generate_tag_lines(context : dict, tags : list[str], tag_template : str) -> str|None:
+def _generate_tag_lines(context : dict[str, Any], tags : list[str], tag_template : str) -> str|None:
     """
     Create a user message for specifying a set of tags
 

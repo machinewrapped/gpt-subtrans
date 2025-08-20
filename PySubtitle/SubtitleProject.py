@@ -157,7 +157,7 @@ class SubtitleProject:
 
         return self.subtitles
 
-    def WriteProjectFile(self, projectfile : str|None = None):
+    def WriteProjectFile(self, projectfile : str|None = None) -> None:
         """
         Write a set of subtitles to a project file
         """
@@ -188,7 +188,7 @@ class SubtitleProject:
 
             self.needs_writing = False
 
-    def WriteBackupFile(self):
+    def WriteBackupFile(self) -> None:
         """
         Save a backup copy of the project
         """
@@ -197,7 +197,7 @@ class SubtitleProject:
                 backupfile = self.GetBackupFilepath(self.projectfile)
                 self.subtitles.SaveProjectFile(backupfile, encoder_class=SubtitleEncoder)
 
-    def ReadProjectFile(self, filepath : str|None = None):
+    def ReadProjectFile(self, filepath : str|None = None) -> SubtitleFile|None:
         """
         Load scenes, subtitles and context from a project file
         """
@@ -224,7 +224,7 @@ class SubtitleProject:
             logging.error(_("Error decoding JSON file: {}").format(e))
             return None
 
-    def UpdateProjectFile(self):
+    def UpdateProjectFile(self) -> None:
         """
         Save the project file if it needs updating
         """
@@ -232,13 +232,13 @@ class SubtitleProject:
             if self.needs_writing and self.subtitles and self.subtitles.scenes:
                 self.WriteProjectFile()
 
-    def GetProjectSettings(self):
+    def GetProjectSettings(self) -> SettingsType:
         """
         Return a dictionary of non-empty settings from the project file
         """
         return { key : value for key, value in self.subtitles.settings.items() if value }
 
-    def UpdateProjectSettings(self, settings: Options|SettingsType):
+    def UpdateProjectSettings(self, settings: Options|SettingsType) -> None:
         """
         Replace settings if the provided dictionary has an entry with the same key
         """
@@ -259,7 +259,7 @@ class SubtitleProject:
             self.subtitles.UpdateOutputPath()
             self.needs_writing = True
 
-    def TranslateSubtitles(self, translator : SubtitleTranslator):
+    def TranslateSubtitles(self, translator : SubtitleTranslator) -> None:
         """
         Use the translation provider to translate a project
         """
@@ -293,7 +293,7 @@ class SubtitleProject:
             logging.error(_("Failed to translate subtitles: {}").format(str(e)))
             raise
 
-    def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int]|None = None, line_numbers : list[int]|None = None):
+    def TranslateScene(self, translator : SubtitleTranslator, scene_number : int, batch_numbers : list[int]|None = None, line_numbers : list[int]|None = None) -> SubtitleScene|None:
         """
         Pass batches of subtitles to the translation engine.
         """
@@ -322,7 +322,7 @@ class SubtitleProject:
             translator.events.preprocessed -= self._on_preprocessed # type: ignore
             translator.events.batch_translated -= self._on_batch_translated # type: ignore
 
-    def ReparseBatchTranslation(self, translator : SubtitleTranslator, scene_number : int, batch_number : int, line_numbers : list[int]|None = None):
+    def ReparseBatchTranslation(self, translator : SubtitleTranslator, scene_number : int, batch_number : int, line_numbers : list[int]|None = None) -> SubtitleBatch:
         """
         Reparse the translation of a batch of subtitles
         """
@@ -341,7 +341,7 @@ class SubtitleProject:
 
         return batch
 
-    def _update_project_mode(self, options : Options):
+    def _update_project_mode(self, options : Options) -> None:
         """
         Update the project mode based on the settings... yes, this is a dumb system
         """
@@ -359,17 +359,17 @@ class SubtitleProject:
         options.add("reparse", project_mode in ["reparse"])
         options.add("retranslate", project_mode in ["retranslate"])
 
-    def _on_preprocessed(self, scenes):
+    def _on_preprocessed(self, scenes) -> None:
         logging.debug("Pre-processing finished")
         self.needs_writing = self.write_project
         self.events.preprocessed(scenes)
 
-    def _on_batch_translated(self, batch):
+    def _on_batch_translated(self, batch) -> None:
         logging.debug("Batch translated")
         self.needs_writing = self.write_project
         self.events.batch_translated(batch)
 
-    def _on_scene_translated(self, scene):
+    def _on_scene_translated(self, scene) -> None:
         logging.debug("Scene translated")
         self.needs_writing = self.write_project
         self.events.scene_translated(scene)

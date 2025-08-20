@@ -38,6 +38,9 @@ class TranslateSceneCommand(Command):
         options = self.datamodel.project_options
         translation_provider = self.datamodel.translation_provider
 
+        if not translation_provider:
+            raise CommandError(_("No translation provider configured"), command=self)
+
         self.translator = SubtitleTranslator(options, translation_provider)
 
         self.translator.events.batch_translated += self._on_batch_translated # type: ignore
@@ -89,7 +92,7 @@ class TranslateSceneCommand(Command):
             update.batches.update((batch.scene, batch.number), {
                 'summary' : batch.summary,
                 'context' : batch.context,
-                'errors' : batch.errors,
+                'errors' : batch.error_messages,
                 'translation': batch.translation,
                 'prompt': batch.prompt,
                 'lines' : { line.number : { 'translation' : line.text } for line in batch.translated if line.number }

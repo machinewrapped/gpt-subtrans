@@ -229,7 +229,7 @@ class SubtitleTranslator:
             return
 
         # Ask the client to do the translation
-        translation : Translation = self.client.RequestTranslation(batch.prompt)
+        translation : Translation|None = self.client.RequestTranslation(batch.prompt)
 
         if (translation and translation.reached_token_limit) and not self.aborted:
             # Try again without the context to keep the tokens down
@@ -375,7 +375,7 @@ class SubtitleTranslator:
         temperature = self.client.temperature or 0.0
         retry_temperature = min(temperature + 0.1, 1.0)
 
-        retranslation : Translation = self.client.RequestTranslation(prompt, retry_temperature)
+        retranslation : Translation|None = self.client.RequestTranslation(prompt, retry_temperature)
 
         if self.aborted:
             return None

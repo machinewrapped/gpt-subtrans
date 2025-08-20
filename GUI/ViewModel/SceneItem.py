@@ -1,3 +1,5 @@
+from typing import Any
+
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.ViewModelError import ViewModelError
 from GUI.ViewModel.ViewModelItem import ViewModelItem
@@ -12,9 +14,9 @@ class SceneItem(ViewModelItem):
     """ Represents a scene in the view model """
     def __init__(self, scene : SubtitleScene):
         super(SceneItem, self).__init__()
-        self.number = scene.number
-        self.batches = {}
-        self.scene_model = {
+        self.number: int = scene.number
+        self.batches: dict[int, BatchItem] = {}
+        self.scene_model: dict[str, Any] = {
             'scene': scene.number,
             'start': scene.batches[0].txt_start,
             'end': scene.batches[-1].txt_end,
@@ -24,34 +26,34 @@ class SceneItem(ViewModelItem):
         }
 
         # cache on demand
-        self._first_line_num = None
-        self._last_line_num = None
+        self._first_line_num: int|None = None
+        self._last_line_num: int|None = None
 
         self.setText(_("Scene {num}").format(num=scene.number))
         self.setData(self.scene_model, Qt.ItemDataRole.UserRole)
 
     @property
-    def batch_count(self):
+    def batch_count(self) -> int:
         return len(self.batches)
 
     @property
-    def translated_batch_count(self):
+    def translated_batch_count(self) -> int:
         return sum(1 if batch.translated_count else 0 for batch in self.batches.values())
 
     @property
-    def line_count(self):
+    def line_count(self) -> int:
         return sum(batch.line_count for batch in self.batches.values())
 
     @property
-    def translated_count(self):
+    def translated_count(self) -> int:
         return sum(batch.translated_count for batch in self.batches.values())
 
     @property
-    def all_translated(self):
+    def all_translated(self) -> bool:
         return self.batches and all(b.all_translated for b in self.batches.values())
 
     @property
-    def first_line_number(self):
+    def first_line_number(self) -> int|None:
         if not self.batches:
             return None
 
@@ -59,7 +61,7 @@ class SceneItem(ViewModelItem):
         return self.batches[batch_number].first_line_number if self.batches else None
 
     @property
-    def last_line_number(self):
+    def last_line_number(self) -> int|None:
         if not self.batches:
             return None
 
@@ -67,26 +69,26 @@ class SceneItem(ViewModelItem):
         return self.batches[batch_number].last_line_number if self.batches else None
 
     @property
-    def has_errors(self):
+    def has_errors(self) -> bool:
         return self.batches and any(b.has_errors for b in self.batches.values())
 
     @property
-    def start(self):
+    def start(self) -> str:
         return self.scene_model['start']
 
     @property
-    def end(self):
+    def end(self) -> str:
         return self.scene_model['end']
 
     @property
-    def duration(self):
+    def duration(self) -> Any:
         return self.scene_model['duration']
 
     @property
-    def summary(self):
+    def summary(self) -> str|None:
         return self.scene_model['summary']
 
-    def AddBatchItem(self, batch_item : BatchItem):
+    def AddBatchItem(self, batch_item : BatchItem) -> None:
         """ Insert or append a batch item to the scene """
         if batch_item.number > len(self.batches):
             self.appendRow(batch_item)
@@ -96,14 +98,14 @@ class SceneItem(ViewModelItem):
         self.Remap()
         self.UpdateStartAndEnd()
 
-    def Update(self, update):
+    def Update(self, update: dict[str, Any]) -> None:
         """ Update the scene model with new data """
         if not isinstance(update, dict):
             raise ViewModelError(f"Expected a dictionary, got a {type(update).__name__}")
 
         UpdateFields(self.scene_model, update, ['summary', 'start', 'end', 'duration', 'gap'])
 
-    def UpdateStartAndEnd(self):
+    def UpdateStartAndEnd(self) -> None:
         """ Update the start and end times of the scene """
         start = None
         end = None
@@ -118,7 +120,7 @@ class SceneItem(ViewModelItem):
         if end:
             self.scene_model['end'] = end
 
-    def Remap(self):
+    def Remap(self) -> None:
         """ Rebuild the batch number map """
         batch_items = {}
         for i in range(0, self.rowCount()):
@@ -128,7 +130,7 @@ class SceneItem(ViewModelItem):
 
         self.batches = batch_items
 
-    def GetContent(self):
+    def GetContent(self) -> dict[str, Any]:
         """ Return a dictionary of interesting scene data for UI display """
         str_translated = _("All batches translated") if self.translated_batch_count == self.batch_count else _("{done} of {total} batches translated").format(done=self.translated_batch_count, total=self.batch_count)
         metadata = [

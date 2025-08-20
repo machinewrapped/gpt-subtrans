@@ -1,6 +1,7 @@
 import logging
 import openai
 import time
+from typing import Any
 
 try:
     import openai
@@ -17,7 +18,7 @@ try:
         """
         Handles communication with AzureOpenAI to request translations
         """
-        def __init__(self, settings : dict):
+        def __init__(self, settings : dict[str, Any]):
             super().__init__(settings)
 
             if not hasattr(openai, "AzureOpenAI"):
@@ -63,7 +64,7 @@ try:
         def rate_limit(self):
             return self.settings.get('rate_limit')
 
-        def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+        def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
             Request a translation based on the provided prompt
             """
