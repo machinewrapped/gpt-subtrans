@@ -155,7 +155,7 @@ class TranslationPrompt:
         if self.supports_system_messages:
             return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in self.messages ])
         else:
-            return "\n\n".join([ str(m.get('content')) for m in self.messages ])
+            return "\n\n".join([ str(m.get('content')) for m in self.messages if m.get('content') is not None ])
 
 def _get_line_prompt(line : SubtitleLine, line_template : str|None = None) -> str|None:
     """
