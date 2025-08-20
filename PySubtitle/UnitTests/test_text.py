@@ -242,6 +242,10 @@ class TestTextHelpers(unittest.TestCase):
     def test_RemoveFillerWords(self):
         log_test_name("RemoveFillerWords")
         filler_patterns = CompileFillerWordsPattern(standard_filler_words)
+        if not filler_patterns:
+            log_input_expected_result("Filler patterns", "list", filler_patterns)
+            return
+
         for text, expected in self.remove_filler_cases:
             with self.subTest(text=text):
                 result = RemoveFillerWords(text, filler_patterns)

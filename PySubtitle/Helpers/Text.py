@@ -256,7 +256,7 @@ def CompileFillerWordsPattern(filler_words: str|list[str]) -> regex.Pattern[Any]
 
     return regex.compile(filler_words_pattern, flags=regex.IGNORECASE|regex.MULTILINE)
 
-def RemoveFillerWords(text: str, fillerWords: str|list[str]|regex.Pattern) -> str:
+def RemoveFillerWords(text: str, fillerWords: str|list[str]|regex.Pattern[Any]) -> str:
     """
     Remove filler words from a text string, adjusting capitalization based on the capitalization of the filler word.
     """

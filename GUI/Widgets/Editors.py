@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QDialog, QFormLayout, QVBoxLayout, QLabel, QDialo
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.LineItem import LineItem
 from GUI.ViewModel.SceneItem import SceneItem
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, MultilineTextOptionWidget, OptionWidget
 from PySubtitle.Options import MULTILINE_OPTION
 from PySubtitle.Helpers.Localization import _
 
@@ -51,8 +51,8 @@ class EditDialog(QDialog):
         """
         Add an editable field supporting multiline plaintext, optionally making it read-only
         """
-        editor = CreateOptionWidget(key, self.model.get(key), MULTILINE_OPTION)
-        if read_only:
+        editor : OptionWidget = CreateOptionWidget(key, self.model.get(key), MULTILINE_OPTION)
+        if read_only and isinstance(editor, MultilineTextOptionWidget):
             editor.SetReadOnly(True)
 
         form_layout.addRow(editor.key, editor)

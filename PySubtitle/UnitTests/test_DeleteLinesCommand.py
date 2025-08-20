@@ -49,6 +49,10 @@ class DeleteLinesCommandTest(SubtitleTestCase):
         data = deepcopy(chinese_dinner_data)
 
         datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options)
+        if not datamodel.project or not datamodel.project.subtitles:
+            self.fail("Failed to create test datamodel with subtitles")
+            return
+
         subtitles: SubtitleFile = datamodel.project.subtitles
 
         for test_case in self.delete_lines_test_cases:

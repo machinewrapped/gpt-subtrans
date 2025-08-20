@@ -1,6 +1,8 @@
+from collections.abc import Callable
 import logging
 import os
 from datetime import datetime
+from typing import Any
 
 from PySubtitle.SubtitleFile import SubtitleFile
 
@@ -29,7 +31,7 @@ def log_test_name(test_name: str):
     log_info(test_name.center(len(separator)))
     logging.info(separator)
 
-def log_input_expected_result(input, expected, result):
+def log_input_expected_result(input : Any, expected : Any, result : Any):
     """
     Logs the input text, the expected result and the actual result.
     """
@@ -40,7 +42,7 @@ def log_input_expected_result(input, expected, result):
         log_error("*** UNEXPECTED RESULT! ***", prefix="!!!".ljust(10))
     logging.info(separator)
 
-def log_input_expected_error(input, expected_error, result):
+def log_input_expected_error(input : Any, expected_error : type[Exception], result : Any):
     """
     Logs the input text, the expected error and the actual error.
     """
@@ -89,7 +91,7 @@ def _add_test_file_logger(logger, results_path, input_filename, test_name):
     """
     Adds a file handler to log INFO level messages to a specific file named after the input file (without extension) and test name.
     """
-    base_filename, dummy = os.path.splitext(input_filename)
+    base_filename, dummy = os.path.splitext(input_filename) # type: ignore[ignore-unused]
     input_log_path = os.path.join(results_path, f"{base_filename}-{test_name}.log")
     file_handler = logging.FileHandler(input_log_path, mode='w', encoding='utf-8')
     file_formatter = logging.Formatter('%(message)s')
@@ -98,7 +100,7 @@ def _add_test_file_logger(logger, results_path, input_filename, test_name):
     logger.addHandler(file_handler)
     return file_handler
 
-def RunTestOnAllSrtFiles(run_test: callable, test_options: list[dict], directory_path: str, results_path: str = None):
+def RunTestOnAllSrtFiles(run_test: Callable[[SubtitleFile, logging.Logger, dict]], test_options: list[dict], directory_path: str, results_path: str|None = None):
     """
     Run a series of tests on all .srt files in the test_subtitles directory.
     """

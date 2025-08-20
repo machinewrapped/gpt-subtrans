@@ -1,6 +1,7 @@
 from enum import Enum
 import json
 from datetime import datetime
+from typing import Any
 
 from PySide6.QtCore import Signal, QSignalBlocker
 from PySide6.QtWidgets import (QWidget, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QTextEdit, QSizePolicy, QHBoxLayout, QVBoxLayout)
@@ -29,25 +30,27 @@ class OptionWidget(QWidget):
     def GetValue(self):
         raise NotImplementedError
 
-    def SetValue(self, value):
+    def SetValue(self, value : Any):
         raise NotImplementedError
 
 class TextOptionWidget(OptionWidget):
     def __init__(self, key, initial_value, tooltip = None):
         super(TextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0,0,0,0)
+        self._layout = QHBoxLayout(self)
+        self._layout.setContentsMargins(0,0,0,0)
         self.text_field = QLineEdit(self)
         self.text_field.setText(initial_value)
         self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         # self.text_field.textChanged.connect(self.contentChanged)
         self.text_field.editingFinished.connect(self.contentChanged)
-        self.layout.addWidget(self.text_field)
+        self._layout.addWidget(self.text_field)
 
     def GetValue(self):
         return self.text_field.text()
 
-    def SetValue(self, value):
+    def SetValue(self, value : Any):
+        if not isinstance(value, str):
+            value = str(value)
         self.text_field.setText(value)
 
     def SetEnabled(self, enabled : bool):
@@ -61,20 +64,23 @@ class MultilineTextOptionWidget(OptionWidget):
         super(MultilineTextOptionWidget, self).__init__(key, initial_value, tooltip=tooltip)
         content = self._get_content(initial_value).strip()
 
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self._layout = QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
         self.text_field = QTextEdit(self)
         self.text_field.setAcceptRichText(False)
         self.text_field.setPlainText(content)
-        self.text_field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
+        self.text_field.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
         self.text_field.textChanged.connect(self.contentChanged)
         self.text_field.setWordWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
-        self.layout.addWidget(self.text_field)
+        self._layout.addWidget(self.text_field)
 
     def GetValue(self):
         return self.text_field.toPlainText()
 
-    def SetValue(self, value):
+    def SetValue(self, value : Any):
+        if not isinstance(value, str):
+            value = str(value)
+
         self.text_field.setPlainText(value)
 
     def SetReadOnly(self, is_read_only : bool):
@@ -172,8 +178,11 @@ class CheckboxOptionWidget(OptionWidget):
     def GetValue(self):
         return self.check_box.isChecked()
 
-    def SetValue(self, checked : bool):
-        self.check_box.setChecked(checked)
+    def SetValue(self, value : Any):
+        if not isinstance(value, bool):
+            raise ValueError(f"Invalid value type: {type(value)}. Expected bool.")
+
+        self.check_box.setChecked(value)
 
     def SetEnabled(self, enabled : bool):
         self.check_box.setEnabled(enabled)
@@ -195,8 +204,11 @@ class DropdownOptionWidget(OptionWidget):
             return GetValueFromName(value, self.values)
         return None
 
-    def SetValue(self, value):
-        self.combo_box.setCurrentIndex(self.combo_box.findText(value))
+    def SetValue(self, value : Any):
+        if not isinstance(value, (str, Enum, LocaleDisplayItem)):
+            raise ValueError(f"Invalid value type: {type(value)}. Expected str, Enum, or LocaleDisplayItem.")
+
+        self.combo_box.setCurrentIndex(self.combo_box.findText(str(value)))
 
     def SetOptions(self, values, selected_value = None):
         with QSignalBlocker(self.combo_box):

@@ -109,10 +109,10 @@ class LineItem(QStandardItem):
 
     @property
     def translation_text(self) -> str|None:
-        tranlation = self.line_model.get('translation', None)
-        if tranlation is None or not isinstance(tranlation, str):
+        translation = self.line_model.get('translation', None)
+        if translation is None or not isinstance(translation, str):
             return None
-        return tranlation
+        return translation
 
     @property
     def scene(self) -> int:

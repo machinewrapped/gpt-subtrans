@@ -1,5 +1,6 @@
 from copy import deepcopy
 import unittest
+from typing import Any
 
 import regex
 
@@ -9,6 +10,7 @@ from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleFile import SubtitleFile
+from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.Translation import Translation
@@ -108,7 +110,8 @@ def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 
 
             for line in batch.originals:
                 line.translated = next((l for l in batch_translated if l.number == line.number), None)
-                line.translation = line.translated.text if line.translated is not None else None
+                translated = line.translated
+                line.translation = translated.text if translated else None
 
 def CreateTestDataModel(test_data : dict, options : Options|None = None) -> ProjectDataModel:
     """
@@ -121,11 +124,16 @@ def CreateTestDataModel(test_data : dict, options : Options|None = None) -> Proj
     datamodel.UpdateProviderSettings({"data" : test_data})
     return datamodel
 
-def CreateTestDataModelBatched(test_data : dict, options : Options = None, translated : bool = True) -> ProjectDataModel:
+def CreateTestDataModelBatched(test_data : dict, options : Options|None = None, translated : bool = True) -> ProjectDataModel:
     """
     Creates a SubtitleBatcher from test data.
     """
     datamodel : ProjectDataModel = CreateTestDataModel(test_data, options)
+    if not datamodel.project:
+        raise ValueError("Project not created in datamodel")
+
+    options = options or datamodel.project_options
+
     subtitles : SubtitleFile = datamodel.project.subtitles
     batcher = SubtitleBatcher(options.GetSettings())
     subtitles.AutoBatch(batcher)
@@ -164,12 +172,12 @@ class DummyProvider(TranslationProvider):
         return DummyTranslationClient(settings=client_settings)
 
 class DummyTranslationClient(TranslationClient):
-    def __init__(self, settings : dict):
+    def __init__(self, settings : dict[str, Any]):
         super().__init__(settings)
-        self.data = settings.get('data', {})
-        self.response_map = self.data.get('response_map', {})
+        self.data: dict[str, Any] = settings.get('data', {})
+        self.response_map: dict[str, str] = self.data.get('response_map', {})
 
-    def BuildTranslationPrompt(self, dummy_prompt : str, instructions : str, lines : list, context : dict):
+    def BuildTranslationPrompt(self, user_prompt : str, instructions : str, lines : list[SubtitleLine], context : dict) -> TranslationPrompt:
         """
         Validate parameters and generate a basic dummy prompt
         """
@@ -192,22 +200,22 @@ class DummyTranslationClient(TranslationClient):
         if not names:
             raise TranslationError("Translator did not receive name list")
 
-        expected_names = self.data.get('names')
+        expected_names = self.data.get('names', [])
         if len(names) < len(expected_names):
             raise TranslationError("Translator did not receive the expected number of names")
 
         scene_number = context.get('scene_number')
         batch_number = context.get('batch_number')
-        dummy_prompt = f"Translate scene {scene_number} batch {batch_number}"
+        user_prompt = f"Translate scene {scene_number} batch {batch_number}"
 
-        prompt = TranslationPrompt(dummy_prompt, False)
+        prompt = TranslationPrompt(user_prompt, False)
         prompt.prompt_template = "{prompt}"
         prompt.supports_system_prompt = True
         prompt.GenerateMessages(instructions, lines, context)
 
         return prompt
 
-    def _request_translation(self, prompt : TranslationPrompt, temperature : float = None) -> Translation:
+    def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         for user_prompt, text in self.response_map.items():
             if user_prompt == prompt.user_prompt:
                 text = text.replace("\\n", "\n")

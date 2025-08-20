@@ -1,9 +1,11 @@
+from importlib.machinery import ModuleSpec
 import os
 import logging
 import importlib.util
 import sys
 import argparse
 from datetime import datetime
+from types import ModuleType
 import unittest
 
 # Add the parent directory to the sys path so that modules can be found
@@ -59,8 +61,12 @@ def run_functional_tests(tests_directory, subtitles_directory, results_directory
         filepath = os.path.join(tests_directory, filename)
 
         # Load the module
-        spec = importlib.util.spec_from_file_location(module_name, filepath)
-        module = importlib.util.module_from_spec(spec)
+        spec : ModuleSpec|None = importlib.util.spec_from_file_location(module_name, filepath)
+        if spec is None or spec.loader is None:
+            logging.error(f"Could not load module {module_name} from {filepath}")
+            continue
+
+        module : ModuleType = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
         # Check if run_tests function exists
