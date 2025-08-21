@@ -16,7 +16,7 @@ from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
-from PySubtitle.Options import Options
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, SubtitleError, TranslationAbortedError, TranslationError, TranslationImpossibleError
@@ -57,7 +57,7 @@ class SubtitleTranslator:
         self.user_prompt : str = options.BuildUserPrompt()
         self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode', 'Auto'))
 
-        self.settings = options.GetSettings()
+        self.settings : SettingsType = options.GetSettings()
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 

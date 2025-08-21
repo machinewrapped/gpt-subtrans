@@ -7,6 +7,7 @@ import logging
 import threading
 from typing import Any
 import bisect
+from PySubtitle.Helpers.Settings import GetStringListSetting
 from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
@@ -380,7 +381,7 @@ class SubtitleFile:
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateProjectSettings(self, settings: dict[str, Any]) -> None:
+    def UpdateProjectSettings(self, settings: Options|SettingsType) -> None:
         """
         Update the project settings
         """
@@ -644,13 +645,15 @@ class SubtitleFile:
         value = self.settings.get(key, default)
         return value if isinstance(value, str) else default
 
-    def _update_compatibility(self, settings: dict[str, Any]) -> None:
+    def _update_compatibility(self, settings: SettingsType) -> None:
         """ Update settings for compatibility with older versions """
         if not settings.get('description') and settings.get('synopsis'):
             settings['description'] = settings.get('synopsis')
 
         if settings.get('characters'):
-            settings['names'].extend(settings.get('characters'))
+            names = GetStringListSetting(settings, 'names')
+            names.extend(GetStringListSetting(settings,'characters'))
+            settings['names'] = names
             del settings['characters']
 
         if settings.get('gpt_prompt'):

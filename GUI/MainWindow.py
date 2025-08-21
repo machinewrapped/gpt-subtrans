@@ -24,7 +24,7 @@ from PySubtitle.Helpers.Localization import _
 dotenv.load_dotenv()
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None, options : Options = None, filepath : str = None):
+    def __init__(self, parent=None, options : Options|None = None, filepath : str|None = None):
         super().__init__(parent)
 
         self.setWindowTitle(_("GUI-Subtrans"))

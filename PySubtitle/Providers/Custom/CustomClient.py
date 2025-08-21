@@ -6,6 +6,8 @@ import httpx
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Parse import ParseErrorMessageFromText
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting, GetIntSetting
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -15,11 +17,12 @@ class CustomClient(TranslationClient):
     """
     Handles communication with local LLM server to request translations
     """
-    def __init__(self, settings : dict[str, Any]):
+    def __init__(self, settings : Options|SettingsType):
         super().__init__(settings)
         self.client: httpx.Client|None = None
         self.headers: dict[str, str] = {'Content-Type': 'application/json'}
-        self.headers.update(settings.get('additional_headers', {}))
+        self._add_additional_headers(settings)
+
         if self.api_key:
             self.headers['Authorization'] = f"Bearer {self.api_key}"
 
@@ -31,35 +34,37 @@ class CustomClient(TranslationClient):
 
     @property
     def server_address(self) -> str|None:
-        return self.settings.get('server_address')
+        return GetStrSetting(self.settings, 'server_address')
 
     @property
     def endpoint(self) -> str|None:
-        return self.settings.get('endpoint')
+        return GetStrSetting(self.settings, 'endpoint')
 
     @property
     def supports_conversation(self) -> bool:
-        return self.settings.get('supports_conversation', False)
+        return GetBoolSetting(self.settings, 'supports_conversation', False)
 
     @property
     def api_key(self) -> str|None:
-        return self.settings.get('api_key')
+        return GetStrSetting(self.settings, 'api_key')
 
     @property
     def model(self) -> str|None:
-        return self.settings.get('model')
+        return GetStrSetting(self.settings, 'model')
 
     @property
     def max_tokens(self) -> int|None:
-        return self.settings.get('max_tokens', None)
+        max_tokens = GetIntSetting(self.settings, 'max_tokens', 0)
+        return max_tokens if max_tokens != 0 else None
     
     @property
     def max_completion_tokens(self) -> int|None:
-        return self.settings.get('max_completion_tokens', None)
+        max_completion_tokens = GetIntSetting(self.settings, 'max_completion_tokens', 0)
+        return max_completion_tokens if max_completion_tokens != 0 else None
     
     @property
     def timeout(self) -> int:
-        return self.settings.get('timeout', 300)
+        return GetIntSetting(self.settings, 'timeout') or 300
 
     def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """
@@ -214,3 +219,11 @@ class CustomClient(TranslationClient):
             request_body['prompt'] = prompt.content
 
         return request_body
+
+    def _add_additional_headers(self, settings):
+        additional_headers = settings.get('additional_headers', {})  # Keep dict access for complex types
+        if isinstance(additional_headers, dict):
+            for key, value in additional_headers.items():
+                if isinstance(value, str):
+                    self.headers[key] = value
+

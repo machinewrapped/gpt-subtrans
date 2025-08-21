@@ -6,7 +6,7 @@ from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 
-from PySubtitle.Options import Options
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.Helpers.Localization import _
@@ -33,7 +33,7 @@ class ProjectDataModel:
         return self.translation_provider.name if self.translation_provider else None
 
     @property
-    def provider_settings(self) -> dict[str, Any]:
+    def provider_settings(self) -> SettingsType:
         return self.project_options.current_provider_settings or {} if self.project_options else {}
 
     @property
@@ -74,7 +74,7 @@ class ProjectDataModel:
     def autosave_enabled(self):
         return self.project and self.project_options.get('autosave', False)
 
-    def UpdateSettings(self, settings : dict):
+    def UpdateSettings(self, settings : Options|SettingsType):
         """ Update any options that have changed """
         self.project_options.update(settings)
 
@@ -85,7 +85,7 @@ class ProjectDataModel:
 
         self._update_translation_provider()
 
-    def UpdateProjectSettings(self, settings : dict):
+    def UpdateProjectSettings(self, settings : Options|SettingsType):
         """ Update the project settings """
         if self.project:
             self.project_options.update(settings)
@@ -98,7 +98,7 @@ class ProjectDataModel:
 
     def IsProjectInitialised(self) -> bool:
         """Check whether the project has been initialised (subtitles loaded and batched)"""
-        return self.project is not None and self.project.subtitles is not None and self.project.subtitles.scenes is not None
+        return self.project is not None and self.project.subtitles is not None and bool(self.project.subtitles.scenes)
 
     def NeedsSave(self) -> bool:
         """Does the project have changes that should be saved"""

@@ -2,6 +2,8 @@ import importlib.util
 import logging
 import os
 
+from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+
 if not importlib.util.find_spec("openai"):
     from PySubtitle.Helpers.Localization import _
     logging.info(_("OpenAI SDK is not installed. OpenAI provider will not be available"))
@@ -11,6 +13,7 @@ else:
 
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
+        from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting, GetBoolSetting, GetIntSetting
         from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
         from PySubtitle.Providers.OpenAI.OpenAIReasoningClient import OpenAIReasoningClient
         from PySubtitle.SubtitleError import ProviderError
@@ -37,17 +40,17 @@ else:
             <p>Note that if your API Key is attached to a free trial account the <a href="https://platform.openai.com/docs/guides/rate-limits?context=tier-free">rate limit</a> for requests will be <i>severely</i> limited.</p>
             """
 
-            def __init__(self, settings : dict):
+            def __init__(self, settings : Options|SettingsType):
                 super().__init__(self.name, {
-                    "api_key": settings.get('api_key', os.getenv('OPENAI_API_KEY')),
-                    "api_base": settings.get('api_base', os.getenv('OPENAI_API_BASE')),
-                    "model": settings.get('model', os.getenv('OPENAI_MODEL', "gpt-5-mini")),
-                    'temperature': settings.get('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
-                    "free_plan": settings.get('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
-                    'max_instruct_tokens': settings.get('max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', 2048))),
-                    'use_httpx': settings.get('use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True"),
-                    'reasoning_effort': settings.get('reasoning_effort', os.getenv('OPENAI_REASONING_EFFORT', "low")),
+                    "api_key": GetStrSetting(settings, 'api_key', os.getenv('OPENAI_API_KEY')),
+                    "api_base": GetStrSetting(settings, 'api_base', os.getenv('OPENAI_API_BASE')),
+                    "model": GetStrSetting(settings, 'model', os.getenv('OPENAI_MODEL', "gpt-5-mini")),
+                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
+                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
+                    "free_plan": GetBoolSetting(settings, 'free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
+                    'max_instruct_tokens': GetIntSetting(settings, 'max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', '2048'))),
+                    'use_httpx': GetBoolSetting(settings, 'use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True"),
+                    'reasoning_effort': GetStrSetting(settings, 'reasoning_effort', os.getenv('OPENAI_REASONING_EFFORT', "low")),
                 })
 
                 self.refresh_when_changed = ['api_key', 'api_base', 'model']
@@ -57,22 +60,22 @@ else:
                 self.non_reasoning_models = [ "gpt-3", "gpt-4", "gpt-5-chat" ]
 
             @property
-            def api_key(self):
-                return self.settings.get('api_key')
+            def api_key(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_key')
 
             @property
-            def api_base(self):
-                return self.settings.get('api_base')
+            def api_base(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_base')
 
             @property
-            def is_instruct_model(self):
-                return self.selected_model and self.selected_model.find("instruct") >= 0
+            def is_instruct_model(self) -> bool:
+                return self.selected_model is not None and self.selected_model.find("instruct") >= 0
 
             @property
-            def is_reasoning_model(self):
-                return self.selected_model and not any(self.selected_model.startswith(model) for model in self.non_reasoning_models)
+            def is_reasoning_model(self) -> bool:
+                return self.selected_model is not None and not any(self.selected_model.startswith(model) for model in self.non_reasoning_models)
 
-            def GetTranslationClient(self, settings : dict) -> TranslationClient:
+            def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 if self.is_instruct_model:
@@ -82,8 +85,8 @@ else:
                 else:
                     return ChatGPTClient(client_settings)
 
-            def GetOptions(self) -> dict:
-                options = {
+            def GetOptions(self) -> GuiOptionsType:
+                options : GuiOptionsType = {
                     'api_key': (str, _("An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)")),
                     'api_base': (str, _("The base URL to use for requests - leave as default unless you know you need something else")),
                 }
@@ -168,10 +171,10 @@ else:
                 """
                 If user is on the free plan or has set a rate limit it is better not to try parallel requests
                 """
-                if self.settings.get('free_plan'):
+                if GetBoolSetting(self.settings, 'free_plan'):
                     return False
 
-                if self.settings.get('rate_limit', 0.0) != 0.0:
+                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

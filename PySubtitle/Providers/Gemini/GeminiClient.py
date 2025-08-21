@@ -18,6 +18,8 @@ from google.genai.types import (
 
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -28,7 +30,7 @@ class GeminiClient(TranslationClient):
     """
     Handles communication with Google Gemini to request translations
     """
-    def __init__(self, settings : dict[str, Any]):
+    def __init__(self, settings : Options|SettingsType):
         super().__init__(settings)
 
         logging.info(_("Translating with Gemini {model} model").format(
@@ -47,15 +49,15 @@ class GeminiClient(TranslationClient):
 
     @property
     def api_key(self) -> str|None:
-        return self.settings.get('api_key')
+        return GetStrSetting(self.settings, 'api_key')
 
     @property
     def model(self) -> str|None:
-        return self.settings.get('model')
+        return GetStrSetting(self.settings, 'model')
 
     @property
     def rate_limit(self) -> float|None:
-        return self.settings.get('rate_limit')
+        return GetFloatSetting(self.settings, 'rate_limit')
 
     def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """
@@ -63,6 +65,12 @@ class GeminiClient(TranslationClient):
         """
         logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
+        if not isinstance(prompt.system_prompt, str):
+            raise TranslationImpossibleError(_("No system prompt provided"))
+
+        if not isinstance(prompt.content, str) or not prompt.content.strip():
+            raise TranslationImpossibleError(_("No content provided"))
+            
         temperature = temperature or self.temperature
         response = self._send_messages(prompt.system_prompt, prompt.content, temperature)
 
@@ -77,6 +85,9 @@ class GeminiClient(TranslationClient):
         Make a request to the Gemini API to provide a translation
         """
         response = {}
+
+        if not self.model:
+            raise TranslationImpossibleError(_("No model specified"))
 
         for retry in range(1 + self.max_retries):
             try:
@@ -107,7 +118,7 @@ class GeminiClient(TranslationClient):
                     ), response=gcr)
 
                 # Try to find a validate candidate
-                candidates = [candidate for candidate in gcr.candidates if candidate.content]
+                candidates = [candidate for candidate in gcr.candidates if candidate.content] if gcr.candidates else []
                 candidates = [candidate for candidate in candidates if candidate.finish_reason == FinishReason.STOP] or candidates
 
                 if not candidates:
@@ -135,23 +146,23 @@ class GeminiClient(TranslationClient):
                     # Probably a failure
                     response['finish_reason'] = finish_reason
 
-                usage_metadata : GenerateContentResponseUsageMetadata = gcr.usage_metadata
+                usage_metadata : GenerateContentResponseUsageMetadata|None = gcr.usage_metadata
                 if usage_metadata:
                     response['prompt_tokens'] = usage_metadata.prompt_token_count
                     response['output_tokens'] = usage_metadata.candidates_token_count
                     response['total_tokens'] = usage_metadata.total_token_count
 
-                if not candidate.content.parts:
+                if not candidate or not candidate.content or not candidate.content.parts:
                     raise TranslationResponseError(_("Gemini response has no valid content parts"), response=candidate)
 
-                response_text = "\n".join(part.text for part in candidate.content.parts)
+                response_text = "\n".join(part.text for part in candidate.content.parts if part.text)
 
                 if not response_text:
                     raise TranslationResponseError(_("Gemini response is empty"), response=candidate)
 
                 response['text'] = response_text
 
-                thoughts = "\n".join(part.thought for part in candidate.content.parts if part.thought)
+                thoughts = "\n".join(part.text for part in candidate.content.parts if part.thought and part.text)
                 if thoughts:
                     response['reasoning'] = thoughts
 

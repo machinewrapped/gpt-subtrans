@@ -22,8 +22,9 @@ from GUI.NewProjectSettings import NewProjectSettings
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.SettingsDialog import SettingsDialog
-from PySubtitle.Options import Options
-from PySubtitle.SubtitleError import ProviderConfigurationError
+from PySubtitle.Helpers.Settings import GetStrSetting
+from PySubtitle.Options import Options, SettingsType
+from PySubtitle.SubtitleError import ProviderConfigurationError, SubtitleError
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
 from PySubtitle.version import __version__
@@ -151,7 +152,7 @@ class GuiInterface(QObject):
         self.prepareForSave.emit()
         self.global_options.SaveSettings()
 
-    def UpdateSettings(self, settings : dict):
+    def UpdateSettings(self, settings : SettingsType):
         """
         Update the global settings and project settings, and save if required
         """
@@ -172,7 +173,8 @@ class GuiInterface(QObject):
 
         # If UI language changed, reinitialize i18n and refresh visible UI
         if 'ui_language' in updated_settings:
-            self.UpdateUiLanguage(updated_settings['ui_language'])
+            ui_language : str = GetStrSetting(updated_settings, 'ui_language') or 'en'
+            self.UpdateUiLanguage(ui_language)
 
         self.settingsChanged.emit(updated_settings)
 
@@ -246,6 +248,9 @@ class GuiInterface(QObject):
         """
         Save the project file
         """
+        if not self.datamodel or not self.datamodel.project:
+            raise SubtitleError(_("No project data"))
+
         command = SaveProjectFile(self.datamodel.project, filepath)
         self.QueueCommand(command, callback=self._on_project_saved)
 
@@ -253,6 +258,10 @@ class GuiInterface(QObject):
         """
         Show the new project settings dialog
         """
+        if not datamodel.project:
+            logging.error(_("No project data"))
+            return
+
         try:
             dialog = NewProjectSettings(datamodel, parent=self.GetMainWindow())
 
@@ -340,8 +349,10 @@ class GuiInterface(QObject):
 
         self.SetDataModel(command.datamodel)
         self._update_last_used_path(command.filepath)
-        if self.datamodel.IsProjectValid() and not self.datamodel.IsProjectInitialised():
-            self.ShowNewProjectSettings(self.datamodel)
+        if self.datamodel.IsProjectValid():
+            is_initialised = self.datamodel.IsProjectInitialised()
+            if not is_initialised:
+                self.ShowNewProjectSettings(self.datamodel)
 
     def _on_project_saved(self, command : SaveProjectFile):
         """

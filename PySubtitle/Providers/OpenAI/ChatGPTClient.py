@@ -1,8 +1,10 @@
+from typing import Any
 from openai.types.chat import ChatCompletion
 
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import TranslationResponseError
+from PySubtitle.SubtitleError import TranslationError, TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
 
 linesep = '\n'
@@ -11,21 +13,33 @@ class ChatGPTClient(OpenAIClient):
     """
     Handles chat communication with OpenAI to request translations
     """
-    def __init__(self, settings : dict):
-        settings['supports_system_messages'] = True
-        settings['supports_conversation'] = True
+    def __init__(self, settings : Options|SettingsType):
+        settings.update({
+            'supports_conversation': True,
+            'supports_system_messages': True
+        })
         super().__init__(settings)
 
-    def _send_messages(self, prompt : TranslationPrompt, temperature):
+    def _send_messages(self, prompt: TranslationPrompt, temperature: float|None) -> dict[str, Any]|None:
         """
         Make a request to an OpenAI-compatible API to provide a translation
         """
         response = {}
-        messages: list[dict] = prompt.content
+
+        if not self.client:
+            raise TranslationError(_("Client is not initialized"))
+
+        if not self.model:
+            raise TranslationError(_("No model specified"))
+
+        if not prompt.content or not isinstance(prompt.content, list):
+            raise TranslationError(_("No content provided for translation"))
+
+        messages: list[dict] = prompt.content # type: ignore[arg-type]
 
         result : ChatCompletion = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=messages,      # type: ignore[arg-type]
             temperature=temperature,
         )
 

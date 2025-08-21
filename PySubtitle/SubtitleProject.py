@@ -63,7 +63,7 @@ class SubtitleProject:
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
 
         project_file_exists : bool = os.path.exists(self.projectfile)
-        project_settings : dict[str, Any] = {}
+        project_settings : SettingsType = {}
 
         if self.projectfile == filepath and not self.read_project:
             self.read_project = True

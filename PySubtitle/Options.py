@@ -20,6 +20,7 @@ settings_path = os.path.join(config_dir, 'settings.json')
 BasicType: TypeAlias = str | int | float | bool | list[str] | None
 OptionType: TypeAlias = BasicType | dict[str, 'OptionType']
 SettingsType: TypeAlias = dict[str, OptionType]
+GuiOptionsType: TypeAlias = dict[str, tuple[type|str|list[str], str]]
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -125,6 +126,9 @@ class Options:
         options = {k: v for k, v in options.items() if v is not None}
         self.options.update(options)
 
+    def items(self) -> list[tuple[str,OptionType]]:
+        return list(self.options.items())
+
     @property
     def theme(self) -> str:
         return self.get('theme')
@@ -152,7 +156,7 @@ class Options:
         return self.get('provider_settings', {})
 
     @property
-    def current_provider_settings(self) -> SettingsType | None:
+    def current_provider_settings(self) -> SettingsType|None:
         if not self.provider:
             return None
 
@@ -182,7 +186,7 @@ class Options:
         """ Construct an Instructions object from the settings """
         return Instructions(self.options)
 
-    def GetSettings(self) -> dict[str, str|int|float|None]:
+    def GetSettings(self) -> SettingsType:
         """
         Get a copy of the settings dictionary with only the default keys included
         """
@@ -225,7 +229,7 @@ class Options:
         Save the settings to a JSON file
         """
         try:
-            settings : dict[str, str|int|float|None] = self.GetSettings()
+            settings : SettingsType = self.GetSettings()
 
             if not settings:
                 return False

@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleError import TranslationResponseError
 
 try:
@@ -9,6 +10,7 @@ try:
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Helpers.Localization import _
+    from PySubtitle.Helpers.Settings import GetStrSetting
     from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
@@ -18,7 +20,7 @@ try:
         """
         Handles communication with Mistral to request translations
         """
-        def __init__(self, settings : dict[str, Any]):
+        def __init__(self, settings : Options|SettingsType):
             super().__init__(settings)
 
             if not self.api_key:
@@ -32,16 +34,16 @@ try:
             self.client = mistralai.Mistral(api_key=self.api_key, server_url=self.server_url)
 
         @property
-        def api_key(self):
-            return self.settings.get('api_key')
+        def api_key(self) -> str|None:
+            return GetStrSetting(self.settings, 'api_key')
 
         @property
-        def server_url(self):
-            return self.settings.get('server_url')
+        def server_url(self) -> str|None:
+            return GetStrSetting(self.settings, 'server_url')
 
         @property
-        def model(self):
-            return self.settings.get('model')
+        def model(self) -> str|None:
+            return GetStrSetting(self.settings, 'model')
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
@@ -49,8 +51,14 @@ try:
             """
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
+            content = prompt.content
+            if not content or not isinstance(prompt.content, list):
+                raise TranslationImpossibleError(_("No content provided"))
+
+            content = [message for message in content if message]
+
             temperature = temperature or self.temperature
-            response = self._send_messages(prompt.content, temperature)
+            response = self._send_messages(content, temperature)
 
             translation = Translation(response) if response else None
 
@@ -69,14 +77,20 @@ try:
             """
             response = {}
 
-            for retry in range(self.max_retries + 1):
+            if not self.model:
+                raise TranslationImpossibleError(_("No model specified"))
+
+            if not messages:
+                raise TranslationImpossibleError(_("No content provided for translation"))
+
+            for retry in range(self.max_retries + 1): # type: ignore[unused]
                 if self.aborted:
                     return None
 
                 try:
                     result : ChatCompletion = self.client.chat.complete(
                         model=self.model,
-                        messages=messages,
+                        messages=messages, # type: ignore[arg-type]
                         temperature=temperature,
                         server_url=self.server_url if self.server_url else None
                     )

@@ -3,11 +3,14 @@ import openai
 import time
 from typing import Any
 
+from PySubtitle.Options import Options, SettingsType
+
 try:
     import openai
 
     from PySubtitle.Helpers.Localization import _
     from PySubtitle.Helpers.Parse import ParseDelayFromHeader
+    from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
@@ -18,7 +21,7 @@ try:
         """
         Handles communication with AzureOpenAI to request translations
         """
-        def __init__(self, settings : dict[str, Any]):
+        def __init__(self, settings : Options|SettingsType):
             super().__init__(settings)
 
             if not hasattr(openai, "AzureOpenAI"):
@@ -45,24 +48,24 @@ try:
             self.client = openai.AzureOpenAI(azure_endpoint=self.api_base, api_version=self.api_version, azure_deployment=self.deployment_name, api_key=self.api_key)
 
         @property
-        def api_key(self):
-            return self.settings.get('api_key')
+        def api_key(self) -> str|None:
+            return GetStrSetting(self.settings, 'api_key')
 
         @property
-        def api_base(self):
-            return self.settings.get('api_base')
+        def api_base(self) -> str|None:
+            return GetStrSetting(self.settings, 'api_base')
 
         @property
-        def api_version(self):
-            return self.settings.get('api_version')
+        def api_version(self) -> str|None:
+            return GetStrSetting(self.settings, 'api_version')
 
         @property
-        def deployment_name(self):
-            return self.settings.get('deployment_name')
+        def deployment_name(self) -> str|None:
+            return GetStrSetting(self.settings, 'deployment_name')
 
         @property
-        def rate_limit(self):
-            return self.settings.get('rate_limit')
+        def rate_limit(self) -> float|None:
+            return GetFloatSetting(self.settings, 'rate_limit')
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
@@ -77,11 +80,14 @@ try:
 
             return translation
 
-        def _send_messages(self, messages : list[str], temperature):
+        def _send_messages(self, messages : list[dict[str,str]], temperature):
             """
             Make a request to the Azure OpenAI API to provide a translation
             """
             response = {}
+
+            if not self.deployment_name:
+                raise TranslationImpossibleError(_("Deployment name must be set in .env or provided as an argument"))
 
             for retry in range(self.max_retries + 1):
                 if self.aborted:
@@ -90,7 +96,7 @@ try:
                 try:
                     result = self.client.chat.completions.create(
                         model=self.deployment_name,
-                        messages=messages,
+                        messages=messages, # type: ignore
                         temperature=temperature
                     )
 

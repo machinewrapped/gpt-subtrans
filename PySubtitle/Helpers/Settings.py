@@ -6,26 +6,27 @@ from dictionaries to specific types, with proper error handling for type
 incompatibilities.
 """
 
-from typing import Any, TypeVar, Union, overload
+from typing import Any, TypeVar, overload, Mapping
 from datetime import timedelta
 
-from PySubtitle.Options import SettingsType, Options
+import regex
+
+from PySubtitle.Helpers.Time import GetTimeDeltaSafe
+from PySubtitle.Options import SettingsType, Options, OptionType
 
 T = TypeVar('T')
-
 
 class SettingsError(Exception):
     """Raised when a setting cannot be coerced to the expected type."""
     pass
 
+@overload
+def GetBoolSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> bool: ...
 
 @overload
-def get_bool_setting(settings: SettingsType | Options, key: str) -> bool: ...
+def GetBoolSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: bool|None) -> bool: ...
 
-@overload
-def get_bool_setting(settings: SettingsType | Options, key: str, default: bool) -> bool: ...
-
-def get_bool_setting(settings: SettingsType | Options, key: str, default: bool = False) -> bool:
+def GetBoolSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: bool|None = False) -> bool:
     """
     Safely retrieve a boolean setting from a settings dictionary.
     
@@ -41,30 +42,28 @@ def get_bool_setting(settings: SettingsType | Options, key: str, default: bool =
         SettingsError: If the setting cannot be converted to bool
     """
     value = settings.get(key, default)
+    if value is None:
+        return False
     
     if isinstance(value, bool):
         return value
-    elif isinstance(value, (int, float)):
-        return bool(value)
     elif isinstance(value, str):
         lower_val = value.lower()
         if lower_val == 'true':
             return True
         elif lower_val == 'false':
             return False
-        else:
-            raise SettingsError(f"Cannot convert setting '{key}' value '{value}' to bool")
-    else:
-        raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to bool")
+
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to bool")
 
 
 @overload
-def get_int_setting(settings: SettingsType | Options, key: str) -> int: ...
+def GetIntSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> int|None: ...
 
 @overload 
-def get_int_setting(settings: SettingsType | Options, key: str, default: int) -> int: ...
+def GetIntSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: int|None) -> int|None: ...
 
-def get_int_setting(settings: SettingsType | Options, key: str, default: int = 0) -> int:
+def GetIntSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: int|None = 0) -> int|None:
     """
     Safely retrieve an integer setting from a settings dictionary.
     
@@ -80,39 +79,25 @@ def get_int_setting(settings: SettingsType | Options, key: str, default: int = 0
         SettingsError: If the setting cannot be converted to int
     """
     value = settings.get(key, default)
-    
-    if isinstance(value, int):
-        return value
-    elif isinstance(value, float):
-        if value.is_integer():
-            return int(value)
-        else:
-            raise SettingsError(f"Cannot convert setting '{key}' float value '{value}' to int (not a whole number)")
-    elif isinstance(value, str):
-        try:
-            return int(value)
-        except ValueError:
-            try:
-                float_val = float(value)
-                if float_val.is_integer():
-                    return int(float_val)
-                else:
-                    raise SettingsError(f"Cannot convert setting '{key}' string value '{value}' to int (not a whole number)")
-            except ValueError:
-                raise SettingsError(f"Cannot convert setting '{key}' string value '{value}' to int")
-    elif isinstance(value, bool):
+    if value is None:
+        return None
+
+    if isinstance(value, (int,float)):
         return int(value)
-    else:
-        raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to int")
+    elif isinstance(value, str):
+        if value.isnumeric():
+            return int(value)
+
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to int")
 
 
 @overload
-def get_float_setting(settings: SettingsType | Options, key: str) -> float: ...
+def GetFloatSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> float|None: ...
 
 @overload
-def get_float_setting(settings: SettingsType | Options, key: str, default: float) -> float: ...
+def GetFloatSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: float|None) -> float|None: ...
 
-def get_float_setting(settings: SettingsType | Options, key: str, default: float = 0.0) -> float:
+def GetFloatSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: float|None = None) -> float|None:
     """
     Safely retrieve a float setting from a settings dictionary.
     
@@ -128,6 +113,8 @@ def get_float_setting(settings: SettingsType | Options, key: str, default: float
         SettingsError: If the setting cannot be converted to float
     """
     value = settings.get(key, default)
+    if value is None:
+        return None
     
     if isinstance(value, (int, float)):
         return float(value)
@@ -135,20 +122,17 @@ def get_float_setting(settings: SettingsType | Options, key: str, default: float
         try:
             return float(value)
         except ValueError:
-            raise SettingsError(f"Cannot convert setting '{key}' string value '{value}' to float")
-    elif isinstance(value, bool):
-        return float(value)
-    else:
-        raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to float")
+            pass
 
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to float")
 
 @overload
-def get_str_setting(settings: SettingsType | Options, key: str) -> str: ...
+def GetStrSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> str|None: ...
 
 @overload
-def get_str_setting(settings: SettingsType | Options, key: str, default: str) -> str: ...
+def GetStrSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: str|None) -> str|None: ...
 
-def get_str_setting(settings: SettingsType | Options, key: str, default: str = "") -> str:
+def GetStrSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: str|None = None) -> str|None:
     """
     Safely retrieve a string setting from a settings dictionary.
     
@@ -158,34 +142,30 @@ def get_str_setting(settings: SettingsType | Options, key: str, default: str = "
         default: Default value if key is not present
         
     Returns:
-        String value of the setting
+        String value of the setting or None
         
     Raises:
         SettingsError: If the setting cannot be converted to str
     """
     value = settings.get(key, default)
-    
-    if isinstance(value, str):
+    if value is None:
+        return None
+    elif isinstance(value, str):
         return value
     elif isinstance(value, (int, float, bool)):
         return str(value)
-    elif value is None:
-        return default
-    else:
-        # Try to convert other types to string
-        try:
-            return str(value)
-        except Exception:
-            raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to str")
+    elif isinstance(value, list):
+        return ', '.join(str(v) for v in value)
 
+    return str(value)
 
 @overload
-def get_list_setting(settings: SettingsType | Options, key: str) -> list[Any]: ...
+def GetListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> list[Any]: ...
 
 @overload
-def get_list_setting(settings: SettingsType | Options, key: str, default: list[Any]) -> list[Any]: ...
+def GetListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: list[Any]) -> list[Any]: ...
 
-def get_list_setting(settings: SettingsType | Options, key: str, default: list[Any] | None = None) -> list[Any]:
+def GetListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: list[Any]|None = None) -> list[Any]:
     """
     Safely retrieve a list setting from a settings dictionary.
     
@@ -200,10 +180,9 @@ def get_list_setting(settings: SettingsType | Options, key: str, default: list[A
     Raises:
         SettingsError: If the setting cannot be converted to list
     """
-    if default is None:
-        default = []
-        
     value = settings.get(key, default)
+    if value is None:
+        return []
     
     if isinstance(value, list):
         return value
@@ -211,20 +190,38 @@ def get_list_setting(settings: SettingsType | Options, key: str, default: list[A
         return list(value)
     elif isinstance(value, str):
         # Try to split string by common separators
-        if ',' in value:
-            return [item.strip() for item in value.split(',')]
-        elif ';' in value:
-            return [item.strip() for item in value.split(';')]
-        else:
-            return [value] if value else []
-    elif value is None:
-        return default
-    else:
-        # Try to wrap single values in a list
-        return [value]
+        values = regex.split(r'[;,]', value)
+        return [ v.strip() for v in values if v.strip() ]
+
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to list")
+
+def GetStringListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: list[str]|None = None) -> list[str]:
+    """
+    Safely retrieve a list of strings setting from a settings dictionary.
+    
+    Args:
+        settings: The settings dictionary
+        key: The setting key
+        default: Default value if key is not present
+        
+    Returns:
+        List of strings value of the setting
+        
+    Raises:
+        SettingsError: If the setting cannot be converted to list of strings
+    """
+    if default is None:
+        default = []
+
+    value = GetListSetting(settings, key, default)
+
+    if all(isinstance(item, str) for item in value):
+        return value
+
+    return [ str(item).strip() for item in value if item is not None ]
 
 
-def get_timedelta_setting(settings: SettingsType | Options, key: str, default: float = 0.0) -> timedelta:
+def GetTimeDeltaSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: timedelta = timedelta(seconds=0)) -> timedelta:
     """
     Safely retrieve a timedelta setting from a settings dictionary.
     The setting value is expected to be in seconds as a float.
@@ -240,14 +237,17 @@ def get_timedelta_setting(settings: SettingsType | Options, key: str, default: f
     Raises:
         SettingsError: If the setting cannot be converted to timedelta
     """
-    try:
-        seconds = get_float_setting(settings, key, default)
-        return timedelta(seconds=seconds)
-    except SettingsError as e:
-        raise SettingsError(f"Cannot convert setting '{key}' to timedelta: {e}")
+    value = settings.get(key, default)
+    if value is None:
+        return default
+    if isinstance(value, timedelta):
+        return value
+    elif isinstance(value, (int, float, str)):
+        return GetTimeDeltaSafe(value) or default
 
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to timedelta")
 
-def get_optional_setting(settings: SettingsType | Options, key: str, setting_type: type[T]) -> T | None:
+def get_optional_setting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, setting_type: type[T]) -> T | None:
     """
     Safely retrieve an optional setting that may not be present.
     
@@ -274,15 +274,15 @@ def get_optional_setting(settings: SettingsType | Options, key: str, setting_typ
         
     # Map types to appropriate getter functions
     if setting_type == bool:
-        return get_bool_setting(settings, key)  # type: ignore
+        return GetBoolSetting(settings, key)  # type: ignore
     elif setting_type == int:
-        return get_int_setting(settings, key)  # type: ignore
+        return GetIntSetting(settings, key)  # type: ignore
     elif setting_type == float:
-        return get_float_setting(settings, key)  # type: ignore
+        return GetFloatSetting(settings, key)  # type: ignore
     elif setting_type == str:
-        return get_str_setting(settings, key)  # type: ignore
+        return GetStrSetting(settings, key)  # type: ignore
     elif setting_type == list:
-        return get_list_setting(settings, key)  # type: ignore
+        return GetListSetting(settings, key)  # type: ignore
     else:
         # For other types, try direct conversion
         if isinstance(value, setting_type):
@@ -291,7 +291,7 @@ def get_optional_setting(settings: SettingsType | Options, key: str, setting_typ
             raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to {setting_type.__name__}")
 
 
-def validate_setting_type(settings: SettingsType | Options, key: str, expected_type: type[T], required: bool = False) -> bool:
+def validate_setting_type(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, expected_type: type[T], required: bool = False) -> bool:
     """
     Validate that a setting can be converted to the expected type without actually converting it.
     

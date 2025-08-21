@@ -5,6 +5,8 @@ from typing import Any
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader
+from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleError import TranslationResponseError
 
 try:
@@ -21,7 +23,7 @@ try:
         """
         Handles communication with OpenAI to request translations
         """
-        def __init__(self, settings : dict[str, Any]):
+        def __init__(self, settings : Options|SettingsType):
             super().__init__(settings)
 
             if not hasattr(openai, "OpenAI"):
@@ -41,19 +43,19 @@ try:
 
         @property
         def api_key(self) -> str|None:
-            return self.settings.get('api_key')
+            return GetStrSetting(self.settings, 'api_key')
 
         @property
         def api_base(self) -> str|None:
-            return self.settings.get('api_base')
+            return GetStrSetting(self.settings, 'api_base')
 
         @property
         def model(self) -> str|None:
-            return self.settings.get('model')
+            return GetStrSetting(self.settings, 'model')
         
         @property
         def reuse_client(self) -> bool:
-            return self.settings.get('reuse_client', True)
+            return GetBoolSetting(self.settings, 'reuse_client', True)
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
@@ -154,15 +156,20 @@ try:
 
         def _create_client(self) -> None:
             http_client: httpx.Client|None = None
-            if self.settings.get('proxy'):
+            proxy = GetStrSetting(self.settings, 'proxy')
+            if proxy:
                 # Use httpx with SOCKS proxy support
                 proxies = {
-                    'http://': self.settings.get('proxy'),
-                    'https://': self.settings.get('proxy')
+                    'http://': proxy,
+                    'https://': proxy
                 }
-                http_client = httpx.Client(proxies=proxies)
-            elif self.settings.get('use_httpx'):
-                 http_client = httpx.Client(base_url=self.api_base, follow_redirects=True)
+                http_client = httpx.Client(proxies=proxies) #type: ignore
+
+            elif GetBoolSetting(self.settings, 'use_httpx'):
+                if self.api_base is None:
+                    raise TranslationImpossibleError(_("API base must be set when using httpx"))
+
+                http_client = httpx.Client(base_url=self.api_base, follow_redirects=True)
 
             self.client = openai.OpenAI(api_key=openai.api_key, base_url=self.api_base or None, http_client=http_client)
 

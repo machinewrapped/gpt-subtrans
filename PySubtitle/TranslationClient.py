@@ -2,7 +2,9 @@ import logging
 import time
 from typing import Any
 
+from PySubtitle.Helpers.Settings import *
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
+from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.TranslationParser import TranslationParser
@@ -15,10 +17,13 @@ class TranslationClient:
     """
     Handles communication with the translation provider
     """
-    def __init__(self, settings : dict[str, Any]):
-        self.settings: dict[str, Any] = settings
-        self.instructions: str|None = settings.get('instructions')
-        self.retry_instructions: str|None = settings.get('retry_instructions')
+    def __init__(self, settings : Options|SettingsType):
+        if isinstance(settings, Options):
+            settings = settings.GetSettings()
+
+        self.settings: SettingsType = settings
+        self.instructions: str|None = GetStrSetting(settings, 'instructions')
+        self.retry_instructions: str|None = GetStrSetting(settings,'retry_instructions')
         self.aborted: bool = False
 
         if not self.instructions:
@@ -26,43 +31,43 @@ class TranslationClient:
 
     @property
     def supports_conversation(self) -> bool:
-        return self.settings.get('supports_conversation', False)
+        return GetBoolSetting(self.settings,'supports_conversation', False)
 
     @property
     def supports_system_prompt(self) -> bool:
-        return self.settings.get('supports_system_prompt', False)
+        return GetBoolSetting(self.settings,'supports_system_prompt', False)
 
     @property
     def supports_system_messages(self) -> bool:
-        return self.settings.get('supports_system_messages', False)
+        return GetBoolSetting(self.settings,'supports_system_messages', False)
 
     @property
     def supports_system_messages_for_retry(self) -> bool:
-        return self.settings.get('supports_system_messages_for_retry', self.supports_system_messages)
+        return GetBoolSetting(self.settings,'supports_system_messages_for_retry', self.supports_system_messages)
 
     @property
     def system_role(self) -> str:
-        return self.settings.get('system_role', 'system')
+        return GetStrSetting(self.settings,'system_role') or "system"
 
     @property
     def prompt_template(self) -> str:
-        return self.settings.get('prompt_template') or default_prompt_template
+        return GetStrSetting(self.settings,'prompt_template') or default_prompt_template
 
     @property
     def rate_limit(self) -> float|None:
-        return self.settings.get('rate_limit')
+        return GetFloatSetting(self.settings,'rate_limit')
 
     @property
     def temperature(self) -> float:
-        return self.settings.get('temperature', 0.0)
+        return GetFloatSetting(self.settings,'temperature') or 0.0
 
     @property
     def max_retries(self) -> int:
-        return self.settings.get('max_retries', 3)
+        return GetIntSetting(self.settings,'max_retries') or 3
 
     @property
     def backoff_time(self) -> float:
-        return self.settings.get('backoff_time', 5.0)
+        return GetFloatSetting(self.settings,'backoff_time') or 5.0
 
     def BuildTranslationPrompt(self, user_prompt : str, instructions : str, lines : list[SubtitleLine], context : dict) -> TranslationPrompt:
         """
