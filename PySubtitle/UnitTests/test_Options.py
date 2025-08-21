@@ -31,72 +31,144 @@ class TestOptions(unittest.TestCase):
 
     def test_default_initialization(self):
         """Test that Options initializes with default values"""
+        log_test_name("Default Options Initialization")
+        
         options = Options()
         
         # Check a selection of stable default options
-        self.assertEqual(options.get('target_language'), 'English')
-        self.assertEqual(options.get('scene_threshold'), 30.0)
-        self.assertEqual(options.get('max_newlines'), 2)
-        self.assertFalse(options.get('include_original'))
-        self.assertTrue(options.get('break_long_lines'))
-        self.assertTrue(options.get('normalise_dialog_tags'))
-        self.assertTrue(options.get('remove_filler_words'))
-        self.assertTrue(options.get('autosave'))
-        self.assertEqual(options.get('ui_language'), 'en')
-        self.assertEqual(options.get('filler_words'), standard_filler_words)
+        test_cases = [
+            ('target_language', 'English', 'default target language'),
+            ('scene_threshold', 30.0, 'default scene threshold'),
+            ('max_newlines', 2, 'default max newlines'),
+            ('ui_language', 'en', 'default UI language'),
+            ('filler_words', standard_filler_words, 'default filler words'),
+            ('provider_settings', {}, 'empty provider settings dict'),
+        ]
         
-        # Check that provider settings is initialized as empty dict
-        self.assertEqual(options.get('provider_settings'), {})
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
         
-        # Verify None values are handled correctly (some may have env defaults)
-        # Provider might have environment default, so we'll skip this check
-        self.assertIsNone(options.get('project'))
-        self.assertIsNone(options.get('last_used_path'))
+        # Test boolean defaults
+        bool_test_cases = [
+            ('include_original', False, 'include original disabled by default'),
+            ('break_long_lines', True, 'break long lines enabled by default'),
+            ('normalise_dialog_tags', True, 'normalise dialog tags enabled by default'),
+            ('remove_filler_words', True, 'remove filler words enabled by default'),
+            ('autosave', True, 'autosave enabled by default'),
+        ]
+        
+        for key, expected, description in bool_test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test None values
+        none_test_cases = [
+            ('project', 'project defaults to None'),
+            ('last_used_path', 'last used path defaults to None'),
+        ]
+        
+        for key, description in none_test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", None, result)
+                self.assertIsNone(result)
 
     def test_initialization_with_dict(self):
         """Test Options initialization with a dictionary"""
+        log_test_name("Options Initialization with Dict")
+        
         options = Options(self.test_options)
         
         # Check that custom values override defaults
-        self.assertEqual(options.get('provider'), 'Test Provider')
-        self.assertEqual(options.get('target_language'), 'Spanish')
-        self.assertEqual(options.get('max_batch_size'), 25)
-        self.assertEqual(options.get('temperature'), 0.5)
-        self.assertEqual(options.get('custom_setting'), 'test_value')
+        custom_test_cases = [
+            ('provider', 'Test Provider', 'custom provider override'),
+            ('target_language', 'Spanish', 'custom target language override'),
+            ('max_batch_size', 25, 'custom max batch size override'),
+            ('temperature', 0.5, 'custom temperature override'),
+            ('custom_setting', 'test_value', 'custom setting added'),
+        ]
+        
+        for key, expected, description in custom_test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
         
         # Check that defaults are still present for unspecified options
-        self.assertEqual(options.get('min_batch_size'), 10)
-        self.assertEqual(options.get('scene_threshold'), 30.0)
+        default_test_cases = [
+            ('min_batch_size', 10, 'default min batch size preserved'),
+            ('scene_threshold', 30.0, 'default scene threshold preserved'),
+        ]
+        
+        for key, expected, description in default_test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
 
     def test_initialization_with_options_object(self):
         """Test Options initialization with another Options object"""
+        log_test_name("Options Initialization with Options Object")
+        
         original = Options(self.test_options)
         copy_options = Options(original)
         
         # Check that values are copied correctly
-        self.assertEqual(copy_options.get('provider'), 'Test Provider')
-        self.assertEqual(copy_options.get('target_language'), 'Spanish')
-        self.assertEqual(copy_options.get('max_batch_size'), 25)
+        copy_test_cases = [
+            ('provider', 'Test Provider', 'provider copied correctly'),
+            ('target_language', 'Spanish', 'target language copied correctly'),
+            ('max_batch_size', 25, 'max batch size copied correctly'),
+        ]
+        
+        for key, expected, description in copy_test_cases:
+            with self.subTest(key=key):
+                result = copy_options.get(key)
+                log_input_expected_result(f"copy_options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
         
         # Verify it's a deep copy - modifying one doesn't affect the other
         copy_options.set('provider', 'Different Provider')
-        self.assertEqual(original.get('provider'), 'Test Provider')
-        self.assertEqual(copy_options.get('provider'), 'Different Provider')
+        
+        original_result = original.get('provider')
+        copy_result = copy_options.get('provider')
+        
+        log_input_expected_result("original.get('provider') (original unchanged)", 'Test Provider', original_result)
+        self.assertEqual(original_result, 'Test Provider')
+        
+        log_input_expected_result("copy_options.get('provider') (copy modified)", 'Different Provider', copy_result)
+        self.assertEqual(copy_result, 'Different Provider')
 
     def test_initialization_with_kwargs(self):
         """Test Options initialization with keyword arguments"""
+        log_test_name("Options Initialization with Kwargs")
+        
         options = Options(
             provider='Kwargs Provider',
             target_language='French',
             max_batch_size=50
         )
         
-        self.assertEqual(options.get('provider'), 'Kwargs Provider')
-        self.assertEqual(options.get('target_language'), 'French')
-        self.assertEqual(options.get('max_batch_size'), 50)
+        test_cases = [
+            ('provider', 'Kwargs Provider', 'provider set via kwargs'),
+            ('target_language', 'French', 'target language set via kwargs'),
+            ('max_batch_size', 50, 'max batch size set via kwargs'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
 
     def test_initialization_dict_and_kwargs(self):
         """Test Options initialization with both dict and kwargs (kwargs should override)"""
+        log_test_name("Options Initialization with Dict and Kwargs")
+        
         options = Options(
             self.test_options,
             provider='Kwargs Override Provider',
@@ -104,15 +176,33 @@ class TestOptions(unittest.TestCase):
         )
         
         # Kwargs should override dict values
-        self.assertEqual(options.get('provider'), 'Kwargs Override Provider')
-        self.assertEqual(options.get('max_batch_size'), 100)
+        override_test_cases = [
+            ('provider', 'Kwargs Override Provider', 'kwargs override dict provider'),
+            ('max_batch_size', 100, 'kwargs override dict max batch size'),
+        ]
+        
+        for key, expected, description in override_test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
         
         # Dict values should still be present where not overridden
-        self.assertEqual(options.get('target_language'), 'Spanish')
-        self.assertEqual(options.get('temperature'), 0.5)
+        preserved_test_cases = [
+            ('target_language', 'Spanish', 'dict value preserved when not overridden'),
+            ('temperature', 0.5, 'dict temperature preserved when not overridden'),
+        ]
+        
+        for key, expected, description in preserved_test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
 
     def test_none_values_filtered(self):
         """Test that None values in input options are filtered out"""
+        log_test_name("None Values Filtering")
+        
         options_with_none = {
             'provider': 'Test Provider',
             'target_language': None,  # Should be filtered out
@@ -123,22 +213,50 @@ class TestOptions(unittest.TestCase):
         options = Options(options_with_none)
         
         # None values should be filtered, defaults should remain
-        self.assertEqual(options.get('provider'), 'Test Provider')
-        self.assertEqual(options.get('target_language'), 'English')  # Default
-        self.assertEqual(options.get('max_batch_size'), 25)
-        self.assertIsNone(options.get('custom_setting'))  # Not in defaults
+        test_cases = [
+            ('provider', 'Test Provider', 'non-None value preserved'),
+            ('target_language', 'English', 'None value filtered, default used'),
+            ('max_batch_size', 25, 'non-None value preserved'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Custom setting with None should not be in options (not in defaults)
+        custom_result = options.get('custom_setting')
+        log_input_expected_result("options.get('custom_setting') (None custom setting filtered)", None, custom_result)
+        self.assertIsNone(custom_result)
 
     def test_get_method(self):
         """Test the get method with default values"""
+        log_test_name("Options Get Method")
+        
         options = Options(self.test_options)
         
         # Test getting existing values
-        self.assertEqual(options.get('provider'), 'Test Provider')
-        self.assertEqual(options.get('target_language'), 'Spanish')
+        existing_test_cases = [
+            ('provider', 'Test Provider', 'get existing provider'),
+            ('target_language', 'Spanish', 'get existing target language'),
+        ]
+        
+        for key, expected, description in existing_test_cases:
+            with self.subTest(key=key):
+                result = options.get(key)
+                log_input_expected_result(f"options.get('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
         
         # Test getting non-existing values with default
-        self.assertEqual(options.get('non_existing', 'default'), 'default')
-        self.assertIsNone(options.get('non_existing'))
+        default_result = options.get('non_existing', 'default')
+        log_input_expected_result("options.get('non_existing', 'default') (with default)", 'default', default_result)
+        self.assertEqual(default_result, 'default')
+        
+        # Test getting non-existing values without default
+        none_result = options.get('non_existing')
+        log_input_expected_result("options.get('non_existing') (no default)", None, none_result)
+        self.assertIsNone(none_result)
 
     def test_add_method(self):
         """Test the add method"""
