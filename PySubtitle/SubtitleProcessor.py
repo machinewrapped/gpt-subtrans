@@ -20,10 +20,10 @@ from PySubtitle.Helpers.Text import (
     RemoveFillerWords
 )
 from PySubtitle.Helpers.Settings import (
-    get_bool_setting,
-    get_int_setting, 
-    get_list_setting,
-    get_timedelta_setting
+    GetBoolSetting,
+    GetIntSetting, 
+    GetListSetting,
+    GetTimeDeltaSetting
 )
 from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -49,26 +49,26 @@ class SubtitleProcessor:
             ("‘", "’"),
         ]
 
-        self.max_line_duration : timedelta = get_timedelta_setting(settings, 'max_line_duration', 0.0)
-        self.min_line_duration : timedelta = get_timedelta_setting(settings, 'min_line_duration', 0.0)
-        self.merge_line_duration : timedelta = get_timedelta_setting(settings, 'merge_line_duration', 0.0)
-        self.min_gap : timedelta = get_timedelta_setting(settings, 'min_gap', 0.05)
-        self.min_split_chars : int = get_int_setting(settings, 'min_split_chars', 4)
+        self.max_line_duration : timedelta = GetTimeDeltaSetting(settings, 'max_line_duration', timedelta(seconds=0))
+        self.min_line_duration : timedelta = GetTimeDeltaSetting(settings, 'min_line_duration', timedelta(seconds=0))
+        self.merge_line_duration : timedelta = GetTimeDeltaSetting(settings, 'merge_line_duration', timedelta(seconds=0))
+        self.min_gap : timedelta = GetTimeDeltaSetting(settings, 'min_gap', timedelta(seconds=0.05))
+        self.min_split_chars : int = GetIntSetting(settings, 'min_split_chars', 4)
 
-        self.convert_whitespace_to_linebreak : bool = get_bool_setting(settings, 'whitespaces_to_newline', False)
-        self.break_dialog_on_one_line : bool = get_bool_setting(settings, 'break_dialog_on_one_line', False)
-        self.normalise_dialog_tags : bool = get_bool_setting(settings, 'normalise_dialog_tags', False)
-        self.remove_filler_words : bool = get_bool_setting(settings, 'remove_filler_words', False)
-        self.full_width_punctuation : bool = get_bool_setting(settings, 'full_width_punctuation', False)
-        self.convert_wide_dashes : bool = get_bool_setting(settings, 'convert_wide_dashes', False)
+        self.convert_whitespace_to_linebreak : bool = GetBoolSetting(settings, 'whitespaces_to_newline', False)
+        self.break_dialog_on_one_line : bool = GetBoolSetting(settings, 'break_dialog_on_one_line', False)
+        self.normalise_dialog_tags : bool = GetBoolSetting(settings, 'normalise_dialog_tags', False)
+        self.remove_filler_words : bool = GetBoolSetting(settings, 'remove_filler_words', False)
+        self.full_width_punctuation : bool = GetBoolSetting(settings, 'full_width_punctuation', False)
+        self.convert_wide_dashes : bool = GetBoolSetting(settings, 'convert_wide_dashes', False)
 
-        self.break_long_lines : bool = get_bool_setting(settings, 'break_long_lines', False)
-        self.max_single_line_length : int = get_int_setting(settings, 'max_single_line_length', 40)
-        self.min_single_line_length : int = get_int_setting(settings, 'min_single_line_length', 4)
+        self.break_long_lines : bool = GetBoolSetting(settings, 'break_long_lines', False)
+        self.max_single_line_length : int = GetIntSetting(settings, 'max_single_line_length', 40)
+        self.min_single_line_length : int = GetIntSetting(settings, 'min_single_line_length', 4)
 
         self.split_dialog_pattern: regex.Pattern[Any]|None = CompileDialogSplitPattern(self.dialog_marker) if self.break_dialog_on_one_line else None
 
-        filler_words = get_list_setting(settings, 'filler_words', [])
+        filler_words = GetListSetting(settings, 'filler_words', [])
         self.filler_words_pattern: regex.Pattern[Any]|None = CompileFillerWordsPattern(filler_words) if self.remove_filler_words else None
 
         self.split_by_duration: bool = self.max_line_duration.total_seconds() > 0.0

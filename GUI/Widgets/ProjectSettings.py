@@ -19,7 +19,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Helpers import GetValueName
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import OptionType, Options, SettingsType
 from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -145,7 +145,8 @@ class ProjectSettings(QGroupBox):
         with QSignalBlocker(self):
             # Remove and delete all widgets from the form layout
             for i in reversed(range(self.grid_layout.count())):
-                widget = self.grid_layout.itemAt(i).widget()
+                layout_item = self.grid_layout.itemAt(i)
+                widget = layout_item.widget() if layout_item else None
                 if widget is not None:
                     widget.deleteLater()
 
@@ -226,12 +227,12 @@ class ProjectSettings(QGroupBox):
         else:
             raise ValueError(f"Unexpected widget for key {key}")
 
-    def _setvalue(self, key : str, value : str|bool|None):
+    def _setvalue(self, key : str, value : OptionType):
         widget = self.widgets.get(key)
         if isinstance(widget, QCheckBox):
             widget.setChecked(bool(value) or False)
         elif isinstance(widget, QComboBox):
-            self._update_combo_box(widget, value)
+            self._update_combo_box(widget, str(value))
         elif widget is not None:
             self._settext(widget, str(value))
         else:
@@ -320,16 +321,16 @@ class ProjectSettings(QGroupBox):
         '''
         Copy project settings from another project file
         '''
-        dialog_options = QFileDialog.Options()
         initial_path = self.settings.get('project_path') or self.settings.get('last_used_path')
+        initial_path = initial_path if isinstance(initial_path, str) else os.getcwd()
         filter = _("Subtrans Files (*.subtrans);;All Files (*)")
         caption = _("Select project to copy settings from")
-        file_name, dummy = QFileDialog.getOpenFileName(self, caption, dir=initial_path, filter=filter, options=dialog_options)
+        file_name, dummy = QFileDialog.getOpenFileName(self, caption, dir=initial_path, filter=filter) # type: ignore[ignore-unused]
         if file_name:
             try:
                 project_options = Options({"project": 'read'})
                 source : SubtitleProject = SubtitleProject(project_options)
-                subtitles : SubtitleFile = source.ReadProjectFile(file_name)
+                subtitles : SubtitleFile|None = source.ReadProjectFile(file_name)
                 if not subtitles:
                     raise ValueError("Invalid project file")
 

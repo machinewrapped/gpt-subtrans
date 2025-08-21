@@ -5,6 +5,7 @@ import httpx
 
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Options import SettingsType, GuiOptionsType
 from PySubtitle.Providers.Custom.DeepSeekClient import DeepSeekClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -48,12 +49,12 @@ class DeepSeekProvider(TranslationProvider):
     def server_address(self):
         return self.api_base
 
-    def GetTranslationClient(self, settings : dict) -> TranslationClient:
+    def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
         client_settings = self.settings.copy()
         client_settings.update(settings)
         return DeepSeekClient(client_settings)
 
-    def GetOptions(self) -> dict:
+    def GetOptions(self) -> GuiOptionsType:
         options = {
             'api_key': (str, _("A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)")),
             'api_base': (str, _("The base URL to use for requests (default is https://api.deepseek.com)")),

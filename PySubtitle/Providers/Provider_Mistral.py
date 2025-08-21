@@ -2,6 +2,8 @@ import importlib.util
 import logging
 import os
 
+from PySubtitle.Options import SettingsType, GuiOptionsType
+
 if not importlib.util.find_spec("mistralai"):
     from PySubtitle.Helpers.Localization import _
     logging.info(_("Mistral SDK is not installed. Mistral provider will not be available"))
@@ -46,7 +48,7 @@ else:
             def server_url(self):
                 return self.settings.get('server_url')
 
-            def GetTranslationClient(self, settings : dict) -> TranslationClient:
+            def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 client_settings.update({
@@ -57,7 +59,7 @@ else:
                     })
                 return MistralClient(client_settings)
 
-            def GetOptions(self) -> dict:
+            def GetOptions(self) -> GuiOptionsType:
                 options = {
                     'api_key': (str, _("A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)")),
                     'server_url': (str, _("The base URL to use for requests (default is https://api.mistral.ai)")),

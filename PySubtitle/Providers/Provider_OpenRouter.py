@@ -5,6 +5,8 @@ import httpx
 
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Settings import GetBoolSetting, GetStrSetting
+from PySubtitle.Options import SettingsType, GuiOptionsType
 from PySubtitle.Providers.Custom.OpenRouterClient import OpenRouterClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -45,15 +47,15 @@ class OpenRouterProvider(TranslationProvider):
 
     @property
     def use_default_model(self) -> bool:
-        return self.settings.get('use_default_model', True)
+        return GetBoolSetting(self.settings, 'use_default_model', True)
 
     @property
     def api_key(self) -> str:
-        return self.settings.get('api_key')
+        return GetStrSetting(self.settings, 'api_key')
 
     @property
     def server_address(self) -> str:
-        return self.settings.get('server_address')
+        return GetStrSetting(self.settings, 'server_address')
     
     @property
     def available_model_families(self) -> list[str]:
@@ -79,7 +81,7 @@ class OpenRouterProvider(TranslationProvider):
         
         return self._all_model_list
     
-    def GetTranslationClient(self, settings : dict) -> TranslationClient:
+    def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
         """ Returns a new instance of the OpenRouter client """
         client_settings = self.settings.copy()
         client_settings.update(settings)
@@ -88,11 +90,12 @@ class OpenRouterProvider(TranslationProvider):
             client_settings['model'] = "openrouter/auto"
         else:
             # Convert display name back to model ID
-            selected_model = client_settings.get('model', self.settings.get('model'))
+            model = GetStrSetting(self.settings, 'model')
+            selected_model = GetStrSetting(client_settings, 'model', default=model)
             client_settings['model'] = self._get_model_id(selected_model)
         return OpenRouterClient(client_settings)
 
-    def GetOptions(self) -> dict:
+    def GetOptions(self) -> GuiOptionsType:
         """
         Returns a dictionary of options for the OpenRouter provider
         """

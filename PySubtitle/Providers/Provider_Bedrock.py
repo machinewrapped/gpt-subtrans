@@ -3,6 +3,7 @@ import logging
 import os
 
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Options import GuiOptionsType, SettingsType
 
 if not importlib.util.find_spec("boto3"):
     logging.info(_("Amazon Boto3 SDK is not installed. Bedrock provider will not be available"))
@@ -60,7 +61,7 @@ else:
                     self._regions = self.get_aws_regions()
                 return self._regions
 
-            def GetTranslationClient(self, settings : dict) -> TranslationClient:
+            def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 client_settings.update({
@@ -70,8 +71,8 @@ else:
                     })
                 return BedrockClient(client_settings)
 
-            def GetOptions(self) -> dict:
-                options = {
+            def GetOptions(self) -> GuiOptionsType:
+                options : GuiOptionsType = {
                     'access_key': (str, _("An AWS access key is required")),
                     'secret_access_key': (str, _("An AWS secret access key is required")),
                 }

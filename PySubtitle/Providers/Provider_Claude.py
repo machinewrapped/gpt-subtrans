@@ -2,6 +2,8 @@ import importlib.util
 import logging
 
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Settings import *
+from PySubtitle.Options import SettingsType, GuiOptionsType
 
 if not importlib.util.find_spec("anthropic"):
     logging.info(_("Anthropic SDK is not installed. Claude provider will not be available"))
@@ -51,8 +53,8 @@ else:
                 self.claude_models = []
 
             @property
-            def api_key(self):
-                return self.settings.get('api_key')
+            def api_key(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_key')
             
             @property
             def allow_thinking(self):
@@ -66,7 +68,7 @@ else:
             def max_thinking_tokens(self):
                 return self.settings.get('max_thinking_tokens', 1024)
 
-            def GetTranslationClient(self, settings : dict) -> TranslationClient:
+            def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings : dict = deepcopy(self.settings)
                 client_settings.update(settings)
                 client_settings.update({
@@ -94,8 +96,10 @@ else:
             def GetInformation(self):
                 return self.information if self.api_key else self.information_noapikey
 
-            def GetOptions(self) -> dict:
-                options = {'api_key': (str, _("An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"))}
+            def GetOptions(self) -> GuiOptionsType:
+                options : GuiOptionsType = {
+                    'api_key': (str, _("An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"))
+                    }
 
                 if not self.api_key:
                     return options

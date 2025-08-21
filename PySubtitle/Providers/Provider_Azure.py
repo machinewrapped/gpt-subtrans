@@ -3,6 +3,7 @@ import logging
 import os
 
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Options import SettingsType, GuiOptionsType
 
 if not importlib.util.find_spec("openai"):
     logging.info(_("OpenAI SDK is not installed. Azure provider will not be available"))
@@ -48,7 +49,7 @@ else:
             def deployment_name(self):
                 return self.settings.get('deployment_name')
 
-            def GetTranslationClient(self, settings : dict) -> TranslationClient:
+            def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 client_settings.update({
@@ -57,8 +58,8 @@ else:
                     })
                 return AzureOpenAIClient(client_settings)
 
-            def GetOptions(self) -> dict:
-                options = {
+            def GetOptions(self) -> GuiOptionsType:
+                options : GuiOptionsType = {
                     'api_key': (str, _("An Azure API key is required")),
                     'api_version': (str, _("An Azure API version is required")),
                     'deployment_name': (str, _("An Azure API deployment name is required")),

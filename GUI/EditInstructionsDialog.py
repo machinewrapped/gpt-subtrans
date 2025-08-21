@@ -80,10 +80,11 @@ class EditInstructionsDialog(QDialog):
             self.instructions.instruction_file = None
 
         # Check that {task_type} is found in instructions
-        # Check that {task_type} is found in instructions
-        if not self.instructions.task_type:
+        task_type = self.instructions.task_type
+        instructions = self.instructions.instructions
+        if task_type is None or not isinstance(task_type, str) or not task_type.strip():
             logging.error(f"Task type cannot be empty. Please check the task type.")
-        elif self.instructions.task_type not in self.instructions.instructions:
+        elif not instructions or task_type not in instructions:
             logging.error(f"Task type '{self.instructions.task_type}' not found in instructions. Please check the instructions.")
 
         super().accept()
@@ -129,9 +130,8 @@ class EditInstructionsDialog(QDialog):
 
     def _load_instructions(self):
         '''Load instructions from a file'''
-        options = QFileDialog.Options()
         path = GetInstructionsUserPath(self.instructions.instruction_file)
-        file_name, dummy = QFileDialog.getOpenFileName(self, _("Load Instructions"), dir=path, filter=self.filters, options=options)
+        file_name, dummy = QFileDialog.getOpenFileName(self, _("Load Instructions"), dir=path, filter=self.filters) # type: ignore[ignore-unused]
         if file_name:
             try:
                 self.instructions.LoadInstructionsFile(file_name)
@@ -146,9 +146,8 @@ class EditInstructionsDialog(QDialog):
 
     def _save_instructions(self):
         '''Save instructions to a file'''
-        options = QFileDialog.Options()
         filepath = GetInstructionsUserPath(self.instructions.instruction_file)
-        file_name, dummy = QFileDialog.getSaveFileName(self, _("Save Instructions"), dir=filepath, filter=self.filters, options=options)
+        file_name, dummy = QFileDialog.getSaveFileName(self, _("Save Instructions"), dir=filepath, filter=self.filters) # type: ignore[ignore-unused]
         if file_name:
             try:
                 self.instructions.prompt = self.prompt_edit.GetValue()

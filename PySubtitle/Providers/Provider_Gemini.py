@@ -2,6 +2,8 @@ import importlib.util
 import logging
 import os
 
+from PySubtitle.Options import SettingsType, GuiOptionsType
+
 if not importlib.util.find_spec("google"):
     from PySubtitle.Helpers.Localization import _
     logging.info(_("Google SDK (google-genai) is not installed. Gemini provider will not be available"))
@@ -49,7 +51,7 @@ else:
             def api_key(self):
                 return self.settings.get('api_key')
 
-            def GetTranslationClient(self, settings : dict) -> TranslationClient:
+            def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 client_settings.update({
@@ -60,7 +62,7 @@ else:
                     })
                 return GeminiClient(client_settings)
 
-            def GetOptions(self) -> dict:
+            def GetOptions(self) -> GuiOptionsType:
                 options = {
                     'api_key': (str, _("A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"))
                 }

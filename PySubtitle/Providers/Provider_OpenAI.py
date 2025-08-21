@@ -2,6 +2,8 @@ import importlib.util
 import logging
 import os
 
+from PySubtitle.Options import SettingsType, GuiOptionsType
+
 if not importlib.util.find_spec("openai"):
     from PySubtitle.Helpers.Localization import _
     logging.info(_("OpenAI SDK is not installed. OpenAI provider will not be available"))
@@ -72,7 +74,7 @@ else:
             def is_reasoning_model(self):
                 return self.selected_model and not any(self.selected_model.startswith(model) for model in self.non_reasoning_models)
 
-            def GetTranslationClient(self, settings : dict) -> TranslationClient:
+            def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
                 client_settings.update(settings)
                 if self.is_instruct_model:
@@ -82,8 +84,8 @@ else:
                 else:
                     return ChatGPTClient(client_settings)
 
-            def GetOptions(self) -> dict:
-                options = {
+            def GetOptions(self) -> GuiOptionsType:
+                options : GuiOptionsType = {
                     'api_key': (str, _("An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)")),
                     'api_base': (str, _("The base URL to use for requests - leave as default unless you know you need something else")),
                 }

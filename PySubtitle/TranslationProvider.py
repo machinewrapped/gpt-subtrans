@@ -2,6 +2,7 @@ import importlib
 import logging
 import pkgutil
 from typing import cast
+from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Options import Options, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 
@@ -9,9 +10,9 @@ class TranslationProvider:
     """
     Base class for translation service providers.
     """
-    def __init__(self, name : str, settings : dict):
+    def __init__(self, name : str, settings : SettingsType):
         self.name : str = name
-        self.settings : dict = settings
+        self.settings : SettingsType = settings
         self._available_models : list[str] = []
         self.refresh_when_changed : list[str] = []
         self.validation_message : str|None = None
@@ -38,7 +39,7 @@ class TranslationProvider:
         """
         The currently selected model for the provider
         """
-        name : str = str(self.settings.get('model'))
+        name : str = GetStrSetting(self.settings, 'model')
         return name.strip() if name else None
 
     @property
@@ -66,7 +67,7 @@ class TranslationProvider:
         """
         return None
 
-    def GetTranslationClient(self, settings : dict) -> TranslationClient:
+    def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
         """
         Returns a new instance of the translation client for this provider
         """

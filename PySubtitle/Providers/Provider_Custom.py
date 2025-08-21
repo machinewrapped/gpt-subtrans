@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger, GetEnvBool
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import MULTILINE_OPTION
+from PySubtitle.Options import MULTILINE_OPTION, SettingsType, GuiOptionsType
 from PySubtitle.Providers.Custom.CustomClient import CustomClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationPrompt import default_prompt_template
@@ -71,7 +71,7 @@ class Provider_CustomServer(TranslationProvider):
     def prompt_template(self):
         return self.settings.get('prompt_template')
 
-    def GetTranslationClient(self, settings : dict) -> TranslationClient:
+    def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
         client_settings : dict = deepcopy(self.settings)
         client_settings.update(settings)
         return CustomClient(client_settings)
@@ -86,8 +86,8 @@ class Provider_CustomServer(TranslationProvider):
         else:
             return self.information_invalid
 
-    def GetOptions(self) -> dict:
-        options = {
+    def GetOptions(self) -> GuiOptionsType:
+        options : GuiOptionsType = {
             'server_address': (str, _("The address of the server")),
             'endpoint': (str, _("The API function to call on the server")),
         }
@@ -99,7 +99,7 @@ class Provider_CustomServer(TranslationProvider):
                 options['supports_system_messages'] = (bool, _("Instructions will be sent as system messages rather than the user prompt"))
 
             options.update({
-                'prompt_template': (MULTILINE_OPTION, "Template for the prompt to send to the server (use {prompt} and {context} tags)"),
+                'prompt_template': (MULTILINE_OPTION, _("Template for the prompt to send to the server (use {prompt} and {context} tags)")),
                 'temperature': (float, _("Higher temperature introduces more randomness to the translation (default 0.0)")),
                 'max_tokens': (int, _("The maximum number of tokens the AI should generate in the response (0 for unlimited)")),
                 'max_completion_tokens': (int, _("Alternative to max_tokens for some servers")),
