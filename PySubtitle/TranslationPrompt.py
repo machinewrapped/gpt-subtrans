@@ -150,7 +150,7 @@ class TranslationPrompt:
     def _generate_completion(self) -> str:
         """ Convert a series of messages to a script for the AI to complete """
         if not self.messages:
-            raise TranslationError(_("No messages for the translation prompt"))
+            raise TranslationError(_("No content provided for translation"))
 
         if self.supports_system_messages:
             return "\n\n".join([ f"#{m.get('role')} ###\n{m.get('content')}" for m in self.messages ])

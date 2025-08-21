@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-17 17:01+0000\n"
+"POT-Creation-Date: 2025-08-21 20:45+0000\n"
 "PO-Revision-Date: 2025-08-09 21:00+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Czech\n"
@@ -11,68 +11,72 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
 
-#: GUI/ViewModel/BatchItem.py:198 GUI/ViewModel/SceneItem.py:135
+#: GUI/ViewModel/BatchItem.py:206 GUI/ViewModel/SceneItem.py:137
 msgid "1 line"
 msgstr "1 řádek"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:58
+#: PySubtitle/Providers/Provider_DeepSeek.py:60
 msgid "A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)"
 msgstr "Pro použití tohoto poskytovatele je vyžadován DeepSeek API klíč (https://platform.deepseek.com/api_keys)"
 
-#: PySubtitle/Providers/Provider_Gemini.py:65
+#: PySubtitle/Providers/Provider_Gemini.py:68
 msgid "A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"
 msgstr "Pro použití tohoto poskytovatele je vyžadován Google Gemini API klíč (https://makersuite.google.com/app/apikey)"
 
-#: PySubtitle/Providers/Provider_Mistral.py:62
+#: PySubtitle/Providers/Provider_Mistral.py:65
 msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
 msgstr "Pro použití tohoto poskytovatele je vyžadován Mistral API klíč (https://console.mistral.ai/api-keys/)"
 
-#: GUI/NewProjectSettings.py:30 PySubtitle/Providers/Provider_DeepSeek.py:66
-#: PySubtitle/Providers/Provider_OpenAI.py:98
-#: PySubtitle/Providers/Provider_OpenRouter.py:111
+#: GUI/NewProjectSettings.py:30 PySubtitle/Providers/Provider_DeepSeek.py:68
+#: PySubtitle/Providers/Provider_OpenAI.py:101
+#: PySubtitle/Providers/Provider_OpenRouter.py:133
 msgid "AI model to use as the translator"
 msgstr "AI model pro použití jako překladač"
 
-#: PySubtitle/Providers/Provider_Azure.py:84
-#: PySubtitle/Providers/Provider_DeepSeek.py:118
-#: PySubtitle/Providers/Provider_Gemini.py:100
-#: PySubtitle/Providers/Provider_Mistral.py:116
-#: PySubtitle/Providers/Provider_OpenAI.py:162
-#: PySubtitle/Providers/Provider_OpenRouter.py:167
+#: PySubtitle/Providers/Provider_Azure.py:86
+#: PySubtitle/Providers/Provider_DeepSeek.py:124
+#: PySubtitle/Providers/Provider_Gemini.py:103
+#: PySubtitle/Providers/Provider_Mistral.py:119
+#: PySubtitle/Providers/Provider_OpenAI.py:165
+#: PySubtitle/Providers/Provider_OpenRouter.py:189
 msgid "API Key is required"
 msgstr "Je vyžadován API klíč"
 
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:127
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:131
 msgid "API Timeout, retrying in {backoff_time} seconds..."
 msgstr "Časový limit API, opakuji za {backoff_time} sekund..."
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:30
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:33
 msgid "API base must be set in .env or provided as an argument"
 msgstr "Základna API musí být nastavena v .env nebo poskytnuta jako argument"
 
-#: PySubtitle/Providers/Provider_Custom.py:107
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:170
+msgid "API base must be set when using httpx"
+msgstr "Základ API musí být nastaven při použití httpx"
+
+#: PySubtitle/Providers/Provider_Custom.py:108
 msgid "API key if needed (this is normally not needed for a local server)"
 msgstr "API klíč, pokud je potřeba (pro místní server obvykle není potřeba)"
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:27
-#: PySubtitle/Providers/Mistral/MistralClient.py:24
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:32
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:30
+#: PySubtitle/Providers/Mistral/MistralClient.py:27
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:35
 msgid "API key must be set in .env or provided as an argument"
 msgstr "Klíč API musí být nastaven v .env nebo poskytnut jako argument"
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:33
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:36
 msgid "API version must be set in .env or provided as an argument"
 msgstr "Verze API musí být nastavena v .env nebo poskytnuta jako argument"
 
-#: PySubtitle/Providers/Bedrock/BedrockClient.py:73
+#: PySubtitle/Providers/Bedrock/BedrockClient.py:74
 msgid "AWS region must be set in .env or provided as an argument"
 msgstr "Region AWS musí být nastaven v .env nebo poskytnut jako argument"
 
-#: GUI/Commands/TranslateSceneCommand.py:64
+#: GUI/Commands/TranslateSceneCommand.py:67
 msgid "Aborted translation of scene {scene}"
 msgstr "Překlad scény {scene} byl přerušen"
 
-#: GUI/Command.py:83
+#: GUI/Command.py:85
 msgid "Aborted {type}"
 msgstr "Přerušeno {type}"
 
@@ -84,19 +88,19 @@ msgstr "O GUI-Subtrans"
 msgid "About this program"
 msgstr "O tomto programu"
 
-#: PySubtitle/Providers/Bedrock/BedrockClient.py:67
+#: PySubtitle/Providers/Bedrock/BedrockClient.py:68
 msgid "Access key must be set in .env or provided as an argument"
 msgstr "Přístupový klíč musí být nastaven v .env nebo poskytnut jako argument"
 
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:123
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:127
 msgid "Account quota reached, please upgrade your plan"
 msgstr "Kvóta účtu byla dosažena, prosím, upgradujte si plán"
 
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:72
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:75
 msgid "Account quota reached, please upgrade your plan or wait until it renews"
 msgstr "Kvóta účtu byla dosažena, prosím, upgradujte si plán nebo počkejte na jeho obnovení"
 
-#: GUI/Widgets/ProjectSettings.py:120
+#: GUI/Widgets/ProjectSettings.py:129
 msgid "Add RTL Markers"
 msgstr "Přidat RTL značky"
 
@@ -120,7 +124,7 @@ msgstr "Pokročilé"
 msgid "All Files"
 msgstr "Všechny soubory"
 
-#: GUI/ViewModel/SceneItem.py:133
+#: GUI/ViewModel/SceneItem.py:135
 msgid "All batches translated"
 msgstr "Všechny dávky přeloženy"
 
@@ -128,68 +132,68 @@ msgstr "Všechny dávky přeloženy"
 msgid "All scenes are fully translated"
 msgstr "Všechny scény jsou plně přeloženy"
 
-#: PySubtitle/Providers/Provider_Custom.py:105
+#: PySubtitle/Providers/Provider_Custom.py:106
 msgid "Alternative to max_tokens for some servers"
 msgstr "Alternativa k max_tokens pro některé servery"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:8
-#: PySubtitle/Providers/Provider_Bedrock.py:182
+#: PySubtitle/Providers/Provider_Bedrock.py:10
+#: PySubtitle/Providers/Provider_Bedrock.py:184
 msgid "Amazon Boto3 SDK is not installed. Bedrock provider will not be available"
 msgstr "Amazon Boto3 SDK není nainstalováno. Poskytovatel Bedrock nebude k dispozici"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:69
-#: PySubtitle/Providers/Provider_Gemini.py:74
-#: PySubtitle/Providers/Provider_Mistral.py:71
-#: PySubtitle/Providers/Provider_OpenAI.py:108
-#: PySubtitle/Providers/Provider_OpenRouter.py:125
+#: PySubtitle/Providers/Provider_DeepSeek.py:71
+#: PySubtitle/Providers/Provider_Gemini.py:77
+#: PySubtitle/Providers/Provider_Mistral.py:74
+#: PySubtitle/Providers/Provider_OpenAI.py:111
+#: PySubtitle/Providers/Provider_OpenRouter.py:147
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
 msgstr "Míra náhodné odchylky přidaná do překladů. Obecně platí, že žádná je nejlepší"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:75
+#: PySubtitle/Providers/Provider_Bedrock.py:77
 msgid "An AWS access key is required"
 msgstr "Je vyžadován přístupový klíč AWS"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:76
+#: PySubtitle/Providers/Provider_Bedrock.py:78
 msgid "An AWS secret access key is required"
 msgstr "Je vyžadován tajný přístupový klíč AWS"
 
-#: PySubtitle/Providers/Provider_Claude.py:98
+#: PySubtitle/Providers/Provider_Claude.py:101
 msgid "An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"
 msgstr "K použití tohoto poskytovatele je vyžadován API klíč Anthropic Claude (https://console.anthropic.com/settings/keys)"
 
-#: PySubtitle/Providers/Provider_Azure.py:64
+#: PySubtitle/Providers/Provider_Azure.py:66
 msgid "An Azure API deployment name is required"
 msgstr "Je vyžadován název nasazení Azure API"
 
-#: PySubtitle/Providers/Provider_Azure.py:62
+#: PySubtitle/Providers/Provider_Azure.py:64
 msgid "An Azure API key is required"
 msgstr "Je vyžadován API klíč Azure"
 
-#: PySubtitle/Providers/Provider_Azure.py:63
+#: PySubtitle/Providers/Provider_Azure.py:65
 msgid "An Azure API version is required"
 msgstr "Je vyžadována verze Azure API"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:87
+#: PySubtitle/Providers/Provider_OpenAI.py:90
 msgid "An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)"
 msgstr "K použití tohoto poskytovatele je vyžadován API klíč OpenAI (https://platform.openai.com/account/api-keys)"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:89
+#: PySubtitle/Providers/Provider_OpenRouter.py:111
 msgid "An OpenRouter API key is required to use this provider (https://openrouter.ai/keys)"
 msgstr "Pro použití tohoto poskytovatele je vyžadován API klíč OpenRouter (https://openrouter.ai/keys)"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:139
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:161
 msgid "Anthropic API error: {error}, retrying in {sleep_time} seconds..."
 msgstr "Chyba API Anthropic: {error}, opakuji za {sleep_time} sekund..."
 
-#: PySubtitle/Providers/Provider_Claude.py:7
+#: PySubtitle/Providers/Provider_Claude.py:9
 msgid "Anthropic SDK is not installed. Claude provider will not be available"
 msgstr "Anthropic SDK není nainstalováno. Poskytovatel Claude nebude k dispozici"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:80
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:96
 msgid "Anthropic account quota reached, please upgrade your plan or wait until it renews"
 msgstr "Kvóta účtu Anthropic byla dosažena, prosím, upgradujte si plán nebo počkejte na jeho obnovení"
 
-#: PySubtitle/Providers/Provider_Custom.py:96
+#: PySubtitle/Providers/Provider_Custom.py:97
 msgid "Attempt to communicate with the endpoint using chat format"
 msgstr "Pokusit se komunikovat s koncovým bodem pomocí formátu chatu"
 
@@ -197,7 +201,7 @@ msgstr "Pokusit se komunikovat s koncovým bodem pomocí formátu chatu"
 msgid "Auto-Split Batch"
 msgstr "Automaticky rozdělit dávku"
 
-#: GUI/Commands/AutoSplitBatchCommand.py:18
+#: GUI/Commands/AutoSplitBatchCommand.py:19
 msgid "Auto-splitting batch {scene} batch {batch}"
 msgstr "Automatické rozdělování dávky {scene} dávka {batch}"
 
@@ -209,11 +213,11 @@ msgstr "Automaticky uložit projekt po každé dávce překladu"
 msgid "Avoid creating a new batch smaller than this"
 msgstr "Vyhnout se vytváření nové dávky menší než tato"
 
-#: GUI/Commands/EditBatchCommand.py:34 GUI/Commands/EditBatchCommand.py:60
+#: GUI/Commands/EditBatchCommand.py:36 GUI/Commands/EditBatchCommand.py:64
 msgid "Batch ({scene},{batch}) not found"
 msgstr "Dávka ({scene},{batch}) nenalezena"
 
-#: GUI/ViewModel/BatchItem.py:203
+#: GUI/ViewModel/BatchItem.py:211
 msgid "Batch {num}"
 msgstr "Dávka {num}"
 
@@ -221,7 +225,7 @@ msgstr "Dávka {num}"
 msgid "Can only autosplit a single batch"
 msgstr "Lze automaticky rozdělit pouze jednu dávku"
 
-#: GUI/ViewModel/ViewModel.py:83
+#: GUI/ViewModel/ViewModel.py:85
 msgid "Can only model subtitle files"
 msgstr "Lze modelovat pouze soubory s titulky"
 
@@ -229,11 +233,11 @@ msgstr "Lze modelovat pouze soubory s titulky"
 msgid "Can only swap text of a single batch"
 msgstr "Lze prohodit text pouze jedné dávky"
 
-#: GUI/CommandQueue.py:113
+#: GUI/CommandQueue.py:114
 msgid "Can redo {command}"
 msgstr "Lze znovu provést {command}"
 
-#: GUI/CommandQueue.py:106
+#: GUI/CommandQueue.py:107
 msgid "Can undo {command}"
 msgstr "Lze vrátit zpět {command}"
 
@@ -245,15 +249,15 @@ msgstr "Zrušit"
 msgid "Cannot delete scenes or batches yet"
 msgstr "Zatím nelze mazat scény ani dávky"
 
-#: GUI/Commands/SplitBatchCommand.py:34 GUI/Commands/SplitBatchCommand.py:77
+#: GUI/Commands/SplitBatchCommand.py:35 GUI/Commands/SplitBatchCommand.py:78
 msgid "Cannot find scene {scene} batch {batch}"
 msgstr "Nelze najít scénu {scene} dávku {batch}"
 
-#: GUI/Commands/MergeScenesCommand.py:27
+#: GUI/Commands/MergeScenesCommand.py:28
 msgid "Cannot merge less than two scenes"
 msgstr "Nelze sloučit méně než dvě scény"
 
-#: GUI/Commands/MergeLinesCommand.py:46
+#: GUI/Commands/MergeLinesCommand.py:47
 msgid "Cannot merge lines, some lines are missing"
 msgstr "Nelze sloučit řádky, některé řádky chybí"
 
@@ -265,15 +269,15 @@ msgstr "Nelze sloučit nesekvenční prvky"
 msgid "Cannot redo the last command"
 msgstr "Nelze znovu provést poslední příkaz"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:148
+#: PySubtitle/Providers/Provider_OpenRouter.py:170
 msgid "Cannot retrieve model list, check API key"
 msgstr "Nelze načíst seznam modelů, zkontrolujte API klíč"
 
-#: GUI/Commands/SplitSceneCommand.py:27
+#: GUI/Commands/SplitSceneCommand.py:28
 msgid "Cannot split scene {scene} because it doesn't exist"
 msgstr "Nelze rozdělit scénu {scene}, protože neexistuje"
 
-#: GUI/Commands/MergeScenesCommand.py:51
+#: GUI/Commands/MergeScenesCommand.py:52
 msgid "Cannot undo merge, scene sizes were not saved"
 msgstr "Nelze vrátit zpět sloučení, velikosti scén nebyly uloženy"
 
@@ -281,17 +285,17 @@ msgstr "Nelze vrátit zpět sloučení, velikosti scén nebyly uloženy"
 msgid "Cannot undo the last command"
 msgstr "Nelze vrátit zpět poslední příkaz"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:73
-#: PySubtitle/Providers/Provider_Mistral.py:76
-#: PySubtitle/Providers/Provider_OpenAI.py:111
+#: PySubtitle/Providers/Provider_DeepSeek.py:75
+#: PySubtitle/Providers/Provider_Mistral.py:79
+#: PySubtitle/Providers/Provider_OpenAI.py:114
 msgid "Check API key and base URL and try again"
 msgstr "Zkontrolujte API klíč a základní URL a zkuste to znovu"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:120
+#: PySubtitle/Providers/Provider_OpenRouter.py:142
 msgid "Check API key and try again"
 msgstr "Zkontrolujte API klíč a zkuste to znovu"
 
-#: PySubtitle/Providers/Provider_Gemini.py:79
+#: PySubtitle/Providers/Provider_Gemini.py:82
 msgid "Check API key is authorized and try again"
 msgstr "Zkontrolujte, zda je API klíč autorizován, a zkuste to znovu"
 
@@ -299,9 +303,17 @@ msgstr "Zkontrolujte, zda je API klíč autorizován, a zkuste to znovu"
 msgid "CheckProviderSettings: {error}"
 msgstr "KontrolaNastaveníPoskytovatele: {error}"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:106
+#: PySubtitle/Providers/Custom/CustomClient.py:115
 msgid "Client error: {status_code} {text}"
 msgstr "Chyba klienta: {status_code} {text}"
+
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:30
+msgid "Client is not initialized"
+msgstr "Klient není inicializován"
+
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:114
+msgid "Client not initialized"
+msgstr "Klient není inicializován"
 
 #: GUI/SettingsDialog.py:64
 msgid "Comma-separated list of filler_words to remove"
@@ -310,6 +322,10 @@ msgstr "Čárkami oddělený seznam výplňkových slov k odstranění"
 #: GUI/SettingsDialog.py:70
 msgid "Consider a new scene to have started after this many seconds without subtitles"
 msgstr "Považovat novou scénu za zahájenou po tolika sekundách bez titulků"
+
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:88
+msgid "Content must be a list of messages"
+msgstr "Obsah musí být seznam zpráv"
 
 #: GUI/Widgets/Editors.py:142
 msgid "Context"
@@ -323,7 +339,7 @@ msgstr "Převést bloky bílých znaků a čínských čárek na nové řádky"
 msgid "Convert wide dashes (emdash) to standard dashes"
 msgstr "Převést široké pomlčky (emdash) na standardní pomlčky"
 
-#: GUI/Widgets/ProjectSettings.py:127
+#: GUI/Widgets/ProjectSettings.py:136
 msgid "Copy From Another Project"
 msgstr "Kopírovat z jiného projektu"
 
@@ -343,15 +359,16 @@ msgstr "Výchozí"
 msgid "Delete Lines"
 msgstr "Smazat řádky"
 
-#: GUI/Commands/DeleteLinesCommand.py:24
+#: GUI/Commands/DeleteLinesCommand.py:25
 msgid "Deleting lines {lines}"
 msgstr "Mazání řádků {lines}"
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:36
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:39
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:89
 msgid "Deployment name must be set in .env or provided as an argument"
 msgstr "Název nasazení musí být nastaven v .env nebo poskytnut jako argument"
 
-#: GUI/Widgets/ProjectSettings.py:122
+#: GUI/Widgets/ProjectSettings.py:131
 msgid "Description"
 msgstr "Popis"
 
@@ -367,15 +384,15 @@ msgstr "Vyvinul: MachineWrapped<br>Kontakt: machinewrapped@gmail.com<br><a href=
 msgid "Divide any batches larger than this into multiple batches"
 msgstr "Rozdělit všechny dávky větší než tato na více dávek"
 
-#: GUI/EditInstructionsDialog.py:22 GUI/Widgets/ProjectSettings.py:126
+#: GUI/EditInstructionsDialog.py:22 GUI/Widgets/ProjectSettings.py:135
 msgid "Edit Instructions"
 msgstr "Upravit pokyny"
 
-#: GUI/Commands/EditBatchCommand.py:29 GUI/Commands/EditLineCommand.py:34
+#: GUI/Commands/EditBatchCommand.py:31 GUI/Commands/EditLineCommand.py:34
 msgid "Edit data must be a dictionary"
 msgstr "Data pro úpravu musí být slovník"
 
-#: GUI/Commands/EditBatchCommand.py:19
+#: GUI/Commands/EditBatchCommand.py:21
 msgid "Editing batch ({scene},{batch})"
 msgstr "Úprava dávky ({scene},{batch})"
 
@@ -383,7 +400,7 @@ msgstr "Úprava dávky ({scene},{batch})"
 msgid "Editing line {line}"
 msgstr "Úprava řádku {line}"
 
-#: PySubtitle/Providers/Provider_Claude.py:111
+#: PySubtitle/Providers/Provider_Claude.py:115
 msgid "Enable thinking mode for translations"
 msgstr "Povolit režim přemýšlení pro překlady"
 
@@ -395,15 +412,15 @@ msgstr "Zajistit, aby se dialogové značky shodovaly ve víceřádkových titul
 msgid "Ensure full-width punctuation is used in Asian languages"
 msgstr "Zajistit použití interpunkce plné šířky v asijských jazycích"
 
-#: GUI/GuiInterface.py:368
+#: GUI/GuiInterface.py:379
 msgid "Error"
 msgstr "Chyba"
 
-#: PySubtitle/Providers/Bedrock/BedrockClient.py:142
+#: PySubtitle/Providers/Bedrock/BedrockClient.py:143
 msgid "Error communicating with Bedrock: {error}"
 msgstr "Chyba při komunikaci s Bedrock: {error}"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:149
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:171
 msgid "Error communicating with provider"
 msgstr "Chyba při komunikaci s poskytovatelem"
 
@@ -411,28 +428,28 @@ msgstr "Chyba při komunikaci s poskytovatelem"
 msgid "Error decoding JSON file: {}"
 msgstr "Chyba při dekódování souboru JSON: {}"
 
-#: GUI/Command.py:92
+#: GUI/Command.py:94
 msgid "Error executing {type}: {str}"
 msgstr "Chyba při provádění {type}: {str}"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:92
-#: PySubtitle/Providers/Provider_OpenRouter.py:203
+#: PySubtitle/Providers/Provider_DeepSeek.py:98
+#: PySubtitle/Providers/Provider_OpenRouter.py:229
 msgid "Error fetching models: {status} {text}"
 msgstr "Chyba při načítání modelů: {status} {text}"
 
-#: GUI/Command.py:123
+#: GUI/Command.py:125
 msgid "Error in {command}: {message}"
 msgstr "Chyba v {command}: {message}"
 
-#: PySubtitle/Options.py:202
+#: PySubtitle/Options.py:224
 msgid "Error loading settings from {}"
 msgstr "Chyba při načítání nastavení z {}"
 
-#: PySubtitle/Options.py:263
+#: PySubtitle/Options.py:285
 msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
 msgstr "Chyba při migraci nastavení z {} do {}. Můžete soubory zkopírovat ručně a restartovat aplikaci."
 
-#: PySubtitle/SubtitleFile.py:259
+#: PySubtitle/SubtitleFile.py:265
 msgid "Error parsing SRT file... trying with fallback encoding: {}"
 msgstr "Chyba při parsování souboru SRT... zkouším s náhradním kódováním: {}"
 
@@ -440,11 +457,11 @@ msgstr "Chyba při parsování souboru SRT... zkouším s náhradním kódován�
 msgid "Error redoing the last command: {error}"
 msgstr "Chyba při opakování posledního příkazu: {error}"
 
-#: GUI/Commands/ReparseTranslationsCommand.py:60
+#: GUI/Commands/ReparseTranslationsCommand.py:71
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr "Chyba při opětovné analýze scény {scene} dávky {batch}: {error}"
 
-#: PySubtitle/Options.py:229
+#: PySubtitle/Options.py:251
 msgid "Error saving settings to {}"
 msgstr "Chyba při ukládání nastavení do {}"
 
@@ -452,8 +469,8 @@ msgstr "Chyba při ukládání nastavení do {}"
 msgid "Error translating scene {scene} batch {batch}: {error}"
 msgstr "Chyba při překladu scény {scene} dávky {batch}: {error}"
 
-#: GUI/Commands/TranslateSceneCommand.py:69
-#: GUI/Commands/TranslateSceneCommand.py:73
+#: GUI/Commands/TranslateSceneCommand.py:72
+#: GUI/Commands/TranslateSceneCommand.py:76
 msgid "Error translating scene {scene}: {error}"
 msgstr "Chyba při překladu scény {scene}: {error}"
 
@@ -469,11 +486,11 @@ msgstr "Chyba: {error}"
 msgid "Errors encountered translating scene {scene} batch {batch}"
 msgstr "Při překladu scény {scene} dávky {batch} došlo k chybám"
 
-#: GUI/Commands/TranslateSceneCommand.py:56
+#: GUI/Commands/TranslateSceneCommand.py:59
 msgid "Errors translating scene {scene} - aborting translation"
 msgstr "Chyby při překladu scény {scene} - překlad se přerušuje"
 
-#: GUI/Commands/TranslateSceneCommand.py:55
+#: GUI/Commands/TranslateSceneCommand.py:58
 msgid "Errors: {errors}"
 msgstr "Chyby: {errors}"
 
@@ -489,43 +506,43 @@ msgstr "Ukončit program"
 msgid "Exiting Program"
 msgstr "Ukončování programu"
 
-#: GUI/ViewModel/BatchItem.py:120
+#: GUI/ViewModel/BatchItem.py:121
 msgid "Expected a dictionary, got a {type}"
 msgstr "Očekáván slovník, obdržen {type}"
 
-#: GUI/ViewModel/ViewModel.py:309 GUI/ViewModel/ViewModel.py:386
+#: GUI/ViewModel/ViewModel.py:353 GUI/ViewModel/ViewModel.py:440
 msgid "Expected a patch dictionary"
 msgstr "Očekáván slovník s opravami"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:151
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:147
-#: PySubtitle/Providers/Gemini/GeminiClient.py:161
-#: PySubtitle/Providers/Mistral/MistralClient.py:117
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:149
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:173
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:153
+#: PySubtitle/Providers/Gemini/GeminiClient.py:173
+#: PySubtitle/Providers/Mistral/MistralClient.py:132
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:153
 msgid "Failed to communicate with provider after {max_retries} retries"
 msgstr "Nepodařilo se navázat spojení s poskytovatelem po {max_retries} pokusech"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:182
+#: PySubtitle/Providers/Custom/CustomClient.py:191
 msgid "Failed to communicate with server after {max_retries} retries"
 msgstr "Nepodařilo se navázat spojení se serverem po {max_retries} pokusech"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:159
+#: PySubtitle/Providers/Custom/CustomClient.py:168
 msgid "Failed to connect to server at {server_address}{endpoint}"
 msgstr "Nepodařilo se připojit k serveru na adrese {server_address}{endpoint}"
 
-#: GUI/Commands/SplitBatchCommand.py:44
+#: GUI/Commands/SplitBatchCommand.py:45
 msgid "Failed to create new batch after splitting"
 msgstr "Nepodařilo se vytvořit novou dávku po rozdělení"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:181
+#: PySubtitle/Providers/Provider_OpenAI.py:184
 msgid "Failed to initialise OpenAI SDK. OpenAI provider will not be available"
 msgstr "Nepodařilo se inicializovat OpenAI SDK. Poskytovatel OpenAI nebude k dispozici"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:69
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:75
 msgid "Failed to initialize Anthropic client"
 msgstr "Nepodařilo se inicializovat klienta Anthropic"
 
-#: GUI/GuiInterface.py:338
+#: GUI/GuiInterface.py:347
 msgid "Failed to load project data model."
 msgstr "Nepodařilo se načíst datový model projektu."
 
@@ -533,15 +550,23 @@ msgstr "Nepodařilo se načíst datový model projektu."
 msgid "Failed to load subtitle file {}: {}"
 msgstr "Nepodařilo se načíst soubor s titulky {}: {}"
 
-#: GUI/Commands/MergeLinesCommand.py:55
+#: GUI/Commands/MergeLinesCommand.py:56
 msgid "Failed to merge lines"
 msgstr "Sloučení řádků se nezdařilo"
 
-#: PySubtitle/SubtitleFile.py:277
+#: PySubtitle/SubtitleFile.py:270
+msgid "Failed to parse SRT file with fallback encoding: {}"
+msgstr "Nepodařilo se analyzovat soubor SRT s náhradním kódováním: {}"
+
+#: PySubtitle/SubtitleFile.py:288
 msgid "Failed to parse SRT string: {}"
 msgstr "Nepodařilo se analyzovat řetězec SRT: {}"
 
-#: GUI/GuiInterface.py:190
+#: PySubtitle/Formats/SrtFileHandler.py:84
+msgid "Failed to parse SRT: {}"
+msgstr "Nepodařilo se analyzovat SRT: {}"
+
+#: GUI/GuiInterface.py:192
 msgid "Failed to switch language - restart the application: {error}"
 msgstr "Přepnutí jazyka se nezdařilo - restartujte aplikaci: {error}"
 
@@ -596,31 +621,31 @@ msgstr "GUI-Subtrans by bez těchto knihoven nefungoval:\n"
 msgid "Gap: {gap}, Length: {duration}"
 msgstr "Mezera: {gap}, Délka: {duration}"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:167
+#: PySubtitle/Providers/Gemini/GeminiClient.py:179
 msgid "Gemini request failure {error}, retrying in {sleep_time} seconds..."
 msgstr "Chyba požadavku Gemini {error}, opakuji za {sleep_time} sekund..."
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:123
+#: PySubtitle/Providers/Gemini/GeminiClient.py:135
 msgid "Gemini response exceeded token limit"
 msgstr "Odpověď Gemini překročila limit tokenů"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:144
+#: PySubtitle/Providers/Gemini/GeminiClient.py:156
 msgid "Gemini response has no valid content parts"
 msgstr "Odpověď Gemini neobsahuje žádné platné části obsahu"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:149
+#: PySubtitle/Providers/Gemini/GeminiClient.py:161
 msgid "Gemini response is empty"
 msgstr "Odpověď Gemini je prázdná"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:129
+#: PySubtitle/Providers/Gemini/GeminiClient.py:141
 msgid "Gemini response was blocked for recitation"
 msgstr "Odpověď Gemini byla zablokována kvůli recitaci"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:126
+#: PySubtitle/Providers/Gemini/GeminiClient.py:138
 msgid "Gemini response was blocked for safety reasons"
 msgstr "Odpověď Gemini byla zablokována z bezpečnostních důvodů"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:132
+#: PySubtitle/Providers/Gemini/GeminiClient.py:144
 msgid "Gemini response was incomplete"
 msgstr "Odpověď Gemini byla neúplná"
 
@@ -628,7 +653,7 @@ msgstr "Odpověď Gemini byla neúplná"
 msgid "General"
 msgstr "Obecné"
 
-#: PySubtitle/Providers/Provider_Gemini.py:7
+#: PySubtitle/Providers/Provider_Gemini.py:9
 msgid "Google SDK (google-genai) is not installed. Gemini provider will not be available"
 msgstr "Google SDK (google-genai) není nainstalováno. Poskytovatel Gemini nebude k dispozici"
 
@@ -640,7 +665,7 @@ msgstr "Skrýt/Zobrazit možnosti projektu"
 msgid "High-level instructions for the translator"
 msgstr "Obecné pokyny pro překladatele"
 
-#: PySubtitle/Providers/Provider_Custom.py:103
+#: PySubtitle/Providers/Provider_Custom.py:104
 msgid "Higher temperature introduces more randomness to the translation (default 0.0)"
 msgstr "Vyšší teplota vnáší do překladu více náhodnosti (výchozí 0.0)"
 
@@ -656,7 +681,7 @@ msgstr "Pokud je povoleno, neúspěšné překlady budou zopakovány s poznámko
 msgid "Improve Selection"
 msgstr "Vylepšit výběr"
 
-#: GUI/Widgets/ProjectSettings.py:121
+#: GUI/Widgets/ProjectSettings.py:130
 msgid "Include Original Text"
 msgstr "Zahrnout původní text"
 
@@ -668,7 +693,7 @@ msgstr "Zahrnout původní text do přeložených titulků"
 msgid "Instructions for the translation provider to follow"
 msgstr "Pokyny pro poskytovatele překladu"
 
-#: PySubtitle/Providers/Provider_Custom.py:99
+#: PySubtitle/Providers/Provider_Custom.py:100
 msgid "Instructions will be sent as system messages rather than the user prompt"
 msgstr "Pokyny budou odeslány jako systémové zprávy, nikoli jako uživatelská výzva"
 
@@ -676,11 +701,7 @@ msgstr "Pokyny budou odeslány jako systémové zprávy, nikoli jako uživatelsk
 msgid "Instructions: {text}"
 msgstr "Pokyny: {text}"
 
-#: PySubtitle/SubtitleLine.py:209
-msgid "Invalid SRT line: {line}"
-msgstr "Neplatný řádek SRT: {line}"
-
-#: GUI/Commands/MergeBatchesCommand.py:37
+#: GUI/Commands/MergeBatchesCommand.py:38
 msgid "Invalid batch"
 msgstr "Neplatná dávka"
 
@@ -688,7 +709,7 @@ msgstr "Neplatná dávka"
 msgid "Invalid end time format"
 msgstr "Neplatný formát koncového času"
 
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:135
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:139
 msgid "Invalid response received, retrying in {backoff_time} seconds..."
 msgstr "Byla přijata neplatná odpověď, opakuji za {backoff_time} sekund..."
 
@@ -696,7 +717,12 @@ msgstr "Byla přijata neplatná odpověď, opakuji za {backoff_time} sekund..."
 msgid "Invalid start time format"
 msgstr "Neplatný formát počátečního času"
 
-#: PySubtitle/SubtitleLine.py:64 PySubtitle/SubtitleLine.py:76
+#: PySubtitle/SubtitleLine.py:204 PySubtitle/SubtitleLine.py:209
+#: PySubtitle/SubtitleLine.py:250
+msgid "Invalid subtitle line format: {}"
+msgstr "Neplatný formát řádku titulků: {}"
+
+#: PySubtitle/SubtitleLine.py:128 PySubtitle/SubtitleLine.py:136
 msgid "Invalid timestamp"
 msgstr "Neplatné časové razítko"
 
@@ -708,11 +734,11 @@ msgstr "Neplatný poskytovatel překladu"
 msgid "Language to translate the subtitles to"
 msgstr "Jazyk, do kterého se mají titulky přeložit"
 
-#: PySubtitle/Providers/Provider_Gemini.py:163
+#: PySubtitle/Providers/Provider_Gemini.py:169
 msgid "Latest Google AI SDK (google-genai) is not installed. Gemini provider will not be available. Run installer or `pip install google-genai` to fix."
 msgstr "Nejnovější Google AI SDK (google-genai) není nainstalováno. Poskytovatel Gemini nebude k dispozici. Spusťte instalátor nebo použijte `pip install google-genai` k opravě."
 
-#: PySubtitle/Helpers/Subtitles.py:154
+#: PySubtitle/Helpers/Subtitles.py:162
 msgid "Legalised content: {content}"
 msgstr "Legalizovaný obsah: {content}"
 
@@ -724,7 +750,7 @@ msgstr "Délka: {duration}"
 msgid "Limits the number of scene/batch summaries to include as context with each translation batch"
 msgstr "Omezuje počet shrnutí scén/dávek, které se mají zahrnout jako kontext ke každé překladové dávce"
 
-#: GUI/ViewModel/BatchItem.py:162
+#: GUI/ViewModel/BatchItem.py:168
 msgid "Line item {row} has no line number"
 msgstr "Položka řádku {row} nemá číslo řádku"
 
@@ -740,11 +766,11 @@ msgstr "Řádek {line} nebyl nalezen v dávce ({scene},{batch})"
 msgid "Line {line}: {start} --> {end}"
 msgstr "Řádek {line}: {start} --> {end}"
 
-#: GUI/ViewModel/BatchItem.py:204 GUI/ViewModel/SceneItem.py:141
+#: GUI/ViewModel/BatchItem.py:212 GUI/ViewModel/SceneItem.py:143
 msgid "Lines {first}-{last} ({start} -> {end})"
 msgstr "Řádky {first}-{last} ({start} -> {end})"
 
-#: GUI/ViewModel/ViewModel.py:448
+#: GUI/ViewModel/ViewModel.py:514
 msgid "Lines {lines} not found in batch {batch}"
 msgstr "Řádky {lines} nebyly nalezeny v dávce {batch}"
 
@@ -784,14 +810,14 @@ msgstr "Hlavní panel nástrojů"
 msgid "Max batch size is less than min batch size"
 msgstr "Maximální velikost dávky je menší než minimální velikost dávky"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:70
-#: PySubtitle/Providers/Provider_Gemini.py:75
-#: PySubtitle/Providers/Provider_Mistral.py:72
-#: PySubtitle/Providers/Provider_OpenRouter.py:126
+#: PySubtitle/Providers/Provider_DeepSeek.py:72
+#: PySubtitle/Providers/Provider_Gemini.py:78
+#: PySubtitle/Providers/Provider_Mistral.py:75
+#: PySubtitle/Providers/Provider_OpenRouter.py:148
 msgid "Maximum API requests per minute."
 msgstr "Maximální počet požadavků API za minutu."
 
-#: PySubtitle/Providers/Provider_OpenAI.py:99
+#: PySubtitle/Providers/Provider_OpenAI.py:102
 msgid "Maximum OpenAI API requests per minute. Mainly useful if you are on the restricted free plan"
 msgstr "Maximální počet požadavků OpenAI API za minutu. Užitečné hlavně pokud máte omezený bezplatný plán"
 
@@ -807,8 +833,8 @@ msgstr "Maximální délka jednoho řádku titulků"
 msgid "Maximum length of the context summary to include with each translation batch"
 msgstr "Maximální délka kontextového shrnutí, které se má zahrnout ke každé překladové dávce"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:68
-#: PySubtitle/Providers/Provider_OpenRouter.py:124
+#: PySubtitle/Providers/Provider_DeepSeek.py:70
+#: PySubtitle/Providers/Provider_OpenRouter.py:146
 msgid "Maximum number of output tokens to return in the response."
 msgstr "Maximální počet výstupních tokenů, které se mají vrátit v odpovědi."
 
@@ -816,7 +842,7 @@ msgstr "Maximální počet výstupních tokenů, které se mají vrátit v odpov
 msgid "Maximum number of simultaneous translation threads for fast translation"
 msgstr "Maximální počet souběžných vláken překladu pro rychlý překlad"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:103
+#: PySubtitle/Providers/Provider_OpenAI.py:106
 msgid "Maximum tokens a completion can contain (only applicable for -instruct models)"
 msgstr "Maximální počet tokenů, které může dokončení obsahovat (platí pouze pro modely -instruct)"
 
@@ -836,11 +862,11 @@ msgstr "Sloučit scény"
 msgid "Merge lines with a duration less than this with the previous line"
 msgstr "Sloučit řádky s délkou menší než tato s předchozím řádkem"
 
-#: GUI/Commands/MergeLinesCommand.py:43
+#: GUI/Commands/MergeLinesCommand.py:44
 msgid "Merging lines {lines} in batch {batch}"
 msgstr "Slučování řádků {lines} v dávce {batch}"
 
-#: GUI/Commands/MergeScenesCommand.py:19
+#: GUI/Commands/MergeScenesCommand.py:20
 msgid "Merging scenes {scenes}"
 msgstr "Slučování scén {scenes}"
 
@@ -860,27 +886,27 @@ msgstr "Minimální délka jednoho řádku titulků"
 msgid "Minimum number of characters to split a line at"
 msgstr "Minimální počet znaků pro rozdělení řádku"
 
-#: PySubtitle/Providers/Provider_Mistral.py:7
+#: PySubtitle/Providers/Provider_Mistral.py:9
 msgid "Mistral SDK is not installed. Mistral provider will not be available"
 msgstr "Mistral SDK není nainstalováno. Poskytovatel Mistral nebude k dispozici"
 
-#: PySubtitle/Providers/Provider_Mistral.py:132
+#: PySubtitle/Providers/Provider_Mistral.py:135
 msgid "Mistral SDK not installed. Mistral provider will not be available"
 msgstr "Mistral SDK není nainstalováno. Poskytovatel Mistral nebude k dispozici"
 
-#: PySubtitle/Providers/Mistral/MistralClient.py:58
+#: PySubtitle/Providers/Mistral/MistralClient.py:67
 msgid "Mistral account quota reached, please upgrade your plan or wait until it renews"
 msgstr "Kvóta účtu Mistral byla dosažena, prosím, upgradujte si plán nebo počkejte na jeho obnovení"
 
-#: GUI/Widgets/ProjectSettings.py:131
+#: GUI/Widgets/ProjectSettings.py:140
 msgid "Model"
 msgstr "Model"
 
-#: PySubtitle/Providers/Bedrock/BedrockClient.py:76
+#: PySubtitle/Providers/Bedrock/BedrockClient.py:77
 msgid "Model ID must be provided as an argument"
 msgstr "ID modelu musí být poskytnuto jako argument"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:105
+#: PySubtitle/Providers/Provider_OpenRouter.py:127
 msgid "Model family/provider to choose from"
 msgstr "Rodina modelů/poskytovatel k výběru"
 
@@ -888,33 +914,44 @@ msgstr "Rodina modelů/poskytovatel k výběru"
 msgid "Most lines to send in each batch"
 msgstr "Nejvíce řádků k odeslání v každé dávce"
 
-#: GUI/Widgets/ProjectSettings.py:118
+#: GUI/Widgets/ProjectSettings.py:127
 msgid "Movie Name"
 msgstr "Název filmu"
 
-#: GUI/Widgets/ProjectSettings.py:123
+#: GUI/Widgets/ProjectSettings.py:132
 msgid "Names"
 msgstr "Jména"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:165
+#: PySubtitle/Providers/Custom/CustomClient.py:174
 msgid "Network error communicating with server: {error}"
 msgstr "Chyba sítě při komunikaci se serverem: {error}"
 
-#: GUI/Commands/MergeLinesCommand.py:31
+#: GUI/Commands/MergeLinesCommand.py:32
 msgid "No batches found for lines to merge"
 msgstr "Nebyly nalezeny žádné dávky pro sloučení řádků"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:111
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:114
-#: PySubtitle/Providers/Custom/CustomClient.py:130
-#: PySubtitle/Providers/Mistral/MistralClient.py:92
-#: PySubtitle/Providers/Mistral/MistralClient.py:108
-#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:41
-#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:57
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:133
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:120
+#: PySubtitle/Providers/Custom/CustomClient.py:139
+#: PySubtitle/Providers/Mistral/MistralClient.py:107
+#: PySubtitle/Providers/Mistral/MistralClient.py:123
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:55
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:71
 msgid "No choices returned in the response"
 msgstr "V odpovědi nebyly vráceny žádné volby"
 
-#: GUI/Commands/DeleteLinesCommand.py:56
+#: PySubtitle/Providers/Gemini/GeminiClient.py:72
+#: PySubtitle/Providers/Mistral/MistralClient.py:56
+msgid "No content provided"
+msgstr "Nebyl poskytnut žádný obsah"
+
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:85
+#: PySubtitle/Providers/Mistral/MistralClient.py:84
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:36
+msgid "No content provided for translation"
+msgstr "Nebyl poskytnut žádný obsah k překladu"
+
+#: GUI/Commands/DeleteLinesCommand.py:57
 msgid "No deletions to undo"
 msgstr "Žádné smazání k vrácení zpět"
 
@@ -926,45 +963,60 @@ msgstr "Není zadána cesta k souboru"
 msgid "No instructions provided for translation"
 msgstr "Nebyly poskytnuty žádné instrukce pro překlad"
 
-#: PySubtitle/TranslationPrompt.py:163
+#: PySubtitle/TranslationPrompt.py:168
 msgid "No line template provided"
 msgstr "Nebyla poskytnuta žádná šablona řádku"
 
-#: GUI/Commands/DeleteLinesCommand.py:22
+#: GUI/Commands/DeleteLinesCommand.py:23
 msgid "No lines selected to delete"
 msgstr "Nebyly vybrány žádné řádky ke smazání"
 
-#: GUI/Commands/DeleteLinesCommand.py:37
+#: GUI/Commands/DeleteLinesCommand.py:38
 msgid "No lines were deleted"
 msgstr "Nebyly smazány žádné řádky"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:118
+#: PySubtitle/TranslationPrompt.py:153
+msgid "No messages for the translation prompt"
+msgstr "Žádné zprávy pro výzvu k překladu"
+
+#: PySubtitle/Providers/Gemini/GeminiClient.py:90
+#: PySubtitle/Providers/Mistral/MistralClient.py:81
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:33
+msgid "No model specified"
+msgstr "Není specifikován žádný model"
+
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:117
+msgid "No model specified for translation"
+msgstr "Není specifikován žádný model pro překlad"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:140
 msgid "No models available"
 msgstr "Žádné dostupné modely"
 
-#: PySubtitle/SubtitleFile.py:309
+#: PySubtitle/SubtitleFile.py:323
 msgid "No original subtitles to save to {}"
 msgstr "Žádné původní titulky k uložení do {}"
 
-#: PySubtitle/Providers/Bedrock/BedrockClient.py:121
+#: PySubtitle/Providers/Bedrock/BedrockClient.py:122
 msgid "No output returned in the response"
 msgstr "V odpovědi nebyl vrácen žádný výstup"
 
-#: GUI/Commands/DeleteLinesCommand.py:27 GUI/Commands/DeleteLinesCommand.py:59
-#: GUI/Commands/EditBatchCommand.py:22 GUI/Commands/EditBatchCommand.py:50
+#: GUI/Commands/DeleteLinesCommand.py:28 GUI/Commands/DeleteLinesCommand.py:60
+#: GUI/Commands/EditBatchCommand.py:24 GUI/Commands/EditBatchCommand.py:54
 #: GUI/Commands/EditLineCommand.py:27 GUI/Commands/EditLineCommand.py:92
-#: GUI/Commands/EditSceneCommand.py:20 GUI/Commands/EditSceneCommand.py:48
-#: GUI/Commands/MergeBatchesCommand.py:26
-#: GUI/Commands/MergeBatchesCommand.py:58 GUI/Commands/MergeLinesCommand.py:21
-#: GUI/Commands/MergeLinesCommand.py:75 GUI/Commands/MergeScenesCommand.py:22
-#: GUI/Commands/MergeScenesCommand.py:54
-#: GUI/Commands/ReparseTranslationsCommand.py:29
-#: GUI/Commands/ReparseTranslationsCommand.py:78
-#: GUI/Commands/SaveProjectFile.py:19 GUI/Commands/SplitBatchCommand.py:22
-#: GUI/Commands/SplitBatchCommand.py:67 GUI/Commands/SplitSceneCommand.py:18
-#: GUI/Commands/SplitSceneCommand.py:46
-#: GUI/Commands/SwapTextAndTranslations.py:31
-#: GUI/Commands/TranslateSceneCommand.py:34
+#: GUI/Commands/EditSceneCommand.py:21 GUI/Commands/EditSceneCommand.py:49
+#: GUI/Commands/MergeBatchesCommand.py:27
+#: GUI/Commands/MergeBatchesCommand.py:59 GUI/Commands/MergeLinesCommand.py:22
+#: GUI/Commands/MergeLinesCommand.py:76 GUI/Commands/MergeScenesCommand.py:23
+#: GUI/Commands/MergeScenesCommand.py:55
+#: GUI/Commands/ReparseTranslationsCommand.py:33
+#: GUI/Commands/ReparseTranslationsCommand.py:93
+#: GUI/Commands/SaveProjectFile.py:19 GUI/Commands/SplitBatchCommand.py:23
+#: GUI/Commands/SplitBatchCommand.py:68 GUI/Commands/SplitSceneCommand.py:19
+#: GUI/Commands/SplitSceneCommand.py:47
+#: GUI/Commands/SwapTextAndTranslations.py:32
+#: GUI/Commands/TranslateSceneCommand.py:34 GUI/GuiInterface.py:252
+#: GUI/GuiInterface.py:262
 msgid "No project data"
 msgstr "Žádná data projektu"
 
@@ -972,7 +1024,7 @@ msgstr "Žádná data projektu"
 msgid "No project file path provided"
 msgstr "Nebyla poskytnuta cesta k souboru projektu"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:101
+#: PySubtitle/Providers/Gemini/GeminiClient.py:113
 msgid "No response from Gemini"
 msgstr "Žádná odpověď od Gemini"
 
@@ -984,10 +1036,10 @@ msgstr "Nebyly vybrány žádné scény k překladu"
 msgid "No scenes to translate"
 msgstr "Žádné scény k překladu"
 
-#: GUI/Commands/AutoSplitBatchCommand.py:26
-#: GUI/Commands/DeleteLinesCommand.py:32 GUI/Commands/MergeLinesCommand.py:26
-#: GUI/Commands/SplitBatchCommand.py:27 GUI/Commands/SplitBatchCommand.py:72
-#: GUI/Commands/SplitSceneCommand.py:23 GUI/Commands/SplitSceneCommand.py:51
+#: GUI/Commands/AutoSplitBatchCommand.py:27
+#: GUI/Commands/DeleteLinesCommand.py:33 GUI/Commands/MergeLinesCommand.py:27
+#: GUI/Commands/SplitBatchCommand.py:28 GUI/Commands/SplitBatchCommand.py:73
+#: GUI/Commands/SplitSceneCommand.py:24 GUI/Commands/SplitSceneCommand.py:52
 #: GUI/ProjectActions.py:396
 msgid "No subtitles"
 msgstr "Žádné titulky"
@@ -1004,28 +1056,40 @@ msgstr "Žádné titulky k překladu"
 msgid "No subtitles to translate in {}"
 msgstr "V {} nejsou žádné titulky k překladu"
 
-#: PySubtitle/SubtitleFile.py:332
+#: PySubtitle/SubtitleFile.py:346
 msgid "No subtitles translated"
 msgstr "Nebyly přeloženy žádné titulky"
 
-#: PySubtitle/Providers/OpenAI/OpenAIReasoningClient.py:63
+#: PySubtitle/Providers/Gemini/GeminiClient.py:69
+msgid "No system prompt provided"
+msgstr "Nebyla poskytnuta žádná systémová výzva"
+
+#: PySubtitle/Providers/OpenAI/OpenAIReasoningClient.py:65
 msgid "No text content found in response"
 msgstr "V odpovědi nebyl nalezen žádný textový obsah"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:149
+#: PySubtitle/Providers/Custom/CustomClient.py:158
 msgid "No text returned in the response"
 msgstr "V odpovědi nebyl vrácen žádný text"
 
-#: GUI/GuiInterface.py:367 GUI/GuiInterface.py:368
+#: GUI/Commands/ReparseTranslationsCommand.py:41
+msgid "No translation provider available"
+msgstr "Není k dispozici žádný poskytovatel překladu"
+
+#: GUI/Commands/TranslateSceneCommand.py:42
+msgid "No translation provider configured"
+msgstr "Není nakonfigurován žádný poskytovatel překladu"
+
+#: GUI/GuiInterface.py:378 GUI/GuiInterface.py:379
 msgid "No translation providers available. Please install one or more providers."
 msgstr "Nejsou k dispozici žádní poskytovatelé překladu. Nainstalujte prosím jednoho nebo více poskytovatelů."
 
-#: GUI/Commands/EditBatchCommand.py:53 GUI/Commands/EditLineCommand.py:95
-#: GUI/Commands/EditSceneCommand.py:51 GUI/Commands/MergeLinesCommand.py:78
+#: GUI/Commands/EditBatchCommand.py:57 GUI/Commands/EditLineCommand.py:95
+#: GUI/Commands/EditSceneCommand.py:52 GUI/Commands/MergeLinesCommand.py:79
 msgid "No undo data available"
 msgstr "Nejsou k dispozici žádná data pro vrácení zpět"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:113
+#: PySubtitle/Providers/Gemini/GeminiClient.py:125
 msgid "No valid candidates returned in the response"
 msgstr "V odpovědi nebyli vráceni žádní platní kandidáti"
 
@@ -1077,7 +1141,7 @@ msgstr "Počet pokusů o opakování neúspěšného překladu před vzdáním s
 msgid "OK"
 msgstr "OK"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:98
+#: PySubtitle/Providers/Provider_OpenRouter.py:120
 msgid "Only show models from the translation category"
 msgstr "Zobrazit pouze modely z kategorie překladů"
 
@@ -1085,31 +1149,31 @@ msgstr "Zobrazit pouze modely z kategorie překladů"
 msgid "Open File"
 msgstr "Otevřít soubor"
 
-#: PySubtitle/Providers/Provider_Azure.py:8
+#: PySubtitle/Providers/Provider_Azure.py:10
 msgid "OpenAI SDK is not installed. Azure provider will not be available"
 msgstr "OpenAI SDK není nainstalováno. Poskytovatel Azure nebude k dispozici"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:7
+#: PySubtitle/Providers/Provider_OpenAI.py:9
 msgid "OpenAI SDK is not installed. OpenAI provider will not be available"
 msgstr "OpenAI SDK není nainstalováno. Poskytovatel OpenAI nebude k dispozici"
 
-#: PySubtitle/Providers/Provider_Azure.py:108
+#: PySubtitle/Providers/Provider_Azure.py:110
 msgid "OpenAI SDK not installed. Azure provider will not be available"
 msgstr "OpenAI SDK není nainstalováno. Poskytovatel Azure nebude k dispozici"
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:129
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:135
 msgid "OpenAI account quota reached, please upgrade your plan"
 msgstr "Kvóta účtu OpenAI byla dosažena, prosím, upgradujte si plán"
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:134
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:140
 msgid "OpenAI error {error}, retrying in {sleep_time}..."
 msgstr "Chyba OpenAI {error}, opakuji za {sleep_time}..."
 
-#: PySubtitle/Providers/Provider_Claude.py:117
+#: PySubtitle/Providers/Provider_Claude.py:121
 msgid "Optional proxy server to use for requests (e.g. https://api.not-anthropic.com/"
 msgstr "Volitelný proxy server pro požadavky (např. https://api.not-anthropic.com/)"
 
-#: GUI/ViewModel/BatchItem.py:189
+#: GUI/ViewModel/BatchItem.py:196
 msgid "Original line {line} not found in batch {batch}"
 msgstr "Původní řádek {line} nebyl nalezen v dávce {batch}"
 
@@ -1117,7 +1181,7 @@ msgstr "Původní řádek {line} nebyl nalezen v dávce {batch}"
 msgid "Performing {action}"
 msgstr "Provádění {action}"
 
-#: GUI/GuiInterface.py:390
+#: GUI/GuiInterface.py:401
 msgid "Please configure the translation provider settings"
 msgstr "Nakonfigurujte prosím nastavení poskytovatele překladu"
 
@@ -1153,7 +1217,7 @@ msgstr "Předchozí titulky nebyly nalezeny, začíná se od začátku..."
 msgid "Processing"
 msgstr "Zpracování"
 
-#: GUI/NewProjectSettings.py:41 GUI/Widgets/ProjectSettings.py:37
+#: GUI/NewProjectSettings.py:41 GUI/Widgets/ProjectSettings.py:38
 #: GUI/Widgets/ProjectSettings.py:86
 msgid "Project Settings"
 msgstr "Nastavení projektu"
@@ -1198,7 +1262,7 @@ msgstr "Výzva pro každý požadavek na překlad"
 msgid "Prompt: {text}"
 msgstr "Výzva: {text}"
 
-#: GUI/Widgets/ProjectSettings.py:129
+#: GUI/Widgets/ProjectSettings.py:138
 msgid "Provider"
 msgstr "Poskytovatel"
 
@@ -1222,11 +1286,11 @@ msgstr "Nastavení poskytovatele ověřeno"
 msgid "Provider {provider} needs configuring: {message}"
 msgstr "Poskytovatel {provider} vyžaduje konfiguraci: {message}"
 
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:117
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:121
 msgid "Rate limit hit, retrying in {backoff_time} seconds..."
 msgstr "Dosažen limit rychlosti, opakuji za {backoff_time} sekund..."
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:123
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:129
 msgid "Rate limit hit, retrying in {retry_seconds} seconds..."
 msgstr "Dosažen limit rychlosti, opakuji za {retry_seconds} sekund..."
 
@@ -1262,7 +1326,7 @@ msgstr "Opětovné načítání titulků ze zdrojového souboru"
 msgid "Remove filler_words and filler words from subtitles"
 msgstr "Odstranit výplňková slova z titulků"
 
-#: PySubtitle/SubtitleFile.py:574
+#: PySubtitle/SubtitleFile.py:591
 msgid "Removing {} translations lines in batch ({},{}) that don't match an original line"
 msgstr "Odstraňování {} přeložených řádků v dávce ({},{}) které neodpovídají původnímu řádku"
 
@@ -1270,7 +1334,7 @@ msgstr "Odstraňování {} přeložených řádků v dávce ({},{}) které neodp
 msgid "Reparse Translation"
 msgstr "Znovu analyzovat překlad"
 
-#: GUI/Commands/ReparseTranslationsCommand.py:26
+#: GUI/Commands/ReparseTranslationsCommand.py:30
 msgid "Reparse batches {batches}"
 msgstr "Znovu analyzovat dávky {batches}"
 
@@ -1278,11 +1342,11 @@ msgstr "Znovu analyzovat dávky {batches}"
 msgid "Reparsing scene {scene} batch {batch} with {count} lines..."
 msgstr "Znovu se analyzuje scéna {scene} dávky {batch} s {count} řádky..."
 
-#: PySubtitle/Providers/Custom/CustomClient.py:171
+#: PySubtitle/Providers/Custom/CustomClient.py:180
 msgid "Request to server timed out: {error}"
 msgstr "Vypršel časový limit požadavku na server: {error}"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:104
+#: PySubtitle/Providers/Gemini/GeminiClient.py:116
 msgid "Request was blocked by Gemini: {block_reason}"
 msgstr "Požadavek byl zablokován Gemini: {block_reason}"
 
@@ -1290,7 +1354,7 @@ msgstr "Požadavek byl zablokován Gemini: {block_reason}"
 msgid "Response"
 msgstr "Odpověď"
 
-#: GUI/Commands/DeleteLinesCommand.py:61
+#: GUI/Commands/DeleteLinesCommand.py:62
 msgid "Restoring deleted lines"
 msgstr "Obnovování smazaných řádků"
 
@@ -1310,16 +1374,16 @@ msgstr "Opakování po neúspěšné validaci: {errors}"
 msgid "Retry passed validation"
 msgstr "Opakování úspěšně prošlo validací"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:187
+#: PySubtitle/Providers/Custom/CustomClient.py:196
 msgid "Retrying in {sleep_time} seconds..."
 msgstr "Opakuji za {sleep_time} sekund..."
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:67
-#: PySubtitle/Providers/Provider_OpenRouter.py:127
+#: PySubtitle/Providers/Provider_DeepSeek.py:69
+#: PySubtitle/Providers/Provider_OpenRouter.py:149
 msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
 msgstr "Znovu použít připojení pro více požadavků (jinak se pro každý naváže nové připojení)"
 
-#: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:151
+#: GUI/EditInstructionsDialog.py:40 GUI/EditInstructionsDialog.py:150
 msgid "Save Instructions"
 msgstr "Uložit pokyny"
 
@@ -1343,11 +1407,11 @@ msgstr "Uložit projekt (Podržte Shift pro uložení jako...)"
 msgid "Saving backup copy of the project"
 msgstr "Ukládání záložní kopie projektu"
 
-#: PySubtitle/SubtitleFile.py:344
+#: PySubtitle/SubtitleFile.py:358
 msgid "Saving translation to {}"
 msgstr "Ukládání překladu do {}"
 
-#: GUI/ViewModel/SceneItem.py:30 GUI/ViewModel/SceneItem.py:140
+#: GUI/ViewModel/SceneItem.py:32 GUI/ViewModel/SceneItem.py:142
 #: GUI/Widgets/Editors.py:86
 msgid "Scene {num}"
 msgstr "Scéna {num}"
@@ -1372,7 +1436,7 @@ msgstr "Scéna {scene} dávky {batch} neprošla validací, požaduje se nový p�
 msgid "Scene {scene} batch {batch}: {translated} lines and {untranslated} untranslated."
 msgstr "Scéna {scene} dávky {batch}: {translated} přeložených řádků a {untranslated} nepřeložených."
 
-#: GUI/ViewModel/BatchItem.py:19
+#: GUI/ViewModel/BatchItem.py:20
 msgid "Scene {scene}, batch {batch}"
 msgstr "Scéna {scene}, dávka {batch}"
 
@@ -1380,11 +1444,11 @@ msgstr "Scéna {scene}, dávka {batch}"
 msgid "Seconds to wait before retrying a failed translation"
 msgstr "Počet sekund čekání před opakováním neúspěšného překladu"
 
-#: PySubtitle/Providers/Bedrock/BedrockClient.py:70
+#: PySubtitle/Providers/Bedrock/BedrockClient.py:71
 msgid "Secret access key must be set in .env or provided as an argument"
 msgstr "Tajný přístupový klíč musí být nastaven v .env nebo poskytnut jako argument"
 
-#: GUI/Widgets/ProjectSettings.py:289
+#: GUI/Widgets/ProjectSettings.py:329
 msgid "Select project to copy settings from"
 msgstr "Vyberte projekt, ze kterého chcete kopírovat nastavení"
 
@@ -1392,7 +1456,11 @@ msgstr "Vyberte projekt, ze kterého chcete kopírovat nastavení"
 msgid "Selection {task_type}"
 msgstr "Výběr {task_type}"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:110
+#: PySubtitle/Providers/Custom/CustomClient.py:102
+msgid "Server address or endpoint is not set"
+msgstr "Adresa serveru nebo koncový bod není nastaven"
+
+#: PySubtitle/Providers/Custom/CustomClient.py:119
 msgid "Server error: {status_code} {text}"
 msgstr "Chyba serveru: {status_code} {text}"
 
@@ -1408,11 +1476,11 @@ msgstr "Rozdělit dávku"
 msgid "Split Scene"
 msgstr "Rozdělit scénu"
 
-#: GUI/Commands/SplitSceneCommand.py:15
+#: GUI/Commands/SplitSceneCommand.py:16
 msgid "Splitting batch {scene} at batch {batch}"
 msgstr "Rozdělování dávky {scene} u dávky {batch}"
 
-#: GUI/Commands/SplitBatchCommand.py:19
+#: GUI/Commands/SplitBatchCommand.py:20
 msgid "Splitting scene {scene} batch: {batch} at line {line}"
 msgstr "Rozdělování scény {scene} dávky: {batch} u řádku {line}"
 
@@ -1436,11 +1504,11 @@ msgstr "Zastavit překlad při výskytu chyby"
 msgid "Stop translation"
 msgstr "Zastavit překlad"
 
-#: GUI/Widgets/ProjectSettings.py:125
+#: GUI/Widgets/ProjectSettings.py:134
 msgid "Substitution Mode"
 msgstr "Režim nahrazování"
 
-#: GUI/Widgets/ProjectSettings.py:124
+#: GUI/Widgets/ProjectSettings.py:133
 msgid "Substitutions"
 msgstr "Nahrazení"
 
@@ -1452,7 +1520,7 @@ msgstr "Soubory s titulky"
 msgid "Subtitles have not been batched"
 msgstr "Titulky nebyly rozděleny do dávek"
 
-#: GUI/Widgets/ProjectSettings.py:288
+#: GUI/Widgets/ProjectSettings.py:328
 msgid "Subtrans Files (*.subtrans);;All Files (*)"
 msgstr "Soubory Subtrans (*.subtrans);;Všechny soubory (*)"
 
@@ -1468,7 +1536,7 @@ msgstr "Úspěšně přeloženo {count} řádků!"
 msgid "Summary"
 msgstr "Shrnutí"
 
-#: PySubtitle/SubtitleTranslator.py:408
+#: PySubtitle/SubtitleTranslator.py:409
 msgid "Summary was truncated from {original} to {truncated} characters"
 msgstr "Souhrn byl zkrácen z {original} na {truncated} znaků"
 
@@ -1488,9 +1556,17 @@ msgstr "Prohodit text"
 msgid "System instructions for the translator"
 msgstr "Systémové pokyny pro překladatele"
 
-#: GUI/Widgets/ProjectSettings.py:119
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:82
+msgid "System prompt is required"
+msgstr "Je vyžadována systémová výzva"
+
+#: GUI/Widgets/ProjectSettings.py:128
 msgid "Target Language"
 msgstr "Cílový jazyk"
+
+#: PySubtitle/Providers/Provider_Custom.py:103
+msgid "Template for the prompt to send to the server (use {prompt} and {context} tags)"
+msgstr "Šablona pro výzvu k odeslání na server (použijte značky {prompt} a {context})"
 
 #: GUI/EditInstructionsDialog.py:27
 msgid "Text Files (*.txt);;All Files (*))"
@@ -1504,36 +1580,36 @@ msgstr "(Stručný) pokyn pro každou dávku titulků. Některé [značky] se vy
 msgid "The AI translation service to use"
 msgstr "AI překladová služba k použití"
 
-#: PySubtitle/Providers/Provider_Custom.py:92
+#: PySubtitle/Providers/Provider_Custom.py:93
 msgid "The API function to call on the server"
 msgstr "Funkce API, která se má volat na serveru"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:81
+#: PySubtitle/Providers/Provider_Bedrock.py:83
 msgid "The AWS region to use for requests must be specified."
 msgstr "Musí být zadán region AWS pro požadavky."
 
-#: PySubtitle/Providers/Provider_Azure.py:65
+#: PySubtitle/Providers/Provider_Azure.py:67
 msgid "The Azure API base URL to use for requests."
 msgstr "Základní URL Azure API pro požadavky."
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:24
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:27
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:27
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:30
 msgid "The OpenAI library is out of date and must be updated"
 msgstr "Knihovna OpenAI je zastaralá a musí být aktualizována"
 
-#: PySubtitle/Providers/Provider_Custom.py:91
+#: PySubtitle/Providers/Provider_Custom.py:92
 msgid "The address of the server"
 msgstr "Adresa serveru"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:59
+#: PySubtitle/Providers/Provider_DeepSeek.py:61
 msgid "The base URL to use for requests (default is https://api.deepseek.com)"
 msgstr "Základní URL pro požadavky (výchozí je https://api.deepseek.com)"
 
-#: PySubtitle/Providers/Provider_Mistral.py:63
+#: PySubtitle/Providers/Provider_Mistral.py:66
 msgid "The base URL to use for requests (default is https://api.mistral.ai)"
 msgstr "Základní URL pro požadavky (výchozí je https://api.mistral.ai)"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:88
+#: PySubtitle/Providers/Provider_OpenAI.py:91
 msgid "The base URL to use for requests - leave as default unless you know you need something else"
 msgstr "Základní URL pro požadavky - ponechte výchozí, pokud nevíte, že potřebujete něco jiného"
 
@@ -1545,43 +1621,43 @@ msgstr "Výchozí jazyk pro překlad titulků"
 msgid "The language of the application interface"
 msgstr "Jazyk uživatelského rozhraní aplikace"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:106
+#: PySubtitle/Providers/Provider_OpenAI.py:109
 msgid "The level of reasoning effort to use for the model"
 msgstr "Úroveň úsilí pro uvažování, kterou má model použít"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:90
+#: PySubtitle/Providers/Provider_Bedrock.py:92
 msgid "The maximum number of requests to make per minute"
 msgstr "Maximální počet požadavků za minutu"
 
-#: PySubtitle/Providers/Provider_Custom.py:104
+#: PySubtitle/Providers/Provider_Custom.py:105
 msgid "The maximum number of tokens the AI should generate in the response (0 for unlimited)"
 msgstr "Maximální počet tokenů, které by měla AI vygenerovat v odpovědi (0 pro neomezeně)"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:89
+#: PySubtitle/Providers/Provider_Bedrock.py:91
 msgid "The maximum number of tokens to generate in a single request"
 msgstr "Maximální počet tokenů k vygenerování v jednom požadavku"
 
-#: PySubtitle/Providers/Provider_Claude.py:115
+#: PySubtitle/Providers/Provider_Claude.py:119
 msgid "The maximum number of tokens to use for thinking"
 msgstr "Maximální počet tokenů pro přemýšlení"
 
-#: PySubtitle/Providers/Provider_Claude.py:110
+#: PySubtitle/Providers/Provider_Claude.py:114
 msgid "The maximum number of tokens to use for translations"
 msgstr "Maximální počet tokenů pro překlady"
 
-#: PySubtitle/Providers/Provider_Custom.py:108
+#: PySubtitle/Providers/Provider_Custom.py:109
 msgid "The model ID (for local servers this is usually not required"
 msgstr "ID modelu (u místních serverů obvykle není potřeba)"
 
-#: PySubtitle/Providers/Provider_Claude.py:107
+#: PySubtitle/Providers/Provider_Claude.py:111
 msgid "The model to use for translations"
 msgstr "Model, který se má použít pro překlady"
 
-#: PySubtitle/Providers/Provider_Claude.py:109
+#: PySubtitle/Providers/Provider_Claude.py:113
 msgid "The rate limit to use for translations (default 60.0)"
 msgstr "Omezení rychlosti pro překlady (výchozí 60.0)"
 
-#: PySubtitle/Providers/Provider_Claude.py:108
+#: PySubtitle/Providers/Provider_Claude.py:112
 msgid "The temperature to use for translations (default 0.0)"
 msgstr "Teplota pro překlady (výchozí 0.0)"
 
@@ -1589,13 +1665,13 @@ msgstr "Teplota pro překlady (výchozí 0.0)"
 msgid "The translation provider to use"
 msgstr "Poskytovatel překladu k použití"
 
-#: PySubtitle/Providers/Provider_Custom.py:106
+#: PySubtitle/Providers/Provider_Custom.py:107
 msgid "Timeout for the request in seconds (default 300)"
 msgstr "Časový limit pro požadavek v sekundách (výchozí 300)"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:83
-#: PySubtitle/Providers/Mistral/MistralClient.py:61
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:75
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:99
+#: PySubtitle/Providers/Mistral/MistralClient.py:70
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:78
 msgid "Too many tokens in translation"
 msgstr "Příliš mnoho tokenů v překladu"
 
@@ -1611,31 +1687,31 @@ msgstr "Překlad scény číslo {scene}"
 msgid "Translating scene number {scene} batch {batches}"
 msgstr "Překlad scény číslo {scene} dávky {batches}"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:24
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:29
 msgid "Translating with Anthropic {model}"
 msgstr "Překládám s Anthropic {model}"
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:38
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:41
 msgid "Translating with Azure OpenAI deployment {deployment_name}, API-version {api_version}, API Base: {api_base}"
 msgstr "Překládám s nasazením Azure OpenAI {deployment_name}, verze API {api_version}, základna API: {api_base}"
 
-#: PySubtitle/Providers/Bedrock/BedrockClient.py:31
+#: PySubtitle/Providers/Bedrock/BedrockClient.py:32
 msgid "Translating with Bedrock model {model_id}, using region: {aws_region}"
 msgstr "Překládám s modelem Bedrock {model_id}, používám region: {aws_region}"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:33
+#: PySubtitle/Providers/Gemini/GeminiClient.py:36
 msgid "Translating with Gemini {model} model"
 msgstr "Překládám s modelem Gemini {model}"
 
-#: PySubtitle/Providers/Mistral/MistralClient.py:26
+#: PySubtitle/Providers/Mistral/MistralClient.py:29
 msgid "Translating with Mistral model {model}, using server: {server_url}"
 msgstr "Překládám s modelem Mistral {model}, používám server: {server_url}"
 
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:34
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:37
 msgid "Translating with model {model}, Using API Base: {api_base}"
 msgstr "Překládám s modelem {model}, používám základnu API: {api_base}"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:25
+#: PySubtitle/Providers/Custom/CustomClient.py:29
 msgid "Translating with server at {server_address}{endpoint}"
 msgstr "Překládání pomocí serveru na adrese {server_address}{endpoint}"
 
@@ -1648,11 +1724,11 @@ msgstr "Překládá se {linecount} řádků v {scenecount} scénách"
 msgid "Translation aborted"
 msgstr "Překlad byl přerušen"
 
-#: GUI/GuiInterface.py:171
+#: GUI/GuiInterface.py:172
 msgid "Translation provider settings are not valid. Please check the settings."
 msgstr "Nastavení poskytovatele překladu jsou neplatná. Zkontrolujte prosím nastavení."
 
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:106
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:110
 msgid "Translation response error: {error}, retrying in {backoff_time} seconds..."
 msgstr "Chyba odpovědi překladu: {error}, opakuji za {backoff_time} sekund..."
 
@@ -1660,7 +1736,7 @@ msgstr "Chyba odpovědi překladu: {error}, opakuji za {backoff_time} sekund..."
 msgid "Truncating batch to remain within max_lines"
 msgstr "Dávka se zkracuje, aby zůstala v limitu max_lines"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:118
+#: PySubtitle/Providers/Provider_OpenRouter.py:140
 msgid "Try a different model family or change filter settings"
 msgstr "Vyzkoušejte jinou rodinu modelů nebo změňte nastavení filtru"
 
@@ -1680,15 +1756,15 @@ msgstr "Nelze vytvořit klienta poskytovatele: {error}"
 msgid "Unable to create translation client"
 msgstr "Nelze vytvořit klienta překladu"
 
-#: GUI/ProjectDataModel.py:124
+#: GUI/ProjectDataModel.py:129
 msgid "Unable to create {provider} provider: {error}"
 msgstr "Nelze vytvořit poskytovatele {provider}: {error}"
 
-#: GUI/Commands/EditBatchCommand.py:26 GUI/Commands/EditLineCommand.py:31
+#: GUI/Commands/EditBatchCommand.py:28 GUI/Commands/EditLineCommand.py:31
 msgid "Unable to edit batch because datamodel is invalid"
 msgstr "Nelze upravit dávku, protože datový model je neplatný"
 
-#: PySubtitle/Providers/Provider_Claude.py:156
+#: PySubtitle/Providers/Provider_Claude.py:160
 msgid "Unable to initialise Anthropic SDK. Claude provider will not be available"
 msgstr "Nepodařilo se inicializovat Anthropic SDK. Poskytovatel Claude nebude k dispozici"
 
@@ -1696,7 +1772,7 @@ msgstr "Nepodařilo se inicializovat Anthropic SDK. Poskytovatel Claude nebude k
 msgid "Unable to load instructions from {file}: {error}"
 msgstr "Nelze načíst pokyny ze souboru {file}: {error}"
 
-#: PySubtitle/Options.py:295
+#: PySubtitle/Options.py:317
 msgid "Unable to load instructions from {}: {}"
 msgstr "Nelze načíst pokyny z {}: {}"
 
@@ -1716,8 +1792,8 @@ msgstr "Nepodařilo se spárovat {count} řádků se zdrojovým řádkem"
 msgid "Unable to merge selection ({selection})"
 msgstr "Nelze sloučit výběr ({selection})"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:101
-#: PySubtitle/Providers/Provider_OpenRouter.py:238
+#: PySubtitle/Providers/Provider_DeepSeek.py:107
+#: PySubtitle/Providers/Provider_OpenRouter.py:265
 msgid "Unable to parse server response as JSON: {response_text}"
 msgstr "Nelze zpracovat odpověď serveru jako JSON: {response_text}"
 
@@ -1729,27 +1805,27 @@ msgstr "Nelze zobrazit náhled dávek: {error}"
 msgid "Unable to read project file, starting afresh"
 msgstr "Nelze načíst soubor projektu, začíná se znovu"
 
-#: PySubtitle/Providers/Provider_Claude.py:140
+#: PySubtitle/Providers/Provider_Claude.py:144
 msgid "Unable to retrieve Claude model list: {error}"
 msgstr "Nepodařilo se načíst seznam modelů Claude: {error}"
 
-#: PySubtitle/Providers/Provider_Gemini.py:123
+#: PySubtitle/Providers/Provider_Gemini.py:126
 msgid "Unable to retrieve Gemini model list: {error}"
 msgstr "Nepodařilo se načíst seznam modelů Gemini: {error}"
 
-#: PySubtitle/Providers/Provider_Bedrock.py:140
-#: PySubtitle/Providers/Provider_Mistral.py:103
-#: PySubtitle/Providers/Provider_OpenAI.py:147
+#: PySubtitle/Providers/Provider_Bedrock.py:142
+#: PySubtitle/Providers/Provider_Mistral.py:106
+#: PySubtitle/Providers/Provider_OpenAI.py:150
 msgid "Unable to retrieve available AI models: {error}"
 msgstr "Nepodařilo se načíst dostupné modely AI: {error}"
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:105
-#: PySubtitle/Providers/Provider_OpenRouter.py:242
+#: PySubtitle/Providers/Provider_DeepSeek.py:111
+#: PySubtitle/Providers/Provider_OpenRouter.py:269
 msgid "Unable to retrieve available models: {error}"
 msgstr "Nelze načíst dostupné modely: {error}"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:98
-#: PySubtitle/Providers/Provider_OpenAI.py:111
+#: PySubtitle/Providers/Provider_OpenAI.py:101
+#: PySubtitle/Providers/Provider_OpenAI.py:114
 msgid "Unable to retrieve models"
 msgstr "Nelze načíst modely"
 
@@ -1761,11 +1837,11 @@ msgstr "Nelze uložit původní titulky: {}"
 msgid "Unable to save translation: {}"
 msgstr "Nelze uložit překlad: {}"
 
-#: GUI/Commands/SplitBatchCommand.py:92
+#: GUI/Commands/SplitBatchCommand.py:93
 msgid "Unable to undo SplitBatchCommand command: {error}"
 msgstr "Nelze vrátit zpět příkaz SplitBatchCommand: {error}"
 
-#: GUI/Commands/SplitSceneCommand.py:72
+#: GUI/Commands/SplitSceneCommand.py:73
 msgid "Unable to undo SplitScene command: {error}"
 msgstr "Nelze vrátit zpět příkaz SplitScene: {error}"
 
@@ -1781,7 +1857,7 @@ msgstr "Vrátit zpět poslední akci"
 msgid "Undo {command}"
 msgstr "Vrátit zpět {command}"
 
-#: GUI/Commands/EditBatchCommand.py:47
+#: GUI/Commands/EditBatchCommand.py:51
 msgid "Undoing edit batch ({scene},{batch})"
 msgstr "Vracení úpravy dávky ({scene},{batch})"
 
@@ -1789,25 +1865,29 @@ msgstr "Vracení úpravy dávky ({scene},{batch})"
 msgid "Undoing edit line {line}"
 msgstr "Vracení úpravy řádku {line}"
 
-#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:145
+#: PySubtitle/Providers/Azure/AzureOpenAIClient.py:151
 msgid "Unexpected error communicating with OpenAI"
 msgstr "Nečekaná chyba při komunikaci s OpenAI"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:176
+#: PySubtitle/Providers/Custom/CustomClient.py:185
 msgid "Unexpected error communicating with server"
 msgstr "Nečekaná chyba při komunikaci se serverem"
 
-#: PySubtitle/Providers/Mistral/MistralClient.py:115
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:146
+#: PySubtitle/Providers/Mistral/MistralClient.py:130
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:150
 msgid "Unexpected error communicating with the provider"
 msgstr "Nečekaná chyba při komunikaci s poskytovatelem"
 
-#: PySubtitle/Providers/Mistral/MistralClient.py:87
-#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:36
+#: PySubtitle/Formats/SrtFileHandler.py:86
+msgid "Unexpected error parsing SRT: {}"
+msgstr "Neočekávaná chyba při analýze SRT: {}"
+
+#: PySubtitle/Providers/Mistral/MistralClient.py:102
+#: PySubtitle/Providers/OpenAI/ChatGPTClient.py:50
 msgid "Unexpected response type: {response_type}"
 msgstr "Nečekaný typ odpovědi: {response_type}"
 
-#: GUI/Command.py:85
+#: GUI/Command.py:87
 msgid "Unrecoverable error in {name}"
 msgstr "Neopravitelná chyba v {name}"
 
@@ -1815,25 +1895,25 @@ msgstr "Neopravitelná chyba v {name}"
 msgid "Untranslated > {number}. {text}"
 msgstr "Nepřeloženo > {number}. {text}"
 
-#: PySubtitle/Providers/Provider_Custom.py:109
+#: PySubtitle/Providers/Provider_Custom.py:110
 msgid "Use parallel threads for translation requests (may be faster but may not work with the server)"
 msgstr "Použít paralelní vlákna pro požadavky na překlad (může být rychlejší, ale nemusí fungovat se serverem)"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:90
+#: PySubtitle/Providers/Provider_OpenRouter.py:112
 msgid "Use the default model and hide advanced model options"
 msgstr "Použít výchozí model a skrýt pokročilé možnosti modelu"
 
-#: PySubtitle/Providers/Provider_OpenAI.py:92
+#: PySubtitle/Providers/Provider_OpenAI.py:95
 msgid "Use the httpx library for requests. May help if you receive a 307 redirect error with a custom api_base"
 msgstr "Použít knihovnu httpx pro požadavky. Může pomoci, pokud obdržíte chybu přesměrování 307 s vlastním api_base"
 
-#: GUI/ViewModel/BatchItem.py:247
+#: GUI/ViewModel/BatchItem.py:255
 msgid "User Prompt:\n {text}"
 msgstr ""
 "Uživatelská výzva:\n"
 " {text}"
 
-#: PySubtitle/Providers/Custom/CustomClient.py:29
+#: PySubtitle/Providers/Custom/CustomClient.py:33
 msgid "Using model: {model}"
 msgstr "Používá se model: {model}"
 
@@ -1849,7 +1929,7 @@ msgstr "Validátor: Maximální počet nových řádků povolených v jednom př
 msgid "Whether to substitute whole words or partial matches, or choose automatically based on input language"
 msgstr "Zda nahrazovat celá slova nebo částečné shody, nebo zvolit automaticky na základě vstupního jazyka"
 
-#: PySubtitle/SubtitleFile.py:287
+#: PySubtitle/SubtitleFile.py:298
 msgid "Writing project data to {}"
 msgstr "Zapisování dat projektu do {}"
 
@@ -1857,7 +1937,7 @@ msgstr "Zapisování dat projektu do {}"
 msgid "access_key"
 msgstr "Přístupový klíč"
 
-#: PySubtitle/Options.py:42
+#: PySubtitle/Options.py:52
 msgid "add_right_to_left_markers"
 msgstr "Přidat značky zprava doleva"
 
@@ -1880,7 +1960,7 @@ msgstr "API klíč"
 msgid "api_version"
 msgstr "Verze API"
 
-#: PySubtitle/Options.py:75
+#: PySubtitle/Options.py:85
 msgid "autosave"
 msgstr "Automatické ukládání"
 
@@ -1888,30 +1968,30 @@ msgstr "Automatické ukládání"
 msgid "aws_region"
 msgstr "Region AWS"
 
-#: PySubtitle/Options.py:73
+#: PySubtitle/Options.py:83
 msgid "backoff_time"
 msgstr "Čas odkladu"
 
-#: PySubtitle/Options.py:55
+#: PySubtitle/Options.py:65
 msgid "break_dialog_on_one_line"
 msgstr "Rozdělit dialog na jeden řádek"
 
-#: PySubtitle/Options.py:54
+#: PySubtitle/Options.py:64
 msgid "break_long_lines"
 msgstr "Rozdělit dlouhé řádky"
 
-#: PySubtitle/Options.py:66
+#: PySubtitle/Options.py:76
 msgid "convert_wide_dashes"
 msgstr "Převést široké pomlčky"
 
-#: PySubtitle/Providers/Gemini/GeminiClient.py:34
-#: PySubtitle/Providers/Mistral/MistralClient.py:27
-#: PySubtitle/Providers/Mistral/MistralClient.py:28
-#: PySubtitle/Providers/OpenAI/OpenAIClient.py:35
+#: PySubtitle/Providers/Gemini/GeminiClient.py:37
+#: PySubtitle/Providers/Mistral/MistralClient.py:30
+#: PySubtitle/Providers/Mistral/MistralClient.py:31
+#: PySubtitle/Providers/OpenAI/OpenAIClient.py:38
 msgid "default"
 msgstr "výchozí"
 
-#: PySubtitle/Providers/Anthropic/AnthropicClient.py:25
+#: PySubtitle/Providers/Anthropic/AnthropicClient.py:30
 msgid "default model"
 msgstr "výchozí model"
 
@@ -1923,11 +2003,11 @@ msgstr "Název nasazení"
 msgid "endpoint"
 msgstr "Koncový bod"
 
-#: PySubtitle/Options.py:62
+#: PySubtitle/Options.py:72
 msgid "filler_words"
 msgstr "Výplňková slova"
 
-#: PySubtitle/Options.py:81
+#: PySubtitle/Options.py:91
 msgid "firstrun"
 msgstr "První spuštění"
 
@@ -1935,27 +2015,27 @@ msgstr "První spuštění"
 msgid "free_plan"
 msgstr "Bezplatný plán"
 
-#: PySubtitle/Options.py:65
+#: PySubtitle/Options.py:75
 msgid "full_width_punctuation"
 msgstr "Interpunkce plné šířky"
 
-#: PySubtitle/Options.py:41
+#: PySubtitle/Options.py:51
 msgid "include_original"
 msgstr "Zahrnout originál"
 
-#: PySubtitle/Options.py:39
+#: PySubtitle/Options.py:49
 msgid "instruction_file"
 msgstr "Soubor s pokyny"
 
-#: PySubtitle/Options.py:76
+#: PySubtitle/Options.py:86
 msgid "last_used_path"
 msgstr "Poslední použitá cesta"
 
-#: PySubtitle/Options.py:45
+#: PySubtitle/Options.py:55
 msgid "max_batch_size"
 msgstr "Maximální velikost dávky"
 
-#: PySubtitle/Options.py:47
+#: PySubtitle/Options.py:57
 msgid "max_characters"
 msgstr "Maximální počet znaků"
 
@@ -1963,7 +2043,7 @@ msgstr "Maximální počet znaků"
 msgid "max_completion_tokens"
 msgstr "Maximální počet tokenů pro dokončení"
 
-#: PySubtitle/Options.py:46
+#: PySubtitle/Options.py:56
 msgid "max_context_summaries"
 msgstr "Maximální počet shrnutí kontextu"
 
@@ -1971,27 +2051,27 @@ msgstr "Maximální počet shrnutí kontextu"
 msgid "max_instruct_tokens"
 msgstr "Maximální počet tokenů pro instrukce"
 
-#: PySubtitle/Options.py:56
+#: PySubtitle/Options.py:66
 msgid "max_line_duration"
 msgstr "Maximální délka řádku"
 
-#: PySubtitle/Options.py:69
+#: PySubtitle/Options.py:79
 msgid "max_lines"
 msgstr "Maximální počet řádků"
 
-#: PySubtitle/Options.py:48
+#: PySubtitle/Options.py:58
 msgid "max_newlines"
 msgstr "Maximální počet nových řádků"
 
-#: PySubtitle/Options.py:71
+#: PySubtitle/Options.py:81
 msgid "max_retries"
 msgstr "Maximální počet opakování"
 
-#: PySubtitle/Options.py:49
+#: PySubtitle/Options.py:59
 msgid "max_single_line_length"
 msgstr "Maximální délka jednoho řádku"
 
-#: PySubtitle/Options.py:72
+#: PySubtitle/Options.py:82
 msgid "max_summary_length"
 msgstr "Maximální délka shrnutí"
 
@@ -1999,7 +2079,7 @@ msgstr "Maximální délka shrnutí"
 msgid "max_thinking_tokens"
 msgstr "Maximální počet tokenů pro přemýšlení"
 
-#: PySubtitle/Options.py:70
+#: PySubtitle/Options.py:80
 msgid "max_threads"
 msgstr "Maximální počet vláken"
 
@@ -2010,23 +2090,23 @@ msgstr "Maximální počet vláken"
 msgid "max_tokens"
 msgstr "Maximální počet tokenů"
 
-#: PySubtitle/Options.py:58
+#: PySubtitle/Options.py:68
 msgid "merge_line_duration"
 msgstr "Sloučit délku řádku"
 
-#: PySubtitle/Options.py:44
+#: PySubtitle/Options.py:54
 msgid "min_batch_size"
 msgstr "Minimální velikost dávky"
 
-#: PySubtitle/Options.py:57
+#: PySubtitle/Options.py:67
 msgid "min_line_duration"
 msgstr "Minimální délka řádku"
 
-#: PySubtitle/Options.py:50
+#: PySubtitle/Options.py:60
 msgid "min_single_line_length"
 msgstr "Minimální délka jednoho řádku"
 
-#: PySubtitle/Options.py:59
+#: PySubtitle/Options.py:69
 msgid "min_split_chars"
 msgstr "Minimální počet znaků pro rozdělení"
 
@@ -2048,7 +2128,7 @@ msgstr "Rodina modelů"
 msgid "multithreaded"
 msgstr "Vícevláknové"
 
-#: PySubtitle/Options.py:60
+#: PySubtitle/Options.py:70
 msgid "normalise_dialog_tags"
 msgstr "Normalizovat značky dialogu"
 
@@ -2056,19 +2136,19 @@ msgstr "Normalizovat značky dialogu"
 msgid "only_translation_models"
 msgstr "Pouze překladové modely"
 
-#: PySubtitle/Options.py:51
+#: PySubtitle/Options.py:61
 msgid "postprocess_translation"
 msgstr "Následné zpracování překladu"
 
-#: PySubtitle/Options.py:52
+#: PySubtitle/Options.py:62
 msgid "preprocess_subtitles"
 msgstr "Předzpracování titulků"
 
-#: PySubtitle/Options.py:74
+#: PySubtitle/Options.py:84
 msgid "project"
 msgstr "Projekt"
 
-#: PySubtitle/Options.py:38
+#: PySubtitle/Options.py:48
 msgid "prompt"
 msgstr "Výzva"
 
@@ -2076,11 +2156,11 @@ msgstr "Výzva"
 msgid "prompt_template"
 msgstr "Šablona výzvy"
 
-#: PySubtitle/Options.py:36
+#: PySubtitle/Options.py:46
 msgid "provider"
 msgstr "Poskytovatel"
 
-#: PySubtitle/Options.py:37
+#: PySubtitle/Options.py:47
 msgid "provider_settings"
 msgstr "Nastavení poskytovatele"
 
@@ -2101,11 +2181,11 @@ msgstr "Omezení rychlosti"
 msgid "reasoning_effort"
 msgstr "Úsilí pro uvažování"
 
-#: PySubtitle/Options.py:61
+#: PySubtitle/Options.py:71
 msgid "remove_filler_words"
 msgstr "Odstranit výplňková slova"
 
-#: PySubtitle/Options.py:67
+#: PySubtitle/Options.py:77
 msgid "retry_on_error"
 msgstr "Opakovat při chybě"
 
@@ -2113,11 +2193,11 @@ msgstr "Opakovat při chybě"
 msgid "reuse_client"
 msgstr "Znovu použít klienta"
 
-#: PySubtitle/Options.py:53
+#: PySubtitle/Options.py:63
 msgid "save_preprocessed_subtitles"
 msgstr "Uložit předzpracované titulky"
 
-#: PySubtitle/Options.py:43
+#: PySubtitle/Options.py:53
 msgid "scene_threshold"
 msgstr "Prahová hodnota scény"
 
@@ -2138,11 +2218,11 @@ msgstr "URL serveru"
 msgid "single threaded"
 msgstr "Jednovláknové"
 
-#: PySubtitle/Options.py:77
+#: PySubtitle/Options.py:87
 msgid "stop_on_error"
 msgstr "Zastavit při chybě"
 
-#: PySubtitle/Options.py:63
+#: PySubtitle/Options.py:73
 msgid "substitution_mode"
 msgstr "Režim nahrazování"
 
@@ -2158,7 +2238,7 @@ msgstr "Podporuje paralelní vlákna"
 msgid "supports_system_messages"
 msgstr "Podporuje systémové zprávy"
 
-#: PySubtitle/Options.py:40
+#: PySubtitle/Options.py:50
 msgid "target_language"
 msgstr "Cílový jazyk"
 
@@ -2172,7 +2252,7 @@ msgstr "Cílový jazyk"
 msgid "temperature"
 msgstr "Teplota"
 
-#: PySubtitle/Options.py:79
+#: PySubtitle/Options.py:89
 msgid "theme"
 msgstr "Motiv"
 
@@ -2184,7 +2264,7 @@ msgstr "Přemýšlení"
 msgid "timeout"
 msgstr "Časový limit"
 
-#: PySubtitle/Options.py:80
+#: PySubtitle/Options.py:90
 msgid "ui_language"
 msgstr "Jazyk uživatelského rozhraní"
 
@@ -2196,15 +2276,15 @@ msgstr "Použít výchozí model"
 msgid "use_httpx"
 msgstr "Použít httpx"
 
-#: PySubtitle/Options.py:35
+#: PySubtitle/Options.py:45
 msgid "version"
 msgstr "Verze"
 
-#: PySubtitle/Options.py:64
+#: PySubtitle/Options.py:74
 msgid "whitespaces_to_newline"
 msgstr "Bílé znaky na nový řádek"
 
-#: PySubtitle/Options.py:78
+#: PySubtitle/Options.py:88
 msgid "write_backup"
 msgstr "Zapsat zálohu"
 
@@ -2232,7 +2312,7 @@ msgstr "{command} vráceno zpět."
 msgid "{command} was successful."
 msgstr "{command} bylo úspěšné."
 
-#: GUI/GuiHelpers.py:55 GUI/ViewModel/BatchItem.py:198
+#: GUI/GuiHelpers.py:55 GUI/ViewModel/BatchItem.py:206
 msgid "{count} lines"
 msgstr "{count} řádků"
 
@@ -2240,11 +2320,11 @@ msgstr "{count} řádků"
 msgid "{count} lines translated"
 msgstr "{count} řádků přeloženo"
 
-#: GUI/ViewModel/BatchItem.py:199
+#: GUI/ViewModel/BatchItem.py:207
 msgid "{count} translated"
 msgstr "{count} přeloženo"
 
-#: GUI/ViewModel/SceneItem.py:133
+#: GUI/ViewModel/SceneItem.py:135
 msgid "{done} of {total} batches translated"
 msgstr "{done} z {total} dávek přeloženo"
 
@@ -2252,7 +2332,7 @@ msgstr "{done} z {total} dávek přeloženo"
 msgid "{done} of {total} lines translated"
 msgstr "{done} z {total} řádků přeloženo"
 
-#: GUI/ViewModel/SceneItem.py:135
+#: GUI/ViewModel/SceneItem.py:137
 msgid "{lines} lines in {batches} batches"
 msgstr "{lines} řádků v {batches} dávkách"
 
@@ -2268,13 +2348,16 @@ msgstr "{num} příkazů ve frontě."
 msgid "{starting} {threaded} translation"
 msgstr "{starting} {threaded} překlad"
 
-#: PySubtitle/SubtitleFile.py:365
+#: PySubtitle/SubtitleFile.py:379
 msgid "{} lines were empty and were not written to the output file"
 msgstr "{} řádků bylo prázdných a nebylo zapsáno do výstupního souboru"
 
-#: PySubtitle/SubtitleFile.py:361
+#: PySubtitle/SubtitleFile.py:375
 msgid "{} lines were invalid and were not written to the output file"
 msgstr "{} řádků bylo neplatných a nebylo zapsáno do výstupního souboru"
+
+#~ msgid "Invalid SRT line: {line}"
+#~ msgstr "Neplatný řádek SRT: {line}"
 
 #~ msgid "Cannot undo merge, undo data was not saved"
 #~ msgstr "Nelze vrátit zpět sloučení, data pro vrácení zpět nebyla uložena"

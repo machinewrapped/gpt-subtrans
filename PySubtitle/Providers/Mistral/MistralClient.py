@@ -53,7 +53,7 @@ try:
 
             content = prompt.content
             if not content or not isinstance(prompt.content, list):
-                raise TranslationImpossibleError(_("No content provided"))
+                raise TranslationImpossibleError(_("No content provided for translation"))
 
             content = [message for message in content if message]
 

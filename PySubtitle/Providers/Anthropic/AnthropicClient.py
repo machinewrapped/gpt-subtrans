@@ -111,10 +111,10 @@ try:
                     return None
 
                 if not self.client:
-                    raise TranslationImpossibleError(_("Client not initialized"))
+                    raise TranslationImpossibleError(_("Client is not initialized"))
 
                 if self.model is None:
-                    raise TranslationError(_("No model specified for translation"))
+                    raise TranslationError(_("No model specified"))
                 
                 try:
                     api_response = self.client.messages.create(

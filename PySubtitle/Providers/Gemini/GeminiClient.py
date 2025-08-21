@@ -66,10 +66,10 @@ class GeminiClient(TranslationClient):
         logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
         if not isinstance(prompt.system_prompt, str):
-            raise TranslationImpossibleError(_("No system prompt provided"))
+            raise TranslationImpossibleError(_("System prompt is required"))
 
         if not isinstance(prompt.content, str) or not prompt.content.strip():
-            raise TranslationImpossibleError(_("No content provided"))
+            raise TranslationImpossibleError(_("No content provided for translation"))
             
         temperature = temperature or self.temperature
         response = self._send_messages(prompt.system_prompt, prompt.content, temperature)

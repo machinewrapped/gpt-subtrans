@@ -19,6 +19,7 @@ import re
 import sys
 import ast
 import subprocess
+import time
 import httpx
 from datetime import datetime, timezone
 
@@ -589,6 +590,9 @@ def auto_translate_untranslated(untranslated_map: dict[str, dict[str,str]], paid
             print(f"Saved {len(translations)} auto-translations to '{out_path}' for review.")
         else:
             print(f"No translations returned for {lang}")
+
+        if not paid:
+            time.sleep(3)  # Avoid hitting rate limits on free model
 
 
 def generate_untranslated_files(languages: list[str]) -> dict[str, dict[str,str]]:
