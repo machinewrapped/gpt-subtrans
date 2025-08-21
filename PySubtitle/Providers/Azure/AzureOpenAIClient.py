@@ -3,8 +3,6 @@ import openai
 import time
 from typing import Any
 
-from PySubtitle.Options import Options, SettingsType
-
 try:
     import openai
 
@@ -16,6 +14,7 @@ try:
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
     from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
+    from PySubtitle.Options import Options, SettingsType
 
     class AzureOpenAIClient(TranslationClient):
         """
