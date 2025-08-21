@@ -119,8 +119,10 @@ def GetFloatSetting(settings: SettingsType | Options, key: str, default: float|N
     if isinstance(value, (int, float)):
         return float(value)
     elif isinstance(value, str):
-        if value.isnumeric():
+        try:
             return float(value)
+        except ValueError:
+            pass
 
     raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to float")
 
