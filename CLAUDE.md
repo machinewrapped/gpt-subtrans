@@ -14,8 +14,11 @@ Secrets are stored in a .env file - you must never read the contents of the file
 ## Code Style
 - **Naming**: PascalCase for classes and methods, snake_case for variables
 - **Imports**: Standard lib → third-party → local, alphabetical within groups
-- **Types**: Use type hints for parameters, return values, and class variables. 
-- **Type Hints**: Do not put spaces around the | between types in type hint unions. Do put spaces around the colon introducing a type hint.
+- **Types**: Use type hints for parameters, return values, and class variables
+- **Type Hints**: 
+  - **CRITICAL**: Do NOT put spaces around the `|` in type unions. Use `str|None`, never `str | None`
+  - DO put spaces around the colon introducing a type hint: `def func(param : str) -> bool:`
+  - Examples: `def get_value(self) -> str|None:` ✅ `def get_value(self) -> str | None:` ❌
 - **Docstrings**: Triple-quoted concise descriptions for classes and methods
 - **Error handling**: Custom exceptions, specific except blocks, input validation
 - **Class structure**: Docstring → constants → init → properties → public methods → private methods
