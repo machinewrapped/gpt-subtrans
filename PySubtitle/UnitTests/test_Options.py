@@ -3,10 +3,17 @@ import os
 import tempfile
 import json
 from copy import deepcopy
+from datetime import timedelta
 from unittest.mock import patch, mock_open
 
 from PySubtitle.Options import Options, default_options, standard_filler_words
 from PySubtitle.Instructions import Instructions
+from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
+from PySubtitle.Helpers.Settings import (
+    GetBoolSetting, GetIntSetting, GetFloatSetting, GetStrSetting,
+    GetListSetting, GetStringListSetting, GetTimeDeltaSetting,
+    get_optional_setting, validate_setting_type, SettingsError
+)
 
 
 class TestOptions(unittest.TestCase):
@@ -413,6 +420,331 @@ class TestOptions(unittest.TestCase):
         
         # Version should be updated
         self.assertEqual(options.get('version'), default_options['version'])
+
+
+class TestSettingsHelpers(unittest.TestCase):
+    """Unit tests for Settings helper functions"""
+
+    def setUp(self):
+        """Set up test fixtures with known values"""
+        self.test_dict_settings = {
+            'bool_true': True,
+            'bool_false': False,
+            'bool_str_true': 'true',
+            'bool_str_false': 'false',
+            'bool_str_invalid': 'maybe',
+            'int_value': 42,
+            'int_str': '123',
+            'int_float': 45.0,
+            'int_invalid': 'not_a_number',
+            'float_value': 3.14,
+            'float_int': 42,
+            'float_str': '2.718',
+            'float_invalid': 'not_a_float',
+            'str_value': 'hello world',
+            'str_int': 123,
+            'str_bool': True,
+            'str_list': ['item1', 'item2'],
+            'list_value': ['apple', 'banana', 'cherry'],
+            'list_tuple': ('x', 'y', 'z'),
+            'list_set': {'a', 'b', 'c'},
+            'list_str_comma': 'red,green,blue',
+            'list_str_semicolon': 'cat;dog;bird',
+            'list_invalid': 42,
+            'timedelta_seconds': 30.5,
+            'timedelta_str': '15.0',
+            'timedelta_int': 60,
+            'timedelta_invalid': 'invalid',
+        }
+        
+        self.test_options_obj = Options(self.test_dict_settings)
+
+    def test_get_bool_setting(self):
+        """Test GetBoolSetting with various input types"""
+        log_test_name("GetBoolSetting")
+        
+        test_cases = [
+            # (key, expected_result, description)
+            ('bool_true', True, 'boolean True'),
+            ('bool_false', False, 'boolean False'),
+            ('bool_str_true', True, 'string "true"'),
+            ('bool_str_false', False, 'string "false"'),
+            ('missing_key', False, 'missing key with default False'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                # Test with dict
+                result = GetBoolSetting(self.test_dict_settings, key)
+                log_input_expected_result(f"dict['{key}'] ({description})", expected, result)
+                self.assertEqual(result, expected)
+                
+                # Test with Options object
+                result_opts = GetBoolSetting(self.test_options_obj, key)
+                log_input_expected_result(f"Options['{key}'] ({description})", expected, result_opts)
+                self.assertEqual(result_opts, expected)
+        
+        # Test custom default
+        result = GetBoolSetting(self.test_dict_settings, 'missing_key', True)
+        log_input_expected_result("missing key with default True", True, result)
+        self.assertTrue(result)
+        
+        # Test None value
+        settings_with_none = {'none_value': None}
+        result = GetBoolSetting(settings_with_none, 'none_value')
+        log_input_expected_result("None value", False, result)
+        self.assertFalse(result)
+
+    def test_get_bool_setting_errors(self):
+        """Test GetBoolSetting error cases"""
+        log_test_name("GetBoolSetting Errors")
+        
+        error_cases = [
+            ('bool_str_invalid', 'invalid string "maybe"'),
+            ('int_value', 'integer value'),
+        ]
+        
+        for key, description in error_cases:
+            with self.subTest(key=key):
+                with self.assertRaises(SettingsError) as cm:
+                    GetBoolSetting(self.test_dict_settings, key)
+                log_input_expected_result(f"'{key}' ({description})", "SettingsError", str(cm.exception))
+
+    def test_get_int_setting(self):
+        """Test GetIntSetting with various input types"""
+        log_test_name("GetIntSetting")
+        
+        test_cases = [
+            ('int_value', 42, 'integer value'),
+            ('int_str', 123, 'string "123"'),
+            ('int_float', 45, 'float 45.0'),
+            ('missing_key', 0, 'missing key with default 0'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = GetIntSetting(self.test_dict_settings, key)
+                log_input_expected_result(f"'{key}' ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test None handling
+        settings_with_none = {'none_value': None}
+        result = GetIntSetting(settings_with_none, 'none_value')
+        log_input_expected_result("None value", None, result)
+        self.assertIsNone(result)
+
+    def test_get_int_setting_errors(self):
+        """Test GetIntSetting error cases"""
+        log_test_name("GetIntSetting Errors")
+        
+        with self.assertRaises(SettingsError) as cm:
+            GetIntSetting(self.test_dict_settings, 'int_invalid')
+        log_input_expected_result("invalid string", "SettingsError", str(cm.exception))
+
+    def test_get_float_setting(self):
+        """Test GetFloatSetting with various input types"""
+        log_test_name("GetFloatSetting")
+        
+        test_cases = [
+            ('float_value', 3.14, 'float value'),
+            ('float_int', 42.0, 'integer converted to float'),
+            ('float_str', 2.718, 'string "2.718"'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = GetFloatSetting(self.test_dict_settings, key)
+                log_input_expected_result(f"'{key}' ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test None handling
+        result = GetFloatSetting(self.test_dict_settings, 'missing_key')
+        log_input_expected_result("missing key", None, result)
+        self.assertIsNone(result)
+
+    def test_get_float_setting_errors(self):
+        """Test GetFloatSetting error cases"""
+        log_test_name("GetFloatSetting Errors")
+        
+        with self.assertRaises(SettingsError) as cm:
+            GetFloatSetting(self.test_dict_settings, 'float_invalid')
+        log_input_expected_result("invalid string", "SettingsError", str(cm.exception))
+
+    def test_get_str_setting(self):
+        """Test GetStrSetting with various input types"""
+        log_test_name("GetStrSetting")
+        
+        test_cases = [
+            ('str_value', 'hello world', 'string value'),
+            ('str_int', '123', 'integer converted to string'),
+            ('str_bool', 'True', 'boolean converted to string'),
+            ('str_list', 'item1, item2', 'list converted to string'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = GetStrSetting(self.test_dict_settings, key)
+                log_input_expected_result(f"'{key}' ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test None handling
+        result = GetStrSetting(self.test_dict_settings, 'missing_key')
+        log_input_expected_result("missing key", None, result)
+        self.assertIsNone(result)
+
+    def test_get_list_setting(self):
+        """Test GetListSetting with various input types"""
+        log_test_name("GetListSetting")
+        
+        test_cases = [
+            ('list_value', ['apple', 'banana', 'cherry'], 'list value'),
+            ('list_tuple', ['x', 'y', 'z'], 'tuple converted to list'),
+            ('list_str_comma', ['red', 'green', 'blue'], 'comma-separated string'),
+            ('list_str_semicolon', ['cat', 'dog', 'bird'], 'semicolon-separated string'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = GetListSetting(self.test_dict_settings, key)
+                log_input_expected_result(f"'{key}' ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test missing key returns empty list
+        result = GetListSetting(self.test_dict_settings, 'missing_key')
+        log_input_expected_result("missing key", [], result)
+        self.assertEqual(result, [])
+        
+        # Test set conversion
+        result = GetListSetting(self.test_dict_settings, 'list_set')
+        log_input_expected_result("set converted to list", True, isinstance(result, list))
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 3)
+
+    def test_get_list_setting_errors(self):
+        """Test GetListSetting error cases"""
+        log_test_name("GetListSetting Errors")
+        
+        with self.assertRaises(SettingsError) as cm:
+            GetListSetting(self.test_dict_settings, 'list_invalid')
+        log_input_expected_result("invalid type (int)", "SettingsError", str(cm.exception))
+
+    def test_get_string_list_setting(self):
+        """Test GetStringListSetting function"""
+        log_test_name("GetStringListSetting")
+        
+        # Test with valid string list
+        result = GetStringListSetting(self.test_dict_settings, 'list_value')
+        expected = ['apple', 'banana', 'cherry']
+        log_input_expected_result("valid string list", expected, result)
+        self.assertEqual(result, expected)
+        
+        # Test with mixed types (should convert to strings)
+        mixed_settings = {'mixed_list': [1, 'two', True, None]}
+        result = GetStringListSetting(mixed_settings, 'mixed_list')
+        expected = ['1', 'two', 'True']
+        log_input_expected_result("mixed types", expected, result)
+        self.assertEqual(result, expected)
+
+    def test_get_timedelta_setting(self):
+        """Test GetTimeDeltaSetting function"""
+        log_test_name("GetTimeDeltaSetting")
+        
+        test_cases = [
+            ('timedelta_seconds', timedelta(seconds=30.5), 'float seconds'),
+            ('timedelta_str', timedelta(seconds=15.0), 'string seconds'),
+            ('timedelta_int', timedelta(seconds=60), 'integer seconds'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = GetTimeDeltaSetting(self.test_dict_settings, key)
+                log_input_expected_result(f"'{key}' ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test default value
+        default = timedelta(minutes=5)
+        result = GetTimeDeltaSetting(self.test_dict_settings, 'missing_key', default)
+        log_input_expected_result("missing key with default", default, result)
+        self.assertEqual(result, default)
+
+    def test_get_timedelta_setting_errors(self):
+        """Test GetTimeDeltaSetting error cases"""
+        log_test_name("GetTimeDeltaSetting Errors")
+        
+        with self.assertRaises(SettingsError) as cm:
+            GetTimeDeltaSetting(self.test_dict_settings, 'timedelta_invalid')
+        log_input_expected_result("invalid string", "SettingsError", str(cm.exception))
+
+    def test_get_optional_setting(self):
+        """Test get_optional_setting function"""
+        log_test_name("get_optional_setting")
+        
+        test_cases = [
+            ('bool_true', bool, True, 'boolean type'),
+            ('int_value', int, 42, 'integer type'),
+            ('float_value', float, 3.14, 'float type'),
+            ('str_value', str, 'hello world', 'string type'),
+            ('list_value', list, ['apple', 'banana', 'cherry'], 'list type'),
+        ]
+        
+        for key, setting_type, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = get_optional_setting(self.test_dict_settings, key, setting_type)
+                log_input_expected_result(f"'{key}' as {description}", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test missing key returns None
+        result = get_optional_setting(self.test_dict_settings, 'missing_key', str)
+        log_input_expected_result("missing key", None, result)
+        self.assertIsNone(result)
+        
+        # Test with Options object
+        result = get_optional_setting(self.test_options_obj, 'bool_true', bool)
+        log_input_expected_result("Options object", True, result)
+        self.assertTrue(result)
+
+    def test_get_optional_setting_errors(self):
+        """Test get_optional_setting error cases"""
+        log_test_name("get_optional_setting Errors")
+        
+        with self.assertRaises(SettingsError) as cm:
+            get_optional_setting(self.test_dict_settings, 'bool_str_invalid', bool)
+        log_input_expected_result("invalid conversion", "SettingsError", str(cm.exception))
+
+    def test_validate_setting_type(self):
+        """Test validate_setting_type function"""
+        log_test_name("validate_setting_type")
+        
+        valid_cases = [
+            ('bool_true', bool, True, 'valid boolean'),
+            ('int_value', int, True, 'valid integer'),
+            ('str_value', str, True, 'valid string'),
+        ]
+        
+        for key, setting_type, expected, description in valid_cases:
+            with self.subTest(key=key):
+                result = validate_setting_type(self.test_dict_settings, key, setting_type)
+                log_input_expected_result(f"'{key}' as {setting_type.__name__} ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test missing optional setting
+        result = validate_setting_type(self.test_dict_settings, 'missing_key', str, required=False)
+        log_input_expected_result("missing optional setting", True, result)
+        self.assertTrue(result)
+        
+        # Test invalid type
+        result = validate_setting_type(self.test_dict_settings, 'bool_str_invalid', bool)
+        log_input_expected_result("invalid type conversion", False, result)
+        self.assertFalse(result)
+
+    def test_validate_setting_type_errors(self):
+        """Test validate_setting_type error cases"""
+        log_test_name("validate_setting_type Errors")
+        
+        # Test required missing setting
+        with self.assertRaises(SettingsError) as cm:
+            validate_setting_type(self.test_dict_settings, 'missing_key', str, required=True)
+        log_input_expected_result("required missing setting", "SettingsError", str(cm.exception))
 
 
 if __name__ == '__main__':
