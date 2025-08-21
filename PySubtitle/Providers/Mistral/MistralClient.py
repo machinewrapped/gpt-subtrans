@@ -55,7 +55,7 @@ try:
             if not content or not isinstance(prompt.content, list):
                 raise TranslationImpossibleError(_("No content provided"))
 
-            content = [str(message) for message in content if message]
+            content = [message for message in content if message]
 
             temperature = temperature or self.temperature
             response = self._send_messages(content, temperature)
