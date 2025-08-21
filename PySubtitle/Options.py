@@ -126,6 +126,9 @@ class Options:
         options = {k: v for k, v in options.items() if v is not None}
         self.options.update(options)
 
+    def items(self) -> list[tuple[str,OptionType]]:
+        return list(self.options.items())
+
     @property
     def theme(self) -> str:
         return self.get('theme')
@@ -153,7 +156,7 @@ class Options:
         return self.get('provider_settings', {})
 
     @property
-    def current_provider_settings(self) -> SettingsType | None:
+    def current_provider_settings(self) -> SettingsType|None:
         if not self.provider:
             return None
 

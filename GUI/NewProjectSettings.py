@@ -75,7 +75,7 @@ class NewProjectSettings(QDialog):
             except Exception as e:
                 logging.error(_("Unable to create option widget for {key}: {error}").format(key=key, error=e))
 
-        self.layout = QVBoxLayout(self) # type: ignore
+        self._layout = QVBoxLayout(self) # type: ignore
         self._add_widget(settings_widget)
 
         self.preview_widget = QLabel(self)
@@ -94,14 +94,14 @@ class NewProjectSettings(QDialog):
         self._preview_batches()
 
     def _add_widget(self, settings_widget):
-        self.layout.addWidget(settings_widget) # type: ignore
+        self._layout.addWidget(settings_widget) # type: ignore
 
     def accept(self):
         try:
             self._update_settings()
 
             instructions_file = self.settings.get('instruction_file')
-            if instructions_file:
+            if instructions_file and isinstance(instructions_file, str):
                 logging.info(_("Project instructions set from {file}").format(file=instructions_file))
                 try:
                     instructions = LoadInstructions(instructions_file)

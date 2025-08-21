@@ -24,9 +24,9 @@ class SettingsError(Exception):
 def GetBoolSetting(settings: SettingsType | Options, key: str) -> bool: ...
 
 @overload
-def GetBoolSetting(settings: SettingsType | Options, key: str, default: bool) -> bool: ...
+def GetBoolSetting(settings: SettingsType | Options, key: str, default: bool|None) -> bool: ...
 
-def GetBoolSetting(settings: SettingsType | Options, key: str, default: bool = False) -> bool:
+def GetBoolSetting(settings: SettingsType | Options, key: str, default: bool|None = False) -> bool:
     """
     Safely retrieve a boolean setting from a settings dictionary.
     
@@ -42,6 +42,8 @@ def GetBoolSetting(settings: SettingsType | Options, key: str, default: bool = F
         SettingsError: If the setting cannot be converted to bool
     """
     value = settings.get(key, default)
+    if value is None:
+        return False
     
     if isinstance(value, bool):
         return value
@@ -56,12 +58,12 @@ def GetBoolSetting(settings: SettingsType | Options, key: str, default: bool = F
 
 
 @overload
-def GetIntSetting(settings: SettingsType | Options, key: str) -> int: ...
+def GetIntSetting(settings: SettingsType | Options, key: str) -> int|None: ...
 
 @overload 
-def GetIntSetting(settings: SettingsType | Options, key: str, default: int) -> int: ...
+def GetIntSetting(settings: SettingsType | Options, key: str, default: int|None) -> int|None: ...
 
-def GetIntSetting(settings: SettingsType | Options, key: str, default: int = 0) -> int:
+def GetIntSetting(settings: SettingsType | Options, key: str, default: int|None = 0) -> int|None:
     """
     Safely retrieve an integer setting from a settings dictionary.
     
@@ -77,6 +79,9 @@ def GetIntSetting(settings: SettingsType | Options, key: str, default: int = 0) 
         SettingsError: If the setting cannot be converted to int
     """
     value = settings.get(key, default)
+    if value is None:
+        return None
+
     if isinstance(value, (int,float)):
         return int(value)
     elif isinstance(value, str):
@@ -90,7 +95,7 @@ def GetIntSetting(settings: SettingsType | Options, key: str, default: int = 0) 
 def GetFloatSetting(settings: SettingsType | Options, key: str) -> float|None: ...
 
 @overload
-def GetFloatSetting(settings: SettingsType | Options, key: str, default: float) -> float|None: ...
+def GetFloatSetting(settings: SettingsType | Options, key: str, default: float|None) -> float|None: ...
 
 def GetFloatSetting(settings: SettingsType | Options, key: str, default: float|None = None) -> float|None:
     """
@@ -108,7 +113,6 @@ def GetFloatSetting(settings: SettingsType | Options, key: str, default: float|N
         SettingsError: If the setting cannot be converted to float
     """
     value = settings.get(key, default)
-    
     if value is None:
         return None
     
@@ -124,7 +128,7 @@ def GetFloatSetting(settings: SettingsType | Options, key: str, default: float|N
 def GetStrSetting(settings: SettingsType | Options, key: str) -> str|None: ...
 
 @overload
-def GetStrSetting(settings: SettingsType | Options, key: str, default: str) -> str|None: ...
+def GetStrSetting(settings: SettingsType | Options, key: str, default: str|None) -> str|None: ...
 
 def GetStrSetting(settings: SettingsType | Options, key: str, default: str|None = None) -> str|None:
     """
@@ -159,7 +163,7 @@ def GetListSetting(settings: SettingsType | Options, key: str) -> list[Any]: ...
 @overload
 def GetListSetting(settings: SettingsType | Options, key: str, default: list[Any]) -> list[Any]: ...
 
-def GetListSetting(settings: SettingsType | Options, key: str, default: list[Any] | None = None) -> list[Any]:
+def GetListSetting(settings: SettingsType | Options, key: str, default: list[Any]|None = None) -> list[Any]:
     """
     Safely retrieve a list setting from a settings dictionary.
     
@@ -189,7 +193,7 @@ def GetListSetting(settings: SettingsType | Options, key: str, default: list[Any
 
     raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to list")
 
-def GetStringListSetting(settings: SettingsType | Options, key: str, default: list[str] | None = None) -> list[str]:
+def GetStringListSetting(settings: SettingsType | Options, key: str, default: list[str]|None = None) -> list[str]:
     """
     Safely retrieve a list of strings setting from a settings dictionary.
     

@@ -234,16 +234,18 @@ class ProjectSettings(QGroupBox):
         elif isinstance(widget, QComboBox):
             self._update_combo_box(widget, str(value))
         elif widget is not None:
-            self._settext(widget, str(value))
+            self._settext(widget, value)
         else:
             raise ValueError(f"No widget for key {key}")
 
-    def _settext(self, widget : QLineEdit|TextBoxEditor, value : str|list[str]|dict[str, str]|None):
+    def _settext(self, widget : QLineEdit|TextBoxEditor, value : str|list[str]|dict[str, str]|OptionType|None):
         if isinstance(value, list):
             value = '\n'.join(value)
         elif isinstance(value, dict):
             items = [ f"{k}::{v}" for k, v in value.items() ]
             value = '\n'.join(items)
+        elif value is not None:
+            value = str(value)
         widget.setText(value or "")
 
     def _update_combo_box(self, widget : QComboBox, value : str):

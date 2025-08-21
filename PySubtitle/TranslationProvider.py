@@ -39,7 +39,7 @@ class TranslationProvider:
         """
         The currently selected model for the provider
         """
-        name : str = GetStrSetting(self.settings, 'model')
+        name : str|None = GetStrSetting(self.settings, 'model')
         return name.strip() if name else None
 
     @property

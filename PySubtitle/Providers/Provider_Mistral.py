@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import SettingsType, GuiOptionsType
+from PySubtitle.Options import Options, SettingsType, GuiOptionsType
 
 if not importlib.util.find_spec("mistralai"):
     from PySubtitle.Helpers.Localization import _
@@ -13,6 +13,7 @@ else:
 
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
+        from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
         from PySubtitle.Providers.Mistral.MistralClient import MistralClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -29,24 +30,24 @@ else:
             <p>Note that Mistral provide many specialised models that are unlikely to be useful as translators.</p>
             """
 
-            def __init__(self, settings : dict):
+            def __init__(self, settings : Options|SettingsType):
                 super().__init__(self.name, {
-                    "api_key": settings.get('api_key', os.getenv('MISTRAL_API_KEY')),
-                    "server_url": settings.get('server_url', os.getenv('MISTRAL_SERVER_URL')),
-                    "model": settings.get('model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
-                    'temperature': settings.get('temperature', GetEnvFloat('MISTRAL_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get('rate_limit', GetEnvFloat('MISTRAL_RATE_LIMIT')),
+                    "api_key": GetStrSetting(settings, 'api_key', os.getenv('MISTRAL_API_KEY')),
+                    "server_url": GetStrSetting(settings, 'server_url', os.getenv('MISTRAL_SERVER_URL')),
+                    "model": GetStrSetting(settings, 'model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
+                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('MISTRAL_TEMPERATURE', 0.0)),
+                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('MISTRAL_RATE_LIMIT')),
                 })
 
                 self.refresh_when_changed = ['api_key', 'server_url', 'model']
 
             @property
-            def api_key(self):
-                return self.settings.get('api_key')
+            def api_key(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_key')
 
             @property
-            def server_url(self):
-                return self.settings.get('server_url')
+            def server_url(self) -> str|None:
+                return GetStrSetting(self.settings, 'server_url')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
@@ -60,7 +61,7 @@ else:
                 return MistralClient(client_settings)
 
             def GetOptions(self) -> GuiOptionsType:
-                options = {
+                options : GuiOptionsType = {
                     'api_key': (str, _("A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)")),
                     'server_url': (str, _("The base URL to use for requests (default is https://api.mistral.ai)")),
                 }
@@ -124,7 +125,7 @@ else:
                 """
                 If user has set a rate limit we can't make multiple requests at once
                 """
-                if self.settings.get('rate_limit', 0.0) != 0.0:
+                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

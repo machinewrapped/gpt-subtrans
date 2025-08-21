@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import SettingsType, GuiOptionsType
+from PySubtitle.Options import Options, SettingsType, GuiOptionsType
 
 if not importlib.util.find_spec("google"):
     from PySubtitle.Helpers.Localization import _
@@ -17,6 +17,7 @@ else:
 
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
+        from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
         from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -36,20 +37,20 @@ else:
             or a project on <a href="https://console.cloud.google.com/">Google Cloud Platform</a> and enable Generative Language API access.</p>
             """
 
-            def __init__(self, settings : dict):
+            def __init__(self, settings : Options|SettingsType):
                 super().__init__(self.name, {
-                    "api_key": settings.get('api_key') or os.getenv('GEMINI_API_KEY'),
-                    "model": settings.get('model') or os.getenv('GEMINI_MODEL'),
-                    'temperature': settings.get('temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get('rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 60.0))
+                    "api_key": GetStrSetting(settings, 'api_key') or os.getenv('GEMINI_API_KEY'),
+                    "model": GetStrSetting(settings, 'model') or os.getenv('GEMINI_MODEL'),
+                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
+                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 60.0))
                 })
 
                 self.refresh_when_changed = ['api_key', 'model']
                 self.gemini_models = []
 
             @property
-            def api_key(self):
-                return self.settings.get('api_key')
+            def api_key(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_key')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()
@@ -63,7 +64,7 @@ else:
                 return GeminiClient(client_settings)
 
             def GetOptions(self) -> GuiOptionsType:
-                options = {
+                options : GuiOptionsType = {
                     'api_key': (str, _("A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"))
                 }
 
@@ -116,8 +117,8 @@ else:
                     gemini_client = genai.Client(api_key=self.api_key, http_options={'api_version': 'v1alpha'})
                     config = ListModelsConfig(query_base=True)
                     all_models = gemini_client.models.list(config=config)
-                    generate_models = [ m for m in all_models if 'generateContent' in m.supported_actions ]
-                    text_models = [m for m in generate_models if "Vision" not in m.display_name and "TTS" not in m.display_name]
+                    generate_models = [ m for m in all_models if m.supported_actions and 'generateContent' in m.supported_actions ]
+                    text_models = [m for m in generate_models if m.display_name and "Vision" not in m.display_name and "TTS" not in m.display_name]
 
                     return self._deduplicate_models(text_models)
 
@@ -125,9 +126,12 @@ else:
                     logging.error(_("Unable to retrieve Gemini model list: {error}").format(error=str(e)))
                     return []
 
-            def _get_true_name(self, name : str) -> str:
+            def _get_true_name(self, name : str|None) -> str:
                 if not self.gemini_models:
                     self.gemini_models = self._get_gemini_models()
+
+                if not name:
+                    return self.gemini_models[0].name if self.gemini_models else ""
 
                 for m in self.gemini_models:
                     if m.name == f"models/{name}" or m.display_name == name:
@@ -155,7 +159,7 @@ else:
                 """
                 If user has set a rate limit don't attempt parallel requests to make sure we respect it
                 """
-                if self.settings.get('rate_limit', 0.0) != 0.0:
+                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

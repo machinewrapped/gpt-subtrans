@@ -5,8 +5,8 @@ import httpx
 
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import GetBoolSetting, GetStrSetting
-from PySubtitle.Options import SettingsType, GuiOptionsType
+from PySubtitle.Helpers.Settings import GetBoolSetting, GetStrSetting, GetIntSetting, GetFloatSetting
+from PySubtitle.Options import Options, SettingsType, GuiOptionsType
 from PySubtitle.Providers.Custom.OpenRouterClient import OpenRouterClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -26,18 +26,18 @@ class OpenRouterProvider(TranslationProvider):
     <p>Note that you must have credit to use OpenRouter models.</p>
     """
 
-    def __init__(self, settings : dict):
+    def __init__(self, settings : Options|SettingsType):
         super().__init__(self.name, {
-            "api_key": settings.get('api_key', os.getenv('OPENROUTER_API_KEY')),
-            'use_default_model': settings.get('use_default_model', True),
-            "server_address": settings.get('server_address', os.getenv('OPENROUTER_SERVER_ADDRESS', "https://openrouter.ai/api/")),
-            'model_family': settings.get('model_family', os.getenv('OPENROUTER_MODEL_FAMILY', "Google")),
-            'only_translation_models': settings.get('only_translation_models', True),
-            "model": settings.get('model', os.getenv('OPENROUTER_MODEL', "Gemini 2.5 Flash Lite")),
-            'max_tokens': settings.get('max_tokens', os.getenv('OPENROUTER_MAX_TOKENS', 0)),
-            'temperature': settings.get('temperature', GetEnvFloat('OPENROUTER_TEMPERATURE', 0.0)),
-            'rate_limit': settings.get('rate_limit', GetEnvFloat('OPENROUTER_RATE_LIMIT')),
-            'reuse_client': settings.get('reuse_client', True),
+            "api_key": GetStrSetting(settings, 'api_key', os.getenv('OPENROUTER_API_KEY')),
+            'use_default_model': GetBoolSetting(settings, 'use_default_model', True),
+            "server_address": GetStrSetting(settings, 'server_address', os.getenv('OPENROUTER_SERVER_ADDRESS', "https://openrouter.ai/api/")),
+            'model_family': GetStrSetting(settings, 'model_family', os.getenv('OPENROUTER_MODEL_FAMILY', "Google")),
+            'only_translation_models': GetBoolSetting(settings, 'only_translation_models', True),
+            "model": GetStrSetting(settings, 'model', os.getenv('OPENROUTER_MODEL', "Gemini 2.5 Flash Lite")),
+            'max_tokens': GetIntSetting(settings, 'max_tokens', int(os.getenv('OPENROUTER_MAX_TOKENS', '0'))),
+            'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('OPENROUTER_TEMPERATURE', 0.0)),
+            'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('OPENROUTER_RATE_LIMIT')),
+            'reuse_client': GetBoolSetting(settings, 'reuse_client', True),
         })
 
         self.refresh_when_changed = ['api_key', 'model', 'endpoint', 'only_translation_models', 'model_family', 'use_default_model']
@@ -50,11 +50,11 @@ class OpenRouterProvider(TranslationProvider):
         return GetBoolSetting(self.settings, 'use_default_model', True)
 
     @property
-    def api_key(self) -> str:
+    def api_key(self) -> str|None:
         return GetStrSetting(self.settings, 'api_key')
 
     @property
-    def server_address(self) -> str:
+    def server_address(self) -> str|None:
         return GetStrSetting(self.settings, 'server_address')
     
     @property
@@ -63,13 +63,14 @@ class OpenRouterProvider(TranslationProvider):
         Returns a list of available providers for the OpenRouter API
         """
         available_families = sorted(self._cached_models.keys()) if self._cached_models else []
-        if self.model_family not in available_families:
-            available_families = [self.model_family] + available_families
-        return available_families
+        valid_families : list[str] = [family for family in available_families if isinstance(family, str)]
+        if self.model_family is not None and self.model_family not in valid_families:
+            valid_families = [self.model_family] + valid_families
+        return valid_families
         
     @property
-    def model_family(self) -> str:
-        return self.settings.get('model_family', "Google")
+    def model_family(self) -> str|None:
+        return GetStrSetting(self.settings, 'model_family', "Google")
 
     @property
     def all_available_models(self) -> list[str]:
@@ -82,9 +83,12 @@ class OpenRouterProvider(TranslationProvider):
         return self._all_model_list
     
     def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
-        """ Returns a new instance of the OpenRouter client """
+        """ 
+        Returns a new instance of the OpenRouter client 
+        """
         client_settings = self.settings.copy()
         client_settings.update(settings)
+
         if self.use_default_model:
             # Let OpenRouter decide which model to use
             client_settings['model'] = "openrouter/auto"
@@ -92,7 +96,11 @@ class OpenRouterProvider(TranslationProvider):
             # Convert display name back to model ID
             model = GetStrSetting(self.settings, 'model')
             selected_model = GetStrSetting(client_settings, 'model', default=model)
-            client_settings['model'] = self._get_model_id(selected_model)
+            if not selected_model:
+                selected_model = self.selected_model or "openrouter/auto"
+            else:
+                client_settings['model'] = self._get_model_id(selected_model)
+        
         return OpenRouterClient(client_settings)
 
     def GetOptions(self) -> GuiOptionsType:
@@ -187,7 +195,7 @@ class OpenRouterProvider(TranslationProvider):
         """
         If user has set a rate limit we can't make multiple requests at once
         """
-        if self.settings.get('rate_limit', 0.0) != 0.0:
+        if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
             return False
 
         return True
@@ -199,12 +207,16 @@ class OpenRouterProvider(TranslationProvider):
         if not self.api_key:
             return
         
-        if self._cached_models and self._model_cache_filtered == self.settings.get('only_translation_models', True):
+        if self._cached_models and self._model_cache_filtered == GetBoolSetting(self.settings, 'only_translation_models', True):
             return  # Cache already populated with current filter setting
             
         try:
             # Build URL with translation filter if enabled
-            use_model_filter = self.settings.get('only_translation_models', True)
+            use_model_filter = GetBoolSetting(self.settings, 'only_translation_models', True)
+            if not self.server_address:
+                logging.debug("No OpenRouter server address provided")
+                return
+
             url = self.server_address.rstrip('/') + '/v1/models'
             if use_model_filter:
                 url += '?category=translation'

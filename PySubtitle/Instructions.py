@@ -54,7 +54,7 @@ default_retry_instructions = linesep.join([
     ])
 
 class Instructions:
-    def __init__(self, settings : dict[str, Any]) -> None:
+    def __init__(self, settings : dict) -> None:
         self.prompt : str|None = None
         self.instructions : str|None = None
         self.retry_instructions : str|None = None

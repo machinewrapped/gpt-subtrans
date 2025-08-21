@@ -3,13 +3,14 @@ import logging
 import os
 
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import GuiOptionsType, SettingsType
+from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting, GetFloatSetting
+from PySubtitle.Options import GuiOptionsType, Options, SettingsType
 
 if not importlib.util.find_spec("boto3"):
     logging.info(_("Amazon Boto3 SDK is not installed. Bedrock provider will not be available"))
 else:
     try:
-        import boto3
+        import boto3 # type: ignore[import]
 
         from PySubtitle.Helpers.Localization import _
 
@@ -28,35 +29,35 @@ else:
             <p>You must also specify an AWS region to use for requests - this will affect the available models.</p>
             """
 
-            def __init__(self, settings : dict):
+            def __init__(self, settings : Options|SettingsType):
                 super().__init__(self.name, {
-                    "access_key": settings.get('access_key', os.getenv('AWS_ACCESS_KEY_ID')),
-                    "secret_access_key": settings.get('secret_access_key', os.getenv('AWS_SECRET_ACCESS_KEY')),
-                    "aws_region": settings.get('aws_region', os.getenv('AWS_REGION', 'eu-west-1')),
-                    "model": settings.get('model', 'Amazon-Titan-Text-G1'),
-                    "max_tokens": settings.get('max_tokens', 8192),
+                    "access_key": GetStrSetting(settings, 'access_key', os.getenv('AWS_ACCESS_KEY_ID')),
+                    "secret_access_key": GetStrSetting(settings, 'secret_access_key', os.getenv('AWS_SECRET_ACCESS_KEY')),
+                    "aws_region": GetStrSetting(settings, 'aws_region', os.getenv('AWS_REGION', 'eu-west-1')),
+                    "model": GetStrSetting(settings, 'model', 'Amazon-Titan-Text-G1'),
+                    "max_tokens": GetIntSetting(settings, 'max_tokens', 8192),
                     #TODO: add options for supports system messages and prompt?
-                    'temperature': settings.get('temperature', 0.0),
-                    "rate_limit": settings.get('rate_limit', None)
+                    'temperature': GetFloatSetting(settings, 'temperature', 0.0),
+                    "rate_limit": GetFloatSetting(settings, 'rate_limit')
                 })
 
                 self.refresh_when_changed = ['access_key', 'secret_access_key', 'aws_region']
                 self._regions = None
 
             @property
-            def access_key(self):
-                return self.settings.get('access_key')
+            def access_key(self) -> str|None:
+                return GetStrSetting(self.settings, 'access_key')
 
             @property
-            def secret_access_key(self):
-                return self.settings.get('secret_access_key')
+            def secret_access_key(self) -> str|None:
+                return GetStrSetting(self.settings, 'secret_access_key')
 
             @property
-            def aws_region(self):
-                return self.settings.get('aws_region')
+            def aws_region(self) -> str|None:
+                return GetStrSetting(self.settings, 'aws_region')
 
             @property
-            def regions(self):
+            def regions(self) -> list[str]:
                 if not self._regions:
                     self._regions = self.get_aws_regions()
                 return self._regions

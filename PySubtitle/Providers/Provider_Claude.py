@@ -36,16 +36,16 @@ else:
 
             default_model = "claude-3-5-haiku-latest"
 
-            def __init__(self, settings : dict):
+            def __init__(self, settings : Options|SettingsType):
                 super().__init__(self.name, {
-                    "api_key": settings.get('api_key') or os.getenv('CLAUDE_API_KEY'),
-                    "model": settings.get('model') or os.getenv('CLAUDE_MODEL', self.default_model),
-                    "thinking": settings.get('thinking', False),
-                    "max_tokens": settings.get('max_tokens') or GetEnvInteger('CLAUDE_MAX_TOKENS', 4096),
-                    "max_thinking_tokens": settings.get('max_thinking_tokens') or GetEnvInteger('CLAUDE_MAX_THINKING_TOKENS', 1024),
-                    'temperature': settings.get('temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get('rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
-                    'proxy': settings.get('proxy') or os.getenv('CLAUDE_PROXY'),
+                    "api_key": GetStrSetting(settings, 'api_key') or os.getenv('CLAUDE_API_KEY'),
+                    "model": GetStrSetting(settings, 'model') or os.getenv('CLAUDE_MODEL', self.default_model),
+                    "thinking": GetBoolSetting(settings, 'thinking', False),
+                    "max_tokens": GetIntSetting(settings, 'max_tokens') or GetEnvInteger('CLAUDE_MAX_TOKENS', 4096),
+                    "max_thinking_tokens": GetIntSetting(settings, 'max_thinking_tokens') or GetEnvInteger('CLAUDE_MAX_THINKING_TOKENS', 1024),
+                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
+                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
+                    'proxy': GetStrSetting(settings, 'proxy') or os.getenv('CLAUDE_PROXY'),
                 })
 
                 self.refresh_when_changed = ['api_key', 'model', 'thinking']
@@ -57,16 +57,16 @@ else:
                 return GetStrSetting(self.settings, 'api_key')
             
             @property
-            def allow_thinking(self):
-                return self.settings.get('thinking', False)
+            def allow_thinking(self) -> bool:
+                return GetBoolSetting(self.settings, 'thinking', False)
             
             @property
-            def max_tokens(self):
-                return self.settings.get('max_tokens', 4096)
+            def max_tokens(self) -> int:
+                return GetIntSetting(self.settings, 'max_tokens') or 8192
             
             @property
-            def max_thinking_tokens(self):
-                return self.settings.get('max_thinking_tokens', 1024)
+            def max_thinking_tokens(self) -> int:
+                return GetIntSetting(self.settings, 'max_thinking_tokens') or 1024
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings : dict = deepcopy(self.settings)
@@ -125,7 +125,7 @@ else:
                 """
                 If user has set a rate limit don't attempt parallel requests to make sure we respect it
                 """
-                if self.settings.get('rate_limit', 0.0) != 0.0:
+                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

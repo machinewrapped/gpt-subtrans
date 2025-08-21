@@ -4,11 +4,14 @@ from typing import Any
 
 from anthropic import NotGiven
 
+from PySubtitle.Options import Options, SettingsType
+
 try:
     import anthropic
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Helpers.Localization import _
+    from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting, GetBoolSetting
     from PySubtitle.SubtitleError import TranslationError, TranslationResponseError, TranslationImpossibleError
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.Translation import Translation
@@ -20,7 +23,7 @@ try:
         """
         Handles communication with Claude via the anthropic SDK
         """
-        def __init__(self, settings : dict[str, Any]):
+        def __init__(self, settings : Options|SettingsType):
             super().__init__(settings)
 
             logging.info(_("Translating with Anthropic {model}").format(
@@ -29,26 +32,26 @@ try:
 
         @property
         def api_key(self) -> str|None:
-            return self.settings.get('api_key')
+            return GetStrSetting(self.settings, 'api_key')
 
         @property
         def model(self) -> str|None:
-            return self.settings.get('model')
+            return GetStrSetting(self.settings, 'model')
 
         @property
         def max_tokens(self) -> int:
-            return self.settings.get('max_tokens', 0)
+            return GetIntSetting(self.settings, 'max_tokens') or 0
         
         @property
         def allow_thinking(self) -> bool:
-            return self.settings.get('thinking', False)
+            return GetBoolSetting(self.settings, 'thinking', False)
         
         @property
         def thinking(self) -> dict|NotGiven:
             if self.allow_thinking:
                 return {
                     'type' : 'enabled',
-                    'budget_tokens' : self.settings.get('max_thinking_tokens', 1024)
+                    'budget_tokens' : GetIntSetting(self.settings, 'max_thinking_tokens', 1024)
                 }
             
             return anthropic.NOT_GIVEN
@@ -61,9 +64,10 @@ try:
                 self.client = anthropic.Anthropic(api_key=self.api_key)
 
                 # Try to add proxy settings if specified
-                if self.settings.get('proxy'):
+                proxy = GetStrSetting(self.settings, 'proxy')
+                if proxy:
                     http_client = anthropic.DefaultHttpxClient(
-                        proxy = self.settings.get('proxy')
+                        proxy = proxy
                     )
                     self.client = self.client.with_options(http_client=http_client)
 
@@ -77,7 +81,7 @@ try:
             if prompt.system_prompt is None:
                 raise TranslationError(_("System prompt is required"))
 
-            if not prompt.content:
+            if not prompt.content or not isinstance(prompt.content, list):
                 raise TranslationError(_("No content provided for translation"))
 
             if not isinstance(prompt.content, list):
@@ -96,7 +100,7 @@ try:
 
             return translation
 
-        def _send_messages(self, system_prompt : str, messages : list[dict[str, str]], temperature: float) -> dict[str, Any]|None:
+        def _send_messages(self, system_prompt : str, messages : list, temperature: float) -> dict[str, Any]|None:
             """
             Make a request to the LLM to provide a translation
             """

@@ -43,7 +43,7 @@ class TranslationPrompt:
 
         self.system_prompt: str|None = None
         self.batch_prompt: str|None = None
-        self.content: str|list[dict[str, str]]|None = None
+        self.content: str|list[str]|list[dict[str, str]]|None = None
         self.messages: list[dict[str, str]] = []
 
     def GenerateMessages(self, instructions: str, lines: list[SubtitleLine], context: dict[str, Any]) -> None:

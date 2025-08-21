@@ -16,6 +16,7 @@ try:
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Helpers.Localization import _
+    from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -25,7 +26,7 @@ try:
         """
         Handles communication with Amazon Bedrock to request translations
         """
-        def __init__(self, settings : dict):
+        def __init__(self, settings : Options|SettingsType):
             super().__init__(settings)
 
             logging.info(_("Translating with Bedrock model {model_id}, using region: {aws_region}").format(
@@ -40,24 +41,24 @@ try:
             )
 
         @property
-        def access_key(self):
-            return self.settings.get('access_key')
+        def access_key(self) -> str|None:
+            return GetStrSetting(self.settings, 'access_key')
 
         @property
-        def secret_access_key(self):
-            return self.settings.get('secret_access_key')
+        def secret_access_key(self) -> str|None:
+            return GetStrSetting(self.settings, 'secret_access_key')
 
         @property
-        def aws_region(self):
-            return self.settings.get('aws_region')
+        def aws_region(self) -> str|None:
+            return GetStrSetting(self.settings, 'aws_region')
 
         @property
-        def model_id(self):
-            return self.settings.get('model')
+        def model_id(self) -> str|None:
+            return GetStrSetting(self.settings, 'model')
 
         @property
-        def max_tokens(self):
-            return self.settings.get('max_tokens', 4096)
+        def max_tokens(self) -> int:
+            return GetIntSetting(self.settings, 'max_tokens', 4096)
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """

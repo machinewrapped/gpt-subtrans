@@ -3,7 +3,8 @@ import logging
 import os
 
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import SettingsType, GuiOptionsType
+from PySubtitle.Helpers.Settings import GetStrSetting
+from PySubtitle.Options import Options, SettingsType, GuiOptionsType, env_str
 
 if not importlib.util.find_spec("openai"):
     logging.info(_("OpenAI SDK is not installed. Azure provider will not be available"))
@@ -23,31 +24,31 @@ else:
             <p>To use Azure as a provider you need to provide the name and address of an OpenAI Azure deployment, an API version and API Key.</p>
             """
 
-            def __init__(self, settings : dict):
+            def __init__(self, settings : Options|SettingsType):
                 super().__init__(self.name, {
-                    "api_key": settings.get('api_key', os.getenv('AZURE_API_KEY')),
-                    "api_base": settings.get('api_base', os.getenv('AZURE_API_BASE')),
-                    "api_version": settings.get('api_version', os.getenv('AZURE_API_VERSION')),
-                    "deployment_name": settings.get('deployment_name', os.getenv('AZURE_DEPLOYMENT_NAME')),
+                    "api_key": GetStrSetting(settings, 'api_key', env_str('AZURE_API_KEY')),
+                    "api_base": GetStrSetting(settings, 'api_base', env_str('AZURE_API_BASE')),
+                    "api_version": GetStrSetting(settings, 'api_version', env_str('AZURE_API_VERSION')),
+                    "deployment_name": GetStrSetting(settings, 'deployment_name', env_str('AZURE_DEPLOYMENT_NAME')),
                 })
 
                 self.refresh_when_changed = ['api_key', 'api_base', 'api_version', 'deployment_name']
 
             @property
-            def api_key(self):
-                return self.settings.get('api_key')
+            def api_key(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_key')
 
             @property
-            def api_base(self):
-                return self.settings.get('api_base')
+            def api_base(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_base')
 
             @property
-            def api_version(self):
-                return self.settings.get('api_version')
+            def api_version(self) -> str|None:
+                return GetStrSetting(self.settings, 'api_version')
 
             @property
-            def deployment_name(self):
-                return self.settings.get('deployment_name')
+            def deployment_name(self) -> str|None:
+                return GetStrSetting(self.settings, 'deployment_name')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = self.settings.copy()

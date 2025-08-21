@@ -1,5 +1,7 @@
+from typing import Any
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -21,10 +23,10 @@ class OpenAIReasoningClient(OpenAIClient):
         super().__init__(settings)
 
     @property
-    def reasoning_effort(self):
-        return self.settings.get('reasoning_effort', "low")
+    def reasoning_effort(self) -> str:
+        return GetStrSetting(self.settings, 'reasoning_effort', "low")
     
-    def _send_messages(self, prompt: TranslationPrompt, temperature):
+    def _send_messages(self, prompt: TranslationPrompt, temperature: float|None) -> dict[str, Any] | None:
         """
         Make a request to OpenAI Responses API for translation
         """
