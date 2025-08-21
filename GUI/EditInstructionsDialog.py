@@ -85,7 +85,7 @@ class EditInstructionsDialog(QDialog):
         if task_type is None or not isinstance(task_type, str) or not task_type.strip():
             logging.error(f"Task type cannot be empty. Please check the task type.")
         elif not instructions or task_type not in instructions:
-            logging.error(f"Task type '{self.instructions.task_type}' not found in instructions. Please check the instructions.")
+            logging.error(f"Task type '{task_type}' not found in instructions. Please check the instructions.")
 
         super().accept()
 
