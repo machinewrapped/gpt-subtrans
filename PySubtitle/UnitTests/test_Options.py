@@ -6,6 +6,7 @@ from copy import deepcopy
 from datetime import timedelta
 from unittest.mock import patch, mock_open
 
+from collections.abc import MutableMapping
 from PySubtitle.Options import Options, default_options, standard_filler_words
 from PySubtitle.Instructions import Instructions
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
@@ -337,11 +338,10 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(options.available_providers, ['Provider1', 'Provider2'])
         
         # Test provider settings
-        self.assertIsInstance(options.provider_settings, dict)
+        self.assertIsInstance(options.provider_settings, MutableMapping)
         self.assertIsNotNone(options.current_provider_settings)
         if options.current_provider_settings is not None:
-            current_settings = SettingsType(options.current_provider_settings)
-            self.assertEqual(current_settings.get_str('model'), 'test-model')
+            self.assertEqual(options.current_provider_settings.get_str('model'), 'test-model')
         self.assertEqual(options.model, 'test-model')
 
     def test_provider_setter(self):

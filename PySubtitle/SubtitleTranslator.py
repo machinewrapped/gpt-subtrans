@@ -3,8 +3,6 @@ import logging
 import threading
 from typing import Any
 
-from tenacity import retry
-
 from PySubtitle.Helpers.Settings import GetBoolSetting, GetIntSetting, GetStrSetting
 from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Localization import _, tr
@@ -40,7 +38,7 @@ class SubtitleTranslator:
         self.events = TranslationEvents()
         self.lock = threading.Lock()
         self.aborted : bool = False
-        self.errors : list[str|Exception] = []
+        self.errors : list[str|SubtitleError] = []
         self.lines_processed : int = 0
 
         self.max_lines = GetIntSetting(settings, 'max_lines')

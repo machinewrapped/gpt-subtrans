@@ -1,10 +1,10 @@
 from __future__ import annotations
-from collections.abc import Mapping
+from collections.abc import Mapping, MutableMapping
 from copy import deepcopy
 import json
 import logging
 import os
-from typing import Any, cast
+from typing import Any
 import dotenv
 
 from PySubtitle.Helpers.Version import VersionNumberLessThan
@@ -12,6 +12,7 @@ from PySubtitle.Instructions import Instructions, LoadInstructions, default_user
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Resources import config_dir, old_config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
+from PySubtitle.ProviderSettingsView import ProviderSettingsView
 from PySubtitle.SettingsType import SettingType, SettingsType
 from PySubtitle.version import __version__
 
@@ -157,24 +158,16 @@ class Options(SettingsType):
         self['provider'] = value
 
     @property
-    def provider_settings(self) -> SettingsType:
-        """ settings sections for each provider """
-        result = self['provider_settings']
-        return cast(SettingsType, result)
+    def provider_settings(self) -> MutableMapping[str, SettingsType]:
+        """ Type-safe mutable view of provider settings """
+        return ProviderSettingsView(self, 'provider_settings')
 
     @property
     def current_provider_settings(self) -> SettingsType|None:
         if not self.provider:
             return None
 
-        provider_settings = self.provider_settings.get(self.provider) or SettingsType()
-        if not isinstance(provider_settings, SettingsType):
-            if not isinstance(provider_settings, dict):
-                logging.error(f"Provider settings for {self.provider} is not a dictionary: {provider_settings}")
-                return None
-            provider_settings = SettingsType(provider_settings)
-
-        return provider_settings
+        return self.provider_settings.get(self.provider)
 
     @property
     def available_providers(self) -> list[str]:
@@ -200,8 +193,7 @@ class Options(SettingsType):
         if not provider:
             return SettingsType()
 
-        provider_settings = self.provider_settings.get(provider) or SettingsType()
-        return cast(SettingsType, provider_settings)
+        return self.provider_settings.get(provider, SettingsType())
 
     def GetInstructions(self) -> Instructions:
         """ Construct an Instructions object from the settings """
@@ -351,14 +343,12 @@ class Options(SettingsType):
         Move settings from the main options to a provider's settings
         """
         if provider not in self.provider_settings:
-            self.provider_settings[provider] = {}
+            self.provider_settings[provider] = SettingsType()
 
         settings_to_move : dict[str, SettingType] = {key: self.pop(key) for key in keys if key in self}
         if settings_to_move:
             provider_settings = self.GetProviderSettings(provider)
-            if not isinstance(provider_settings, dict):
-                raise Exception(f"Provider settings for {provider} is not a dictionary: {provider_settings}")
-
+            # provider_settings is always SettingsType, so we can update it directly
             provider_settings.update(settings_to_move)
 
     def _update_version(self):
@@ -373,7 +363,6 @@ class Options(SettingsType):
             self['provider_settings'] = {'OpenAI': {}} if self.get_str('api_key') else {}
             self.MoveSettingsToProvider('OpenAI', ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens', 'temperature', 'rate_limit'])
 
-        previous_version : str = str(self.get_str('version', 'v0.0.0')) # type: ignore[unused]
         latest_version  : str = str(default_options['version'])
 
         self['version'] = latest_version
