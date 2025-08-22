@@ -10,8 +10,9 @@ class SettingsType(dict[str, SettingType]):
     """
     Settings dictionary with restricted range of types allowed and type-safe getters
     """
-    def __init__(self, settings : Mapping[str, SettingType]|None = None):
-        settings = dict(settings) if settings else {}
+    def __init__(self, settings : Mapping[str,SettingType]|None = None):
+        if not isinstance(settings, SettingsType):
+            settings = dict(settings or {})
         super().__init__(settings)
 
     def get_bool(self, key: str, default: bool = False) -> bool:

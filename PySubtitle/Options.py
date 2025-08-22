@@ -4,7 +4,7 @@ from copy import deepcopy
 import json
 import logging
 import os
-from typing import Any, TypeAlias, cast
+from typing import Any, cast
 import dotenv
 
 from PySubtitle.Helpers.Version import VersionNumberLessThan
@@ -41,7 +41,7 @@ def env_str(key : str, default : str|None = None) -> str|None:
 default_options : dict[str, SettingType] = {
     'version': __version__,
     'provider': env_str('PROVIDER', None),
-    'provider_settings': {},
+    'provider_settings': SettingsType({}),
     'prompt': env_str('PROMPT', default_user_prompt),
     'instruction_file': env_str('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': env_str('TARGET_LANGUAGE', 'English'),
@@ -99,6 +99,15 @@ class Options(SettingsType):
 
         # Convert plain dict to SettingsType for type safety
         options = SettingsType(options)
+
+        # Ensure provider_settings is a SettingsType
+        options_provider_settings = options.get('provider_settings', SettingsType())
+        if not isinstance(options_provider_settings, SettingsType):
+            if isinstance(options_provider_settings, dict):
+                options['provider_settings'] = SettingsType(options_provider_settings)
+            else:
+                logging.error(_("Provider settings type is wrong, settings will be reset"))
+                options_provider_settings = SettingsType()
 
         if options:
             # Remove None values from options and merge with defaults
@@ -158,8 +167,14 @@ class Options(SettingsType):
         if not self.provider:
             return None
 
-        provider_settings = self.provider_settings.get(self.provider, {})
-        return SettingsType(provider_settings) if isinstance(provider_settings, dict) else SettingsType()
+        provider_settings = self.provider_settings.get(self.provider) or SettingsType()
+        if not isinstance(provider_settings, SettingsType):
+            if not isinstance(provider_settings, dict):
+                logging.error(f"Provider settings for {self.provider} is not a dictionary: {provider_settings}")
+                return None
+            provider_settings = SettingsType(provider_settings)
+
+        return provider_settings
 
     @property
     def available_providers(self) -> list[str]:
@@ -327,7 +342,7 @@ class Options(SettingsType):
         Create or update the settings for a provider
         """
         if provider not in self.provider_settings:
-            self.provider_settings[provider] = deepcopy(settings)
+            self.provider_settings[provider] = SettingsType(deepcopy(settings))
 
         self.MoveSettingsToProvider(provider, list(settings.keys()))
 

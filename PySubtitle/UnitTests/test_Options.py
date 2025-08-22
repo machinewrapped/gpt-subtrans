@@ -340,7 +340,8 @@ class TestOptions(unittest.TestCase):
         self.assertIsInstance(options.provider_settings, dict)
         self.assertIsNotNone(options.current_provider_settings)
         if options.current_provider_settings is not None:
-            self.assertEqual(options.current_provider_settings.get_str('model'), 'test-model')
+            current_settings = SettingsType(options.current_provider_settings)
+            self.assertEqual(current_settings.get_str('model'), 'test-model')
         self.assertEqual(options.model, 'test-model')
 
     def test_provider_setter(self):
@@ -384,8 +385,8 @@ class TestOptions(unittest.TestCase):
             'provider': 'Test Provider',
             'provider_settings': {
                 'Test Provider': {'model': 'test-model'}
-            }
-        })
+            }})
+            
         self.assertEqual(options.model, 'test-model')
 
     def test_get_instructions(self):
