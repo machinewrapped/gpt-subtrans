@@ -47,7 +47,7 @@ def ParseDelayFromHeader(value : str) -> float:
         return max(1, delay)  # ensure at least 1 second
 
     except Exception as e:
-        logging.error(f"Unexpected time value '{value}'")
+        logging.error(f"Unexpected time value '{value}' ({e})")
         return 6.66
 
 def ParseErrorMessageFromText(value: str) -> str|None:

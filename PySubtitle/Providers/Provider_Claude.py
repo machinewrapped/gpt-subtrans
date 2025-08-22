@@ -2,8 +2,6 @@ import importlib.util
 import logging
 
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import *
-from PySubtitle.Options import SettingsType, GuiOptionsType
 
 if not importlib.util.find_spec("anthropic"):
     logging.info(_("Anthropic SDK is not installed. Claude provider will not be available"))
@@ -16,10 +14,11 @@ else:
 
         from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger
         from PySubtitle.Helpers.Localization import _
-        from PySubtitle.Helpers.Parse import ParseNames
         from PySubtitle.Providers.Anthropic.AnthropicClient import AnthropicClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
+        from PySubtitle.Helpers.Settings import *
+        from PySubtitle.Options import OptionsType, SettingsType, GuiOptionsType
 
         class Provider_Claude(TranslationProvider):
             name = "Claude"
@@ -36,7 +35,7 @@ else:
 
             default_model = "claude-3-5-haiku-latest"
 
-            def __init__(self, settings : Options|SettingsType):
+            def __init__(self, settings : OptionsType):
                 super().__init__(self.name, {
                     "api_key": GetStrSetting(settings, 'api_key') or os.getenv('CLAUDE_API_KEY'),
                     "model": GetStrSetting(settings, 'model') or os.getenv('CLAUDE_MODEL', self.default_model),

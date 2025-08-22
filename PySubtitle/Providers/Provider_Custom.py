@@ -28,7 +28,7 @@ class Provider_CustomServer(TranslationProvider):
     <p><b>Server address and endpoint must be provided.</b></p>
     """
 
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : OptionsType):
         super().__init__(self.name, {
             'server_address': GetStrSetting(settings, 'server_address', os.getenv('CUSTOM_SERVER_ADDRESS', "http://localhost:1234")),
             'endpoint': GetStrSetting(settings, 'endpoint', os.getenv('CUSTOM_ENDPOINT', "/v1/chat/completions")),

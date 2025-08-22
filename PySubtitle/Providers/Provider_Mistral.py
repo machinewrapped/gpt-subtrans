@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
 
 if not importlib.util.find_spec("mistralai"):
     from PySubtitle.Helpers.Localization import _
@@ -30,7 +30,7 @@ else:
             <p>Note that Mistral provide many specialised models that are unlikely to be useful as translators.</p>
             """
 
-            def __init__(self, settings : Options|SettingsType):
+            def __init__(self, settings : OptionsType):
                 super().__init__(self.name, {
                     "api_key": GetStrSetting(settings, 'api_key', os.getenv('MISTRAL_API_KEY')),
                     "server_url": GetStrSetting(settings, 'server_url', os.getenv('MISTRAL_SERVER_URL')),

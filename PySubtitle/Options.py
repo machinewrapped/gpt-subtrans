@@ -18,9 +18,10 @@ MULTILINE_OPTION = 'multiline'
 settings_path = os.path.join(config_dir, 'settings.json')
 
 BasicType: TypeAlias = str | int | float | bool | list[str] | None
-OptionType: TypeAlias = BasicType | dict[str, 'OptionType']
-SettingsType: TypeAlias = dict[str, OptionType]
+SettingType: TypeAlias = BasicType | dict[str, 'SettingType']
+SettingsType: TypeAlias = dict[str, SettingType]
 GuiOptionsType: TypeAlias = dict[str, tuple[type|str|list[str], str]]
+OptionsType: TypeAlias = SettingsType|'Options'
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -95,7 +96,7 @@ def serialize(value : Any) -> Any:
     return value.serialize() if hasattr(value, 'serialize') else value
 
 class Options:
-    def __init__(self, options : SettingsType|Options|None = None, **kwargs : Any):
+    def __init__(self, options : OptionsType|None = None, **kwargs : SettingType):
         """ Initialise the Options object with default options and any provided options. """
         self.options : SettingsType = deepcopy(default_options)
 
@@ -119,14 +120,14 @@ class Options:
     def set(self, option : str, value : Any) -> None:
         self.options[option] = value
 
-    def update(self, options : Options|SettingsType) -> None:
+    def update(self, options : OptionsType) -> None:
         if isinstance(options, Options):
             return self.update(options.options)
 
         options = {k: v for k, v in options.items() if v is not None}
         self.options.update(options)
 
-    def items(self) -> list[tuple[str,OptionType]]:
+    def items(self) -> list[tuple[str,SettingType]]:
         return list(self.options.items())
 
     @property

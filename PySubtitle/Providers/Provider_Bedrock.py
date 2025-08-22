@@ -29,7 +29,7 @@ else:
             <p>You must also specify an AWS region to use for requests - this will affect the available models.</p>
             """
 
-            def __init__(self, settings : Options|SettingsType):
+            def __init__(self, settings : OptionsType):
                 super().__init__(self.name, {
                     "access_key": GetStrSetting(settings, 'access_key', os.getenv('AWS_ACCESS_KEY_ID')),
                     "secret_access_key": GetStrSetting(settings, 'secret_access_key', os.getenv('AWS_SECRET_ACCESS_KEY')),

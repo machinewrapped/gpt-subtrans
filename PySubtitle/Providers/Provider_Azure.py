@@ -4,7 +4,7 @@ import os
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetStrSetting
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType, env_str
+from PySubtitle.Options import OptionsType, GuiOptionsType, env_str
 
 if not importlib.util.find_spec("openai"):
     logging.info(_("OpenAI SDK is not installed. Azure provider will not be available"))
@@ -24,7 +24,7 @@ else:
             <p>To use Azure as a provider you need to provide the name and address of an OpenAI Azure deployment, an API version and API Key.</p>
             """
 
-            def __init__(self, settings : Options|SettingsType):
+            def __init__(self, settings : OptionsType):
                 super().__init__(self.name, {
                     "api_key": GetStrSetting(settings, 'api_key', env_str('AZURE_API_KEY')),
                     "api_base": GetStrSetting(settings, 'api_base', env_str('AZURE_API_BASE')),

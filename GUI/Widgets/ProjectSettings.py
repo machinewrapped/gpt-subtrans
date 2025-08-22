@@ -19,7 +19,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Helpers import GetValueName
-from PySubtitle.Options import OptionType, Options, SettingsType
+from PySubtitle.Options import SettingType, Options, SettingsType
 from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -227,7 +227,7 @@ class ProjectSettings(QGroupBox):
         else:
             raise ValueError(f"Unexpected widget for key {key}")
 
-    def _setvalue(self, key : str, value : OptionType):
+    def _setvalue(self, key : str, value : SettingType):
         widget = self.widgets.get(key)
         if isinstance(widget, QCheckBox):
             widget.setChecked(bool(value) or False)
@@ -238,7 +238,7 @@ class ProjectSettings(QGroupBox):
         else:
             raise ValueError(f"No widget for key {key}")
 
-    def _settext(self, widget : QLineEdit|TextBoxEditor, value : str|list[str]|dict[str, str]|OptionType|None):
+    def _settext(self, widget : QLineEdit|TextBoxEditor, value : str|list[str]|dict[str, str]|SettingType|None):
         if isinstance(value, list):
             value = '\n'.join(value)
         elif isinstance(value, dict):

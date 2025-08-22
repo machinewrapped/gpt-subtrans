@@ -2,11 +2,10 @@ import json
 import os
 import logging
 import threading
-from typing import Any
 
 from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import Options, OptionsType, SettingsType
 from PySubtitle.SubtitleError import SubtitleError, TranslationAbortedError
 from PySubtitle.SubtitleFile import SubtitleFile
 
@@ -238,7 +237,7 @@ class SubtitleProject:
         """
         return { key : value for key, value in self.subtitles.settings.items() if value }
 
-    def UpdateProjectSettings(self, settings: Options|SettingsType) -> None:
+    def UpdateProjectSettings(self, settings: OptionsType) -> None:
         """
         Replace settings if the provided dictionary has an entry with the same key
         """

@@ -25,7 +25,7 @@ from PySubtitle.Helpers.Settings import (
     GetListSetting,
     GetTimeDeltaSetting
 )
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import OptionsType
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleProcessor:
@@ -34,7 +34,7 @@ class SubtitleProcessor:
 
     Will split long lines, add line breaks and remove empty lines.
     """
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : OptionsType):
         self.dialog_marker = dialog_marker
         self.split_sequences = split_sequences
         self.break_sequences = break_sequences

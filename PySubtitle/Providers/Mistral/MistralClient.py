@@ -1,7 +1,6 @@
 import logging
-from typing import Any
 
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import OptionsType
 from PySubtitle.SubtitleError import TranslationResponseError
 
 try:
@@ -20,7 +19,7 @@ try:
         """
         Handles communication with Mistral to request translations
         """
-        def __init__(self, settings : Options|SettingsType):
+        def __init__(self, settings : OptionsType):
             super().__init__(settings)
 
             if not self.api_key:
@@ -71,7 +70,7 @@ try:
 
             return translation
 
-        def _send_messages(self, messages : list[str], temperature):
+        def _send_messages(self, messages : list, temperature):
             """
             Make a request to an Mistralai-compatible API to provide a translation
             """

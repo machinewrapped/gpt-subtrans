@@ -23,7 +23,7 @@ from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.SettingsDialog import SettingsDialog
 from PySubtitle.Helpers.Settings import GetStrSetting
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import Options
 from PySubtitle.SubtitleError import ProviderConfigurationError, SubtitleError
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired

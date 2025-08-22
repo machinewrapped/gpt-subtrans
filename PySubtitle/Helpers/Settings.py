@@ -12,7 +12,7 @@ from datetime import timedelta
 import regex
 
 from PySubtitle.Helpers.Time import GetTimeDeltaSafe
-from PySubtitle.Options import SettingsType, Options, OptionType
+from PySubtitle.Options import SettingsType, Options, SettingType
 
 T = TypeVar('T')
 
@@ -21,12 +21,12 @@ class SettingsError(Exception):
     pass
 
 @overload
-def GetBoolSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> bool: ...
+def GetBoolSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> bool: ...
 
 @overload
-def GetBoolSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: bool|None) -> bool: ...
+def GetBoolSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: bool|None) -> bool: ...
 
-def GetBoolSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: bool|None = False) -> bool:
+def GetBoolSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: bool|None = False) -> bool:
     """
     Safely retrieve a boolean setting from a settings dictionary.
     
@@ -58,12 +58,12 @@ def GetBoolSetting(settings: SettingsType | Mapping[str, OptionType] | Options, 
 
 
 @overload
-def GetIntSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> int|None: ...
+def GetIntSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> int|None: ...
 
 @overload 
-def GetIntSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: int|None) -> int|None: ...
+def GetIntSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: int|None) -> int|None: ...
 
-def GetIntSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: int|None = 0) -> int|None:
+def GetIntSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: int|None = 0) -> int|None:
     """
     Safely retrieve an integer setting from a settings dictionary.
     
@@ -92,12 +92,12 @@ def GetIntSetting(settings: SettingsType | Mapping[str, OptionType] | Options, k
 
 
 @overload
-def GetFloatSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> float|None: ...
+def GetFloatSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> float|None: ...
 
 @overload
-def GetFloatSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: float|None) -> float|None: ...
+def GetFloatSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: float|None) -> float|None: ...
 
-def GetFloatSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: float|None = None) -> float|None:
+def GetFloatSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: float|None = None) -> float|None:
     """
     Safely retrieve a float setting from a settings dictionary.
     
@@ -127,12 +127,12 @@ def GetFloatSetting(settings: SettingsType | Mapping[str, OptionType] | Options,
     raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to float")
 
 @overload
-def GetStrSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> str|None: ...
+def GetStrSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> str|None: ...
 
 @overload
-def GetStrSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: str|None) -> str|None: ...
+def GetStrSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: str|None) -> str|None: ...
 
-def GetStrSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: str|None = None) -> str|None:
+def GetStrSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: str|None = None) -> str|None:
     """
     Safely retrieve a string setting from a settings dictionary.
     
@@ -160,12 +160,12 @@ def GetStrSetting(settings: SettingsType | Mapping[str, OptionType] | Options, k
     return str(value)
 
 @overload
-def GetListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str) -> list[Any]: ...
+def GetListSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> list[Any]: ...
 
 @overload
-def GetListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: list[Any]) -> list[Any]: ...
+def GetListSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: list[Any]) -> list[Any]: ...
 
-def GetListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: list[Any]|None = None) -> list[Any]:
+def GetListSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: list[Any]|None = None) -> list[Any]:
     """
     Safely retrieve a list setting from a settings dictionary.
     
@@ -195,7 +195,7 @@ def GetListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, 
 
     raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to list")
 
-def GetStringListSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: list[str]|None = None) -> list[str]:
+def GetStringListSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: list[str]|None = None) -> list[str]:
     """
     Safely retrieve a list of strings setting from a settings dictionary.
     
@@ -220,8 +220,46 @@ def GetStringListSetting(settings: SettingsType | Mapping[str, OptionType] | Opt
 
     return [ str(item).strip() for item in value if item is not None ]
 
+@overload
+def GetDictSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> dict[str, SettingType]: ...
 
-def GetTimeDeltaSetting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, default: timedelta = timedelta(seconds=0)) -> timedelta:
+@overload
+def GetDictSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: dict[str, SettingType]|None) -> dict[str, SettingType]: ...
+
+def GetDictSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: dict[str, SettingType]|None = None) -> dict[str, SettingType]:
+    """
+    Safely retrieve a dictionary setting from a settings dictionary.
+    
+    Args:
+        settings: The settings dictionary
+        key: The setting key
+        default: Default value if key is not present
+        
+    Returns:
+        Dictionary value of the setting
+        
+    Raises:
+        SettingsError: If the setting cannot be converted to dict
+    """
+    value = settings.get(key, default)
+    if value is None:
+        return {}
+    
+    if isinstance(value, dict):
+        return { k: v for k, v in value.items() }
+    elif isinstance(value, str):
+        # Try to parse string as lines of key=value pairs separated by double colons
+        lines = [ line.strip() for line in regex.split(r'[\n,]', value) if line.strip() ]
+        result = {}
+        for line in lines:
+            if "::" in line:
+                k, v = line.split("::", 1)
+                result[k.strip()] = v.strip()
+        return result
+
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to dict")
+
+def GetTimeDeltaSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: timedelta = timedelta(seconds=0)) -> timedelta:
     """
     Safely retrieve a timedelta setting from a settings dictionary.
     The setting value is expected to be in seconds as a float.
@@ -247,7 +285,7 @@ def GetTimeDeltaSetting(settings: SettingsType | Mapping[str, OptionType] | Opti
 
     raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to timedelta")
 
-def get_optional_setting(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, setting_type: type[T]) -> T | None:
+def get_optional_setting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, setting_type: type[T]) -> T | None:
     """
     Safely retrieve an optional setting that may not be present.
     
@@ -291,7 +329,7 @@ def get_optional_setting(settings: SettingsType | Mapping[str, OptionType] | Opt
             raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to {setting_type.__name__}")
 
 
-def validate_setting_type(settings: SettingsType | Mapping[str, OptionType] | Options, key: str, expected_type: type[T], required: bool = False) -> bool:
+def validate_setting_type(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, expected_type: type[T], required: bool = False) -> bool:
     """
     Validate that a setting can be converted to the expected type without actually converting it.
     

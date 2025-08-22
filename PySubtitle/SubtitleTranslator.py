@@ -5,6 +5,7 @@ from typing import Any
 
 from tenacity import retry
 
+from PySubtitle.Helpers.Settings import GetBoolSetting, GetIntSetting, GetStrSetting
 from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Localization import _, tr
 from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
@@ -16,7 +17,7 @@ from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import Options, OptionsType, SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, SubtitleError, TranslationAbortedError, TranslationError, TranslationImpossibleError
@@ -31,33 +32,35 @@ class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
-    def __init__(self, options: Options, translation_provider: TranslationProvider):
+    def __init__(self, settings: OptionsType, translation_provider: TranslationProvider):
         """
         Initialise a SubtitleTranslator with translation options
         """
         self.events = TranslationEvents()
         self.lock = threading.Lock()
-        self.aborted = False
-        self.errors = []
+        self.aborted : bool = False
+        self.errors : list[str|Exception] = []
+        self.lines_processed : int = 0
 
-        self.lines_processed = 0
-        self.max_lines = options.get('max_lines')
-        self.max_history = options.get('max_context_summaries')
-        self.stop_on_error = options.get('stop_on_error')
-        self.retry_on_error = options.get('retry_on_error')
+        self.max_lines = GetIntSetting(settings, 'max_lines')
+        self.max_history = GetIntSetting(settings, 'max_context_summaries')
+        self.stop_on_error = GetBoolSetting(settings, 'stop_on_error')
+        self.retry_on_error = GetBoolSetting(settings, 'retry_on_error')
         # self.split_on_error = options.get('autosplit_incomplete')
-        self.max_summary_length = options.get('max_summary_length')
-        self.resume = options.get('resume')
-        self.retranslate = options.get('retranslate')
-        self.reparse = options.get('reparse')
-        self.preview = options.get('preview')
+        self.max_summary_length = GetIntSetting(settings, 'max_summary_length')
+        self.resume = GetBoolSetting(settings, 'resume')
+        self.retranslate = GetBoolSetting(settings, 'retranslate')
+        self.reparse = GetBoolSetting(settings, 'reparse')
+        self.preview = GetBoolSetting(settings, 'preview')
 
-        self.instructions : Instructions = options.GetInstructions()
-        self.task_type = self.instructions.task_type or DEFAULT_TASK_TYPE
-        self.user_prompt : str = options.BuildUserPrompt()
-        self.substitutions = Substitutions(options.get('substitutions', {}), options.get('substitution_mode', 'Auto'))
+        settings = Options(settings)
 
-        self.settings : SettingsType = options.GetSettings()
+        self.instructions : Instructions = settings.GetInstructions()
+        self.task_type : str = self.instructions.task_type or DEFAULT_TASK_TYPE
+        self.user_prompt : str = settings.BuildUserPrompt()
+        self.substitutions = Substitutions(settings.get('substitutions', {}), settings.get('substitution_mode', 'Auto'))
+
+        self.settings : SettingsType = settings.GetSettings()
         self.settings['instructions'] = self.instructions.instructions
         self.settings['retry_instructions'] = self.instructions.retry_instructions
 
@@ -77,9 +80,9 @@ class SubtitleTranslator:
         if not self.client:
             raise ProviderError(_("Unable to create translation client"), translation_provider)
 
-        self.batcher = SubtitleBatcher(options)
+        self.batcher = SubtitleBatcher(settings)
 
-        self.postprocessor = SubtitleProcessor(options) if options.get('postprocess_translation') else None
+        self.postprocessor = SubtitleProcessor(settings) if settings.get('postprocess_translation') else None
 
     def StopTranslating(self):
         self.aborted = True
@@ -186,7 +189,7 @@ class SubtitleTranslator:
                     break
 
             # Update the scene summary based on the best available information (we hope)
-            scene.summary = self._get_best_summary([scene.summary, context.get('scene'), context.get('summary')])
+            scene.summary = self._get_best_summary([scene.summary, GetStrSetting(context, 'scene'), GetStrSetting(context, 'summary')])
 
             # Notify observers the scene was translated
             self.events.scene_translated(scene)
@@ -396,9 +399,10 @@ class SubtitleTranslator:
         """
         Generate a summary of the translated subtitles
         """
-        movie_name = self.settings.get('movie_name', None)
+        movie_name : str|None = GetStrSetting(self.settings, 'movie_name', None)
         movie_name = str(movie_name).strip() if movie_name else None
-        max_length = self.max_summary_length
+        max_length : int|None = self.max_summary_length
+
         for candidate in candidates:
             if candidate is None:
                 continue

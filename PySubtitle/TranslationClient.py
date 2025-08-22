@@ -1,10 +1,9 @@
 import logging
 import time
-from typing import Any
 
 from PySubtitle.Helpers.Settings import *
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
-from PySubtitle.Options import SettingsType
+from PySubtitle.Options import OptionsType, SettingsType
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.TranslationParser import TranslationParser
@@ -17,7 +16,7 @@ class TranslationClient:
     """
     Handles communication with the translation provider
     """
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : OptionsType):
         if isinstance(settings, Options):
             settings = settings.GetSettings()
 

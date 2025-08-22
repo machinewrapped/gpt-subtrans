@@ -11,7 +11,7 @@ from PySubtitle.Helpers.Settings import GetStringListSetting
 from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import Options, OptionsType, SettingsType
 
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -381,7 +381,7 @@ class SubtitleFile:
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateProjectSettings(self, settings: Options|SettingsType) -> None:
+    def UpdateProjectSettings(self, settings: OptionsType) -> None:
         """
         Update the project settings
         """

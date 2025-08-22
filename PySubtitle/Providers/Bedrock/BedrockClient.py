@@ -1,6 +1,8 @@
 import logging
 
-def _structure_messages(messages : list[str]) -> list[dict]:
+from PySubtitle.Options import OptionsType
+
+def _structure_messages(messages : list[dict[str,str]]) -> list[dict]:
     """
     Structure the messages to be sent to the API
     """
@@ -26,7 +28,7 @@ try:
         """
         Handles communication with Amazon Bedrock to request translations
         """
-        def __init__(self, settings : Options|SettingsType):
+        def __init__(self, settings : OptionsType):
             super().__init__(settings)
 
             logging.info(_("Translating with Bedrock model {model_id}, using region: {aws_region}").format(
@@ -58,7 +60,7 @@ try:
 
         @property
         def max_tokens(self) -> int:
-            return GetIntSetting(self.settings, 'max_tokens', 4096)
+            return GetIntSetting(self.settings, 'max_tokens') or 4096
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
@@ -76,9 +78,15 @@ try:
             if not self.model_id:
                 raise TranslationImpossibleError(_("Model ID must be provided as an argument"))
 
+            if not prompt.system_prompt:
+                raise TranslationImpossibleError(_("No system prompt provided"))
+
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
             content = _structure_messages(prompt.messages)
+
+            if not content or not isinstance(prompt.content, list):
+                raise TranslationImpossibleError(_("No content provided for translation"))
 
             reponse = self._send_messages(prompt.system_prompt, content, temperature=temperature)
 
@@ -86,7 +94,7 @@ try:
 
             return translation
 
-        def _send_messages(self, system_prompt : str, messages : list[str], temperature : float|None = None) -> dict:
+        def _send_messages(self, system_prompt : str, messages : list[dict], temperature : float|None = None) -> dict|None:
             """
             Make a request to the Amazon Bedrock API to provide a translation
             """

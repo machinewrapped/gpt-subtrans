@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import OptionsType, GuiOptionsType
 
 if not importlib.util.find_spec("openai"):
     from PySubtitle.Helpers.Localization import _
@@ -40,7 +40,7 @@ else:
             <p>Note that if your API Key is attached to a free trial account the <a href="https://platform.openai.com/docs/guides/rate-limits?context=tier-free">rate limit</a> for requests will be <i>severely</i> limited.</p>
             """
 
-            def __init__(self, settings : Options|SettingsType):
+            def __init__(self, settings : OptionsType):
                 super().__init__(self.name, {
                     "api_key": GetStrSetting(settings, 'api_key', os.getenv('OPENAI_API_KEY')),
                     "api_base": GetStrSetting(settings, 'api_base', os.getenv('OPENAI_API_BASE')),

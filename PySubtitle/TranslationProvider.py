@@ -3,7 +3,7 @@ import logging
 import pkgutil
 from typing import cast
 from PySubtitle.Helpers.Settings import GetStrSetting
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import Options, OptionsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 
 class TranslationProvider:
@@ -79,7 +79,7 @@ class TranslationProvider:
         """
         return True
 
-    def UpdateSettings(self, settings : SettingsType|Options):
+    def UpdateSettings(self, settings : OptionsType):
         """
         Update the settings for the provider
         """

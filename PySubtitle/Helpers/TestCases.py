@@ -5,7 +5,7 @@ from typing import Any
 import regex
 
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import OptionsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
@@ -172,7 +172,7 @@ class DummyProvider(TranslationProvider):
         return DummyTranslationClient(settings=client_settings)
 
 class DummyTranslationClient(TranslationClient):
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : OptionsType):
         super().__init__(settings)
         self.data: dict[str, Any] = settings.get('data', {}) # type: ignore[assignment]
         self.response_map: dict[str, str] = self.data.get('response_map', {})

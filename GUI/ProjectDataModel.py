@@ -1,18 +1,17 @@
 import logging
-from typing import Any
 
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 
 from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import Options, OptionsType, SettingsType
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.Helpers.Localization import _
 
 class ProjectDataModel:
-    def __init__(self, project : SubtitleProject|None = None, options : Options|None = None):
+    def __init__(self, project : SubtitleProject|None = None, options : OptionsType|None = None):
         self.project : SubtitleProject|None = project
         self.viewmodel : ProjectViewModel|None = None
         self.project_options : Options = Options(options)
@@ -74,7 +73,7 @@ class ProjectDataModel:
     def autosave_enabled(self):
         return self.project and self.project_options.get('autosave', False)
 
-    def UpdateSettings(self, settings : Options|SettingsType):
+    def UpdateSettings(self, settings : OptionsType):
         """ Update any options that have changed """
         self.project_options.update(settings)
 
@@ -85,7 +84,7 @@ class ProjectDataModel:
 
         self._update_translation_provider()
 
-    def UpdateProjectSettings(self, settings : Options|SettingsType):
+    def UpdateProjectSettings(self, settings : OptionsType):
         """ Update the project settings """
         if self.project:
             self.project_options.update(settings)

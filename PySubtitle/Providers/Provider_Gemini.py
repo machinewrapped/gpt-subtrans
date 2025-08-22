@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import OptionsType, GuiOptionsType
 
 if not importlib.util.find_spec("google"):
     from PySubtitle.Helpers.Localization import _
@@ -37,7 +37,7 @@ else:
             or a project on <a href="https://console.cloud.google.com/">Google Cloud Platform</a> and enable Generative Language API access.</p>
             """
 
-            def __init__(self, settings : Options|SettingsType):
+            def __init__(self, settings : OptionsType):
                 super().__init__(self.name, {
                     "api_key": GetStrSetting(settings, 'api_key') or os.getenv('GEMINI_API_KEY'),
                     "model": GetStrSetting(settings, 'model') or os.getenv('GEMINI_MODEL'),

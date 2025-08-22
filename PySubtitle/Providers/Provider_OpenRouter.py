@@ -6,7 +6,7 @@ import httpx
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetBoolSetting, GetStrSetting, GetIntSetting, GetFloatSetting
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
 from PySubtitle.Providers.Custom.OpenRouterClient import OpenRouterClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -26,7 +26,7 @@ class OpenRouterProvider(TranslationProvider):
     <p>Note that you must have credit to use OpenRouter models.</p>
     """
 
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : OptionsType):
         super().__init__(self.name, {
             "api_key": GetStrSetting(settings, 'api_key', os.getenv('OPENROUTER_API_KEY')),
             'use_default_model': GetBoolSetting(settings, 'use_default_model', True),

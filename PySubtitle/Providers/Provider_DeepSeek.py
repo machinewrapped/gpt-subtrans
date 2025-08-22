@@ -6,7 +6,7 @@ import httpx
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting, GetFloatSetting, GetBoolSetting
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
 from PySubtitle.Providers.Custom.DeepSeekClient import DeepSeekClient
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -24,7 +24,7 @@ class DeepSeekProvider(TranslationProvider):
     <p>Note that you must have credit to use DeepSeek, there is no free usage tier.</p>
     """
 
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : OptionsType):
         provider_settings = {
             "api_key": GetStrSetting(settings, 'api_key', os.getenv('DEEPSEEK_API_KEY')),
             "api_base": GetStrSetting(settings, 'api_base', os.getenv('DEEPSEEK_API_BASE', "https://api.deepseek.com")),

@@ -14,13 +14,13 @@ try:
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
     from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
-    from PySubtitle.Options import Options, SettingsType
+    from PySubtitle.Options import OptionsType
 
     class AzureOpenAIClient(TranslationClient):
         """
         Handles communication with AzureOpenAI to request translations
         """
-        def __init__(self, settings : Options|SettingsType):
+        def __init__(self, settings : OptionsType):
             super().__init__(settings)
 
             if not hasattr(openai, "AzureOpenAI"):
