@@ -14,7 +14,7 @@ def _structure_messages(messages : list[dict[str,str]]) -> list[dict]:
         for message in messages]
 
 try:
-    import boto3
+    import boto3 # type: ignore[import]
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Helpers.Localization import _

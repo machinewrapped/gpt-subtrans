@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import OptionsType, GuiOptionsType
+from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
 
 if not importlib.util.find_spec("openai"):
     from PySubtitle.Helpers.Localization import _

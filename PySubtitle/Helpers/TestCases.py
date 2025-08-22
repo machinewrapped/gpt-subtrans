@@ -5,7 +5,7 @@ from typing import Any
 import regex
 
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.Options import OptionsType
+from PySubtitle.Options import Options, OptionsType, SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
