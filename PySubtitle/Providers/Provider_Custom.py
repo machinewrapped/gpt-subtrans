@@ -5,8 +5,9 @@ from copy import deepcopy
 from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger, GetEnvBool
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting, GetIntSetting, GetFloatSetting
-from PySubtitle.Options import MULTILINE_OPTION, Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import MULTILINE_OPTION, SettingsType
 from PySubtitle.Providers.Custom.CustomClient import CustomClient
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationPrompt import default_prompt_template
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -28,8 +29,8 @@ class Provider_CustomServer(TranslationProvider):
     <p><b>Server address and endpoint must be provided.</b></p>
     """
 
-    def __init__(self, settings : OptionsType):
-        super().__init__(self.name, {
+    def __init__(self, settings : SettingsType):
+        super().__init__(self.name, SettingsType({
             'server_address': GetStrSetting(settings, 'server_address', os.getenv('CUSTOM_SERVER_ADDRESS', "http://localhost:1234")),
             'endpoint': GetStrSetting(settings, 'endpoint', os.getenv('CUSTOM_ENDPOINT', "/v1/chat/completions")),
             'supports_conversation': GetBoolSetting(settings, 'supports_conversation', GetEnvBool('CUSTOM_SUPPORTS_CONVERSATION', True)),
@@ -42,7 +43,7 @@ class Provider_CustomServer(TranslationProvider):
             "api_key": GetStrSetting(settings, 'api_key', os.getenv('CUSTOM_API_KEY')),
             "model": GetStrSetting(settings, 'model', os.getenv('CUSTOM_MODEL')),
             'supports_parallel_threads': GetBoolSetting(settings, 'supports_parallel_threads', GetEnvBool('CUSTOM_SUPPORTS_PARALLEL_THREADS', False))
-            })
+            }))
 
         #TODO: Add additional parameters option
         #TODO: Add support for custom response parser
@@ -87,8 +88,8 @@ class Provider_CustomServer(TranslationProvider):
         else:
             return self.information_invalid
 
-    def GetOptions(self) -> GuiOptionsType:
-        options : GuiOptionsType = {
+    def GetOptions(self) -> GuiSettingsType:
+        options : GuiSettingsType = {
             'server_address': (str, _("The address of the server")),
             'endpoint': (str, _("The API function to call on the server")),
         }

@@ -24,6 +24,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.SettingsDialog import SettingsDialog
 from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Options import Options
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleError import ProviderConfigurationError, SubtitleError
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
@@ -56,10 +57,10 @@ class GuiInterface(QObject):
 
         options.add('available_providers', sorted(TranslationProvider.get_providers()))
 
-        self.global_options = options
+        self.global_options : Options = options
 
         # Create the project data model
-        self.datamodel = ProjectDataModel(options=options)
+        self.datamodel : ProjectDataModel = ProjectDataModel(options=options)
 
         # Create the command queue
         self.command_queue = CommandQueue(mainwindow)
@@ -156,7 +157,9 @@ class GuiInterface(QObject):
         """
         Update the global settings and project settings, and save if required
         """
-        updated_settings = {k: v for k, v in settings.items() if v != self.global_options.get(k)}
+        updated_settings : SettingsType = SettingsType({
+                k: v for k, v in settings.items() if v != self.global_options.get(k)
+            })
 
         if not updated_settings:
             return

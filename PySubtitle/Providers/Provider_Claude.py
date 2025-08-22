@@ -2,6 +2,7 @@ import importlib.util
 import logging
 
 from PySubtitle.Helpers.Localization import _
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("anthropic"):
     logging.info(_("Anthropic SDK is not installed. Claude provider will not be available"))
@@ -18,7 +19,7 @@ else:
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
         from PySubtitle.Helpers.Settings import *
-        from PySubtitle.Options import OptionsType, SettingsType, GuiOptionsType
+        from PySubtitle.Options import SettingsType
 
         class Provider_Claude(TranslationProvider):
             name = "Claude"
@@ -35,8 +36,8 @@ else:
 
             default_model = "claude-3-5-haiku-latest"
 
-            def __init__(self, settings : OptionsType):
-                super().__init__(self.name, {
+            def __init__(self, settings : SettingsType):
+                super().__init__(self.name, SettingsType({
                     "api_key": GetStrSetting(settings, 'api_key') or os.getenv('CLAUDE_API_KEY'),
                     "model": GetStrSetting(settings, 'model') or os.getenv('CLAUDE_MODEL', self.default_model),
                     "thinking": GetBoolSetting(settings, 'thinking', False),
@@ -45,7 +46,7 @@ else:
                     'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
                     'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
                     'proxy': GetStrSetting(settings, 'proxy') or os.getenv('CLAUDE_PROXY'),
-                })
+                }))
 
                 self.refresh_when_changed = ['api_key', 'model', 'thinking']
 
@@ -95,8 +96,8 @@ else:
             def GetInformation(self):
                 return self.information if self.api_key else self.information_noapikey
 
-            def GetOptions(self) -> GuiOptionsType:
-                options : GuiOptionsType = {
+            def GetOptions(self) -> GuiSettingsType:
+                options : GuiSettingsType = {
                     'api_key': (str, _("An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"))
                     }
 

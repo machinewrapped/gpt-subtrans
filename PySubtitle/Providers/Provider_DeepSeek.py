@@ -6,8 +6,9 @@ import httpx
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting, GetFloatSetting, GetBoolSetting
-from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
+from PySubtitle.Options import SettingsType
 from PySubtitle.Providers.Custom.DeepSeekClient import DeepSeekClient
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
 
@@ -24,8 +25,8 @@ class DeepSeekProvider(TranslationProvider):
     <p>Note that you must have credit to use DeepSeek, there is no free usage tier.</p>
     """
 
-    def __init__(self, settings : OptionsType):
-        provider_settings = {
+    def __init__(self, settings : SettingsType):
+        super().__init__(self.name, SettingsType({
             "api_key": GetStrSetting(settings, 'api_key', os.getenv('DEEPSEEK_API_KEY')),
             "api_base": GetStrSetting(settings, 'api_base', os.getenv('DEEPSEEK_API_BASE', "https://api.deepseek.com")),
             "model": GetStrSetting(settings, 'model', os.getenv('DEEPSEEK_MODEL', "deepseek-chat")),
@@ -34,8 +35,7 @@ class DeepSeekProvider(TranslationProvider):
             'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('DEEPSEEK_RATE_LIMIT')),
             'reuse_client': GetBoolSetting(settings, 'reuse_client', False),
             'endpoint': GetStrSetting(settings, 'endpoint', '/v1/chat/completions'),
-        }
-        super().__init__(self.name, provider_settings)
+        }))
         self.refresh_when_changed = ['api_key', 'api_base', 'model', 'endpoint']
 
     @property
@@ -51,12 +51,12 @@ class DeepSeekProvider(TranslationProvider):
         return self.api_base
 
     def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
-        client_settings = self.settings.copy()
+        client_settings = SettingsType(self.settings.copy())
         client_settings.update(settings)
         return DeepSeekClient(client_settings)
 
-    def GetOptions(self) -> GuiOptionsType:
-        options : GuiOptionsType = {
+    def GetOptions(self) -> GuiSettingsType:
+        options : GuiSettingsType = {
             'api_key': (str, _("A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)")),
             'api_base': (str, _("The base URL to use for requests (default is https://api.deepseek.com)")),
         }

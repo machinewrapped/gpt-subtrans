@@ -21,7 +21,7 @@ class Substitutions:
     template_partialwords = r"{}"
     template_automatic = r"(?<!\p{{Script=Latin}}){}(?!\p{{Script=Latin}})"
 
-    def __init__(self, substitutions : dict|list|str, mode : Mode = Mode.Auto):
+    def __init__(self, substitutions : dict|list|str, mode : Mode|str = Mode.Auto):
         self._patterns = None
         self._mode = self._parse_mode(mode)
         self.substitutions = substitutions

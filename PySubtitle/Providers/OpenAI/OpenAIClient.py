@@ -6,7 +6,7 @@ from typing import Any
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader
 from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting
-from PySubtitle.Options import OptionsType
+from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationResponseError
 
 try:
@@ -23,7 +23,7 @@ try:
         """
         Handles communication with OpenAI to request translations
         """
-        def __init__(self, settings : OptionsType):
+        def __init__(self, settings : SettingsType):
             super().__init__(settings)
 
             if not hasattr(openai, "OpenAI"):

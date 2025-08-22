@@ -14,6 +14,7 @@ from PySubtitle.Helpers.Settings import (
     GetListSetting, GetStringListSetting, GetTimeDeltaSetting,
     get_optional_setting, validate_setting_type, SettingsError
 )
+from PySubtitle.SettingsType import SettingsType
 
 
 class TestOptions(unittest.TestCase):
@@ -339,7 +340,7 @@ class TestOptions(unittest.TestCase):
         self.assertIsInstance(options.provider_settings, dict)
         self.assertIsNotNone(options.current_provider_settings)
         if options.current_provider_settings is not None:
-            self.assertEqual(options.current_provider_settings['model'], 'test-model')
+            self.assertEqual(options.current_provider_settings.get_str('model'), 'test-model')
         self.assertEqual(options.model, 'test-model')
 
     def test_provider_setter(self):
@@ -501,11 +502,11 @@ class TestOptions(unittest.TestCase):
     def test_initialise_provider_settings(self):
         """Test InitialiseProviderSettings method"""
         options = Options()
-        test_settings = {
+        test_settings = SettingsType({
             'model': 'test-model',
             'api_key': 'test-key',
             'temperature': 0.7
-        }
+        })
         
         options.InitialiseProviderSettings('Test Provider', test_settings)
         
@@ -513,9 +514,9 @@ class TestOptions(unittest.TestCase):
         self.assertIn('Test Provider', options.provider_settings)
         
         # Should move settings from main options to provider
-        provider_settings = options.provider_settings['Test Provider']
-        self.assertEqual(provider_settings['model'], 'test-model')
-        self.assertEqual(provider_settings['api_key'], 'test-key')
+        provider_settings = options.GetProviderSettings('Test Provider')
+        self.assertEqual(provider_settings.get_str('model'), 'test-model')
+        self.assertEqual(provider_settings.get_str('api_key'), 'test-key')
 
     def test_version_update_migration(self):
         """Test _update_version method"""
@@ -529,10 +530,10 @@ class TestOptions(unittest.TestCase):
         options._update_version()
         
         # Old gpt_model should be renamed to model and moved to provider settings
-        self.assertNotIn('gpt_model', options.options)
+        self.assertNotIn('gpt_model', options)
 
         # The model gets moved to provider settings, not main options
-        openai_settings = options.provider_settings.get('OpenAI', {})
+        openai_settings = options.GetProviderSettings('OpenAI')
         if openai_settings:
             self.assertEqual(openai_settings.get('model'), 'old-model-name')
         

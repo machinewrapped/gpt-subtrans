@@ -6,8 +6,9 @@ import httpx
 from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetBoolSetting, GetStrSetting, GetIntSetting, GetFloatSetting
-from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
+from PySubtitle.Options import SettingsType
 from PySubtitle.Providers.Custom.OpenRouterClient import OpenRouterClient
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
 
@@ -26,8 +27,8 @@ class OpenRouterProvider(TranslationProvider):
     <p>Note that you must have credit to use OpenRouter models.</p>
     """
 
-    def __init__(self, settings : OptionsType):
-        super().__init__(self.name, {
+    def __init__(self, settings : SettingsType):
+        super().__init__(self.name, SettingsType({
             "api_key": GetStrSetting(settings, 'api_key', os.getenv('OPENROUTER_API_KEY')),
             'use_default_model': GetBoolSetting(settings, 'use_default_model', True),
             "server_address": GetStrSetting(settings, 'server_address', os.getenv('OPENROUTER_SERVER_ADDRESS', "https://openrouter.ai/api/")),
@@ -38,7 +39,7 @@ class OpenRouterProvider(TranslationProvider):
             'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('OPENROUTER_TEMPERATURE', 0.0)),
             'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('OPENROUTER_RATE_LIMIT')),
             'reuse_client': GetBoolSetting(settings, 'reuse_client', True),
-        })
+        }))
 
         self.refresh_when_changed = ['api_key', 'model', 'endpoint', 'only_translation_models', 'model_family', 'use_default_model']
         self._all_model_list = []
@@ -86,7 +87,7 @@ class OpenRouterProvider(TranslationProvider):
         """ 
         Returns a new instance of the OpenRouter client 
         """
-        client_settings = self.settings.copy()
+        client_settings = SettingsType(self.settings.copy())
         client_settings.update(settings)
 
         if self.use_default_model:
@@ -103,7 +104,7 @@ class OpenRouterProvider(TranslationProvider):
         
         return OpenRouterClient(client_settings)
 
-    def GetOptions(self) -> GuiOptionsType:
+    def GetOptions(self) -> GuiSettingsType:
         """
         Returns a dictionary of options for the OpenRouter provider
         """

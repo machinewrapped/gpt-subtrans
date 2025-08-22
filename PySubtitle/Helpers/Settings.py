@@ -12,7 +12,8 @@ from datetime import timedelta
 import regex
 
 from PySubtitle.Helpers.Time import GetTimeDeltaSafe
-from PySubtitle.Options import SettingsType, Options, SettingType
+from PySubtitle.Options import Options
+from PySubtitle.SettingsType import SettingType, SettingsType
 
 T = TypeVar('T')
 
@@ -301,7 +302,7 @@ def get_optional_setting(settings: SettingsType|Mapping[str, SettingType]|Option
         SettingsError: If the setting is present but cannot be converted to the expected type
     """
     if isinstance(settings, Options):
-        settings = settings.options
+        settings = dict(settings)
 
     if key not in settings:
         return None
@@ -346,7 +347,7 @@ def validate_setting_type(settings: SettingsType|Mapping[str, SettingType]|Optio
         SettingsError: If validation fails
     """
     if isinstance(settings, Options):
-        settings = settings.options
+        settings = dict(settings)
 
     if key not in settings:
         if required:

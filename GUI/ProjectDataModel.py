@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 import logging
 
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
@@ -5,13 +6,14 @@ from PySide6.QtCore import QRecursiveMutex, QMutexLocker
 from GUI.ViewModel.ViewModel import ProjectViewModel
 from GUI.ViewModel.ViewModelUpdate import ModelUpdate
 
-from PySubtitle.Options import Options, OptionsType, SettingsType
+from PySubtitle.Options import Options, SettingsType
+from PySubtitle.SettingsType import SettingType, SettingsType
 from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.Helpers.Localization import _
 
 class ProjectDataModel:
-    def __init__(self, project : SubtitleProject|None = None, options : OptionsType|None = None):
+    def __init__(self, project : SubtitleProject|None = None, options : SettingsType|None = None):
         self.project : SubtitleProject|None = project
         self.viewmodel : ProjectViewModel|None = None
         self.project_options : Options = Options(options)
@@ -33,7 +35,7 @@ class ProjectDataModel:
 
     @property
     def provider_settings(self) -> SettingsType:
-        return self.project_options.current_provider_settings or {} if self.project_options else {}
+        return self.project_options.current_provider_settings or SettingsType() if self.project_options else SettingsType()
 
     @property
     def available_providers(self) -> list[str]:
@@ -73,7 +75,7 @@ class ProjectDataModel:
     def autosave_enabled(self):
         return self.project and self.project_options.get('autosave', False)
 
-    def UpdateSettings(self, settings : OptionsType):
+    def UpdateSettings(self, settings : SettingsType):
         """ Update any options that have changed """
         self.project_options.update(settings)
 
@@ -84,9 +86,10 @@ class ProjectDataModel:
 
         self._update_translation_provider()
 
-    def UpdateProjectSettings(self, settings : OptionsType):
+    def UpdateProjectSettings(self, settings : SettingsType|Mapping[str, SettingType]):
         """ Update the project settings """
         if self.project:
+            settings = SettingsType(settings)
             self.project_options.update(settings)
             self._update_translation_provider()
             self.project.UpdateProjectSettings(settings)
@@ -105,7 +108,7 @@ class ProjectDataModel:
 
     def NeedsAutosave(self) -> bool:
         """Does the project have changes that should be auto-saved"""
-        return self.NeedsSave() and self.project_options.get('autosave')
+        return self.NeedsSave() and self.project_options.get_bool('autosave')
 
     def SaveProject(self):
         if self.project is not None and self.NeedsSave():
@@ -128,7 +131,7 @@ class ProjectDataModel:
                 logging.warning(_("Unable to create {provider} provider: {error}").format(provider=self.provider, error=e))
             return None
 
-    def UpdateProviderSettings(self, settings : dict):
+    def UpdateProviderSettings(self, settings : SettingsType):
         """ Update the settings for the translation provider """
         self.provider_settings.update(settings)
         if self.translation_provider:

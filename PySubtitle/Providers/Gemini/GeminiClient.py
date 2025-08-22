@@ -19,7 +19,7 @@ from google.genai.types import (
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
-from PySubtitle.Options import OptionsType
+from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -30,7 +30,7 @@ class GeminiClient(TranslationClient):
     """
     Handles communication with Google Gemini to request translations
     """
-    def __init__(self, settings : OptionsType):
+    def __init__(self, settings : SettingsType):
         super().__init__(settings)
 
         logging.info(_("Translating with Gemini {model} model").format(

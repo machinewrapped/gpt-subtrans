@@ -100,7 +100,7 @@ class StartTranslationCommandTests(SubtitleTestCase):
         log_test_name("StartTranslation tests")
 
         for case in test_cases:
-            data = deepcopy(case.get('data'))
+            data : dict = deepcopy(case.get('data') or {})
             log_test_name(f"Testing StartTranslation of {data.get('movie_name')}")
 
             datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options, translated=False)

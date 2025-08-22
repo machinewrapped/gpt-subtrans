@@ -12,5 +12,5 @@ from PySubtitle.UnitTests.test_DeleteLinesCommand import DeleteLinesCommandTest
 from PySubtitle.UnitTests.test_ReparseTranslationCommand import ReparseTranslationsCommandTest
 from PySubtitle.UnitTests.test_StartTranslationCommand import StartTranslationCommandTests
 from PySubtitle.UnitTests.test_EditCommands import EditCommandsTests
-from PySubtitle.UnitTests.test_localization import TestLocalization
 from PySubtitle.UnitTests.test_Options import TestOptions
+from PySubtitle.UnitTests.test_localization import TestLocalization

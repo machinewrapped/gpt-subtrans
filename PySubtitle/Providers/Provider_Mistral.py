@@ -2,7 +2,8 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
+from PySubtitle.Options import SettingsType
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("mistralai"):
     from PySubtitle.Helpers.Localization import _
@@ -30,14 +31,14 @@ else:
             <p>Note that Mistral provide many specialised models that are unlikely to be useful as translators.</p>
             """
 
-            def __init__(self, settings : OptionsType):
-                super().__init__(self.name, {
+            def __init__(self, settings : SettingsType):
+                super().__init__(self.name, SettingsType({
                     "api_key": GetStrSetting(settings, 'api_key', os.getenv('MISTRAL_API_KEY')),
                     "server_url": GetStrSetting(settings, 'server_url', os.getenv('MISTRAL_SERVER_URL')),
                     "model": GetStrSetting(settings, 'model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
                     'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('MISTRAL_TEMPERATURE', 0.0)),
                     'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('MISTRAL_RATE_LIMIT')),
-                })
+                }))
 
                 self.refresh_when_changed = ['api_key', 'server_url', 'model']
 
@@ -50,7 +51,7 @@ else:
                 return GetStrSetting(self.settings, 'server_url')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
-                client_settings = self.settings.copy()
+                client_settings = SettingsType(self.settings.copy())
                 client_settings.update(settings)
                 client_settings.update({
                     'supports_conversation': True,
@@ -60,8 +61,8 @@ else:
                     })
                 return MistralClient(client_settings)
 
-            def GetOptions(self) -> GuiOptionsType:
-                options : GuiOptionsType = {
+            def GetOptions(self) -> GuiSettingsType:
+                options : GuiSettingsType = {
                     'api_key': (str, _("A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)")),
                     'server_url': (str, _("The base URL to use for requests (default is https://api.mistral.ai)")),
                 }

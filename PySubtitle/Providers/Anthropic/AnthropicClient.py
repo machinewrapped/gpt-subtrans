@@ -4,7 +4,7 @@ from typing import Any
 
 from anthropic import NotGiven
 
-from PySubtitle.Options import OptionsType
+from PySubtitle.Options import SettingsType
 
 try:
     import anthropic
@@ -23,7 +23,7 @@ try:
         """
         Handles communication with Claude via the anthropic SDK
         """
-        def __init__(self, settings : OptionsType):
+        def __init__(self, settings : SettingsType):
             super().__init__(settings)
 
             logging.info(_("Translating with Anthropic {model}").format(

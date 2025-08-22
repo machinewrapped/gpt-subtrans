@@ -11,8 +11,9 @@ from PySubtitle.Helpers.Settings import GetStringListSetting
 from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
-from PySubtitle.Options import Options, OptionsType, SettingsType
+from PySubtitle.Options import Options, SettingsType
 
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import SubtitleError, SubtitleParseError
@@ -31,7 +32,7 @@ class SubtitleFile:
     """
     High level class for manipulating subtitle files
     """
-    DEFAULT_PROJECT_SETTINGS : SettingsType = {
+    DEFAULT_PROJECT_SETTINGS : SettingsType = SettingsType({
         'provider': None,
         'model': None,
         'target_language': None,
@@ -47,7 +48,7 @@ class SubtitleFile:
         'include_original': None,
         'add_right_to_left_markers': None,
         'instruction_file': None
-    }
+    })
 
     def __init__(self, filepath: str|None = None, outputpath: str|None = None) -> None:
         self.originals : list[SubtitleLine]|None = None
@@ -381,12 +382,12 @@ class SubtitleFile:
             self.translated = translated
             self.outputpath = outputpath
 
-    def UpdateProjectSettings(self, settings: OptionsType) -> None:
+    def UpdateProjectSettings(self, settings: SettingsType) -> None:
         """
         Update the project settings
         """
         if isinstance(settings, Options):
-            return self.UpdateProjectSettings(settings.options)
+            return self.UpdateProjectSettings(settings)
 
         with self.lock:
             self.settings.update({key: settings[key] for key in settings if key in self.DEFAULT_PROJECT_SETTINGS})

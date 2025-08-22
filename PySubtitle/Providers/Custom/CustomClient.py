@@ -7,7 +7,7 @@ from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Parse import ParseErrorMessageFromText
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting, GetIntSetting
-from PySubtitle.Options import OptionsType
+from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
@@ -17,7 +17,7 @@ class CustomClient(TranslationClient):
     """
     Handles communication with local LLM server to request translations
     """
-    def __init__(self, settings : OptionsType):
+    def __init__(self, settings : SettingsType):
         super().__init__(settings)
         self.client: httpx.Client|None = None
         self.headers: dict[str, str] = {'Content-Type': 'application/json'}

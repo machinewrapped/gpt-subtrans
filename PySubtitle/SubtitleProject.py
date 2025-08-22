@@ -5,7 +5,8 @@ import threading
 
 from PySubtitle.Helpers import GetOutputPath
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import Options, OptionsType, SettingsType
+from PySubtitle.Options import Options, SettingsType
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleError import SubtitleError, TranslationAbortedError
 from PySubtitle.SubtitleFile import SubtitleFile
 
@@ -62,7 +63,7 @@ class SubtitleProject:
         self.projectfile = self.GetProjectFilepath(filepath or "subtitles")
 
         project_file_exists : bool = os.path.exists(self.projectfile)
-        project_settings : SettingsType = {}
+        project_settings : SettingsType = SettingsType()
 
         if self.projectfile == filepath and not self.read_project:
             self.read_project = True
@@ -235,14 +236,17 @@ class SubtitleProject:
         """
         Return a dictionary of non-empty settings from the project file
         """
-        return { key : value for key, value in self.subtitles.settings.items() if value }
+        if not self.subtitles:
+            return SettingsType()
 
-    def UpdateProjectSettings(self, settings: OptionsType) -> None:
+        return SettingsType({ key : value for key, value in self.subtitles.settings.items() if value })
+
+    def UpdateProjectSettings(self, settings: SettingsType) -> None:
         """
         Replace settings if the provided dictionary has an entry with the same key
         """
         if isinstance(settings, Options):
-            settings = settings.options
+            settings = SettingsType(settings)
 
         with self.lock:
             if not self.subtitles:
@@ -344,7 +348,7 @@ class SubtitleProject:
         """
         Update the project mode based on the settings... yes, this is a dumb system
         """
-        project_mode = options.get('project', '')
+        project_mode = options.get_str('project', '')
         if project_mode:
             project_mode = project_mode.lower()
 

@@ -5,7 +5,8 @@ from typing import Any
 import regex
 
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.Options import Options, OptionsType, SettingsType
+from PySubtitle.Options import Options, SettingsType
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
@@ -90,7 +91,7 @@ def PrepareSubtitles(subtitle_data : dict, key : str = 'original') -> SubtitleFi
     """
     subtitles : SubtitleFile = SubtitleFile()
     subtitles.LoadSubtitlesFromString(subtitle_data[key])
-    subtitles.UpdateProjectSettings(subtitle_data)
+    subtitles.UpdateProjectSettings(SettingsType(subtitle_data))
     return subtitles
 
 def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 'translated'):
@@ -121,7 +122,7 @@ def CreateTestDataModel(test_data : dict, options : Options|None = None) -> Proj
     file : SubtitleFile = PrepareSubtitles(test_data, 'original')
     datamodel = ProjectDataModel(options = options)
     datamodel.project = SubtitleProject(options, file)
-    datamodel.UpdateProviderSettings({"data" : test_data})
+    datamodel.UpdateProviderSettings(SettingsType({"data" : test_data}))
     return datamodel
 
 def CreateTestDataModelBatched(test_data : dict, options : Options|None = None, translated : bool = True) -> ProjectDataModel:
@@ -161,10 +162,10 @@ class DummyProvider(TranslationProvider):
     name = "Dummy Provider"
 
     def __init__(self, data : dict):
-        super().__init__("Dummy Provider", {
+        super().__init__("Dummy Provider", SettingsType({
             "model": "dummy",
             "data": data,
-        })
+        }))
 
     def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
         client_settings : dict = deepcopy(self.settings)
@@ -172,7 +173,7 @@ class DummyProvider(TranslationProvider):
         return DummyTranslationClient(settings=client_settings)
 
 class DummyTranslationClient(TranslationClient):
-    def __init__(self, settings : OptionsType):
+    def __init__(self, settings : SettingsType):
         super().__init__(settings)
         self.data: dict[str, Any] = settings.get('data', {}) # type: ignore[assignment]
         self.response_map: dict[str, str] = self.data.get('response_map', {})

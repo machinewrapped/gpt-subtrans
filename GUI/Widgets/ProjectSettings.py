@@ -19,8 +19,9 @@ from GUI.ProjectDataModel import ProjectDataModel
 
 from GUI.Widgets.Widgets import OptionsGrid, TextBoxEditor
 from PySubtitle.Helpers import GetValueName
-from PySubtitle.Options import SettingType, Options, SettingsType
+from PySubtitle.Options import Options
 from PySubtitle.Helpers.Parse import ParseNames
+from PySubtitle.SettingsType import SettingType, SettingsType
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
@@ -42,7 +43,7 @@ class ProjectSettings(QGroupBox):
         self.provider_list = sorted(TranslationProvider.get_providers())
         self.model_list : list[str] = []
         self.widgets : dict[str, QLineEdit|QCheckBox|QComboBox] = {}
-        self.settings : SettingsType = {}
+        self.settings : SettingsType = SettingsType()
         self.current_provider : str|None = None
         self.datamodel : ProjectDataModel|None = None
         self.updating_model_list : bool = False
@@ -56,7 +57,7 @@ class ProjectSettings(QGroupBox):
         """
         Get a dictionary of the user's settings
         """
-        settings = {
+        settings = SettingsType({
             'movie_name': self._gettextvalue('movie_name'),
             'target_language': self._gettextvalue('target_language'),
             'add_right_to_left_markers': self._getcheckboxvalue('add_right_to_left_markers'),
@@ -67,7 +68,7 @@ class ProjectSettings(QGroupBox):
             'substitution_mode': self._gettextvalue('substitution_mode'),
             'model': self._gettextvalue('model') if 'model' in self.widgets else self.settings.get('model'),
             'provider': self._gettextvalue('provider') if 'provider' in self.widgets else self.settings.get('provider'),
-        }
+        })
 
         return settings
     

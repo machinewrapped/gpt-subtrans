@@ -3,9 +3,10 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QTabWidget, QDialogButtonBox, QWidget, QFormLayout, QFrame, QLabel, QScrollArea)
 from GUI.GuiHelpers import ClearForm, GetThemeNames
 
-from GUI.Widgets.OptionsWidgets import CreateOptionWidget
+from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget
 from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.Helpers.Localization import LocaleDisplayItem, _, get_locale_display_items, get_locale_display_name
@@ -118,9 +119,9 @@ class SettingsDialog(QDialog):
         self.setWindowTitle(_("GUI-Subtrans Settings"))
         self.setMinimumWidth(800)
 
-        self.translation_provider : TranslationProvider = None
+        self.translation_provider : TranslationProvider|None = None
         self.provider_cache = provider_cache or {}
-        self.settings = options.GetSettings()
+        self.settings : SettingsType = options.GetSettings()
         self.widgets = {}
 
         # Qyery available themes
@@ -148,19 +149,19 @@ class SettingsDialog(QDialog):
             self._initialise_translation_provider()
 
         # Initalise the tabs
-        self.layout = QVBoxLayout(self)
+        self._layout = QVBoxLayout(self)
 
-        self.tabs = QTabWidget(self)
-        self.layout.addWidget(self.tabs)
-        self.sections = {}
+        self._tabs = QTabWidget(self)
+        self._layout.addWidget(self._tabs)
+        self._sections = {}
 
         for section_name in self.SECTIONS.keys():
             section_widget = self._create_section_widget(section_name)
             tab_label = _(section_name)
-            self.tabs.addTab(section_widget, tab_label)
+            self._tabs.addTab(section_widget, tab_label)
 
         if focus_provider_settings:
-            self.tabs.setCurrentWidget(self.sections[self.PROVIDER_SECTION])
+            self._tabs.setCurrentWidget(self._sections[self.PROVIDER_SECTION])
 
         # Conditionally hide or show tabs
         self._update_section_visibility()
@@ -170,34 +171,46 @@ class SettingsDialog(QDialog):
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        self.layout.addWidget(self.buttonBox)
+        self._layout.addWidget(self.buttonBox)
 
     @property
-    def provider_settings(self):
-        return self.settings.get('provider_settings', {})
+    def provider_settings(self) -> SettingsType:
+        return SettingsType(self.settings.get_dict('provider_settings'))
 
     def accept(self):
         try:
             for section_name in self.SECTIONS.keys():
-                section_widget = self.tabs.findChild(QWidget, section_name)
-                layout = section_widget.layout()
+                section_widget = self._tabs.findChild(QWidget, section_name)
+                if section_widget is None:
+                    logging.warning(f"Unable to find section widget for {section_name}")
+                    continue
+
+                layout_qt = section_widget.layout()
+                if not isinstance(layout_qt, QFormLayout):
+                    raise ValueError(f"Section {section_name} layout is not a QFormLayout")
+                layout : QFormLayout = layout_qt
 
                 for row in range(layout.rowCount()):
-                    field = layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
-                    if not hasattr(field, 'key'):
+                    field_qt = layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
+
+                    if not isinstance(field_qt, OptionWidget):
                         continue
 
+                    field : OptionWidget = field_qt
+
+                    key = getattr(field, 'key')
                     if section_name == self.PROVIDER_SECTION:
-                        if field.key == 'provider':
-                            self.settings[field.key] = field.GetValue()
+                        if key == 'provider':
+                            self.settings[key] = field.GetValue()
                         else:
-                            provider = self.settings.get('provider')
-                            self.provider_settings[provider][field.key] = field.GetValue()
-                    elif field.key == 'ui_language':
+                            provider = self.settings.get_str('provider') or 'Unknown'
+                            provider_settings = self._get_provider_settings(provider)
+                            provider_settings[key] = field.GetValue()
+                    elif key == 'ui_language':
                         if isinstance(field.GetValue(), LocaleDisplayItem):
-                            self.settings[field.key] = field.GetValue().code
+                            self.settings[key] = field.GetValue().code
                     else:
-                        self.settings[field.key] = field.GetValue()
+                        self.settings[key] = field.GetValue()
 
         except Exception as e:
             logging.error(f"Unable to update settings: {e}")
@@ -208,6 +221,31 @@ class SettingsDialog(QDialog):
         except Exception as e:
             logging.error(f"Error in settings dialog handler: {e}")
             self.reject()
+
+    def _get_provider_settings(self, provider : str) -> SettingsType:
+        """ Get the settings for a specific provider """
+        if not provider:
+            return SettingsType()
+
+        if 'provider_settings' not in self.settings:
+            self.settings['provider_settings'] = dict[str, SettingsType]()
+
+        provider_settings = self.settings['provider_settings']
+
+        if not isinstance(provider_settings, SettingsType):
+            logging.error("provider_settings is not a valid dictionary")
+            return SettingsType()
+
+        if provider not in provider_settings:
+            provider_settings[provider] = SettingsType()
+        
+        settings = provider_settings[provider]
+
+        if not isinstance(settings, SettingsType):
+            logging.error(f"provider_settings for {provider} is not a valid dictionary")
+            return SettingsType()
+
+        return SettingsType(settings)
 
     def _create_section_widget(self, section_name):
         """
@@ -221,7 +259,7 @@ class SettingsDialog(QDialog):
 
         self._populate_form(section_name, layout)
 
-        self.sections[section_name] = section_widget
+        self._sections[section_name] = section_widget
 
         return section_widget
 
@@ -238,7 +276,8 @@ class SettingsDialog(QDialog):
             if key_type == TranslationProvider:
                 self._add_provider_options(section_name, layout)
             else:
-                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=_(tooltip))
+                tooltip = _(str(tooltip)) if tooltip else None
+                field = CreateOptionWidget(key, self.settings[key], key_type, tooltip=tooltip)
                 field.contentChanged.connect(lambda setting=field: self._on_setting_changed(section_name, setting.key, setting.GetValue()))
                 layout.addRow(field.name, field)
                 self.widgets[key] = field
@@ -248,14 +287,14 @@ class SettingsDialog(QDialog):
         Update the visibility of section tabs based on dependencies
         """
         for section_name, dependencies in self.VISIBILITY_DEPENDENCIES.items():
-            section_tab = self.tabs.findChild(QWidget, section_name)
+            section_tab = self._tabs.findChild(QWidget, section_name)
             if section_tab:
                 if isinstance(dependencies, list):
                     visible = any(all(self.settings.get(key) == value for key, value in dependency.items()) for dependency in dependencies)
                 else:
                     visible = all(self.settings.get(key) == value for key, value in dependencies.items())
 
-                self.tabs.setTabVisible(self.tabs.indexOf(section_tab), visible)
+                self._tabs.setTabVisible(self._tabs.indexOf(section_tab), visible)
 
     def _update_setting_visibility(self):
         """
@@ -279,7 +318,11 @@ class SettingsDialog(QDialog):
         # Find the layout that contains the field
         # Find the parent row that contains the widget
         parent_widget : QWidget = field.parentWidget()
-        layout : QFormLayout = parent_widget.layout()
+        layout_qt = parent_widget.layout()
+        if not isinstance(layout_qt, QFormLayout):
+            raise ValueError("Field is not in a QFormLayout")
+
+        layout : QFormLayout = layout_qt
         if not layout:
             raise ValueError("Field is not in a layout")
 
@@ -293,16 +336,18 @@ class SettingsDialog(QDialog):
         """
         Initialise translation provider
         """
-        provider = self.settings.get('provider')
+        provider : str|None = self.settings.get_str('provider')
         if provider:
             if provider not in self.provider_settings:
-                self.provider_settings[provider] = {}
+                self.provider_settings[provider] = SettingsType()
 
             provider_settings = self.provider_settings.get(provider)
             if provider not in self.provider_cache:
                 self.provider_cache[provider] = TranslationProvider.create_provider(provider, provider_settings)
             self.translation_provider = self.provider_cache[provider]
-            self.provider_settings[provider].update(self.translation_provider.settings)
+            if self.translation_provider:
+                provider_settings = self.provider_settings.get_dict(provider)
+                provider_settings.update(self.translation_provider.settings)
 
     def _add_provider_options(self, section_name : str, layout : QFormLayout):
         """
@@ -313,7 +358,7 @@ class SettingsDialog(QDialog):
             return
 
         provider_options = self.translation_provider.GetOptions()
-        provider_settings = self.provider_settings.get(self.translation_provider.name, {})
+        provider_settings = self.provider_settings.get_dict(self.translation_provider.name)
 
         for key, key_type in provider_options.items():
             key_type, tooltip = key_type if isinstance(key_type, tuple) else (key_type, None)
@@ -354,11 +399,12 @@ class SettingsDialog(QDialog):
 
         self.translation_provider.ResetAvailableModels()
 
-        provider_settings = self.provider_settings.get(self.translation_provider.name, {})
+        provider_settings = self.provider_settings.get_dict(self.translation_provider.name)
+        provider_settings = SettingsType(provider_settings)
         self.translation_provider.UpdateSettings(provider_settings)
 
         section_name = self.PROVIDER_SECTION
-        section_widget = self.sections.get(section_name)
+        section_widget = self._sections.get(section_name)
         if section_widget:
             section_layout = section_widget.layout()
             self._populate_form(section_name, section_layout)
@@ -377,8 +423,13 @@ class SettingsDialog(QDialog):
             self._update_instruction_file()
 
         elif section_name == self.PROVIDER_SECTION:
-            provider = self.settings.get('provider')
-            self.provider_settings[provider][key] = value
+            provider = self.settings.get_str('provider')
+            if not provider:
+                logging.error(_("Provider is not set"))
+                return
+
+            provider_settings = self._get_provider_settings(provider)
+            provider_settings[key] = value
 
             if self.translation_provider and key in self.translation_provider.refresh_when_changed:
                 self._refresh_provider_options()

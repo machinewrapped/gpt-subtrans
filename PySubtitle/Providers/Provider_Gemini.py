@@ -2,7 +2,8 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import OptionsType, GuiOptionsType
+from PySubtitle.Options import SettingsType
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("google"):
     from PySubtitle.Helpers.Localization import _
@@ -37,13 +38,13 @@ else:
             or a project on <a href="https://console.cloud.google.com/">Google Cloud Platform</a> and enable Generative Language API access.</p>
             """
 
-            def __init__(self, settings : OptionsType):
-                super().__init__(self.name, {
+            def __init__(self, settings : SettingsType):
+                super().__init__(self.name, SettingsType({
                     "api_key": GetStrSetting(settings, 'api_key') or os.getenv('GEMINI_API_KEY'),
                     "model": GetStrSetting(settings, 'model') or os.getenv('GEMINI_MODEL'),
                     'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
                     'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 60.0))
-                })
+                }))
 
                 self.refresh_when_changed = ['api_key', 'model']
                 self.gemini_models = []
@@ -53,7 +54,7 @@ else:
                 return GetStrSetting(self.settings, 'api_key')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
-                client_settings = self.settings.copy()
+                client_settings = SettingsType(self.settings.copy())
                 client_settings.update(settings)
                 client_settings.update({
                     'model': self._get_true_name(self.selected_model),
@@ -63,8 +64,8 @@ else:
                     })
                 return GeminiClient(client_settings)
 
-            def GetOptions(self) -> GuiOptionsType:
-                options : GuiOptionsType = {
+            def GetOptions(self) -> GuiSettingsType:
+                options : GuiSettingsType = {
                     'api_key': (str, _("A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"))
                 }
 

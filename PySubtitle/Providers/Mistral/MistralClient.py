@@ -1,6 +1,6 @@
 import logging
 
-from PySubtitle.Options import OptionsType
+from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationResponseError
 
 try:
@@ -19,7 +19,7 @@ try:
         """
         Handles communication with Mistral to request translations
         """
-        def __init__(self, settings : OptionsType):
+        def __init__(self, settings : SettingsType):
             super().__init__(settings)
 
             if not self.api_key:

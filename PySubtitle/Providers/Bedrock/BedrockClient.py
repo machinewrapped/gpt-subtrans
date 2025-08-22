@@ -1,6 +1,6 @@
 import logging
 
-from PySubtitle.Options import OptionsType
+from PySubtitle.Options import SettingsType
 
 def _structure_messages(messages : list[dict[str,str]]) -> list[dict]:
     """
@@ -28,7 +28,7 @@ try:
         """
         Handles communication with Amazon Bedrock to request translations
         """
-        def __init__(self, settings : OptionsType):
+        def __init__(self, settings : SettingsType):
             super().__init__(settings)
 
             logging.info(_("Translating with Bedrock model {model_id}, using region: {aws_region}").format(

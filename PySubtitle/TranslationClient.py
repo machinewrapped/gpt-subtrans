@@ -3,7 +3,8 @@ import time
 
 from PySubtitle.Helpers.Settings import *
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
-from PySubtitle.Options import OptionsType, SettingsType
+from PySubtitle.Options import SettingsType
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.TranslationParser import TranslationParser
@@ -16,11 +17,11 @@ class TranslationClient:
     """
     Handles communication with the translation provider
     """
-    def __init__(self, settings : OptionsType):
+    def __init__(self, settings : SettingsType):
         if isinstance(settings, Options):
             settings = settings.GetSettings()
 
-        self.settings: SettingsType = settings
+        self.settings: SettingsType = SettingsType(settings)
         self.instructions: str|None = GetStrSetting(settings, 'instructions')
         self.retry_instructions: str|None = GetStrSetting(settings,'retry_instructions')
         self.aborted: bool = False

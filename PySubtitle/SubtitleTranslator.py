@@ -10,6 +10,7 @@ from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Localization import _, tr
 from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE, Instructions
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -17,7 +18,7 @@ from PySubtitle.SubtitleProcessor import SubtitleProcessor
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationParser import TranslationParser
-from PySubtitle.Options import Options, OptionsType, SettingsType
+from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 
 from PySubtitle.SubtitleError import NoProviderError, NoTranslationError, ProviderError, SubtitleError, TranslationAbortedError, TranslationError, TranslationImpossibleError
@@ -32,7 +33,7 @@ class SubtitleTranslator:
     """
     Processes subtitles into scenes and batches and sends them for translation
     """
-    def __init__(self, settings: OptionsType, translation_provider: TranslationProvider):
+    def __init__(self, settings: SettingsType, translation_provider: TranslationProvider):
         """
         Initialise a SubtitleTranslator with translation options
         """
@@ -58,7 +59,14 @@ class SubtitleTranslator:
         self.instructions : Instructions = settings.GetInstructions()
         self.task_type : str = self.instructions.task_type or DEFAULT_TASK_TYPE
         self.user_prompt : str = settings.BuildUserPrompt()
-        self.substitutions = Substitutions(settings.get('substitutions', {}), settings.get('substitution_mode', 'Auto'))
+
+        substitutions_mode = settings.get_str('substitution_mode') or Substitutions.Mode.Auto
+        subtitutions_list = settings.get('substitutions', {})
+        if not isinstance(subtitutions_list, (dict, list, str)):
+            logging.warning(_("Invalid substitutions list, must be a dictionary, list or string"))
+            subtitutions_list = {}
+
+        self.substitutions = Substitutions(subtitutions_list, substitutions_mode)
 
         self.settings : SettingsType = settings.GetSettings()
         self.settings['instructions'] = self.instructions.instructions

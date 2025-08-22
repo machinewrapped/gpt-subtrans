@@ -2,7 +2,8 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import OptionsType, GuiOptionsType, SettingsType
+from PySubtitle.Options import SettingsType
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("openai"):
     from PySubtitle.Helpers.Localization import _
@@ -40,8 +41,8 @@ else:
             <p>Note that if your API Key is attached to a free trial account the <a href="https://platform.openai.com/docs/guides/rate-limits?context=tier-free">rate limit</a> for requests will be <i>severely</i> limited.</p>
             """
 
-            def __init__(self, settings : OptionsType):
-                super().__init__(self.name, {
+            def __init__(self, settings : SettingsType):
+                super().__init__(self.name, SettingsType({
                     "api_key": GetStrSetting(settings, 'api_key', os.getenv('OPENAI_API_KEY')),
                     "api_base": GetStrSetting(settings, 'api_base', os.getenv('OPENAI_API_BASE')),
                     "model": GetStrSetting(settings, 'model', os.getenv('OPENAI_MODEL', "gpt-5-mini")),
@@ -51,7 +52,7 @@ else:
                     'max_instruct_tokens': GetIntSetting(settings, 'max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', '2048'))),
                     'use_httpx': GetBoolSetting(settings, 'use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True"),
                     'reasoning_effort': GetStrSetting(settings, 'reasoning_effort', os.getenv('OPENAI_REASONING_EFFORT', "low")),
-                })
+                }))
 
                 self.refresh_when_changed = ['api_key', 'api_base', 'model']
 
@@ -76,7 +77,7 @@ else:
                 return self.selected_model is not None and not any(self.selected_model.startswith(model) for model in self.non_reasoning_models)
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
-                client_settings = self.settings.copy()
+                client_settings = SettingsType(self.settings.copy())
                 client_settings.update(settings)
                 if self.is_instruct_model:
                     raise ProviderError("Instruct models are no longer supported", provider=self)
@@ -85,8 +86,8 @@ else:
                 else:
                     return ChatGPTClient(client_settings)
 
-            def GetOptions(self) -> GuiOptionsType:
-                options : GuiOptionsType = {
+            def GetOptions(self) -> GuiSettingsType:
+                options : GuiSettingsType = {
                     'api_key': (str, _("An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)")),
                     'api_base': (str, _("The base URL to use for requests - leave as default unless you know you need something else")),
                 }

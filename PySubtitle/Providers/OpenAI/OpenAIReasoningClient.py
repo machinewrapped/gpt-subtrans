@@ -2,6 +2,7 @@ from typing import Any
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleError import TranslationError, TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
 
@@ -11,7 +12,7 @@ class OpenAIReasoningClient(OpenAIClient):
     """
     Handles chat communication with OpenAI to request translations using the Responses API
     """
-    def __init__(self, settings: dict):
+    def __init__(self, settings: SettingsType):
         settings.update({
             'supports_system_messages': True,
             'supports_conversation': True,
