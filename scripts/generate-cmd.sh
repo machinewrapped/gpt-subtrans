@@ -11,7 +11,7 @@ echo "Generating $cmd_name..."
 echo "#!/bin/bash" > "$cmd_name"
 echo "echo 'Activating virtual environment...'" >> "$cmd_name"
 echo "source envsubtrans/bin/activate" >> "$cmd_name"
-echo "python scripts/$script_name" '"$@"' >> "$cmd_name"
+echo "envsubtrans/bin/python scripts/$script_name" '"$@"' >> "$cmd_name"
 echo "echo 'Deactivating virtual environment...'" >> "$cmd_name"
 echo "deactivate" >> "$cmd_name"
 
