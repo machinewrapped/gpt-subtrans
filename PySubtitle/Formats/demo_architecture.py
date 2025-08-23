@@ -44,7 +44,7 @@ class ExampleVttFileHandler(SubtitleFileHandler):
     def compose_lines(self, lines: list[SubtitleLine], reindex: bool = True) -> str:
         # Mock VTT composition
         result = "WEBVTT\n\n"
-        for i, line in enumerate(lines, 1):
+        for line in lines:
             if line.text:
                 start_str = f"{int(line.start.total_seconds()//3600):02d}:{int((line.start.total_seconds()%3600)//60):02d}:{line.start.total_seconds()%60:06.3f}"
                 end_str = f"{int(line.end.total_seconds()//3600):02d}:{int((line.end.total_seconds()%3600)//60):02d}:{line.end.total_seconds()%60:06.3f}"
@@ -117,9 +117,12 @@ def demo_format_agnostic_architecture():
     print("5. Backward Compatibility:")
     sf = SubtitleFile()
     sf.LoadSubtitlesFromString(sample_srt)
-    print(f"   Loaded {len(sf.originals)} subtitles into SubtitleFile")
-    print(f"   First subtitle: {sf.originals[0].text}")
-    print("   ✓ Existing API and functionality preserved\n")
+    if sf.originals:
+        print(f"   Loaded {len(sf.originals)} subtitles into SubtitleFile")
+        print(f"   First subtitle: {sf.originals[0].text}")
+        print("   ✓ Existing API and functionality preserved\n")
+    else:
+        print("   ✗ Failed to load subtitles into SubtitleFile\n")
     
     print("=== Architecture Benefits:")
     print("• SRT library usage isolated to file I/O only")
