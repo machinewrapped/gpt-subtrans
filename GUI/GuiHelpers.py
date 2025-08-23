@@ -51,7 +51,7 @@ def GetLineHeight(text: str, wrap_length: int = 60) -> int:
     wraps = -(-len(text) // wrap_length) if wrap_length else 0  # Ceiling division
     return text.count('\n') + wraps
 
-def DescribeLineCount(line_count, translated_count):
+def DescribeLineCount(line_count : int, translated_count : int) -> str:
     if translated_count == 0:
         return _("{count} lines").format(count=line_count)
     elif line_count == translated_count:
