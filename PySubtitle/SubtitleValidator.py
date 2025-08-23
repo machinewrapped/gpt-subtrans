@@ -28,8 +28,8 @@ class SubtitleValidator:
         if not translated:
             return [ UntranslatedLinesError(f"Failed to extract any translations") ]
 
-        max_characters : int = int(self.options.get('max_characters', 1000))
-        max_newlines : int = self.options.get('max_newlines', 3)
+        max_characters : int = self.options.get_int('max_characters') or 1000
+        max_newlines : int = self.options.get_int('max_newlines') or 10
 
         no_number : list[SubtitleLine] = []
         no_text : list[SubtitleLine] = []

@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Any
+
 from GUI.Command import Command
 from GUI.Commands.EditBatchCommand import EditBatchCommand
 from GUI.Commands.EditLineCommand import EditLineCommand
@@ -5,9 +8,8 @@ from GUI.Commands.EditSceneCommand import EditSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
 
 from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, SubtitleTestCase
-from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
+from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.SubtitleFile import SubtitleFile
-from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
 class EditCommandsTests(SubtitleTestCase):
@@ -53,13 +55,18 @@ class EditCommandsTests(SubtitleTestCase):
             data = test_case['data']
             log_test_name(f"Testing edit commands on {data.get('movie_name')}")
 
-            datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options)
+            datamodel = CreateTestDataModelBatched(data, options=self.options)
+            self.assertIsNotNone(datamodel)
+            self.assertIsNotNone(datamodel.project)
+            assert datamodel.project is not None  # Type narrowing for PyLance
+            self.assertIsNotNone(datamodel.project.subtitles)
+            
             subtitles: SubtitleFile = datamodel.project.subtitles
-
-            undo_stack : list[Command] = []
+            undo_stack: list[Command] = []
 
             for command_data in test_case['tests']:
                 test = command_data['test']
+                command: Command | None = None
 
                 with self.subTest(test):
                     log_test_name(f"{test} test")
@@ -69,8 +76,11 @@ class EditCommandsTests(SubtitleTestCase):
                         command = self.EditBatchCommandTest(subtitles, datamodel, command_data)
                     elif test == 'EditLineCommandTest':
                         command = self.EditLineCommandTest(subtitles, datamodel, command_data)
+                    else:
+                        self.fail(f"Unknown test type: {test}")
 
-                    self.assertIsNotNone(command)
+                    self.assertIsNotNone(command, f"Command should not be None for test {test}")
+                    assert command is not None  # Type narrowing for PyLance
                     self.assertTrue(command.can_undo)
                     undo_stack.append(command)
 
@@ -79,15 +89,20 @@ class EditCommandsTests(SubtitleTestCase):
                 self.assertTrue(command.undo())
 
             reference_datamodel = CreateTestDataModelBatched(data, options=self.options)
+            self.assertIsNotNone(reference_datamodel)
+            self.assertIsNotNone(reference_datamodel.project)
+            assert reference_datamodel.project is not None  # Type narrowing for PyLance
+            self.assertIsNotNone(reference_datamodel.project.subtitles)
+            
             reference_subtitles = reference_datamodel.project.subtitles
-
             self._assert_same_as_reference(subtitles, reference_subtitles)
 
-    def EditSceneCommandTest(self, subtitles : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
-        scene_number = test_data['scene_number']
+    def EditSceneCommandTest(self, subtitles: SubtitleFile, datamodel: ProjectDataModel, test_data: dict[str, Any]) -> Command:
+        scene_number: int = test_data['scene_number']
 
-        scene : SubtitleScene = subtitles.GetScene(scene_number)
-        self.assertIsNotNone(scene)
+        scene = subtitles.GetScene(scene_number)
+        self.assertIsNotNone(scene, f"Scene {scene_number} should exist")
+        assert scene is not None  # Type narrowing for PyLance
 
         original_scene_number = scene.number
         original_size = scene.size
@@ -115,14 +130,16 @@ class EditCommandsTests(SubtitleTestCase):
 
         return edit_scene_command
 
-    def EditBatchCommandTest(self, subtitles : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
+    def EditBatchCommandTest(self, subtitles: SubtitleFile, datamodel: ProjectDataModel, test_data: dict[str, Any]) -> Command:
         scene_number, batch_number = test_data['batch_number']
 
-        scene : SubtitleScene = subtitles.GetScene(scene_number)
-        self.assertIsNotNone(scene)
+        scene = subtitles.GetScene(scene_number)
+        self.assertIsNotNone(scene, f"Scene {scene_number} should exist")
+        assert scene is not None  # Type narrowing for PyLance
 
         batch = scene.GetBatch(batch_number)
-        self.assertIsNotNone(batch)
+        self.assertIsNotNone(batch, f"Batch {batch_number} in scene {scene_number} should exist")
+        assert batch is not None  # Type narrowing for PyLance
 
         original_scene_number = scene.number
         original_batch_number = batch.number
@@ -139,7 +156,9 @@ class EditCommandsTests(SubtitleTestCase):
         expected_size = test_data.get('expected_size', original_size)
         expected_summary = test_data.get('expected_summary', original_summary)
 
-        log_input_expected_result("Edit Batch", (expected_scene_number, expected_batch_number, expected_size, expected_summary), (scene.number, batch.number, batch.size, batch.summary))
+        log_input_expected_result("Edit Batch", 
+                                 (expected_scene_number, expected_batch_number, expected_size, expected_summary), 
+                                 (scene.number, batch.number, batch.size, batch.summary))
 
         self.assertEqual(scene.number, expected_scene_number)
         self.assertEqual(batch.number, expected_batch_number)
@@ -148,14 +167,16 @@ class EditCommandsTests(SubtitleTestCase):
 
         return edit_batch_command
 
-    def EditLineCommandTest(self, subtitles : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
-        line_number = test_data['line_number']
+    def EditLineCommandTest(self, subtitles: SubtitleFile, datamodel: ProjectDataModel, test_data: dict[str, Any]) -> Command:
+        line_number: int = test_data['line_number']
 
         batch = subtitles.GetBatchContainingLine(line_number)
-        self.assertIsNotNone(batch)
+        self.assertIsNotNone(batch, f"Batch containing line {line_number} should exist")
+        assert batch is not None  # Type narrowing for PyLance
 
         line = batch.GetOriginalLine(line_number)
-        self.assertIsNotNone(line)
+        self.assertIsNotNone(line, f"Original line {line_number} should exist")
+        assert line is not None  # Type narrowing for PyLance
         self.assertEqual(line.number, line_number)
 
         original_line_number = line.number
@@ -171,25 +192,28 @@ class EditCommandsTests(SubtitleTestCase):
         expected_original = test_data.get('expected_original', original_text)
         expected_translation = test_data.get('expected_translation', original_translation)
 
-        log_input_expected_result("Edit Line", (expected_line_number, expected_original, expected_translation), (line.number, line.text, line.translation))
+        log_input_expected_result("Edit Line", 
+                                 (expected_line_number, expected_original, expected_translation), 
+                                 (line.number, line.text, line.translation))
 
         edited_line = batch.GetOriginalLine(line_number)
-        self.assertIsNotNone(edited_line)
+        self.assertIsNotNone(edited_line, f"Edited line {line_number} should exist")
+        assert edited_line is not None  # Type narrowing for PyLance
 
         self.assertEqual(edited_line.number, expected_line_number)
         self.assertEqual(edited_line.text, expected_original)
         self.assertEqual(edited_line.translation, expected_translation)
 
         translated_line = batch.GetTranslatedLine(line_number)
-        expect_translated_line = test_data.get('expect_translated_line', False)
+        expect_translated_line: bool = test_data.get('expect_translated_line', False)
 
         if expect_translated_line:
-            self.assertIsNotNone(translated_line)
+            self.assertIsNotNone(translated_line, f"Translated line {line_number} should exist when expected")
+            assert translated_line is not None  # Type narrowing for PyLance
             self.assertEqual(translated_line.number, expected_line_number)
             self.assertEqual(translated_line.text, expected_translation)
             self.assertEqual(translated_line.original, expected_original)
-
         else:
-            self.assertIsNone(translated_line)
+            self.assertIsNone(translated_line, f"Translated line {line_number} should not exist when not expected")
 
         return edit_line_command

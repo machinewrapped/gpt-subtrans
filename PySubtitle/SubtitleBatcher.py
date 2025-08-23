@@ -1,16 +1,16 @@
-from PySubtitle.Helpers.Settings import *
-from PySubtitle.Options import Options, SettingsType
+from datetime import timedelta
+from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.SubtitleLine import SubtitleLine
 
 class SubtitleBatcher:
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : SettingsType):
         """ Initialize a SubtitleBatcher helper class with settings """
-        self.min_batch_size : int = GetIntSetting(settings, 'min_batch_size') or 1
-        self.max_batch_size : int = GetIntSetting(settings, 'max_batch_size') or 100
+        self.min_batch_size : int = settings.get_int('min_batch_size') or 1
+        self.max_batch_size : int = settings.get_int('max_batch_size') or 100
 
-        scene_threshold_seconds : float = GetFloatSetting(settings, 'scene_threshold') or 30.0
+        scene_threshold_seconds : float = settings.get_float('scene_threshold') or 30.0
         self.scene_threshold : timedelta = timedelta(seconds=scene_threshold_seconds)
 
     def BatchSubtitles(self, lines : list[SubtitleLine]) -> list[SubtitleScene]:

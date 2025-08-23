@@ -6,6 +6,7 @@ import regex
 
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options, SettingsType
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
@@ -22,9 +23,9 @@ class SubtitleTestCase(unittest.TestCase):
     def __init__(self, methodName: str = "runTest", custom_options : dict|None = None) -> None:
         super().__init__(methodName)
 
-        options = {
+        options = SettingsType({
             'provider': 'Dummy Provider',
-            'provider_options': { 'Dummy Provider' : {} },
+            'provider_settings': { 'Dummy Provider' : SettingsType() },
             'target_language': 'English',
             'scene_threshold': 60.0,
             'min_batch_size': 10,
@@ -34,12 +35,14 @@ class SubtitleTestCase(unittest.TestCase):
             'project': 'test',
             'retry_on_error': False,
             'stop_on_error': True
-        }
+        })
 
         if custom_options:
             options.update(custom_options)
 
         self.options = Options(options)
+
+        self.assertIn("Dummy Provider", self.options.provider_settings, "Dummy Provider settings should exist")
 
     def _assert_same_as_reference(self, subtitles : SubtitleFile, reference_subtitles: SubtitleFile):
         """
@@ -90,7 +93,7 @@ def PrepareSubtitles(subtitle_data : dict, key : str = 'original') -> SubtitleFi
     """
     subtitles : SubtitleFile = SubtitleFile()
     subtitles.LoadSubtitlesFromString(subtitle_data[key])
-    subtitles.UpdateProjectSettings(subtitle_data)
+    subtitles.UpdateProjectSettings(SettingsType(subtitle_data))
     return subtitles
 
 def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 'translated'):
@@ -121,7 +124,7 @@ def CreateTestDataModel(test_data : dict, options : Options|None = None) -> Proj
     file : SubtitleFile = PrepareSubtitles(test_data, 'original')
     datamodel = ProjectDataModel(options = options)
     datamodel.project = SubtitleProject(options, file)
-    datamodel.UpdateProviderSettings({"data" : test_data})
+    datamodel.UpdateProviderSettings(SettingsType({"data" : test_data}))
     return datamodel
 
 def CreateTestDataModelBatched(test_data : dict, options : Options|None = None, translated : bool = True) -> ProjectDataModel:
@@ -161,10 +164,10 @@ class DummyProvider(TranslationProvider):
     name = "Dummy Provider"
 
     def __init__(self, data : dict):
-        super().__init__("Dummy Provider", {
+        super().__init__("Dummy Provider", SettingsType({
             "model": "dummy",
             "data": data,
-        })
+        }))
 
     def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
         client_settings : dict = deepcopy(self.settings)
@@ -172,7 +175,7 @@ class DummyProvider(TranslationProvider):
         return DummyTranslationClient(settings=client_settings)
 
 class DummyTranslationClient(TranslationClient):
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : SettingsType):
         super().__init__(settings)
         self.data: dict[str, Any] = settings.get('data', {}) # type: ignore[assignment]
         self.response_map: dict[str, str] = self.data.get('response_map', {})

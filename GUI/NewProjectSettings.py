@@ -10,6 +10,7 @@ from GUI.ProjectDataModel import ProjectDataModel
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, DropdownOptionWidget, OptionWidget
 
 from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleProcessor import SubtitleProcessor
@@ -208,11 +209,11 @@ class NewProjectSettings(QDialog):
 class BatchPreviewWorker(QThread):
     update_preview = Signal(int, str)
 
-    def __init__(self, count : int, settings : dict, subtitles : list[SubtitleLine], parent=None):
+    def __init__(self, count : int, settings : SettingsType, subtitles : list[SubtitleLine], parent=None):
         super().__init__(parent)
-        self.count = count
-        self.settings = deepcopy(settings)
-        self.subtitles = deepcopy(subtitles)
+        self.count : int = count
+        self.settings : SettingsType = deepcopy(settings)
+        self.subtitles : list[SubtitleLine] = deepcopy(subtitles)
 
     def run(self):
         if 'debugpy' in globals():

@@ -1,6 +1,6 @@
 import logging
 import os
-import darkdetect
+import darkdetect # type: ignore
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QFormLayout)
@@ -28,11 +28,12 @@ def LoadStylesheet(name):
     with open(filepath, 'r') as file:
         stylesheet = file.read()
 
-    app = QApplication.instance()
-    app.setStyleSheet(stylesheet)
+    app : QApplication|None = QApplication.instance() # type: ignore
+    if app is not None:
+        app.setStyleSheet(stylesheet)
 
-    scheme = Qt.ColorScheme.Dark if 'dark' in name else Qt.ColorScheme.Light
-    app.styleHints().setColorScheme(scheme)
+        scheme : Qt.ColorScheme = Qt.ColorScheme.Dark if 'dark' in name else Qt.ColorScheme.Light
+        app.styleHints().setColorScheme(scheme)
 
     return stylesheet
 
@@ -47,10 +48,10 @@ def GetLineHeight(text: str, wrap_length: int = 60) -> int:
     if not text:
         return 0
 
-    wraps = -(-len(text) // wrap_length) if wrap_length else None  # Ceiling division
+    wraps = -(-len(text) // wrap_length) if wrap_length else 0  # Ceiling division
     return text.count('\n') + wraps
 
-def DescribeLineCount(line_count, translated_count):
+def DescribeLineCount(line_count : int, translated_count : int) -> str:
     if translated_count == 0:
         return _("{count} lines").format(count=line_count)
     elif line_count == translated_count:
@@ -63,12 +64,11 @@ def ClearForm(layout : QFormLayout):
     Clear the widgets from a layout
     """
     while layout.rowCount():
-        row = layout.takeRow(0)
-        if row.fieldItem:
-            widget = row.fieldItem.widget()
-            if widget:
-                widget.deleteLater()
-        if row.labelItem:
-            widget = row.labelItem.widget()
+        result = layout.takeRow(0)  # Pylance: TakeRowResult missing attrs in stubs
+        for attr in ("labelItem", "fieldItem"):
+            item = getattr(result, attr, None)
+            if item is None:
+                continue
+            widget = item.widget()
             if widget:
                 widget.deleteLater()

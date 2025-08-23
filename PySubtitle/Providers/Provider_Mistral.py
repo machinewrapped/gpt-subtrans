@@ -2,7 +2,8 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import SettingsType, env_float
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("mistralai"):
     from PySubtitle.Helpers.Localization import _
@@ -11,9 +12,7 @@ else:
     try:
         import mistralai
 
-        from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
-        from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
         from PySubtitle.Providers.Mistral.MistralClient import MistralClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -30,27 +29,27 @@ else:
             <p>Note that Mistral provide many specialised models that are unlikely to be useful as translators.</p>
             """
 
-            def __init__(self, settings : Options|SettingsType):
-                super().__init__(self.name, {
-                    "api_key": GetStrSetting(settings, 'api_key', os.getenv('MISTRAL_API_KEY')),
-                    "server_url": GetStrSetting(settings, 'server_url', os.getenv('MISTRAL_SERVER_URL')),
-                    "model": GetStrSetting(settings, 'model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
-                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('MISTRAL_TEMPERATURE', 0.0)),
-                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('MISTRAL_RATE_LIMIT')),
-                })
+            def __init__(self, settings : SettingsType):
+                super().__init__(self.name, SettingsType({
+                    "api_key": settings.get_str('api_key', os.getenv('MISTRAL_API_KEY')),
+                    "server_url": settings.get_str('server_url', os.getenv('MISTRAL_SERVER_URL')),
+                    "model": settings.get_str('model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
+                    'temperature': settings.get_float('temperature', env_float('MISTRAL_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', env_float('MISTRAL_RATE_LIMIT')),
+                }))
 
                 self.refresh_when_changed = ['api_key', 'server_url', 'model']
 
             @property
             def api_key(self) -> str|None:
-                return GetStrSetting(self.settings, 'api_key')
+                return self.settings.get_str( 'api_key')
 
             @property
             def server_url(self) -> str|None:
-                return GetStrSetting(self.settings, 'server_url')
+                return self.settings.get_str( 'server_url')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
-                client_settings = self.settings.copy()
+                client_settings = SettingsType(self.settings.copy())
                 client_settings.update(settings)
                 client_settings.update({
                     'supports_conversation': True,
@@ -60,8 +59,8 @@ else:
                     })
                 return MistralClient(client_settings)
 
-            def GetOptions(self) -> GuiOptionsType:
-                options : GuiOptionsType = {
+            def GetOptions(self) -> GuiSettingsType:
+                options : GuiSettingsType = {
                     'api_key': (str, _("A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)")),
                     'server_url': (str, _("The base URL to use for requests (default is https://api.mistral.ai)")),
                 }
@@ -125,7 +124,7 @@ else:
                 """
                 If user has set a rate limit we can't make multiple requests at once
                 """
-                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
+                if self.settings.get_float( 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

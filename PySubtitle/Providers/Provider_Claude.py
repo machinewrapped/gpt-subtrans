@@ -2,8 +2,8 @@ import importlib.util
 import logging
 
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import *
-from PySubtitle.Options import SettingsType, GuiOptionsType
+from PySubtitle.Options import env_float, env_int, env_bool
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("anthropic"):
     logging.info(_("Anthropic SDK is not installed. Claude provider will not be available"))
@@ -14,12 +14,11 @@ else:
 
         from copy import deepcopy
 
-        from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger
         from PySubtitle.Helpers.Localization import _
-        from PySubtitle.Helpers.Parse import ParseNames
         from PySubtitle.Providers.Anthropic.AnthropicClient import AnthropicClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
+        from PySubtitle.Options import SettingsType
 
         class Provider_Claude(TranslationProvider):
             name = "Claude"
@@ -36,17 +35,17 @@ else:
 
             default_model = "claude-3-5-haiku-latest"
 
-            def __init__(self, settings : Options|SettingsType):
-                super().__init__(self.name, {
-                    "api_key": GetStrSetting(settings, 'api_key') or os.getenv('CLAUDE_API_KEY'),
-                    "model": GetStrSetting(settings, 'model') or os.getenv('CLAUDE_MODEL', self.default_model),
-                    "thinking": GetBoolSetting(settings, 'thinking', False),
-                    "max_tokens": GetIntSetting(settings, 'max_tokens') or GetEnvInteger('CLAUDE_MAX_TOKENS', 4096),
-                    "max_thinking_tokens": GetIntSetting(settings, 'max_thinking_tokens') or GetEnvInteger('CLAUDE_MAX_THINKING_TOKENS', 1024),
-                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('CLAUDE_TEMPERATURE', 0.0)),
-                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('CLAUDE_RATE_LIMIT', 10.0)),
-                    'proxy': GetStrSetting(settings, 'proxy') or os.getenv('CLAUDE_PROXY'),
-                })
+            def __init__(self, settings : SettingsType):
+                super().__init__(self.name, SettingsType({
+                    "api_key": settings.get_str('api_key') or os.getenv('CLAUDE_API_KEY'),
+                    "model": settings.get_str('model') or os.getenv('CLAUDE_MODEL', self.default_model),
+                    "thinking": settings.get_bool('thinking', False),
+                    "max_tokens": settings.get_int('max_tokens') or env_int('CLAUDE_MAX_TOKENS', 4096),
+                    "max_thinking_tokens": settings.get_int('max_thinking_tokens') or env_int('CLAUDE_MAX_THINKING_TOKENS', 1024),
+                    'temperature': settings.get_float('temperature', env_float('CLAUDE_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', env_float('CLAUDE_RATE_LIMIT', 10.0)),
+                    'proxy': settings.get_str('proxy') or os.getenv('CLAUDE_PROXY'),
+                }))
 
                 self.refresh_when_changed = ['api_key', 'model', 'thinking']
 
@@ -54,19 +53,19 @@ else:
 
             @property
             def api_key(self) -> str|None:
-                return GetStrSetting(self.settings, 'api_key')
+                return self.settings.get_str( 'api_key')
             
             @property
             def allow_thinking(self) -> bool:
-                return GetBoolSetting(self.settings, 'thinking', False)
+                return self.settings.get_bool( 'thinking', False)
             
             @property
             def max_tokens(self) -> int:
-                return GetIntSetting(self.settings, 'max_tokens') or 8192
+                return self.settings.get_int( 'max_tokens') or 8192
             
             @property
             def max_thinking_tokens(self) -> int:
-                return GetIntSetting(self.settings, 'max_thinking_tokens') or 1024
+                return self.settings.get_int( 'max_thinking_tokens') or 1024
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings : dict = deepcopy(self.settings)
@@ -96,8 +95,8 @@ else:
             def GetInformation(self):
                 return self.information if self.api_key else self.information_noapikey
 
-            def GetOptions(self) -> GuiOptionsType:
-                options : GuiOptionsType = {
+            def GetOptions(self) -> GuiSettingsType:
+                options : GuiSettingsType = {
                     'api_key': (str, _("An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"))
                     }
 
@@ -125,7 +124,7 @@ else:
                 """
                 If user has set a rate limit don't attempt parallel requests to make sure we respect it
                 """
-                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
+                if self.settings.get_float( 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

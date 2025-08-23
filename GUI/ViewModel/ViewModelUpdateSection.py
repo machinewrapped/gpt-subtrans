@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, TypeAlias
+from typing import TypeAlias
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -22,7 +22,7 @@ class ModelUpdateSection:
         self.updates: UpdateType = {}
         self.replacements: dict[Key, ModelTypes] = {}
         self.additions: dict[Key, ModelTypes] = {}
-        self.removals: list[Key] = []
+        self.removals: list[SceneKey]|list[BatchKey]|list[LineKey]|list[int] = []
 
     def update(self, key: Key, item_update: UpdateValue) -> None:
         self.updates[key] = item_update
@@ -34,7 +34,9 @@ class ModelUpdateSection:
         self.additions[key] = item
 
     def remove(self, key: Key) -> None:
-        self.removals.append(key)
+        if any(type(existing_key) != type(key) for existing_key in self.removals):
+            raise ValueError(f"All removal keys must be of the same type: {type(key)}")            
+        self.removals.append(key) # type: ignore[list-item]
 
     @property
     def has_updates(self) -> bool:

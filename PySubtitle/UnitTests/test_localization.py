@@ -1,3 +1,4 @@
+import sys
 import unittest
 
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
@@ -45,6 +46,11 @@ class TestLocalization(unittest.TestCase):
         self.assertEqual(en_result, "Cancel")
 
     def test_missing_language_fallback(self):
+        # Skip this test if running under a debugger to avoid breaking on expected exceptions
+        if sys.gettrace() is not None:
+            print("Skipping test_missing_language_fallback when debugger is attached")
+            return
+            
         log_test_name("Localization: missing_language_fallback")
         initialize_localization("zz")  # non-existent locale
         # Should gracefully fall back to identity translation

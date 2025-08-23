@@ -1,6 +1,8 @@
 import logging
 
-def _structure_messages(messages : list[str]) -> list[dict]:
+from PySubtitle.Options import SettingsType
+
+def _structure_messages(messages : list[dict[str,str]]) -> list[dict]:
     """
     Structure the messages to be sent to the API
     """
@@ -12,11 +14,10 @@ def _structure_messages(messages : list[str]) -> list[dict]:
         for message in messages]
 
 try:
-    import boto3
+    import boto3 # type: ignore[import]
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Helpers.Localization import _
-    from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -26,7 +27,7 @@ try:
         """
         Handles communication with Amazon Bedrock to request translations
         """
-        def __init__(self, settings : Options|SettingsType):
+        def __init__(self, settings : SettingsType):
             super().__init__(settings)
 
             logging.info(_("Translating with Bedrock model {model_id}, using region: {aws_region}").format(
@@ -42,23 +43,23 @@ try:
 
         @property
         def access_key(self) -> str|None:
-            return GetStrSetting(self.settings, 'access_key')
+            return self.settings.get_str( 'access_key')
 
         @property
         def secret_access_key(self) -> str|None:
-            return GetStrSetting(self.settings, 'secret_access_key')
+            return self.settings.get_str( 'secret_access_key')
 
         @property
         def aws_region(self) -> str|None:
-            return GetStrSetting(self.settings, 'aws_region')
+            return self.settings.get_str( 'aws_region')
 
         @property
         def model_id(self) -> str|None:
-            return GetStrSetting(self.settings, 'model')
+            return self.settings.get_str( 'model')
 
         @property
         def max_tokens(self) -> int:
-            return GetIntSetting(self.settings, 'max_tokens', 4096)
+            return self.settings.get_int( 'max_tokens') or 4096
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
@@ -76,9 +77,15 @@ try:
             if not self.model_id:
                 raise TranslationImpossibleError(_("Model ID must be provided as an argument"))
 
+            if not prompt.system_prompt:
+                raise TranslationImpossibleError(_("No system prompt provided"))
+
             logging.debug(f"Messages:\n{FormatMessages(prompt.messages)}")
 
             content = _structure_messages(prompt.messages)
+
+            if not content or not isinstance(prompt.content, list):
+                raise TranslationImpossibleError(_("No content provided for translation"))
 
             reponse = self._send_messages(prompt.system_prompt, content, temperature=temperature)
 
@@ -86,7 +93,7 @@ try:
 
             return translation
 
-        def _send_messages(self, system_prompt : str, messages : list[str], temperature : float|None = None) -> dict:
+        def _send_messages(self, system_prompt : str, messages : list[dict], temperature : float|None = None) -> dict|None:
             """
             Make a request to the Amazon Bedrock API to provide a translation
             """

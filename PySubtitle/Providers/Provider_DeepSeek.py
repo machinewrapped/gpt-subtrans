@@ -3,11 +3,10 @@ import logging
 import os
 import httpx
 
-from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting, GetFloatSetting, GetBoolSetting
-from PySubtitle.Options import Options, SettingsType, GuiOptionsType
+from PySubtitle.Options import SettingsType, env_float, env_int
 from PySubtitle.Providers.Custom.DeepSeekClient import DeepSeekClient
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 from PySubtitle.TranslationProvider import TranslationProvider
 
@@ -24,39 +23,38 @@ class DeepSeekProvider(TranslationProvider):
     <p>Note that you must have credit to use DeepSeek, there is no free usage tier.</p>
     """
 
-    def __init__(self, settings : Options|SettingsType):
-        provider_settings = {
-            "api_key": GetStrSetting(settings, 'api_key', os.getenv('DEEPSEEK_API_KEY')),
-            "api_base": GetStrSetting(settings, 'api_base', os.getenv('DEEPSEEK_API_BASE', "https://api.deepseek.com")),
-            "model": GetStrSetting(settings, 'model', os.getenv('DEEPSEEK_MODEL', "deepseek-chat")),
-            'max_tokens': GetIntSetting(settings, 'max_tokens', int(os.getenv('DEEPSEEK_MAX_TOKENS', '8192'))),
-            'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('DEEPSEEK_TEMPERATURE', 1.3)),
-            'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('DEEPSEEK_RATE_LIMIT')),
-            'reuse_client': GetBoolSetting(settings, 'reuse_client', False),
-            'endpoint': GetStrSetting(settings, 'endpoint', '/v1/chat/completions'),
-        }
-        super().__init__(self.name, provider_settings)
+    def __init__(self, settings : SettingsType):
+        super().__init__(self.name, SettingsType({
+            "api_key": settings.get_str('api_key', os.getenv('DEEPSEEK_API_KEY')),
+            "api_base": settings.get_str('api_base', os.getenv('DEEPSEEK_API_BASE', "https://api.deepseek.com")),
+            "model": settings.get_str('model', os.getenv('DEEPSEEK_MODEL', "deepseek-chat")),
+            'max_tokens': settings.get_int('max_tokens', env_int('DEEPSEEK_MAX_TOKENS', 8192)),
+            'temperature': settings.get_float('temperature', env_float('DEEPSEEK_TEMPERATURE', 1.3)),
+            'rate_limit': settings.get_float('rate_limit', env_float('DEEPSEEK_RATE_LIMIT')),
+            'reuse_client': settings.get_bool('reuse_client', False),
+            'endpoint': settings.get_str('endpoint', '/v1/chat/completions'),
+        }))
         self.refresh_when_changed = ['api_key', 'api_base', 'model', 'endpoint']
 
     @property
     def api_key(self) -> str|None:
-        return GetStrSetting(self.settings, 'api_key')
+        return self.settings.get_str( 'api_key')
 
     @property
     def api_base(self) -> str|None:
-        return GetStrSetting(self.settings, 'api_base')
+        return self.settings.get_str( 'api_base')
     
     @property
     def server_address(self) -> str|None:
         return self.api_base
 
     def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
-        client_settings = self.settings.copy()
+        client_settings = SettingsType(self.settings.copy())
         client_settings.update(settings)
         return DeepSeekClient(client_settings)
 
-    def GetOptions(self) -> GuiOptionsType:
-        options : GuiOptionsType = {
+    def GetOptions(self) -> GuiSettingsType:
+        options : GuiSettingsType = {
             'api_key': (str, _("A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)")),
             'api_base': (str, _("The base URL to use for requests (default is https://api.deepseek.com)")),
         }
@@ -130,7 +128,7 @@ class DeepSeekProvider(TranslationProvider):
         """
         If user has set a rate limit we can't make multiple requests at once
         """
-        if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
+        if self.settings.get_float( 'rate_limit', 0.0) != 0.0:
             return False
 
         return True

@@ -4,7 +4,7 @@ import os
 from PySide6.QtCore import Qt, QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QApplication, QMainWindow
 
-from GUI.Command import Command
+from GUI.Command import Command, CommandError
 from GUI.CommandQueue import CommandQueue
 
 from GUI.Commands.AutoSplitBatchCommand import AutoSplitBatchCommand
@@ -50,7 +50,7 @@ class ProjectActions(QObject):
     saveProject = Signal(str)
     exitProgram = Signal()
 
-    def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel|None = None, mainwindow : QMainWindow = None):
+    def __init__(self, command_queue : CommandQueue, datamodel : ProjectDataModel|None = None, mainwindow : QMainWindow|None = None):
         super().__init__()
 
         if not isinstance(command_queue, CommandQueue):
@@ -59,7 +59,9 @@ class ProjectActions(QObject):
         self._mainwindow = mainwindow
         self._command_queue = command_queue
         self.datamodel = datamodel
-        self.last_used_path = os.path.dirname(datamodel.project.projectfile) if datamodel and datamodel.project else None
+        self.last_used_path : str|None = None
+        if datamodel and datamodel.project and datamodel.project.projectfile:
+            self.last_used_path = os.path.dirname(datamodel.project.projectfile)
 
     def SetDataModel(self, datamodel : ProjectDataModel):
         self.datamodel = datamodel
@@ -122,11 +124,11 @@ class ProjectActions(QObject):
         """
         Load a subtitle file
         """
-        initial_path = self.last_used_path
+        initial_path = self.last_used_path or os.getcwd()
         shift_pressed = self._is_shift_pressed()
 
         filters = f"{_('Subtitle files')} (*.srt *.subtrans);;{_('All Files')} (*)"
-        filepath, dummy = QFileDialog.getOpenFileName(parent=self._mainwindow, caption=_("Open File"), dir=initial_path, filter=filters)
+        filepath, dummy = QFileDialog.getOpenFileName(parent=self._mainwindow, caption=_("Open File"), dir=initial_path, filter=filters) # type: ignore[unused-ignore]
 
         if filepath:
             self.loadProject.emit(filepath, shift_pressed)
@@ -135,7 +137,7 @@ class ProjectActions(QObject):
         """
         Save the current project
         """
-        project : SubtitleProject = self.datamodel.project
+        project : SubtitleProject|None = self.datamodel.project if self.datamodel else None
         if not project:
             raise ActionError(_("Nothing to save!"))
 
@@ -145,30 +147,38 @@ class ProjectActions(QObject):
         show_dialog = self._is_shift_pressed()
 
         if show_dialog or not filepath or not os.path.exists(filepath):
-            filepath = os.path.join(self.last_used_path, os.path.basename(project.projectfile))
+            base_path = self.last_used_path or os.getcwd()
+            base_name = os.path.basename(project.projectfile) if project.projectfile else "untitled.subtrans"
+            filepath = os.path.join(base_path, base_name)
             filters = f"{_('Subtrans projects')} (*.subtrans);;{_('All Files')} (*)"
-            filepath, dummy = QFileDialog.getSaveFileName(self._mainwindow, _("Save Project File"), filepath, filters)
+            filepath, dummy = QFileDialog.getSaveFileName(self._mainwindow, _("Save Project File"), filepath, filters)  # type: ignore[unused-ignore]
 
         if filepath:
             self.saveProject.emit(filepath)
 
-    def CheckProviderSettings(self, options : Options = None):
+    def CheckProviderSettings(self, options : Options|None = None):
         """
         Check if the translation provider is configured correctly.
         """
-        def callback(cmd : CheckProviderSettings):
+        def callback(cmd : Command):
+            if not isinstance(cmd, CheckProviderSettings):
+                raise CommandError("Invalid command type in callback", cmd)
+                
             if cmd.show_provider_settings:
                 self.showProviderSettings.emit()
             else:
                 logging.info(_("Provider settings validated"))
 
-        command = CheckProviderSettings(options or self.datamodel.project_options)
+        if not options:
+            options = self.datamodel.project_options if self.datamodel else Options()
+
+        command = CheckProviderSettings(options)
         command.callback = callback
         self.QueueCommand(command)
 
     def ShowProjectSettings(self, show : bool = True):
         self._validate_datamodel()
-        if not show:
+        if self.datamodel and not show:
             self.datamodel.SaveProject()
 
         self.showProjectSettings.emit(show)
@@ -215,6 +225,9 @@ class ProjectActions(QObject):
         logging.debug(f"Translate selection of {str(selection)}")
 
         self.saveSettings.emit()
+
+        if not self.datamodel:
+            raise ActionError(_("No datamodel provided"))
 
         multithreaded = len(selection.scenes) > 1 and self.datamodel.allow_multithreaded_translation
 
@@ -276,11 +289,11 @@ class ProjectActions(QObject):
 
         self.ExecuteCommandNow(EditBatchCommand(scene_number, batch_number, update))
 
-    def UpdateLine(self, line_number : int, original_text : str, translated_text : str):
+    def UpdateLine(self, line_number : int, original_text : str|None, translated_text : str|None):
         """
         Update the user-updatable properties of a subtitle batch
         """
-        logging.debug(f"Updating line {line_number} with {original_text} > {translated_text}")
+        logging.debug(f"Updating line {line_number} with {original_text or "<empty>"} > {translated_text or "<empty>"}")
 
         self._validate_datamodel()
 

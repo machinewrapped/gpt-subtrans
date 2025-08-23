@@ -1,9 +1,9 @@
-from collections.abc import Callable
 import logging
 import os
 from datetime import datetime
 from typing import Any
 
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleFile import SubtitleFile
 
 separator = "".center(60, "-")
@@ -135,7 +135,7 @@ def RunTestOnAllSrtFiles(run_test, test_options: list[dict], directory_path: str
 
             for options in test_options:
                 logger.info("")
-                run_test(subtitles, logger, options)
+                run_test(subtitles, logger, SettingsType(options))
 
         except Exception as e:
             logger.error(f"Error processing {filepath}: {str(e)}")

@@ -22,8 +22,8 @@ from GUI.NewProjectSettings import NewProjectSettings
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.SettingsDialog import SettingsDialog
-from PySubtitle.Helpers.Settings import GetStrSetting
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import Options
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleError import ProviderConfigurationError, SubtitleError
 from PySubtitle.TranslationProvider import TranslationProvider
 from PySubtitle.VersionCheck import CheckIfUpdateAvailable, CheckIfUpdateCheckIsRequired
@@ -56,10 +56,10 @@ class GuiInterface(QObject):
 
         options.add('available_providers', sorted(TranslationProvider.get_providers()))
 
-        self.global_options = options
+        self.global_options : Options = options
 
         # Create the project data model
-        self.datamodel = ProjectDataModel(options=options)
+        self.datamodel : ProjectDataModel = ProjectDataModel(options=options)
 
         # Create the command queue
         self.command_queue = CommandQueue(mainwindow)
@@ -82,7 +82,7 @@ class GuiInterface(QObject):
         self.action_handler.exitProgram.connect(self._exit_program)
 
         if self.global_options.get('last_used_path'):
-            self.action_handler.last_used_path = self.global_options.get('last_used_path')
+            self.action_handler.last_used_path = self.global_options.get_str('last_used_path')
 
     def GetMainWindow(self) -> QMainWindow:
         """
@@ -156,7 +156,9 @@ class GuiInterface(QObject):
         """
         Update the global settings and project settings, and save if required
         """
-        updated_settings = {k: v for k, v in settings.items() if v != self.global_options.get(k)}
+        updated_settings : SettingsType = SettingsType({
+                k: v for k, v in settings.items() if v != self.global_options.get(k)
+            })
 
         if not updated_settings:
             return
@@ -173,7 +175,7 @@ class GuiInterface(QObject):
 
         # If UI language changed, reinitialize i18n and refresh visible UI
         if 'ui_language' in updated_settings:
-            ui_language : str = GetStrSetting(updated_settings, 'ui_language') or 'en'
+            ui_language : str = updated_settings.get_str('ui_language') or 'en'
             self.UpdateUiLanguage(ui_language)
 
         self.settingsChanged.emit(updated_settings)
@@ -366,7 +368,7 @@ class GuiInterface(QObject):
         """
         Update the last used path in the global options
         """
-        self.action_handler.last_used_path = self.global_options.get('last_used_path')
+        self.action_handler.last_used_path = self.global_options.get_str('last_used_path')
         self.global_options.add('last_used_path', os.path.dirname(filepath))
         self.global_options.SaveSettings()
 

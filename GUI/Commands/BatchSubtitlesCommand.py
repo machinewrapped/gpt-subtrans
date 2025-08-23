@@ -19,7 +19,7 @@ class BatchSubtitlesCommand(Command):
         super().__init__()
         self.project : SubtitleProject = project
         self.options : Options = options
-        self.preprocess_subtitles : bool = options.get('preprocess_subtitles', False)
+        self.preprocess_subtitles : bool = options.get_bool('preprocess_subtitles', False)
         self.can_undo = False
 
     def execute(self) -> bool:

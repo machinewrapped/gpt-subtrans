@@ -2,7 +2,7 @@ from typing import Any
 from openai.types.chat import ChatCompletion
 
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import SettingsType
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
 from PySubtitle.SubtitleError import TranslationError, TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
@@ -13,7 +13,7 @@ class ChatGPTClient(OpenAIClient):
     """
     Handles chat communication with OpenAI to request translations
     """
-    def __init__(self, settings : Options|SettingsType):
+    def __init__(self, settings : SettingsType):
         settings.update({
             'supports_conversation': True,
             'supports_system_messages': True

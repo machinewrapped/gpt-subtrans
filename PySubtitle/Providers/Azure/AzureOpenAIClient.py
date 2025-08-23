@@ -8,19 +8,18 @@ try:
 
     from PySubtitle.Helpers.Localization import _
     from PySubtitle.Helpers.Parse import ParseDelayFromHeader
-    from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.TranslationPrompt import TranslationPrompt
     from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
-    from PySubtitle.Options import Options, SettingsType
+    from PySubtitle.Options import SettingsType
 
     class AzureOpenAIClient(TranslationClient):
         """
         Handles communication with AzureOpenAI to request translations
         """
-        def __init__(self, settings : Options|SettingsType):
+        def __init__(self, settings : SettingsType):
             super().__init__(settings)
 
             if not hasattr(openai, "AzureOpenAI"):
@@ -48,23 +47,23 @@ try:
 
         @property
         def api_key(self) -> str|None:
-            return GetStrSetting(self.settings, 'api_key')
+            return self.settings.get_str( 'api_key')
 
         @property
         def api_base(self) -> str|None:
-            return GetStrSetting(self.settings, 'api_base')
+            return self.settings.get_str( 'api_base')
 
         @property
         def api_version(self) -> str|None:
-            return GetStrSetting(self.settings, 'api_version')
+            return self.settings.get_str( 'api_version')
 
         @property
         def deployment_name(self) -> str|None:
-            return GetStrSetting(self.settings, 'deployment_name')
+            return self.settings.get_str( 'deployment_name')
 
         @property
         def rate_limit(self) -> float|None:
-            return GetFloatSetting(self.settings, 'rate_limit')
+            return self.settings.get_float( 'rate_limit')
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """

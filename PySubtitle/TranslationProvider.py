@@ -2,8 +2,8 @@ import importlib
 import logging
 import pkgutil
 from typing import cast
-from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Options import Options, SettingsType
+from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
 
 class TranslationProvider:
@@ -39,7 +39,7 @@ class TranslationProvider:
         """
         The currently selected model for the provider
         """
-        name : str|None = GetStrSetting(self.settings, 'model')
+        name : str|None = self.settings.get_str( 'model')
         return name.strip() if name else None
 
     @property
@@ -73,19 +73,26 @@ class TranslationProvider:
         """
         raise NotImplementedError
 
+    def GetOptions(self) -> GuiSettingsType:
+        """
+        Returns the configurable options for the provider
+        """
+        raise NotImplementedError
+
     def ValidateSettings(self) -> bool:
         """
         Validate the settings for the provider
         """
         return True
 
-    def UpdateSettings(self, settings : SettingsType|Options):
+    def UpdateSettings(self, settings : SettingsType):
         """
         Update the settings for the provider
         """
         if isinstance(settings, Options):
-            settings.InitialiseProviderSettings(self.name, self.settings)
-            settings = settings.provider_settings.get(self.name, {})
+            options = cast(Options, settings)
+            options.InitialiseProviderSettings(self.name, self.settings)
+            settings = options.GetProviderSettings(self.name)
 
         # Update the settings
         for k, v in settings.items():
@@ -125,7 +132,7 @@ class TranslationProvider:
         if not options.provider:
             raise ValueError("No provider set")
 
-        provider_settings = options.current_provider_settings
+        provider_settings = options.current_provider_settings or SettingsType()
 
         translation_provider : TranslationProvider = cls.create_provider(options.provider, provider_settings)
         if not translation_provider:

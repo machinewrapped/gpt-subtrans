@@ -1,5 +1,5 @@
 import logging
-from PySide6.QtCore import QModelIndex, Qt, QPoint
+from PySide6.QtCore import QModelIndex, QPersistentModelIndex, Qt, QPoint
 from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QWidget
 
 from GUI.Widgets.Widgets import LineItemView
@@ -9,8 +9,8 @@ class SubtitleItemDelegate(QStyledItemDelegate):
         super().__init__(parent)
         self.render_flags = QWidget.RenderFlag.DrawWindowBackground | QWidget.RenderFlag.DrawChildren
 
-    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget:
-        return None
+    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex|QPersistentModelIndex) -> QWidget:
+        return QWidget(parent)  # Return an empty widget to avoid editing
 
     def paint(self, painter, option, index):
         if not index.isValid() or index.column() != 0:

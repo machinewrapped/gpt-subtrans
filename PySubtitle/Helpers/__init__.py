@@ -6,33 +6,6 @@ import regex
 from PySubtitle.Helpers.Localization import LocaleDisplayItem
 from PySubtitle.SubtitleError import SubtitleError
 
-def GetEnvBool(key : str, default : bool|None = False) -> bool|None:
-    """
-    Get a boolean value from an environment variable
-    """
-    var = os.getenv(key, default)
-    if var is not None:
-        return str(var).lower() in ('true', 'yes', '1')
-    return default
-
-def GetEnvFloat(name : str, default : float|None = None) -> float|None:
-    """
-    Get a float value from an environment variable
-    """
-    value = os.getenv(name, default)
-    if value is not None:
-        return float(value)
-    return default
-
-def GetEnvInteger(name : str, default : int|None = None) -> int|None:
-    """
-    Get an integer value from an environment variable
-    """
-    value = os.getenv(name, default)
-    if value is not None:
-        return int(value)
-    return default
-
 def GetValueName(value : Any) -> str:
     """
     Get the name of an object if it has one, or a string representation of the object.

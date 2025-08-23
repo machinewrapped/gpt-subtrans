@@ -1,3 +1,6 @@
+from PySubtitle.SettingsType import SettingsType
+
+
 _movie = "Chinese Dinner (2001)"
 _description = "Hoshino is the owner of a Chinese restaurant. One evening he’s sitting down in a private room to enjoy an elaborate dinner. He is in the mood for celebrating when a surprise visitor arrives. The longest meal of Hoshino’s life has just begun."
 _names = [
@@ -542,7 +545,7 @@ response_S4B1 = """
 #62\nOriginal>\n本物の中華でもこうなのか.\nTranslation>\nIs this how authentic Chinese food is?\n\n#63\nOriginal>\n何が料理の順番だよ.\nTranslation>\nWhat's with the order of the dishes?\n\n#64\nOriginal>\nこれは俺の趣味だ.\nTranslation>\nThis is my preference.\n\n<summary>Discussion about the authenticity of Chinese food and personal preferences in cooking.</summary>\n<scene>Characters are discussing the authenticity of Chinese food and personal preferences in cooking.</scene>
 """
 
-chinese_dinner_data = {
+chinese_dinner_data = SettingsType({
     'movie_name': _movie,
     'description': _description,
     'names': _names,
@@ -556,4 +559,4 @@ chinese_dinner_data = {
         "Translate scene 3 batch 1": response_S3B1,
         "Translate scene 4 batch 1": response_S4B1
     }
-}
+})

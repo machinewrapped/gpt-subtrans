@@ -100,16 +100,24 @@ class StartTranslationCommandTests(SubtitleTestCase):
         log_test_name("StartTranslation tests")
 
         for case in test_cases:
-            data = deepcopy(case.get('data'))
+            data : dict = deepcopy(case.get('data') or {})
             log_test_name(f"Testing StartTranslation of {data.get('movie_name')}")
 
             datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options, translated=False)
+            if not datamodel or not datamodel.project:
+                self.fail("Failed to create test datamodel")
+                return
+
             subtitles : SubtitleFile = datamodel.project.subtitles
 
-            commands = case.get('commands')
+            commands : list = case.get('commands') or []
 
             for command_data in commands:
-                command = self._create_command(command_data, datamodel)
+                command : Command|None = self._create_command(command_data, datamodel)
+                if not command:
+                    self.fail(f"Failed to create command {command_data.get('command')}")
+                    return
+
                 self.assertTrue(command.execute())
 
                 queued_commands = self._flatten_queued_commands(command)
@@ -133,7 +141,7 @@ class StartTranslationCommandTests(SubtitleTestCase):
                         self._validate_translated_batches(subtitles, command_data)
                         self._validate_untranslated_batches(subtitles, command_data)
 
-    def _create_command(self, command_data, datamodel : ProjectDataModel):
+    def _create_command(self, command_data, datamodel : ProjectDataModel) -> Command|None:
         command_name = command_data.get('command')
         options = command_data.get('options')
         datamodel.UpdateProjectSettings({

@@ -111,6 +111,9 @@ class TestSubtitles(unittest.TestCase):
         for source, first_part in self.split_point_cases:
             with self.subTest(source=source):
                 line = SubtitleLine(source)
+                if not line or not line.text:
+                    self.fail("Could not parse subtitle line")
+
                 break_point = FindSplitPoint(line, split_patterns, min_duration, min_split_chars)
                 result = line.text[:break_point].strip()
                 log_input_expected_result(line, first_part, result)

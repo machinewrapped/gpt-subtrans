@@ -31,7 +31,7 @@ class AutoSplitBatchCommand(Command):
         if not scene or not scene.GetBatch(self.batch_number):
             raise CommandError(f"Cannot find scene {self.scene_number} batch {self.batch_number}", command=self)
 
-        min_batch_size = self.datamodel.project_options.get('min_batch_size', 1)
+        min_batch_size = self.datamodel.project_options.get_int('min_batch_size') or 1
         scene.AutoSplitBatch(self.batch_number, min_batch_size)
 
         new_batch_number = self.batch_number + 1
@@ -58,9 +58,11 @@ class AutoSplitBatchCommand(Command):
              model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
 
         model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.error_messages })
-        model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+        new_batch = scene.GetBatch(new_batch_number)
+        if new_batch:
+            model_update.batches.add((self.scene_number, new_batch_number), new_batch)
+            self.split_line = new_batch.first_line_number
 
-        self.split_line = new_batch.first_line_number
         return True
 
     def undo(self) -> bool:

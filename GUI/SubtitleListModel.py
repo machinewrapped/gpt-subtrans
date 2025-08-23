@@ -1,5 +1,5 @@
 import logging
-from PySide6.QtCore import QAbstractProxyModel, QModelIndex, Qt
+from PySide6.QtCore import QAbstractProxyModel, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtWidgets import QWidget
 
 from GUI.ViewModel.SceneItem import SceneItem
@@ -11,7 +11,7 @@ from GUI.ViewModel.ViewModelItem import ViewModelItem
 from GUI.Widgets.Widgets import LineItemView
 
 class SubtitleListModel(QAbstractProxyModel):
-    def __init__(self, viewmodel : ProjectViewModel = None, parent : QWidget = None):
+    def __init__(self, viewmodel : ProjectViewModel, parent : QWidget|None = None):
         super().__init__(parent)
         self.viewmodel : ProjectViewModel = viewmodel
         self.selected_batch_numbers = []
@@ -21,8 +21,8 @@ class SubtitleListModel(QAbstractProxyModel):
 
         # Connect signals to update mapping when source model changes
         if self.viewmodel:
-            self.setSourceModel(viewmodel)
-            viewmodel.layoutChanged.connect(self._update_visible_batches)
+            self.setSourceModel(self.viewmodel)
+            self.viewmodel.layoutChanged.connect(self._update_visible_batches)
 
     def ShowSelection(self, selection : ProjectSelection):
         if selection.selected_batches:
@@ -42,10 +42,14 @@ class SubtitleListModel(QAbstractProxyModel):
         root_item = viewmodel.getRootItem()
 
         for scene_index in range(0, root_item.rowCount()):
-            scene_item : SceneItem = root_item.child(scene_index, 0)
+            scene_item = root_item.child(scene_index, 0)
+            if not isinstance(scene_item, SceneItem):
+                continue
 
             for batch_index in range (0, scene_item.rowCount()):
-                batch_item : BatchItem = scene_item.child(batch_index, 0)
+                batch_item = scene_item.child(batch_index, 0)
+                if not isinstance(batch_item, BatchItem):
+                    continue
 
                 if not batch_item or not isinstance(batch_item, BatchItem):
                     logging.error(f"Scene Item {scene_index} has invalid child {batch_index}: {type(batch_item).__name__}")
@@ -60,8 +64,10 @@ class SubtitleListModel(QAbstractProxyModel):
         self.visible_row_map = { item[2] : row for row, item in enumerate(self.visible) }
         self.layoutChanged.emit()
 
-    def mapFromSource(self, source_index : QModelIndex):
-        item : ViewModelItem = self.viewmodel.itemFromIndex(source_index)
+    def mapFromSource(self, source_index : QModelIndex|QPersistentModelIndex):
+        item = self.viewmodel.itemFromIndex(source_index)
+        if not isinstance(item, ViewModelItem):
+            return QModelIndex()
 
         if isinstance(item, LineItem):
             row = self.visible_row_map.get(item.number, None)
@@ -70,7 +76,7 @@ class SubtitleListModel(QAbstractProxyModel):
 
         return QModelIndex()
 
-    def mapToSource(self, index : QModelIndex):
+    def mapToSource(self, index : QModelIndex|QPersistentModelIndex):
         """
         Map an index into the proxy model to the source model
         """
@@ -86,21 +92,20 @@ class SubtitleListModel(QAbstractProxyModel):
         _, _, line = key
 
         item = self.viewmodel.GetLineItem(line)
+        if item is None:
+            return QModelIndex()
         return self.viewmodel.indexFromItem(item)
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent : QModelIndex|QPersistentModelIndex = QModelIndex()):
         if parent.isValid():
             return 0    # Only top-level items in this model
 
         return len(self.visible)
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent : QModelIndex|QPersistentModelIndex = QModelIndex()):
         return 1
 
-    def parent(self, index):
-        return QModelIndex()  # All items are top-level in the proxy model
-
-    def index(self, row, column, parent=QModelIndex()):
+    def index(self, row, column, parent : QModelIndex|QPersistentModelIndex = QModelIndex()):
         """
         Create a model index for the given model row
         """
@@ -129,7 +134,7 @@ class SubtitleListModel(QAbstractProxyModel):
 
         return self.createIndex(row, column, line)
 
-    def data(self, index, role):
+    def data(self, index, role : int = Qt.ItemDataRole.DisplayRole):
         """
         Fetch the data for an index in the proxy model from the source model
         """
@@ -151,15 +156,14 @@ class SubtitleListModel(QAbstractProxyModel):
             return LineItemView(item)
 
         if role == Qt.ItemDataRole.SizeHintRole:
-            if not item.height:
+            if isinstance(item, LineItem) and item.height:
+                if item.height in self.size_map:
+                    return self.size_map[item.height]
+                size = LineItemView(item).sizeHint()
+                self.size_map[item.height] = size
+                return size
+            else:
                 return LineItemView(item).sizeHint()
-
-            if item.height in self.size_map:
-                return self.size_map[item.height]
-
-            size = LineItemView(item).sizeHint()
-            self.size_map[item.height] = size
-            return size
 
         return None
 

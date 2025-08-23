@@ -101,17 +101,17 @@ class LineItem(QStandardItem):
         return text
 
     @property
-    def translation(self) -> str:
-        translation = self.line_model.get('translation', None)
-        if translation is None or not isinstance(translation, str):
-            return blank_line
-        return translation
-
-    @property
-    def translation_text(self) -> str|None:
+    def translation(self) -> str|None:
         translation = self.line_model.get('translation', None)
         if translation is None or not isinstance(translation, str):
             return None
+        return translation
+
+    @property
+    def translation_text(self) -> str:
+        translation = self.line_model.get('translation', None)
+        if translation is None or not isinstance(translation, str):
+            return blank_line
         return translation
 
     @property

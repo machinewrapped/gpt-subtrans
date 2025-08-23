@@ -1,9 +1,10 @@
 from __future__ import annotations
+from collections.abc import Mapping, MutableMapping
 from copy import deepcopy
 import json
 import logging
 import os
-from typing import Any, TypeAlias
+from typing import Any
 import dotenv
 
 from PySubtitle.Helpers.Version import VersionNumberLessThan
@@ -11,16 +12,13 @@ from PySubtitle.Instructions import Instructions, LoadInstructions, default_user
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Resources import config_dir, old_config_dir
 from PySubtitle.Helpers.Text import standard_filler_words
+from PySubtitle.ProviderSettingsView import ProviderSettingsView
+from PySubtitle.SettingsType import SettingType, SettingsType
 from PySubtitle.version import __version__
 
 MULTILINE_OPTION = 'multiline'
 
 settings_path = os.path.join(config_dir, 'settings.json')
-
-BasicType: TypeAlias = str | int | float | bool | list[str] | None
-OptionType: TypeAlias = BasicType | dict[str, 'OptionType']
-SettingsType: TypeAlias = dict[str, OptionType]
-GuiOptionsType: TypeAlias = dict[str, tuple[type|str|list[str], str]]
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -41,10 +39,10 @@ def env_str(key : str, default : str|None = None) -> str|None:
     value = os.getenv(key, default)
     return str(value) if value is not None else None
 
-default_options : SettingsType = {
+default_settings : dict[str, SettingType] = {
     'version': __version__,
     'provider': env_str('PROVIDER', None),
-    'provider_settings': {},
+    'provider_settings': SettingsType({}),
     'prompt': env_str('PROMPT', default_user_prompt),
     'instruction_file': env_str('INSTRUCTION_FILE', "instructions.txt"),
     'target_language': env_str('TARGET_LANGUAGE', 'English'),
@@ -94,78 +92,61 @@ default_options : SettingsType = {
 def serialize(value : Any) -> Any:
     return value.serialize() if hasattr(value, 'serialize') else value
 
-class Options:
-    def __init__(self, options : SettingsType|Options|None = None, **kwargs : Any):
+class Options(SettingsType):
+    def __init__(self, settings : SettingsType|Mapping[str, SettingType]|None = None, **kwargs : SettingType):
         """ Initialise the Options object with default options and any provided options. """
-        self.options : SettingsType = deepcopy(default_options)
+        super().__init__()
+        self.update(deepcopy(default_settings))
 
-        if isinstance(options, Options):
-            options = options.options
+        # Convert plain dict to SettingsType for type safety
+        settings = SettingsType(settings)
 
-        if options:
+        if settings:
             # Remove None values from options and merge with defaults
-            options = {k: deepcopy(v) for k, v in options.items() if v is not None}
-            self.options = {**self.options, **options}
+            filtered_settings = {k: deepcopy(v) for k, v in settings.items() if v is not None}
+            self.update(filtered_settings)
 
         # Apply any explicit parameters
-        self.options.update(kwargs)
+        self.update(kwargs)
 
-    def get(self, option : str, default : Any = None) -> Any:
-        return self.options.get(option, default)
-
-    def add(self, option : str, value : Any) -> None:
-        self.options[option] = value
-
-    def set(self, option : str, value : Any) -> None:
-        self.options[option] = value
-
-    def update(self, options : Options|SettingsType) -> None:
-        if isinstance(options, Options):
-            return self.update(options.options)
-
-        options = {k: v for k, v in options.items() if v is not None}
-        self.options.update(options)
-
-    def items(self) -> list[tuple[str,OptionType]]:
-        return list(self.options.items())
+    # items() inherits from dict - no need to override
 
     @property
     def theme(self) -> str:
-        return self.get('theme')
+        return self.get_str('theme') or ''
     
     @property
     def ui_language(self) -> str:
-        return self.get('ui_language', 'en')
+        return self.get_str('ui_language') or 'en'
 
     @property
     def version(self) -> str:
-        return self.get('version')
+        return self.get_str('version') or ''
 
     @property
     def provider(self) -> str:
         """ the name of the translation provider """
-        return self.get('provider')
+        return self.get_str('provider') or ''
 
     @provider.setter
     def provider(self, value: str):
-        self.options['provider'] = value
+        self['provider'] = value
 
     @property
-    def provider_settings(self) -> dict[str, SettingsType]:
-        """ settings sections for each provider """
-        return self.get('provider_settings', {})
+    def provider_settings(self) -> MutableMapping[str, SettingsType]:
+        """ Type-safe mutable view of provider settings """
+        return ProviderSettingsView(self, 'provider_settings')
 
     @property
     def current_provider_settings(self) -> SettingsType|None:
-        if not self.provider:
+        if not self.provider or not self.provider in self.provider_settings:
             return None
 
-        provider_settings = self.provider_settings.get(self.provider, {})
-        return provider_settings if isinstance(provider_settings, dict) else {}
+        return self.provider_settings.get(self.provider)
 
     @property
     def available_providers(self) -> list[str]:
-        return self.get('available_providers', [])
+        return self.get_list('available_providers', [])
 
     @property
     def model(self) -> str|None:
@@ -180,24 +161,31 @@ class Options:
 
     @property
     def target_language(self) -> str:
-        return self.get('target_language', default_options['target_language'])
+        return self.get_str('target_language') or str(default_settings['target_language'])
+
+    def GetProviderSettings(self, provider : str) -> SettingsType:
+        """ Get the settings for a specific provider """
+        if not provider:
+            return SettingsType()
+
+        return self.provider_settings.get(provider, SettingsType())
 
     def GetInstructions(self) -> Instructions:
         """ Construct an Instructions object from the settings """
-        return Instructions(self.options)
+        return Instructions(dict(self))
 
     def GetSettings(self) -> SettingsType:
         """
         Get a copy of the settings dictionary with only the default keys included
         """
-        settings = { key: deepcopy(self.get(key)) for key in self.options.keys() & default_options.keys() }
+        settings = SettingsType({ key: deepcopy(super().get(key)) for key in self.keys() & default_settings.keys() })
         return settings
 
     def LoadSettings(self) -> bool:
         """
         Load the settings from a JSON file
         """
-        if not os.path.exists(settings_path) or self.get('firstrun'):
+        if not os.path.exists(settings_path) or self.get_bool('firstrun'):
             return False
 
         try:
@@ -207,13 +195,13 @@ class Options:
             if not settings:
                 return False
 
-            if not self.options:
-                self.options = deepcopy(default_options)
+            if not self:
+                self.update(deepcopy(default_settings))
 
-            self.options.update(settings)
+            self.update(settings)
 
             saved_version : str = str(settings.get('version'))
-            current_version : str = str(default_options['version'])
+            current_version : str = str(default_settings['version'])
             if VersionNumberLessThan(saved_version, current_version):
                 self._update_version()
 
@@ -234,12 +222,12 @@ class Options:
             if not settings:
                 return False
 
-            save_dict = { key : value for key, value in settings.items() if value != default_options.get(key) }
+            save_dict = { key : value for key, value in settings.items() if value != default_settings.get(key) }
 
             if save_dict:
                 os.makedirs(config_dir, exist_ok=True)
 
-                save_dict['version'] = str(default_options['version'])
+                save_dict['version'] = str(default_settings['version'])
 
                 with open(settings_path, "w", encoding="utf-8") as settings_file:
                     json.dump(save_dict, settings_file, ensure_ascii=False, indent=4, sort_keys=True, default=serialize)
@@ -289,13 +277,13 @@ class Options:
         """
         Generate the user prompt to use for requesting translations
         """
-        target_language = self.get('target_language')
-        movie_name = self.get('movie_name')
-        prompt : str = self.get('prompt', default_user_prompt)
+        target_language = self.get_str('target_language') or ''
+        movie_name = self.get_str('movie_name') or ''
+        prompt = self.get_str('prompt') or default_user_prompt
         prompt = prompt.replace('[ to language]', f" to {target_language}" if target_language else "")
         prompt = prompt.replace('[ for movie]', f" for {movie_name}" if movie_name else "")
 
-        for k,v in self.options.items():
+        for k,v in self.items():
             if v:
                 prompt = prompt.replace(f"[{k}]", str(v))
 
@@ -305,13 +293,13 @@ class Options:
         """
         Load options from instructions file if specified
         """
-        instruction_file : str|None = self.get('instruction_file')
+        instruction_file = self.get_str('instruction_file') or ''
         if instruction_file:
             try:
                 instructions = LoadInstructions(instruction_file)
-                self.options['prompt'] = instructions.prompt
-                self.options['instructions'] = instructions.instructions
-                self.options['retry_instructions'] = instructions.retry_instructions
+                self['prompt'] = instructions.prompt
+                self['instructions'] = instructions.instructions
+                self['retry_instructions'] = instructions.retry_instructions
 
             except Exception as e:
                 logging.error(_("Unable to load instructions from {}: {}").format(instruction_file, e))
@@ -321,7 +309,7 @@ class Options:
         Create or update the settings for a provider
         """
         if provider not in self.provider_settings:
-            self.provider_settings[provider] = deepcopy(settings)
+            self.provider_settings[provider] = SettingsType(deepcopy(settings))
 
         self.MoveSettingsToProvider(provider, list(settings.keys()))
 
@@ -330,35 +318,28 @@ class Options:
         Move settings from the main options to a provider's settings
         """
         if provider not in self.provider_settings:
-            self.provider_settings[provider] = {}
+            self.provider_settings[provider] = SettingsType()
 
-        settings_to_move : SettingsType = {key: self.options.pop(key) for key in keys if key in self.options}
+        settings_to_move : dict[str, SettingType] = {key: self.pop(key) for key in keys if key in self}
         if settings_to_move:
-            provider_settings = self.provider_settings[provider]
-            if not isinstance(provider_settings, dict):
-                raise Exception(f"Provider settings for {provider} is not a dictionary: {provider_settings}")
-
+            provider_settings = self.GetProviderSettings(provider)
+            # provider_settings is always SettingsType, so we can update it directly
             provider_settings.update(settings_to_move)
 
     def _update_version(self):
         """
         Update settings from older versions of the application
         """
-        if 'gpt_model' in self.options:
-            self.options['model'] = self.options['gpt_model']
-            del self.options['gpt_model']
+        if 'gpt_model' in self:
+            self['model'] = self['gpt_model']
+            del self['gpt_model']
 
         if not self.provider_settings:
-            self.options['provider_settings'] = {'OpenAI': {}} if self.options.get('api_key') else {}
+            self['provider_settings'] = {'OpenAI': {}} if self.get_str('api_key') else {}
             self.MoveSettingsToProvider('OpenAI', ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens', 'temperature', 'rate_limit'])
 
-        previous_version : str = str(self.options.get('version', 'v0.0.0'))
-        latest_version  : str = str(default_options['version'])
+        latest_version  : str = str(default_settings['version'])
 
-        # Move settings from Local Server to Custom Server
-        if 'Local Server' in self.provider_settings and VersionNumberLessThan(previous_version, "v1.0.7"):
-            self.provider_settings['Custom Server'] = self.provider_settings['Local Server']
-            del self.provider_settings['Local Server']
+        self['version'] = latest_version
 
-        self.options['version'] = latest_version
 

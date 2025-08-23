@@ -4,14 +4,13 @@ from typing import Any
 
 from anthropic import NotGiven
 
-from PySubtitle.Options import Options, SettingsType
+from PySubtitle.Options import SettingsType
 
 try:
     import anthropic
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Helpers.Localization import _
-    from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting, GetBoolSetting
     from PySubtitle.SubtitleError import TranslationError, TranslationResponseError, TranslationImpossibleError
     from PySubtitle.TranslationClient import TranslationClient
     from PySubtitle.Translation import Translation
@@ -23,7 +22,7 @@ try:
         """
         Handles communication with Claude via the anthropic SDK
         """
-        def __init__(self, settings : Options|SettingsType):
+        def __init__(self, settings : SettingsType):
             super().__init__(settings)
 
             logging.info(_("Translating with Anthropic {model}").format(
@@ -32,26 +31,26 @@ try:
 
         @property
         def api_key(self) -> str|None:
-            return GetStrSetting(self.settings, 'api_key')
+            return self.settings.get_str( 'api_key')
 
         @property
         def model(self) -> str|None:
-            return GetStrSetting(self.settings, 'model')
+            return self.settings.get_str( 'model')
 
         @property
         def max_tokens(self) -> int:
-            return GetIntSetting(self.settings, 'max_tokens') or 0
+            return self.settings.get_int( 'max_tokens') or 0
         
         @property
         def allow_thinking(self) -> bool:
-            return GetBoolSetting(self.settings, 'thinking', False)
+            return self.settings.get_bool( 'thinking', False)
         
         @property
         def thinking(self) -> dict|NotGiven:
             if self.allow_thinking:
                 return {
                     'type' : 'enabled',
-                    'budget_tokens' : GetIntSetting(self.settings, 'max_thinking_tokens', 1024)
+                    'budget_tokens' : self.settings.get_int( 'max_thinking_tokens', 1024)
                 }
             
             return anthropic.NOT_GIVEN
@@ -64,7 +63,7 @@ try:
                 self.client = anthropic.Anthropic(api_key=self.api_key)
 
                 # Try to add proxy settings if specified
-                proxy = GetStrSetting(self.settings, 'proxy')
+                proxy = self.settings.get_str( 'proxy')
                 if proxy:
                     http_client = anthropic.DefaultHttpxClient(
                         proxy = proxy

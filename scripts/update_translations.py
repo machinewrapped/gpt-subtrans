@@ -222,7 +222,6 @@ def ensure_header_fields(po_path: str, lang: str) -> bool:
             # Update existing Plural-Forms if different
             for idx, l in enumerate(header_lines):
                 if l.strip().startswith('"Plural-Forms:'):
-                    current = l.strip()[len('"Plural-Forms:'):].strip().strip('"')
                     desired_line = f'"Plural-Forms: {desired_plural}\\n"\n'
                     if l != desired_line:
                         header_lines[idx] = desired_line
@@ -683,8 +682,6 @@ def _update_po_with_translations(po_path: str, translations: dict[str,str]) -> i
 
         if stripped.startswith('msgid '):
             # capture full msgid possibly spanning quoted lines
-            indent_len = len(line) - len(stripped)
-            indent = line[:indent_len]
             first_content = _extract_quoted(stripped) if '"' in stripped else ''
             j = i + 1
             parts = [first_content]

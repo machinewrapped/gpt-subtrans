@@ -1,9 +1,8 @@
 from typing import Any
-from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Providers.OpenAI.OpenAIClient import OpenAIClient
-from PySubtitle.SubtitleError import TranslationResponseError
+from PySubtitle.SettingsType import SettingsType
+from PySubtitle.SubtitleError import TranslationError, TranslationResponseError
 from PySubtitle.TranslationPrompt import TranslationPrompt
 
 linesep = '\n'
@@ -12,7 +11,7 @@ class OpenAIReasoningClient(OpenAIClient):
     """
     Handles chat communication with OpenAI to request translations using the Responses API
     """
-    def __init__(self, settings: dict):
+    def __init__(self, settings: SettingsType):
         settings.update({
             'supports_system_messages': True,
             'supports_conversation': True,
@@ -24,17 +23,26 @@ class OpenAIReasoningClient(OpenAIClient):
 
     @property
     def reasoning_effort(self) -> str:
-        return GetStrSetting(self.settings, 'reasoning_effort', "low")
+        return self.settings.get_str( 'reasoning_effort') or "low"
     
     def _send_messages(self, prompt: TranslationPrompt, temperature: float|None) -> dict[str, Any] | None:
         """
         Make a request to OpenAI Responses API for translation
         """
+        if not self.client:
+            raise TranslationError(_("Client is not initialized"))
+
+        if not self.model:
+            raise TranslationError(_("No model specified"))
+
+        if not prompt.content or not isinstance(prompt.content, list):
+            raise TranslationError(_("No content provided for translation"))
+
         result = self.client.responses.create(
             model=self.model,
-            input=prompt.content,
+            input=prompt.content, # type: ignore[arg-type]
             instructions=prompt.system_prompt,
-            reasoning={"effort": self.reasoning_effort}
+            reasoning={"effort": self.reasoning_effort}  # type: ignore[arg-type]
         )
         
         if self.aborted:
@@ -62,7 +70,7 @@ class OpenAIReasoningClient(OpenAIClient):
         if hasattr(result, 'output_text') and result.output_text:
             return result.output_text, None
 
-        raise TranslationResponseError(_("No text content found in response"))
+        raise TranslationResponseError(_("No text content found in response"), response=result)
 
     def _parse_structured_output(self, output_blocks):
         """Parse structured output blocks"""

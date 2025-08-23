@@ -26,6 +26,9 @@ def analyze_scenes(scenes):
     return num_scenes, num_batches_list, largest_batch_list, smallest_batch_list, average_batch_size_list
 
 def batcher_test(subtitles: SubtitleFile, logger, options):
+    if not subtitles.originals:
+        raise Exception("No original subtitles to batch")
+
     try:
         batcher = SubtitleBatcher(options)
         scenes = batcher.BatchSubtitles(subtitles.originals)
@@ -61,4 +64,4 @@ def run_tests(directory_path, results_path):
 if __name__ == "__main__":
     directory_path = os.path.join(os.getcwd(), "test_subtitles")
     results_path = os.path.join(directory_path, "test_results")
-    run_tests(directory_path)
+    run_tests(directory_path, results_path)
