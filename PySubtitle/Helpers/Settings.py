@@ -263,7 +263,7 @@ def get_optional_setting(settings: SettingsType|Mapping[str, SettingType]|Option
         SettingsError: If the setting is present but cannot be converted to the expected type
     """
     if isinstance(settings, Options):
-        settings = dict(settings)
+        settings = SettingsType(settings)
 
     if key not in settings:
         return None
