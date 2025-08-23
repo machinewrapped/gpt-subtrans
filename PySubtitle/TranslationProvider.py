@@ -132,7 +132,7 @@ class TranslationProvider:
         if not options.provider:
             raise ValueError("No provider set")
 
-        provider_settings = options.current_provider_settings
+        provider_settings = options.current_provider_settings or SettingsType()
 
         translation_provider : TranslationProvider = cls.create_provider(options.provider, provider_settings)
         if not translation_provider:
