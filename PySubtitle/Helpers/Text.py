@@ -304,12 +304,12 @@ def ContainsTags(text : str) -> bool:
     """
     return regex.search(r"<[^>]+>", text) is not None
 
-def ExtractTag(tagname : str, text : str):
+def ExtractTag(tagname : str, text : str) -> tuple[str, str|None]:
     """
     Look for an xml-like tag in the input text, and extract the contents.
     """
-    if not text or not tagname:
-        return None, None
+    if not tagname:
+        return text, None
 
     open_tag = f"<{tagname}>"
     close_tag = f"</{tagname}>"

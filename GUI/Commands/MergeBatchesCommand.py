@@ -43,14 +43,15 @@ class MergeBatchesCommand(Command):
             project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
             merged_batch = scene.GetBatch(merged_batch_number)
-            if merged_batch and merged_batch.any_translated:
-                validator = SubtitleValidator(self.datamodel.project_options)
-                validator.ValidateBatch(merged_batch)
+            if merged_batch:
+                if merged_batch.any_translated:
+                    validator = SubtitleValidator(self.datamodel.project_options)
+                    validator.ValidateBatch(merged_batch)
 
-            model_update : ModelUpdate =  self.AddModelUpdate()
-            model_update.batches.replace((scene.number, merged_batch_number), merged_batch)
-            for batch_number in self.batch_numbers[1:]:
-                model_update.batches.remove((scene.number, batch_number))
+                model_update : ModelUpdate =  self.AddModelUpdate()
+                model_update.batches.replace((scene.number, merged_batch_number), merged_batch)
+                for batch_number in self.batch_numbers[1:]:
+                    model_update.batches.remove((scene.number, batch_number))
 
         return True
 

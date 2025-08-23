@@ -1,12 +1,13 @@
 from typing import Any
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Providers.Custom.CustomClient import CustomClient
+from PySubtitle.SettingsType import SettingsType
 
 class OpenRouterClient(CustomClient):
     """
     Handles chat communication with OpenRouter to request translations
     """
-    def __init__(self, settings: dict[str, Any]):
+    def __init__(self, settings: SettingsType):
         settings.setdefault('supports_system_messages', True)
         settings.setdefault('supports_conversation', True)
         settings.setdefault('server_address', 'https://openrouter.ai/api/')

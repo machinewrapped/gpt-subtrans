@@ -12,7 +12,7 @@ def GetResourcePath(relative_path : str, *parts : str) -> str:
     """
     if hasattr(sys, "_MEIPASS"):
         # Running in a PyInstaller bundle
-        return os.path.join(sys._MEIPASS, relative_path, *parts)
+        return os.path.join(sys._MEIPASS, relative_path, *parts) # type: ignore
 
     return os.path.join(os.path.abspath("."), relative_path or "", *parts)
 

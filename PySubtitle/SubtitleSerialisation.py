@@ -1,6 +1,7 @@
 import json
 from datetime import timedelta
 
+from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleLine import SubtitleLine
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleError import TranslationError
@@ -117,7 +118,7 @@ def _object_hook(dct):
             obj = SubtitleFile(sourcepath, outpath)
             obj.settings = dct.get('settings', {}) or dct.get('context', {})
             obj.scenes = dct.get('scenes', [])
-            obj.UpdateProjectSettings({}) # Force update for legacy files
+            obj.UpdateProjectSettings(SettingsType()) # Force update for legacy files
             return obj
         elif class_name == classname(SubtitleScene):
             obj = SubtitleScene(dct)

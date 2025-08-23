@@ -13,12 +13,13 @@ from PySubtitle.TranslationProvider import TranslationProvider
 
 @dataclass
 class LoggerOptions():
-    file_handler: logging.FileHandler
+    file_handler: logging.FileHandler|None
     log_path: str
 
 def InitLogger(logfilename: str, debug: bool = False) -> LoggerOptions:
     """ Initialise the logger with a file handler and return the path to the log file """
     log_path = os.path.join(config_dir, f"{logfilename}.log")
+    file_handler = None
 
     if debug:
         logging_level = logging.DEBUG

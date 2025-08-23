@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, TypeAlias
+from typing import TypeAlias
 
 from PySubtitle.SubtitleBatch import SubtitleBatch
 from PySubtitle.SubtitleLine import SubtitleLine
