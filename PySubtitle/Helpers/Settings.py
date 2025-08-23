@@ -221,45 +221,6 @@ def GetStringListSetting(settings: SettingsType|Mapping[str, SettingType]|Option
 
     return [ str(item).strip() for item in value if item is not None ]
 
-@overload
-def GetDictSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> dict[str, SettingType]: ...
-
-@overload
-def GetDictSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: dict[str, SettingType]|None) -> dict[str, SettingType]: ...
-
-def GetDictSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: dict[str, SettingType]|None = None) -> dict[str, SettingType]:
-    """
-    Safely retrieve a dictionary setting from a settings dictionary.
-    
-    Args:
-        settings: The settings dictionary
-        key: The setting key
-        default: Default value if key is not present
-        
-    Returns:
-        Dictionary value of the setting
-        
-    Raises:
-        SettingsError: If the setting cannot be converted to dict
-    """
-    value = settings.get(key, default)
-    if value is None:
-        return {}
-    
-    if isinstance(value, dict):
-        return { k: v for k, v in value.items() }
-    elif isinstance(value, str):
-        # Try to parse string as lines of key=value pairs separated by double colons
-        lines = [ line.strip() for line in regex.split(r'[\n,]', value) if line.strip() ]
-        result = {}
-        for line in lines:
-            if "::" in line:
-                k, v = line.split("::", 1)
-                result[k.strip()] = v.strip()
-        return result
-
-    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to dict")
-
 def GetTimeDeltaSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str, default: timedelta = timedelta(seconds=0)) -> timedelta:
     """
     Safely retrieve a timedelta setting from a settings dictionary.
