@@ -111,6 +111,8 @@ class SceneItem(ViewModelItem):
         end = None
         for i in range(0, self.rowCount()):
             batch_item = self.child(i, 0)
+            if not isinstance(batch_item, BatchItem):
+                continue
             if i == 0:
                 start = batch_item.start
             end = batch_item.end
@@ -125,6 +127,8 @@ class SceneItem(ViewModelItem):
         batch_items = {}
         for i in range(0, self.rowCount()):
             batch_item = self.child(i, 0)
+            if not isinstance(batch_item, BatchItem):
+                continue
             batch_item.number = i + 1
             batch_items[batch_item.number] = batch_item
 

@@ -31,7 +31,10 @@ class SubtitleView(QListView):
         self.ShowSelection(ProjectSelection())
 
     def ShowSelection(self, selection : ProjectSelection):
-        self.model().ShowSelection(selection)
+        model = self.model()
+        if model and isinstance(model, SubtitleListModel):
+            model.ShowSelection(selection)
+            return
 
     def GetSelectedLines(self):
         model = self.model()
@@ -67,7 +70,7 @@ class SubtitleView(QListView):
 
             for index in self.selectedIndexes():
                 if index not in selected_indexes:
-                    selection_model.select(index, QItemSelectionModel.Deselect)
+                    selection_model.select(index, QItemSelectionModel.SelectionFlag.Deselect)
 
         # Update the viewport to refresh the list view
         self.viewport().update()
