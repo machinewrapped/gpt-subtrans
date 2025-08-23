@@ -69,3 +69,22 @@ class SettingsType(dict[str, SettingType]):
             return settings_type
         else:
             raise TypeError(f"Expected dict for key '{key}', got {type(value).__name__}")
+
+    def add(self, setting: str, value: Any) -> None:
+        """Add a setting to the settings dictionary"""
+        self[setting] = value
+
+    def set(self, setting: str, value: Any) -> None:
+        """Set a setting in the settings dictionary"""
+        self[setting] = value
+
+    def update(self, other=(), /, **kwds) -> None:
+        """Update settings, filtering out None values"""
+        # Match dict.update signature: update([other,] **kwds)
+        if hasattr(other, 'items'):
+            if isinstance(other, SettingsType):
+                other = dict(other)
+            # Filter None values for our settings
+            if isinstance(other, dict):
+                other = {k: v for k, v in other.items() if v is not None}
+        super().update(other, **kwds)

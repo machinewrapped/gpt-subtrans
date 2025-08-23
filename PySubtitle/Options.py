@@ -109,22 +109,6 @@ class Options(SettingsType):
         # Apply any explicit parameters
         self.update(kwargs)
 
-    def add(self, setting : str, value : Any) -> None:
-        self[setting] = value
-
-    def set(self, setting : str, value : Any) -> None:
-        self[setting] = value
-
-    def update(self, other=(), /, **kwds) -> None:
-        # Match dict.update signature: update([other,] **kwds)
-        if hasattr(other, 'items'):
-            if isinstance(other, Options):
-                other = dict(other)
-            # Filter None values for our settings
-            if isinstance(other, dict):
-                other = {k: v for k, v in other.items() if v is not None}
-        super().update(other, **kwds)
-
     # items() inherits from dict - no need to override
 
     @property
