@@ -1,13 +1,17 @@
 from itertools import groupby
+from typing import TypeAlias
 from PySide6.QtCore import Qt
 
 from GUI.ViewModel.BatchItem import BatchItem
 from GUI.ViewModel.SceneItem import SceneItem
 
 class SelectionScene:
+    Key : TypeAlias = int
+    
     def __init__(self, number : int, selected : bool = True) -> None:
         self.number = number
         self.selected = selected
+        self.batches : list[SelectionBatch] = []
 
     def __getitem__(self, index):
         return self.batches[index]
@@ -22,6 +26,8 @@ class SelectionScene:
         return str(self)
 
 class SelectionBatch:
+    Key : TypeAlias = tuple[int,int]
+
     def __init__(self, batch_number : tuple, selected : bool = True, translated : bool = False) -> None:
         self.scene, self.number = batch_number
         self.selected = selected
@@ -39,6 +45,8 @@ class SelectionBatch:
         return str(self)
 
 class SelectionLine:
+    Key : TypeAlias = int
+
     def __init__(self, scene: int, batch: int, number: int, selected : bool) -> None:
         self.scene = scene
         self.batch = batch
@@ -60,9 +68,9 @@ class SelectionLine:
 
 class ProjectSelection():
     def __init__(self) -> None:
-        self.scenes  : dict[int, SelectionScene] = {}
-        self.batches : dict[(int,int), SelectionBatch] = {}
-        self.lines : dict[int, SelectionLine] = {}
+        self.scenes  : dict[SelectionScene.Key, SelectionScene] = {}
+        self.batches : dict[SelectionBatch.Key, SelectionBatch] = {}
+        self.lines : dict[SelectionLine.Key, SelectionLine] = {}
 
     @property
     def scene_numbers(self) -> list[int]:
@@ -81,7 +89,7 @@ class ProjectSelection():
         return [ batch for batch in self.batches.values() if batch.selected]
 
     @property
-    def line_numbers(self) -> list[SelectionLine]:
+    def line_numbers(self) -> list[SelectionLine.Key]:
         return sorted([ number for number in self.lines.keys() if number is not None ])
 
     @property
@@ -89,22 +97,22 @@ class ProjectSelection():
         return [line for line in self.lines.values() if line.selected ]
 
     def Any(self) -> bool:
-        return self.scene_numbers or self.batch_numbers or self.lines
+        return bool(self.scene_numbers or self.batch_numbers or self.lines)
 
     def AnyScenes(self) -> bool:
         return True if self.selected_scenes else False
 
     def OnlyScenes(self) -> bool:
-        return self.selected_scenes and not (self.selected_batches or self.selected_lines)
+        return bool(self.selected_scenes and not (self.selected_batches or self.selected_lines))
 
     def AnyBatches(self) -> bool:
         return True if self.selected_batches else False
 
     def OnlyBatches(self) -> bool:
-        return self.selected_batches  and not (self.selected_scenes or self.selected_lines)
+        return bool(self.selected_batches  and not (self.selected_scenes or self.selected_lines))
 
     def AnyLines(self) -> bool:
-        return self.selected_lines
+        return bool(self.selected_lines)
 
     def AllLinesInSameBatch(self) -> bool:
         """
@@ -187,7 +195,7 @@ class ProjectSelection():
         """
         Check whether the first or last batch of any scene is selected
         """
-        return next((batch.number for batch in self.selected_batches if batch.number == 1), False) and True
+        return bool(next((batch.number for batch in self.selected_batches if batch.number == 1), False))
 
     def IsFirstOrLastInSceneSelected(self) -> bool:
         """
@@ -290,7 +298,7 @@ class ProjectSelection():
             return self._count(len(self.batch_numbers), "batch", "batches")
 
     @property
-    def str_lines(self):
+    def str_linecount(self):
         return self._count(len(self.lines), "line", "lines")
 
     @property

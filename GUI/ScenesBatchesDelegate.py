@@ -1,13 +1,13 @@
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QStyleOptionViewItem, QStyledItemDelegate, QWidget
-from PySide6.QtCore import QModelIndex, Qt, QPoint
+from PySide6.QtCore import Qt, QPoint, QModelIndex, QPersistentModelIndex
 
 class ScenesBatchesDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.render_flags = QWidget.RenderFlag.DrawWindowBackground | QWidget.RenderFlag.DrawChildren
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex|QPersistentModelIndex) -> None:
         widget = index.data(role=Qt.ItemDataRole.DisplayRole)
 
         if widget is None:
@@ -18,8 +18,11 @@ class ScenesBatchesDelegate(QStyledItemDelegate):
 
         # Translate painter to the top left of the rectangle provided by option
         painter.save()
-        painter.translate(option.rect.topLeft())
-        widget.setGeometry(option.rect)
+        if (hasattr(option, 'rect')):
+            rect = getattr(option, 'rect')
+            painter.translate(rect.topLeft())
+            widget.setGeometry(rect)
+
         widget.render(painter, QPoint(0, 0), renderFlags=self.render_flags)
         painter.restore()
 

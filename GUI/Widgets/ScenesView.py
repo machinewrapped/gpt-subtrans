@@ -103,7 +103,7 @@ class ScenesView(QTreeView):
         """
         Handle keyboard events for the tree view
         """
-        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
             # Ctrl+A pressed, select all items if the list view has focus
             if self.hasFocus():
                 self.SelectAll()

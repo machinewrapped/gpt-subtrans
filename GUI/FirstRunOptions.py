@@ -1,3 +1,4 @@
+import logging
 from PySide6.QtWidgets import (
     QFormLayout, 
     QDialog, 
@@ -54,23 +55,27 @@ class FirstRunOptions(QDialog):
             self.form_layout.addRow(field.name, field)
             self.controls[key] = field
 
-        self.layout = QVBoxLayout(self)
-        self.layout.addWidget(settings_widget)
+        self._layout = QVBoxLayout(self)
+        self._layout.addWidget(settings_widget)
 
         # Add Ok and Cancel buttons
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok, self)
         self.buttonBox.accepted.connect(self.accept)
-        self.layout.addWidget(self.buttonBox)
+        self._layout.addWidget(self.buttonBox)
 
-        self.setLayout(self.layout)
+        self.setLayout(self._layout)
 
     def accept(self):
         """ Update the settings """
         for row in range(self.form_layout.rowCount()):
-            field = self.form_layout.itemAt(row, QFormLayout.ItemRole.FieldRole).widget()
-            value = field.GetValue()
-            if value:
-                self.options.add(field.key, value)
+            widget = self.form_layout.itemAt(row, QFormLayout.ItemRole.LabelRole).widget()
+            if isinstance(widget, OptionWidget):
+                field = widget
+                value = field.GetValue()
+                if value:
+                    self.options.add(field.key, value)
+            else:
+                logging.warning(f"Unexpected widget type in form layout: {type(widget)}")
         
         super().accept()
 

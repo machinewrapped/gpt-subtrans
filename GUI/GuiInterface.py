@@ -82,7 +82,7 @@ class GuiInterface(QObject):
         self.action_handler.exitProgram.connect(self._exit_program)
 
         if self.global_options.get('last_used_path'):
-            self.action_handler.last_used_path = self.global_options.get('last_used_path')
+            self.action_handler.last_used_path = self.global_options.get_str('last_used_path')
 
     def GetMainWindow(self) -> QMainWindow:
         """
@@ -368,7 +368,7 @@ class GuiInterface(QObject):
         """
         Update the last used path in the global options
         """
-        self.action_handler.last_used_path = self.global_options.get('last_used_path')
+        self.action_handler.last_used_path = self.global_options.get_str('last_used_path')
         self.global_options.add('last_used_path', os.path.dirname(filepath))
         self.global_options.SaveSettings()
 

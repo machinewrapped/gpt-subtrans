@@ -104,7 +104,11 @@ class SubtitleView(QListView):
     def selectionChanged(self, selected, deselected):
         super().selectionChanged(selected, deselected)
 
-        model : SubtitleListModel = self.model()
+        qt_model = self.model()
+        if not qt_model or not isinstance(qt_model, SubtitleListModel):
+            return
+
+        model : SubtitleListModel = qt_model
 
         selected_lines = []
         selected_indexes = self.selectedIndexes()
@@ -118,7 +122,7 @@ class SubtitleView(QListView):
         """
         Handle keyboard events for the list view
         """
-        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_A:
             # Ctrl+A pressed, select all items if the list view has focus
             if self.hasFocus():
                 self.SelectAll()

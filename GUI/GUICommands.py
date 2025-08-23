@@ -16,6 +16,7 @@ class ExitProgramCommand(Command):
 
     def execute(self) -> bool:
         logging.info(_("Exiting Program"))
+        return True
 
 class CheckProviderSettings(Command):
     """
@@ -30,7 +31,12 @@ class CheckProviderSettings(Command):
 
     def execute(self) -> bool:
         try:
-            translation_provider : TranslationProvider = self.datamodel.translation_provider
+            if not self.datamodel:
+                logging.warning(_("No datamodel available to check provider settings"))
+                self.show_provider_settings = True
+                return True
+
+            translation_provider : TranslationProvider|None = self.datamodel.translation_provider
             if not translation_provider:
                 logging.warning(_("Invalid translation provider"))
                 self.show_provider_settings = True
@@ -42,5 +48,6 @@ class CheckProviderSettings(Command):
         except Exception as e:
             logging.error(_("CheckProviderSettings: {error}").format(error=e))
 
-        return True
+        finally:
+            return True
 

@@ -22,7 +22,7 @@ class ModelUpdateSection:
         self.updates: UpdateType = {}
         self.replacements: dict[Key, ModelTypes] = {}
         self.additions: dict[Key, ModelTypes] = {}
-        self.removals: list[Key] = []
+        self.removals: list[SceneKey]|list[BatchKey]|list[LineKey]|list[int] = []
 
     def update(self, key: Key, item_update: UpdateValue) -> None:
         self.updates[key] = item_update
