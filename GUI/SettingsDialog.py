@@ -6,7 +6,6 @@ from GUI.GuiHelpers import ClearForm, GetThemeNames
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget
 from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
-from PySubtitle.ProviderSettingsView import ProviderSettingsView
 from PySubtitle.SettingsType import SettingsType
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider

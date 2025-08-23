@@ -2,7 +2,6 @@ import unittest
 import os
 import tempfile
 import json
-from copy import deepcopy
 from datetime import timedelta
 from unittest.mock import patch, mock_open
 
@@ -15,7 +14,6 @@ from PySubtitle.Helpers.Settings import (
     GetListSetting, GetStringListSetting, GetTimeDeltaSetting,
     get_optional_setting, validate_setting_type, SettingsError
 )
-from PySubtitle.ProviderSettingsView import ProviderSettingsView
 from PySubtitle.SettingsType import SettingsType
 
 

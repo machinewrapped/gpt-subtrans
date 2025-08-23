@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import SettingsType
+from PySubtitle.Options import SettingsType, env_float
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("mistralai"):
@@ -12,7 +12,6 @@ else:
     try:
         import mistralai
 
-        from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.Mistral.MistralClient import MistralClient
         from PySubtitle.TranslationClient import TranslationClient
@@ -35,8 +34,8 @@ else:
                     "api_key": settings.get_str('api_key', os.getenv('MISTRAL_API_KEY')),
                     "server_url": settings.get_str('server_url', os.getenv('MISTRAL_SERVER_URL')),
                     "model": settings.get_str('model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
-                    'temperature': settings.get_float('temperature', GetEnvFloat('MISTRAL_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get_float('rate_limit', GetEnvFloat('MISTRAL_RATE_LIMIT')),
+                    'temperature': settings.get_float('temperature', env_float('MISTRAL_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', env_float('MISTRAL_RATE_LIMIT')),
                 }))
 
                 self.refresh_when_changed = ['api_key', 'server_url', 'model']

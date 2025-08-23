@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import SettingsType
+from PySubtitle.Options import SettingsType, env_float
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("openai"):
@@ -12,7 +12,6 @@ else:
     try:
         import openai
 
-        from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.OpenAI.ChatGPTClient import ChatGPTClient
         from PySubtitle.Providers.OpenAI.OpenAIReasoningClient import OpenAIReasoningClient
@@ -45,8 +44,8 @@ else:
                     "api_key": settings.get_str('api_key', os.getenv('OPENAI_API_KEY')),
                     "api_base": settings.get_str('api_base', os.getenv('OPENAI_API_BASE')),
                     "model": settings.get_str('model', os.getenv('OPENAI_MODEL', "gpt-5-mini")),
-                    'temperature': settings.get_float('temperature', GetEnvFloat('OPENAI_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get_float('rate_limit', GetEnvFloat('OPENAI_RATE_LIMIT')),
+                    'temperature': settings.get_float('temperature', env_float('OPENAI_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', env_float('OPENAI_RATE_LIMIT')),
                     "free_plan": settings.get_bool('free_plan', os.getenv('OPENAI_FREE_PLAN') == "True"),
                     'max_instruct_tokens': settings.get_int('max_instruct_tokens', int(os.getenv('MAX_INSTRUCT_TOKENS', '2048'))),
                     'use_httpx': settings.get_bool('use_httpx', os.getenv('OPENAI_USE_HTTPX', "False") == "True"),
