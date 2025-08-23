@@ -287,8 +287,9 @@ class OpenRouterProvider(TranslationProvider):
         # Ensure cache is populated
         self._populate_model_cache()
         
-        family = self.model_family
-        family_models = self._cached_models.get(family, {})
+        for family, models in self._cached_models.items(): # type: ignore[unused-variable]
+            if display_name in models:
+                return models[display_name]
         
         # Return the model ID if found, otherwise return the display name as-is
-        return family_models.get(display_name, display_name)
+        return display_name
