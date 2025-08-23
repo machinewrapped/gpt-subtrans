@@ -223,23 +223,23 @@ class SettingsDialog(QDialog):
             logging.error(f"Error in settings dialog handler: {e}")
             self.reject()
 
-    def _get_provider_settings(self, provider : str) -> SettingsType:
+    def _get_provider_settings(self, provider : str) -> dict[str, SettingsType]:
         """ Get the settings for a specific provider """
         if not provider:
-            return SettingsType()
+            return {}
 
         if 'provider_settings' not in self.settings:
-            self.settings['provider_settings'] = dict[str, SettingsType]()
+            self.settings['provider_settings'] = {}
 
-        provider_settings = self.settings['provider_settings']
+        provider_settings = self.settings.get('provider_settings')
 
         if not isinstance(provider_settings, dict):
             raise Exception("provider_settings is not a valid dictionary")
 
         if provider not in provider_settings:
-            provider_settings[provider] = SettingsType()
+            provider_settings[provider] = {} # type: ignore[assignment]
         
-        return provider_settings[provider]
+        return provider_settings[provider] # type: ignore[return-value]
 
 
     def _create_section_widget(self, section_name):
