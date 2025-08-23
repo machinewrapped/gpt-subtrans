@@ -6,6 +6,7 @@ from GUI.GuiHelpers import ClearForm, GetThemeNames
 from GUI.Widgets.OptionsWidgets import CreateOptionWidget, OptionWidget
 from PySubtitle.Instructions import GetInstructionsFiles, LoadInstructions
 from PySubtitle.Options import Options
+from PySubtitle.ProviderSettingsView import ProviderSettingsView
 from PySubtitle.SettingsType import SettingsType
 from PySubtitle.Substitutions import Substitutions
 from PySubtitle.TranslationProvider import TranslationProvider
@@ -232,20 +233,14 @@ class SettingsDialog(QDialog):
 
         provider_settings = self.settings['provider_settings']
 
-        if not isinstance(provider_settings, SettingsType):
-            logging.error("provider_settings is not a valid dictionary")
-            return SettingsType()
+        if not isinstance(provider_settings, dict):
+            raise Exception("provider_settings is not a valid dictionary")
 
         if provider not in provider_settings:
             provider_settings[provider] = SettingsType()
         
-        settings = provider_settings[provider]
+        return provider_settings[provider]
 
-        if not isinstance(settings, SettingsType):
-            logging.error(f"provider_settings for {provider} is not a valid dictionary")
-            return SettingsType()
-
-        return SettingsType(settings)
 
     def _create_section_widget(self, section_name):
         """

@@ -86,7 +86,7 @@ class ProviderSettingsView(MutableMapping[str, SettingsType]):
             return False
         return provider in provider_dict
     
-    def get(self, provider: str, default: SettingsType | None = None) -> SettingsType | None:
+    def get_with_default(self, provider: str, default: SettingsType | None = None) -> SettingsType | None:
         """Get provider settings with optional default"""
         try:
             return self[provider]

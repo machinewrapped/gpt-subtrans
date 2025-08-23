@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import Any, TypeAlias
 
 BasicType: TypeAlias = str | int | float | bool | list[str] | None
-SettingType: TypeAlias = BasicType | dict[str, 'SettingType'] | dict[str, 'SettingsType']
+SettingType: TypeAlias = BasicType | dict[str, 'SettingType']
 GuiSettingsType: TypeAlias = dict[str, tuple[type|str|list[str], str]]
 
 class SettingsType(dict[str, SettingType]):
