@@ -543,6 +543,308 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(options.get('version'), default_settings['version'])
 
 
+class TestSettingsType(unittest.TestCase):
+    """Unit tests for the SettingsType typed getter methods"""
+
+    def setUp(self):
+        """Set up test fixtures"""
+        self.test_settings = SettingsType({
+            'bool_true': True,
+            'bool_false': False,
+            'bool_str_true': 'true',
+            'bool_str_false': 'false',
+            'int_value': 42,
+            'int_str': '123',
+            'float_value': 3.14,
+            'float_str': '2.718',
+            'str_value': 'hello world',
+            'str_int': 123,
+            'timedelta_seconds': 30.5,
+            'str_list': ['apple', 'banana', 'cherry'],
+            'mixed_list': ['1', 'two', 'True'],
+            'nested_dict': SettingsType({
+                'inner_str': 'nested_value',
+                'inner_int': 100,
+                'inner_bool': True
+            }),
+            'none_value': None
+        })
+
+    def test_get_bool(self):
+        """Test SettingsType.get_bool method"""
+        log_test_name("SettingsType.get_bool")
+        
+        test_cases = [
+            ('bool_true', True, 'boolean True'),
+            ('bool_false', False, 'boolean False'),
+            ('bool_str_true', True, 'string "true"'),
+            ('bool_str_false', False, 'string "false"'),
+            ('missing_key', False, 'missing key with default False'),
+            ('none_value', False, 'None value with default False'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = self.test_settings.get_bool(key)
+                log_input_expected_result(f"get_bool('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test custom default
+        result = self.test_settings.get_bool('missing_key', True)
+        log_input_expected_result("get_bool with custom default True", True, result)
+        self.assertTrue(result)
+
+    def test_get_int(self):
+        """Test SettingsType.get_int method"""
+        log_test_name("SettingsType.get_int")
+        
+        test_cases = [
+            ('int_value', 42, 'integer value'),
+            ('int_str', 123, 'string "123"'),
+            ('missing_key', None, 'missing key returns None'),
+            ('none_value', None, 'None value returns None'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = self.test_settings.get_int(key)
+                log_input_expected_result(f"get_int('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test custom default
+        result = self.test_settings.get_int('missing_key', 999)
+        log_input_expected_result("get_int with custom default", 999, result)
+        self.assertEqual(result, 999)
+
+    def test_get_float(self):
+        """Test SettingsType.get_float method"""
+        log_test_name("SettingsType.get_float")
+        
+        test_cases = [
+            ('float_value', 3.14, 'float value'),
+            ('float_str', 2.718, 'string "2.718"'),
+            ('int_value', 42.0, 'integer converted to float'),
+            ('missing_key', None, 'missing key returns None'),
+            ('none_value', None, 'None value returns None'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = self.test_settings.get_float(key)
+                log_input_expected_result(f"get_float('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test custom default
+        result = self.test_settings.get_float('missing_key', 1.23)
+        log_input_expected_result("get_float with custom default", 1.23, result)
+        self.assertEqual(result, 1.23)
+
+    def test_get_str(self):
+        """Test SettingsType.get_str method"""
+        log_test_name("SettingsType.get_str")
+        
+        test_cases = [
+            ('str_value', 'hello world', 'string value'),
+            ('str_int', '123', 'integer converted to string'),
+            ('missing_key', None, 'missing key returns None'),
+            ('none_value', None, 'None value returns None'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = self.test_settings.get_str(key)
+                log_input_expected_result(f"get_str('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test custom default
+        result = self.test_settings.get_str('missing_key', 'default_string')
+        log_input_expected_result("get_str with custom default", 'default_string', result)
+        self.assertEqual(result, 'default_string')
+
+    def test_get_timedelta(self):
+        """Test SettingsType.get_timedelta method"""
+        log_test_name("SettingsType.get_timedelta")
+        
+        default_td = timedelta(minutes=5)
+        
+        # Test with valid seconds value
+        result = self.test_settings.get_timedelta('timedelta_seconds', default_td)
+        expected = timedelta(seconds=30.5)
+        log_input_expected_result("get_timedelta with float seconds", expected, result)
+        self.assertEqual(result, expected)
+        
+        # Test with missing key
+        result = self.test_settings.get_timedelta('missing_key', default_td)
+        log_input_expected_result("get_timedelta with missing key", default_td, result)
+        self.assertEqual(result, default_td)
+
+    def test_get_str_list(self):
+        """Test SettingsType.get_str_list method"""
+        log_test_name("SettingsType.get_str_list")
+        
+        test_cases = [
+            ('str_list', ['apple', 'banana', 'cherry'], 'string list'),
+            ('mixed_list', ['1', 'two', 'True'], 'string list with mixed content'),
+            ('missing_key', [], 'missing key returns empty list'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = self.test_settings.get_str_list(key)
+                log_input_expected_result(f"get_str_list('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test custom default
+        custom_default = ['default1', 'default2']
+        result = self.test_settings.get_str_list('missing_key', custom_default)
+        log_input_expected_result("get_str_list with custom default", custom_default, result)
+        self.assertEqual(result, custom_default)
+
+    def test_get_list(self):
+        """Test SettingsType.get_list method"""
+        log_test_name("SettingsType.get_list")
+        
+        test_cases = [
+            ('str_list', ['apple', 'banana', 'cherry'], 'string list'),
+            ('mixed_list', ['1', 'two', 'True'], 'string list'),
+            ('missing_key', [], 'missing key returns empty list'),
+        ]
+        
+        for key, expected, description in test_cases:
+            with self.subTest(key=key):
+                result = self.test_settings.get_list(key)
+                log_input_expected_result(f"get_list('{key}') ({description})", expected, result)
+                self.assertEqual(result, expected)
+        
+        # Test custom default
+        custom_default = ['default', 123, True]
+        result = self.test_settings.get_list('missing_key', custom_default)
+        log_input_expected_result("get_list with custom default", custom_default, result)
+        self.assertEqual(result, custom_default)
+
+    def test_get_dict(self):
+        """Test SettingsType.get_dict method and nested dict functionality"""
+        log_test_name("SettingsType.get_dict")
+        
+        # Test getting nested dict
+        result = self.test_settings.get_dict('nested_dict')
+        expected = {'inner_str': 'nested_value', 'inner_int': 100, 'inner_bool': True}
+        log_input_expected_result("get_dict('nested_dict')", expected, result)
+        self.assertEqual(result, expected)
+        
+        # Test missing key returns empty dict
+        result = self.test_settings.get_dict('missing_key')
+        log_input_expected_result("get_dict with missing key", {}, result)
+        self.assertEqual(result, {})
+        
+        # Test custom default
+        custom_default = SettingsType({'default_key': 'default_value'})
+        result = self.test_settings.get_dict('missing_key', custom_default)
+        log_input_expected_result("get_dict with custom default", custom_default, result)
+        self.assertEqual(result, custom_default)
+        
+        # Test that get_dict returns a mutable reference to nested dictionaries
+        nested_dict = self.test_settings.get_dict('nested_dict')
+        
+        # Modifying the returned dict should update the parent
+        nested_dict['new_key'] = 'new_value'
+        
+        # Verify the parent was updated
+        updated_nested = self.test_settings.get_dict('nested_dict')
+        self.assertIn('new_key', updated_nested)
+        log_input_expected_result("nested dict update propagated", 'new_value', updated_nested['new_key'])
+        self.assertEqual(updated_nested['new_key'], 'new_value')
+        
+        # Also verify through direct access
+        direct_nested = self.test_settings['nested_dict']
+        if isinstance(direct_nested, SettingsType):
+            self.assertIn('new_key', direct_nested)
+            log_input_expected_result("nested update visible in direct access", 'new_value', direct_nested['new_key'])
+            self.assertEqual(direct_nested['new_key'], 'new_value')
+
+    def test_provider_settings_nested_updates(self):
+        """Test that provider_settings properly handles nested updates"""
+        log_test_name("Provider Settings Nested Updates")
+        
+        # Create Options with provider settings
+        options = Options({
+            'provider': 'Test Provider',
+            'provider_settings': {
+                'Test Provider': SettingsType({
+                    'model': 'test-model',
+                    'temperature': 0.7,
+                    'api_key': 'test-key'
+                }),
+                'Other Provider': SettingsType({
+                    'model': 'other-model',
+                    'temperature': 0.5
+                })
+            }
+        })
+        
+        # Test that provider_settings returns a mutable mapping
+        provider_settings = options.provider_settings
+        self.assertIsInstance(provider_settings, MutableMapping)
+        log_input_expected_result("provider_settings is MutableMapping", True, isinstance(provider_settings, MutableMapping))
+        
+        # Test accessing existing provider settings
+        test_provider_settings = provider_settings['Test Provider']
+        self.assertIsInstance(test_provider_settings, SettingsType)
+        log_input_expected_result("provider settings is SettingsType", True, isinstance(test_provider_settings, SettingsType))
+        
+        # Test accessing values through typed getters
+        model = test_provider_settings.get_str('model')
+        temperature = test_provider_settings.get_float('temperature')
+        api_key = test_provider_settings.get_str('api_key')
+        
+        log_input_expected_result("provider model", 'test-model', model)
+        log_input_expected_result("provider temperature", 0.7, temperature)
+        log_input_expected_result("provider api_key", 'test-key', api_key)
+        
+        self.assertEqual(model, 'test-model')
+        self.assertEqual(temperature, 0.7)
+        self.assertEqual(api_key, 'test-key')
+        
+        # Test modifying provider settings updates the parent Options
+        test_provider_settings['new_setting'] = 'new_value'
+        
+        # Verify the change is reflected in the main options
+        updated_provider_settings = options.provider_settings['Test Provider']
+        self.assertIn('new_setting', updated_provider_settings)
+        log_input_expected_result("nested provider update propagated", 'new_value', updated_provider_settings['new_setting'])
+        self.assertEqual(updated_provider_settings['new_setting'], 'new_value')
+        
+        # Test adding a new provider through the mutable mapping
+        new_provider_settings = SettingsType({
+            'model': 'new-provider-model',
+            'temperature': 0.8
+        })
+        provider_settings['New Provider'] = new_provider_settings
+        
+        # Verify the new provider is accessible
+        self.assertIn('New Provider', options.provider_settings)
+        new_settings = options.provider_settings['New Provider']
+        log_input_expected_result("new provider model", 'new-provider-model', new_settings.get_str('model'))
+        self.assertEqual(new_settings.get_str('model'), 'new-provider-model')
+        
+        # Test current_provider_settings property
+        current_settings = options.current_provider_settings
+        self.assertIsNotNone(current_settings)
+        if current_settings:
+            current_model = current_settings.get_str('model')
+            log_input_expected_result("current provider model", 'test-model', current_model)
+            self.assertEqual(current_model, 'test-model')
+            
+            # Test that modifying current_provider_settings updates the main options
+            current_settings['current_test'] = 'current_value'
+            
+            # Verify through provider_settings access
+            updated_current = options.provider_settings[options.provider]
+            self.assertIn('current_test', updated_current)
+            log_input_expected_result("current provider update propagated", 'current_value', updated_current['current_test'])
+            self.assertEqual(updated_current['current_test'], 'current_value')
+
+
 class TestSettingsHelpers(unittest.TestCase):
     """Unit tests for Settings helper functions"""
 
