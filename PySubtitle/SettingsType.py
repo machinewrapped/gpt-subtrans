@@ -54,21 +54,21 @@ class SettingsType(dict[str, SettingType]):
     def get_dict(self, key: str, default: SettingsType|None = None) -> SettingsType:
         """Get a dict setting with type safety - returns mutable reference when possible"""
         value = self.get(key, default)
-        if value is None:
-            if default is not None:
-                return default
-            return SettingsType()
-        
         if isinstance(value, SettingsType):
             # Return the actual SettingsType object for mutable access
             return value
         elif isinstance(value, dict):
             # Convert to SettingsType and store it back for mutable access
-            settings_type = SettingsType(value)
-            self[key] = settings_type
-            return settings_type
+            value = SettingsType(value)
+            self[key] = value
+            return value
+        elif value is None:
+            # Create a new dictionary if not present
+            value = default or SettingsType()
+            self[key] = value
+            return value
         else:
-            raise TypeError(f"Expected dict for key '{key}', got {type(value).__name__}")
+            raise TypeError(f"Setting '{key}' is not a dict")
 
     def add(self, setting: str, value: Any) -> None:
         """Add a setting to the settings dictionary"""

@@ -335,9 +335,10 @@ class SettingsDialog(QDialog):
             if provider not in self.provider_settings:
                 self.provider_settings[provider] = SettingsType()
 
-            provider_settings = self.provider_settings.get(provider)
+            provider_settings = self.provider_settings.get_dict(provider)
             if provider not in self.provider_cache:
                 self.provider_cache[provider] = TranslationProvider.create_provider(provider, provider_settings)
+
             self.translation_provider = self.provider_cache[provider]
             if self.translation_provider:
                 # Get the SettingsType for this provider and update it
