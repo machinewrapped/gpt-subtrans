@@ -24,3 +24,4 @@ Secrets are stored in a .env file - you must never read the contents of the file
 - **Class structure**: Docstring → constants → init → properties → public methods → private methods
 - **Threading safety**: Use locks (RLock/QRecursiveMutex) for thread-safe operations
 - **Validation**: Validate inputs with helpful error messages
+- **Console Output**: Avoid Unicode characters (✓ ✗) in print/log messages - Windows console encoding issues
