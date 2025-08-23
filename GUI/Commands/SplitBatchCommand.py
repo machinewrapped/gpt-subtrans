@@ -59,7 +59,9 @@ class SplitBatchCommand(Command):
                 model_update.batches.update((self.scene_number, batch_number), { 'number' : batch_number + 1})
 
             model_update.batches.update((self.scene_number, self.batch_number), { 'errors' : split_batch.errors })
-            model_update.batches.add((self.scene_number, new_batch_number), scene.GetBatch(new_batch_number))
+            new_batch = scene.GetBatch(new_batch_number)
+            if new_batch is not None:
+                model_update.batches.add((self.scene_number, new_batch_number), new_batch)
 
         return True
 
@@ -80,11 +82,13 @@ class SplitBatchCommand(Command):
         try:
             scene.MergeBatches([self.batch_number, self.batch_number + 1])
 
-            new_batch_number = self.batch_number + 1
+            removed_batch_number = self.batch_number + 1
 
             model_update : ModelUpdate =  self.AddModelUpdate()
-            model_update.batches.replace((self.scene_number, self.batch_number), scene.GetBatch(self.batch_number))
-            model_update.batches.remove((self.scene_number, new_batch_number))
+            batch = scene.GetBatch(self.batch_number)
+            if batch is not None:
+                model_update.batches.replace((self.scene_number, self.batch_number), batch)
+            model_update.batches.remove((self.scene_number, removed_batch_number))
 
             return True
 
