@@ -18,7 +18,6 @@ else:
 
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
-        from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
         from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -40,10 +39,10 @@ else:
 
             def __init__(self, settings : SettingsType):
                 super().__init__(self.name, SettingsType({
-                    "api_key": GetStrSetting(settings, 'api_key') or os.getenv('GEMINI_API_KEY'),
-                    "model": GetStrSetting(settings, 'model') or os.getenv('GEMINI_MODEL'),
-                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
-                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 60.0))
+                    "api_key": settings.get_str('api_key') or os.getenv('GEMINI_API_KEY'),
+                    "model": settings.get_str('model') or os.getenv('GEMINI_MODEL'),
+                    'temperature': settings.get_float('temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 60.0))
                 }))
 
                 self.refresh_when_changed = ['api_key', 'model']
@@ -51,7 +50,7 @@ else:
 
             @property
             def api_key(self) -> str|None:
-                return GetStrSetting(self.settings, 'api_key')
+                return self.settings.get_str( 'api_key')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = SettingsType(self.settings.copy())
@@ -160,7 +159,7 @@ else:
                 """
                 If user has set a rate limit don't attempt parallel requests to make sure we respect it
                 """
-                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
+                if self.settings.get_float( 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

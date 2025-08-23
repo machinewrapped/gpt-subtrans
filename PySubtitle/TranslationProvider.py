@@ -2,7 +2,6 @@ import importlib
 import logging
 import pkgutil
 from typing import cast
-from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
@@ -40,7 +39,7 @@ class TranslationProvider:
         """
         The currently selected model for the provider
         """
-        name : str|None = GetStrSetting(self.settings, 'model')
+        name : str|None = self.settings.get_str( 'model')
         return name.strip() if name else None
 
     @property

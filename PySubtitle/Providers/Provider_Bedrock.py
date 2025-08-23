@@ -3,7 +3,6 @@ import logging
 import os
 
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import GetStrSetting, GetIntSetting, GetFloatSetting
 from PySubtitle.Options import SettingsType
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
@@ -32,14 +31,14 @@ else:
 
             def __init__(self, settings : SettingsType):
                 super().__init__(self.name, SettingsType({
-                    "access_key": GetStrSetting(settings, 'access_key', os.getenv('AWS_ACCESS_KEY_ID')),
-                    "secret_access_key": GetStrSetting(settings, 'secret_access_key', os.getenv('AWS_SECRET_ACCESS_KEY')),
-                    "aws_region": GetStrSetting(settings, 'aws_region', os.getenv('AWS_REGION', 'eu-west-1')),
-                    "model": GetStrSetting(settings, 'model', 'Amazon-Titan-Text-G1'),
-                    "max_tokens": GetIntSetting(settings, 'max_tokens', 8192),
+                    "access_key": settings.get_str('access_key', os.getenv('AWS_ACCESS_KEY_ID')),
+                    "secret_access_key": settings.get_str('secret_access_key', os.getenv('AWS_SECRET_ACCESS_KEY')),
+                    "aws_region": settings.get_str('aws_region', os.getenv('AWS_REGION', 'eu-west-1')),
+                    "model": settings.get_str('model', 'Amazon-Titan-Text-G1'),
+                    "max_tokens": settings.get_int('max_tokens', 8192),
                     #TODO: add options for supports system messages and prompt?
-                    'temperature': GetFloatSetting(settings, 'temperature', 0.0),
-                    "rate_limit": GetFloatSetting(settings, 'rate_limit')
+                    'temperature': settings.get_float('temperature', 0.0),
+                    "rate_limit": settings.get_float('rate_limit')
                 }))
 
                 self.refresh_when_changed = ['access_key', 'secret_access_key', 'aws_region']
@@ -47,15 +46,15 @@ else:
 
             @property
             def access_key(self) -> str|None:
-                return GetStrSetting(self.settings, 'access_key')
+                return self.settings.get_str( 'access_key')
 
             @property
             def secret_access_key(self) -> str|None:
-                return GetStrSetting(self.settings, 'secret_access_key')
+                return self.settings.get_str( 'secret_access_key')
 
             @property
             def aws_region(self) -> str|None:
-                return GetStrSetting(self.settings, 'aws_region')
+                return self.settings.get_str( 'aws_region')
 
             @property
             def regions(self) -> list[str]:

@@ -7,7 +7,6 @@ import logging
 import threading
 from typing import Any
 import bisect
-from PySubtitle.Helpers.Settings import GetStringListSetting
 from PySubtitle.Helpers.Text import IsRightToLeftText
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Instructions import DEFAULT_TASK_TYPE
@@ -652,8 +651,8 @@ class SubtitleFile:
             settings['description'] = settings.get('synopsis')
 
         if settings.get('characters'):
-            names = GetStringListSetting(settings, 'names')
-            names.extend(GetStringListSetting(settings,'characters'))
+            names = settings.get_str_list('names')
+            names.extend(settings.get_str_list('characters'))
             settings['names'] = names
             del settings['characters']
 

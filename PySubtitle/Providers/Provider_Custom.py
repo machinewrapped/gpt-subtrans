@@ -4,7 +4,6 @@ from copy import deepcopy
 
 from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger, GetEnvBool
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting, GetIntSetting, GetFloatSetting
 from PySubtitle.Options import MULTILINE_OPTION, SettingsType
 from PySubtitle.Providers.Custom.CustomClient import CustomClient
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
@@ -31,18 +30,18 @@ class Provider_CustomServer(TranslationProvider):
 
     def __init__(self, settings : SettingsType):
         super().__init__(self.name, SettingsType({
-            'server_address': GetStrSetting(settings, 'server_address', os.getenv('CUSTOM_SERVER_ADDRESS', "http://localhost:1234")),
-            'endpoint': GetStrSetting(settings, 'endpoint', os.getenv('CUSTOM_ENDPOINT', "/v1/chat/completions")),
-            'supports_conversation': GetBoolSetting(settings, 'supports_conversation', GetEnvBool('CUSTOM_SUPPORTS_CONVERSATION', True)),
-            'supports_system_messages': GetBoolSetting(settings, 'supports_system_messages', GetEnvBool('CUSTOM_SUPPORTS_SYSTEM_MESSAGES', True)),
-            'prompt_template': GetStrSetting(settings, 'prompt_template', os.getenv('CUSTOM_PROMPT_TEMPLATE', default_prompt_template)),
-            'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('CUSTOM_TEMPERATURE', 0.0)),
-            'max_tokens': GetIntSetting(settings, 'max_tokens', GetEnvInteger('CUSTOM_MAX_TOKENS', 0)),
-            'max_completion_tokens': GetIntSetting(settings, 'max_completion_tokens', GetEnvInteger('CUSTOM_MAX_COMPLETION_TOKENS', 0)),
-            'timeout': GetIntSetting(settings, 'timeout', GetEnvInteger('CUSTOM_TIMEOUT', 300)),
-            "api_key": GetStrSetting(settings, 'api_key', os.getenv('CUSTOM_API_KEY')),
-            "model": GetStrSetting(settings, 'model', os.getenv('CUSTOM_MODEL')),
-            'supports_parallel_threads': GetBoolSetting(settings, 'supports_parallel_threads', GetEnvBool('CUSTOM_SUPPORTS_PARALLEL_THREADS', False))
+            'server_address': settings.get_str('server_address', os.getenv('CUSTOM_SERVER_ADDRESS', "http://localhost:1234")),
+            'endpoint': settings.get_str('endpoint', os.getenv('CUSTOM_ENDPOINT', "/v1/chat/completions")),
+            'supports_conversation': settings.get_bool('supports_conversation', GetEnvBool('CUSTOM_SUPPORTS_CONVERSATION', True)),
+            'supports_system_messages': settings.get_bool('supports_system_messages', GetEnvBool('CUSTOM_SUPPORTS_SYSTEM_MESSAGES', True)),
+            'prompt_template': settings.get_str('prompt_template', os.getenv('CUSTOM_PROMPT_TEMPLATE', default_prompt_template)),
+            'temperature': settings.get_float('temperature', GetEnvFloat('CUSTOM_TEMPERATURE', 0.0)),
+            'max_tokens': settings.get_int('max_tokens', GetEnvInteger('CUSTOM_MAX_TOKENS', 0)),
+            'max_completion_tokens': settings.get_int('max_completion_tokens', GetEnvInteger('CUSTOM_MAX_COMPLETION_TOKENS', 0)),
+            'timeout': settings.get_int('timeout', GetEnvInteger('CUSTOM_TIMEOUT', 300)),
+            "api_key": settings.get_str('api_key', os.getenv('CUSTOM_API_KEY')),
+            "model": settings.get_str('model', os.getenv('CUSTOM_MODEL')),
+            'supports_parallel_threads': settings.get_bool('supports_parallel_threads', GetEnvBool('CUSTOM_SUPPORTS_PARALLEL_THREADS', False))
             }))
 
         #TODO: Add additional parameters option
@@ -51,27 +50,27 @@ class Provider_CustomServer(TranslationProvider):
 
     @property
     def server_address(self) -> str|None:
-        return GetStrSetting(self.settings, 'server_address')
+        return self.settings.get_str( 'server_address')
 
     @property
     def endpoint(self) -> str|None:
-        return GetStrSetting(self.settings, 'endpoint')
+        return self.settings.get_str( 'endpoint')
 
     @property
     def api_key(self) -> str|None:
-        return GetStrSetting(self.settings, 'api_key')
+        return self.settings.get_str( 'api_key')
 
     @property
     def supports_conversation(self) -> bool:
-        return GetBoolSetting(self.settings, 'supports_conversation', False)
+        return self.settings.get_bool( 'supports_conversation', False)
 
     @property
     def supports_system_messages(self) -> bool:
-        return GetBoolSetting(self.settings, 'supports_system_messages', False)
+        return self.settings.get_bool( 'supports_system_messages', False)
 
     @property
     def prompt_template(self) -> str|None:
-        return GetStrSetting(self.settings, 'prompt_template')
+        return self.settings.get_str( 'prompt_template')
 
     def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
         client_settings : dict = deepcopy(self.settings)
@@ -97,7 +96,7 @@ class Provider_CustomServer(TranslationProvider):
         if self.ValidateSettings():
             options['supports_conversation'] = (bool, _("Attempt to communicate with the endpoint using chat format"))
 
-            if GetBoolSetting(self.settings, 'supports_conversation'):
+            if self.settings.get_bool( 'supports_conversation'):
                 options['supports_system_messages'] = (bool, _("Instructions will be sent as system messages rather than the user prompt"))
 
             options.update({
@@ -131,4 +130,4 @@ class Provider_CustomServer(TranslationProvider):
         """
         User can decide whether to use parallel threads with their model
         """
-        return GetBoolSetting(self.settings, 'supports_parallel_threads', False)
+        return self.settings.get_bool( 'supports_parallel_threads', False)

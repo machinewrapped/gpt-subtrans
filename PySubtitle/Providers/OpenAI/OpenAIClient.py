@@ -5,7 +5,6 @@ from typing import Any
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.Helpers.Parse import ParseDelayFromHeader
-from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting
 from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationResponseError
 
@@ -43,19 +42,19 @@ try:
 
         @property
         def api_key(self) -> str|None:
-            return GetStrSetting(self.settings, 'api_key')
+            return self.settings.get_str( 'api_key')
 
         @property
         def api_base(self) -> str|None:
-            return GetStrSetting(self.settings, 'api_base')
+            return self.settings.get_str( 'api_base')
 
         @property
         def model(self) -> str|None:
-            return GetStrSetting(self.settings, 'model')
+            return self.settings.get_str( 'model')
         
         @property
         def reuse_client(self) -> bool:
-            return GetBoolSetting(self.settings, 'reuse_client', True)
+            return self.settings.get_bool( 'reuse_client', True)
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """
@@ -156,7 +155,7 @@ try:
 
         def _create_client(self) -> None:
             http_client: httpx.Client|None = None
-            proxy = GetStrSetting(self.settings, 'proxy')
+            proxy = self.settings.get_str( 'proxy')
             if proxy:
                 # Use httpx with SOCKS proxy support
                 proxies = {
@@ -165,7 +164,7 @@ try:
                 }
                 http_client = httpx.Client(proxies=proxies) #type: ignore
 
-            elif GetBoolSetting(self.settings, 'use_httpx'):
+            elif self.settings.get_bool( 'use_httpx'):
                 if self.api_base is None:
                     raise TranslationImpossibleError(_("API base must be set when using httpx"))
 

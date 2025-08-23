@@ -6,7 +6,6 @@ import httpx
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Parse import ParseErrorMessageFromText
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import GetStrSetting, GetBoolSetting, GetIntSetting
 from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
@@ -34,37 +33,37 @@ class CustomClient(TranslationClient):
 
     @property
     def server_address(self) -> str|None:
-        return GetStrSetting(self.settings, 'server_address')
+        return self.settings.get_str( 'server_address')
 
     @property
     def endpoint(self) -> str|None:
-        return GetStrSetting(self.settings, 'endpoint')
+        return self.settings.get_str( 'endpoint')
 
     @property
     def supports_conversation(self) -> bool:
-        return GetBoolSetting(self.settings, 'supports_conversation', False)
+        return self.settings.get_bool( 'supports_conversation', False)
 
     @property
     def api_key(self) -> str|None:
-        return GetStrSetting(self.settings, 'api_key')
+        return self.settings.get_str( 'api_key')
 
     @property
     def model(self) -> str|None:
-        return GetStrSetting(self.settings, 'model')
+        return self.settings.get_str( 'model')
 
     @property
     def max_tokens(self) -> int|None:
-        max_tokens = GetIntSetting(self.settings, 'max_tokens', 0)
+        max_tokens = self.settings.get_int( 'max_tokens', 0)
         return max_tokens if max_tokens != 0 else None
     
     @property
     def max_completion_tokens(self) -> int|None:
-        max_completion_tokens = GetIntSetting(self.settings, 'max_completion_tokens', 0)
+        max_completion_tokens = self.settings.get_int( 'max_completion_tokens', 0)
         return max_completion_tokens if max_completion_tokens != 0 else None
     
     @property
     def timeout(self) -> int:
-        return GetIntSetting(self.settings, 'timeout') or 300
+        return self.settings.get_int( 'timeout') or 300
 
     def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """

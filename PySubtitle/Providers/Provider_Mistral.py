@@ -14,7 +14,6 @@ else:
 
         from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
-        from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
         from PySubtitle.Providers.Mistral.MistralClient import MistralClient
         from PySubtitle.TranslationClient import TranslationClient
         from PySubtitle.TranslationProvider import TranslationProvider
@@ -33,22 +32,22 @@ else:
 
             def __init__(self, settings : SettingsType):
                 super().__init__(self.name, SettingsType({
-                    "api_key": GetStrSetting(settings, 'api_key', os.getenv('MISTRAL_API_KEY')),
-                    "server_url": GetStrSetting(settings, 'server_url', os.getenv('MISTRAL_SERVER_URL')),
-                    "model": GetStrSetting(settings, 'model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
-                    'temperature': GetFloatSetting(settings, 'temperature', GetEnvFloat('MISTRAL_TEMPERATURE', 0.0)),
-                    'rate_limit': GetFloatSetting(settings, 'rate_limit', GetEnvFloat('MISTRAL_RATE_LIMIT')),
+                    "api_key": settings.get_str('api_key', os.getenv('MISTRAL_API_KEY')),
+                    "server_url": settings.get_str('server_url', os.getenv('MISTRAL_SERVER_URL')),
+                    "model": settings.get_str('model', os.getenv('MISTRAL_MODEL', "open-mistral-nemo")),
+                    'temperature': settings.get_float('temperature', GetEnvFloat('MISTRAL_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', GetEnvFloat('MISTRAL_RATE_LIMIT')),
                 }))
 
                 self.refresh_when_changed = ['api_key', 'server_url', 'model']
 
             @property
             def api_key(self) -> str|None:
-                return GetStrSetting(self.settings, 'api_key')
+                return self.settings.get_str( 'api_key')
 
             @property
             def server_url(self) -> str|None:
-                return GetStrSetting(self.settings, 'server_url')
+                return self.settings.get_str( 'server_url')
 
             def GetTranslationClient(self, settings : SettingsType) -> TranslationClient:
                 client_settings = SettingsType(self.settings.copy())
@@ -126,7 +125,7 @@ else:
                 """
                 If user has set a rate limit we can't make multiple requests at once
                 """
-                if GetFloatSetting(self.settings, 'rate_limit', 0.0) != 0.0:
+                if self.settings.get_float( 'rate_limit', 0.0) != 0.0:
                     return False
 
                 return True

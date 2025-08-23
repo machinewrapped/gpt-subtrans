@@ -155,7 +155,7 @@ class Options(SettingsType):
 
     @property
     def current_provider_settings(self) -> SettingsType|None:
-        if not self.provider:
+        if not self.provider or not self.provider in self.provider_settings:
             return None
 
         return self.provider_settings.get(self.provider)

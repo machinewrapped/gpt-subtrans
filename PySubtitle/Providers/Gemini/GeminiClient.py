@@ -18,7 +18,6 @@ from google.genai.types import (
 
 from PySubtitle.Helpers import FormatMessages
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Helpers.Settings import GetStrSetting, GetFloatSetting
 from PySubtitle.Options import SettingsType
 from PySubtitle.SubtitleError import TranslationImpossibleError, TranslationResponseError
 from PySubtitle.Translation import Translation
@@ -49,15 +48,15 @@ class GeminiClient(TranslationClient):
 
     @property
     def api_key(self) -> str|None:
-        return GetStrSetting(self.settings, 'api_key')
+        return self.settings.get_str( 'api_key')
 
     @property
     def model(self) -> str|None:
-        return GetStrSetting(self.settings, 'model')
+        return self.settings.get_str( 'model')
 
     @property
     def rate_limit(self) -> float|None:
-        return GetFloatSetting(self.settings, 'rate_limit')
+        return self.settings.get_float( 'rate_limit')
 
     def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
         """

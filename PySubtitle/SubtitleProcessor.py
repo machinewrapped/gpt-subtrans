@@ -19,7 +19,6 @@ from PySubtitle.Helpers.Text import (
     NormaliseDialogTags,
     RemoveFillerWords
 )
-from PySubtitle.Helpers.Settings import GetTimeDeltaSetting
 from PySubtitle.Options import SettingsType
 from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleLine import SubtitleLine
@@ -49,10 +48,10 @@ class SubtitleProcessor:
             ("‘", "’"),
         ]
 
-        self.max_line_duration : timedelta = GetTimeDeltaSetting(settings, 'max_line_duration', timedelta(seconds=0))
-        self.min_line_duration : timedelta = GetTimeDeltaSetting(settings, 'min_line_duration', timedelta(seconds=0))
-        self.merge_line_duration : timedelta = GetTimeDeltaSetting(settings, 'merge_line_duration', timedelta(seconds=0))
-        self.min_gap : timedelta = GetTimeDeltaSetting(settings, 'min_gap', timedelta(seconds=0.05))
+        self.max_line_duration : timedelta = settings.get_timedelta('max_line_duration', timedelta(seconds=0))
+        self.min_line_duration : timedelta = settings.get_timedelta('min_line_duration', timedelta(seconds=0))
+        self.merge_line_duration : timedelta = settings.get_timedelta('merge_line_duration', timedelta(seconds=0))
+        self.min_gap : timedelta = settings.get_timedelta('min_gap', timedelta(seconds=0.05))
         self.min_split_chars : int = settings.get_int('min_split_chars') or 4
 
         self.convert_whitespace_to_linebreak : bool = settings.get_bool('whitespaces_to_newline', False)

@@ -9,7 +9,6 @@ try:
 
     from PySubtitle.Helpers import FormatMessages
     from PySubtitle.Helpers.Localization import _
-    from PySubtitle.Helpers.Settings import GetStrSetting
     from PySubtitle.SubtitleError import TranslationError, TranslationImpossibleError
     from PySubtitle.Translation import Translation
     from PySubtitle.TranslationClient import TranslationClient
@@ -34,15 +33,15 @@ try:
 
         @property
         def api_key(self) -> str|None:
-            return GetStrSetting(self.settings, 'api_key')
+            return self.settings.get_str( 'api_key')
 
         @property
         def server_url(self) -> str|None:
-            return GetStrSetting(self.settings, 'server_url')
+            return self.settings.get_str( 'server_url')
 
         @property
         def model(self) -> str|None:
-            return GetStrSetting(self.settings, 'model')
+            return self.settings.get_str( 'model')
 
         def _request_translation(self, prompt : TranslationPrompt, temperature : float|None = None) -> Translation|None:
             """

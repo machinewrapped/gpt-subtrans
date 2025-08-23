@@ -313,13 +313,13 @@ def get_optional_setting(settings: SettingsType|Mapping[str, SettingType]|Option
         
     # Map types to appropriate getter functions
     if setting_type == bool:
-        return GetBoolSetting(settings, key)  # type: ignore
+        return settings.get_bool(key)  # type: ignore
     elif setting_type == int:
-        return GetIntSetting(settings, key)  # type: ignore
+        return settings.get_int(key)  # type: ignore
     elif setting_type == float:
-        return GetFloatSetting(settings, key)  # type: ignore
+        return settings.get_float(key)  # type: ignore
     elif setting_type == str:
-        return GetStrSetting(settings, key)  # type: ignore
+        return settings.get_str(key)  # type: ignore
     elif setting_type == list:
         return GetListSetting(settings, key)  # type: ignore
     else:

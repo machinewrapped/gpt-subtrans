@@ -43,7 +43,7 @@ class MergeBatchesCommand(Command):
             project.subtitles.MergeBatches(self.scene_number, self.batch_numbers)
 
             merged_batch = scene.GetBatch(merged_batch_number)
-            if merged_batch:
+            if merged_batch is not None:
                 if merged_batch.any_translated:
                     validator = SubtitleValidator(self.datamodel.project_options)
                     validator.ValidateBatch(merged_batch)

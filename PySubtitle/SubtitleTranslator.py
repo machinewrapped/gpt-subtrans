@@ -3,7 +3,7 @@ import logging
 import threading
 from typing import Any
 
-from PySubtitle.Helpers.Settings import GetBoolSetting, GetIntSetting, GetStrSetting
+from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Helpers.Subtitles import MergeTranslations
 from PySubtitle.Helpers.Localization import _, tr
 from PySubtitle.Helpers.Text import Linearise, SanitiseSummary
@@ -41,16 +41,16 @@ class SubtitleTranslator:
         self.errors : list[str|SubtitleError] = []
         self.lines_processed : int = 0
 
-        self.max_lines = GetIntSetting(settings, 'max_lines')
-        self.max_history = GetIntSetting(settings, 'max_context_summaries')
-        self.stop_on_error = GetBoolSetting(settings, 'stop_on_error')
-        self.retry_on_error = GetBoolSetting(settings, 'retry_on_error')
+        self.max_lines = settings.get_int('max_lines')
+        self.max_history = settings.get_int('max_context_summaries')
+        self.stop_on_error = settings.get_bool('stop_on_error')
+        self.retry_on_error = settings.get_bool('retry_on_error')
         # self.split_on_error = options.get('autosplit_incomplete')
-        self.max_summary_length = GetIntSetting(settings, 'max_summary_length')
-        self.resume = GetBoolSetting(settings, 'resume')
-        self.retranslate = GetBoolSetting(settings, 'retranslate')
-        self.reparse = GetBoolSetting(settings, 'reparse')
-        self.preview = GetBoolSetting(settings, 'preview')
+        self.max_summary_length = settings.get_int('max_summary_length')
+        self.resume = settings.get_bool('resume')
+        self.retranslate = settings.get_bool('retranslate')
+        self.reparse = settings.get_bool('reparse')
+        self.preview = settings.get_bool('preview')
 
         settings = Options(settings)
 
@@ -405,7 +405,7 @@ class SubtitleTranslator:
         """
         Generate a summary of the translated subtitles
         """
-        movie_name : str|None = GetStrSetting(self.settings, 'movie_name', None)
+        movie_name : str|None = self.settings.get_str( 'movie_name', None)
         movie_name = str(movie_name).strip() if movie_name else None
         max_length : int|None = self.max_summary_length
 

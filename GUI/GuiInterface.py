@@ -22,7 +22,6 @@ from GUI.NewProjectSettings import NewProjectSettings
 from GUI.ProjectActions import ProjectActions
 from GUI.ProjectDataModel import ProjectDataModel
 from GUI.SettingsDialog import SettingsDialog
-from PySubtitle.Helpers.Settings import GetStrSetting
 from PySubtitle.Options import Options
 from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleError import ProviderConfigurationError, SubtitleError
@@ -176,7 +175,7 @@ class GuiInterface(QObject):
 
         # If UI language changed, reinitialize i18n and refresh visible UI
         if 'ui_language' in updated_settings:
-            ui_language : str = GetStrSetting(updated_settings, 'ui_language') or 'en'
+            ui_language : str = updated_settings.get_str('ui_language') or 'en'
             self.UpdateUiLanguage(ui_language)
 
         self.settingsChanged.emit(updated_settings)

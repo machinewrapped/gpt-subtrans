@@ -15,6 +15,7 @@ from PySubtitle.Helpers.Settings import (
     GetListSetting, GetStringListSetting, GetTimeDeltaSetting,
     get_optional_setting, validate_setting_type, SettingsError
 )
+from PySubtitle.ProviderSettingsView import ProviderSettingsView
 from PySubtitle.SettingsType import SettingsType
 
 
@@ -365,7 +366,7 @@ class TestOptions(unittest.TestCase):
             'provider': 'Missing Provider',
             'provider_settings': {}
         })
-        self.assertEqual(options.current_provider_settings, {})
+        self.assertIsNone(options.current_provider_settings)
 
     def test_model_property(self):
         """Test the model property"""

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections.abc import Mapping
+from datetime import timedelta
 from typing import Any, TypeAlias
 
 BasicType: TypeAlias = str | int | float | bool | list[str] | None
@@ -15,12 +16,12 @@ class SettingsType(dict[str, SettingType]):
             settings = dict(settings or {})
         super().__init__(settings)
 
-    def get_bool(self, key: str, default: bool = False) -> bool:
+    def get_bool(self, key: str, default: bool|None = False) -> bool:
         """Get a boolean setting with type safety"""
         from .Helpers.Settings import GetBoolSetting
         return GetBoolSetting(self, key, default)
 
-    def get_int(self, key: str, default: int = 0) -> int|None:
+    def get_int(self, key: str, default: int|None = None) -> int|None:
         """Get an integer setting with type safety"""
         from .Helpers.Settings import GetIntSetting
         return GetIntSetting(self, key, default)
@@ -34,6 +35,16 @@ class SettingsType(dict[str, SettingType]):
         """Get a string setting with type safety"""
         from .Helpers.Settings import GetStrSetting
         return GetStrSetting(self, key, default)
+
+    def get_timedelta(self, key: str, default: timedelta) -> timedelta:
+        """Get a timedelta setting with type safety"""
+        from .Helpers.Settings import GetTimeDeltaSetting
+        return GetTimeDeltaSetting(self, key, default)
+
+    def get_str_list(self, key: str, default: list[str]|None = None) -> list[str]:
+        """Get a list of strings setting with type safety"""
+        from .Helpers.Settings import GetStringListSetting
+        return GetStringListSetting(self, key, default or [])
 
     def get_list(self, key: str, default: list[Any]|None = None) -> list[Any]:
         """Get a list setting with type safety"""
