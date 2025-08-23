@@ -23,9 +23,9 @@ class SubtitleTestCase(unittest.TestCase):
     def __init__(self, methodName: str = "runTest", custom_options : dict|None = None) -> None:
         super().__init__(methodName)
 
-        options = {
+        options = SettingsType({
             'provider': 'Dummy Provider',
-            'provider_options': { 'Dummy Provider' : {} },
+            'provider_settings': { 'Dummy Provider' : SettingsType() },
             'target_language': 'English',
             'scene_threshold': 60.0,
             'min_batch_size': 10,
@@ -35,12 +35,14 @@ class SubtitleTestCase(unittest.TestCase):
             'project': 'test',
             'retry_on_error': False,
             'stop_on_error': True
-        }
+        })
 
         if custom_options:
             options.update(custom_options)
 
         self.options = Options(options)
+
+        self.assertIn("Dummy Provider", self.options.provider_settings, "Dummy Provider settings should exist")
 
     def _assert_same_as_reference(self, subtitles : SubtitleFile, reference_subtitles: SubtitleFile):
         """

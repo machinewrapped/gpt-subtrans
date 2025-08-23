@@ -77,6 +77,15 @@ class ProviderSettingsView(MutableMapping[str, SettingsType]):
             return len(provider_dict)
         return 0
     
+    def __contains__(self, provider: Any) -> bool:
+        """Check if provider exists in settings"""
+        if not isinstance(provider, str):
+            return False
+        provider_dict = self._parent[self._key]
+        if not isinstance(provider_dict, dict):
+            return False
+        return provider in provider_dict
+    
     def get(self, provider: str, default: SettingsType | None = None) -> SettingsType | None:
         """Get provider settings with optional default"""
         try:

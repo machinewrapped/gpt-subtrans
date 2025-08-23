@@ -7,7 +7,7 @@ from datetime import timedelta
 from unittest.mock import patch, mock_open
 
 from collections.abc import MutableMapping
-from PySubtitle.Options import Options, default_options, standard_filler_words
+from PySubtitle.Options import Options, default_settings, standard_filler_words
 from PySubtitle.Instructions import Instructions
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Helpers.Settings import (
@@ -539,7 +539,7 @@ class TestOptions(unittest.TestCase):
             self.assertEqual(openai_settings.get('model'), 'old-model-name')
         
         # Version should be updated
-        self.assertEqual(options.get('version'), default_options['version'])
+        self.assertEqual(options.get('version'), default_settings['version'])
 
 
 class TestSettingsHelpers(unittest.TestCase):

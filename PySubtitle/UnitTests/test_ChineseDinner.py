@@ -22,7 +22,16 @@ class ChineseDinnerTests(SubtitleTestCase):
         with self.subTest("Load subtitles from string"):
             log_test_name("Load subtitles from string")
             original_srt = chinese_dinner_data.get('original')
+            if not original_srt or not isinstance(original_srt, str):
+                self.fail("No original subtitles in test data")
+                return
+
             subtitles.LoadSubtitlesFromString(original_srt)
+            self.assertIsNotNone(subtitles)
+
+            if not subtitles or not subtitles.has_subtitles or not subtitles.originals:
+                self.fail("Failed to load subtitles from string")
+                return
 
             self.assertTrue(subtitles.has_subtitles)
             self.assertIsNotNone(subtitles.originals)
@@ -39,7 +48,7 @@ class ChineseDinnerTests(SubtitleTestCase):
 
             self.assertEqual(subtitles.movie_name, chinese_dinner_data.get('movie_name'))
             self.assertEqual(subtitles.settings.get('description'), chinese_dinner_data.get('description'))
-            self.assertSequenceEqual(subtitles.settings.get('names'), chinese_dinner_data.get('names'))
+            self.assertSequenceEqual(subtitles.settings.get_list('names'), chinese_dinner_data.get_list('names'))
 
         with self.subTest("Create project"):
             log_test_name("Create project")
@@ -48,10 +57,10 @@ class ChineseDinnerTests(SubtitleTestCase):
             self.assertIsNotNone(project.subtitles)
 
             self.assertEqual(project.target_language, self.options.target_language)
-            self.assertEqual(project.movie_name, chinese_dinner_data.get('movie_name'))
+            self.assertEqual(project.movie_name, chinese_dinner_data.get_str('movie_name', '** No movie name**'))
 
-            log_info("Movie name: " + project.movie_name)
-            log_info("Target language: " + project.target_language)
+            log_info("Movie name: " + (project.movie_name or "** No movie name**"))
+            log_info("Target language: " + (project.target_language or "** No target language**"))
 
         with self.subTest("Test project settings"):
             log_test_name("Test project settings")
@@ -62,8 +71,8 @@ class ChineseDinnerTests(SubtitleTestCase):
             self.assertEqual(project_settings.get('names'), chinese_dinner_data.get('names'))
             self.assertEqual(project_settings.get('target_language'), self.options.target_language)
 
-            log_info("Description: " + project_settings.get('description'))
-            log_info("Names: " + ", ".join(project_settings.get('names')))
+            log_info("Description: " + (project_settings.get_str('description') or "** No description**"))
+            log_info("Names: " + ", ".join(project_settings.get_list('names')))
 
     def test_SubtitleBatches(self):
         """
@@ -87,7 +96,7 @@ class ChineseDinnerTests(SubtitleTestCase):
 
         log_info("Line count: " + str(subtitles.linecount))
         log_info("Scene count: " + str(subtitles.scenecount))
-        log_info("Scene batches", [scene.size for scene in subtitles.scenes])
+        log_info("Scene batches" + ", ".join([str(scene.size) for scene in subtitles.scenes]))
         log_info("Scene line counts: " + ", ".join([str(scene.linecount) for scene in subtitles.scenes]))
 
         self.assertEqual(subtitles.scenecount, scene_count)
@@ -100,12 +109,22 @@ class ChineseDinnerTests(SubtitleTestCase):
             log_input_expected_result(f"Scene {scene.number} lines", scene_lengths[i], scene.linecount)
             self.assertEqual(scene_lengths[i], scene.linecount)
 
+            if not scene.originals or len(scene.originals) == 0:
+                self.fail(f"Scene {scene_number} has no batches")
+                continue
+
             first_line = scene.originals[0]
             log_input_expected_result(f"First line", first_lines[i], first_line.text)
             self.assertEqual(first_lines[i], first_line.text)
 
         for line_number, scene_number, batch_number in batch_containing_line:
             batch = subtitles.GetBatchContainingLine(line_number)
+
+            self.assertIsNotNone(batch)
+            if not batch:
+                self.fail(f"Failed to get batch containing line {line_number}")
+                continue
+
             log_input_expected_result(line_number, (scene_number, batch_number), (batch.scene, batch.number))
             self.assertEqual(scene_number, batch.scene)
             self.assertEqual(batch_number, batch.number)
@@ -123,8 +142,8 @@ class ChineseDinnerTests(SubtitleTestCase):
                 self.assertEqual(scene_4_context.get('batch'), "Batch 1")
                 self.assertEqual(scene_4_context.get('movie_name'), chinese_dinner_data.get('movie_name'))
                 self.assertEqual(scene_4_context.get('description'), chinese_dinner_data.get('description'))
-                self.assertSequenceEqual(scene_4_context.get('names'), chinese_dinner_data.get('names'))
-                self.assertSequenceEqual(scene_4_context.get('history'), [
+                self.assertSequenceEqual(scene_4_context.get('names', []), chinese_dinner_data.get('names', [])) # type: ignore
+                self.assertSequenceEqual(scene_4_context.get('history', []), [
                     "scene 1: Summary of scene 1",
                     "scene 2: Summary of scene 2",
                     "scene 3: Summary of scene 3"

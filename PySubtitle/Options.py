@@ -39,7 +39,7 @@ def env_str(key : str, default : str|None = None) -> str|None:
     value = os.getenv(key, default)
     return str(value) if value is not None else None
 
-default_options : dict[str, SettingType] = {
+default_settings : dict[str, SettingType] = {
     'version': __version__,
     'provider': env_str('PROVIDER', None),
     'provider_settings': SettingsType({}),
@@ -93,36 +93,27 @@ def serialize(value : Any) -> Any:
     return value.serialize() if hasattr(value, 'serialize') else value
 
 class Options(SettingsType):
-    def __init__(self, options : SettingsType|Mapping[str, SettingType]|None = None, **kwargs : SettingType):
+    def __init__(self, settings : SettingsType|Mapping[str, SettingType]|None = None, **kwargs : SettingType):
         """ Initialise the Options object with default options and any provided options. """
         super().__init__()
-        self.update(deepcopy(default_options))
+        self.update(deepcopy(default_settings))
 
         # Convert plain dict to SettingsType for type safety
-        options = SettingsType(options)
+        settings = SettingsType(settings)
 
-        # Ensure provider_settings is a SettingsType
-        options_provider_settings = options.get('provider_settings', SettingsType())
-        if not isinstance(options_provider_settings, SettingsType):
-            if isinstance(options_provider_settings, dict):
-                options['provider_settings'] = SettingsType(options_provider_settings)
-            else:
-                logging.error(_("Provider settings type is wrong, settings will be reset"))
-                options_provider_settings = SettingsType()
-
-        if options:
+        if settings:
             # Remove None values from options and merge with defaults
-            filtered_options = {k: deepcopy(v) for k, v in options.items() if v is not None}
-            self.update(filtered_options)
+            filtered_settings = {k: deepcopy(v) for k, v in settings.items() if v is not None}
+            self.update(filtered_settings)
 
         # Apply any explicit parameters
         self.update(kwargs)
 
-    def add(self, option : str, value : Any) -> None:
-        self[option] = value
+    def add(self, setting : str, value : Any) -> None:
+        self[setting] = value
 
-    def set(self, option : str, value : Any) -> None:
-        self[option] = value
+    def set(self, setting : str, value : Any) -> None:
+        self[setting] = value
 
     def update(self, other=(), /, **kwds) -> None:
         # Match dict.update signature: update([other,] **kwds)
@@ -186,7 +177,7 @@ class Options(SettingsType):
 
     @property
     def target_language(self) -> str:
-        return self.get_str('target_language') or str(default_options['target_language'])
+        return self.get_str('target_language') or str(default_settings['target_language'])
 
     def GetProviderSettings(self, provider : str) -> SettingsType:
         """ Get the settings for a specific provider """
@@ -203,7 +194,7 @@ class Options(SettingsType):
         """
         Get a copy of the settings dictionary with only the default keys included
         """
-        settings = SettingsType({ key: deepcopy(super().get(key)) for key in self.keys() & default_options.keys() })
+        settings = SettingsType({ key: deepcopy(super().get(key)) for key in self.keys() & default_settings.keys() })
         return settings
 
     def LoadSettings(self) -> bool:
@@ -221,12 +212,12 @@ class Options(SettingsType):
                 return False
 
             if not self:
-                self.update(deepcopy(default_options))
+                self.update(deepcopy(default_settings))
 
             self.update(settings)
 
             saved_version : str = str(settings.get('version'))
-            current_version : str = str(default_options['version'])
+            current_version : str = str(default_settings['version'])
             if VersionNumberLessThan(saved_version, current_version):
                 self._update_version()
 
@@ -247,12 +238,12 @@ class Options(SettingsType):
             if not settings:
                 return False
 
-            save_dict = { key : value for key, value in settings.items() if value != default_options.get(key) }
+            save_dict = { key : value for key, value in settings.items() if value != default_settings.get(key) }
 
             if save_dict:
                 os.makedirs(config_dir, exist_ok=True)
 
-                save_dict['version'] = str(default_options['version'])
+                save_dict['version'] = str(default_settings['version'])
 
                 with open(settings_path, "w", encoding="utf-8") as settings_file:
                     json.dump(save_dict, settings_file, ensure_ascii=False, indent=4, sort_keys=True, default=serialize)
@@ -363,7 +354,7 @@ class Options(SettingsType):
             self['provider_settings'] = {'OpenAI': {}} if self.get_str('api_key') else {}
             self.MoveSettingsToProvider('OpenAI', ['api_key', 'api_base', 'model', 'free_plan', 'max_instruct_tokens', 'temperature', 'rate_limit'])
 
-        latest_version  : str = str(default_options['version'])
+        latest_version  : str = str(default_settings['version'])
 
         self['version'] = latest_version
 

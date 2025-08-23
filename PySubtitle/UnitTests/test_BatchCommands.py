@@ -3,7 +3,6 @@ from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Helpers.TestCases import CreateTestDataModel, SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
-from PySubtitle.Options import Options
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
@@ -24,6 +23,10 @@ class BatchCommandTests(SubtitleTestCase):
             log_test_name(f"Testing batch command on {data.get('movie_name')}")
 
             datamodel : ProjectDataModel = CreateTestDataModel(data, self.options)
+            if not datamodel or not datamodel.project or not datamodel.project.subtitles:
+                self.fail("Failed to create datamodel for test case")
+                continue
+
             file : SubtitleFile = datamodel.project.subtitles
 
             with self.subTest("BatchSubtitlesCommand"):
@@ -31,6 +34,10 @@ class BatchCommandTests(SubtitleTestCase):
 
 
     def BatchSubtitlesCommandTest(self, file : SubtitleFile, datamodel : ProjectDataModel, test_data : dict):
+        if not datamodel.project or not datamodel.project.subtitles:
+            self.fail("Failed to create datamodel for test case")
+            return
+
         expected_scene_count = test_data['expected_scene_count']
         expected_scene_sizes = test_data['expected_scene_sizes']
         expected_scene_linecounts = test_data['expected_scene_linecounts']
