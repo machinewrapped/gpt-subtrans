@@ -59,12 +59,12 @@ class SubtitleTranslator:
         self.user_prompt : str = settings.BuildUserPrompt()
 
         substitutions_mode = settings.get_str('substitution_mode') or Substitutions.Mode.Auto
-        subtitutions_list = settings.get('substitutions', {})
-        if not isinstance(subtitutions_list, (dict, list, str)):
+        substitutions_list = settings.get('substitutions', {})
+        if not isinstance(substitutions_list, (dict, list, str)):
             logging.warning(_("Invalid substitutions list, must be a dictionary, list or string"))
-            subtitutions_list = {}
+            substitutions_list = {}
 
-        self.substitutions = Substitutions(subtitutions_list, substitutions_mode)
+        self.substitutions = Substitutions(substitutions_list, substitutions_mode)
 
         self.settings : SettingsType = settings.GetSettings()
         self.settings['instructions'] = self.instructions.instructions
