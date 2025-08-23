@@ -86,7 +86,7 @@ class SettingKeyExtractor:
         return self.setting_keys.copy()
     
     def _extract_options_keys(self, entries: dict[tuple[str|None, str], list[tuple[str, int]]]):
-        """Extract setting keys from PySubtitle/Options.py default_options dictionary"""
+        """Extract setting keys from PySubtitle/Options.py default_settings dictionary"""
         options_path = os.path.join(REPO_ROOT, 'PySubtitle', 'Options.py')
         
         try:
@@ -94,7 +94,7 @@ class SettingKeyExtractor:
                 source = f.read()
             tree = ast.parse(source, filename='PySubtitle/Options.py')
             
-            found_default_options = False
+            found_default_settings = False
             for node in ast.walk(tree):
                 # Handle both regular assignment and annotated assignment
                 target_name = None
@@ -107,9 +107,9 @@ class SettingKeyExtractor:
                     target_name = node.target.id
                     value_node = node.value
                 
-                if target_name == 'default_options' and isinstance(value_node, ast.Dict):
-                    found_default_options = True
-                    print(f"Found default_options dictionary with {len(value_node.keys)} keys")
+                if target_name == 'default_settings' and isinstance(value_node, ast.Dict):
+                    found_default_settings = True
+                    print(f"Found default_settings dictionary with {len(value_node.keys)} keys")
                     
                     keys_extracted = 0
                     for key_node in value_node.keys:
@@ -122,13 +122,13 @@ class SettingKeyExtractor:
                     
                     print(f"Extracted {keys_extracted} setting keys from Options.py")
                     if keys_extracted == 0:
-                        raise Exception("Found default_options dictionary but no string keys could be extracted!")
+                        raise Exception("Found default_settings dictionary but no string keys could be extracted!")
                     if keys_extracted < 20:  # We expect at least 20 setting keys
                         raise Exception(f"Only extracted {keys_extracted} setting keys from Options.py - this seems too few! Expected at least 20.")
                     break
             
-            if not found_default_options:
-                raise Exception("Could not find default_options dictionary in Options.py! This will result in missing translations.")
+            if not found_default_settings:
+                raise Exception("Could not find default_settings dictionary in Options.py! This will result in missing translations.")
                             
         except Exception as e:
             raise Exception(f"Could not extract setting keys from Options.py: {e}")

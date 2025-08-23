@@ -370,7 +370,7 @@ def run_extract_strings() -> None:
     try:
         subprocess.check_call([sys.executable, script])
     except subprocess.CalledProcessError as e:
-        print(f"extract_strings.py failed: {e}")
+        raise Exception(f"extract_strings.py failed: {e}")
 
 
 def merge_and_compile(languages: list[str]|None = None):
