@@ -51,13 +51,13 @@ class SettingsType(dict[str, SettingType]):
         from .Helpers.Settings import GetListSetting
         return GetListSetting(self, key, default or [])
 
-    def get_dict(self, key: str, default: dict[str, SettingType]|None = None) -> dict[str, SettingType]:
+    def get_dict(self, key: str, default: SettingsType|None = None) -> SettingsType:
         """Get a dict setting with type safety - returns mutable reference when possible"""
         value = self.get(key, default)
         if value is None:
             if default is not None:
                 return default
-            return {}
+            return SettingsType()
         
         if isinstance(value, SettingsType):
             # Return the actual SettingsType object for mutable access

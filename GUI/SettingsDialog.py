@@ -175,7 +175,7 @@ class SettingsDialog(QDialog):
 
     @property
     def provider_settings(self) -> SettingsType:
-        return SettingsType(self.settings.get_dict('provider_settings'))
+        return self.settings.get_dict('provider_settings')
 
     def accept(self):
         try:
@@ -340,8 +340,10 @@ class SettingsDialog(QDialog):
                 self.provider_cache[provider] = TranslationProvider.create_provider(provider, provider_settings)
             self.translation_provider = self.provider_cache[provider]
             if self.translation_provider:
-                provider_settings = self.provider_settings.get_dict(provider)
-                provider_settings.update(self.translation_provider.settings)
+                # Get the SettingsType for this provider and update it
+                provider_settings_dict = self.provider_settings[provider]
+                if isinstance(provider_settings_dict, SettingsType):
+                    provider_settings_dict.update(self.translation_provider.settings)
 
     def _add_provider_options(self, section_name : str, layout : QFormLayout):
         """
