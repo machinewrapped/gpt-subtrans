@@ -3,9 +3,8 @@ import logging
 import os
 import httpx
 
-from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import SettingsType
+from PySubtitle.Options import SettingsType, env_float, env_int
 from PySubtitle.Providers.Custom.DeepSeekClient import DeepSeekClient
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
@@ -29,9 +28,9 @@ class DeepSeekProvider(TranslationProvider):
             "api_key": settings.get_str('api_key', os.getenv('DEEPSEEK_API_KEY')),
             "api_base": settings.get_str('api_base', os.getenv('DEEPSEEK_API_BASE', "https://api.deepseek.com")),
             "model": settings.get_str('model', os.getenv('DEEPSEEK_MODEL', "deepseek-chat")),
-            'max_tokens': settings.get_int('max_tokens', int(os.getenv('DEEPSEEK_MAX_TOKENS', '8192'))),
-            'temperature': settings.get_float('temperature', GetEnvFloat('DEEPSEEK_TEMPERATURE', 1.3)),
-            'rate_limit': settings.get_float('rate_limit', GetEnvFloat('DEEPSEEK_RATE_LIMIT')),
+            'max_tokens': settings.get_int('max_tokens', env_int('DEEPSEEK_MAX_TOKENS', 8192)),
+            'temperature': settings.get_float('temperature', env_float('DEEPSEEK_TEMPERATURE', 1.3)),
+            'rate_limit': settings.get_float('rate_limit', env_float('DEEPSEEK_RATE_LIMIT')),
             'reuse_client': settings.get_bool('reuse_client', False),
             'endpoint': settings.get_str('endpoint', '/v1/chat/completions'),
         }))

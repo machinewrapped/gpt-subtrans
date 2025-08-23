@@ -2,9 +2,8 @@
 import os
 from copy import deepcopy
 
-from PySubtitle.Helpers import GetEnvFloat, GetEnvInteger, GetEnvBool
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import MULTILINE_OPTION, SettingsType
+from PySubtitle.Options import MULTILINE_OPTION, SettingsType, env_bool, env_float, env_int
 from PySubtitle.Providers.Custom.CustomClient import CustomClient
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
@@ -32,16 +31,16 @@ class Provider_CustomServer(TranslationProvider):
         super().__init__(self.name, SettingsType({
             'server_address': settings.get_str('server_address', os.getenv('CUSTOM_SERVER_ADDRESS', "http://localhost:1234")),
             'endpoint': settings.get_str('endpoint', os.getenv('CUSTOM_ENDPOINT', "/v1/chat/completions")),
-            'supports_conversation': settings.get_bool('supports_conversation', GetEnvBool('CUSTOM_SUPPORTS_CONVERSATION', True)),
-            'supports_system_messages': settings.get_bool('supports_system_messages', GetEnvBool('CUSTOM_SUPPORTS_SYSTEM_MESSAGES', True)),
+            'supports_conversation': settings.get_bool('supports_conversation', env_bool('CUSTOM_SUPPORTS_CONVERSATION', True)),
+            'supports_system_messages': settings.get_bool('supports_system_messages', env_bool('CUSTOM_SUPPORTS_SYSTEM_MESSAGES', True)),
             'prompt_template': settings.get_str('prompt_template', os.getenv('CUSTOM_PROMPT_TEMPLATE', default_prompt_template)),
-            'temperature': settings.get_float('temperature', GetEnvFloat('CUSTOM_TEMPERATURE', 0.0)),
-            'max_tokens': settings.get_int('max_tokens', GetEnvInteger('CUSTOM_MAX_TOKENS', 0)),
-            'max_completion_tokens': settings.get_int('max_completion_tokens', GetEnvInteger('CUSTOM_MAX_COMPLETION_TOKENS', 0)),
-            'timeout': settings.get_int('timeout', GetEnvInteger('CUSTOM_TIMEOUT', 300)),
+            'temperature': settings.get_float('temperature', env_float('CUSTOM_TEMPERATURE', 0.0)),
+            'max_tokens': settings.get_int('max_tokens', env_int('CUSTOM_MAX_TOKENS', 0)),
+            'max_completion_tokens': settings.get_int('max_completion_tokens', env_int('CUSTOM_MAX_COMPLETION_TOKENS', 0)),
+            'timeout': settings.get_int('timeout', env_int('CUSTOM_TIMEOUT', 300)),
             "api_key": settings.get_str('api_key', os.getenv('CUSTOM_API_KEY')),
             "model": settings.get_str('model', os.getenv('CUSTOM_MODEL')),
-            'supports_parallel_threads': settings.get_bool('supports_parallel_threads', GetEnvBool('CUSTOM_SUPPORTS_PARALLEL_THREADS', False))
+            'supports_parallel_threads': settings.get_bool('supports_parallel_threads', env_bool('CUSTOM_SUPPORTS_PARALLEL_THREADS', False))
             }))
 
         #TODO: Add additional parameters option

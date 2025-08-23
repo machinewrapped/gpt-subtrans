@@ -3,9 +3,8 @@ import logging
 import os
 import httpx
 
-from PySubtitle.Helpers import GetEnvFloat
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import SettingsType
+from PySubtitle.Options import SettingsType, env_float, env_int
 from PySubtitle.Providers.Custom.OpenRouterClient import OpenRouterClient
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 from PySubtitle.TranslationClient import TranslationClient
@@ -34,9 +33,9 @@ class OpenRouterProvider(TranslationProvider):
             'model_family': settings.get_str('model_family', os.getenv('OPENROUTER_MODEL_FAMILY', "Google")),
             'only_translation_models': settings.get_bool('only_translation_models', True),
             "model": settings.get_str('model', os.getenv('OPENROUTER_MODEL', "Gemini 2.5 Flash Lite")),
-            'max_tokens': settings.get_int('max_tokens', int(os.getenv('OPENROUTER_MAX_TOKENS', '0'))),
-            'temperature': settings.get_float('temperature', GetEnvFloat('OPENROUTER_TEMPERATURE', 0.0)),
-            'rate_limit': settings.get_float('rate_limit', GetEnvFloat('OPENROUTER_RATE_LIMIT')),
+            'max_tokens': settings.get_int('max_tokens', env_int('OPENROUTER_MAX_TOKENS', 0)),
+            'temperature': settings.get_float('temperature', env_float('OPENROUTER_TEMPERATURE', 0.0)),
+            'rate_limit': settings.get_float('rate_limit', env_float('OPENROUTER_RATE_LIMIT')),
             'reuse_client': settings.get_bool('reuse_client', True),
         }))
 

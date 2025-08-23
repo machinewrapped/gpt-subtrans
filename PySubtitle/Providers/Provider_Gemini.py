@@ -2,7 +2,7 @@ import importlib.util
 import logging
 import os
 
-from PySubtitle.Options import SettingsType
+from PySubtitle.Options import SettingsType, env_float
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("google"):
@@ -16,7 +16,6 @@ else:
         from google.genai.types import ListModelsConfig
         from google.api_core.exceptions import FailedPrecondition
 
-        from PySubtitle.Helpers import GetEnvFloat
         from PySubtitle.Helpers.Localization import _
         from PySubtitle.Providers.Gemini.GeminiClient import GeminiClient
         from PySubtitle.TranslationClient import TranslationClient
@@ -41,8 +40,8 @@ else:
                 super().__init__(self.name, SettingsType({
                     "api_key": settings.get_str('api_key') or os.getenv('GEMINI_API_KEY'),
                     "model": settings.get_str('model') or os.getenv('GEMINI_MODEL'),
-                    'temperature': settings.get_float('temperature', GetEnvFloat('GEMINI_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get_float('rate_limit', GetEnvFloat('GEMINI_RATE_LIMIT', 60.0))
+                    'temperature': settings.get_float('temperature', env_float('GEMINI_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', env_float('GEMINI_RATE_LIMIT', 60.0))
                 }))
 
                 self.refresh_when_changed = ['api_key', 'model']
