@@ -1,10 +1,10 @@
+from __future__ import annotations
 from copy import deepcopy
+from typing import Any
 
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
-from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, SubtitleTestCase
-from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
-from PySubtitle.Options import Options
+from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
@@ -32,19 +32,24 @@ class MergeLinesCommandTest(SubtitleTestCase):
 
         data = deepcopy(chinese_dinner_data)
 
-        datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options)
+        datamodel = CreateTestDataModelBatched(data, options=self.options)
+        self.assertIsNotNone(datamodel)
+        self.assertIsNotNone(datamodel.project)
+        assert datamodel.project is not None  # Type narrowing for PyLance
+        self.assertIsNotNone(datamodel.project.subtitles)
+        
         subtitles: SubtitleFile = datamodel.project.subtitles
-
-        undo_stack = []
+        undo_stack: list[MergeLinesCommand] = []
 
         for test_case in self.merge_lines_test_cases:
             scene_number, batch_number = test_case['batch_number']
-            lines_to_merge = test_case['lines_to_merge']
-            expected_batch_size = test_case['expected_batch_size']
-            expected_content = test_case['expected_content']
+            lines_to_merge: list[int] = test_case['lines_to_merge']
+            expected_batch_size: int = test_case['expected_batch_size']
+            expected_content: list[dict[str, Any]] = test_case['expected_content']
 
             batch = subtitles.GetBatch(scene_number, batch_number)
-            log_info("Merging lines {lines_to_merge} in batch ({scene_number},{batch_number})")
+            self.assertIsNotNone(batch, f"Batch ({scene_number}, {batch_number}) should exist")
+            assert batch is not None  # Type narrowing for PyLance
 
             self.assertTrue(all([any([line.number == line_number for line in batch.originals]) for line_number in lines_to_merge]))
 
@@ -53,8 +58,11 @@ class MergeLinesCommandTest(SubtitleTestCase):
             self.assertTrue(command.execute())
 
             for line_data in expected_content:
-                line_number = line_data['line']
+                line_number: int = line_data['line']
                 line = batch.GetOriginalLine(line_number)
+                self.assertIsNotNone(line, f"Original line {line_number} should exist after merge")
+                assert line is not None  # Type narrowing for PyLance
+                
                 translated_line = batch.GetTranslatedLine(line_number)
 
                 log_input_expected_result(f"Line {line_number}", (line.srt_start, line.srt_end), (line_data['start'], line_data['end']))
@@ -78,7 +86,11 @@ class MergeLinesCommandTest(SubtitleTestCase):
             self.assertTrue(command.can_undo)
             self.assertTrue(command.undo())
 
-        reference_datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options)
+        reference_datamodel = CreateTestDataModelBatched(data, options=self.options)
+        self.assertIsNotNone(reference_datamodel)
+        self.assertIsNotNone(reference_datamodel.project)
+        assert reference_datamodel.project is not None  # Type narrowing for PyLance
+        self.assertIsNotNone(reference_datamodel.project.subtitles)
 
         self._assert_same_as_reference(subtitles, reference_datamodel.project.subtitles)
 
