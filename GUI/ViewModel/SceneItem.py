@@ -50,7 +50,7 @@ class SceneItem(ViewModelItem):
 
     @property
     def all_translated(self) -> bool:
-        return self.batches and all(b.all_translated for b in self.batches.values())
+        return bool(self.batches and all(b.all_translated for b in self.batches.values()))
 
     @property
     def first_line_number(self) -> int|None:
@@ -70,7 +70,7 @@ class SceneItem(ViewModelItem):
 
     @property
     def has_errors(self) -> bool:
-        return self.batches and any(b.has_errors for b in self.batches.values())
+        return bool(self.batches and any(b.has_errors for b in self.batches.values()))
 
     @property
     def start(self) -> str:

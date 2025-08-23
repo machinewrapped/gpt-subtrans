@@ -34,7 +34,9 @@ class ModelUpdateSection:
         self.additions[key] = item
 
     def remove(self, key: Key) -> None:
-        self.removals.append(key)
+        if any(type(existing_key) != type(key) for existing_key in self.removals):
+            raise ValueError(f"All removal keys must be of the same type: {type(key)}")            
+        self.removals.append(key) # type: ignore[list-item]
 
     @property
     def has_updates(self) -> bool:

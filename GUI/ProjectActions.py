@@ -128,7 +128,7 @@ class ProjectActions(QObject):
         shift_pressed = self._is_shift_pressed()
 
         filters = f"{_('Subtitle files')} (*.srt *.subtrans);;{_('All Files')} (*)"
-        filepath, dummy = QFileDialog.getOpenFileName(parent=self._mainwindow, caption=_("Open File"), dir=initial_path, filter=filters)
+        filepath, dummy = QFileDialog.getOpenFileName(parent=self._mainwindow, caption=_("Open File"), dir=initial_path, filter=filters) # type: ignore[unused-ignore]
 
         if filepath:
             self.loadProject.emit(filepath, shift_pressed)
@@ -151,7 +151,7 @@ class ProjectActions(QObject):
             base_name = os.path.basename(project.projectfile) if project.projectfile else "untitled.subtrans"
             filepath = os.path.join(base_path, base_name)
             filters = f"{_('Subtrans projects')} (*.subtrans);;{_('All Files')} (*)"
-            filepath, dummy = QFileDialog.getSaveFileName(self._mainwindow, _("Save Project File"), filepath, filters)
+            filepath, dummy = QFileDialog.getSaveFileName(self._mainwindow, _("Save Project File"), filepath, filters)  # type: ignore[unused-ignore]
 
         if filepath:
             self.saveProject.emit(filepath)
@@ -289,7 +289,7 @@ class ProjectActions(QObject):
 
         self.ExecuteCommandNow(EditBatchCommand(scene_number, batch_number, update))
 
-    def UpdateLine(self, line_number : int, original_text : str, translated_text : str):
+    def UpdateLine(self, line_number : int, original_text : str|None, translated_text : str|None):
         """
         Update the user-updatable properties of a subtitle batch
         """

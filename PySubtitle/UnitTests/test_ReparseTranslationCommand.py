@@ -36,13 +36,30 @@ class ReparseTranslationsCommandTest(SubtitleTestCase):
 
             # Create a reference data model with translations
             reference_datamodel : ProjectDataModel = CreateTestDataModelBatched(data, options=self.options)
+            reference_project = reference_datamodel.project
+            self.assertIsNotNone(reference_project)
+            if not reference_project or not reference_project.subtitles:
+                return
+
+            self.assertIsNotNone(reference_project.subtitles)
+
+            if not reference_datamodel.project or not reference_datamodel.project.subtitles:
+                raise Exception("No subtitles in reference data model")
+
             reference_subtitles = reference_datamodel.project.subtitles
 
             # Create a test data model with translated lines replaced by a copy of the original lines
             test_data = deepcopy(data)
             test_data['translated'] = test_data['original']
             test_datamodel : ProjectDataModel = CreateTestDataModelBatched(test_data, options=self.options)
-            test_subtitles: SubtitleFile = test_datamodel.project.subtitles
+
+            test_project = test_datamodel.project
+            self.assertIsNotNone(test_project)
+            self.assertIsNotNone(test_project.subtitles if test_project else None)
+            if not test_project or not test_project.subtitles:
+                return
+
+            test_subtitles: SubtitleFile = test_project.subtitles
 
             # Add the translator responses to the test data model
             AddResponsesFromMap(test_subtitles, test_data)

@@ -1,6 +1,6 @@
 import logging
 import os
-import darkdetect
+import darkdetect # type: ignore
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QApplication, QFormLayout)

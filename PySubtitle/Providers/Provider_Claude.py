@@ -2,7 +2,7 @@ import importlib.util
 import logging
 
 from PySubtitle.Helpers.Localization import _
-from PySubtitle.Options import env_int, env_bool
+from PySubtitle.Options import env_float, env_int, env_bool
 from PySubtitle.SettingsType import GuiSettingsType, SettingsType
 
 if not importlib.util.find_spec("anthropic"):
@@ -42,8 +42,8 @@ else:
                     "thinking": settings.get_bool('thinking', False),
                     "max_tokens": settings.get_int('max_tokens') or env_int('CLAUDE_MAX_TOKENS', 4096),
                     "max_thinking_tokens": settings.get_int('max_thinking_tokens') or env_int('CLAUDE_MAX_THINKING_TOKENS', 1024),
-                    'temperature': settings.get_float('temperature', env_bool('CLAUDE_TEMPERATURE', 0.0)),
-                    'rate_limit': settings.get_float('rate_limit', env_bool('CLAUDE_RATE_LIMIT', 10.0)),
+                    'temperature': settings.get_float('temperature', env_float('CLAUDE_TEMPERATURE', 0.0)),
+                    'rate_limit': settings.get_float('rate_limit', env_float('CLAUDE_RATE_LIMIT', 10.0)),
                     'proxy': settings.get_str('proxy') or os.getenv('CLAUDE_PROXY'),
                 }))
 

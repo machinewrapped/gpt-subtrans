@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from PySubtitle.Helpers.Parse import ParseNames
 from PySubtitle.Helpers.TestCases import DummyProvider, PrepareSubtitles, SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 from PySubtitle.SubtitleBatch import SubtitleBatch
@@ -42,8 +43,8 @@ class SubtitleTranslatorTests(SubtitleTestCase):
                 self.assertEqual(originals.scenes[i].linecount, reference.scenes[i].linecount)
 
             translator = SubtitleTranslator(self.options, translation_provider=provider)
-            translator.events.batch_translated += lambda batch: self.validate_batch(batch, original=originals, reference=reference)
-            translator.events.scene_translated += lambda scene: self.validate_scene(scene, original=originals, reference=reference)
+            translator.events.batch_translated += lambda batch: self.validate_batch(batch, original=originals, reference=reference) # type: ignore
+            translator.events.scene_translated += lambda scene: self.validate_scene(scene, original=originals, reference=reference) # type: ignore
 
             translator.TranslateSubtitles(originals)
 
@@ -57,7 +58,9 @@ class SubtitleTranslatorTests(SubtitleTestCase):
 
         self.assertEqual(batch.context.get('movie_name'), original.movie_name)
         self.assertEqual(batch.context.get('description'), original.settings.get('description'))
-        self.assertSequenceEqual(batch.context.get('names'), original.settings.get('names'))
+        batch_names = ParseNames(batch.context.get('names'))
+        original_names = ParseNames(original.settings.get('names'))
+        self.assertSequenceEqual(batch_names, original_names)
 
         reference_batch = reference.GetBatch(batch.scene, batch.number)
 
@@ -112,6 +115,13 @@ class SubtitleTranslatorTests(SubtitleTestCase):
             options.add('postprocess_translation', True)
             translator = SubtitleTranslator(options, translation_provider=provider)
             translator.TranslateSubtitles(originals)
+
+            self.assertIsNotNone(reference.originals)
+            self.assertIsNotNone(originals.originals)
+            self.assertIsNotNone(originals.translated)
+
+            if not reference.originals or not originals.originals or not originals.translated:
+                raise Exception("No subtitles to compare")
 
             differences = sum(1 if reference.originals[i] != originals.translated[i] else 0 for i in range(len(originals.originals)))
             unchanged = sum (1 if reference.originals[i] == originals.translated[i] else 0 for i in range(len(originals.originals)))

@@ -1,7 +1,7 @@
 
 import os
 import sys
-import appdirs
+import appdirs # type: ignore
 
 old_config_dir : str = appdirs.user_config_dir("GPTSubtrans", "MachineWrapped", roaming=True)
 config_dir : str = appdirs.user_config_dir("LLMSubtrans", "MachineWrapped", roaming=True)

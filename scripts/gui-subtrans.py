@@ -106,13 +106,13 @@ if __name__ == "__main__":
 
     # Initialize localization before creating GUI
     try:
-        initialize_localization(options.get('ui_language'))
+        initialize_localization(options.ui_language)
     except Exception as e:
         logging.warning(f"Localization initialization failed: {e}")
 
     # Launch the GUI
-    app.main_window = MainWindow( options=options, filepath=filepath)
-    app.main_window.show()
+    main_window = MainWindow( options=options, filepath=filepath)
+    main_window.show()
 
     logging.info(_("Logging to {path}").format(path=logger_options.log_path))
 
