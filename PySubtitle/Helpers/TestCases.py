@@ -170,7 +170,7 @@ class DummyProvider(TranslationProvider):
     name = "Dummy Provider"
 
     def __init__(self, data : dict):
-        super().__init__(self.name, SettingsType({
+        super().__init__("Dummy Provider", SettingsType({
             "model": "dummy",
             "data": data,
         }))
@@ -184,7 +184,7 @@ class DummyClaude(TranslationProvider):
     name = "Dummy Claude"
 
     def __init__(self, data : dict):
-        super().__init__(self.name, SettingsType({
+        super().__init__("Dummy Claude", SettingsType({
             "model": "claude-1000-sonnet",
             "data": data,
         }))
@@ -193,7 +193,7 @@ class DummyGPT(TranslationProvider):
     name = "Dummy GPT"
 
     def __init__(self, data : dict):
-        super().__init__(self.name, SettingsType({
+        super().__init__("Dummy GPT", SettingsType({
             "model": "gpt-5-dummy",
             "data": data,
         }))
