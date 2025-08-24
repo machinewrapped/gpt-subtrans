@@ -19,7 +19,16 @@ from PySubtitle.TranslationEvents import TranslationEvents
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
+    """
+    Handles loading, saving and creation of project files for LLM-Subtrans
+    """
     def __init__(self, options : Options):
+        """
+        Initialise an empty project. Can be initialised from a project file or a subtitle file,
+        or manually configured by assigning a SubtitleFile and updating settings if necessary.
+        
+        :param options: Only used to set the project mode
+        """
         self.subtitles : SubtitleFile = SubtitleFile()
         self.events = TranslationEvents()
         self.projectfile : str|None = None

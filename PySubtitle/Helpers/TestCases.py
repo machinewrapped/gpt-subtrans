@@ -126,10 +126,10 @@ def CreateTestDataModel(test_data : dict, options : Options|None = None) -> Proj
     """
     options = options or Options()
     file : SubtitleFile = PrepareSubtitles(test_data, 'original')
-    datamodel = ProjectDataModel(options = options)
-    datamodel.project = SubtitleProject(options)
-    datamodel.project.subtitles = file
-    datamodel.project.UpdateProjectSettings(options)
+    project = SubtitleProject(options)
+    project.subtitles = file
+    project.UpdateProjectSettings(options)
+    datamodel = ProjectDataModel(project, options)
     datamodel.UpdateProviderSettings(SettingsType({"data" : test_data}))
     return datamodel
 
