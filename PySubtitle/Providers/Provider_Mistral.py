@@ -59,7 +59,7 @@ else:
                     })
                 return MistralClient(client_settings)
 
-            def GetOptions(self) -> GuiSettingsType:
+            def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
                 options : GuiSettingsType = {
                     'api_key': (str, _("A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)")),
                     'server_url': (str, _("The base URL to use for requests (default is https://api.mistral.ai)")),

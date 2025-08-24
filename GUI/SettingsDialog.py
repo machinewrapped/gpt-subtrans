@@ -340,11 +340,6 @@ class SettingsDialog(QDialog):
                 self.provider_cache[provider] = TranslationProvider.create_provider(provider, provider_settings)
 
             self.translation_provider = self.provider_cache[provider]
-            if self.translation_provider:
-                # Get the SettingsType for this provider and update it
-                provider_settings_dict = self.provider_settings[provider]
-                if isinstance(provider_settings_dict, SettingsType):
-                    provider_settings_dict.update(self.translation_provider.settings)
 
     def _add_provider_options(self, section_name : str, layout : QFormLayout):
         """
@@ -354,8 +349,8 @@ class SettingsDialog(QDialog):
             logging.warning("Translation provider is not configured")
             return
 
-        provider_options = self.translation_provider.GetOptions()
         provider_settings = self.provider_settings.get_dict(self.translation_provider.name)
+        provider_options = self.translation_provider.GetOptions(provider_settings)
 
         for key, key_type in provider_options.items():
             key_type, tooltip = key_type if isinstance(key_type, tuple) else (key_type, None)

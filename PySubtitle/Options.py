@@ -39,7 +39,7 @@ def env_str(key : str, default : str|None = None) -> str|None:
     value = os.getenv(key, default)
     return str(value) if value is not None else None
 
-default_settings : dict[str, SettingType] = {
+default_settings : SettingsType = SettingsType({
     'version': __version__,
     'provider': env_str('PROVIDER', None),
     'provider_settings': SettingsType({}),
@@ -87,7 +87,7 @@ default_settings : dict[str, SettingType] = {
     'theme' : env_str('THEME', None),
     'ui_language': env_str('UI_LANGUAGE', 'en'),
     'firstrun' : False
-}
+})
 
 def serialize(value : Any) -> Any:
     return value.serialize() if hasattr(value, 'serialize') else value
@@ -96,6 +96,8 @@ class Options(SettingsType):
     def __init__(self, settings : SettingsType|Mapping[str, SettingType]|None = None, **kwargs : SettingType):
         """ Initialise the Options object with default options and any provided options. """
         super().__init__()
+        self.is_project_options : bool = False
+
         self.update(deepcopy(default_settings))
 
         # Convert plain dict to SettingsType for type safety
@@ -168,7 +170,7 @@ class Options(SettingsType):
         if not provider:
             return SettingsType()
 
-        return self.provider_settings.get(provider, SettingsType())
+        return deepcopy(self.provider_settings.get(provider, SettingsType()))
 
     def GetInstructions(self) -> Instructions:
         """ Construct an Instructions object from the settings """
@@ -320,9 +322,9 @@ class Options(SettingsType):
         if provider not in self.provider_settings:
             self.provider_settings[provider] = SettingsType()
 
-        settings_to_move : dict[str, SettingType] = {key: self.pop(key) for key in keys if key in self}
+        settings_to_move : dict[str,SettingType] = {key: self.pop(key) for key in keys if key in self}
         if settings_to_move:
-            provider_settings = self.GetProviderSettings(provider)
+            provider_settings = self.provider_settings[provider]
             # provider_settings is always SettingsType, so we can update it directly
             provider_settings.update(settings_to_move)
 

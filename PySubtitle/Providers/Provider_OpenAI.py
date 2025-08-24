@@ -84,7 +84,7 @@ else:
                 else:
                     return ChatGPTClient(client_settings)
 
-            def GetOptions(self) -> GuiSettingsType:
+            def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
                 options : GuiSettingsType = {
                     'api_key': (str, _("An OpenAI API key is required to use this provider (https://platform.openai.com/account/api-keys)")),
                     'api_base': (str, _("The base URL to use for requests - leave as default unless you know you need something else")),

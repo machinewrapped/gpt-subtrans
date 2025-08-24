@@ -73,7 +73,7 @@ class TranslationProvider:
         """
         raise NotImplementedError
 
-    def GetOptions(self) -> GuiSettingsType:
+    def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
         """
         Returns the configurable options for the provider
         """
@@ -92,7 +92,7 @@ class TranslationProvider:
         if isinstance(settings, Options):
             options = cast(Options, settings)
             options.InitialiseProviderSettings(self.name, self.settings)
-            settings = options.GetProviderSettings(self.name)
+            settings = options.provider_settings[self.name]
 
         # Update the settings
         for k, v in settings.items():

@@ -41,7 +41,7 @@ class OpenRouterProvider(TranslationProvider):
 
         self.refresh_when_changed = ['api_key', 'model', 'endpoint', 'only_translation_models', 'model_family', 'use_default_model']
         self._all_model_list = []
-        self._cached_models = {}
+        self._cached_models : dict[str, dict[str,str]] = {}
         self._model_cache_filtered = False
 
     @property
@@ -102,7 +102,7 @@ class OpenRouterProvider(TranslationProvider):
         
         return OpenRouterClient(client_settings)
 
-    def GetOptions(self) -> GuiSettingsType:
+    def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
         """
         Returns a dictionary of options for the OpenRouter provider
         """
@@ -114,7 +114,7 @@ class OpenRouterProvider(TranslationProvider):
         if not self.api_key:
             return options
 
-        if not self.use_default_model:
+        if not settings.get_bool('use_default_model'):
             # Present model hierarchy if not using default model
             options['only_translation_models'] = (bool, _( "Only show models from the translation category"))
 
@@ -127,13 +127,12 @@ class OpenRouterProvider(TranslationProvider):
                 })
                 
                 # Add model selector if family is chosen
-                family_models = self.available_models
-                if family_models:
-                    options['model'] = (family_models, _( "AI model to use as the translator"))
-
-                    if self.selected_model not in family_models:
-                        # Default to first model if current is not available
-                        self.settings['model'] = family_models[0]
+                model_family : str|None = settings.get_str('model_family') or self.model_family
+                if model_family:
+                    family_models = self._cached_models.get(model_family)
+                    if family_models:
+                        model_display_names : list[str] = list(family_models.keys())
+                        options['model'] = (model_display_names, _( "AI model to use as the translator"))
 
                 else:
                     options['model'] = ([_("No models available")], _( "Try a different model family or change filter settings"))
@@ -170,7 +169,10 @@ class OpenRouterProvider(TranslationProvider):
             return []
 
         family = self.model_family
-        family_models = self._cached_models.get(family, {})
+        if not family:
+            return []
+
+        family_models : dict[str,str] = self._cached_models.get(family, {})
         
         # Return display names sorted
         return sorted(family_models.keys())

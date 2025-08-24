@@ -86,7 +86,7 @@ class Provider_CustomServer(TranslationProvider):
         else:
             return self.information_invalid
 
-    def GetOptions(self) -> GuiSettingsType:
+    def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
         options : GuiSettingsType = {
             'server_address': (str, _("The address of the server")),
             'endpoint': (str, _("The API function to call on the server")),

@@ -59,7 +59,7 @@ else:
                     })
                 return AzureOpenAIClient(client_settings)
 
-            def GetOptions(self) -> GuiSettingsType:
+            def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
                 options : GuiSettingsType = {
                     'api_key': (str, _("An Azure API key is required")),
                     'api_version': (str, _("An Azure API version is required")),
