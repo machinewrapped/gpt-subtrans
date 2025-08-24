@@ -1,6 +1,3 @@
-from copy import deepcopy
-import unittest
-
 from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Helpers.TestCases import SubtitleTestCase, CreateTestDataModel
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
@@ -301,3 +298,5 @@ class DataModelTests(SubtitleTestCase):
         self.assertEqual(datamodel.project_options.target_language, 'Spanish')
         self.assertIsNotNone(max_threads_no_project)
         self.assertEqual(max_threads_no_project, 6)
+
+        
