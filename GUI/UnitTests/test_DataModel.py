@@ -1,5 +1,6 @@
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.Helpers.TestCases import SubtitleTestCase, CreateTestDataModel
+from GUI.UnitTests.DataModelHelpers import CreateTestDataModel
+from PySubtitle.Helpers.TestCases import SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleFile import SubtitleFile
@@ -299,4 +300,3 @@ class DataModelTests(SubtitleTestCase):
         self.assertIsNotNone(max_threads_no_project)
         self.assertEqual(max_threads_no_project, 6)
 
-        

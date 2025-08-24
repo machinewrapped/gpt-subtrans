@@ -3,7 +3,8 @@ from copy import deepcopy
 from typing import Any
 
 from GUI.Commands.MergeLinesCommand import MergeLinesCommand
-from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, SubtitleTestCase
+from GUI.UnitTests.DataModelHelpers import CreateTestDataModelBatched
+from PySubtitle.Helpers.TestCases import SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data

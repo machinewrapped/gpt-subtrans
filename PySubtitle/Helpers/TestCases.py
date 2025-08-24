@@ -120,38 +120,6 @@ def AddTranslations(subtitles : SubtitleFile, subtitle_data : dict, key : str = 
                 translated = line.translated
                 line.translation = translated.text if translated else None
 
-def CreateTestDataModel(test_data : dict, options : Options|None = None) -> ProjectDataModel:
-    """
-    Creates a ProjectDataModel from test data.
-    """
-    options = options or Options()
-    file : SubtitleFile = PrepareSubtitles(test_data, 'original')
-    project = SubtitleProject(options)
-    project.subtitles = file
-    project.UpdateProjectSettings(options)
-    datamodel = ProjectDataModel(project, options)
-    datamodel.UpdateProviderSettings(SettingsType({"data" : test_data}))
-    return datamodel
-
-def CreateTestDataModelBatched(test_data : dict, options : Options|None = None, translated : bool = True) -> ProjectDataModel:
-    """
-    Creates a SubtitleBatcher from test data.
-    """
-    datamodel : ProjectDataModel = CreateTestDataModel(test_data, options)
-    if not datamodel.project:
-        raise ValueError("Project not created in datamodel")
-
-    options = options or datamodel.project_options
-
-    subtitles : SubtitleFile = datamodel.project.subtitles
-    batcher = SubtitleBatcher(options.GetSettings())
-    subtitles.AutoBatch(batcher)
-
-    if translated and 'translated' in test_data:
-        AddTranslations(subtitles, test_data, 'translated')
-
-    return datamodel
-
 def AddResponsesFromMap(subtitles : SubtitleFile, test_data : dict):
     """
     Add translator responses to the subtitles if test_data has a response map.

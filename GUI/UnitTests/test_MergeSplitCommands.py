@@ -8,7 +8,8 @@ from GUI.Commands.SplitBatchCommand import SplitBatchCommand
 from GUI.Commands.SplitSceneCommand import SplitSceneCommand
 from GUI.ProjectDataModel import ProjectDataModel
 
-from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, SubtitleTestCase
+from GUI.UnitTests.DataModelHelpers import CreateTestDataModelBatched
+from PySubtitle.Helpers.TestCases import SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data

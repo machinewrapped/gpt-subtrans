@@ -1,7 +1,8 @@
 from copy import deepcopy
 
 from GUI.Command import Command
-from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, SubtitleTestCase
+from GUI.UnitTests.DataModelHelpers import CreateTestDataModelBatched
+from PySubtitle.Helpers.TestCases import SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 
 from GUI.Commands.SaveProjectFile import SaveProjectFile

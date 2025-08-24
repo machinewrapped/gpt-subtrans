@@ -1,7 +1,8 @@
 from GUI.Commands.BatchSubtitlesCommand import BatchSubtitlesCommand
 
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.Helpers.TestCases import CreateTestDataModel, SubtitleTestCase
+from GUI.UnitTests.DataModelHelpers import CreateTestDataModel
+from PySubtitle.Helpers.TestCases import SubtitleTestCase
 from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data

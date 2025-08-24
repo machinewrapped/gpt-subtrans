@@ -2,7 +2,8 @@ from copy import deepcopy
 
 from GUI.Commands.ReparseTranslationsCommand import ReparseTranslationsCommand
 from GUI.ProjectDataModel import ProjectDataModel
-from PySubtitle.Helpers.TestCases import CreateTestDataModelBatched, AddResponsesFromMap, SubtitleTestCase
+from GUI.UnitTests.DataModelHelpers import CreateTestDataModelBatched
+from PySubtitle.Helpers.TestCases import SubtitleTestCase, AddResponsesFromMap
 from PySubtitle.Helpers.Tests import log_info, log_input_expected_result, log_test_name
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
