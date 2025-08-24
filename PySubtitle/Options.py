@@ -39,7 +39,7 @@ def env_str(key : str, default : str|None = None) -> str|None:
     value = os.getenv(key, default)
     return str(value) if value is not None else None
 
-default_settings : SettingsType = SettingsType({
+default_settings = {
     'version': __version__,
     'provider': env_str('PROVIDER', None),
     'provider_settings': SettingsType({}),
@@ -87,7 +87,7 @@ default_settings : SettingsType = SettingsType({
     'theme' : env_str('THEME', None),
     'ui_language': env_str('UI_LANGUAGE', 'en'),
     'firstrun' : False
-})
+}
 
 def serialize(value : Any) -> Any:
     return value.serialize() if hasattr(value, 'serialize') else value
