@@ -53,7 +53,7 @@ class DeepSeekProvider(TranslationProvider):
         client_settings.update(settings)
         return DeepSeekClient(client_settings)
 
-    def GetOptions(self) -> GuiSettingsType:
+    def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
         options : GuiSettingsType = {
             'api_key': (str, _("A DeepSeek API key is required to use this provider (https://platform.deepseek.com/api_keys)")),
             'api_base': (str, _("The base URL to use for requests (default is https://api.deepseek.com)")),

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-23 16:21+0000\n"
+"POT-Creation-Date: 2025-08-24 14:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -25,11 +25,11 @@ msgstr ""
 msgid "A Mistral API key is required to use this provider (https://console.mistral.ai/api-keys/)"
 msgstr ""
 
-#: GUI/NewProjectSettings.py:31 PySubtitle/Providers/Provider_DeepSeek.py:66 PySubtitle/Providers/Provider_OpenAI.py:100 PySubtitle/Providers/Provider_OpenRouter.py:132
+#: GUI/NewProjectSettings.py:31 PySubtitle/Providers/Provider_DeepSeek.py:66 PySubtitle/Providers/Provider_OpenAI.py:100 PySubtitle/Providers/Provider_OpenRouter.py:135
 msgid "AI model to use as the translator"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_Azure.py:86 PySubtitle/Providers/Provider_DeepSeek.py:122 PySubtitle/Providers/Provider_Gemini.py:102 PySubtitle/Providers/Provider_Mistral.py:118 PySubtitle/Providers/Provider_OpenAI.py:164 PySubtitle/Providers/Provider_OpenRouter.py:188
+#: PySubtitle/Providers/Provider_Azure.py:86 PySubtitle/Providers/Provider_DeepSeek.py:122 PySubtitle/Providers/Provider_Gemini.py:102 PySubtitle/Providers/Provider_Mistral.py:118 PySubtitle/Providers/Provider_OpenAI.py:164 PySubtitle/Providers/Provider_OpenRouter.py:190
 msgid "API Key is required"
 msgstr ""
 
@@ -129,7 +129,7 @@ msgstr ""
 msgid "Amazon Boto3 SDK is not installed. Bedrock provider will not be available"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:69 PySubtitle/Providers/Provider_Gemini.py:76 PySubtitle/Providers/Provider_Mistral.py:73 PySubtitle/Providers/Provider_OpenAI.py:110 PySubtitle/Providers/Provider_OpenRouter.py:146
+#: PySubtitle/Providers/Provider_DeepSeek.py:69 PySubtitle/Providers/Provider_Gemini.py:76 PySubtitle/Providers/Provider_Mistral.py:73 PySubtitle/Providers/Provider_OpenAI.py:110 PySubtitle/Providers/Provider_OpenRouter.py:145
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
 msgstr ""
 
@@ -253,7 +253,7 @@ msgstr ""
 msgid "Cannot redo the last command"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:169
+#: PySubtitle/Providers/Provider_OpenRouter.py:168
 msgid "Cannot retrieve model list, check API key"
 msgstr ""
 
@@ -273,7 +273,7 @@ msgstr ""
 msgid "Check API key and base URL and try again"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:141
+#: PySubtitle/Providers/Provider_OpenRouter.py:140
 msgid "Check API key and try again"
 msgstr ""
 
@@ -409,7 +409,7 @@ msgstr ""
 msgid "Error executing {type}: {str}"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:96 PySubtitle/Providers/Provider_OpenRouter.py:228
+#: PySubtitle/Providers/Provider_DeepSeek.py:96 PySubtitle/Providers/Provider_OpenRouter.py:230
 msgid "Error fetching models: {status} {text}"
 msgstr ""
 
@@ -417,11 +417,11 @@ msgstr ""
 msgid "Error in {command}: {message}"
 msgstr ""
 
-#: PySubtitle/Options.py:212
+#: PySubtitle/Options.py:214
 msgid "Error loading settings from {}"
 msgstr ""
 
-#: PySubtitle/Options.py:273
+#: PySubtitle/Options.py:275
 msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
 msgstr ""
 
@@ -437,7 +437,7 @@ msgstr ""
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr ""
 
-#: PySubtitle/Options.py:239
+#: PySubtitle/Options.py:241
 msgid "Error saving settings to {}"
 msgstr ""
 
@@ -777,7 +777,7 @@ msgstr ""
 msgid "Max batch size is less than min batch size"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:70 PySubtitle/Providers/Provider_Gemini.py:77 PySubtitle/Providers/Provider_Mistral.py:74 PySubtitle/Providers/Provider_OpenRouter.py:147
+#: PySubtitle/Providers/Provider_DeepSeek.py:70 PySubtitle/Providers/Provider_Gemini.py:77 PySubtitle/Providers/Provider_Mistral.py:74 PySubtitle/Providers/Provider_OpenRouter.py:146
 msgid "Maximum API requests per minute."
 msgstr ""
 
@@ -797,7 +797,7 @@ msgstr ""
 msgid "Maximum length of the context summary to include with each translation batch"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:68 PySubtitle/Providers/Provider_OpenRouter.py:145
+#: PySubtitle/Providers/Provider_DeepSeek.py:68 PySubtitle/Providers/Provider_OpenRouter.py:144
 msgid "Maximum number of output tokens to return in the response."
 msgstr ""
 
@@ -937,7 +937,7 @@ msgstr ""
 msgid "No model specified"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:139
+#: PySubtitle/Providers/Provider_OpenRouter.py:138
 msgid "No models available"
 msgstr ""
 
@@ -1201,7 +1201,7 @@ msgstr ""
 msgid "Provider error: {error}"
 msgstr ""
 
-#: GUI/SettingsDialog.py:425
+#: GUI/SettingsDialog.py:419
 msgid "Provider is not set"
 msgstr ""
 
@@ -1313,7 +1313,7 @@ msgstr ""
 msgid "Retrying in {sleep_time} seconds..."
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:67 PySubtitle/Providers/Provider_OpenRouter.py:148
+#: PySubtitle/Providers/Provider_DeepSeek.py:67 PySubtitle/Providers/Provider_OpenRouter.py:147
 msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
 msgstr ""
 
@@ -1665,7 +1665,7 @@ msgstr ""
 msgid "Truncating batch to remain within max_lines"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:139
+#: PySubtitle/Providers/Provider_OpenRouter.py:138
 msgid "Try a different model family or change filter settings"
 msgstr ""
 
@@ -1685,7 +1685,7 @@ msgstr ""
 msgid "Unable to create translation client"
 msgstr ""
 
-#: GUI/ProjectDataModel.py:131
+#: GUI/ProjectDataModel.py:133
 msgid "Unable to create {provider} provider: {error}"
 msgstr ""
 
@@ -1701,7 +1701,7 @@ msgstr ""
 msgid "Unable to load instructions from {file}: {error}"
 msgstr ""
 
-#: PySubtitle/Options.py:305
+#: PySubtitle/Options.py:307
 msgid "Unable to load instructions from {}: {}"
 msgstr ""
 
@@ -1721,7 +1721,7 @@ msgstr ""
 msgid "Unable to merge selection ({selection})"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:105 PySubtitle/Providers/Provider_OpenRouter.py:264
+#: PySubtitle/Providers/Provider_DeepSeek.py:105 PySubtitle/Providers/Provider_OpenRouter.py:266
 msgid "Unable to parse server response as JSON: {response_text}"
 msgstr ""
 
@@ -1745,7 +1745,7 @@ msgstr ""
 msgid "Unable to retrieve available AI models: {error}"
 msgstr ""
 
-#: PySubtitle/Providers/Provider_DeepSeek.py:109 PySubtitle/Providers/Provider_OpenRouter.py:268
+#: PySubtitle/Providers/Provider_DeepSeek.py:109 PySubtitle/Providers/Provider_OpenRouter.py:270
 msgid "Unable to retrieve available models: {error}"
 msgstr ""
 
@@ -1853,12 +1853,32 @@ msgstr ""
 msgid "Writing project data to {}"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "access_key"
+msgstr ""
+
 #: PySubtitle/Options.py:50
 msgid "add_right_to_left_markers"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "api_base"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0 PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "api_key"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "api_version"
+msgstr ""
+
 #: PySubtitle/Options.py:83
 msgid "autosave"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "aws_region"
 msgstr ""
 
 #: PySubtitle/Options.py:81
@@ -1885,12 +1905,24 @@ msgstr ""
 msgid "default model"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "deployment_name"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0
+msgid "endpoint"
+msgstr ""
+
 #: PySubtitle/Options.py:70
 msgid "filler_words"
 msgstr ""
 
 #: PySubtitle/Options.py:89
 msgid "firstrun"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "free_plan"
 msgstr ""
 
 #: PySubtitle/Options.py:73
@@ -1917,8 +1949,16 @@ msgstr ""
 msgid "max_characters"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "max_completion_tokens"
+msgstr ""
+
 #: PySubtitle/Options.py:54
 msgid "max_context_summaries"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "max_instruct_tokens"
 msgstr ""
 
 #: PySubtitle/Options.py:64
@@ -1945,8 +1985,16 @@ msgstr ""
 msgid "max_summary_length"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "max_thinking_tokens"
+msgstr ""
+
 #: PySubtitle/Options.py:78
 msgid "max_threads"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "max_tokens"
 msgstr ""
 
 #: PySubtitle/Options.py:66
@@ -1969,12 +2017,24 @@ msgstr ""
 msgid "min_split_chars"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0 PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "model"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "model_family"
+msgstr ""
+
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "multithreaded"
 msgstr ""
 
 #: PySubtitle/Options.py:68
 msgid "normalise_dialog_tags"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "only_translation_models"
 msgstr ""
 
 #: PySubtitle/Options.py:59
@@ -1993,12 +2053,28 @@ msgstr ""
 msgid "prompt"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "prompt_template"
+msgstr ""
+
 #: PySubtitle/Options.py:44
 msgid "provider"
 msgstr ""
 
 #: PySubtitle/Options.py:45
 msgid "provider_settings"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "proxy"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0 PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "rate_limit"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "reasoning_effort"
 msgstr ""
 
 #: PySubtitle/Options.py:69
@@ -2009,12 +2085,28 @@ msgstr ""
 msgid "retry_on_error"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "reuse_client"
+msgstr ""
+
 #: PySubtitle/Options.py:61
 msgid "save_preprocessed_subtitles"
 msgstr ""
 
 #: PySubtitle/Options.py:51
 msgid "scene_threshold"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "secret_access_key"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "server_address"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Mistral.py:0
+msgid "server_url"
 msgstr ""
 
 #: GUI/Commands/StartTranslationCommand.py:33
@@ -2029,16 +2121,48 @@ msgstr ""
 msgid "substitution_mode"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_conversation"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_parallel_threads"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_system_messages"
+msgstr ""
+
 #: PySubtitle/Options.py:48
 msgid "target_language"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0 PySubtitle/Providers/Provider_Claude.py:0 PySubtitle/Providers/Provider_Custom.py:0 PySubtitle/Providers/Provider_DeepSeek.py:0 PySubtitle/Providers/Provider_Gemini.py:0 PySubtitle/Providers/Provider_Mistral.py:0 PySubtitle/Providers/Provider_OpenAI.py:0 PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "temperature"
 msgstr ""
 
 #: PySubtitle/Options.py:87
 msgid "theme"
 msgstr ""
 
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "thinking"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "timeout"
+msgstr ""
+
 #: PySubtitle/Options.py:88
 msgid "ui_language"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "use_default_model"
+msgstr ""
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "use_httpx"
 msgstr ""
 
 #: PySubtitle/Options.py:43

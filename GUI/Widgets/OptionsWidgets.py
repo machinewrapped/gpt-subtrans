@@ -17,15 +17,11 @@ class OptionWidget(QWidget):
     def __init__(self, key, initial_value, parent=None, tooltip = None):
         super(OptionWidget, self).__init__(parent)
         self.key = key
-        self.name = self.GenerateName(key)
+        self.name = _(key)
         self.initial_value = initial_value
         if tooltip:
             self.setToolTip(tooltip)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-
-    @staticmethod
-    def GenerateName(key):
-        return _(key)
 
     def GetValue(self):
         raise NotImplementedError

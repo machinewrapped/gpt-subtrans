@@ -62,7 +62,7 @@ else:
                     })
                 return GeminiClient(client_settings)
 
-            def GetOptions(self) -> GuiSettingsType:
+            def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
                 options : GuiSettingsType = {
                     'api_key': (str, _("A Google Gemini API key is required to use this provider (https://makersuite.google.com/app/apikey)"))
                 }

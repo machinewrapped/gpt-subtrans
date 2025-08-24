@@ -72,7 +72,7 @@ else:
                     })
                 return BedrockClient(client_settings)
 
-            def GetOptions(self) -> GuiSettingsType:
+            def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
                 options : GuiSettingsType = {
                     'access_key': (str, _("An AWS access key is required")),
                     'secret_access_key': (str, _("An AWS secret access key is required")),
