@@ -13,6 +13,7 @@ base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(base_path)
 
 import PySubtitle.UnitTests
+import GUI.UnitTests
 from PySubtitle.Helpers.Tests import create_logfile, end_logfile, separator
 
 logging.getLogger().setLevel(logging.DEBUG)
@@ -22,7 +23,7 @@ console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
 
 def run_unit_tests(results_path : str):
     """
-    Run all unit tests in PySubtitle.UnitTests.
+    Run all unit tests in PySubtitle.UnitTests and GUI.UnitTests.
     """
     log_file = create_logfile(results_path, "unit_tests.log")
 
@@ -30,7 +31,13 @@ def run_unit_tests(results_path : str):
     logging.info("Running unit tests at " + datetime.now().strftime("%Y-%m-%d at %H:%M"))
     logging.info(separator)
 
+    # Run PySubtitle unit tests
+    logging.info("Running PySubtitle unit tests...")
     unittest.runner.TextTestRunner(verbosity=2).run(unittest.TestLoader().loadTestsFromModule(PySubtitle.UnitTests))
+
+    # Run GUI unit tests
+    logging.info("Running GUI unit tests...")
+    unittest.runner.TextTestRunner(verbosity=2).run(unittest.TestLoader().loadTestsFromModule(GUI.UnitTests))
 
     logging.info(separator)
     logging.info("Completed unit tests at " + datetime.now().strftime("%Y-%m-%d at %H:%M"))
