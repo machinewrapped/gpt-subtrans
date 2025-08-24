@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import logging
 import os
 import sys
@@ -11,6 +9,8 @@ sys.path.append(base_path)
 
 from PySubtitle.UnitTests import *
 from PySubtitle.Helpers.Tests import create_logfile
+
+from GUI.UnitTests import *
 
 if __name__ == '__main__':
     scripts_directory = os.path.dirname(os.path.abspath(__file__))

@@ -54,7 +54,9 @@ class ChineseDinnerTests(SubtitleTestCase):
 
         with self.subTest("Create project"):
             log_test_name("Create project")
-            project = SubtitleProject(self.options, subtitles=subtitles)
+            project = SubtitleProject(self.options)
+            project.subtitles = subtitles
+            project.UpdateProjectSettings(self.options)
 
             self.assertIsNotNone(project.subtitles)
 
