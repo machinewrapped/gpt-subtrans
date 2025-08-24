@@ -133,7 +133,8 @@ class OpenRouterProvider(TranslationProvider):
                     if family_models:
                         model_display_names : list[str] = list(family_models.keys())
                         options['model'] = (model_display_names, _( "AI model to use as the translator"))
-
+                    else:
+                        options['model'] = ([_("No models available")], _( "Try a different model family or change filter settings"))
                 else:
                     options['model'] = ([_("No models available")], _( "Try a different model family or change filter settings"))
             else:
