@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from copy import deepcopy
 import logging
 
 from PySide6.QtCore import QRecursiveMutex, QMutexLocker
@@ -16,7 +17,8 @@ class ProjectDataModel:
     def __init__(self, project : SubtitleProject|None = None, options : SettingsType|None = None):
         self.project : SubtitleProject|None = project
         self.viewmodel : ProjectViewModel|None = None
-        self.project_options : Options = Options(options)
+        self.project_options : Options = Options(deepcopy(options) if options else None)
+        self.project_options.is_project_options = True
         self.mutex = QRecursiveMutex()
 
         if project:

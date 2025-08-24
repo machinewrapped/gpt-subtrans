@@ -174,8 +174,19 @@ class SettingKeyExtractor:
                             len(child.args) >= 2):
                             
                             settings_arg = child.args[1]
+                            # Handle direct dict literal: {...}
                             if isinstance(settings_arg, ast.Dict):
                                 for key_node in settings_arg.keys:
+                                    if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
+                                        keys.add(key_node.value)
+                            # Handle SettingsType({...}) constructor call
+                            elif (isinstance(settings_arg, ast.Call) and
+                                  isinstance(settings_arg.func, ast.Name) and
+                                  settings_arg.func.id == 'SettingsType' and
+                                  settings_arg.args and
+                                  isinstance(settings_arg.args[0], ast.Dict)):
+                                dict_arg = settings_arg.args[0]
+                                for key_node in dict_arg.keys:
                                     if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str):
                                         keys.add(key_node.value)
                             

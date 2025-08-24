@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-23 16:21+0000\n"
+"POT-Creation-Date: 2025-08-24 14:50+0000\n"
 "PO-Revision-Date: 2025-08-09 21:00+0000\n"
 "Last-Translator: AI Assistant\n"
 "Language-Team: Czech\n"
@@ -29,7 +29,7 @@ msgstr "Pro použití tohoto poskytovatele je vyžadován Mistral API klíč (ht
 
 #: GUI/NewProjectSettings.py:31 PySubtitle/Providers/Provider_DeepSeek.py:66
 #: PySubtitle/Providers/Provider_OpenAI.py:100
-#: PySubtitle/Providers/Provider_OpenRouter.py:132
+#: PySubtitle/Providers/Provider_OpenRouter.py:135
 msgid "AI model to use as the translator"
 msgstr "AI model pro použití jako překladač"
 
@@ -38,7 +38,7 @@ msgstr "AI model pro použití jako překladač"
 #: PySubtitle/Providers/Provider_Gemini.py:102
 #: PySubtitle/Providers/Provider_Mistral.py:118
 #: PySubtitle/Providers/Provider_OpenAI.py:164
-#: PySubtitle/Providers/Provider_OpenRouter.py:188
+#: PySubtitle/Providers/Provider_OpenRouter.py:190
 msgid "API Key is required"
 msgstr "Je vyžadován API klíč"
 
@@ -145,7 +145,7 @@ msgstr "Amazon Boto3 SDK není nainstalováno. Poskytovatel Bedrock nebude k dis
 #: PySubtitle/Providers/Provider_Gemini.py:76
 #: PySubtitle/Providers/Provider_Mistral.py:73
 #: PySubtitle/Providers/Provider_OpenAI.py:110
-#: PySubtitle/Providers/Provider_OpenRouter.py:146
+#: PySubtitle/Providers/Provider_OpenRouter.py:145
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
 msgstr "Míra náhodné odchylky přidaná do překladů. Obecně platí, že žádná je nejlepší"
 
@@ -269,7 +269,7 @@ msgstr "Nelze sloučit nesekvenční prvky"
 msgid "Cannot redo the last command"
 msgstr "Nelze znovu provést poslední příkaz"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:169
+#: PySubtitle/Providers/Provider_OpenRouter.py:168
 msgid "Cannot retrieve model list, check API key"
 msgstr "Nelze načíst seznam modelů, zkontrolujte API klíč"
 
@@ -291,7 +291,7 @@ msgstr "Nelze vrátit zpět poslední příkaz"
 msgid "Check API key and base URL and try again"
 msgstr "Zkontrolujte API klíč a základní URL a zkuste to znovu"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:141
+#: PySubtitle/Providers/Provider_OpenRouter.py:140
 msgid "Check API key and try again"
 msgstr "Zkontrolujte API klíč a zkuste to znovu"
 
@@ -431,7 +431,7 @@ msgid "Error executing {type}: {str}"
 msgstr "Chyba při provádění {type}: {str}"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:96
-#: PySubtitle/Providers/Provider_OpenRouter.py:228
+#: PySubtitle/Providers/Provider_OpenRouter.py:230
 msgid "Error fetching models: {status} {text}"
 msgstr "Chyba při načítání modelů: {status} {text}"
 
@@ -439,11 +439,11 @@ msgstr "Chyba při načítání modelů: {status} {text}"
 msgid "Error in {command}: {message}"
 msgstr "Chyba v {command}: {message}"
 
-#: PySubtitle/Options.py:212
+#: PySubtitle/Options.py:214
 msgid "Error loading settings from {}"
 msgstr "Chyba při načítání nastavení z {}"
 
-#: PySubtitle/Options.py:273
+#: PySubtitle/Options.py:275
 msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
 msgstr "Chyba při migraci nastavení z {} do {}. Můžete soubory zkopírovat ručně a restartovat aplikaci."
 
@@ -459,7 +459,7 @@ msgstr "Chyba při opakování posledního příkazu: {error}"
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr "Chyba při opětovné analýze scény {scene} dávky {batch}: {error}"
 
-#: PySubtitle/Options.py:239
+#: PySubtitle/Options.py:241
 msgid "Error saving settings to {}"
 msgstr "Chyba při ukládání nastavení do {}"
 
@@ -815,7 +815,7 @@ msgstr "Maximální velikost dávky je menší než minimální velikost dávky"
 #: PySubtitle/Providers/Provider_DeepSeek.py:70
 #: PySubtitle/Providers/Provider_Gemini.py:77
 #: PySubtitle/Providers/Provider_Mistral.py:74
-#: PySubtitle/Providers/Provider_OpenRouter.py:147
+#: PySubtitle/Providers/Provider_OpenRouter.py:146
 msgid "Maximum API requests per minute."
 msgstr "Maximální počet požadavků API za minutu."
 
@@ -836,7 +836,7 @@ msgid "Maximum length of the context summary to include with each translation ba
 msgstr "Maximální délka kontextového shrnutí, které se má zahrnout ke každé překladové dávce"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:68
-#: PySubtitle/Providers/Provider_OpenRouter.py:145
+#: PySubtitle/Providers/Provider_OpenRouter.py:144
 msgid "Maximum number of output tokens to return in the response."
 msgstr "Maximální počet výstupních tokenů, které se mají vrátit v odpovědi."
 
@@ -993,7 +993,7 @@ msgstr "Nebyly smazány žádné řádky"
 msgid "No model specified"
 msgstr "Není specifikován žádný model"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:139
+#: PySubtitle/Providers/Provider_OpenRouter.py:138
 msgid "No models available"
 msgstr "Žádné dostupné modely"
 
@@ -1278,7 +1278,7 @@ msgstr "Nastavení poskytovatele"
 msgid "Provider error: {error}"
 msgstr "Chyba poskytovatele: {error}"
 
-#: GUI/SettingsDialog.py:425
+#: GUI/SettingsDialog.py:419
 msgid "Provider is not set"
 msgstr "Poskytovatel není nastaven"
 
@@ -1391,7 +1391,7 @@ msgid "Retrying in {sleep_time} seconds..."
 msgstr "Opakuji za {sleep_time} sekund..."
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:67
-#: PySubtitle/Providers/Provider_OpenRouter.py:148
+#: PySubtitle/Providers/Provider_OpenRouter.py:147
 msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
 msgstr "Znovu použít připojení pro více požadavků (jinak se pro každý naváže nové připojení)"
 
@@ -1749,7 +1749,7 @@ msgstr "Chyba odpovědi překladu: {error}, opakuji za {backoff_time} sekund..."
 msgid "Truncating batch to remain within max_lines"
 msgstr "Dávka se zkracuje, aby zůstala v limitu max_lines"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:139
+#: PySubtitle/Providers/Provider_OpenRouter.py:138
 msgid "Try a different model family or change filter settings"
 msgstr "Vyzkoušejte jinou rodinu modelů nebo změňte nastavení filtru"
 
@@ -1769,7 +1769,7 @@ msgstr "Nelze vytvořit klienta poskytovatele: {error}"
 msgid "Unable to create translation client"
 msgstr "Nelze vytvořit klienta překladu"
 
-#: GUI/ProjectDataModel.py:131
+#: GUI/ProjectDataModel.py:133
 msgid "Unable to create {provider} provider: {error}"
 msgstr "Nelze vytvořit poskytovatele {provider}: {error}"
 
@@ -1785,7 +1785,7 @@ msgstr "Nepodařilo se inicializovat Anthropic SDK. Poskytovatel Claude nebude k
 msgid "Unable to load instructions from {file}: {error}"
 msgstr "Nelze načíst pokyny ze souboru {file}: {error}"
 
-#: PySubtitle/Options.py:305
+#: PySubtitle/Options.py:307
 msgid "Unable to load instructions from {}: {}"
 msgstr "Nelze načíst pokyny z {}: {}"
 
@@ -1806,7 +1806,7 @@ msgid "Unable to merge selection ({selection})"
 msgstr "Nelze sloučit výběr ({selection})"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:105
-#: PySubtitle/Providers/Provider_OpenRouter.py:264
+#: PySubtitle/Providers/Provider_OpenRouter.py:266
 msgid "Unable to parse server response as JSON: {response_text}"
 msgstr "Nelze zpracovat odpověď serveru jako JSON: {response_text}"
 
@@ -1833,7 +1833,7 @@ msgid "Unable to retrieve available AI models: {error}"
 msgstr "Nepodařilo se načíst dostupné modely AI: {error}"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:109
-#: PySubtitle/Providers/Provider_OpenRouter.py:268
+#: PySubtitle/Providers/Provider_OpenRouter.py:270
 msgid "Unable to retrieve available models: {error}"
 msgstr "Nelze načíst dostupné modely: {error}"
 
@@ -1946,13 +1946,42 @@ msgstr "Zda nahrazovat celá slova nebo částečné shody, nebo zvolit automati
 msgid "Writing project data to {}"
 msgstr "Zapisování dat projektu do {}"
 
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "access_key"
+msgstr "Přístupový klíč"
+
 #: PySubtitle/Options.py:50
 msgid "add_right_to_left_markers"
 msgstr "Přidat značky zprava doleva"
 
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "api_base"
+msgstr "Základní API"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "api_key"
+msgstr "API klíč"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "api_version"
+msgstr "Verze API"
+
 #: PySubtitle/Options.py:83
 msgid "autosave"
 msgstr "Automatické ukládání"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "aws_region"
+msgstr "Region AWS"
 
 #: PySubtitle/Options.py:81
 msgid "backoff_time"
@@ -1981,6 +2010,15 @@ msgstr "výchozí"
 msgid "default model"
 msgstr "výchozí model"
 
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "deployment_name"
+msgstr "Název nasazení"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+msgid "endpoint"
+msgstr "Koncový bod"
+
 #: PySubtitle/Options.py:70
 msgid "filler_words"
 msgstr "Výplňková slova"
@@ -1988,6 +2026,10 @@ msgstr "Výplňková slova"
 #: PySubtitle/Options.py:89
 msgid "firstrun"
 msgstr "První spuštění"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "free_plan"
+msgstr "Bezplatný plán"
 
 #: PySubtitle/Options.py:73
 msgid "full_width_punctuation"
@@ -2013,9 +2055,17 @@ msgstr "Maximální velikost dávky"
 msgid "max_characters"
 msgstr "Maximální počet znaků"
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "max_completion_tokens"
+msgstr "Maximální počet tokenů pro dokončení"
+
 #: PySubtitle/Options.py:54
 msgid "max_context_summaries"
 msgstr "Maximální počet shrnutí kontextu"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "max_instruct_tokens"
+msgstr "Maximální počet tokenů pro instrukce"
 
 #: PySubtitle/Options.py:64
 msgid "max_line_duration"
@@ -2041,9 +2091,21 @@ msgstr "Maximální délka jednoho řádku"
 msgid "max_summary_length"
 msgstr "Maximální délka shrnutí"
 
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "max_thinking_tokens"
+msgstr "Maximální počet tokenů pro přemýšlení"
+
 #: PySubtitle/Options.py:78
 msgid "max_threads"
 msgstr "Maximální počet vláken"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "max_tokens"
+msgstr "Maximální počet tokenů"
 
 #: PySubtitle/Options.py:66
 msgid "merge_line_duration"
@@ -2065,6 +2127,21 @@ msgstr "Minimální délka jednoho řádku"
 msgid "min_split_chars"
 msgstr "Minimální počet znaků pro rozdělení"
 
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "model"
+msgstr "Model"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "model_family"
+msgstr "Rodina modelů"
+
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "multithreaded"
 msgstr "Vícevláknové"
@@ -2072,6 +2149,10 @@ msgstr "Vícevláknové"
 #: PySubtitle/Options.py:68
 msgid "normalise_dialog_tags"
 msgstr "Normalizovat značky dialogu"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "only_translation_models"
+msgstr "Pouze překladové modely"
 
 #: PySubtitle/Options.py:59
 msgid "postprocess_translation"
@@ -2089,6 +2170,10 @@ msgstr "Projekt"
 msgid "prompt"
 msgstr "Výzva"
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "prompt_template"
+msgstr "Šablona výzvy"
+
 #: PySubtitle/Options.py:44
 msgid "provider"
 msgstr "Poskytovatel"
@@ -2096,6 +2181,24 @@ msgstr "Poskytovatel"
 #: PySubtitle/Options.py:45
 msgid "provider_settings"
 msgstr "Nastavení poskytovatele"
+
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "proxy"
+msgstr "Proxy"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "rate_limit"
+msgstr "Omezení rychlosti"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "reasoning_effort"
+msgstr "Úsilí pro uvažování"
 
 #: PySubtitle/Options.py:69
 msgid "remove_filler_words"
@@ -2105,6 +2208,11 @@ msgstr "Odstranit výplňková slova"
 msgid "retry_on_error"
 msgstr "Opakovat při chybě"
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "reuse_client"
+msgstr "Znovu použít klienta"
+
 #: PySubtitle/Options.py:61
 msgid "save_preprocessed_subtitles"
 msgstr "Uložit předzpracované titulky"
@@ -2112,6 +2220,19 @@ msgstr "Uložit předzpracované titulky"
 #: PySubtitle/Options.py:51
 msgid "scene_threshold"
 msgstr "Prahová hodnota scény"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "secret_access_key"
+msgstr "Tajný přístupový klíč"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "server_address"
+msgstr "Adresa serveru"
+
+#: PySubtitle/Providers/Provider_Mistral.py:0
+msgid "server_url"
+msgstr "URL serveru"
 
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "single threaded"
@@ -2125,17 +2246,56 @@ msgstr "Zastavit při chybě"
 msgid "substitution_mode"
 msgstr "Režim nahrazování"
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_conversation"
+msgstr "Podporuje konverzaci"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_parallel_threads"
+msgstr "Podporuje paralelní vlákna"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_system_messages"
+msgstr "Podporuje systémové zprávy"
+
 #: PySubtitle/Options.py:48
 msgid "target_language"
 msgstr "Cílový jazyk"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "temperature"
+msgstr "Teplota"
 
 #: PySubtitle/Options.py:87
 msgid "theme"
 msgstr "Motiv"
 
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "thinking"
+msgstr "Přemýšlení"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "timeout"
+msgstr "Časový limit"
+
 #: PySubtitle/Options.py:88
 msgid "ui_language"
 msgstr "Jazyk uživatelského rozhraní"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "use_default_model"
+msgstr "Použít výchozí model"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "use_httpx"
+msgstr "Použít httpx"
 
 #: PySubtitle/Options.py:43
 msgid "version"
@@ -2228,99 +2388,6 @@ msgstr "{} řádků bylo neplatných a nebylo zapsáno do výstupního souboru"
 
 #~ msgid "No model specified for translation"
 #~ msgstr "Není specifikován žádný model pro překlad"
-
-#~ msgid "access_key"
-#~ msgstr "Přístupový klíč"
-
-#~ msgid "api_base"
-#~ msgstr "Základní API"
-
-#~ msgid "api_key"
-#~ msgstr "API klíč"
-
-#~ msgid "api_version"
-#~ msgstr "Verze API"
-
-#~ msgid "aws_region"
-#~ msgstr "Region AWS"
-
-#~ msgid "deployment_name"
-#~ msgstr "Název nasazení"
-
-#~ msgid "endpoint"
-#~ msgstr "Koncový bod"
-
-#~ msgid "free_plan"
-#~ msgstr "Bezplatný plán"
-
-#~ msgid "max_completion_tokens"
-#~ msgstr "Maximální počet tokenů pro dokončení"
-
-#~ msgid "max_instruct_tokens"
-#~ msgstr "Maximální počet tokenů pro instrukce"
-
-#~ msgid "max_thinking_tokens"
-#~ msgstr "Maximální počet tokenů pro přemýšlení"
-
-#~ msgid "max_tokens"
-#~ msgstr "Maximální počet tokenů"
-
-#~ msgid "model"
-#~ msgstr "Model"
-
-#~ msgid "model_family"
-#~ msgstr "Rodina modelů"
-
-#~ msgid "only_translation_models"
-#~ msgstr "Pouze překladové modely"
-
-#~ msgid "prompt_template"
-#~ msgstr "Šablona výzvy"
-
-#~ msgid "proxy"
-#~ msgstr "Proxy"
-
-#~ msgid "rate_limit"
-#~ msgstr "Omezení rychlosti"
-
-#~ msgid "reasoning_effort"
-#~ msgstr "Úsilí pro uvažování"
-
-#~ msgid "reuse_client"
-#~ msgstr "Znovu použít klienta"
-
-#~ msgid "secret_access_key"
-#~ msgstr "Tajný přístupový klíč"
-
-#~ msgid "server_address"
-#~ msgstr "Adresa serveru"
-
-#~ msgid "server_url"
-#~ msgstr "URL serveru"
-
-#~ msgid "supports_conversation"
-#~ msgstr "Podporuje konverzaci"
-
-#~ msgid "supports_parallel_threads"
-#~ msgstr "Podporuje paralelní vlákna"
-
-#~ msgid "supports_system_messages"
-#~ msgstr "Podporuje systémové zprávy"
-
-#~ msgid "temperature"
-#~ msgstr "Teplota"
-
-#~ msgid "thinking"
-#~ msgstr "Přemýšlení"
-
-#~ msgid "timeout"
-#~ msgstr "Časový limit"
-
-#~ msgid "use_default_model"
-#~ msgstr "Použít výchozí model"
-
-#~ msgid "use_httpx"
-#~ msgstr "Použít httpx"
 
 #~ msgid "Invalid SRT line: {line}"
 #~ msgstr "Neplatný řádek SRT: {line}"

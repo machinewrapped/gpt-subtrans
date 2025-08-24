@@ -95,7 +95,7 @@ else:
             def GetInformation(self):
                 return self.information if self.api_key else self.information_noapikey
 
-            def GetOptions(self) -> GuiSettingsType:
+            def GetOptions(self, settings : SettingsType) -> GuiSettingsType:
                 options : GuiSettingsType = {
                     'api_key': (str, _("An Anthropic Claude API key is required to use this provider (https://console.anthropic.com/settings/keys)"))
                     }

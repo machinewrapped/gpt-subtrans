@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LLM-Subtrans\n"
-"POT-Creation-Date: 2025-08-23 16:21+0000\n"
+"POT-Creation-Date: 2025-08-24 14:50+0000\n"
 "PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Spanish <EMAIL@ADDRESS>\n"
@@ -29,7 +29,7 @@ msgstr "Se requiere una clave API de Mistral para usar este proveedor (https://c
 
 #: GUI/NewProjectSettings.py:31 PySubtitle/Providers/Provider_DeepSeek.py:66
 #: PySubtitle/Providers/Provider_OpenAI.py:100
-#: PySubtitle/Providers/Provider_OpenRouter.py:132
+#: PySubtitle/Providers/Provider_OpenRouter.py:135
 msgid "AI model to use as the translator"
 msgstr "Modelo de IA a usar como traductor"
 
@@ -38,7 +38,7 @@ msgstr "Modelo de IA a usar como traductor"
 #: PySubtitle/Providers/Provider_Gemini.py:102
 #: PySubtitle/Providers/Provider_Mistral.py:118
 #: PySubtitle/Providers/Provider_OpenAI.py:164
-#: PySubtitle/Providers/Provider_OpenRouter.py:188
+#: PySubtitle/Providers/Provider_OpenRouter.py:190
 msgid "API Key is required"
 msgstr "Se requiere clave API"
 
@@ -145,7 +145,7 @@ msgstr "El SDK Boto3 de Amazon no está instalado. El proveedor Bedrock no estar
 #: PySubtitle/Providers/Provider_Gemini.py:76
 #: PySubtitle/Providers/Provider_Mistral.py:73
 #: PySubtitle/Providers/Provider_OpenAI.py:110
-#: PySubtitle/Providers/Provider_OpenRouter.py:146
+#: PySubtitle/Providers/Provider_OpenRouter.py:145
 msgid "Amount of random variance to add to translations. Generally speaking, none is best"
 msgstr "Cantidad de variación aleatoria a añadir a las traducciones. En general, lo mejor es ninguna"
 
@@ -269,7 +269,7 @@ msgstr "No se pueden fusionar elementos no secuenciales"
 msgid "Cannot redo the last command"
 msgstr "No se puede rehacer la última acción"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:169
+#: PySubtitle/Providers/Provider_OpenRouter.py:168
 msgid "Cannot retrieve model list, check API key"
 msgstr "No se puede obtener la lista de modelos, compruebe la clave API"
 
@@ -291,7 +291,7 @@ msgstr "No se puede deshacer la última acción"
 msgid "Check API key and base URL and try again"
 msgstr "Comprueba la clave API y la URL base y vuelve a intentarlo"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:141
+#: PySubtitle/Providers/Provider_OpenRouter.py:140
 msgid "Check API key and try again"
 msgstr "Compruebe la clave API y vuelva a intentarlo"
 
@@ -431,7 +431,7 @@ msgid "Error executing {type}: {str}"
 msgstr "Error al ejecutar {type}: {str}"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:96
-#: PySubtitle/Providers/Provider_OpenRouter.py:228
+#: PySubtitle/Providers/Provider_OpenRouter.py:230
 msgid "Error fetching models: {status} {text}"
 msgstr "Error al obtener los modelos: {status} {text}"
 
@@ -439,11 +439,11 @@ msgstr "Error al obtener los modelos: {status} {text}"
 msgid "Error in {command}: {message}"
 msgstr "Error en {command}: {message}"
 
-#: PySubtitle/Options.py:212
+#: PySubtitle/Options.py:214
 msgid "Error loading settings from {}"
 msgstr "Error al cargar la configuración desde {}"
 
-#: PySubtitle/Options.py:273
+#: PySubtitle/Options.py:275
 msgid "Error migrating settings from {} to {}. You can copy the files manually and restart the application."
 msgstr "Error al migrar la configuración de {} a {}. Puede copiar los archivos manualmente y reiniciar la aplicación."
 
@@ -459,7 +459,7 @@ msgstr "Error al rehacer la última acción: {error}"
 msgid "Error reparsing scene {scene} batch {batch}: {error}"
 msgstr "Error al reanalizar la escena {scene} lote {batch}: {error}"
 
-#: PySubtitle/Options.py:239
+#: PySubtitle/Options.py:241
 msgid "Error saving settings to {}"
 msgstr "Error al guardar la configuración en {}"
 
@@ -812,7 +812,7 @@ msgstr "El tamaño máximo de lote es menor que el mínimo"
 #: PySubtitle/Providers/Provider_DeepSeek.py:70
 #: PySubtitle/Providers/Provider_Gemini.py:77
 #: PySubtitle/Providers/Provider_Mistral.py:74
-#: PySubtitle/Providers/Provider_OpenRouter.py:147
+#: PySubtitle/Providers/Provider_OpenRouter.py:146
 msgid "Maximum API requests per minute."
 msgstr "Número máximo de solicitudes API por minuto."
 
@@ -833,7 +833,7 @@ msgid "Maximum length of the context summary to include with each translation ba
 msgstr "Longitud máxima del resumen de contexto que se incluirá con cada lote de traducción"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:68
-#: PySubtitle/Providers/Provider_OpenRouter.py:145
+#: PySubtitle/Providers/Provider_OpenRouter.py:144
 msgid "Maximum number of output tokens to return in the response."
 msgstr "Número máximo de tokens de salida que se devolverán en la respuesta."
 
@@ -990,7 +990,7 @@ msgstr "No se eliminaron líneas"
 msgid "No model specified"
 msgstr "No se especificó ningún modelo"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:139
+#: PySubtitle/Providers/Provider_OpenRouter.py:138
 msgid "No models available"
 msgstr "No hay modelos disponibles"
 
@@ -1275,7 +1275,7 @@ msgstr "Configuración del proveedor"
 msgid "Provider error: {error}"
 msgstr "Error del proveedor: {error}"
 
-#: GUI/SettingsDialog.py:425
+#: GUI/SettingsDialog.py:419
 msgid "Provider is not set"
 msgstr "El proveedor no está configurado"
 
@@ -1388,7 +1388,7 @@ msgid "Retrying in {sleep_time} seconds..."
 msgstr "Reintentando en {sleep_time} segundos..."
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:67
-#: PySubtitle/Providers/Provider_OpenRouter.py:148
+#: PySubtitle/Providers/Provider_OpenRouter.py:147
 msgid "Reuse connection for multiple requests (otherwise a new connection is established for each)"
 msgstr "Reutilizar la conexión para varias solicitudes (de lo contrario, se establece una nueva conexión para cada una)"
 
@@ -1746,7 +1746,7 @@ msgstr "Error en la respuesta de la traducción: {error}, reintentando en {backo
 msgid "Truncating batch to remain within max_lines"
 msgstr "Truncando lote para permanecer dentro de max_lines"
 
-#: PySubtitle/Providers/Provider_OpenRouter.py:139
+#: PySubtitle/Providers/Provider_OpenRouter.py:138
 msgid "Try a different model family or change filter settings"
 msgstr "Pruebe con otra familia de modelos o cambie la configuración del filtro"
 
@@ -1766,7 +1766,7 @@ msgstr "No se puede crear el cliente del proveedor: {error}"
 msgid "Unable to create translation client"
 msgstr "No se puede crear el cliente de traducción"
 
-#: GUI/ProjectDataModel.py:131
+#: GUI/ProjectDataModel.py:133
 msgid "Unable to create {provider} provider: {error}"
 msgstr "No se puede crear el proveedor {provider}: {error}"
 
@@ -1782,7 +1782,7 @@ msgstr "No se pudo inicializar el SDK de Anthropic. El proveedor Claude no estar
 msgid "Unable to load instructions from {file}: {error}"
 msgstr "No se pueden cargar instrucciones desde {file}: {error}"
 
-#: PySubtitle/Options.py:305
+#: PySubtitle/Options.py:307
 msgid "Unable to load instructions from {}: {}"
 msgstr "No se pudieron cargar las instrucciones desde {}: {}"
 
@@ -1803,7 +1803,7 @@ msgid "Unable to merge selection ({selection})"
 msgstr "No se puede combinar la selección ({selection})"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:105
-#: PySubtitle/Providers/Provider_OpenRouter.py:264
+#: PySubtitle/Providers/Provider_OpenRouter.py:266
 msgid "Unable to parse server response as JSON: {response_text}"
 msgstr "No se puede analizar la respuesta del servidor como JSON: {response_text}"
 
@@ -1830,7 +1830,7 @@ msgid "Unable to retrieve available AI models: {error}"
 msgstr "No se pudo obtener la lista de modelos de IA disponibles: {error}"
 
 #: PySubtitle/Providers/Provider_DeepSeek.py:109
-#: PySubtitle/Providers/Provider_OpenRouter.py:268
+#: PySubtitle/Providers/Provider_OpenRouter.py:270
 msgid "Unable to retrieve available models: {error}"
 msgstr "No se pueden obtener modelos disponibles: {error}"
 
@@ -1941,13 +1941,42 @@ msgstr "Si sustituir palabras completas o coincidencias parciales, o elegir auto
 msgid "Writing project data to {}"
 msgstr "Escribiendo datos del proyecto en {}"
 
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "access_key"
+msgstr "Clave De Acceso"
+
 #: PySubtitle/Options.py:50
 msgid "add_right_to_left_markers"
 msgstr "Añadir Marcadores De Derecha A Izquierda"
 
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "api_base"
+msgstr "Base Api"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "api_key"
+msgstr "Clave Api"
+
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "api_version"
+msgstr "Versión Api"
+
 #: PySubtitle/Options.py:83
 msgid "autosave"
 msgstr "Guardado Automático"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "aws_region"
+msgstr "Región Aws"
 
 #: PySubtitle/Options.py:81
 msgid "backoff_time"
@@ -1976,6 +2005,15 @@ msgstr "predeterminado"
 msgid "default model"
 msgstr "modelo predeterminado"
 
+#: PySubtitle/Providers/Provider_Azure.py:0
+msgid "deployment_name"
+msgstr "Nombre Despliegue"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+msgid "endpoint"
+msgstr "Punto Final"
+
 #: PySubtitle/Options.py:70
 msgid "filler_words"
 msgstr "Palabras De Relleno"
@@ -1983,6 +2021,10 @@ msgstr "Palabras De Relleno"
 #: PySubtitle/Options.py:89
 msgid "firstrun"
 msgstr "Primera Ejecución"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "free_plan"
+msgstr "Plan Gratuito"
 
 #: PySubtitle/Options.py:73
 msgid "full_width_punctuation"
@@ -2008,9 +2050,17 @@ msgstr "Tamaño Máximo Lote"
 msgid "max_characters"
 msgstr "Máximo Caracteres"
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "max_completion_tokens"
+msgstr "Máximo Tokens Completados"
+
 #: PySubtitle/Options.py:54
 msgid "max_context_summaries"
 msgstr "Máximo Resúmenes Contexto"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "max_instruct_tokens"
+msgstr "Máximo Tokens Instrucción"
 
 #: PySubtitle/Options.py:64
 msgid "max_line_duration"
@@ -2036,9 +2086,21 @@ msgstr "Longitud Máxima Línea Única"
 msgid "max_summary_length"
 msgstr "Longitud Máxima Resumen"
 
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "max_thinking_tokens"
+msgstr "Máximo Tokens Pensamiento"
+
 #: PySubtitle/Options.py:78
 msgid "max_threads"
 msgstr "Máximo Hilos"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "max_tokens"
+msgstr "Máximo Tokens"
 
 #: PySubtitle/Options.py:66
 msgid "merge_line_duration"
@@ -2060,6 +2122,21 @@ msgstr "Longitud Mínima Línea Única"
 msgid "min_split_chars"
 msgstr "Mínimo Caracteres División"
 
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "model"
+msgstr "Modelo"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "model_family"
+msgstr "Familia de modelos"
+
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "multithreaded"
 msgstr "multihilo"
@@ -2067,6 +2144,10 @@ msgstr "multihilo"
 #: PySubtitle/Options.py:68
 msgid "normalise_dialog_tags"
 msgstr "Normalizar Etiquetas Diálogo"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "only_translation_models"
+msgstr "Solo modelos de traducción"
 
 #: PySubtitle/Options.py:59
 msgid "postprocess_translation"
@@ -2084,6 +2165,10 @@ msgstr "Proyecto"
 msgid "prompt"
 msgstr "Solicitud"
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "prompt_template"
+msgstr "Plantilla Solicitud"
+
 #: PySubtitle/Options.py:44
 msgid "provider"
 msgstr "Proveedor"
@@ -2091,6 +2176,24 @@ msgstr "Proveedor"
 #: PySubtitle/Options.py:45
 msgid "provider_settings"
 msgstr "Configuración Proveedor"
+
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "proxy"
+msgstr "Proxy"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "rate_limit"
+msgstr "Límite Tasa"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "reasoning_effort"
+msgstr "Esfuerzo Razonamiento"
 
 #: PySubtitle/Options.py:69
 msgid "remove_filler_words"
@@ -2100,6 +2203,11 @@ msgstr "Eliminar Palabras De Relleno"
 msgid "retry_on_error"
 msgstr "Reintentar En Error"
 
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "reuse_client"
+msgstr "Reutilizar Cliente"
+
 #: PySubtitle/Options.py:61
 msgid "save_preprocessed_subtitles"
 msgstr "Guardar Subtítulos Preprocesados"
@@ -2107,6 +2215,19 @@ msgstr "Guardar Subtítulos Preprocesados"
 #: PySubtitle/Options.py:51
 msgid "scene_threshold"
 msgstr "Umbral Escena"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+msgid "secret_access_key"
+msgstr "Clave Secreta Acceso"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "server_address"
+msgstr "Dirección Servidor"
+
+#: PySubtitle/Providers/Provider_Mistral.py:0
+msgid "server_url"
+msgstr "Url Servidor"
 
 #: GUI/Commands/StartTranslationCommand.py:33
 msgid "single threaded"
@@ -2120,17 +2241,56 @@ msgstr "Detener En Error"
 msgid "substitution_mode"
 msgstr "Modo Sustitución"
 
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_conversation"
+msgstr "Soporta Conversación"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_parallel_threads"
+msgstr "Soporta Hilos Paralelos"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "supports_system_messages"
+msgstr "Soporta Mensajes Sistema"
+
 #: PySubtitle/Options.py:48
 msgid "target_language"
 msgstr "Idioma Destino"
+
+#: PySubtitle/Providers/Provider_Bedrock.py:0
+#: PySubtitle/Providers/Provider_Claude.py:0
+#: PySubtitle/Providers/Provider_Custom.py:0
+#: PySubtitle/Providers/Provider_DeepSeek.py:0
+#: PySubtitle/Providers/Provider_Gemini.py:0
+#: PySubtitle/Providers/Provider_Mistral.py:0
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "temperature"
+msgstr "Temperatura"
 
 #: PySubtitle/Options.py:87
 msgid "theme"
 msgstr "Tema"
 
+#: PySubtitle/Providers/Provider_Claude.py:0
+msgid "thinking"
+msgstr "Pensando"
+
+#: PySubtitle/Providers/Provider_Custom.py:0
+msgid "timeout"
+msgstr "Tiempo De Espera"
+
 #: PySubtitle/Options.py:88
 msgid "ui_language"
 msgstr "Idioma Interfaz"
+
+#: PySubtitle/Providers/Provider_OpenRouter.py:0
+msgid "use_default_model"
+msgstr "Usar modelo predeterminado"
+
+#: PySubtitle/Providers/Provider_OpenAI.py:0
+msgid "use_httpx"
+msgstr "Usar Httpx"
 
 #: PySubtitle/Options.py:43
 msgid "version"
@@ -2223,99 +2383,6 @@ msgstr "{} líneas no eran válidas y no se escribieron en el archivo de salida"
 
 #~ msgid "No model specified for translation"
 #~ msgstr "No se especificó ningún modelo para la traducción"
-
-#~ msgid "access_key"
-#~ msgstr "Clave De Acceso"
-
-#~ msgid "api_base"
-#~ msgstr "Base Api"
-
-#~ msgid "api_key"
-#~ msgstr "Clave Api"
-
-#~ msgid "api_version"
-#~ msgstr "Versión Api"
-
-#~ msgid "aws_region"
-#~ msgstr "Región Aws"
-
-#~ msgid "deployment_name"
-#~ msgstr "Nombre Despliegue"
-
-#~ msgid "endpoint"
-#~ msgstr "Punto Final"
-
-#~ msgid "free_plan"
-#~ msgstr "Plan Gratuito"
-
-#~ msgid "max_completion_tokens"
-#~ msgstr "Máximo Tokens Completados"
-
-#~ msgid "max_instruct_tokens"
-#~ msgstr "Máximo Tokens Instrucción"
-
-#~ msgid "max_thinking_tokens"
-#~ msgstr "Máximo Tokens Pensamiento"
-
-#~ msgid "max_tokens"
-#~ msgstr "Máximo Tokens"
-
-#~ msgid "model"
-#~ msgstr "Modelo"
-
-#~ msgid "model_family"
-#~ msgstr "Familia de modelos"
-
-#~ msgid "only_translation_models"
-#~ msgstr "Solo modelos de traducción"
-
-#~ msgid "prompt_template"
-#~ msgstr "Plantilla Solicitud"
-
-#~ msgid "proxy"
-#~ msgstr "Proxy"
-
-#~ msgid "rate_limit"
-#~ msgstr "Límite Tasa"
-
-#~ msgid "reasoning_effort"
-#~ msgstr "Esfuerzo Razonamiento"
-
-#~ msgid "reuse_client"
-#~ msgstr "Reutilizar Cliente"
-
-#~ msgid "secret_access_key"
-#~ msgstr "Clave Secreta Acceso"
-
-#~ msgid "server_address"
-#~ msgstr "Dirección Servidor"
-
-#~ msgid "server_url"
-#~ msgstr "Url Servidor"
-
-#~ msgid "supports_conversation"
-#~ msgstr "Soporta Conversación"
-
-#~ msgid "supports_parallel_threads"
-#~ msgstr "Soporta Hilos Paralelos"
-
-#~ msgid "supports_system_messages"
-#~ msgstr "Soporta Mensajes Sistema"
-
-#~ msgid "temperature"
-#~ msgstr "Temperatura"
-
-#~ msgid "thinking"
-#~ msgstr "Pensando"
-
-#~ msgid "timeout"
-#~ msgstr "Tiempo De Espera"
-
-#~ msgid "use_default_model"
-#~ msgstr "Usar modelo predeterminado"
-
-#~ msgid "use_httpx"
-#~ msgstr "Usar Httpx"
 
 #~ msgid "Invalid SRT line: {line}"
 #~ msgstr "Línea SRT no válida: {line}"
