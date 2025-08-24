@@ -7,7 +7,7 @@ from PySubtitle.Helpers.Tests import log_input_expected_result, log_test_name
 from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SubtitleFile import SubtitleFile
 from PySubtitle.SubtitleProject import SubtitleProject
-from PySubtitle.UnitTests.TestData.chinese_dinner import chinese_dinner_data
+from GUI.UnitTests.TestData.chinese_dinner import chinese_dinner_data
 
 class DataModelTests(SubtitleTestCase):
     def test_ProjectOptionsDecoupling(self):
