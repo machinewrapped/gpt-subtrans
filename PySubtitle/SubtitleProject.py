@@ -19,17 +19,14 @@ from PySubtitle.TranslationEvents import TranslationEvents
 default_encoding = os.getenv('DEFAULT_ENCODING', 'utf-8')
 
 class SubtitleProject:
-    def __init__(self, options : Options, subtitles : SubtitleFile|None = None):
-        self.subtitles : SubtitleFile = subtitles or SubtitleFile()
+    def __init__(self, options : Options):
+        self.subtitles : SubtitleFile = SubtitleFile()
         self.events = TranslationEvents()
         self.projectfile : str|None = None
         self.read_project : bool = False
         self.write_project : bool = False
         self.needs_writing : bool = False
         self.lock = threading.RLock()
-
-        if subtitles:
-            self.UpdateProjectSettings(options)
 
         self._update_project_mode(options)
 

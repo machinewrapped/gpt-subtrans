@@ -1,4 +1,5 @@
 from GUI.UnitTests.test_BatchCommands import BatchCommandTests
+from GUI.UnitTests.test_DataModel import DataModelTests
 from GUI.UnitTests.test_MergeSplitCommands import MergeSplitCommandsTests
 from GUI.UnitTests.test_MergeLinesCommand import MergeLinesCommandTest
 from GUI.UnitTests.test_DeleteLinesCommand import DeleteLinesCommandTest

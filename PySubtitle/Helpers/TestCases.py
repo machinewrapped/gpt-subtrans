@@ -25,7 +25,11 @@ class SubtitleTestCase(unittest.TestCase):
 
         options = SettingsType({
             'provider': 'Dummy Provider',
-            'provider_settings': { 'Dummy Provider' : SettingsType() },
+            'provider_settings': { 
+                'Dummy Provider' : SettingsType(),
+                'Dummy Claude' : SettingsType(),
+                'Dummy GPT' : SettingsType()
+                },
             'target_language': 'English',
             'scene_threshold': 60.0,
             'min_batch_size': 10,
@@ -123,7 +127,9 @@ def CreateTestDataModel(test_data : dict, options : Options|None = None) -> Proj
     options = options or Options()
     file : SubtitleFile = PrepareSubtitles(test_data, 'original')
     datamodel = ProjectDataModel(options = options)
-    datamodel.project = SubtitleProject(options, file)
+    datamodel.project = SubtitleProject(options)
+    datamodel.project.subtitles = file
+    datamodel.project.UpdateProjectSettings(options)
     datamodel.UpdateProviderSettings(SettingsType({"data" : test_data}))
     return datamodel
 
@@ -164,7 +170,7 @@ class DummyProvider(TranslationProvider):
     name = "Dummy Provider"
 
     def __init__(self, data : dict):
-        super().__init__("Dummy Provider", SettingsType({
+        super().__init__(self.name, SettingsType({
             "model": "dummy",
             "data": data,
         }))
@@ -173,6 +179,25 @@ class DummyProvider(TranslationProvider):
         client_settings : dict = deepcopy(self.settings)
         client_settings.update(settings)
         return DummyTranslationClient(settings=client_settings)
+
+class DummyClaude(TranslationProvider):
+    name = "Dummy Claude"
+
+    def __init__(self, data : dict):
+        super().__init__(self.name, SettingsType({
+            "model": "claude-1000-sonnet",
+            "data": data,
+        }))
+
+class DummyGPT(TranslationProvider):
+    name = "Dummy GPT"
+
+    def __init__(self, data : dict):
+        super().__init__(self.name, SettingsType({
+            "model": "gpt-5-dummy",
+            "data": data,
+        }))
+
 
 class DummyTranslationClient(TranslationClient):
     def __init__(self, settings : SettingsType):
