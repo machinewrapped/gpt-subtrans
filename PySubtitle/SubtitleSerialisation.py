@@ -126,9 +126,9 @@ def _object_hook(dct):
         elif class_name == classname(SubtitleBatch):
             obj = SubtitleBatch(dct)
             return obj
-        elif class_name == classname(SubtitleLine):
+        elif class_name == classname(SubtitleLine) or class_name == "Subtitle": # TEMP backward compatibility
             return SubtitleLine(dct)
-        elif class_name == classname(Translation):
+        elif class_name == classname(Translation) or class_name == "GPTTranslation":
             content = dct.get('content') or {
                 'text' : dct.get('text'),
                 'finish_reason' : dct.get('finish_reason'),
