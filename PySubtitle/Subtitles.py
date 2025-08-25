@@ -270,6 +270,7 @@ class Subtitles:
                 raise e2
 
         with self.lock:
+            self._renumber_if_needed(lines)
             self.originals = lines
 
     def LoadSubtitlesFromString(self, srt_string: str) -> None:
@@ -281,7 +282,9 @@ class Subtitles:
         
         try:
             with self.lock:
-                self.originals = list(handler.parse_string(srt_string))
+                lines = list(handler.parse_string(srt_string))
+                self._renumber_if_needed(lines)
+                self.originals = lines
 
         except SubtitleParseError as e:
             logging.error(_("Failed to parse SRT string: {}").format(str(e)))
@@ -587,6 +590,15 @@ class Subtitles:
             for batch_number, batch in enumerate(scene.batches, start = 1):
                 batch.scene = scene.number
                 batch.number = batch_number
+
+    def _renumber_if_needed(self, lines : list[SubtitleLine]|None) -> None:
+        """
+        Renumber subtitle lines if any have number 0 (indicating missing/invalid indices)
+        """
+        if lines and any(line.number == 0 for line in lines):
+            logging.warning("Renumbering subtitle lines due to missing indices")
+            for line_number, line in enumerate(lines, start=1):
+                line.number = line_number
 
     def _get_history(self, scene_number: int, batch_number: int, max_lines: int|None = None) -> list[str]:
         """

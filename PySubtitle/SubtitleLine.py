@@ -1,6 +1,7 @@
 from __future__ import annotations
 from copy import deepcopy
 from datetime import timedelta
+import logging
 from os import linesep
 from typing import Any
 import regex
@@ -152,8 +153,8 @@ class SubtitleLine:
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
 
     @number.setter
-    def number(self, value : int|str):
-        self._index = int(value)
+    def number(self, value : int|str|None):
+        self._index = int(value) if value is not None else None
 
     @text.setter
     def text(self, text : str|None):
@@ -215,7 +216,10 @@ class SubtitleLine:
         self.content = match.group('content').strip()
 
     @classmethod
-    def Construct(cls, number : int|str, start : timedelta|str|None, end : timedelta|str|None, text : str, metadata : dict[str,Any]|None = None) -> SubtitleLine:
+    def Construct(cls, number : int|str|None, start : timedelta|str|None, end : timedelta|str|None, text : str, metadata : dict[str,Any]|None = None) -> SubtitleLine:
+        if number is None:
+            logging.warning("Missing line index")
+
         t_start : timedelta|Exception|None = GetTimeDelta(start)
         t_end : timedelta|Exception|None = GetTimeDelta(end)
         if isinstance(t_start, Exception):
