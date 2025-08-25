@@ -212,7 +212,7 @@ class SubtitleLine:
         try:
             self._index = int(match.group('index'))
         except ValueError as e:
-            raise SubtitleError(_(f"Invalid subtitle line index: {match.group('index')}"), error=e)
+            raise SubtitleError(_("Invalid subtitle line index: {}").format(match.group('index')), error=e)
         
         self._start = GetTimeDeltaSafe(match.group('start'))
         self._end = GetTimeDeltaSafe(match.group('end'))
