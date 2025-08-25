@@ -55,7 +55,7 @@ def GetBoolSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key
         elif lower_val == 'false':
             return False
 
-    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to bool")
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} with value {repr(value)} to bool")
 
 
 @overload
@@ -86,10 +86,12 @@ def GetIntSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key:
     if isinstance(value, (int,float)):
         return int(value)
     elif isinstance(value, str):
-        if value.isnumeric():
+        try:
             return int(value)
+        except ValueError:
+            pass
 
-    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to int")
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} with value {repr(value)} to int")
 
 
 @overload
@@ -125,7 +127,7 @@ def GetFloatSetting(settings: SettingsType|Mapping[str, SettingType]|Options, ke
         except ValueError:
             pass
 
-    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} to float")
+    raise SettingsError(f"Cannot convert setting '{key}' of type {type(value).__name__} with value {repr(value)} to float")
 
 @overload
 def GetStrSetting(settings: SettingsType|Mapping[str, SettingType]|Options, key: str) -> str|None: ...
