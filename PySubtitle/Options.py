@@ -29,11 +29,19 @@ def env_bool(key : str, default : bool = False) -> bool:
 
 def env_int(key : str, default : int|None = None) -> int|None:
     value = os.getenv(key, default)
-    return int(value) if value is not None else None
+    if value is None:
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    return int(value)
 
 def env_float(key : str, default : float|None = None) -> float|None:
     value = os.getenv(key, default)
-    return float(value) if value is not None else None
+    if value is None:
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    return float(value)
 
 def env_str(key : str, default : str|None = None) -> str|None:
     value = os.getenv(key, default)

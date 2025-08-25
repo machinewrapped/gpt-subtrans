@@ -1,13 +1,14 @@
 from __future__ import annotations
 from copy import deepcopy
 from datetime import timedelta
+import logging
 from os import linesep
 from typing import Any
 import regex
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Time import GetTimeDelta, GetTimeDeltaSafe, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimedeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, GetTimeDeltaSafe, TimedeltaToSrtTimestamp, TimedeltaToText
 
 # Global regex pattern for SRT parsing (compiled once for performance)
 SRT_PATTERN = regex.compile(
@@ -152,8 +153,8 @@ class SubtitleLine:
         return SubtitleLine.Construct(self.number, self.start, self.end, self.translation)
 
     @number.setter
-    def number(self, value : int|str):
-        self._index = int(value)
+    def number(self, value : int|str|None):
+        self._index = int(value) if value is not None else None
 
     @text.setter
     def text(self, text : str|None):
@@ -208,14 +209,21 @@ class SubtitleLine:
         if not match:
             raise SubtitleError(_("Invalid subtitle line format: {}").format(line_str))
 
-        self._index = int(match.group('index'))
-        # Allow timestamp parsing exceptions to propagate
-        self._start = SrtTimestampToTimedelta(match.group('start'))
-        self._end = SrtTimestampToTimedelta(match.group('end'))
+        try:
+            self._index = int(match.group('index'))
+        except ValueError as e:
+            raise SubtitleError(_("Invalid subtitle line index: {}").format(match.group('index')), error=e)
+        
+        self._start = GetTimeDeltaSafe(match.group('start'))
+        self._end = GetTimeDeltaSafe(match.group('end'))
+            
         self.content = match.group('content').strip()
 
     @classmethod
-    def Construct(cls, number : int|str, start : timedelta|str|None, end : timedelta|str|None, text : str, metadata : dict[str,Any]|None = None) -> SubtitleLine:
+    def Construct(cls, number : int|str|None, start : timedelta|str|None, end : timedelta|str|None, text : str, metadata : dict[str,Any]|None = None) -> SubtitleLine:
+        if number is None:
+            logging.warning("Missing line index")
+
         t_start : timedelta|Exception|None = GetTimeDelta(start)
         t_end : timedelta|Exception|None = GetTimeDelta(end)
         if isinstance(t_start, Exception):

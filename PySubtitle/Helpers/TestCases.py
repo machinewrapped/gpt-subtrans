@@ -4,15 +4,12 @@ from typing import Any
 
 import regex
 
-from GUI.ProjectDataModel import ProjectDataModel
 from PySubtitle.Options import Options, SettingsType
 from PySubtitle.SettingsType import SettingsType
 from PySubtitle.SubtitleBatch import SubtitleBatch
-from PySubtitle.SubtitleBatcher import SubtitleBatcher
 from PySubtitle.SubtitleError import TranslationError
 from PySubtitle.Subtitles import Subtitles
 from PySubtitle.SubtitleLine import SubtitleLine
-from PySubtitle.SubtitleProject import SubtitleProject
 from PySubtitle.SubtitleScene import SubtitleScene
 from PySubtitle.Translation import Translation
 from PySubtitle.TranslationClient import TranslationClient
