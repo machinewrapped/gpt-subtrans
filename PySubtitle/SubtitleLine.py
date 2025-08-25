@@ -209,10 +209,14 @@ class SubtitleLine:
         if not match:
             raise SubtitleError(_("Invalid subtitle line format: {}").format(line_str))
 
-        self._index = int(match.group('index'))
-        # Allow timestamp parsing exceptions to propagate
-        self._start = SrtTimestampToTimedelta(match.group('start'))
-        self._end = SrtTimestampToTimedelta(match.group('end'))
+        try:
+            self._index = int(match.group('index'))
+        except ValueError as e:
+            raise SubtitleError(_(f"Invalid subtitle line index: {match.group('index')}"), error=e)
+        
+        self._start = GetTimeDeltaSafe(match.group('start'))
+        self._end = GetTimeDeltaSafe(match.group('end'))
+            
         self.content = match.group('content').strip()
 
     @classmethod
