@@ -112,7 +112,7 @@ def _object_hook(dct):
     # Reconstruct our custom types from JSON
     if '_class' in dct:
         class_name = dct.pop('_class')
-        if class_name == classname(Subtitles) or class_name == "SubtitleFile":      # Backward compatibility
+        if class_name in {classname(Subtitles), "SubtitleFile"}:      # Backward compatibility
             sourcepath = dct.get('sourcepath')
             outpath = dct.get('outputpath') or dct.get('filename')
             obj = Subtitles(sourcepath, outpath)
