@@ -596,7 +596,7 @@ class Subtitles:
         Renumber subtitle lines if any have number 0 (indicating missing/invalid indices)
         """
         if lines and any(line.number == 0 for line in lines):
-            logging.warning("Renumbering subtitle lines due to missing indices")
+            logging.warning(_("Renumbering subtitle lines due to missing indices"))
             for line_number, line in enumerate(lines, start=1):
                 line.number = line_number
 
