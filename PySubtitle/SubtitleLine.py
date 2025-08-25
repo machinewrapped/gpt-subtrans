@@ -8,7 +8,7 @@ import regex
 
 from PySubtitle.Helpers.Localization import _
 from PySubtitle.SubtitleError import SubtitleError
-from PySubtitle.Helpers.Time import GetTimeDelta, GetTimeDeltaSafe, SrtTimestampToTimedelta, TimedeltaToSrtTimestamp, TimedeltaToText
+from PySubtitle.Helpers.Time import GetTimeDelta, GetTimeDeltaSafe, TimedeltaToSrtTimestamp, TimedeltaToText
 
 # Global regex pattern for SRT parsing (compiled once for performance)
 SRT_PATTERN = regex.compile(
